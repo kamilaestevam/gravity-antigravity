@@ -1,0 +1,35 @@
+// servicos-global/tenant/dashboard/prisma/fragment.prisma
+
+model ConfigDashboard {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String?
+  widgets_layout Json?    // Layout grid state
+  refresh_rate   Int      @default(300000) // Default 5 min polling
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model MetricaSnapshot {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  metric_name   String
+  value         Float
+  unit          String?
+  snapshot_date DateTime @default(now())
+
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  // Extra index heavily used for aggregation
+  @@index([tenant_id, metric_name, snapshot_date])
+}

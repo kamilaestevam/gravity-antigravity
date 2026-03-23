@@ -1,0 +1,52 @@
+// server/index.ts
+// Servidor Express do serviço Gabi AI — porta 8015.
+// Agente Gabi — Onda 3 | 10/13
+
+import 'dotenv/config'
+import express from 'express'
+import { correlationMiddleware } from './middleware/correlation.js'
+import { authMiddleware } from './middleware/auth.js'
+import { errorHandler } from './middleware/error-handler.js'
+
+// Import de rotas (serão criadas a seguir)
+import { healthRouter } from './routes/health.js'
+import { conversasRouter } from './routes/conversas.js'
+import { mensagensRouter } from './routes/mensagens.js'
+import { chatRouter } from './routes/chat.js'
+import { acoesRouter } from './routes/acoes.js'
+
+const app = express()
+const PORT = Number(process.env.PORT ?? 8015)
+
+// ---------------------------------------------------------------------------
+// Middlewares globais
+// ---------------------------------------------------------------------------
+app.use(express.json())
+app.use(correlationMiddleware)
+
+// ---------------------------------------------------------------------------
+// Rotas - Serão descomentadas e registradas posteriormente
+// ---------------------------------------------------------------------------
+app.use(healthRouter)
+
+// Protege rotas subsequentes com o authMiddleware
+app.use(authMiddleware)
+app.use(conversasRouter)
+app.use(mensagensRouter)
+app.use(chatRouter)
+app.use(acoesRouter)
+
+// ---------------------------------------------------------------------------
+// Handler global de erros — deve ser o último middleware
+// ---------------------------------------------------------------------------
+app.use(errorHandler)
+
+// ---------------------------------------------------------------------------
+// Start
+// ---------------------------------------------------------------------------
+app.listen(PORT, () => {
+  console.log(`[GABI_SERVICE] ✅ Rodando na porta ${PORT}`)
+  console.log(`[GABI_SERVICE]    Health: http://localhost:${PORT}/health`)
+})
+
+export default app

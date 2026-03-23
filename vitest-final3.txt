@@ -1,0 +1,53 @@
+﻿
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity[39m
+
+ [33m❯[39m servicos-global/produto/helpdesk/testes/helpdesk.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/middleware/tenant-isolation.test.ts [2m ([22m[2m11 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/middleware/withTenantIsolation.test.ts [2m ([22m[2m17 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-chat.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/circuit-breaker.test.ts [2m ([22m[2m15 tests[22m[2m)[22m[90m 10[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/api-cockpit.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-audit.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-barriers.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/retry.test.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 41[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/crypto.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 156[2mms[22m[39m
+ [33m❯[39m testes/testes-funcionais/servicos-tenant/cronometro.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [33m❯[39m testes/testes-funcionais/servicos-tenant/atividades.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-execute.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m testes/whatsapp.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/servicos-tenant/dashboard.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 42[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/mapeamentos.test.ts [2m ([22m[2m7 tests[22m[2m)[22m[90m 76[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/conexoes.test.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 86[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/configurador/tenants.test.ts [2m ([22m[2m13 tests[22m[2m)[22m[90m 108[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/configurador/access.test.ts [2m ([22m[2m13 tests[22m[2m)[22m[90m 109[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/dashboard.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 45[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/agendamento/reserva.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 64[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/agendamento/agenda.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 64[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/configurador/users.test.ts [2m ([22m[2m16 tests[22m[2m)[22m[90m 137[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/historico.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 133[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/servicos-tenant/email.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 47[2mms[22m[39m
+ [33m❯[39m testes/testes-unitarios/relatorios/relatorios.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/modal-global/ModalGlobal.test.tsx [2m ([22m[2m33 tests[22m[2m)[22m[33m 840[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-permission.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/notificacoes.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [33m❯[39m testes/testes-unitarios/nucleo-global/tabela-global/TabelaGlobal.test.tsx [2m ([22m[2m29 tests[22m [2m|[22m [31m5 failed[39m[2m)[22m[33m 2030[2mms[22m[39m
+[31m   [33m❯[31m testes/testes-unitarios/nucleo-global/tabela-global/TabelaGlobal.test.tsx[2m > [22mTabelaGlobal — exportação[2m > [22mexibe botão CSV quando exportConfig tem csv[39m
+[31m     → Maximum call stack size exceeded[39m
+[31m   [33m❯[31m testes/testes-unitarios/nucleo-global/tabela-global/TabelaGlobal.test.tsx[2m > [22mTabelaGlobal — exportação[2m > [22mcria Blob ao clicar em exportar CSV[39m
+[31m     → Maximum call stack size exceeded[39m
+[31m   [33m❯[31m testes/testes-unitarios/nucleo-global/tabela-global/TabelaGlobal.test.tsx[2m > [22mTabelaGlobal — acessibilidade[2m > [22mtable tem role=region com aria-label[39m
+[31m     → Maximum call stack size exceeded[39m
+[31m   [33m❯[31m testes/testes-unitarios/nucleo-global/tabela-global/TabelaGlobal.test.tsx[2m > [22mTabelaGlobal — acessibilidade[2m > [22mtabela está aria-busy=true quando carregando[39m
+[31m     → Maximum call stack size exceeded[39m
+[31m   [33m❯[31m testes/testes-unitarios/nucleo-global/tabela-global/TabelaGlobal.test.tsx[2m > [22mTabelaGlobal — acessibilidade[2m > [22mcampo de busca tem aria-label correto[39m
+[31m     → Maximum call stack size exceeded[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/shell/useShellStore.test.ts [2m ([22m[2m15 tests[22m[2m)[22m[33m 2754[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/shell/Layout.test.tsx [2m ([22m[2m9 tests[22m[2m)[22m[33m 2683[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/shell/Navigation.test.tsx [2m ([22m[2m17 tests[22m[2m)[22m[33m 2766[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/select/SelectGlobal.test.tsx [2m ([22m[2m44 tests[22m[2m)[22m[33m 2812[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m29 passed[39m[22m[90m (34)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m309 passed[39m[22m[90m (314)[39m
+[2m   Start at [22m 00:21:16
+[2m   Duration [22m 5.44s[2m (transform 5.43s, setup 10.92s, collect 11.28s, tests 15.07s, environment 46.73s, prepare 5.58s)[22m
+

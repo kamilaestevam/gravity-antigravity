@@ -1,0 +1,76 @@
+// servicos-global/tenant/gabi/prisma/fragment.prisma
+// AGENTE GABI — ONDA 3 | 10/13
+//
+// Fragment Prisma para o serviço da Gabi AI (agente autônomo).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// GabiConversation — conversa principal da Gabi com o usuário no tenant
+// ---------------------------------------------------------------------------
+
+model GabiConversation {
+  id         String @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  title      String?
+  
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  messages   GabiMessage[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// GabiMessage — mensagem individual da conversa
+// ---------------------------------------------------------------------------
+
+model GabiMessage {
+  id              String @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String?
+
+  conversation_id String
+  conversation    GabiConversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  role            String   // 'user' | 'assistant' | 'system'
+  content         String   @db.Text
+  attachments     String?  // JSON encodado com links/detalhes de arquivos
+
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([conversation_id])
+}
+
+// ---------------------------------------------------------------------------
+// GabiUsageLog (SnapshotAuditoria) — auditoria obrigatória de toda execução
+// ---------------------------------------------------------------------------
+
+model GabiUsageLog {
+  id                    String @id @default(cuid())
+  tenant_id             String
+  product_id            String?
+  user_id               String?
+
+  action_taken          String
+  conversation_snapshot String  @db.Text // JSON com contexto da conversa obrigatório
+  actor_type            String  @default("gabi") // sempre 'gabi'
+  triggered_by          String  // ID do usuário original
+
+  created_at            DateTime @default(now())
+  
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}

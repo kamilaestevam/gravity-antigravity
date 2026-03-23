@@ -1,0 +1,35 @@
+model Notification {
+  id          String   @id @default(cuid())
+  tenant_id   String
+  product_id  String?  // nullable — applicable when related to a product
+  user_id     String   // Clerk ID or direct email
+  type        String   // mentioned | task-assigned | reminder | next-step | etc.
+  title       String?
+  message     String
+  read        Boolean  @default(false)
+  activity_id String?  // for direct navigation
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, user_id, read])
+  @@index([tenant_id, created_at])
+}
+
+model NotificationPreferences {
+  id           String  @id @default(cuid())
+  tenant_id    String
+  user_id      String  @unique // Clerk ID or direct email
+  email_enabled Boolean @default(true)
+  push_enabled  Boolean @default(true)
+  wa_enabled    Boolean @default(true)
+
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+}

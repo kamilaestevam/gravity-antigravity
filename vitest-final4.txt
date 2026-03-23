@@ -1,0 +1,49 @@
+﻿
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity[39m
+
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/middleware/tenant-isolation.test.ts [2m ([22m[2m11 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/middleware/withTenantIsolation.test.ts [2m ([22m[2m17 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+ [33m❯[39m servicos-global/produto/helpdesk/testes/helpdesk.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m testes/conector-erp/circuit-breaker.test.ts [2m ([22m[2m15 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-audit.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/retry.test.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 50[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-barriers.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-chat.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/api-cockpit.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/crypto.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 158[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-execute.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [33m❯[39m testes/testes-funcionais/servicos-tenant/cronometro.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m testes/whatsapp.test.ts [2m ([22m[2m8 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [33m❯[39m testes/testes-funcionais/servicos-tenant/atividades.test.ts [2m ([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/dashboard.test.ts [2m ([22m[2m6 tests[22m[2m)[22m[90m 48[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/mapeamentos.test.ts [2m ([22m[2m7 tests[22m[2m)[22m[90m 84[2mms[22m[39m
+ [32m✓[39m testes/conector-erp/conexoes.test.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 93[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/servicos-tenant/dashboard.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 58[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/agendamento/reserva.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 56[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/agendamento/agenda.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 79[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/configurador/tenants.test.ts [2m ([22m[2m13 tests[22m[2m)[22m[90m 110[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/historico.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 155[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/configurador/users.test.ts [2m ([22m[2m16 tests[22m[2m)[22m[90m 170[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/configurador/access.test.ts [2m ([22m[2m13 tests[22m[2m)[22m[90m 210[2mms[22m[39m
+ [32m✓[39m testes/testes-funcionais/servicos-tenant/email.test.ts [2m ([22m[2m5 tests[22m[2m)[22m[90m 53[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/relatorios/relatorios.test.ts [2m ([22m[2m4 tests[22m[2m)[22m[90m 63[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/modal-global/ModalGlobal.test.tsx [2m ([22m[2m33 tests[22m[2m)[22m[33m 1005[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/gabi-permission.test.ts [2m ([22m[2m3 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/servicos-tenant/notificacoes.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/tabela-global/TabelaGlobal.test.tsx [2m ([22m[2m29 tests[22m[2m)[22m[33m 2466[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/select/SelectGlobal.test.tsx [2m ([22m[2m44 tests[22m[2m)[22m[33m 3278[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/shell/useShellStore.test.ts [2m ([22m[2m15 tests[22m[2m)[22m[33m 4637[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/shell/Navigation.test.tsx [2m ([22m[2m17 tests[22m[2m)[22m[33m 4398[2mms[22m[39m
+ [32m✓[39m testes/testes-unitarios/nucleo-global/shell/Layout.test.tsx [2m ([22m[2m9 tests[22m[2m)[22m[33m 4495[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Unhandled Errors [27m[22m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 1 unhandled error during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m31 passed[39m[22m[90m (34)[39m
+[2m      Tests [22m [1m[32m319 passed[39m[22m[90m (319)[39m
+[2m     Errors [22m [1m[31m1 error[39m[22m
+[2m   Start at [22m 00:23:23
+[2m   Duration [22m 6.97s[2m (transform 7.77s, setup 12.84s, collect 14.04s, tests 21.74s, environment 44.65s, prepare 5.67s)[22m
+

@@ -1,0 +1,50 @@
+{
+  "name": "gravity",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "nucleo-global/*",
+    "servicos-global/tenant/*",
+    "servicos-global/produto/*",
+    "servicos-global/configurador",
+    "servicos-global/marketplace",
+    "servicos-global/shell",
+    "servicos-global/devops",
+    "produtos/*",
+    "scripts",
+    "testes"
+  ],
+  "scripts": {
+    "dev": "echo 'Use npm run dev dentro do workspace desejado'",
+    "build": "echo 'Use npm run build dentro do workspace desejado'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit",
+    "compose:tenant": "npx ts-node --esm scripts/compose-tenant-schema.ts",
+    "compose:tenant:strict": "npx ts-node --esm scripts/compose-tenant-schema.ts --strict",
+    "prisma:generate:tenant": "npm run compose:tenant && npx prisma generate --schema=servicos-global/tenant/prisma/schema.prisma",
+    "prisma:migrate:tenant": "npm run compose:tenant:strict && npx prisma migrate dev --schema=servicos-global/tenant/prisma/schema.prisma",
+    "prisma:generate:configurador": "npx prisma generate --schema=configurador/prisma/schema.prisma",
+    "prisma:migrate:configurador": "npx prisma migrate dev --schema=configurador/prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^20.0.0",
+    "@types/supertest": "^7.2.0",
+    "eslint": "^9.0.0",
+    "jsdom": "^29.0.1",
+    "playwright": "^1.44.0",
+    "supertest": "^7.2.2",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

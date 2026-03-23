@@ -1,0 +1,66 @@
+model Agenda {
+  id          String   @id @default(uuid())
+  tenant_id   String
+  nome        String
+  descricao   String?
+  tipo        String   // e.g., reuniao, consulta
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  slots       Slot[]
+  config      DisponibilidadeConfig?
+
+  @@index([tenant_id])
+}
+
+model Slot {
+  id          String   @id @default(uuid())
+  tenant_id   String
+  agenda_id   String
+  inicio      DateTime
+  fim         DateTime
+  capacidade  Int      @default(1)
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  agenda      Agenda   @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
+  reservas    Reserva[]
+
+  @@index([tenant_id])
+  @@index([agenda_id])
+}
+
+model Reserva {
+  id          String   @id @default(uuid())
+  tenant_id   String
+  slot_id     String
+  usuario_id  String   // ID do usuário ou contato
+  nome        String?  // Nome se não tiver usuário cadastrado no sistema
+  email       String?  // Email para notificação
+  status      String   @default("confirmado") // confirmado, cancelado, pendente
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  slot        Slot     @relation(fields: [slot_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([slot_id])
+  @@index([usuario_id])
+}
+
+model DisponibilidadeConfig {
+  id             String   @id @default(uuid())
+  tenant_id      String
+  agenda_id      String   @unique
+  horarioInicio  String   // Formato "HH:mm" (e.g., "09:00")
+  horarioFim     String   // Formato "HH:mm" (e.g., "18:00")
+  duracaoSlot    Int      // em minutos
+  intervalo      Int      @default(0) // tempo entre slots em minutos
+  diasSemana     Int[]    // [1,2,3,4,5] (1=Segunda, 5=Sexta)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  agenda         Agenda   @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+}

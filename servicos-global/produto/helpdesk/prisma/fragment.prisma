@@ -1,0 +1,94 @@
+enum HelpdeskTicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum HelpdeskTicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model HelpdeskCategoria {
+  id          String   @id @default(cuid())
+  tenant_id   String
+  product_id  String?
+  name        String
+  description String?
+
+  tickets     HelpdeskTicket[]
+  slas        HelpdeskSLA[]
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+}
+
+model HelpdeskSLA {
+  id                 String   @id @default(cuid())
+  tenant_id          String
+  product_id         String?
+  categoria_id       String
+  categoria          HelpdeskCategoria @relation(fields: [categoria_id], references: [id])
+  priority           HelpdeskTicketPriority
+  
+  response_time_hr   Int
+  resolution_time_hr Int
+
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([categoria_id])
+}
+
+model HelpdeskTicket {
+  id                String   @id @default(cuid())
+  tenant_id         String
+  product_id        String?
+  user_id           String?
+  assigned_to       String?
+
+  categoria_id      String
+  categoria         HelpdeskCategoria @relation(fields: [categoria_id], references: [id])
+
+  title             String
+  description       String
+  status            HelpdeskTicketStatus   @default(OPEN)
+  priority          HelpdeskTicketPriority @default(MEDIUM)
+
+  first_response_at DateTime?
+  resolved_at       DateTime?
+
+  sla_breached      Boolean @default(false)
+
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([categoria_id])
+  @@index([assigned_to])
+}
+
+model HelpdeskRespostaTemplate {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  title      String
+  content    String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+}

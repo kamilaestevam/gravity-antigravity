@@ -1,0 +1,141 @@
+// fragment.prisma — Conector ERP
+// Agente Conector ERP — Onda 3 | 12/13
+// NÃO editar schema.prisma diretamente — apenas este fragment.
+// Composto pelo Coordenador via scripts/compose-tenant-schema.ts
+
+// ---------------------------------------------------------------------------
+// ConexaoERP — credenciais de acesso ao sistema externo, 1 por tenant+produto
+// ---------------------------------------------------------------------------
+model ConexaoERP {
+  id                    String    @id @default(cuid())
+  tenant_id             String
+  product_id            String?
+  user_id               String?
+
+  system_type           String    // SAP | TOTVS | Oracle | custom
+  protocol              String    // odata | hana | rest | jdbc
+  base_url              String
+  username              String
+  credentials_encrypted String    // AES-256-GCM — NUNCA plain text, NUNCA em logs
+  sync_frequency        String    @default("manual")  // manual | hourly | every6h | daily
+  last_synced_at        DateTime?
+  last_tested_at        DateTime?
+  connection_status     String    @default("untested") // untested | ok | failed
+  error_message         String?
+  circuit_breaker_open  Boolean   @default(false)
+  circuit_failures      Int       @default(0)
+  circuit_open_at       DateTime?
+
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  @@unique([tenant_id, product_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// SincronizacaoLog — histórico de cada sincronização
+// ---------------------------------------------------------------------------
+model SincronizacaoLog {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String?
+
+  mode           String             // manual | planilha | erp | auto
+  rows_processed Int      @default(0)
+  rows_success   Int      @default(0)
+  rows_failed    Int      @default(0)
+  error_details  Json?
+  started_at     DateTime @default(now())
+  finished_at    DateTime?
+  status         String   @default("running") // running | success | partial | failed
+  triggered_by   String   // user_id ou "system" ou "gabi"
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// MapeamentoCampo — mapeamento de campos ERP → campos internos Gravity
+// ---------------------------------------------------------------------------
+model MapeamentoCampo {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String?
+
+  conexao_id      String   // referência manual a ConexaoERP.id
+  entidade        String   // ex: "GoodsMovementSet", "PurchaseOrderSet"
+  campo_erp       String   // ex: "MaterialDocumentItem"
+  campo_interno   String   // ex: "item_id"
+  tipo_dados      String   @default("string") // string | number | date | boolean | json
+  transformacao   String?  // ex: "toUpperCase" | "parseDate:DD/MM/YYYY"
+  obrigatorio     Boolean  @default(false)
+  valor_padrao    String?
+
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@unique([tenant_id, conexao_id, entidade, campo_erp])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// ErpQueryLog — log de cada query executada (OData/SQL/REST)
+// ---------------------------------------------------------------------------
+model ErpQueryLog {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String?
+
+  query_type      String             // odata | sql | rest
+  query_text      String
+  rows_returned   Int?
+  latency_ms      Int?
+  status          String             // success | error
+  error_message   String?
+  triggered_by    String             // user_id ou "gabi"
+
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// ErpAlerta — alertas inteligentes (LI vencendo, DI atrasada, etc.)
+// ---------------------------------------------------------------------------
+model ErpAlerta {
+  id           String    @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?
+
+  type         String             // li_expiring | di_delayed | tax_variance | ncm_quota | exchange_rate
+  title        String
+  description  String
+  severity     String    @default("warning") // info | warning | critical
+  entity_id    String?
+  dismissed    Boolean   @default(false)
+  dismissed_at DateTime?
+  dismissed_by String?
+
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}

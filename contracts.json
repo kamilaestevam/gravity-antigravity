@@ -1,0 +1,98 @@
+{
+  "version": "1.0",
+  "services": {
+    "atividades": {
+      "base": "/api/tenant/activities",
+      "endpoints": [
+        { "method": "GET", "path": "/", "description": "Listar atividades" },
+        { "method": "POST", "path": "/", "description": "Criar atividade" },
+        { "method": "PUT", "path": "/:id", "description": "Atualizar atividade" },
+        { "method": "DELETE", "path": "/:id", "description": "Excluir atividade" }
+      ]
+    },
+    "email": {
+      "base": "/api/tenant/email",
+      "endpoints": [
+        { "method": "GET", "path": "/inbox", "description": "Listar emails" },
+        { "method": "POST", "path": "/send", "description": "Enviar email" }
+      ]
+    },
+    "whatsapp": {
+      "base": "/api/tenant/whatsapp",
+      "endpoints": [
+        { "method": "GET", "path": "/messages", "description": "Listar mensagens" },
+        { "method": "POST", "path": "/send", "description": "Enviar mensagem WhatsApp" }
+      ]
+    },
+    "cronometro": {
+      "base": "/api/tenant/cronometro",
+      "endpoints": [
+        { "method": "GET", "path": "/entries", "description": "Listar entradas de tempo" },
+        { "method": "POST", "path": "/start", "description": "Iniciar cronômetro" },
+        { "method": "POST", "path": "/stop", "description": "Parar cronômetro" }
+      ]
+    },
+    "dashboard": {
+      "base": "/api/tenant/dashboard",
+      "endpoints": [
+        { "method": "GET", "path": "/widgets", "description": "Listar widgets" },
+        { "method": "GET", "path": "/metrics", "description": "Métricas consolidadas" }
+      ]
+    },
+    "relatorios": {
+      "base": "/api/tenant/relatorios",
+      "endpoints": [
+        { "method": "GET", "path": "/", "description": "Listar relatórios" },
+        { "method": "POST", "path": "/generate", "description": "Gerar novo relatório" }
+      ]
+    },
+    "historico": {
+      "base": "/api/tenant/historico",
+      "endpoints": [
+        { "method": "GET", "path": "/", "description": "Listar histórico de ações" }
+      ]
+    },
+    "notificacoes": {
+      "base": "/api/tenant/notificacoes",
+      "endpoints": [
+        { "method": "GET", "path": "/", "description": "Listar notificações" },
+        { "method": "POST", "path": "/read", "description": "Marcar como lida" }
+      ]
+    },
+    "agendamento": {
+      "base": "/api/tenant/agendamento",
+      "endpoints": [
+        { "method": "GET", "path": "/events", "description": "Listar agendamentos" },
+        { "method": "POST", "path": "/events", "description": "Criar agendamento" }
+      ]
+    },
+    "gabi": {
+      "base": "/api/tenant/gabi",
+      "endpoints": [
+        { "method": "POST", "path": "/chat", "description": "Enviar mensagem para IA" },
+        { "method": "GET", "path": "/conversations", "description": "Histórico de conversas" }
+      ]
+    },
+    "api-cockpit": {
+      "base": "/api/tenant/cockpit",
+      "endpoints": [
+        { "method": "GET", "path": "/keys", "description": "Listar chaves de API" },
+        { "method": "POST", "path": "/keys", "description": "Gerar nova chave" }
+      ]
+    },
+    "conector-erp": {
+      "base": "/api/tenant/erp",
+      "endpoints": [
+        { "method": "GET", "path": "/status", "description": "Status da integração ERP" },
+        { "method": "POST", "path": "/sync", "description": "Sincronizar dados" }
+      ]
+    },
+    "helpdesk": {
+      "base": "/api/tenant/helpdesk",
+      "endpoints": [
+        { "method": "GET", "path": "/tickets", "description": "Listar tickets" },
+        { "method": "POST", "path": "/tickets", "description": "Abrir ticket" }
+      ]
+    }
+  }
+}

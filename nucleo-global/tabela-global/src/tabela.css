@@ -1,0 +1,369 @@
+/**
+ * @nucleo/tabela-global — CSS
+ * Estilos usando CSS Variables do design system Solid Slate.
+ * Sem cores hardcoded.
+ */
+
+/* ─── Container ────────────────────────────────────────────────────────────── */
+.tg-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--bg-base);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--bg-elevated);
+  overflow: hidden;
+}
+
+/* ─── Toolbar ───────────────────────────────────────────────────────────────── */
+.tg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--bg-elevated);
+  flex-wrap: wrap;
+}
+
+.tg-toolbar-esquerda,
+.tg-toolbar-direita {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Busca ─────────────────────────────────────────────────────────────────── */
+.tg-busca-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tg-busca-icone {
+  position: absolute;
+  left: 0.625rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.tg-busca-input {
+  background: var(--bg-base);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-pill);
+  padding: 0.375rem 0.875rem 0.375rem 2rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  min-width: 220px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.tg-busca-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+.tg-busca-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ─── Botões da toolbar ─────────────────────────────────────────────────────── */
+.tg-btn-filtros--ativo {
+  color: var(--accent);
+}
+
+.tg-selecao-contador {
+  color: var(--text-secondary);
+}
+
+.tg-export-grupo {
+  display: flex;
+  gap: 0.375rem;
+}
+
+/* ─── Painel de filtros ─────────────────────────────────────────────────────── */
+.tg-filtros-painel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-body-dark);
+  border-bottom: 1px solid var(--bg-elevated);
+  align-items: flex-end;
+}
+
+.tg-filtro-campo {
+  min-width: 160px;
+  flex: 1 1 160px;
+  max-width: 260px;
+}
+
+.tg-filtro-input,
+.tg-filtro-select {
+  background: var(--bg-base);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 0.4375rem 0.75rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  width: 100%;
+}
+
+.tg-filtro-input:focus,
+.tg-filtro-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+.tg-filtros-limpar {
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
+/* ─── Scroll wrapper ────────────────────────────────────────────────────────── */
+.tg-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Tabela ────────────────────────────────────────────────────────────────── */
+.tg-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+/* ─── Cabeçalho ─────────────────────────────────────────────────────────────── */
+.tg-cabecalho {
+  background: var(--bg-surface);
+}
+
+.tg-th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--bg-elevated);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tg-th--ordenavel {
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.tg-th--ordenavel:hover {
+  color: var(--text-secondary);
+}
+
+.tg-th--ativa {
+  color: var(--accent);
+}
+
+.tg-th--checkbox,
+.tg-th--acoes {
+  width: 1px;
+  white-space: nowrap;
+}
+
+.tg-th-conteudo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.tg-sort-icon {
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.tg-sort-icon--ativa {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* ─── Body ──────────────────────────────────────────────────────────────────── */
+.tg-body {}
+
+.tg-tr {
+  border-bottom: 1px solid var(--bg-elevated);
+  transition: background 0.1s;
+}
+
+.tg-tr:last-child {
+  border-bottom: none;
+}
+
+.tg-tr:hover {
+  background: var(--bg-surface);
+}
+
+.tg-tr--selecionada {
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.tg-tr--selecionada:hover {
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.tg-tr--clicavel {
+  cursor: pointer;
+}
+
+/* ─── Células ───────────────────────────────────────────────────────────────── */
+.tg-td {
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.tg-td--checkbox {
+  width: 1px;
+  padding-right: 0.5rem;
+}
+
+.tg-td--acoes {
+  width: 1px;
+  white-space: nowrap;
+}
+
+.tg-vazio {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+/* ─── Checkbox ──────────────────────────────────────────────────────────────── */
+.tg-checkbox {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Ações de linha ────────────────────────────────────────────────────────── */
+.tg-acoes-grupo {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+
+.tg-acao-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.tg-acao-btn--danger {
+  color: var(--danger);
+}
+
+.tg-acao-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+/* ─── Skeleton ──────────────────────────────────────────────────────────────── */
+.tg-skeleton {
+  height: 1rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--bg-elevated) 25%,
+    var(--bg-surface) 50%,
+    var(--bg-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: tg-shimmer 1.5s infinite;
+}
+
+@keyframes tg-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Paginação ─────────────────────────────────────────────────────────────── */
+.tg-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--bg-elevated);
+  flex-wrap: wrap;
+}
+
+.tg-paginacao-info {
+  color: var(--text-muted);
+  min-width: 120px;
+}
+
+.tg-paginacao-controles {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tg-paginacao-pagina {
+  color: var(--text-secondary);
+  min-width: 60px;
+  text-align: center;
+}
+
+.tg-pag-btn {
+  padding: 0.25rem 0.5rem;
+  min-width: 2rem;
+}
+
+.tg-pag-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.tg-paginacao-tamanho {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tg-select-pagina {
+  background: var(--bg-base);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-md);
+  padding: 0.25rem 0.5rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+/* ─── Badges (reutiliza do design system) ───────────────────────────────────── */
+.badge-default {
+  background: rgba(148, 163, 184, 0.15);
+  color: var(--text-secondary);
+}
+
+/* ─── Acessibilidade ────────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

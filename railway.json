@@ -1,0 +1,266 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "version": 2,
+  "services": {
+    "configurador": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/configurador"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8001",
+        "NODE_ENV": "production"
+      }
+    },
+    "dashboard": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/dashboard"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8010",
+        "NODE_ENV": "production"
+      }
+    },
+    "relatorios": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/relatorios"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8011",
+        "NODE_ENV": "production"
+      }
+    },
+    "cronometro": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/cronometro"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8012",
+        "NODE_ENV": "production"
+      }
+    },
+    "notificacoes": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/notificacoes"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8013",
+        "NODE_ENV": "production"
+      }
+    },
+    "historico": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/historico"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8014",
+        "NODE_ENV": "production"
+      }
+    },
+    "gabi": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/gabi"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8015",
+        "NODE_ENV": "production"
+      }
+    },
+    "api-cockpit": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/api-cockpit"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8016",
+        "NODE_ENV": "production"
+      }
+    },
+    "conector-erp": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/conector-erp"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8017",
+        "NODE_ENV": "production"
+      }
+    },
+    "agendamento": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/agendamento"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8018",
+        "NODE_ENV": "production"
+      }
+    },
+    "whatsapp": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/tenant/whatsapp"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8019",
+        "NODE_ENV": "production"
+      }
+    },
+    "simula-custo": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "produtos/simula-custo"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "node dist/index.js",
+        "healthcheckPath": "/health",
+        "healthcheckTimeout": 30,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "8020",
+        "NODE_ENV": "production"
+      }
+    },
+    "marketplace": {
+      "source": {
+        "repo": ".",
+        "rootDirectory": "servicos-global/marketplace"
+      },
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "npm run start",
+        "healthcheckPath": "/",
+        "healthcheckTimeout": 60,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 3
+      },
+      "variables": {
+        "PORT": "3000",
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+    "name": "gravity-configurador",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "tsx watch server/index.ts",
+        "start": "node dist/server/index.js",
+        "typecheck": "tsc --noEmit",
+        "prisma:generate": "prisma generate --schema=../../configurador/prisma/schema.prisma",
+        "prisma:migrate": "prisma migrate dev --schema=../../configurador/prisma/schema.prisma",
+        "prisma:studio": "prisma studio --schema=../../configurador/prisma/schema.prisma",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "dependencies": {
+        "@clerk/clerk-sdk-node": "^5.0.0",
+        "@prisma/client": "^5.13.0",
+        "express": "^4.19.0",
+        "react": "^18.3.0",
+        "react-dom": "^18.3.0",
+        "stripe": "^15.0.0",
+        "svix": "^1.15.0",
+        "zod": "^3.23.0"
+    },
+    "devDependencies": {
+        "@types/express": "^4.17.21",
+        "@types/node": "^20.0.0",
+        "@types/react": "^18.3.0",
+        "@types/react-dom": "^18.3.0",
+        "@types/supertest": "^7.2.0",
+        "prisma": "^5.13.0",
+        "supertest": "^7.2.2",
+        "tsx": "^4.11.0",
+        "typescript": "^5.4.0",
+        "vitest": "^1.6.1"
+    }
+}

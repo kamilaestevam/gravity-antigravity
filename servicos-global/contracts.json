@@ -1,0 +1,56 @@
+{
+  "services": {
+    "dashboard": {
+      "baseUrl": "http://localhost:8010",
+      "pathPrefix": "/api/v1/dashboard"
+    },
+    "relatorios": {
+      "baseUrl": "http://localhost:8011",
+      "pathPrefix": "/api/v1/relatorios"
+    },
+    "atividades": {
+      "baseUrl": "http://localhost:8012",
+      "pathPrefix": "/api/v1/atividades"
+    },
+    "notificacoes": {
+      "baseUrl": "http://localhost:8013",
+      "pathPrefix": "/api/v1/notificacoes"
+    },
+    "agendamento": {
+      "baseUrl": "http://localhost:8018",
+      "pathPrefix": "/api/v1/agendamento"
+    },
+    "gabi": {
+      "baseUrl": "http://localhost:8015",
+      "pathPrefix": "/api/v1/gabi"
+    },
+    "api-cockpit": {
+      "baseUrl": "http://localhost:8016",
+      "pathPrefix": "/api/v1/api-cockpit"
+    },
+    "conector-erp": {
+      "baseUrl": "http://localhost:8017",
+      "pathPrefix": "/api/v1/conector-erp"
+    },
+    "historico": {
+      "baseUrl": "http://localhost:8014",
+      "pathPrefix": "/api/v1/historico"
+    },
+    "whatsapp": {
+      "baseUrl": "http://localhost:8019",
+      "pathPrefix": "/api/v1/whatsapp"
+    },
+    "helpdesk": {
+      "baseUrl": "http://localhost:8020",
+      "pathPrefix": "/api/v1/helpdesk"
+    },
+    "cronometro": {
+      "baseUrl": "http://localhost:8021",
+      "pathPrefix": "/api/v1/cronometro"
+    },
+    "email": {
+      "baseUrl": "http://localhost:8022",
+      "pathPrefix": "/api/v1/email"
+    }
+  }
+}

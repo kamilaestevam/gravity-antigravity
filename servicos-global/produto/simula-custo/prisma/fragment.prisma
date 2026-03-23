@@ -1,0 +1,35 @@
+// fragment.prisma — SimulaCusto
+// Adicionar ao schema principal via prisma merge
+
+model SimulacaoResult {
+  id               String   @id @default(cuid())
+  tenantId         String
+  nomeServico      String
+  subtotalBruto    Float
+  descontoValor    Float    @default(0)
+  totalFinal       Float
+  breakdown        Json     // BreakdownCategoria[]
+  alertas          Json     // string[]
+  descontoPercent  Float    @default(0)
+  criadoEm        DateTime @default(now())
+  config           SimulacaoConfig? @relation(fields: [configId], references: [id])
+  configId         String?
+
+  @@index([tenantId])
+  @@index([criadoEm])
+  @@map("simulacao_results")
+}
+
+model SimulacaoConfig {
+  id                   String   @id @default(cuid())
+  tenantId             String   @unique
+  descontoMaximo       Float    @default(30)   // % máximo de desconto permitido
+  categoriasPadroes    Json     // Categoria[] com preços padrão
+  ativa                Boolean  @default(true)
+  criadoEm            DateTime @default(now())
+  atualizadoEm        DateTime @updatedAt
+  simulacoes           SimulacaoResult[]
+
+  @@index([tenantId])
+  @@map("simulacao_configs")
+}

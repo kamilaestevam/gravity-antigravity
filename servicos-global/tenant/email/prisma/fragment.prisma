@@ -1,0 +1,206 @@
+// servicos-global/tenant/email/prisma/fragment.prisma
+// AGENTE EMAIL — ONDA 3 | 3/13
+//
+// Fragment Prisma para o serviço de Email (envio Resend, templates, histórico).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum EmailStatus {
+  PENDENTE
+  PROCESSANDO
+  ENVIADO
+  FALHOU
+  CANCELADO
+}
+
+enum EmailDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum EmailThreadStatus {
+  ABERTA
+  ARQUIVADA
+  RESOLVIDA
+}
+
+enum EmailSentimentLevel {
+  MUITO_POSITIVO
+  POSITIVO
+  NEUTRO
+  NEGATIVO
+  MUITO_NEGATIVO
+}
+
+enum FilaEmailPrioridade {
+  BAIXA
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+// ---------------------------------------------------------------------------
+// EmailThread — thread de conversa (agrupa mensagens de ida e volta)
+// ---------------------------------------------------------------------------
+
+model EmailThread {
+  id         String @id @default(uuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  subject        String
+  status         EmailThreadStatus   @default(ABERTA)
+  sentiment      Float               @default(0)           // -1 a 1
+  sentiment_label EmailSentimentLevel @default(NEUTRO)
+  mensagens_count Int                 @default(0)
+  ultimo_contato  DateTime?
+  deep_link       String?                                   // ex: /email/thread/{id}
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  mensagens EmailMessage[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// EmailMessage — mensagem individual (inbound ou outbound)
+// ---------------------------------------------------------------------------
+
+model EmailMessage {
+  id         String @id @default(uuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  thread_id        String
+  thread           EmailThread  @relation(fields: [thread_id], references: [id])
+
+  resend_id        String?      @unique                    // ID retornado pelo Resend
+  direction        EmailDirection @default(OUTBOUND)
+  from             String
+  to               String
+  subject          String?
+  body             String       @db.Text
+  body_html        String?      @db.Text
+  dedup_key        String?      @unique                    // UUID para Reply-To dinâmico
+  parent_message_id String?                                // UUID do email pai (threading)
+
+  // Análise Gabi
+  gabi_response    String?      @db.Text
+  gabi_confidence  Float?
+  gabi_action      String?                                 // auto_replied | escalated_to_human | none
+
+  sent_at          DateTime     @default(now())
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([thread_id])
+  @@index([dedup_key])
+}
+
+// ---------------------------------------------------------------------------
+// EmailEnviado — log de todos os envios realizados (auditoria completa)
+// ---------------------------------------------------------------------------
+
+model EmailEnviado {
+  id         String @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  to            String
+  from          String
+  reply_to      String?
+  subject       String
+  template_id   String?
+  status        EmailStatus  @default(PENDENTE)
+  resend_id     String?      @unique
+  dedup_key     String       @unique                       // UUID do Reply-To dinâmico
+
+  tentativas    Int          @default(0)
+  max_tentativas Int         @default(5)
+  next_retry_at DateTime?
+  error_message String?      @db.Text
+  enviado_at    DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([status])
+  @@index([dedup_key])
+}
+
+// ---------------------------------------------------------------------------
+// Template — templates de email editáveis por tenant
+// ---------------------------------------------------------------------------
+
+model Template {
+  id         String @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  nome        String
+  slug        String                                        // ex: boas-vindas, recuperacao-senha
+  assunto     String
+  corpo_html  String    @db.Text
+  corpo_texto String?   @db.Text
+  variaveis   String[]                                      // ex: ["nome", "plano", "url"]
+  ativo       Boolean   @default(true)
+  descricao   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, slug])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// FilaEmail — fila de envio com controle de retry e backoff exponencial
+// ---------------------------------------------------------------------------
+
+model FilaEmail {
+  id         String @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  status        EmailStatus         @default(PENDENTE)
+  prioridade    FilaEmailPrioridade @default(NORMAL)
+  payload       String              @db.Text                // JSON: { to, subject, body, ... }
+  template_id   String?
+  email_enviado_id String?
+
+  tentativas     Int       @default(0)
+  max_tentativas Int       @default(5)
+  next_retry_at  DateTime?
+  processado_at  DateTime?
+  erro           String?   @db.Text
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([status, next_retry_at])
+  @@index([tenant_id, status])
+}

@@ -1,0 +1,105 @@
+// servicos-global/tenant/cronometro/prisma/fragment.prisma
+// AGENTE CRONÔMETRO — ONDA 3 | 2/13
+//
+// Fragment Prisma do serviço de Cronômetro.
+// Não editar schema.prisma diretamente — apenas este fragment.
+// O Coordenador compõe o schema final via scripts/compose-tenant-schema.ts
+
+// ---------------------------------------------------------------------------
+// TimerSession
+// Sessão de tempo registrada (concluída ou manual).
+// ---------------------------------------------------------------------------
+
+model TimerSession {
+  id         String  @id @default(cuid())
+
+  // Campos de isolamento — obrigatórios
+  tenant_id  String
+  product_id String?
+  user_id    String
+
+  // Relacionamento
+  activity_id String
+
+  // Dados da sessão
+  started_at       DateTime
+  ended_at         DateTime?
+  duration_minutes Int?         // null = timer ainda ativo (em progresso)
+  is_manual        Boolean  @default(false)
+
+  // Assunto e vínculo
+  subject      String?  // texto livre do assunto
+  linked_type  String?  // nf | meeting | process | custom
+  linked_id    String?  // ID do item vinculado
+  linked_label String?  // label de exibição do item vinculado
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Índices obrigatórios — padrão do projeto
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  // Índice extra para queries de relatório por data
+  @@index([tenant_id, user_id, started_at])
+  // Índice extra para queries por atividade
+  @@index([tenant_id, activity_id])
+}
+
+// ---------------------------------------------------------------------------
+// TimerActive
+// Estado do timer em execução (um por usuário).
+// Removido quando a sessão é finalizada — o histórico fica em TimerSession.
+// ---------------------------------------------------------------------------
+
+model TimerActive {
+  id         String  @id @default(cuid())
+
+  // Campos de isolamento
+  tenant_id  String
+  user_id    String  @unique // um timer ativo por usuário
+
+  // Relacionamento
+  activity_id String
+
+  // Estado do timer
+  started_at          DateTime
+  paused_at           DateTime?
+  accumulated_seconds Int      @default(0) // segundos acumulados antes de pausas
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@index([user_id])
+}
+
+// ---------------------------------------------------------------------------
+// RelatorioTempoCache
+// Cache de relatórios de tempo pré-computados para performance.
+// ---------------------------------------------------------------------------
+
+model RelatorioTempoCache {
+  id        String @id @default(cuid())
+
+  tenant_id  String
+  user_id    String?
+  product_id String?
+
+  periodo_inicio DateTime
+  periodo_fim    DateTime
+  total_minutos  Int
+  payload        String  // JSON serializado com breakdown por atividade
+
+  computed_at DateTime @default(now())
+  expires_at  DateTime
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, periodo_inicio, periodo_fim])
+}

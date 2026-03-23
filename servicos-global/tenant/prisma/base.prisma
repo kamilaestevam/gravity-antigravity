@@ -1,0 +1,53 @@
+// servicos-global/tenant/prisma/base.prisma
+// ESTRUTURA BASE COM RLS — documentação para o Coordenador
+//
+// Este arquivo documenta a estrutura base esperada para TODOS os models
+// que serão adicionados via fragment.prisma nos serviços de tenant.
+//
+// RLS (Row Level Security) é obrigatório em toda tabela com tenant_id.
+// As policies SQL estão em: servicos-global/tenant/prisma/rls-policies.sql
+//
+// REGRAS OBRIGATÓRIAS para todo fragment.prisma:
+//
+// 1. Todo model DEVE ter tenant_id String (NOT NULL)
+// 2. Todo model DEVE ter os 3 índices:
+//    @@index([tenant_id])
+//    @@index([tenant_id, created_at])
+//    @@index([tenant_id, status])  (quando o campo status existir)
+// 3. Todo model DEVE ter RLS configurado no SQL (ver rls-policies.sql)
+// 4. Nenhum model pode ter foreign key cross-service via Prisma
+//    (use IDs simples para links entre serviços)
+//
+// ESTRUTURA MODELO PARA FRAGMENTS:
+//
+// model NomeDoServico {
+//   id         String @id @default(cuid())
+//
+//   // Isolamento de tenant — OBRIGATÓRIO
+//   tenant_id  String
+//   product_id String?   // nullable — apenas quando faz sentido por produto
+//   user_id    String?   // nullable — quando vinculado a usuário
+//
+//   // Campos específicos do modelo
+//   status     String
+//   // ...
+//
+//   // Timestamps — sempre os dois por último
+//   created_at DateTime @default(now())
+//   updated_at DateTime @updatedAt
+//
+//   // Índices — OBRIGATÓRIOS
+//   @@index([tenant_id])
+//   @@index([tenant_id, created_at])
+//   @@index([tenant_id, status])     // usar quando o campo status existir
+// }
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TENANT_DATABASE_URL")
+}

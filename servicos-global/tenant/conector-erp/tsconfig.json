@@ -1,0 +1,14 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "paths": {
+      "@nucleo/*": ["../../../nucleo-global/*"],
+      "@tenant/*": ["../../tenant/*"],
+      "@produto/*": ["../../produto/*"]
+    }
+  },
+  "include": ["src/**/*", "server/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

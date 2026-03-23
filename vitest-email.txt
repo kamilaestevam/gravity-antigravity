@@ -1,0 +1,18 @@
+﻿
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity[39m
+
+ [33m❯[39m testes/testes-funcionais/servicos-tenant/email.test.ts [2m ([22m[2m5 tests[22m [2m|[22m [31m4 failed[39m[2m)[22m[90m 32[2mms[22m[39m
+[31m   [33m❯[31m testes/testes-funcionais/servicos-tenant/email.test.ts[2m > [22mTestes Funcionais — Serviço de Email[2m > [22mAutenticação e Zod de Rotas Protegidas[2m > [22mretorna 401 sem header x-tenant-id nas rotas de email[39m
+[31m     → expected 404 to be 401 // Object.is equality[39m
+[31m   [33m❯[31m testes/testes-funcionais/servicos-tenant/email.test.ts[2m > [22mTestes Funcionais — Serviço de Email[2m > [22mAutenticação e Zod de Rotas Protegidas[2m > [22mPOST /api/v1/email/send retorna 422 sem payload válido[39m
+[31m     → expected 404 to be 422 // Object.is equality[39m
+[31m   [33m❯[31m testes/testes-funcionais/servicos-tenant/email.test.ts[2m > [22mTestes Funcionais — Serviço de Email[2m > [22mFluxo de Logs[2m > [22mGET /api/v1/email/logs retorna logs com paginação[39m
+[31m     → expected 404 to be 200 // Object.is equality[39m
+[31m   [33m❯[31m testes/testes-funcionais/servicos-tenant/email.test.ts[2m > [22mTestes Funcionais — Serviço de Email[2m > [22mFluxo de Templates[2m > [22mPOST /api/v1/email/templates cria um template com sucesso[39m
+[31m     → expected 401 to be 201 // Object.is equality[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (5)[39m
+[2m   Start at [22m 23:59:16
+[2m   Duration [22m 1.15s[2m (transform 88ms, setup 128ms, collect 235ms, tests 32ms, environment 500ms, prepare 56ms)[22m
+

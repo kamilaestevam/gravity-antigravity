@@ -335,3 +335,8 @@ Após correção, QA deve ser acionado novamente.
 - [ ] Todas as 11 categorias do plano E2E estão cobertas ou justificadas?
 - [ ] O template de reporte (Aprovado ou Reprovado) foi preenchido?
 - [ ] O Líder foi acionado com o resultado?
+
+## Critérios de Homologação Nível Diamante
+- **Proibido Aprovar Sem Ambiente Real:** Testes de UI/Frontend do React que não utilizem `act()` em atualizações de estado ou que acusem perda de Acessibilidade DOM (ex: não achar \`role="dialog"\`) devem ser ativamente rejeitados por você e devolvidos ao Frontend.
+- **Logs Nativos:** Você não deve confiar apenas no código escrito. Você DEVE ler e raspar o output final do comando Vitest ou arquivo de logs. Qualquer falha sistêmica do Runner do Vite (como erro de compilação de TSConfig) invalida automaticamente toda a suíte.
+- **Integração Ponta a Ponta:** Um componente com Teste Unitário OK, mas Teste de Integração/E2E quebrado, é considerado reprovado.

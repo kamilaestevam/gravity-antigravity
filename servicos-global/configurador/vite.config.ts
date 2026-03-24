@@ -59,6 +59,34 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/modal-select-global/src/index.ts'
       ),
+      '@nucleo/aviso-interno-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/aviso-interno-global/src/index.ts'
+      ),
+      '@nucleo/usuario-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/usuario-global/src/index.ts'
+      ),
+      '@nucleo/calendario-campo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/calendario-campo-global/src/index.ts'
+      ),
+      '@nucleo/geral-campo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/geral-campo-global/src/index.ts'
+      ),
+      '@nucleo/modal-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-global/src/index.ts'
+      ),
+      '@nucleo/localizar-campo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/localizar-campo-global/src/index.ts'
+      ),
+      '@nucleo/logo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/logo-global/src/index.ts'
+      ),
       '@gravity/shell': path.resolve(
         __dirname,
         '../shell/index.ts'

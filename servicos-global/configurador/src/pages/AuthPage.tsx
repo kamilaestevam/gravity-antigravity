@@ -1,5 +1,5 @@
 import { SignIn } from '@clerk/clerk-react'
-import { Hexagon } from '@phosphor-icons/react'
+import { LogoGlobal } from '@nucleo/logo-global'
 import './auth.css'
 
 export function AuthPage() {
@@ -13,8 +13,7 @@ export function AuthPage() {
         <div className="auth-brand-content">
           {/* Logo — mesmo do Marketplace */}
           <div className="auth-logo">
-            <Hexagon size={30} weight="duotone" color="#818cf8" />
-            <span className="auth-logo-name">Gravity</span>
+            <LogoGlobal iconSize={30} iconColor="#818cf8" />
           </div>
 
           {/* Headline */}
@@ -65,7 +64,7 @@ export function AuthPage() {
           afterSignInUrl="/hub"
           appearance={{
             variables: {
-              colorPrimary: '#818cf8',
+              colorPrimary: '#6366f1',
               colorBackground: '#1e293b',
               colorInputBackground: '#0f172a',
               colorInputText: '#f1f5f9',
@@ -78,26 +77,28 @@ export function AuthPage() {
             },
             elements: {
               card: {
-                boxShadow: 'none',
-                border: '1px solid rgba(129,140,248,0.12)',
+                boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 40px -10px rgba(129, 140, 248, 0.1)',
+                border: '1px solid rgba(129,140,248,0.25)',
                 background: '#1e293b',
               },
               headerTitle: { display: 'none' },
               headerSubtitle: { display: 'none' },
               socialButtonsBlockButton: {
-                border: '1px solid rgba(129,140,248,0.15)',
+                border: '1px solid rgba(255,255,255,0.1)',
                 background: '#0f172a',
                 color: '#f1f5f9',
+                transition: 'all 0.2s ease',
               },
               formButtonPrimary: {
-                background: 'linear-gradient(90deg, #818cf8 0%, #818cf8 100%)',
-                color: '#0f172a',
+                background: '#6366f1',
+                color: '#ffffff',
                 fontWeight: '700',
                 borderRadius: '9999px',
+                boxShadow: '0 1px 3px rgba(99, 102, 241, 0.25)',
               },
-              footerActionLink: { color: '#818cf8' },
-              dividerLine: { background: 'rgba(129,140,248,0.1)' },
-              dividerText: { color: '#475569' },
+              footerActionLink: { color: '#818cf8', fontWeight: '600' },
+              dividerLine: { background: 'rgba(255,255,255,0.1)' },
+              dividerText: { color: '#64748b' },
             },
           }}
         />

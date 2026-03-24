@@ -1,8 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@nucleo/logo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/logo-global/src/index.ts'
+      )
+    }
+  },
   server: {
     port: 8002,
     host: true,

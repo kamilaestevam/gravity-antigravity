@@ -21,6 +21,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { StatusSalvarGlobal, type StatusSalvar } from '@nucleo/status-salvar-global'
 import { ModalSelectGlobal } from '@nucleo/modal-select-global'
+import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
 
 // ── Mock — substituir por contexto real de tenant ──────────────────────────
 const ESPACOS_TRABALHO_MOCK = [
@@ -226,6 +227,7 @@ export function Organizacao() {
               <StatusSalvarGlobal
                 status={statusSalvar}
                 onAutoReset={() => setStatusReq(null)}
+                hideOnIdle={true}
               />
             </div>
           }
@@ -238,7 +240,7 @@ export function Organizacao() {
         <div className="em-identity__hero">
           <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
           <div className="em-identity__text">
-            <TooltipGlobal titulo="Tipo de Conta" descricao="Nível hierárquico principal da sua estrutura na plataforma">
+            <TooltipGlobal titulo="Hierarquia de Contas" descricao="Organização é a matriz gerencial, os espaços são as várias empresas operadas dentro dela">
               <span className="em-identity__badge" style={{ cursor: 'help' }}>Organização</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
@@ -264,12 +266,12 @@ export function Organizacao() {
           </TooltipGlobal>
         </p>
         <div className="em-grid">
-          <div className="ws-field">
-            <label>
-              <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social que aparece nos documentos e relatórios">
-                <span>Nome da Empresa *</span>
-              </TooltipGlobal>
-            </label>
+          <GeralCampoGlobal
+            label="Nome da Empresa"
+            obrigatorio
+            tooltipTitulo="Nome da Empresa"
+            tooltipDescricao="Razão social que aparece nos documentos e relatórios"
+          >
             <div className="ws-input-icon-wrap">
               <Buildings size={16} />
               <input
@@ -278,13 +280,12 @@ export function Organizacao() {
                 onChange={e => set('nome', e.target.value)}
               />
             </div>
-          </div>
-          <div className="ws-field">
-            <label>
-              <TooltipGlobal titulo="CNPJ" descricao="Aparece em notas fiscais e documentos gerados na plataforma">
-                <span>CNPJ</span>
-              </TooltipGlobal>
-            </label>
+          </GeralCampoGlobal>
+          <GeralCampoGlobal
+            label="CNPJ"
+            tooltipTitulo="CNPJ"
+            tooltipDescricao="Aparece em notas fiscais e documentos gerados na plataforma"
+          >
             <div className="ws-input-icon-wrap">
               <IdentificationCard size={16} />
               <input
@@ -293,15 +294,14 @@ export function Organizacao() {
                 onChange={e => set('cnpj', e.target.value)}
               />
             </div>
-          </div>
+          </GeralCampoGlobal>
         </div>
         <div className="em-grid em-grid--4">
-          <div className="ws-field">
-            <label>
-              <TooltipGlobal titulo="Estado" descricao="Estado onde a empresa tem sua sede principal">
-                <span>Estado</span>
-              </TooltipGlobal>
-            </label>
+          <GeralCampoGlobal
+            label="Estado"
+            tooltipTitulo="Estado"
+            tooltipDescricao="Estado onde a empresa tem sua sede principal"
+          >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={OPCOES_ESTADOS}
@@ -313,13 +313,12 @@ export function Organizacao() {
               placeholder="Selecione..."
               buscavel
             />
-          </div>
-          <div className="ws-field">
-            <label>
-              <TooltipGlobal titulo="Cidade" descricao="A lista de cidades aparece após você escolher o estado">
-                <span>Cidade</span>
-              </TooltipGlobal>
-            </label>
+          </GeralCampoGlobal>
+          <GeralCampoGlobal
+            label="Cidade"
+            tooltipTitulo="Cidade"
+            tooltipDescricao="A lista de cidades aparece após você escolher o estado"
+          >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={cidades}
@@ -330,13 +329,12 @@ export function Organizacao() {
               desabilitado={!dados.estado}
               carregando={carregandoCidades}
             />
-          </div>
-          <div className="ws-field">
-            <label>
-              <TooltipGlobal titulo="Segmento" descricao="Usado para categorizar a empresa nos relatórios da plataforma">
-                <span>Segmento</span>
-              </TooltipGlobal>
-            </label>
+          </GeralCampoGlobal>
+          <GeralCampoGlobal
+            label="Segmento"
+            tooltipTitulo="Segmento"
+            tooltipDescricao="Usado para categorizar a empresa nos relatórios da plataforma"
+          >
             <SelectGlobal
               iconeEsquerda={<Package size={16} />}
               opcoes={OPCOES_SEGMENTOS}
@@ -345,13 +343,12 @@ export function Organizacao() {
               placeholder="Selecione..."
               buscavel
             />
-          </div>
-          <div className="ws-field">
-            <label>
-              <TooltipGlobal titulo="Site" descricao="Endereço público da empresa, exibido no perfil">
-                <span>Site</span>
-              </TooltipGlobal>
-            </label>
+          </GeralCampoGlobal>
+          <GeralCampoGlobal
+            label="Site"
+            tooltipTitulo="Site"
+            tooltipDescricao="Endereço público da empresa, exibido no perfil"
+          >
             <div className="ws-input-icon-wrap">
               <Globe size={16} />
               <input
@@ -360,7 +357,7 @@ export function Organizacao() {
                 onChange={e => set('site', e.target.value)}
               />
             </div>
-          </div>
+          </GeralCampoGlobal>
         </div>
       </div>
 

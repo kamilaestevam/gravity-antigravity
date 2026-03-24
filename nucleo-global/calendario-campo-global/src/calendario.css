@@ -1,0 +1,232 @@
+.ws-calendario-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 1000;
+  background: var(--ws-surface, #1e293b);
+  border: 1px solid var(--ws-border, #334155);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  overflow: hidden;
+  animation: ws-fade-in-up 0.2s ease-out;
+  min-width: 380px;
+}
+
+body.light-theme .ws-calendario-panel {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.ws-calendario-sidebar {
+  width: 170px;
+  background: rgba(255,255,255,0.015);
+  border-right: 1px solid var(--ws-border, #334155);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+body.light-theme .ws-calendario-sidebar {
+  background: rgba(0,0,0,0.015);
+}
+
+.ws-calendario-preset {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--ws-muted, #94a3b8);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+.ws-calendario-preset:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--ws-text, #f8fafc);
+}
+body.light-theme .ws-calendario-preset:hover {
+  background: rgba(0,0,0,0.05);
+}
+.ws-calendario-preset.active {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.ws-calendario-body {
+  padding: 1.25rem;
+  flex: 1;
+}
+
+.ws-calendario-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.ws-calendario-nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.ws-calendario-nav-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--ws-text, #f8fafc);
+}
+body.light-theme .ws-calendario-nav-btn:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.ws-calendario-selectors {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* SelectGlobal override para o calendário parecer minimalista como os selects nativos antigos */
+.ws-calendario-selectors .sg-wrapper {
+  margin: 0;
+  min-width: 100px;
+}
+.ws-calendario-selectors .sg-campo {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ws-text, #f8fafc);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  min-height: auto;
+  height: 32px;
+}
+.ws-calendario-selectors .sg-campo:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--ws-border, #334155);
+}
+body.light-theme .ws-calendario-selectors .sg-campo:hover {
+  background: rgba(0,0,0,0.05);
+}
+.ws-calendario-selectors .sg-valor {
+  padding: 0;
+}
+.ws-calendario-selectors .sg-chevron {
+  display: none; /* Esconder para ficar igual ao original nativo que não tinha chevron ou tinha chevron via background no OS, mas aqui fica mais limpo e minimalista */
+}
+
+.ws-calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 0.25rem;
+}
+
+.ws-calendario-day-name {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ws-muted, #94a3b8);
+  margin-bottom: 0.5rem;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ws-calendario-cell {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ws-text, #f8fafc);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  height: 36px;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  /* Margins instead of gaps for seamless range highlights */
+  margin: 0;
+  border-radius: 50%;
+}
+/* A wrapper is used for range backgrounds so the cell itself can stay round if we want, or the cell itself can change shape */
+.ws-calendario-cell-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ws-calendario-cell:hover:not(:disabled):not(.active) {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--ws-border, #334155);
+}
+body.light-theme .ws-calendario-cell:hover:not(:disabled):not(.active) {
+  background: rgba(0,0,0,0.05);
+}
+
+.ws-calendario-cell.muted {
+  color: var(--ws-muted, #94a3b8);
+  opacity: 0.4;
+}
+
+.ws-calendario-cell-wrapper.in-range {
+  background: rgba(129, 140, 248, 0.15);
+}
+body.light-theme .ws-calendario-cell-wrapper.in-range {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.ws-calendario-cell-wrapper.start-date {
+  background: linear-gradient(90deg, transparent 50%, rgba(129, 140, 248, 0.15) 50%);
+}
+body.light-theme .ws-calendario-cell-wrapper.start-date {
+  background: linear-gradient(90deg, transparent 50%, rgba(99, 102, 241, 0.1) 50%);
+}
+
+.ws-calendario-cell-wrapper.end-date {
+  background: linear-gradient(90deg, rgba(129, 140, 248, 0.15) 50%, transparent 50%);
+}
+body.light-theme .ws-calendario-cell-wrapper.end-date {
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 50%, transparent 50%);
+}
+
+.ws-calendario-cell-wrapper.single-date {
+  background: transparent !important;
+}
+
+.ws-calendario-cell.active {
+  background: #818cf8;
+  color: #fff;
+  border-color: #818cf8;
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.4);
+}
+body.light-theme .ws-calendario-cell.active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.3);
+}
+
+.ws-calendario-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ws-border, #334155);
+}
+
+.tg-trigger:has(> .ws-input-icon-wrap) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

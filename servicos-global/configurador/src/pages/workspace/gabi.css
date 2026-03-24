@@ -1,0 +1,65 @@
+.ws-gabi-trigger {
+  position: fixed;
+  bottom: calc(1.5rem + 8px);
+  right: calc(1.5rem + 4px);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1000;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: var(--font, 'Inter', sans-serif);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  gap: 0.25rem;
+}
+
+.ws-gabi-trigger::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid rgba(99, 102, 241, 0.5);
+  border-radius: 50%;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 1; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.ws-gabi-trigger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4);
+}
+
+.ws-gabi-panel {
+  position: fixed;
+  bottom: 5.5rem;
+  right: 1.5rem;
+  width: 420px;
+  height: 650px;
+  max-width: calc(100vw - 3rem);
+  max-height: calc(100vh - 7rem);
+  z-index: 1000;
+  animation: slideUpGabiSpring 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  display: flex;
+  border-radius: 20px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+}
+
+@keyframes slideUpGabiSpring {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

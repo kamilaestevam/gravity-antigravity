@@ -15,11 +15,11 @@ interface OnboardingPreviewProps {
   onClose: () => void
 }
 
-type AccentColor = '#38bdf8' | '#818cf8' | '#34d399' | '#f472b6' | '#fb923c'
+type AccentColor = '#818cf8' | '#818cf8' | '#34d399' | '#f472b6' | '#fb923c'
 type UserProfile = 'Dev' | 'Designer' | 'Manager' | null
 
 const ACCENT_COLORS: { value: AccentColor; label: string }[] = [
-  { value: '#38bdf8', label: 'Azul Céu' },
+  { value: '#818cf8', label: 'Azul Céu' },
   { value: '#818cf8', label: 'Violeta' },
   { value: '#34d399', label: 'Esmeralda' },
   { value: '#f472b6', label: 'Rosa' },
@@ -36,7 +36,7 @@ const MOCK_ACTIVITIES = [
 
 export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
   const [step, setStep] = useState(0)
-  const [accent, setAccent] = useState<AccentColor>('#38bdf8')
+  const [accent, setAccent] = useState<AccentColor>('#818cf8')
   const [profile, setProfile] = useState<UserProfile>(null)
   const [previewAccent, setPreviewAccent] = useState<AccentColor | null>(null)
 

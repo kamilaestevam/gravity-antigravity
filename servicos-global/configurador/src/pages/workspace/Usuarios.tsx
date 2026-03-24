@@ -4,6 +4,7 @@ import { Users, Plus, X, PauseCircle, PlayCircle, PencilSimple, Trash, FileXls, 
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
@@ -232,7 +233,7 @@ export function Usuarios() {
   }
 
   function handleDeactivate(u: TenantUser) {
-    if (!window.confirm(`${u.status === 'Ativo' ? 'Desativar' : 'Reativar'} usuário ${u.nome}?`)) return
+    // Bypass window.confirm to avoid silent failures in secure iframes.
     setUsers(prev => prev.map(x => x.id === u.id ? { ...x, status: x.status === 'Ativo' ? 'Inativo' : 'Ativo' } : x))
   }
 
@@ -281,7 +282,7 @@ export function Usuarios() {
         <TooltipGlobal descricao={item.status === 'Ativo' ? 'Suspender o acesso deste usuário' : 'Reativar o acesso deste usuário'}>
           <button
             type="button"
-            onClick={() => handleDeactivate(item)}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeactivate(item); }}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
             onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
             onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
@@ -385,14 +386,28 @@ export function Usuarios() {
   ]
 
   return (
-    <div className="ws-fade-up">
-      <CabecalhoGlobal
-        icone={<Users weight="duotone" size={22} />}
-        titulo="Usuários & Permissões"
-        subtitulo="Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada."
-      />
-
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '1.5rem 0' }}>
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Users weight="duotone" size={22} />}
+          titulo="Usuários & Permissões"
+          subtitulo="Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada."
+        />
+      }
+      acoes={
+        tab === 'tenant' ? (
+          <BotaoNovoGlobal
+            rotulo="Convidar Usuário"
+            rotuloAtivo="Cancelar"
+            ativo={showForm}
+            onClick={() => setShowForm(v => !v)}
+          />
+        ) : undefined
+      }
+    >
+      <div style={{ marginBottom: '1.5rem' }}>
         <div className="ws-tabs" style={{ margin: 0 }}>
           <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
             Perfis de Acesso
@@ -401,15 +416,6 @@ export function Usuarios() {
             Acesso por Espaço de Trabalho
           </button>
         </div>
-
-        {tab === 'tenant' && (
-          <BotaoNovoGlobal
-            rotulo="Convidar Usuário"
-            rotuloAtivo="Cancelar"
-            ativo={showForm}
-            onClick={() => setShowForm(v => !v)}
-          />
-        )}
       </div>
 
       {tab === 'tenant' && (
@@ -480,6 +486,6 @@ export function Usuarios() {
           />
         </div>
       )}
-    </div>
+    </PaginaGlobal>
   )
 }

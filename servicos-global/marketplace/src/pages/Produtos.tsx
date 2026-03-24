@@ -18,7 +18,7 @@ const PRODUCTS = [
     tags: ['Importação', 'Exportação', 'Custos Reais'],
     rating: 4.9,
     reviews: 128,
-    color: '#38bdf8',
+    color: '#818cf8',
   },
   {
     id: 'nf-importacao',

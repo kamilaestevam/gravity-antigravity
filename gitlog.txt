@@ -1,0 +1,802 @@
+commit f2b0f00acb8e519d8b215bd2e9b5f78081dbcc64
+Author: dmmltda <dmmltda@gmail.com>
+Date:   Tue Mar 24 14:35:39 2026 -0300
+
+    feat: padronizando layout de workspace, ações e ModalSelectGlobal
+
+diff --git a/nucleo-global/tooltip-global/src/tooltip.css b/nucleo-global/tooltip-global/src/tooltip.css
+index 4853874..f775299 100644
+--- a/nucleo-global/tooltip-global/src/tooltip.css
++++ b/nucleo-global/tooltip-global/src/tooltip.css
+@@ -25,7 +25,7 @@
+   width: max-content;
+   max-width: 260px;
+   background: #0f172a;
+-  border: 1px solid rgba(56, 189, 248, 0.22);
++  border: 1px solid rgba(129, 140, 248, 0.22);
+   border-radius: 8px;
+   padding: 0.75rem 1rem;
+   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+
+commit 9da6a190e5f1a7d782b1a0b741b6ae8735bd22df
+Author: dmmltda <dmmltda@gmail.com>
+Date:   Tue Mar 24 10:50:36 2026 -0300
+
+    style(usuarios): refinar interface de gerenciamento de usuarios
+    
+    remove legendas redundantes, integra CabecalhoGlobal e BotaoNovoGlobal, e ajusta espacamento de layout
+
+diff --git a/nucleo-global/tooltip-global/src/tooltip.tsx b/nucleo-global/tooltip-global/src/tooltip.tsx
+index 67a4912..53af6f6 100644
+--- a/nucleo-global/tooltip-global/src/tooltip.tsx
++++ b/nucleo-global/tooltip-global/src/tooltip.tsx
+@@ -2,6 +2,16 @@
+  * @nucleo/tooltip-global — tooltip.tsx
+  * Tooltip unificada: renderiza card minimalista com título descritivo via portal.
+  * Use position:fixed calculada no onMouseEnter = zero flash.
++ *
++ * ⚠️  ANTES DE ESCREVER QUALQUER titulo OU descricao:
++ *     Leia obrigatoriamente a skill de escrita de tooltips:
++ *     skills/ux/tooltip/SKILL.md
++ *
++ *     Regras principais:
++ *     - Sem ponto final na descricao
++ *     - Linguagem do usuário — nunca mencione implementação técnica
++ *     - Máximo ~90 caracteres na descricao
++ *     - descricao responde: "o que esse campo faz pela minha empresa?"
+  */
+ import React, { useState, useRef } from 'react'
+ import ReactDOM from 'react-dom'
+
+commit 418467c51acb407b5b7356ab81a9d6f2acfccad3
+Author: dmmltda <dmmltda@gmail.com>
+Date:   Tue Mar 24 09:40:59 2026 -0300
+
+    feat: workspace completo com tabelas, tooltips, cabecalho, select e acoes de formulario
+    
+    - nucleo-global: refatora tooltip-global (remove tooltip-acao, simplifica componente)
+    - nucleo-global: atualiza tabela-global com exportacao e filtros avancados
+    - nucleo-global: atualiza cabecalho-global com novos estilos
+    - nucleo-global: remove select antigo, adiciona select-global com portal e busca
+    - nucleo-global: adiciona stat-card-global para cards de estatisticas
+    - nucleo-global: adiciona acoes-formulario-global com hook useDirty e botoes Salvar/Cancelar
+    - configurador: implementa workspace completo (Empresas, Usuarios, EmpresaMae, Financeiro, ApiCockpit)
+    - configurador: adiciona TabelaEmpresas e TabelaUsuarios com TabelaGlobal
+    - configurador: atualiza WorkspaceLayout com CabecalhoGlobal
+    - configurador: refina workspace.css com temas claro/escuro e layout sticky
+
+diff --git a/nucleo-global/tooltip-global/src/index.ts b/nucleo-global/tooltip-global/src/index.ts
+index c7e71c8..689e586 100644
+--- a/nucleo-global/tooltip-global/src/index.ts
++++ b/nucleo-global/tooltip-global/src/index.ts
+@@ -4,7 +4,4 @@
+  */
+ 
+ export { TooltipGlobal } from './tooltip.js'
+-export type { TooltipProps, TooltipPosicao } from './tipos.js'
+-
+-export { TooltipAcao } from './tooltip-acao.js'
+-export type { TooltipAcaoProps } from './tipos.js'
++export type { TooltipProps } from './tipos.js'
+diff --git a/nucleo-global/tooltip-global/src/tipos.ts b/nucleo-global/tooltip-global/src/tipos.ts
+index 321d78f..359fa81 100644
+--- a/nucleo-global/tooltip-global/src/tipos.ts
++++ b/nucleo-global/tooltip-global/src/tipos.ts
+@@ -1,40 +1,13 @@
+ /**
+  * @nucleo/tooltip-global — tipos
+- * Definições de tipos do componente TooltipGlobal.
+  */
+ import type React from 'react'
+ 
+-/** Posição preferida da tooltip em relação ao elemento âncora */
+-export type TooltipPosicao = 'top' | 'bottom' | 'left' | 'right'
+-
+-/** Props do TooltipGlobal */
+ export interface TooltipProps {
+-  /** Texto exibido na tooltip */
+-  texto: string
+-  /** Posição preferida. Padrão: 'top' */
+-  posicao?: TooltipPosicao
+-  /** Delay em ms antes de mostrar. Padrão: 300 */
+-  delay?: number
+-  /** Conteúdo que vai receber o hover — deve ser um único elemento React */
+-  children: React.ReactElement
+-}
+-
+-/** Props do TooltipAcao */
+-export interface TooltipAcaoProps {
+-  /** ID único da ação — usado na chave do localStorage para controlar se foi visto */
+-  acaoId: string
+-  /** Título do card (ex: "Filtro por coluna") */
+-  titulo: string
+-  /** Descrição curta orientada à ação (máx 2 linhas) */
++  /** Título em bold (opcional) */
++  titulo?: string
++  /** Texto descritivo da tooltip */
+   descricao: string
+-  /** URL/import da mídia de preview (WebP animado) */
+-  midia?: string
+-  /** Chip de categoria. Padrão: 'TUTORIAL' */
+-  categoria?: string
+-  /** Duração exibida no chip e no rodapé (ex: '0:12') */
+-  duracao?: string
+-  /** Link de documentação opcional */
+-  linkDoc?: string
+-  /** Botão/elemento que recebe o hover */
++  /** Elemento que recebe o hover */
+   children: React.ReactElement
+ }
+diff --git a/nucleo-global/tooltip-global/src/tooltip-acao.css b/nucleo-global/tooltip-global/src/tooltip-acao.css
+deleted file mode 100644
+index e07f0ad..0000000
+--- a/nucleo-global/tooltip-global/src/tooltip-acao.css
++++ /dev/null
+@@ -1,164 +0,0 @@
+-/* ── tooltip-acao.css ────────────────────────────────────────────────────────
+-   Estilos do TooltipAcao — card rico com preview, título, descrição e CTA.
+-   Design System Gravity · dark mode · Sky 400 accent.
+-   ──────────────────────────────────────────────────────────────────────────── */
+-
+-/* ── Animações ────────────────────────────────────────────────────────────── */
+-@keyframes ta-in-up {
+-  from { opacity: 0; transform: translateX(-50%) translateY(6px) scale(0.97); }
+-  to   { opacity: 1; transform: translateX(-50%) translateY(0)   scale(1); }
+-}
+-
+-@keyframes ta-in-down {
+-  from { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.97); }
+-  to   { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1); }
+-}
+-
+-/* ── Beacon — pulsing dot ────────────────────────────────────────────────── */
+-@keyframes ta-pulse {
+-  0%, 100% { transform: scale(1);   opacity: 1; }
+-  50%       { transform: scale(1.7); opacity: 0.3; }
+-}
+-
+-.ta-beacon {
+-  position: absolute;
+-  top: -3px;
+-  right: -3px;
+-  width: 7px;
+-  height: 7px;
+-  border-radius: 50%;
+-  background: #38bdf8;
+-  box-shadow: 0 0 0 2px #0f172a;
+-  animation: ta-pulse 1.8s ease-in-out infinite;
+-  pointer-events: none;
+-  z-index: 10;
+-}
+-
+-/* ── Wrapper do filho ────────────────────────────────────────────────────── */
+-.ta-anchor-wrap {
+-  position: relative;
+-  display: inline-flex;
+-  align-items: center;
+-  justify-content: center;
+-}
+-
+-/* ── Card rico ───────────────────────────────────────────────────────────── */
+-.ta-card {
+-  position: absolute;
+-  z-index: 99999;
+-  pointer-events: none;
+-
+-  width: 280px;
+-  background: #0f172a;
+-  border: 1px solid rgba(56, 189, 248, 0.22);
+-  border-radius: 12px;
+-  overflow: hidden;
+-  box-shadow:
+-    0 24px 56px rgba(0, 0, 0, 0.7),
+-    0 0 0 1px rgba(56, 189, 248, 0.06);
+-
+-  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
+-
+-  /* Centered horizontally via transform (left is the center-point) */
+-  transform: translateX(-50%);
+-
+-  /* Hidden until positioned to avoid top-0 flash */
+-  opacity: 0;
+-  transition: none;
+-}
+-
+-/* Visible only after position is calculated */
+-.ta-card--visible {
+-  animation: ta-in-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+-}
+-
+-.ta-card--visible[data-pos-baixo="true"] {
+-  animation: ta-in-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+-}
+-
+-/* ── Preview ─────────────────────────────────────────────────────────────── */
+-.ta-preview {
+-  width: 100%;
+-  aspect-ratio: 16 / 9;
+-  object-fit: cover;
+-  object-position: top left;
+-  display: block;
+-  border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+-  background: #020617;
+-}
+-
+-/* ── Corpo ───────────────────────────────────────────────────────────────── */
+-.ta-body {
+-  padding: 0.875rem 1rem 0.75rem;
+-  display: flex;
+-  flex-direction: column;
+-  gap: 0.375rem;
+-}
+-
+-/* ── Chip de categoria ───────────────────────────────────────────────────── */
+-.ta-chip {
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 0.35rem;
+-  font-size: 0.6rem;
+-  font-weight: 800;
+-  letter-spacing: 0.09em;
+-  text-transform: uppercase;
+-  color: #38bdf8;
+-  margin-bottom: 0.125rem;
+-}
+-
+-.ta-chip-dot {
+-  width: 5px;
+-  height: 5px;
+-  border-radius: 50%;
+-  background: #38bdf8;
+-  flex-shrink: 0;
+-}
+-
+-/* ── Título ──────────────────────────────────────────────────────────────── */
+-.ta-titulo {
+-  font-size: 0.9375rem;
+-  font-weight: 700;
+-  color: #f1f5f9;
+-  line-height: 1.2;
+-  margin: 0;
+-}
+-
+-/* ── Descrição ───────────────────────────────────────────────────────────── */
+-.ta-descricao {
+-  font-size: 0.8125rem;
+-  color: #64748b;
+-  line-height: 1.5;
+-  margin: 0;
+-}
+-
+-/* ── Rodapé ──────────────────────────────────────────────────────────────── */
+-.ta-footer {
+-  display: flex;
+-  align-items: center;
+-  justify-content: space-between;
+-  padding: 0.5rem 1rem 0.75rem;
+-  border-top: 1px solid rgba(56, 189, 248, 0.07);
+-}
+-
+-.ta-link {
+-  font-size: 0.75rem;
+-  font-weight: 600;
+-  color: #38bdf8;
+-  text-decoration: none;
+-  display: inline-flex;
+-  align-items: center;
+-  gap: 0.25rem;
+-  pointer-events: all;
+-  transition: opacity 0.15s;
+-}
+-
+-.ta-link:hover { opacity: 0.75; }
+-
+-.ta-duracao {
+-  font-size: 0.7rem;
+-  font-weight: 600;
+-  color: #334155;
+-  font-variant-numeric: tabular-nums;
+-}
+diff --git a/nucleo-global/tooltip-global/src/tooltip-acao.tsx b/nucleo-global/tooltip-global/src/tooltip-acao.tsx
+deleted file mode 100644
+index 618371d..0000000
+--- a/nucleo-global/tooltip-global/src/tooltip-acao.tsx
++++ /dev/null
+@@ -1,155 +0,0 @@
+-/**
+- * @nucleo/tooltip-global — tooltip-acao.tsx
+- *
+- * Tooltip rica para botões de ação (filtrar, exportar, salvar, excluir).
+- * - Preview animado (WebP loop) da funcionalidade
+- * - Beacon azul pulsante que some após primeira visualização (localStorage)
+- * - Smart positioning: aparece embaixo se não houver espaço acima
+- * - Wrapper span lida com hover — filho mantém seu ref original intacto
+- *
+- * Uso:
+- *   <TooltipAcao
+- *     acaoId="filtrar-filial"
+- *     titulo="Filtro por coluna"
+- *     descricao="Selecione valores exatos como numa planilha."
+- *     midia={filtrarWebp}
+- *   >
+- *     <button ...>...</button>
+- *   </TooltipAcao>
+- */
+-import React, { useState, useRef, useCallback, useEffect } from 'react'
+-import ReactDOM from 'react-dom'
+-import './tooltip-acao.css'
+-import type { TooltipAcaoProps } from './tipos.js'
+-
+-const STORAGE_PREFIX  = 'gravity_seen_'
+-const HOVER_VISTO_MS  = 1500   // ms de hover para marcar como "visto"
+-const SHOW_DELAY_MS   = 350    // delay antes de mostrar o card
+-const CARD_WIDTH      = 280    // px — deve coincidir com .ta-card width
+-const CARD_GAP        = 8      // px entre âncora e card
+-
+-/* ── Helpers ──────────────────────────────────────────────────────────────── */
+-
+-function jaViu(id: string)  { try { return localStorage.getItem(STORAGE_PREFIX + id) === '1' } catch { return false } }
+-function marcar(id: string) { try { localStorage.setItem(STORAGE_PREFIX + id, '1') } catch { /* noop */ } }
+-
+-/* ── Componente ───────────────────────────────────────────────────────────── */
+-
+-export function TooltipAcao({
+-  acaoId,
+-  titulo,
+-  descricao,
+-  midia,
+-  categoria = 'TUTORIAL',
+-  duracao,
+-  linkDoc,
+-  children,
+-}: TooltipAcaoProps) {
+-  const [visivel, setVisivel] = useState(false)
+-  const [visto,   setVisto]   = useState(() => jaViu(acaoId))
+-  const [pos, setPos]         = useState<{ top: number; left: number; posBaixo: boolean }>({ top: 0, left: 0, posBaixo: false })
+-  const [positioned, setPositioned] = useState(false)  // só mostra após posicionar
+-
+-  const wrapRef   = useRef<HTMLSpanElement>(null)
+-  const cardRef   = useRef<HTMLDivElement>(null)
+-  const timerShow = useRef<ReturnType<typeof setTimeout> | null>(null)
+-  const timerViu  = useRef<ReturnType<typeof setTimeout> | null>(null)
+-
+-  /* Calcula posição — smart: acima se couber, abaixo se não couber */
+-  useEffect(() => {
+-    if (!visivel || !wrapRef.current) return
+-
+-    const a = wrapRef.current.getBoundingClientRect()
+-    const cardH = cardRef.current?.getBoundingClientRect().height ?? 260
+-
+-    const spaceAbove = a.top
+-    const posBaixo = spaceAbove < cardH + CARD_GAP + 8
+-
+-    const top = posBaixo
+-      ? a.bottom + window.scrollY + CARD_GAP
+-      : a.top + window.scrollY - cardH - CARD_GAP
+-
+-    // Centraliza horizontalmente, garante que não sai da viewport
+-    const rawLeft = a.left + window.scrollX + a.width / 2
+-    const minLeft = 8
+-    const maxLeft = window.innerWidth - CARD_WIDTH - 8
+-    const left = Math.max(minLeft, Math.min(rawLeft, maxLeft))
+-
+-    setPos({ top, left, posBaixo })
+-    setPositioned(true)
+-  }, [visivel])
+-
+-  const mostrar = useCallback(() => {
+-    timerShow.current = setTimeout(() => setVisivel(true), SHOW_DELAY_MS)
+-    if (!visto) {
+-      timerViu.current = setTimeout(() => {
+-        marcar(acaoId)
+-        setVisto(true)
+-      }, HOVER_VISTO_MS)
+-    }
+-  }, [acaoId, visto])
+-
+-  const esconder = useCallback(() => {
+-    if (timerShow.current) clearTimeout(timerShow.current)
+-    if (timerViu.current)  clearTimeout(timerViu.current)
+-    setVisivel(false)
+-    setPositioned(false)
+-  }, [])
+-
+-  useEffect(() => () => {
+-    if (timerShow.current) clearTimeout(timerShow.current)
+-    if (timerViu.current)  clearTimeout(timerViu.current)
+-  }, [])
+-
+-  return (
+-    <>
+-      {/*
+-        Wrapper span lida com mouse events.
+-        O filho (button) fica intocado — mantém seu próprio ref.
+-      */}
+-      <span
+-        ref={wrapRef}
+-        className="ta-anchor-wrap"
+-        onMouseEnter={mostrar}
+-        onMouseLeave={esconder}
+-      >
+-        {children}
+-        {!visto && <span className="ta-beacon" aria-hidden="true" />}
+-      </span>
+-
+-      {/* Card — portal no body, invisível até ter posição calculada */}
+-      {visivel && ReactDOM.createPortal(
+-        <div
+-          ref={cardRef}
+-          role="tooltip"
+-          className={`ta-card${positioned ? ' ta-card--visible' : ''}`}
+-          data-pos-baixo={pos.posBaixo ? 'true' : undefined}
+-          style={{ top: pos.top, left: pos.left }}
+-        >
+-          {midia && (
+-            <img src={midia} alt={`Preview: ${titulo}`} className="ta-preview" />
+-          )}
+-
+-          <div className="ta-body">
+-            <div className="ta-chip">
+-              <span className="ta-chip-dot" aria-hidden="true" />
+-              {categoria}{duracao ? ` · ${duracao}` : ''}
+-            </div>
+-            <p className="ta-titulo">{titulo}</p>
+-            <p className="ta-descricao">{descricao}</p>
+-          </div>
+-
+-          {linkDoc && (
+-            <div className="ta-footer">
+-              <a href={linkDoc} className="ta-link" target="_blank" rel="noreferrer">
+-                Ver documentação →
+-              </a>
+-              {duracao && <span className="ta-duracao">{duracao}</span>}
+-            </div>
+-          )}
+-        </div>,
+-        document.body,
+-      )}
+-    </>
+-  )
+-}
+diff --git a/nucleo-global/tooltip-global/src/tooltip.css b/nucleo-global/tooltip-global/src/tooltip.css
+index 1e9bb10..4853874 100644
+--- a/nucleo-global/tooltip-global/src/tooltip.css
++++ b/nucleo-global/tooltip-global/src/tooltip.css
+@@ -1,102 +1,62 @@
+-/* ── tooltip-global.css ──────────────────────────────────────────────────────
+-   Estilos do TooltipGlobal — Design System Gravity.
+-   Usa variáveis CSS do workspace para manter consistência de tema.
+-   ──────────────────────────────────────────────────────────────────────────── */
++/* ── tooltip.css ─────────────────────────────────────────────────────────────
++   Unified minimalist card tooltip style.
++   ─────────────────────────────────────────────────────────────────────────── */
+ 
+-@keyframes tg-fade-in {
+-  from { opacity: 0; transform: var(--tg-enter-transform); }
+-  to   { opacity: 1; transform: var(--tg-end-transform); }
++.tg-trigger {
++  position: relative;
++  display: inline-flex;
++  align-items: center;
++  cursor: help;
+ }
+ 
+-/* ── Balão ─────────────────────────────────────────────────────────────────── */
+-.tg-balao {
+-  position: absolute;
+-  z-index: 99999;
+-  pointer-events: none;
+-
+-  background: #0f172a;
+-  border: 1px solid rgba(56, 189, 248, 0.2);
+-  color: #94a3b8;
+-
+-  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
+-  font-size: 0.75rem;
+-  font-weight: 500;
+-  line-height: 1.4;
+-  white-space: nowrap;
+-
+-  padding: 0.3rem 0.7rem;
+-  border-radius: 6px;
+-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(56, 189, 248, 0.06);
++@keyframes tg-in-up {
++  from { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.97); }
++  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1);   }
++}
+ 
+-  /* animação */
+-  animation: tg-fade-in 0.15s ease forwards;
++@keyframes tg-in-down {
++  from { opacity: 0; transform: translateX(-50%) translateY(-4px) scale(0.97); }
++  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1);   }
+ }
+ 
+-/* ── Seta ───────────────────────────────────────────────────────────────────── */
+-.tg-balao::after {
+-  content: '';
+-  position: absolute;
+-  width: 6px;
+-  height: 6px;
++.tg-card {
++  position: fixed;
++  z-index: 99999;
++  width: max-content;
++  max-width: 260px;
+   background: #0f172a;
+-  border: 1px solid rgba(56, 189, 248, 0.2);
+-  transform: rotate(45deg);
++  border: 1px solid rgba(56, 189, 248, 0.22);
++  border-radius: 8px;
++  padding: 0.75rem 1rem;
++  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
++  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
++  pointer-events: none;
++  transform: translateX(-50%);
++  /* Origin depends on if it grows up or down */
++  transform-origin: bottom center;
+ }
+ 
+-/* ── Posições ────────────────────────────────────────────────────────────────
+-   As variáveis de transform são usadas pela animação de entrada.
+-   ──────────────────────────────────────────────────────────────────────────── */
+-
+-/* TOP */
+-.tg-balao[data-pos="top"] {
+-  --tg-enter-transform: translate(-50%, 4px);
+-  --tg-end-transform:   translate(-50%, 0);
++.tg-card[data-start="bottom"] {
++  animation: tg-in-up 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+   transform-origin: bottom center;
+ }
+-.tg-balao[data-pos="top"]::after {
+-  bottom: -4px;
+-  left: 50%;
+-  transform: translateX(-50%) rotate(45deg);
+-  border-top: none;
+-  border-left: none;
+-}
+ 
+-/* BOTTOM */
+-.tg-balao[data-pos="bottom"] {
+-  --tg-enter-transform: translate(-50%, -4px);
+-  --tg-end-transform:   translate(-50%, 0);
++.tg-card[data-start="top"] {
++  animation: tg-in-down 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+   transform-origin: top center;
+ }
+-.tg-balao[data-pos="bottom"]::after {
+-  top: -4px;
+-  left: 50%;
+-  transform: translateX(-50%) rotate(45deg);
+-  border-bottom: none;
+-  border-right: none;
+-}
+ 
+-/* LEFT */
+-.tg-balao[data-pos="left"] {
+-  --tg-enter-transform: translateY(-50%) translateX(4px);
+-  --tg-end-transform:   translateY(-50%) translateX(0);
+-}
+-.tg-balao[data-pos="left"]::after {
+-  right: -4px;
+-  top: 50%;
+-  transform: translateY(-50%) rotate(45deg);
+-  border-top: none;
+-  border-left: none;
++.tg-titulo {
++  margin: 0 0 0.3rem 0;
++  font-size: 0.8125rem;
++  font-weight: 700;
++  color: #f1f5f9;
++  line-height: 1.2;
+ }
+ 
+-/* RIGHT */
+-.tg-balao[data-pos="right"] {
+-  --tg-enter-transform: translateY(-50%) translateX(-4px);
+-  --tg-end-transform:   translateY(-50%) translateX(0);
+-}
+-.tg-balao[data-pos="right"]::after {
+-  left: -4px;
+-  top: 50%;
+-  transform: translateY(-50%) rotate(45deg);
+-  border-bottom: none;
+-  border-right: none;
++.tg-descricao {
++  margin: 0;
++  font-size: 0.75rem;
++  color: #94a3b8;
++  line-height: 1.5;
+ }
+diff --git a/nucleo-global/tooltip-global/src/tooltip.tsx b/nucleo-global/tooltip-global/src/tooltip.tsx
+index 7fa0277..67a4912 100644
+--- a/nucleo-global/tooltip-global/src/tooltip.tsx
++++ b/nucleo-global/tooltip-global/src/tooltip.tsx
+@@ -1,137 +1,65 @@
+ /**
+  * @nucleo/tooltip-global — tooltip.tsx
+- *
+- * Tooltip acessível renderizada via ReactDOM.createPortal no document.body,
+- * escapando qualquer overflow:hidden do DOM pai.
+- *
+- * Uso:
+- *   <TooltipGlobal texto="Empresa filha vinculada ao tenant">
+- *     <span>Filial</span>
+- *   </TooltipGlobal>
++ * Tooltip unificada: renderiza card minimalista com título descritivo via portal.
++ * Use position:fixed calculada no onMouseEnter = zero flash.
+  */
+-import React, {
+-  useState,
+-  useRef,
+-  useCallback,
+-  useEffect,
+-  cloneElement,
+-  type ReactElement,
+-} from 'react'
++import React, { useState, useRef } from 'react'
+ import ReactDOM from 'react-dom'
+ import './tooltip.css'
+-import type { TooltipProps, TooltipPosicao } from './tipos.js'
++import type { TooltipProps } from './tipos.js'
+ 
+-/* ── Cálculo de posição ────────────────────────────────────────────────────── */
++export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
++  const [show, setShow] = useState(false)
++  const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
++  const ref = useRef<HTMLSpanElement>(null)
+ 
+-const GAP = 8 // px entre âncora e tooltip
+-
+-interface Pos { top: number; left: number }
+-
+-function calcularPosicao(
+-  anchor: DOMRect,
+-  balao: DOMRect,
+-  pos: TooltipPosicao,
+-  scroll: { x: number; y: number },
+-): Pos {
+-  const { x, y } = scroll
+-  switch (pos) {
+-    case 'top':
+-      return {
+-        top: anchor.top + y - balao.height - GAP,
+-        left: anchor.left + x + anchor.width / 2,
+-      }
+-    case 'bottom':
+-      return {
+-        top: anchor.bottom + y + GAP,
+-        left: anchor.left + x + anchor.width / 2,
+-      }
+-    case 'left':
+-      return {
+-        top: anchor.top + y + anchor.height / 2,
+-        left: anchor.left + x - balao.width - GAP,
+-      }
+-    case 'right':
+-      return {
+-        top: anchor.top + y + anchor.height / 2,
+-        left: anchor.right + x + GAP,
+-      }
++  const mostra = () => {
++    if (ref.current) {
++      const r = ref.current.getBoundingClientRect()
++      
++      // Tentamos posicionar o card ACIMA do elemento.
++      // E usamos `bottom` (do viewport) como âncora para o card crescer para cima,
++      // a menos que não caiba, aí usamos `top` (abaixo do elemento).
++      const espacoAcima = r.top
++      const usaBottom = espacoAcima > 80 // Se tiver mais que 80px acima, aparece em cima.
++      
++      const pxLeft = Math.max(138, Math.min(r.left + r.width / 2, window.innerWidth - 138))
++      
++      setPos({
++        usaBottom,
++        bottom: usaBottom ? window.innerHeight - r.top + 8 : 0,
++        top: usaBottom ? 0 : r.bottom + 8,
++        left: pxLeft,
++      })
++    }
++    setShow(true)
+   }
+-}
+-
+-/* ── Componente ────────────────────────────────────────────────────────────── */
+-
+-export function TooltipGlobal({
+-  texto,
+-  posicao = 'top',
+-  delay = 300,
+-  children,
+-}: TooltipProps) {
+-  const [visivel, setVisivel] = useState(false)
+-  const [pos, setPos] = useState<Pos>({ top: 0, left: 0 })
+-
+-  const anchorRef = useRef<HTMLElement | null>(null)
+-  const balaoRef  = useRef<HTMLDivElement | null>(null)
+-  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
+-
+-  /* Recalcula posição quando o tooltip fica visível */
+-  useEffect(() => {
+-    if (!visivel || !anchorRef.current || !balaoRef.current) return
+-    const aRect = anchorRef.current.getBoundingClientRect()
+-    const bRect = balaoRef.current.getBoundingClientRect()
+-    setPos(calcularPosicao(aRect, bRect, posicao, { x: window.scrollX, y: window.scrollY }))
+-  }, [visivel, posicao])
+-
+-  const mostrar = useCallback(() => {
+-    timerRef.current = setTimeout(() => setVisivel(true), delay)
+-  }, [delay])
+-
+-  const esconder = useCallback(() => {
+-    if (timerRef.current) clearTimeout(timerRef.current)
+-    setVisivel(false)
+-  }, [])
+-
+-  // Limpa timer ao desmontar
+-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
+-
+-  /* Injeta os event handlers no filho sem criar wrapper extra */
+-  const child = cloneElement(children as ReactElement<Record<string, unknown>>, {
+-    ref: (node: HTMLElement | null) => { anchorRef.current = node },
+-    onMouseEnter: (e: React.MouseEvent) => {
+-      mostrar()
+-      const original = (children as ReactElement<Record<string, unknown>>).props.onMouseEnter
+-      if (typeof original === 'function') original(e)
+-    },
+-    onMouseLeave: (e: React.MouseEvent) => {
+-      esconder()
+-      const original = (children as ReactElement<Record<string, unknown>>).props.onMouseLeave
+-      if (typeof original === 'function') original(e)
+-    },
+-    onFocus: (e: React.FocusEvent) => {
+-      mostrar()
+-      const original = (children as ReactElement<Record<string, unknown>>).props.onFocus
+-      if (typeof original === 'function') original(e)
+-    },
+-    onBlur: (e: React.FocusEvent) => {
+-      esconder()
+-      const original = (children as ReactElement<Record<string, unknown>>).props.onBlur
+-      if (typeof original === 'function') original(e)
+-    },
+-  })
+ 
+   return (
+     <>
+-      {child}
+-      {visivel && ReactDOM.createPortal(
+-        <div
+-          ref={balaoRef}
+-          role="tooltip"
+-          className="tg-balao"
+-          data-pos={posicao}
+-          style={{ top: pos.top, left: pos.left }}
++      <span
++        ref={ref}
++        onMouseEnter={mostra}
++        onMouseLeave={() => setShow(false)}
++        className="tg-trigger"
++      >
++        {children}
++      </span>
++
++      {show && ReactDOM.createPortal(
++        <div 
++          className="tg-card" 
++          data-start={pos.usaBottom ? 'bottom' : 'top'}
++          style={{
++            bottom: pos.usaBottom ? pos.bottom : 'auto',
++            top:    pos.usaBottom ? 'auto'   : pos.top,
++            left:   pos.left,
++          }}
+         >
+-          {texto}
++          {titulo && <p className="tg-titulo">{titulo}</p>}
++          <p className="tg-descricao">{descricao}</p>
+         </div>,
+-        document.body,
++        document.body
+       )}
+     </>
+   )

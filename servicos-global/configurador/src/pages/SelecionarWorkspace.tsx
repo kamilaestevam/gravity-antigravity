@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useClerk } from '@clerk/clerk-react'
+import { LogoGlobal } from '@nucleo/logo-global'
 import { useNavigate } from 'react-router-dom'
 import {
-  Hexagon,
   ArrowLeft,
   Plus,
   Buildings,
@@ -19,13 +19,13 @@ interface Empresa {
 }
 
 const mockEmpresas: Empresa[] = [
-  { id: 'e1', nome: 'Acme Corporation',  cnpj: '12.345.678/0001-90', plano: 'Enterprise',   cor: '#38bdf8', iniciais: 'AC' },
+  { id: 'e1', nome: 'Acme Corporation',  cnpj: '12.345.678/0001-90', plano: 'Enterprise',   cor: '#818cf8', iniciais: 'AC' },
   { id: 'e2', nome: 'Importex SA',       cnpj: '96.765.432/0001-10', plano: 'Profissional', cor: '#818cf8', iniciais: 'IS' },
   { id: 'e3', nome: 'TradeFlow Comex',   cnpj: '55.123.000/0001-44', plano: 'Básico',       cor: '#34d399', iniciais: 'TF' },
 ]
 
 const planoBadgeColor: Record<string, string> = {
-  Enterprise:   '#38bdf8',
+  Enterprise:   '#818cf8',
   Profissional: '#818cf8',
   Básico:       '#94a3b8',
 }
@@ -64,7 +64,7 @@ export function SelecionarWorkspace() {
         <div style={{
           position: 'absolute', top: '-15%', left: '-10%',
           width: '50%', height: '50%',
-          background: 'radial-gradient(ellipse, rgba(56,189,248,0.07) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, rgba(129,140,248,0.07) 0%, transparent 70%)',
         }} />
         <div style={{
           position: 'absolute', bottom: '-15%', right: '-10%',
@@ -76,7 +76,7 @@ export function SelecionarWorkspace() {
       {/* Card central */}
       <div style={{
         background: 'var(--color-surface)',
-        border: '1px solid rgba(56,189,248,0.12)',
+        border: '1px solid rgba(129,140,248,0.12)',
         borderRadius: '20px',
         padding: '2.5rem',
         width: '100%',
@@ -110,10 +110,10 @@ export function SelecionarWorkspace() {
           <div style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 52, height: 52, borderRadius: '14px',
-            background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)',
+            background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)',
             marginBottom: '1.25rem',
           }}>
-            <Hexagon weight="duotone" size={28} color="#38bdf8" />
+            <LogoGlobal iconOnly iconSize={28} iconColor="#818cf8" />
           </div>
 
           <h1 style={{
@@ -144,10 +144,10 @@ export function SelecionarWorkspace() {
                 display: 'flex', alignItems: 'center', gap: '0.875rem',
                 padding: '0.875rem 1rem',
                 background: selecionando === emp.id
-                  ? 'rgba(56,189,248,0.1)'
+                  ? 'rgba(129,140,248,0.1)'
                   : 'rgba(255,255,255,0.03)',
                 border: `1px solid ${selecionando === emp.id
-                  ? 'rgba(56,189,248,0.35)'
+                  ? 'rgba(129,140,248,0.35)'
                   : 'rgba(255,255,255,0.07)'}`,
                 borderRadius: '12px',
                 cursor: selecionando !== null ? 'default' : 'pointer',
@@ -157,8 +157,8 @@ export function SelecionarWorkspace() {
               }}
               onMouseEnter={e => {
                 if (!selecionando) {
-                  e.currentTarget.style.background = 'rgba(56,189,248,0.07)'
-                  e.currentTarget.style.borderColor = 'rgba(56,189,248,0.25)'
+                  e.currentTarget.style.background = 'rgba(129,140,248,0.07)'
+                  e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)'
                 }
               }}
               onMouseLeave={e => {
@@ -206,7 +206,7 @@ export function SelecionarWorkspace() {
 
               {/* Check ao selecionar */}
               {selecionando === emp.id && (
-                <CheckCircle weight="fill" size={20} color="#38bdf8" />
+                <CheckCircle weight="fill" size={20} color="#818cf8" />
               )}
             </button>
           ))}
@@ -215,7 +215,7 @@ export function SelecionarWorkspace() {
         {/* Linha divisória */}
         <div style={{
           height: '1px',
-          background: 'rgba(56,189,248,0.08)',
+          background: 'rgba(129,140,248,0.08)',
           marginBottom: '1.25rem',
         }} />
 
@@ -236,9 +236,9 @@ export function SelecionarWorkspace() {
             transition: 'all 0.15s',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background = 'rgba(56,189,248,0.07)'
-            e.currentTarget.style.borderColor = 'rgba(56,189,248,0.2)'
-            e.currentTarget.style.color = '#38bdf8'
+            e.currentTarget.style.background = 'rgba(129,140,248,0.07)'
+            e.currentTarget.style.borderColor = 'rgba(129,140,248,0.2)'
+            e.currentTarget.style.color = '#818cf8'
           }}
           onMouseLeave={e => {
             e.currentTarget.style.background = 'rgba(255,255,255,0.04)'

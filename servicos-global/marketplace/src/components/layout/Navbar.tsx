@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  Hexagon,
   List,
   X,
 } from '@phosphor-icons/react'
 
 import '../../styles/navbar.css'
+import { LogoGlobal } from '@nucleo/logo-global'
+
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -33,9 +34,8 @@ export function Navbar() {
     <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
       <div className="container navbar__inner">
         {/* Logo */}
-        <Link to="/" className="navbar__logo" aria-label="Gravity Home">
-          <Hexagon size={28} weight="duotone" color="var(--accent)" />
-          <span className="navbar__brand">Gravity</span>
+        <Link to="/" className="navbar__logo" aria-label="Gravity Home" style={{ textDecoration: 'none' }}>
+          <LogoGlobal iconColor="var(--accent)" />
         </Link>
 
         {/* Links Desktop */}

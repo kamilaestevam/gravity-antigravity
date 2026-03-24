@@ -21,7 +21,7 @@ const PRODUCT_DATA: Record<string, {
     name: 'Simulador Comex',
     icon: <Globe size={24} weight="duotone" />,
     price: { basico: 97, profissional: 247, enterprise: 0 },
-    color: '#38bdf8',
+    color: '#818cf8',
   },
   'nf-importacao': {
     name: 'NF Importação',

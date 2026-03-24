@@ -11,9 +11,9 @@ import {
   Star,
   Buildings,
   Globe,
-  Hexagon,
   Rocket,
 } from '@phosphor-icons/react'
+import { LogoGlobal } from '@nucleo/logo-global'
 import { OnboardingPreview } from '../components/flows/OnboardingPreview'
 import { PaywallDrawer } from '../components/flows/PaywallDrawer'
 import '../styles/home.css'
@@ -246,7 +246,7 @@ export function Home() {
               onClick={() => setPaywallOpen(true)}
               style={{ fontSize: '0.8125rem' }}
             >
-              <Hexagon size={16} weight="duotone" />
+              <LogoGlobal iconOnly iconSize={16} />
               Demo: Ver como funciona o upgrade Pro
             </button>
           </div>

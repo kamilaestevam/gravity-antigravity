@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
-import { Hexagon, GithubLogo, LinkedinLogo } from '@phosphor-icons/react'
+import { GithubLogo, LinkedinLogo } from '@phosphor-icons/react'
 import '../../styles/footer.css'
+import { LogoGlobal } from '@nucleo/logo-global'
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -12,8 +13,7 @@ export function Footer() {
           {/* Brand */}
           <div className="footer__brand">
             <div className="footer__logo">
-              <Hexagon size={24} weight="duotone" color="var(--accent)" />
-              <span className="footer__brand-name">Gravity</span>
+              <LogoGlobal iconSize={24} iconColor="var(--accent)" />
             </div>
             <p className="footer__tagline">
               Plataforma SaaS B2B modular. Serviços compartilhados,

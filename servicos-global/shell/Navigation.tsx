@@ -67,7 +67,7 @@ const CronometroModule   = lazy(() => Promise.resolve({ default: () => <ModulePl
 const HistoricoModule    = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Histórico" />    }))
 
 // Onda 3 — Serviços de produto (stubs lazy)
-const GabiModule         = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Gabi IA" />      }))
+const GabiModule         = lazy(() => import('@tenant/gabi/src/Gabi'))
 const HelpdeskModule     = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Helpdesk" />     }))
 const ConectorErpModule  = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Conector ERP" />  }))
 

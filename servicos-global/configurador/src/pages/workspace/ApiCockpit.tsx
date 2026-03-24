@@ -75,7 +75,7 @@ export function ApiCockpit() {
 
       {/* Services table */}
       <p className="ws-section-title ws-fade-up ws-fade-up-d2">
-        <PlugsConnected weight="duotone" size={14} color="#38bdf8" />
+        <PlugsConnected weight="duotone" size={14} color="#818cf8" />
         Status dos Serviços
       </p>
       <div className="ws-table-wrap ws-fade-up ws-fade-up-d2" style={{ marginBottom: '2rem' }}>
@@ -95,8 +95,8 @@ export function ApiCockpit() {
                 <td style={{ fontWeight: 600 }}>{s.produto}</td>
                 <td>
                   <code style={{
-                    fontSize: '0.78125rem', color: '#38bdf8',
-                    background: 'rgba(56,189,248,0.07)',
+                    fontSize: '0.78125rem', color: '#818cf8',
+                    background: 'rgba(129,140,248,0.07)',
                     padding: '0.2rem 0.5rem', borderRadius: '5px',
                     display: 'block', maxWidth: '320px', overflow: 'hidden',
                     textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -156,8 +156,8 @@ export function ApiCockpit() {
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           padding: '0.875rem 1.25rem',
-          borderBottom: '1px solid rgba(56,189,248,0.08)',
-          background: 'rgba(56,189,248,0.04)',
+          borderBottom: '1px solid rgba(129,140,248,0.08)',
+          background: 'rgba(129,140,248,0.04)',
         }}>
           <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-muted)' }}>
             cURL — Exemplo de requisição autenticada
@@ -187,12 +187,12 @@ export function ApiCockpit() {
           { title: 'Ambientes', desc: 'Prefixo gv_live_sk_ para produção e gv_test_sk_ para sandbox. Todos os endpoints aceitam ambos os prefixos.' },
         ].map(card => (
           <div key={card.title} style={{
-            background: 'rgba(56,189,248,0.04)',
-            border: '1px solid rgba(56,189,248,0.1)',
+            background: 'rgba(129,140,248,0.04)',
+            border: '1px solid rgba(129,140,248,0.1)',
             borderRadius: '10px',
             padding: '1rem 1.125rem',
           }}>
-            <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#38bdf8', marginBottom: '0.375rem' }}>{card.title}</p>
+            <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#818cf8', marginBottom: '0.375rem' }}>{card.title}</p>
             <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0 }}>{card.desc}</p>
           </div>
         ))}

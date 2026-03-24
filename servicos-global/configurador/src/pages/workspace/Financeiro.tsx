@@ -48,7 +48,7 @@ export function Financeiro() {
     {
       key: 'num', label: '#', tipo: 'texto', align: 'center',
       tooltipTitulo: 'Número da Fatura', tooltipDescricao: 'Identificador único.',
-      render: (v) => <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>{v}</code>
+      render: (v) => <code style={{ fontSize: '0.8125rem', color: '#818cf8', background: 'rgba(129,140,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>{v}</code>
     },
     {
       key: 'competencia', label: 'Competência', tipo: 'texto',
@@ -115,7 +115,7 @@ export function Financeiro() {
 
       {/* Invoices table */}
       <p className="ws-section-title ws-fade-up ws-fade-up-d2">
-        <Receipt weight="duotone" size={14} color="#38bdf8" />
+        <Receipt weight="duotone" size={14} color="#818cf8" />
         Histórico de Faturas
       </p>
       <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
@@ -139,15 +139,15 @@ export function Financeiro() {
 
       {/* Info card */}
       <div style={{
-        background: 'rgba(56,189,248,0.06)',
-        border: '1px solid rgba(56,189,248,0.15)',
+        background: 'rgba(129,140,248,0.06)',
+        border: '1px solid rgba(129,140,248,0.15)',
         borderRadius: '10px',
         padding: '1rem 1.25rem',
         fontSize: '0.8125rem',
         color: 'var(--ws-muted)',
         lineHeight: 1.6,
       }}>
-        💡 <strong style={{ color: 'var(--ws-text)' }}>Segunda via</strong> — O download de boletos e NF-e fica disponível após conectar o backend de cobrança. Para dúvidas, contate <strong style={{ color: '#38bdf8' }}>financeiro@gravity.com.br</strong>.
+        💡 <strong style={{ color: 'var(--ws-text)' }}>Segunda via</strong> — O download de boletos e NF-e fica disponível após conectar o backend de cobrança. Para dúvidas, contate <strong style={{ color: '#818cf8' }}>financeiro@gravity.com.br</strong>.
       </div>
     </div>
   )

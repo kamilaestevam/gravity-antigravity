@@ -17,7 +17,7 @@ export interface Produto {
 }
 
 const billingColor: Record<BillingType, string> = {
-  SaaS:  '#38bdf8',
+  SaaS:  '#818cf8',
   Uso:   '#a78bfa',
   Setup: '#fb923c',
 }
@@ -207,10 +207,10 @@ export function Assinaturas() {
       <div className="ws-plan-card ws-fade-up">
         <div>
           <p className="ws-section-title" style={{ marginBottom: '0.375rem' }}>
-            <CreditCard weight="duotone" size={14} color="#38bdf8" />
+            <CreditCard weight="duotone" size={14} color="#818cf8" />
             Plano Atual
           </p>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#38bdf8', marginBottom: '0.25rem' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#818cf8', marginBottom: '0.25rem' }}>
             {currentPlan.name}
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--ws-muted)' }}>
@@ -262,12 +262,12 @@ export function Assinaturas() {
           }}
           onMouseEnter={e => {
             const el = e.currentTarget
-            el.style.borderColor = '#38bdf8'
-            el.style.boxShadow = '0 0 0 1px rgba(56,189,248,0.15), 0 4px 16px rgba(0,0,0,0.3)'
+            el.style.borderColor = '#818cf8'
+            el.style.boxShadow = '0 0 0 1px rgba(129,140,248,0.15), 0 4px 16px rgba(0,0,0,0.3)'
           }}
           onMouseLeave={e => {
             const el = e.currentTarget
-            el.style.borderColor = 'rgba(56,189,248,0.18)'
+            el.style.borderColor = 'rgba(129,140,248,0.18)'
             el.style.boxShadow = 'none'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -306,8 +306,8 @@ export function Assinaturas() {
               {plans.map(pl => (
                 <label key={pl.name} style={{
                   display: 'flex', alignItems: 'center', gap: '0.875rem',
-                  background: selectedPlan === pl.name ? 'rgba(56,189,248,0.08)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${selectedPlan === pl.name ? '#38bdf8' : 'rgba(56,189,248,0.1)'}`,
+                  background: selectedPlan === pl.name ? 'rgba(129,140,248,0.08)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${selectedPlan === pl.name ? '#818cf8' : 'rgba(129,140,248,0.1)'}`,
                   borderRadius: '10px',
                   padding: '0.875rem 1rem',
                   cursor: 'pointer',
@@ -319,7 +319,7 @@ export function Assinaturas() {
                     value={pl.name}
                     checked={selectedPlan === pl.name}
                     onChange={() => setSelectedPlan(pl.name)}
-                    style={{ accentColor: '#38bdf8' }}
+                    style={{ accentColor: '#818cf8' }}
                   />
                   <div>
                     <p style={{ fontWeight: 700, color: 'var(--ws-text)', margin: '0 0 0.125rem' }}>{pl.name}</p>

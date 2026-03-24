@@ -305,30 +305,181 @@ body.light-theme [data-tooltip]:hover::after {
   color: var(--ws-accent);
 }
 
-.ws-sidebar__footer {
-  padding: 0.75rem;
-  border-top: 1px solid var(--ws-accent-border);
-  margin-top: -24px;
+/* ── Global Actions (Floating on right) ─────────────────────────────────── */
+.ws-global-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 74px;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 100;
+  pointer-events: none; /* Let clicks pass through empty space */
 }
 
-/* ── Sidebar footer user block ──────────────────────────────────────── */
-.ws-sidebar-user {
+/* Re-enable pointer events for interactive elements */
+.ws-global-actions > * {
+  pointer-events: auto;
+}
+
+.ws-global-search {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border-radius: 9999px;
+  height: 36px;
+  width: 36px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+}
+
+.ws-global-search.expanded {
+  width: 280px;
+  background: var(--ws-surface);
+  border-color: var(--ws-accent-border);
+  box-shadow: 0 0 0 1px var(--ws-accent-dim);
+}
+
+.ws-global-search.expanded:focus-within {
+  border-color: var(--ws-accent);
+  box-shadow: 0 0 0 1px var(--ws-accent);
+}
+
+.ws-global-search__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ws-text);
+  font-size: 0.8125rem;
+  font-family: var(--font);
+  opacity: 0;
+  transition: opacity 0.2s;
+  width: 0;
+  padding-right: 0.5rem;
+  -webkit-appearance: none;
+}
+
+/* Reseta o ícone X nativo do Windows (Edge) e Chrome para evitar sobreposição */
+.ws-global-search__input::-ms-clear,
+.ws-global-search__input::-ms-reveal {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.ws-global-search__input::-webkit-search-decoration,
+.ws-global-search__input::-webkit-search-cancel-button,
+.ws-global-search__input::-webkit-search-results-button,
+.ws-global-search__input::-webkit-search-results-decoration {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+.ws-global-search.expanded .ws-global-search__input {
+  opacity: 1;
+  width: auto;
+  padding-left: 0.25rem;
+}
+
+.ws-global-search__input::placeholder {
+  color: var(--ws-muted);
+}
+
+.ws-global-cmd {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--ws-muted);
+  background: var(--ws-surface-2);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 4px;
+  padding: 0.125rem 0.375rem;
+  pointer-events: none;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ws-global-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--ws-muted);
+  cursor: pointer;
+  padding: 0;
+  margin-right: 0.5rem;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.ws-global-clear:hover {
+  color: var(--ws-text);
+}
+
+.ws-global-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--ws-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.ws-global-btn:hover {
+  background: var(--ws-accent-dim);
+  color: var(--ws-text);
+}
+
+.ws-global-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f43f5e;
+  border: 2px solid var(--ws-bg-body);
+}
+
+.ws-global-user-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ws-global-user {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0.5rem 0.5rem;
-  border-radius: 10px;
-  transition: background 0.15s;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: left;
+  font-family: var(--font);
+  margin-left: 0.25rem;
 }
 
-.ws-sidebar-user:hover {
+.ws-global-user:hover {
   background: var(--ws-accent-dim);
 }
 
-.ws-sidebar-user__avatar {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+.ws-global-user__avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   border-radius: 50%;
   background: rgba(129, 140, 248, 0.18);
   border: 1px solid rgba(129, 140, 248, 0.3);
@@ -338,30 +489,209 @@ body.light-theme [data-tooltip]:hover::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-.ws-sidebar-user__info {
+.ws-global-user__info {
   display: flex;
   flex-direction: column;
-  gap: 0.0625rem;
   line-height: 1.2;
-  min-width: 0;
 }
 
-.ws-sidebar-user__name {
+.ws-global-user__name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ws-text);
+  white-space: nowrap;
+}
+
+.ws-global-user__role {
+  font-size: 0.625rem;
+  color: var(--ws-muted);
+  white-space: nowrap;
+}
+
+.ws-global-caret {
+  color: var(--ws-muted);
+  margin-left: 0.25rem;
+}
+
+/* ── Grade 10 UX Profile Dropdown ── */
+.ws-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0,0,0,0.05);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  animation: ws-fade-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+body.light-theme .ws-profile-dropdown {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+.ws-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.ws-profile-avatar-lg {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: var(--ws-accent-dim);
+  border: 1px solid var(--ws-accent-border);
+  color: var(--ws-accent);
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ws-profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  overflow: hidden;
+}
+
+.ws-profile-name {
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ws-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.ws-sidebar-user__role {
+.ws-profile-email {
   font-size: 0.6875rem;
   color: var(--ws-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-profile-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--ws-accent);
+  background: var(--ws-accent-dim);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  align-self: flex-start;
+  margin-top: 0.125rem;
+}
+
+.ws-profile-separator {
+  height: 1px;
+  background: var(--ws-accent-border);
+  margin: 0.25rem 0;
+}
+
+.ws-profile-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.ws-profile-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--ws-text);
+  font-size: 0.8125rem;
+  font-family: var(--font);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ws-profile-item svg {
+  color: var(--ws-muted);
+}
+
+.ws-profile-item:hover {
+  background: var(--ws-accent-dim);
+}
+
+.ws-profile-item:hover svg {
+  color: var(--ws-accent);
+}
+
+.ws-profile-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ws-profile-item:disabled:hover {
+  background: transparent;
+}
+
+.ws-profile-item--danger {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.ws-profile-item--danger svg {
+  color: #ef4444;
+}
+
+.ws-profile-item--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.ws-profile-item--danger:hover svg {
+  color: #ef4444;
+}
+
+.ws-profile-new-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f43f5e;
+  margin-left: auto;
+}
+
+.ws-profile-badge-soon {
+  font-size: 0.5625rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--ws-accent);
+  background: var(--ws-accent-dim);
+  border: 1px solid var(--ws-accent-border);
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  margin-left: auto;
+  pointer-events: none;
+}
+
+/* Corrige o layout caso envolto pelo TooltipGlobal (span tg-trigger) */
+.ws-profile-section .tg-trigger {
+  display: block;
+  width: 100%;
+}
+
+/* Search hidden helper */
+.ws-search-hidden {
+  display: none !important;
 }
 
 /* ── Sidebar tenant info block ─────────────────────────────────────────── */
@@ -459,6 +789,12 @@ body.light-theme [data-tooltip]:hover::after {
 
 /* ws-page-header* removido — use @nucleo/cabecalho-global */
 
+/* Previne que as ações inseridas pelo CabecalhoGlobal nas páginas de conteúdo (como o Botão Salvar)
+   sejam sobrepostas pelas ações flutuantes da plataforma (Buscar, Perfil, etc) */
+.cg-header {
+  padding-right: 380px !important; 
+}
+
 
 /* ── Tenant chip ──────────────────────────────────────── */
 .ws-tenant-chip {
@@ -531,9 +867,10 @@ body.light-theme [data-tooltip]:hover::after {
   padding: 24px 2rem 2rem;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden; /* Cortamos o scroll daqui! Ele joga pro filho. */
   overflow-x: clip;
-  scroll-padding-top: 74px;
 }
 
 /* ── Bottom user bar ────────────────────────────────────────────────────── */
@@ -1526,7 +1863,7 @@ input[type="search"]::placeholder {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.375rem;
 }
 
 .em-identity__badge {

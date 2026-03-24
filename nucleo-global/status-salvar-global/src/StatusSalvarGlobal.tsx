@@ -51,9 +51,10 @@ export interface StatusSalvarGlobalProps {
    */
   onAutoReset?: () => void
   /**
-   * Classes extras.
+   * Se true, o componente não será renderizado (ficará oculto) quando o status for "idle".
+   * Útil para manter a interface mais limpa.
    */
-  className?: string
+  hideOnIdle?: boolean
 }
 
 const ICON_MAP = {
@@ -74,6 +75,7 @@ export function StatusSalvarGlobal({
   autoResetMs = 3000,
   onAutoReset,
   className = '',
+  hideOnIdle = false,
 }: StatusSalvarGlobalProps) {
   const [internalStatus, setInternalStatus] = useState<StatusSalvar>(propStatus)
 
@@ -102,6 +104,10 @@ export function StatusSalvarGlobal({
       case 'error': return textError
       default: return ''
     }
+  }
+
+  if (hideOnIdle && internalStatus === 'idle') {
+    return null
   }
 
   return (

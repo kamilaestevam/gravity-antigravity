@@ -13,8 +13,11 @@ import {
   Plugs,
   Star,
   Gear,
+  CaretDoubleLeft,
+  CaretDoubleRight,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
+import { LogoGlobal } from '@nucleo/logo-global'
 
 interface NavItem {
   to: string
@@ -76,7 +79,7 @@ const NAV_SECTIONS: NavSection[] = [
  * - Nunca contém lógica de produto
  */
 export function Sidebar() {
-  const { sidebarOpen } = useShellStore()
+  const { sidebarOpen, toggleSidebar } = useShellStore()
   const location = useLocation()
 
   return (
@@ -87,10 +90,19 @@ export function Sidebar() {
     >
       {/* Logo / marca */}
       <div className="shell-sidebar__logo">
-        <div className="shell-sidebar__logo-mark" aria-hidden="true">
-          G
-        </div>
-        <span className="shell-sidebar__logo-text">Gravity</span>
+        <LogoGlobal iconOnly={!sidebarOpen} iconSize={24} />
+        <button
+          className="shell-sidebar__collapse-btn"
+          onClick={toggleSidebar}
+          aria-label={sidebarOpen ? 'Recolher menu' : 'Expandir menu'}
+          title={sidebarOpen ? 'Recolher menu' : 'Expandir menu'}
+        >
+          {sidebarOpen ? (
+            <CaretDoubleLeft size={12} weight="bold" />
+          ) : (
+            <CaretDoubleRight size={12} weight="bold" />
+          )}
+        </button>
       </div>
 
       {/* Itens de navegação */}

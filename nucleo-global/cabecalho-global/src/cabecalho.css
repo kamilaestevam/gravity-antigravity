@@ -39,7 +39,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.125rem;
+  gap: 0.1875rem;
 }
 
 /* Linha do ícone + h1 */
@@ -60,7 +60,7 @@
 
 /* H1 */
 .cg-header__title {
-  font-size: 1.375rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--cg-text);
   line-height: 1.2;
@@ -69,7 +69,7 @@
 
 /* Subtítulo — alinhado com o ícone (mesma borda esquerda) */
 .cg-header__subtitle {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--cg-muted);
   margin: 0;
   line-height: 1.4;

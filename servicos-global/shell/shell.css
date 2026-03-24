@@ -101,9 +101,9 @@ body,
   border-right: 1px solid var(--bg-elevated);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   transition: width var(--sidebar-transition);
-  z-index: 10;
+  z-index: 11;
+  position: relative;
 }
 
 .shell-sidebar__logo {
@@ -114,6 +114,7 @@ body,
   height: var(--header-height);
   border-bottom: 1px solid var(--bg-elevated);
   flex-shrink: 0;
+  position: relative;
 }
 
 .shell-sidebar__logo-mark {
@@ -138,6 +139,30 @@ body,
   overflow: hidden;
   opacity: 1;
   transition: opacity var(--sidebar-transition), width var(--sidebar-transition);
+}
+
+.shell-sidebar__collapse-btn {
+  position: absolute;
+  right: -12px;
+  top: calc(var(--header-height) / 2 - 12px);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--bg-body-dark);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: background 0.15s, color 0.15s, transform var(--sidebar-transition);
+  box-shadow: var(--shadow-sm);
+}
+
+.shell-sidebar__collapse-btn:hover {
+  background: var(--bg-surface);
+  color: var(--accent);
 }
 
 .sidebar-collapsed .shell-sidebar__logo-text {

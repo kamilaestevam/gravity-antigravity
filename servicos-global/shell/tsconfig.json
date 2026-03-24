@@ -4,7 +4,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@nucleo/*": ["../../nucleo-global/*"]
+      "@nucleo/*": ["../../nucleo-global/*"],
+      "@tenant/*": ["../../tenant/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

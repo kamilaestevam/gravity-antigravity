@@ -1,0 +1,445 @@
+/* Gabi.css */
+.gabi-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #0f111a; /* Solid background to prevent bleeding */
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font, 'Inter', sans-serif);
+  color: var(--color-text, #ffffff);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: relative;
+}
+
+.gabi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.5rem 1.25rem;
+  background: transparent;
+}
+
+.gabi-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.gabi-avatar-container {
+  position: relative;
+  width: 63px; /* Updated to 63px */
+  height: 63px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 2px solid var(--color-primary, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.2);
+}
+
+.gabi-status-led {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background-color: var(--color-success, #10b981);
+  border: 2px solid #0f111a;
+  border-radius: 50%;
+}
+
+.gabi-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.gabi-header-info h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.125rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+
+.gabi-header-info p {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gabi-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gabi-icon-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gabi-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.gabi-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: transparent; 
+}
+
+/* Welcome Screen */
+.gabi-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  padding: 0 1rem;
+}
+.gabi-welcome-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 1rem;
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+}
+.gabi-welcome h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 1.5rem;
+}
+.gabi-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: 100%;
+}
+.gabi-quick-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-size: 0.8125rem;
+  color: #d1d5db;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.gabi-quick-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #fff;
+}
+
+/* Messages */
+.gabi-message {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+}
+.gabi-message.assistant { align-self: flex-start; }
+.gabi-message.user { align-self: flex-end; max-width: 80%; align-items: flex-end; }
+
+.gabi-message-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+.gabi-message.user .gabi-message-row { flex-direction: row-reverse; }
+
+.gabi-avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.gabi-avatar-small.primary {
+  background: #623aea;
+  color: #fff;
+  border: none;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.gabi-message-bubble {
+  padding: 0.875rem 1rem;
+  border-radius: 16px;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #e5e7eb;
+  word-wrap: break-word;
+}
+.gabi-message.assistant .gabi-message-bubble {
+  background: #1c2233;
+  border: 1px solid #272d42;
+  border-bottom-left-radius: 4px;
+}
+.gabi-message.user .gabi-message-bubble {
+  background: #3c2373;
+  border: 1px solid #483183;
+  color: #e2dcf2;
+  border-bottom-right-radius: 4px;
+}
+
+/* Markdown elements */
+.gabi-markdown strong { color: #fff; font-weight: 600; }
+.gabi-markdown em { font-style: italic; color: #cbd5e1; }
+.gabi-markdown div.header { font-size: 1.0625rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; margin-top: 0.5rem; }
+.gabi-markdown ul { margin: 0.5rem 0 0.5rem 1.5rem; padding: 0; }
+.gabi-markdown li { margin-bottom: 0.25rem; }
+.gabi-markdown code { 
+  background: rgba(0,0,0,0.3); 
+  padding: 0.125rem 0.375rem; 
+  border-radius: 4px; 
+  font-family: monospace; 
+  font-size: 0.8125rem; 
+  color: #818cf8; 
+}
+
+.gabi-timestamp {
+  font-size: 0.6875rem;
+  color: #6b7280;
+  margin-top: 0.375rem;
+  margin-left: 3rem;
+}
+.gabi-message.user .gabi-timestamp {
+  text-align: right;
+  margin-left: 0;
+  margin-right: 3rem;
+}
+
+/* Thinking Badge */
+.gabi-thinking-badge {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.375rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+.gabi-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Footer */
+.gabi-footer {
+  padding: 0.5rem 1.25rem 1rem 1.25rem;
+  background: transparent;
+}
+
+.gabi-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid #292a43;
+  border-radius: 16px;
+  padding: 0.5rem;
+  transition: border-color 0.2s;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+.gabi-input-wrapper:focus-within {
+  border-color: #6366f1;
+}
+
+.gabi-attach-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.gabi-attach-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.gabi-textarea-new {
+  flex: 1;
+  background: none;
+  border: none;
+  resize: none;
+  color: #fff;
+  font-family: var(--font, 'Inter', sans-serif);
+  font-size: 0.9375rem;
+  padding: 0.5rem 0.5rem;
+  outline: none;
+  max-height: 120px;
+}
+.gabi-textarea-new::placeholder {
+  color: #6b7280;
+}
+
+/* Send button gradient */
+.gabi-send-btn {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+.gabi-send-btn:active { transform: scale(0.95); }
+.gabi-send-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+/* Uploads thumbnails */
+.gabi-upload-preview {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+  padding: 0 0.25rem;
+}
+.gabi-thumbnail {
+  position: relative;
+  width: 80px; /* 80px thumbnail */
+  height: 80px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.gabi-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gabi-thumbnail button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 10px;
+}
+.gabi-thumbnail button:hover { background: #ef4444; }
+
+/* Drag and Drop */
+.gabi-drop-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 17, 26, 0.9);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #6366f1;
+  font-size: 1.125rem;
+  font-weight: 600;
+  gap: 1rem;
+  border: 2px dashed #6366f1;
+  border-radius: 20px;
+}
+
+.gabi-footer-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  font-size: 0.65rem;
+  color: #6b7280;
+  line-height: 1.2;
+}
+.gabi-footer-note-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+.gabi-footer-note span.key {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.gabi-typing-indicator {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+.gabi-typing-indicator span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #9ca3af;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+.gabi-typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.gabi-typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}

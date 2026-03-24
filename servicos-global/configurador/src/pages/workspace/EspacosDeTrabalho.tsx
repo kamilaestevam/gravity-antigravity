@@ -6,6 +6,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { PaginaGlobal } from '@nucleo/pagina-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 export type EmpresaStatus = 'Ativa' | 'Suspensa'
@@ -93,9 +94,7 @@ export function EspacosDeTrabalho() {
   }
 
   function handleSuspend(linha: Empresa) {
-    if (linha.status === 'Ativa') {
-      if (!window.confirm('Suspender esta empresa filha? Todo acesso será bloqueado.')) return
-    }
+    // Bypass window.confirm to avoid silent failures in secure iframes.
     setEspacosDeTrabalho(prev =>
       prev.map(e => e.id === linha.id
         ? { ...e, status: e.status === 'Ativa' ? 'Suspensa' : 'Ativa' }
@@ -105,7 +104,7 @@ export function EspacosDeTrabalho() {
   }
 
   function handleDelete(linha: Empresa) {
-    if (!window.confirm('Excluir permanentemente esta empresa filha? Esta ação não pode ser desfeita.')) return
+    if (!window.confirm('Excluir permanentemente este espaço de trabalho? Esta ação não pode ser desfeita.')) return
     setEspacosDeTrabalho(prev => prev.filter(e => e.id !== linha.id))
   }
 
@@ -165,10 +164,10 @@ export function EspacosDeTrabalho() {
       tooltip: 'Suspender',
       onClick: handleSuspend,
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.status === 'Ativa' ? 'Bloquear todo o acesso deste espaço de trabalho' : 'Reativar acesso para este espaço de trabalho'}>
+        <TooltipGlobal descricao={item.status === 'Ativa' ? 'Todo acesso deste espaço de trabalho será bloqueado imediatamente' : 'Reativar acesso para este espaço de trabalho'}>
           <button
             type="button"
-            onClick={() => handleSuspend(item)}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleSuspend(item); }}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
             onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
             onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
@@ -212,15 +211,18 @@ export function EspacosDeTrabalho() {
   ]
 
   return (
-    <div>
-      <CabecalhoGlobal
-        icone={<Buildings weight="duotone" size={22} />}
-        titulo="Espaços de Trabalho"
-        subtitulo="Gerencie todos os espaços de trabalho cadastrados na sua organização."
-      />
-
-      <div className="ws-stats-row">
-        <div className="ws-stats">
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Buildings weight="duotone" size={22} />}
+          titulo="Espaços de Trabalho"
+          subtitulo="Gerencie todos os espaços de trabalho cadastrados na sua organização."
+        />
+      }
+      stats={
+        <>
           <CardBasicoGlobal
             titulo="Total de Espaços"
             icone={<TreeStructure weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
@@ -344,17 +346,16 @@ export function EspacosDeTrabalho() {
               </>
             }
           />
-        </div>
-
-        <div className="ws-stats-row__action">
-          <BotaoNovoGlobal
-            rotulo="Novo Espaço de Trabalho"
-            onClick={() => setShowForm(v => !v)}
-            ativo={showForm}
-          />
-        </div>
-      </div>
-
+        </>
+      }
+      acoes={
+        <BotaoNovoGlobal
+          rotulo="Novo Espaço de Trabalho"
+          onClick={() => setShowForm(v => !v)}
+          ativo={showForm}
+        />
+      }
+    >
       {showForm && (
         <div className="ws-form-card" style={{ marginBottom: '1.5rem' }}>
           <p className="ws-section-title" style={{ width: 'max-content' }}>
@@ -425,7 +426,7 @@ export function EspacosDeTrabalho() {
           mensagemSemFiltro="Nenhum espaço de trabalho cadastrado."
         />
       </div>
-    </div>
+    </PaginaGlobal>
   )
 }
 

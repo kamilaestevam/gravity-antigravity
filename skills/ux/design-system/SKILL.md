@@ -21,9 +21,9 @@ Dark mode é o padrão. Light theme é ativado via `body.light-theme`.
   --bg-surface:      #334155;
   --bg-elevated:     #475569;
 
-  /* === Acento principal (Sky 400) === */
-  --accent:          #38bdf8;
-  --accent-hover:    #0ea5e9;
+  /* === Acento principal (Indigo 500) === */
+  --accent:          #6366f1;
+  --accent-hover:    #4f46e5;
 
   /* === Texto === */
   --text-primary:    #f1f5f9;
@@ -42,7 +42,7 @@ Dark mode é o padrão. Light theme é ativado via `body.light-theme`.
   --radius-pill:     9999px;
 
   /* === Focus ring === */
-  --focus-ring:      0 0 0 2px #38bdf8;
+  --focus-ring:      0 0 0 2px rgba(99, 102, 241, 0.4);
 
   /* === Sombras === */
   --shadow-sm:       0 1px 3px rgba(0,0,0,0.4);
@@ -256,7 +256,7 @@ import { House, Users, Buildings } from '@phosphor-icons/react'
 
 ### Cor
 
-- **Ícones de acento** (destaque, header): `color="#38bdf8"` (= `--accent`)
+- **Ícones de acento** (destaque, header): `color="#6366f1"` ou `#818cf8` (= `--accent`)
 - **Ícones neutros** (nav, botões secundários): herdam `color` do elemento pai via CSS
 
 ### Espaçamento (gap)
@@ -282,7 +282,7 @@ O ícone nunca tem `margin` próprio — o espaçamento é controlado pelo **fle
 ```tsx
 // Exemplo de uso em header
 <div className="ws-header__title-row">
-  <House weight="duotone" size={20} color="#38bdf8" />
+  <House weight="duotone" size={20} color="#6366f1" />
   <p className="ws-header__title">Área do Cliente</p>
 </div>
 ```

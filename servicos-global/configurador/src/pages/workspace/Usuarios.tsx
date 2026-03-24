@@ -18,20 +18,20 @@ export interface TenantUser {
   status: UserStatus
 }
 
-type Filial = {
+type EspacoTrabalho = {
   id: string
   nome: string
   usuarios: { userId: string; role: string; habilitado: boolean }[]
 }
 
 // 50 empresas filhas mock
-const ALL_FILIAIS: Filial[] = Array.from({ length: 50 }, (_, i) => ({
+const ALL_FILIAIS: EspacoTrabalho[] = Array.from({ length: 50 }, (_, i) => ({
   id: `f${i + 1}`,
   nome: [
     'Acme Logística', 'Acme Importações', 'Acme Distribuição', 'Acme Exportação', 'Acme Varejo',
     'Acme Tech', 'Acme Sul', 'Acme Norte', 'Acme Leste', 'Acme Oeste',
-    'Filial SP Centro', 'Filial SP Interior', 'Filial RJ', 'Filial MG', 'Filial RS',
-    'Filial SC', 'Filial PR', 'Filial BA', 'Filial GO', 'Filial DF',
+    'EspacoTrabalho SP Centro', 'EspacoTrabalho SP Interior', 'EspacoTrabalho RJ', 'EspacoTrabalho MG', 'EspacoTrabalho RS',
+    'EspacoTrabalho SC', 'EspacoTrabalho PR', 'EspacoTrabalho BA', 'EspacoTrabalho GO', 'EspacoTrabalho DF',
     'Unidade Campinas', 'Unidade Santos', 'Unidade Sorocaba', 'Unidade Ribeirão Preto', 'Unidade São José',
     'Unidade Belém', 'Unidade Manaus', 'Unidade Fortaleza', 'Unidade Recife', 'Unidade Salvador',
     'Depósito Central', 'Depósito Norte', 'Depósito Sul', 'Depósito Leste', 'Depósito Oeste',
@@ -43,7 +43,7 @@ const ALL_FILIAIS: Filial[] = Array.from({ length: 50 }, (_, i) => ({
 }))
 
 // Empresa filha vínculo por usuário: u2=1, u3=5, u4=10, u5=30
-const mockFiliais: Filial[] = ALL_FILIAIS
+const mockEspacos: EspacoTrabalho[] = ALL_FILIAIS
 
 const mockUsers: TenantUser[] = [
   { id: 'u01', nome: 'Daniel Marques',      email: 'daniel@acme.com.br',        tipo: 'Master',     status: 'Ativo'   },
@@ -135,7 +135,7 @@ const VINCULOS: Record<string, string[]> = {
 }
 
 // ── Chips de empresas vinculadas com overflow via TooltipGlobal ─────────────────
-function EmpresasAcessoCell({ empresas, isMaster }: { empresas: Filial[], isMaster: boolean }) {
+function EmpresasAcessoCell({ empresas, isMaster }: { empresas: EspacoTrabalho[], isMaster: boolean }) {
   const MAX = 2
 
   if (isMaster) {
@@ -143,9 +143,9 @@ function EmpresasAcessoCell({ empresas, isMaster }: { empresas: Filial[], isMast
       <span style={{
         display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
         padding: '0.2rem 0.625rem', borderRadius: '9999px',
-        background: 'rgba(56,189,248,0.1)', color: '#38bdf8',
+        background: 'rgba(129,140,248,0.1)', color: '#818cf8',
         fontSize: '0.75rem', fontWeight: 600, fontStyle: 'italic',
-        border: '1px solid rgba(56,189,248,0.2)',
+        border: '1px solid rgba(129,140,248,0.2)',
       }}>
         ✶ Todas as empresas
       </span>
@@ -177,8 +177,8 @@ function EmpresasAcessoCell({ empresas, isMaster }: { empresas: Filial[], isMast
         >
           <span style={{
             padding: '0.15rem 0.5rem', borderRadius: '9999px',
-            background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)',
-            color: '#38bdf8', fontSize: '0.75rem', fontWeight: 700,
+            background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.25)',
+            color: '#818cf8', fontSize: '0.75rem', fontWeight: 700,
             cursor: 'default', lineHeight: 1.4,
           }}>
             +{rest.length}
@@ -196,9 +196,9 @@ const typeBadge: Record<UserType, string> = {
 }
 
 export function Usuarios() {
-  const [tab, setTab]         = useState<'tenant' | 'filiais'>('tenant')
+  const [tab, setTab]         = useState<'tenant' | 'espacos'>('tenant')
   const [users, setUsers]     = useState<TenantUser[]>(mockUsers)
-  const [filiais, setFiliais] = useState<Filial[]>(mockFiliais)
+  const [espacos, setFiliais] = useState<EspacoTrabalho[]>(mockEspacos)
 
 
   const [showForm, setShowForm] = useState(false)
@@ -219,7 +219,7 @@ export function Usuarios() {
     setFNome(''); setFEmail(''); setFTipo('Standard'); setShowForm(false)
   }
 
-  function handleToggleFilialUser(filialId: string, userId: string) {
+  function handleToggleEspacoTrabalhoUser(filialId: string, userId: string) {
     setFiliais(prev => prev.map(f => {
       if (f.id !== filialId) return f
       return {
@@ -244,9 +244,9 @@ export function Usuarios() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
             width: 32, height: 32, minWidth: 32, borderRadius: '50%',
-            background: item.tipo === 'Master' ? 'rgba(56,189,248,0.2)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
-            color: item.tipo === 'Master' ? '#38bdf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
           }}>
             {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
@@ -262,7 +262,7 @@ export function Usuarios() {
     {
       key: 'tipo', label: 'Tipo', tipo: 'texto',
       tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Nível de permissão principal do usuário na plataforma',
-      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#38bdf8', background: 'rgba(56,189,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
+      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
@@ -278,16 +278,17 @@ export function Usuarios() {
       tooltip: 'Desativar/Reativar',
       onClick: handleDeactivate,
       renderCustom: (item) => (
-        <button
-          type="button"
-          title={item.status === 'Ativo' ? 'Desativar' : 'Reativar'}
-          onClick={() => handleDeactivate(item)}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
-          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-        >
-          {item.status === 'Ativo' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-        </button>
+        <TooltipGlobal descricao={item.status === 'Ativo' ? 'Suspender o acesso deste usuário' : 'Reativar o acesso deste usuário'}>
+          <button
+            type="button"
+            onClick={() => handleDeactivate(item)}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+            onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+          >
+            {item.status === 'Ativo' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+          </button>
+        </TooltipGlobal>
       )
     },
     {
@@ -323,9 +324,9 @@ export function Usuarios() {
   ]
 
   // Computa empresas vinculadas por usuário via VINCULOS
-  function empresasDoUsuario(userId: string): Filial[] {
+  function espacosDoUsuario(userId: string): EspacoTrabalho[] {
     const ids = VINCULOS[userId] ?? []
-    return filiais.filter(f => ids.includes(f.id))
+    return espacos.filter(f => ids.includes(f.id))
   }
 
   const COLUNAS_FILIAIS: TabelaGlobalColuna<TenantUser>[] = [
@@ -336,9 +337,9 @@ export function Usuarios() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
             width: 32, height: 32, minWidth: 32, borderRadius: '50%',
-            background: item.tipo === 'Master' ? 'rgba(56,189,248,0.2)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
-            color: item.tipo === 'Master' ? '#38bdf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
           }}>
             {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
@@ -354,14 +355,14 @@ export function Usuarios() {
     {
       key: 'tipo', label: 'Tipo', tipo: 'texto',
       tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Tipo de acesso do usuário.',
-      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#38bdf8', background: 'rgba(56,189,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
+      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
     },
     {
       key: 'id', label: 'Empresas vinculadas', tipo: 'texto',
       tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Empresas filhas às quais este usuário tem acesso.',
       render: (_, item) => {
         const isMaster = item.tipo === 'Master'
-        const empresas = isMaster ? filiais : empresasDoUsuario(item.id)
+        const empresas = isMaster ? espacos : espacosDoUsuario(item.id)
         return <EmpresasAcessoCell empresas={empresas} isMaster={isMaster} />
       }
     },
@@ -372,7 +373,7 @@ export function Usuarios() {
     { header: 'E-mail',  key: 'email' },
     { header: 'Tipo',    key: 'tipo'  },
   ]
-  const OPCOES_EXPORT_FILIAIS = { nomeArquivo: 'acesso-por-empresa-filha', titulo: 'Acesso por Empresa Filha' }
+  const OPCOES_EXPORT_FILIAIS = { nomeArquivo: 'acesso-por-espaco-trabalho', titulo: 'Acesso por Espaço de Trabalho' }
 
   const ACOES_EXPORT_FILIAIS: TabelaExportAcao<TenantUser>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
@@ -396,8 +397,8 @@ export function Usuarios() {
           <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
             Perfis de Acesso
           </button>
-          <button className={`ws-tab${tab === 'filiais' ? ' active' : ''}`} onClick={() => setTab('filiais')}>
-            Acesso por Empresa Filha
+          <button className={`ws-tab${tab === 'espacos' ? ' active' : ''}`} onClick={() => setTab('espacos')}>
+            Acesso por Espaço de Trabalho
           </button>
         </div>
 
@@ -416,7 +417,7 @@ export function Usuarios() {
           {showForm && (
             <div className="ws-form-card ws-fade-up" style={{ marginBottom: '1.5rem' }}>
               <p className="ws-section-title">
-                <Users weight="duotone" size={14} color="#38bdf8" />
+                <Users weight="duotone" size={14} color="#818cf8" />
                 Convidar Usuário
               </p>
               <div className="ws-form-row">
@@ -468,7 +469,7 @@ export function Usuarios() {
         </>
       )}
 
-      {tab === 'filiais' && (
+      {tab === 'espacos' && (
         <div className="ws-fade-up">
           <TabelaGlobal<TenantUser>
             dados={users}

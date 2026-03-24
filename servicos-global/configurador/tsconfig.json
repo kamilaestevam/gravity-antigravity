@@ -16,7 +16,8 @@
       "@nucleo/utils": ["../../nucleo-global/utils/src/index.ts"],
       "@nucleo/*": ["../../nucleo-global/*/src/index.ts"],
       "@tenant/*": ["../tenant/*"],
-      "@produto/*": ["../produto/*"]
+      "@produto/*": ["../produto/*"],
+      "@gravity/shell": ["../shell/index.ts"]
     }
   },
   "include": [
@@ -26,6 +27,7 @@
     "../../nucleo-global/tabela-global/src/**/*",
     "../../nucleo-global/utils/src/**/*",
     "../../nucleo-global/stat-card-global/src/**/*",
+    "../../nucleo-global/pagina-global/src/**/*",
     "../../nucleo-global/card-global/src/**/*"
   ],
   "exclude": ["node_modules", "dist"]

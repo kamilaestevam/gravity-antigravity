@@ -1,5 +1,5 @@
 /**
- * TabelaEmpresas — filtros inline por coluna com valores da coluna (estilo Excel).
+ * TabelaEspacosTrabalho — filtros inline por coluna com valores da coluna (estilo Excel).
  * - Popover mostra valores únicos da coluna como checkboxes
  * - Sort pills side-by-side
  * - Chips de filtros ativos + Limpar condicional
@@ -48,7 +48,7 @@ const FILTROS_INICIAIS: FiltrosState = {
   status: new Set(), criadaEm: new Set(),
 }
 
-interface TabelaEmpresasProps {
+interface TabelaEspacosTrabalhoProps {
   dados: Empresa[]
   onSuspender: (e: Empresa) => void
   onExcluir: (e: Empresa) => void
@@ -117,7 +117,7 @@ function PopoverFiltro({
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '0.375rem 0.5rem 0.375rem 1.75rem',
-    background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)',
+    background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)',
     borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem',
     fontFamily: 'inherit', outline: 'none',
   }
@@ -125,9 +125,9 @@ function PopoverFiltro({
   const pillStyle = (ativo: boolean): React.CSSProperties => ({
     flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     gap: '0.3rem', padding: '0.375rem 0.5rem', borderRadius: '9999px',
-    background: ativo ? 'rgba(56,189,248,0.15)' : 'rgba(255,255,255,0.04)',
-    border: `1px solid ${ativo ? 'rgba(56,189,248,0.35)' : 'rgba(255,255,255,0.1)'}`,
-    color: ativo ? '#38bdf8' : '#94a3b8',
+    background: ativo ? 'rgba(129,140,248,0.15)' : 'rgba(255,255,255,0.04)',
+    border: `1px solid ${ativo ? 'rgba(129,140,248,0.35)' : 'rgba(255,255,255,0.1)'}`,
+    color: ativo ? '#818cf8' : '#94a3b8',
     fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
     fontFamily: 'inherit', transition: 'all 0.12s', whiteSpace: 'nowrap' as const,
   })
@@ -139,7 +139,7 @@ function PopoverFiltro({
     left: pos.left,
     zIndex: 9999,
     background: 'var(--ws-surface, #1e293b)',
-    border: '1px solid rgba(56,189,248,0.18)',
+    border: '1px solid rgba(129,140,248,0.18)',
     borderRadius: '10px',
     boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
     minWidth: '220px',
@@ -151,19 +151,19 @@ function PopoverFiltro({
     <div ref={ref} style={style} onClick={e => e.stopPropagation()}>
 
       {/* Label */}
-      <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+      <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
         <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>{label}</span>
       </div>
 
       {/* Sort pills */}
-      <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+      <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
         <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
           {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [Direcao, string, React.ReactNode][]).map(([dir, rot, ico]) => {
             const ativo = sortAtivo && ordenacao?.direcao === dir
             return (
               <button key={dir} type="button" onClick={() => { onOrdenar(coluna, dir); onFechar() }} style={pillStyle(ativo)}
-                onMouseEnter={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(56,189,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(56,189,248,0.2)'; e.currentTarget.style.color = '#f1f5f9' } }}
+                onMouseEnter={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.2)'; e.currentTarget.style.color = '#f1f5f9' } }}
                 onMouseLeave={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#94a3b8' } }}>
                 {ico} {rot}
               </button>
@@ -174,7 +174,7 @@ function PopoverFiltro({
 
       {/* Valores da coluna — checkboxes */}
       {tipo === 'texto' && (
-        <div style={{ borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+        <div style={{ borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
           <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
 
           {valoresDisponiveis.length > 5 && (
@@ -185,8 +185,8 @@ function PopoverFiltro({
               <input type="text" placeholder="Buscar…" value={buscaLocal}
                 onChange={e => setBuscaLocal(e.target.value)}
                 style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.15)' }}
               />
             </div>
           )}
@@ -199,10 +199,10 @@ function PopoverFiltro({
               return (
                 <label key={v}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.375rem', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.1s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.06)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(129,140,248,0.06)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                 >
-                  <span style={{ color: selecionado ? '#38bdf8' : '#475569', display: 'flex', lineHeight: 0, flexShrink: 0 }}>
+                  <span style={{ color: selecionado ? '#818cf8' : '#475569', display: 'flex', lineHeight: 0, flexShrink: 0 }}>
                     {selecionado ? <CheckSquare size={15} weight="fill" /> : <Square size={15} weight="regular" />}
                   </span>
                   <input type="checkbox" checked={selecionado} onChange={() => onToggleValor(coluna, v)} style={{ display: 'none' }} />
@@ -220,7 +220,7 @@ function PopoverFiltro({
 
       {/* Número (intervalo) */}
       {tipo === 'numero' && (
-        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
           <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Intervalo</p>
           <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
             {(['usuariosMin', 'usuariosMax'] as const).map((campo, i) => (
@@ -235,9 +235,9 @@ function PopoverFiltro({
                   const v = e.target.value.replace(/[^0-9]/g, '')
                   onFiltrarNumero(campo, v)
                 }}
-                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
+                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.15)' }}
               />
             ))}
           </div>
@@ -294,20 +294,20 @@ function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dado
   }, [coluna, filtros])
 
   const labelSpan = (
-    <span style={{ color: sortAtivo ? '#38bdf8' : undefined, lineHeight: 1, display: 'inline-block' }}>
+    <span style={{ color: sortAtivo ? '#818cf8' : undefined, lineHeight: 1, display: 'inline-block' }}>
       {label}
     </span>
   )
 
   return (
-    <th style={{ padding: '0.75rem 1rem', textAlign: 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(56,189,248,0.1)', background: 'rgba(56,189,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle', ...style }}>
+    <th style={{ padding: '0.75rem 1rem', textAlign: 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(129,140,248,0.1)', background: 'rgba(129,140,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle', ...style }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: (style as React.CSSProperties)?.textAlign === 'center' ? 'center' : 'flex-start' }}>
         {tooltipDescricao
           ? <TooltipGlobal titulo={tooltipTitulo} descricao={tooltipDescricao}>{labelSpan}</TooltipGlobal>
           : labelSpan
         }
         <button ref={triggerRef} type="button" onClick={e => { e.stopPropagation(); setAberto(v => !v) }}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(56,189,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(56,189,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#38bdf8' : '#64748b', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(129,140,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(129,140,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#818cf8' : '#64748b', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
           <Funnel size={10} weight={temFiltroAtivo ? 'fill' : 'bold'} />
         </button>
       </div>
@@ -334,9 +334,9 @@ const Th = memo(ThInner)
 
 function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.5rem 0.2rem 0.65rem', borderRadius: '9999px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.5rem 0.2rem 0.65rem', borderRadius: '9999px', background: 'rgba(199,210,254,0.1)', border: '1px solid rgba(199,210,254,0.25)', color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
       {label}
-      <button type="button" onClick={onRemover} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: '50%', background: 'rgba(56,189,248,0.2)', border: 'none', cursor: 'pointer', color: '#38bdf8', padding: 0, flexShrink: 0 }}>
+      <button type="button" onClick={onRemover} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: '50%', background: 'rgba(199,210,254,0.2)', border: 'none', cursor: 'pointer', color: '#c7d2fe', padding: 0, flexShrink: 0 }}>
         <X size={9} weight="bold" />
       </button>
     </span>
@@ -349,9 +349,9 @@ function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.R
   return (
     <button type="button" onClick={onClick}
       style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.45rem 0.875rem', background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s, color 0.1s' }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(56,189,248,0.07)'; e.currentTarget.style.color = '#f1f5f9' }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.07)'; e.currentTarget.style.color = '#f1f5f9' }}
       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}>
-      <span style={{ color: '#38bdf8', display: 'flex', flexShrink: 0 }}>{icon}</span>
+      <span style={{ color: '#818cf8', display: 'flex', flexShrink: 0 }}>{icon}</span>
       {label}
     </button>
   )
@@ -359,7 +359,7 @@ function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.R
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
-export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresasProps) {
+export function TabelaEspacosTrabalho({ dados, onSuspender, onExcluir }: TabelaEspacosTrabalhoProps) {
   const [busca, setBusca] = useState('')
   const [ordenacao, setOrdenacao] = useState<OrdenacaoState | null>(null)
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIAIS)
@@ -444,7 +444,7 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
   const chips = useMemo(() => {
     const list: { key: string; label: string; onRemover: () => void }[] = []
     if (busca.trim()) list.push({ key: 'busca', label: `"${busca}"`, onRemover: () => setBusca('') })
-    filtros.nome.forEach(v => list.push({ key: `nome-${v}`, label: `Filial: ${v}`, onRemover: () => onToggleValor('nome', v) }))
+    filtros.nome.forEach(v => list.push({ key: `nome-${v}`, label: `Espaço de Trabalho: ${v}`, onRemover: () => onToggleValor('nome', v) }))
     filtros.subdominio.forEach(v => list.push({ key: `sub-${v}`, label: `Subdomínio: ${v}`, onRemover: () => onToggleValor('subdominio', v) }))
     if (filtros.usuariosMin !== '' || filtros.usuariosMax !== '') {
       list.push({ key: 'usuarios', label: `Usuários: ${filtros.usuariosMin || '0'}–${filtros.usuariosMax || '∞'}`, onRemover: () => { onFiltrarNumero('usuariosMin', ''); onFiltrarNumero('usuariosMax', '') } })
@@ -504,17 +504,17 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
     subdominio: `${e.subdominio}.gravity.com.br`,
   })) as unknown as Record<string, unknown>[]
 
-  const OPCOES_EXPORT = { nomeArquivo: 'empresas-filhas', titulo: 'Empresas Filhas' }
+  const OPCOES_EXPORT = { nomeArquivo: 'empresas-filhas', titulo: 'Espaços de Trabalho' }
 
   const thProps = { filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna }
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(56,189,248,0.1)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
+    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(129,140,248,0.1)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
 
       {/* Toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(56,189,248,0.08)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(129,140,248,0.08)' }}>
         {/* Busca global */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
@@ -530,13 +530,13 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
           {chips.length > 0 && (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 700 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', background: 'rgba(199,210,254,0.1)', border: '1px solid rgba(199,210,254,0.25)', color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 700 }}>
               <Funnel size={11} weight="fill" />
               {chips.length} filtro{chips.length !== 1 ? 's' : ''} ativo{chips.length !== 1 ? 's' : ''}
             </span>
           )}
           {selecionados.size > 0 && (
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#38bdf8', padding: '0.25rem 0.75rem', background: 'rgba(56,189,248,0.1)', borderRadius: '9999px' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#c7d2fe', padding: '0.25rem 0.75rem', background: 'rgba(199,210,254,0.15)', borderRadius: '9999px' }}>
               {selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}
             </span>
           )}
@@ -544,22 +544,22 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
           <div style={{ position: 'relative' }}>
             <button ref={exportBtnRef} type="button"
               onClick={() => setExportMenuAberto(v => !v)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(56,189,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#38bdf8' : 'rgba(56,189,248,0.12)'}`, color: exportMenuAberto ? '#38bdf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
-              onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.color = '#38bdf8' } }}
-              onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
+              style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(129,140,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#818cf8' : 'rgba(129,140,248,0.12)'}`, color: exportMenuAberto ? '#818cf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
+              onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.color = '#818cf8' } }}
+              onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
               <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
 
             {exportMenuAberto && (
               <div ref={exportMenuRef}
-                style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid rgba(56,189,248,0.18)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
+                style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
                 onClick={e => e.stopPropagation()}>
 
                 {/* Excel */}
                 <ExportMenuItem label="Excel (.xlsx)" icon={<FileXls size={14} weight="bold" />} onClick={() => { void exportarExcel(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
 
                 {/* Outros formatos */}
-                <div style={{ borderTop: '1px solid rgba(56,189,248,0.08)', marginTop: '0.25rem', paddingTop: '0.25rem' }}>
+                <div style={{ borderTop: '1px solid rgba(129,140,248,0.08)', marginTop: '0.25rem', paddingTop: '0.25rem' }}>
                   <ExportMenuItem label="CSV" icon={<FileCsv size={14} weight="bold" />} onClick={() => { exportarCSV(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
                   <ExportMenuItem label="TXT" icon={<FileText size={14} weight="bold" />} onClick={() => { exportarTXT(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
                   <ExportMenuItem label="XML" icon={<Code size={14} weight="bold" />} onClick={() => { exportarXML(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
@@ -574,7 +574,7 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
 
       {/* Chips de filtros ativos */}
       {chips.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(129,140,248,0.08)', background: 'rgba(129,140,248,0.02)' }}>
           {chips.map(c => <FiltroChip key={c.key} label={c.label} onRemover={c.onRemover} />)}
           <button type="button" onClick={limparTudo}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: 'auto', padding: '0.2rem 0.65rem', borderRadius: '9999px', background: 'transparent', border: '1px solid rgba(239,68,68,0.25)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
@@ -590,13 +590,13 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
           <thead>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)' }}>
-                <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
+              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)' }}>
+                <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
               <Th
-                label="Filial" coluna="nome" tipo="texto"
+                label="Espaço de Trabalho" coluna="nome" tipo="texto"
                 temFiltroAtivo={temFiltro('nome')}
-                tooltipTitulo="Empresa Filha"
+                tooltipTitulo="Espaço de Trabalho"
                 tooltipDescricao="Nome da empresa filha cadastrada neste tenant."
                 {...thProps}
               />
@@ -604,31 +604,31 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
                 label="Subdomínio" coluna="subdominio" tipo="texto"
                 temFiltroAtivo={temFiltro('subdominio')}
                 tooltipTitulo="Subdomínio"
-                tooltipDescricao="Endereço exclusivo desta filial na plataforma."
+                tooltipDescricao="Endereço exclusivo deste espaço de trabalho na plataforma."
                 {...thProps}
               />
               <Th
                 label="Usuários" coluna="usuarios" tipo="numero"
                 temFiltroAtivo={temFiltro('usuarios')}
                 tooltipTitulo="Usuários Ativos"
-                tooltipDescricao="Total de acessos habilitados nesta filial."
+                tooltipDescricao="Total de acessos habilitados neste espaço de trabalho."
                 {...thProps} style={{ textAlign: 'center' }}
               />
               <Th
                 label="Status" coluna="status" tipo="texto"
                 temFiltroAtivo={temFiltro('status')}
                 tooltipTitulo="Status Operacional"
-                tooltipDescricao="Indica se a filial está ativa ou com acesso suspenso."
+                tooltipDescricao="Indica se o espaço de trabalho está ativo ou com acesso suspenso."
                 {...thProps}
               />
               <Th
                 label="Criado em" coluna="criadaEm" tipo="texto"
                 temFiltroAtivo={temFiltro('criadaEm')}
                 tooltipTitulo="Data de Criação"
-                tooltipDescricao="Data em que a filial foi cadastrada no sistema."
+                tooltipDescricao="Data em que o espaço de trabalho foi cadastrado no sistema."
                 {...thProps}
               />
-              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
+              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
                 Ações
               </th>
             </tr>
@@ -638,22 +638,22 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
               <tr>
                 <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
                   {chips.length > 0 || busca
-                    ? <span>Nenhum resultado. <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
-                    : 'Nenhuma empresa filial cadastrada.'
+                    ? <span>Nenhum resultado. <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
+                    : 'Nenhum espaço de trabalho cadastrado.'
                   }
                 </td>
               </tr>
             ) : paginado.map((e, i) => (
               <tr key={e.id}
-                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(56,189,248,0.06)' : 'none', background: selecionados.has(e.id) ? 'rgba(56,189,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
-                onMouseEnter={ev => { if (!selecionados.has(e.id)) ev.currentTarget.style.background = 'rgba(56,189,248,0.03)' }}
-                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(e.id) ? 'rgba(56,189,248,0.06)' : 'transparent' }}>
+                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(129,140,248,0.06)' : 'none', background: selecionados.has(e.id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                onMouseEnter={ev => { if (!selecionados.has(e.id)) ev.currentTarget.style.background = 'rgba(129,140,248,0.03)' }}
+                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(e.id) ? 'rgba(129,140,248,0.06)' : 'transparent' }}>
                 <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
-                  <input type="checkbox" checked={selecionados.has(e.id)} onChange={() => toggleSel(e.id)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
+                  <input type="checkbox" checked={selecionados.has(e.id)} onChange={() => toggleSel(e.id)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
                 </td>
                 <td style={{ padding: '0.875rem 1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                    <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#38bdf8' }}>
+                    <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(129,140,248,0.12)', border: '1px solid rgba(129,140,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8' }}>
                       {e.nome.charAt(0)}
                     </div>
                     <span style={{ fontWeight: 600 }}>{e.nome}</span>
@@ -668,9 +668,9 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
                     onClick={ev => ev.stopPropagation()}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
                   >
-                    <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
-                      onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.18)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-                      onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+                    <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
+                      onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+                      onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
                     >
                       {e.subdominio}.gravity.com.br
                     </code>
@@ -703,7 +703,7 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
                       type="button"
                       title="Editar"
                       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(56,189,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(56,189,248,0.3)'; ev.currentTarget.style.color = '#38bdf8' }}
+                      onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
                       onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
                     >
                       <PencilSimple size={15} weight="bold" />
@@ -728,7 +728,7 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
       </div>
 
       {/* Paginação */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(129,140,248,0.08)', background: 'rgba(129,140,248,0.02)' }}>
         <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
           {resultado.length === 0 ? 'Nenhum registro' : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} de ${resultado.length}`}
         </span>
@@ -742,7 +742,7 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#64748b' }}>
           por página:
           <select value={porPagina} onChange={e => { setPorPagina(Number(e.target.value)); setPagina(1) }}
-            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(56,189,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
+            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
             {[10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>

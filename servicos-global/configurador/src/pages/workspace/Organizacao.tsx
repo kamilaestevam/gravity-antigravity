@@ -11,15 +11,19 @@ import {
   FloppyDisk,
 } from '@phosphor-icons/react'
 import { useUser } from '@clerk/clerk-react'
+import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/select-global'
 import type { SelectOpcao } from '@nucleo/select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { useShellStore } from '@gravity/shell'
+import { StatusSalvarGlobal, type StatusSalvar } from '@nucleo/status-salvar-global'
+import { ModalSelectGlobal } from '@nucleo/modal-select-global'
 
 // ── Mock — substituir por contexto real de tenant ──────────────────────────
-const EMPRESAS_FILHAS_MOCK = [
+const ESPACOS_TRABALHO_MOCK = [
   { id: '1', nome: 'Acme Logística',       subdominio: 'acme-log'    },
   { id: '2', nome: 'Acme Importações',     subdominio: 'acme-import' },
   { id: '3', nome: 'Acme Distribuição',    subdominio: 'acme-dist'   },
@@ -76,8 +80,8 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
   ...SEGMENTOS.map(s => ({ valor: s, rotulo: s }))
 ]
 
-const OPCOES_FILHAS: SelectOpcao[] = [
-  ...EMPRESAS_FILHAS_MOCK.map(f => ({
+const OPCOES_ESPACOS: SelectOpcao[] = [
+  ...ESPACOS_TRABALHO_MOCK.map(f => ({
     valor:   f.id,
     rotulo:  f.nome,
     descricao: `${f.subdominio}.gravity.com.br`,
@@ -86,11 +90,12 @@ const OPCOES_FILHAS: SelectOpcao[] = [
 
 /** Chave do localStorage vinculada ao usuário */
 function storageKey(userId: string | undefined) {
-  return `gravity:empresa-filha-ativa:${userId ?? 'anon'}`
+  return `gravity:espaco-trabalho-ativo:${userId ?? 'anon'}`
 }
 
-export function EmpresaMae() {
+export function Organizacao() {
   const { user } = useUser()
+  const addNotification = useShellStore((state) => state.addNotification)
 
   // dados editáveis diretamente — sem modo "editando"
   const [dados, setDados] = useState<DadosMae>(dadosIniciais)
@@ -98,12 +103,24 @@ export function EmpresaMae() {
   // detecção de alterações para habilitar Salvar / Cancelar
   const { dirty, resetDirty } = useDirty(dadosIniciais, dados)
 
-  // empresa filha selecionada para acesso operacional
-  const [filhaInicial, setFilhaInicial] = useState<string>('')
-  const [filhaAtivaId, setFilhaAtivaId] = useState<string>('')
+  // espaço de trabalho selecionada para acesso operacional
+  const [espacoInicial, setFilhaInicial] = useState<string>('')
+  const [espacoAtivoId, setFilhaAtivaId] = useState<string>('')
   
-  const { dirty: dirtyFilha, resetDirty: resetFilha } = useDirty(filhaInicial, filhaAtivaId)
-  const isDirty = dirty || dirtyFilha
+  const { dirty: dirtyEspaco, resetDirty: resetEspaco } = useDirty(espacoInicial, espacoAtivoId)
+  const isDirty = dirty || dirtyEspaco
+
+  // Status de salvamento inline
+  const [salvando, setSalvando] = useState(false)
+  const [statusReq, setStatusReq] = useState<'success' | 'error' | null>(null)
+
+  const statusSalvar: StatusSalvar = salvando
+    ? 'saving'
+    : statusReq
+      ? statusReq
+      : isDirty
+        ? 'dirty'
+        : 'idle'
 
   // lista de cidades do estado
   const [cidades, setCidades] = useState<SelectOpcao[]>([])
@@ -139,26 +156,48 @@ export function EmpresaMae() {
     const salvoId = localStorage.getItem(chave) || ''
     setFilhaInicial(salvoId)
     setFilhaAtivaId(salvoId)
-    resetFilha(salvoId)
-  }, [user?.id, resetFilha])
+    resetEspaco(salvoId)
+  }, [user?.id, resetEspaco])
 
   function set(key: keyof DadosMae, value: string) {
     setDados(p => ({ ...p, [key]: value }))
   }
 
   // ── Salvar todos os dados da página ──────────────────────────────────────
-  function handleSalvar() {
-    // TODO: persistir `dados` via API
-    resetDirty(dados)
+  async function handleSalvar() {
+    try {
+      setSalvando(true)
+      setStatusReq(null)
+      
+      // fake delay
+      await new Promise(res => setTimeout(res, 1200))
 
-    // Persistir preferência local de empresa filha ativa
-    const chave = storageKey(user?.id)
-    if (filhaAtivaId) {
-      localStorage.setItem(chave, filhaAtivaId)
-    } else {
-      localStorage.removeItem(chave)
+      // TODO: persistir `dados` via API
+      resetDirty(dados)
+
+      // Persistir preferência local de espaço de trabalho ativa
+      const chave = storageKey(user?.id)
+      if (espacoAtivoId) {
+        localStorage.setItem(chave, espacoAtivoId)
+      } else {
+        localStorage.removeItem(chave)
+      }
+      resetEspaco(espacoAtivoId)
+
+      setStatusReq('success')
+      addNotification({
+        type: 'success',
+        message: 'Organização salva com sucesso!'
+      })
+    } catch (err) {
+      setStatusReq('error')
+      addNotification({
+        type: 'error',
+        message: 'Não foi possível salvar a organização. Tente novamente.'
+      })
+    } finally {
+      setSalvando(false)
     }
-    resetFilha(filhaAtivaId)
   }
 
   function handleCancelar() {
@@ -167,19 +206,32 @@ export function EmpresaMae() {
     resetDirty()
 
     // Restaura preferência local
-    setFilhaAtivaId(filhaInicial)
-    resetFilha()
+    setFilhaAtivaId(espacoInicial)
+    resetEspaco()
   }
 
-  const filhaAtiva = EMPRESAS_FILHAS_MOCK.find(f => f.id === filhaAtivaId)
+  const espacoAtivo = ESPACOS_TRABALHO_MOCK.find(f => f.id === espacoAtivoId)
 
   return (
-    <div className="ws-fade-up">
-      <CabecalhoGlobal
-        icone={<Crown weight="duotone" size={22} />}
-        titulo="Empresa Mãe"
-        subtitulo="Dados da empresa que contratou a plataforma Gravity."
-      />
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="formulario"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Crown weight="duotone" size={22} />}
+          titulo="Organização"
+          subtitulo="Dados da empresa que contratou a plataforma Gravity"
+          acoes={
+            <div style={{ marginLeft: '1rem' }}>
+              <StatusSalvarGlobal
+                status={statusSalvar}
+                onAutoReset={() => setStatusReq(null)}
+              />
+            </div>
+          }
+        />
+      }
+    >
 
       {/* ── Identity card — atualiza em tempo real conforme edição ─────── */}
       <div className="em-identity ws-fade-up">
@@ -187,7 +239,7 @@ export function EmpresaMae() {
           <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
           <div className="em-identity__text">
             <TooltipGlobal titulo="Tipo de Conta" descricao="Nível hierárquico principal da sua estrutura na plataforma">
-              <span className="em-identity__badge" style={{ cursor: 'help' }}>Empresa Mãe</span>
+              <span className="em-identity__badge" style={{ cursor: 'help' }}>Organização</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
@@ -251,6 +303,7 @@ export function EmpresaMae() {
               </TooltipGlobal>
             </label>
             <SelectGlobal
+              iconeEsquerda={<MapPin size={16} />}
               opcoes={OPCOES_ESTADOS}
               valor={dados.estado}
               aoMudarValor={v => {
@@ -268,6 +321,7 @@ export function EmpresaMae() {
               </TooltipGlobal>
             </label>
             <SelectGlobal
+              iconeEsquerda={<MapPin size={16} />}
               opcoes={cidades}
               valor={dados.cidade || null}
               aoMudarValor={v => set('cidade', String(v ?? ''))}
@@ -284,6 +338,7 @@ export function EmpresaMae() {
               </TooltipGlobal>
             </label>
             <SelectGlobal
+              iconeEsquerda={<Package size={16} />}
               opcoes={OPCOES_SEGMENTOS}
               valor={dados.segmento}
               aoMudarValor={v => set('segmento', String(v ?? ''))}
@@ -369,51 +424,37 @@ export function EmpresaMae() {
         </div>
       </div>
 
-      {/* ── Empresa Filha Padrão ──────────────────────────────────── */}
-      <div className="em-section em-filha-section ws-fade-up ws-fade-up-d3">
-        <p className="ws-section-title" style={{ width: 'max-content' }}>
-          <TooltipGlobal titulo="Empresa Filha Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
-              <CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />
-              Empresa Filha de Acesso Padrão
-            </span>
+      {/* ── Espaço de Trabalho Padrão ──────────────────────────────────── */}
+      <ModalSelectGlobal
+        icone={<CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />}
+        titulo={
+          <TooltipGlobal titulo="Espaço de Trabalho Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
+            <span style={{ cursor: 'help' }}>Acesso Padrão</span>
           </TooltipGlobal>
-        </p>
-        <p className="em-filha-desc">
-          Sempre que você acessar a plataforma você precisa operar em uma empresa filha. 
-          Escolha aqui qual será sua empresa de acesso padrão (se você possui apenas uma, pode deixá-la salva).
-        </p>
-
-        <div className="em-filha-select-row">
-          <div className="ws-field" style={{ flex: 1, overflow: 'visible' }}>
-            <label>
-              <TooltipGlobal titulo="Empresa Filha Padrão" descricao="Escolha a empresa filha que será seu ambiente de trabalho principal ao entrar no sistema">
-                <span>Empresa filha padrão</span>
-              </TooltipGlobal>
-            </label>
-            <SelectGlobal
-              opcoes={OPCOES_FILHAS}
-              valor={filhaAtivaId || null}
-              aoMudarValor={v => setFilhaAtivaId(v != null ? String(v) : '')}
-              placeholder="— Selecione uma empresa filha —"
-              buscavel
-            />
-          </div>
-
-        </div>
-
-        {filhaAtiva && (
-          <div className="em-filha-active ws-fade-up">
-            <CheckCircle weight="fill" size={16} color="#34d399" />
-            <span>
-              Acessando como&nbsp;<strong>{filhaAtiva.nome}</strong>&nbsp;
-              <span className="em-filha-active__sub">
-                ({filhaAtiva.subdominio}.gravity.com.br)
-              </span>
-            </span>
-          </div>
-        )}
-      </div>
+        }
+        descricao="Defina qual ambiente será carregado automaticamente ao entrar na plataforma."
+        labelContext={
+          <TooltipGlobal titulo="Ambiente Padrão" descricao="Escolha o espaço de trabalho que será seu ambiente principal ao entrar no sistema">
+            <span>Espaço de Trabalho</span>
+          </TooltipGlobal>
+        }
+        selectElement={
+          <SelectGlobal
+            iconeEsquerda={<Buildings size={16} />}
+            opcoes={OPCOES_ESPACOS}
+            valor={espacoAtivoId || null}
+            aoMudarValor={v => setFilhaAtivaId(v != null ? String(v) : '')}
+            placeholder="— Selecione uma opção —"
+            buscavel
+          />
+        }
+        itemAtivo={espacoAtivo ? {
+          icone: <CheckCircle weight="fill" size={16} color="#34d399" />,
+          texto: <>Acessando como&nbsp;<strong>{espacoAtivo.nome}</strong></>,
+          subtexto: `(${espacoAtivo.subdominio}.gravity.com.br)`
+        } : null}
+        className="ws-fade-up ws-fade-up-d3"
+      />
 
       {/* ── Salvar / Cancelar ──────────────────────────────────────────────── */}
       <BotoesSalvarGlobal
@@ -422,6 +463,6 @@ export function EmpresaMae() {
         onCancelar={handleCancelar}
         alinhamento="direita"
       />
-    </div>
+    </PaginaGlobal>
   )
 }

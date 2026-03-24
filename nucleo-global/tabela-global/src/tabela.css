@@ -9,17 +9,17 @@
 .tg-container {
   --tg-bg:           var(--ws-surface, var(--color-surface, #1e293b));
   --tg-bg-alt:       var(--ws-bg-body, var(--color-bg, #0f172a));
-  --tg-bg-hover:     rgba(56, 189, 248, 0.04);
-  --tg-bg-selected:  rgba(56, 189, 248, 0.08);
-  --tg-border:       var(--ws-accent-border, rgba(56, 189, 248, 0.12));
+  --tg-bg-hover:     rgba(129, 140, 248, 0.04);
+  --tg-bg-selected:  rgba(129, 140, 248, 0.08);
+  --tg-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
   --tg-border-solid: var(--color-border, #334155);
-  --tg-accent:       var(--ws-accent, #38bdf8);
+  --tg-accent:       var(--ws-accent, #818cf8);
   --tg-text:         var(--ws-text, var(--color-text, #f1f5f9));
   --tg-text-muted:   var(--ws-muted, var(--color-text-muted, #94a3b8));
   --tg-danger:       var(--color-danger, #ef4444);
   --tg-radius:       12px;
   --tg-radius-sm:    6px;
-  --tg-focus-ring:   0 0 0 3px rgba(56, 189, 248, 0.18);
+  --tg-focus-ring:   0 0 0 3px rgba(129, 140, 248, 0.18);
 }
 
 /* ─── Container ─────────────────────────────────────────────────────────── */
@@ -114,13 +114,13 @@
 .tg-btn-filtros:hover {
   border-color: var(--tg-accent);
   color: var(--tg-accent);
-  background: rgba(56, 189, 248, 0.06);
+  background: rgba(129, 140, 248, 0.06);
 }
 
 .tg-btn-filtros--ativo {
   border-color: var(--tg-accent);
   color: var(--tg-accent);
-  background: rgba(56, 189, 248, 0.1);
+  background: rgba(129, 140, 248, 0.1);
 }
 
 .tg-selecao-contador {
@@ -128,7 +128,7 @@
   color: var(--tg-accent);
   font-weight: 600;
   padding: 0.25rem 0.75rem;
-  background: rgba(56, 189, 248, 0.1);
+  background: rgba(129, 140, 248, 0.1);
   border-radius: 9999px;
 }
 
@@ -178,7 +178,7 @@
 }
 
 .tg-export-menu-item:hover {
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(129, 140, 248, 0.08);
   color: var(--tg-text);
 }
 
@@ -209,7 +209,7 @@
 .tg-btn:hover:not(:disabled) {
   border-color: var(--tg-accent);
   color: var(--tg-accent);
-  background: rgba(56, 189, 248, 0.06);
+  background: rgba(129, 140, 248, 0.06);
 }
 
 .tg-btn:disabled {
@@ -307,7 +307,7 @@
 
 /* ─── Cabeçalho ──────────────────────────────────────────────────────────── */
 .tg-cabecalho {
-  background: rgba(56, 189, 248, 0.04);
+  background: rgba(129, 140, 248, 0.04);
 }
 
 .tg-th {
@@ -361,7 +361,7 @@
 /* ─── Body ───────────────────────────────────────────────────────────────── */
 
 .tg-tr {
-  border-bottom: 1px solid rgba(56, 189, 248, 0.06);
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
 }
 
@@ -378,7 +378,7 @@
 }
 
 .tg-tr--selecionada:hover {
-  background: rgba(56, 189, 248, 0.12);
+  background: rgba(129, 140, 248, 0.12);
 }
 
 .tg-tr--clicavel {
@@ -445,7 +445,7 @@
 .tg-acao-btn:hover:not(:disabled) {
   border-color: var(--tg-accent);
   color: var(--tg-accent);
-  background: rgba(56, 189, 248, 0.06);
+  background: rgba(129, 140, 248, 0.06);
 }
 
 .tg-acao-btn--danger {
@@ -483,9 +483,9 @@
   border-radius: var(--tg-radius-sm);
   background: linear-gradient(
     90deg,
-    rgba(56,189,248,0.06) 25%,
-    rgba(56,189,248,0.12) 50%,
-    rgba(56,189,248,0.06) 75%
+    rgba(129,140,248,0.06) 25%,
+    rgba(129,140,248,0.12) 50%,
+    rgba(129,140,248,0.06) 75%
   );
   background-size: 200% 100%;
   animation: tg-shimmer 1.5s infinite;
@@ -503,7 +503,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem 1.25rem;
-  background: rgba(56, 189, 248, 0.03);
+  background: rgba(129, 140, 248, 0.03);
   border-top: 1px solid var(--tg-border);
   flex-wrap: wrap;
 }
@@ -546,7 +546,7 @@
 }
 
 .tg-pag-btn:hover:not(:disabled) {
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(129, 140, 248, 0.08);
   color: var(--tg-accent);
   border-color: var(--tg-border);
 }

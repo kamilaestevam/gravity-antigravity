@@ -14,9 +14,9 @@
   --bg-surface:      #334155;
   --bg-elevated:     #475569;
 
-  /* Acento principal (Sky 400) */
-  --accent:          #38bdf8;
-  --accent-hover:    #0ea5e9;
+  /* Acento principal (Indigo 500) */
+  --accent:          #6366f1;
+  --accent-hover:    #4f46e5;
 
   /* Texto */
   --text-primary:    #f1f5f9;
@@ -27,7 +27,7 @@
   --success:         #22c55e;
   --warning:         #f59e0b;
   --danger:          #ef4444;
-  --info:            #38bdf8;
+  --info:            #818cf8;
 
   /* Geometria */
   --radius-sm:       4px;
@@ -36,7 +36,7 @@
   --radius-pill:     9999px;
 
   /* Focus ring */
-  --focus-ring:      0 0 0 2px #38bdf8;
+  --focus-ring:      0 0 0 2px #818cf8;
 
   /* Sombras */
   --shadow-sm:       0 1px 3px rgba(0,0,0,0.4);
@@ -195,7 +195,7 @@ body,
 
 .shell-sidebar__nav-item.active {
   color: var(--accent);
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(129, 140, 248, 0.08);
 }
 
 .shell-sidebar__nav-item.active::before {

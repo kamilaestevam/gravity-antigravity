@@ -98,7 +98,7 @@ function PopoverFiltro({
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '0.375rem 0.5rem 0.375rem 1.75rem',
-    background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)',
+    background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)',
     borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem',
     fontFamily: 'inherit', outline: 'none',
   }
@@ -106,34 +106,34 @@ function PopoverFiltro({
   const pillStyle = (ativo: boolean): React.CSSProperties => ({
     flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     gap: '0.3rem', padding: '0.375rem 0.5rem', borderRadius: '9999px',
-    background: ativo ? 'rgba(56,189,248,0.15)' : 'rgba(255,255,255,0.04)',
-    border: `1px solid ${ativo ? 'rgba(56,189,248,0.35)' : 'rgba(255,255,255,0.1)'}`,
-    color: ativo ? '#38bdf8' : '#94a3b8',
+    background: ativo ? 'rgba(129,140,248,0.15)' : 'rgba(255,255,255,0.04)',
+    border: `1px solid ${ativo ? 'rgba(129,140,248,0.35)' : 'rgba(255,255,255,0.1)'}`,
+    color: ativo ? '#818cf8' : '#94a3b8',
     fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
     fontFamily: 'inherit', transition: 'all 0.12s', whiteSpace: 'nowrap'
   })
 
   const style: React.CSSProperties = {
     position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999,
-    background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(56,189,248,0.18)',
+    background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(129,140,248,0.18)',
     borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
     minWidth: '220px', maxWidth: '280px', fontFamily: 'var(--font, Plus Jakarta Sans)',
   }
 
   return ReactDOM.createPortal(
     <div ref={ref} style={style} onClick={e => e.stopPropagation()}>
-      <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+      <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
         <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>{label}</span>
       </div>
 
-      <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+      <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
         <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
           {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [SortDir, string, React.ReactNode][]).map(([dir, rot, ico]) => {
             const ativo = sortAtivo && ordenacao?.direcao === dir
             return (
               <button key={dir} type="button" onClick={() => { onOrdenar(coluna, dir); onFechar() }} style={pillStyle(ativo)}
-                onMouseEnter={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(56,189,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(56,189,248,0.2)'; e.currentTarget.style.color = '#f1f5f9' } }}
+                onMouseEnter={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.2)'; e.currentTarget.style.color = '#f1f5f9' } }}
                 onMouseLeave={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#94a3b8' } }}>
                 {ico} {rot}
               </button>
@@ -143,7 +143,7 @@ function PopoverFiltro({
       </div>
 
       {tipo === 'texto' && (
-        <div style={{ borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+        <div style={{ borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
           <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
           {valoresDisponiveis.length > 5 && (
             <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
@@ -153,8 +153,8 @@ function PopoverFiltro({
               <input type="text" placeholder="Buscar…" value={buscaLocal}
                 onChange={e => setBuscaLocal(e.target.value)}
                 style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.15)' }}
               />
             </div>
           )}
@@ -166,10 +166,10 @@ function PopoverFiltro({
               return (
                 <label key={v}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.375rem', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.1s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.06)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(129,140,248,0.06)' }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                 >
-                  <span style={{ color: selecionado ? '#38bdf8' : '#475569', display: 'flex', lineHeight: 0, flexShrink: 0 }}>
+                  <span style={{ color: selecionado ? '#818cf8' : '#475569', display: 'flex', lineHeight: 0, flexShrink: 0 }}>
                     {selecionado ? <CheckSquare size={15} weight="fill" /> : <Square size={15} weight="regular" />}
                   </span>
                   <input type="checkbox" checked={selecionado} onChange={() => onToggleValor(coluna, v)} style={{ display: 'none' }} />
@@ -182,7 +182,7 @@ function PopoverFiltro({
       )}
 
       {tipo === 'numero' && (
-        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
           <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Intervalo</p>
           <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
             {(['min', 'max'] as const).map((campo, i) => (
@@ -195,9 +195,9 @@ function PopoverFiltro({
                   const v = e.target.value.replace(/[^0-9]/g, '')
                   onFiltrarNumero(coluna, campo, v)
                 }}
-                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
+                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.15)' }}
               />
             ))}
           </div>
@@ -234,20 +234,20 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   const temFiltroAtivo = col.tipo === 'texto' ? (stateVal as Set<string>).size > 0 : !!((stateVal as {min: string, max: string}).min || (stateVal as {min: string, max: string}).max)
 
   const labelSpan = (
-    <span style={{ color: sortAtivo ? '#38bdf8' : undefined, lineHeight: 1, display: 'inline-block' }}>
+    <span style={{ color: sortAtivo ? '#818cf8' : undefined, lineHeight: 1, display: 'inline-block' }}>
       {col.label}
     </span>
   )
 
   return (
-    <th style={{ width: col.largura, padding: '0.75rem 1rem', textAlign: col.align || 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(56,189,248,0.1)', background: 'rgba(56,189,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
+    <th style={{ width: col.largura, padding: '0.75rem 1rem', textAlign: col.align || 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(129,140,248,0.1)', background: 'rgba(129,140,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start' }}>
         {col.tooltipDescricao
           ? <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>{labelSpan}</TooltipGlobal>
           : labelSpan
         }
         <button ref={triggerRef} type="button" onClick={e => { e.stopPropagation(); setAberto(v => !v) }}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(56,189,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(56,189,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#38bdf8' : '#64748b', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(129,140,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(129,140,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#818cf8' : '#64748b', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
           <Funnel size={10} weight={temFiltroAtivo ? 'fill' : 'bold'} />
         </button>
       </div>
@@ -273,9 +273,9 @@ const Th = memo(ThInner) as typeof ThInner
 
 function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.5rem 0.2rem 0.65rem', borderRadius: '9999px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.5rem 0.2rem 0.65rem', borderRadius: '9999px', background: 'rgba(199,210,254,0.1)', border: '1px solid rgba(199,210,254,0.25)', color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
       {label}
-      <button type="button" onClick={onRemover} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: '50%', background: 'rgba(56,189,248,0.2)', border: 'none', cursor: 'pointer', color: '#38bdf8', padding: 0, flexShrink: 0 }}>
+      <button type="button" onClick={onRemover} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: '50%', background: 'rgba(199,210,254,0.2)', border: 'none', cursor: 'pointer', color: '#c7d2fe', padding: 0, flexShrink: 0 }}>
         <X size={9} weight="bold" />
       </button>
     </span>
@@ -286,9 +286,9 @@ function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.R
   return (
     <button type="button" onClick={onClick}
       style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.45rem 0.875rem', background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s, color 0.1s' }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(56,189,248,0.07)'; e.currentTarget.style.color = '#f1f5f9' }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.07)'; e.currentTarget.style.color = '#f1f5f9' }}
       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}>
-      <span style={{ color: '#38bdf8', display: 'flex', flexShrink: 0 }}>{icon}</span>
+      <span style={{ color: '#818cf8', display: 'flex', flexShrink: 0 }}>{icon}</span>
       {label}
     </button>
   )
@@ -422,8 +422,8 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
   }, [])
 
   return (
-    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(56,189,248,0.1)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(56,189,248,0.08)' }}>
+    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(129,140,248,0.1)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(129,140,248,0.08)' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
             <MagnifyingGlass size={14} weight="bold" />
@@ -438,13 +438,13 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
           {chips.length > 0 && (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 700 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', background: 'rgba(199,210,254,0.1)', border: '1px solid rgba(199,210,254,0.25)', color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 700 }}>
               <Funnel size={11} weight="fill" />
               {chips.length} filtro{chips.length !== 1 ? 's' : ''} ativo{chips.length !== 1 ? 's' : ''}
             </span>
           )}
           {selecionados.size > 0 && (
-            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#38bdf8', padding: '0.25rem 0.75rem', background: 'rgba(56,189,248,0.1)', borderRadius: '9999px' }}>
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#c7d2fe', padding: '0.25rem 0.75rem', background: 'rgba(199,210,254,0.15)', borderRadius: '9999px' }}>
               {selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}
             </span>
           )}
@@ -453,16 +453,16 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               <TooltipGlobal descricao="Baixe os resultados atuais da tabela">
                 <button ref={exportBtnRef} type="button"
                   onClick={() => setExportMenuAberto(v => !v)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(56,189,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#38bdf8' : 'rgba(56,189,248,0.12)'}`, color: exportMenuAberto ? '#38bdf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
-                  onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.color = '#38bdf8' } }}
-                  onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(129,140,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#818cf8' : 'rgba(129,140,248,0.12)'}`, color: exportMenuAberto ? '#818cf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
+                  onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.color = '#818cf8' } }}
+                  onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
                   <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </button>
               </TooltipGlobal>
 
               {exportMenuAberto && (
                 <div ref={exportMenuRef}
-                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid rgba(56,189,248,0.18)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
+                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
                   onClick={e => e.stopPropagation()}>
                   {acoesExportacao.map(a => (
                     <ExportMenuItem key={a.label} label={a.label} icon={a.icone} onClick={() => { a.onClick(resultado); setExportMenuAberto(false) }} />
@@ -475,7 +475,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
       </div>
 
       {chips.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(129,140,248,0.08)', background: 'rgba(129,140,248,0.02)' }}>
           {chips.map(c => <FiltroChip key={c.key} label={c.label} onRemover={c.onRemover} />)}
           <button type="button" onClick={limparTudo}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: 'auto', padding: '0.2rem 0.65rem', borderRadius: '9999px', background: 'transparent', border: '1px solid rgba(239,68,68,0.25)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
@@ -490,8 +490,8 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
           <thead>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)' }}>
-                <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
+              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)' }}>
+                <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
               {colunas.map(col => (
                 <Th key={col.key}
@@ -506,7 +506,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                 />
               ))}
               {acoes && acoes.length > 0 && (
-                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
                   Ações
                 </th>
               )}
@@ -517,7 +517,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               <tr>
                 <td colSpan={colunas.length + (acoes?.length ? 2 : 1)} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
                   {chips.length > 0 || busca
-                    ? <span>{mensagemVazio} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
+                    ? <span>{mensagemVazio} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
                     : mensagemSemFiltro
                   }
                 </td>
@@ -526,11 +526,11 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               const id = String(item[idKey as string])
               return (
               <tr key={id}
-                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(56,189,248,0.06)' : 'none', background: selecionados.has(id) ? 'rgba(56,189,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
-                onMouseEnter={ev => { if (!selecionados.has(id)) ev.currentTarget.style.background = 'rgba(56,189,248,0.03)' }}
-                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(id) ? 'rgba(56,189,248,0.06)' : 'transparent' }}>
+                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(129,140,248,0.06)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                onMouseEnter={ev => { if (!selecionados.has(id)) ev.currentTarget.style.background = 'rgba(129,140,248,0.03)' }}
+                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent' }}>
                 <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
-                  <input type="checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
+                  <input type="checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
                 </td>
                 
                 {colunas.map(col => (
@@ -558,7 +558,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                                 border: '1px solid transparent', color: '#64748b', cursor: isDis ? 'not-allowed' : 'pointer', 
                                 transition: 'all 0.15s', flexShrink: 0, opacity: isDis ? 0.3 : 1
                               }}
-                              onMouseEnter={ev => { if(!isDis) { ev.currentTarget.style.background = customStyle.background ?? 'rgba(56,189,248,0.12)'; ev.currentTarget.style.borderColor = customStyle.borderColor ?? 'rgba(56,189,248,0.3)'; ev.currentTarget.style.color = customStyle.color ?? '#38bdf8' } }}
+                              onMouseEnter={ev => { if(!isDis) { ev.currentTarget.style.background = customStyle.background ?? 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = customStyle.borderColor ?? 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = customStyle.color ?? '#818cf8' } }}
                               onMouseLeave={ev => { if(!isDis) { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' } }}
                             >
                               {acao.icone}
@@ -575,7 +575,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
         </table>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(129,140,248,0.08)', background: 'rgba(129,140,248,0.02)' }}>
         <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
           {resultado.length === 0 ? 'Nenhum registro' : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} de ${resultado.length}`}
         </span>
@@ -589,7 +589,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#64748b' }}>
           por página:
           <select value={porPagina} onChange={e => { setPorPagina(Number(e.target.value)); setPagina(1) }}
-            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(56,189,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
+            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
             {[10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>

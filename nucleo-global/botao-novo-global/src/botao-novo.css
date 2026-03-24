@@ -11,4 +11,7 @@
 .bng-wrapper {
   display: inline-flex;
   align-items: center;
+  /* Variação mais escura solicitada (Indigo 500) */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
 }

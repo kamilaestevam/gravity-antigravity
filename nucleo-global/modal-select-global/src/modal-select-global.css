@@ -1,0 +1,64 @@
+
+
+.modal-select-global {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.04) 0%, var(--ws-surface) 60%);
+  border: 1px solid rgba(129, 140, 248, 0.30);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  overflow: visible;
+}
+
+.modal-select-global__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ws-muted);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-select-global__desc {
+  font-size: 0.875rem;
+  color: var(--ws-muted);
+  margin: -0.25rem 0 1rem;
+  line-height: 1.6;
+}
+
+.modal-select-global__row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.modal-select-global__field {
+  flex: 1;
+  overflow: visible;
+}
+
+.modal-select-global__action {
+  flex-shrink: 0;
+}
+
+.modal-select-global__active {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  padding: 0.625rem 1rem;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--ws-text);
+}
+
+.modal-select-global__active-sub {
+  color: var(--ws-muted);
+  font-size: 0.8125rem;
+}

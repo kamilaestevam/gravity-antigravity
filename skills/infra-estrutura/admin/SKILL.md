@@ -53,11 +53,11 @@ function requireGravityAdmin(req, res, next) {
 
 | Coluna | Descrição |
 |:---|:---|
-| EMPRESA | Nome da empresa mãe |
+| EMPRESA | Nome da organização |
 | CNPJ | CNPJ da empresa |
 | STATUS | Ativo / Trial / Suspenso / Churned |
 | PRODUTOS | Badges dos produtos contratados |
-| EMPRESAS FILHAS | Quantidade de filiais |
+| espaços de trabalho | quantidade de espaços |
 | USUÁRIOS | Total de usuários ativos |
 | PLANO | Básico / Pro / Enterprise |
 | CRIADO EM | Data de cadastro |

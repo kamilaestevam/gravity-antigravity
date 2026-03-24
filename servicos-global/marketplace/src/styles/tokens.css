@@ -10,11 +10,11 @@
   --bg-surface:      #334155;
   --bg-elevated:     #475569;
 
-  /* === Acento principal (Sky 400) === */
-  --accent:          #38bdf8;
-  --accent-hover:    #0ea5e9;
-  --accent-10:       rgba(56, 189, 248, 0.10);
-  --accent-20:       rgba(56, 189, 248, 0.20);
+  /* === Acento principal (Indigo 500) === */
+  --accent:          #6366f1;
+  --accent-hover:    #4f46e5;
+  --accent-10:       rgba(99, 102, 241, 0.10);
+  --accent-20:       rgba(99, 102, 241, 0.20);
 
   /* === Texto === */
   --text-primary:    #f1f5f9;
@@ -37,7 +37,7 @@
   --radius-pill:     9999px;
 
   /* === Focus ring === */
-  --focus-ring:      0 0 0 2px #38bdf8;
+  --focus-ring:      0 0 0 2px #818cf8;
 
   /* === Sombras === */
   --shadow-sm:       0 1px 3px rgba(0,0,0,0.4);
@@ -50,7 +50,7 @@
   --transition-slow: 0.35s ease;
 
   /* === Gradientes === */
-  --gradient-accent: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+  --gradient-accent: linear-gradient(135deg, #818cf8 0%, #818cf8 100%);
   --gradient-hero:   linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
 }
 

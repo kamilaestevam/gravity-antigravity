@@ -131,6 +131,7 @@ export function SelectGlobal({
   erro,
   label,
   hint,
+  iconeEsquerda,
   renderizarOpcao,
   renderizarValorSelecionado,
   id: idExterno,
@@ -455,7 +456,7 @@ export function SelectGlobal({
       <div
         id={id}
         ref={campoRef}
-        className={`sg-campo ${aberto ? 'sg-campo--aberto' : ''} ${desabilitado ? 'sg-campo--desabilitado' : ''} ${carregando ? 'sg-campo--carregando' : ''}`}
+        className={`sg-campo ${aberto ? 'sg-campo--aberto' : ''} ${desabilitado ? 'sg-campo--desabilitado' : ''} ${carregando ? 'sg-campo--carregando' : ''} ${iconeEsquerda ? 'sg-campo--com-icone' : ''}`}
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={aberto}
@@ -473,6 +474,11 @@ export function SelectGlobal({
           }
         }}
       >
+        {iconeEsquerda && (
+          <span className="sg-icone-esquerda" aria-hidden="true">
+            {iconeEsquerda}
+          </span>
+        )}
         <div className="sg-valor">{renderizarGatilho()}</div>
 
         <div className="sg-acoes">

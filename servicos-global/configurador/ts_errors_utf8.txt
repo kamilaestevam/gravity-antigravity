@@ -1,0 +1,73 @@
+﻿../../nucleo-global/utils/src/index.ts(9,1): error TS2308: Module './formatadores.js' has already exported a member named 'FormatarDataOptions'. Consider explicitly re-exporting to resolve the ambiguity.
+../../nucleo-global/utils/src/index.ts(9,1): error TS2308: Module './formatadores.js' has already exported a member named 'FormatarMoedaOptions'. Consider explicitly re-exporting to resolve the ambiguity.
+../../nucleo-global/utils/src/index.ts(9,1): error TS2308: Module './mascaras.js' has already exported a member named 'MascaraConfig'. Consider explicitly re-exporting to resolve the ambiguity.
+../../nucleo-global/utils/src/index.ts(9,1): error TS2308: Module './mascaras.js' has already exported a member named 'MascaraTipo'. Consider explicitly re-exporting to resolve the ambiguity.
+../../nucleo-global/utils/src/index.ts(9,1): error TS2308: Module './validadores.js' has already exported a member named 'ValidarSenhaResultado'. Consider explicitly re-exporting to resolve the ambiguity.
+server/middleware/requireAuth.ts(47,31): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/access.ts(52,33): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(47,14): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(66,14): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(84,33): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(128,35): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(135,33): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(166,14): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(167,14): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(168,14): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/admin.ts(169,14): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/auth.ts(45,37): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/auth.ts(55,20): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/auth.ts(66,20): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/billing.ts(80,43): error TS2339: Property 'stripeEvent' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/billing.ts(92,18): error TS2339: Property 'stripeEvent' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/billing.ts(112,33): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/serviceToken.ts(49,18): error TS2339: Property 'serviceToken' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/serviceToken.ts(81,39): error TS2339: Property 'serviceToken' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(41,32): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(84,35): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(102,31): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(140,31): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(148,34): error TS2339: Property 'company' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(155,37): error TS2339: Property 'userMembership' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(193,31): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/routes/users.ts(200,34): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(39,33): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(56,20): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(88,18): error TS2339: Property 'subscription' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(96,18): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(106,40): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(111,22): error TS2339: Property 'subscription' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(127,40): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(133,18): error TS2339: Property 'subscription' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(137,18): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(147,40): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/billingService.ts(152,22): error TS2339: Property 'subscription' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/permissionsService.ts(22,31): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/permissionsService.ts(32,37): error TS2339: Property 'permission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/permissionsService.ts(48,19): error TS2339: Property 'permission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/permissionsService.ts(64,14): error TS2339: Property 'permission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/permissionsService.ts(66,16): error TS2339: Property 'permission' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/productConfigService.ts(11,19): error TS2339: Property 'productConfig' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/productConfigService.ts(28,19): error TS2339: Property 'productConfig' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/productConfigService.ts(46,19): error TS2339: Property 'productConfig' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/productConfigService.ts(56,19): error TS2339: Property 'productConfig' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(30,39): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(36,39): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(44,46): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(arg: PrismaPromise<any>[], options?: { isolationLevel?: TransactionIsolationLevel | undefined; } | undefined): Promise<any[]>', gave the following error.
+    Argument of type '(tx: typeof prisma) => Promise<any>' is not assignable to parameter of type 'PrismaPromise<any>[]'.
+  Overload 2 of 2, '(fn: (prisma: Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => Promise<...>, options?: { ...; } | undefined): Promise<...>', gave the following error.
+    Argument of type '(tx: typeof prisma) => Promise<any>' is not assignable to parameter of type '(prisma: Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) => Promise<...>'.
+      Types of parameters 'tx' and 'prisma' are incompatible.
+        Type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">' is missing the following properties from type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>': $on, $connect, $disconnect, $use, and 2 more.
+server/services/tenantService.ts(45,34): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(53,16): error TS2339: Property 'user' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(64,16): error TS2339: Property 'subscription' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(83,19): error TS2339: Property 'tenant' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(100,19): error TS2339: Property 'company' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(120,32): error TS2339: Property 'company' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(121,39): error TS2339: Property 'subscription' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+server/services/tenantService.ts(138,19): error TS2339: Property 'company' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/main.tsx(7,37): error TS2339: Property 'env' does not exist on type 'ImportMeta'.
+src/pages/workspace/Financeiro.tsx(81,39): error TS2304: Cannot find name 'FileXls'.
+src/pages/workspace/Financeiro.tsx(127,106): error TS2353: Object literal may only specify known properties, and 'labelAcao' does not exist in type 'TabelaGlobalAcao<Fatura>'.
+src/pages/workspace/Financeiro.tsx(131,101): error TS2353: Object literal may only specify known properties, and 'labelAcao' does not exist in type 'TabelaGlobalAcao<Fatura>'.

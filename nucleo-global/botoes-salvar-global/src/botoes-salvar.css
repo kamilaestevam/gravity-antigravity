@@ -71,12 +71,12 @@
 
 @keyframes bs-btn-ping {
   0% {
-    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.5); /* Usa o azul primário do BotaoGlobal (38bdf8) */
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); /* Indigo 500 RGB */
   }
   70% {
-    box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
+    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
   }
 }

@@ -13,7 +13,7 @@
 - Billing: checkout, planos, webhooks, faturas
 - Autenticação de usuários via Clerk
 - Controle de acesso: roles (`OWNER`, `ADMIN`, `MEMBER`, `VIEWER`)
-- Memberships em empresas filhas
+- Memberships em espaços de trabalho
 - Admin Panel exclusivo `gravity_admin`
 - Endpoint `GET /api/internal/check-access` (S2S)
 
@@ -200,9 +200,9 @@
 
 ---
 
-### Fluxo 11 — Membership: habilitar usuário em empresa filha
+### Fluxo 11 — Membership: habilitar usuário em espaço de trabalho
 **Categoria:** CRUD
-**Pré-condição:** tenant com 1 empresa filha e 2 usuários
+**Pré-condição:** tenant com 1 espaço de trabalho e 2 usuários
 **Passos:**
 1. POST `/api/v1/users/:id/memberships` com `companyId` e `role: MASTER`
 2. Verificar `201` com membership criado
@@ -240,7 +240,7 @@
 | Tenant ativo | `{ id, name, slug, status: ACTIVE, stripe_customer_id }` | 2 |
 | Tenant suspenso | `{ status: SUSPENDED }` | 1 |
 | Usuários por tenant | `{ id, email, role }` | 3 por tenant |
-| Empresa filha | `{ id, name, tenant_id }` | 1 por tenant |
+| espaço de trabalho | `{ id, name, tenant_id }` | 1 por tenant |
 | Produto habilitado | `ProductConfig { product_key: 'simulacusto', is_active: true }` | 1 |
 | Evento Stripe simulado | `{ id, type: 'customer.subscription.updated', ... }` | 1 |
 

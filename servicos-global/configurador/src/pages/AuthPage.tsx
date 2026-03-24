@@ -13,7 +13,7 @@ export function AuthPage() {
         <div className="auth-brand-content">
           {/* Logo — mesmo do Marketplace */}
           <div className="auth-logo">
-            <Hexagon size={30} weight="duotone" color="#38bdf8" />
+            <Hexagon size={30} weight="duotone" color="#818cf8" />
             <span className="auth-logo-name">Gravity</span>
           </div>
 
@@ -65,7 +65,7 @@ export function AuthPage() {
           afterSignInUrl="/hub"
           appearance={{
             variables: {
-              colorPrimary: '#38bdf8',
+              colorPrimary: '#818cf8',
               colorBackground: '#1e293b',
               colorInputBackground: '#0f172a',
               colorInputText: '#f1f5f9',
@@ -79,24 +79,24 @@ export function AuthPage() {
             elements: {
               card: {
                 boxShadow: 'none',
-                border: '1px solid rgba(56,189,248,0.12)',
+                border: '1px solid rgba(129,140,248,0.12)',
                 background: '#1e293b',
               },
               headerTitle: { display: 'none' },
               headerSubtitle: { display: 'none' },
               socialButtonsBlockButton: {
-                border: '1px solid rgba(56,189,248,0.15)',
+                border: '1px solid rgba(129,140,248,0.15)',
                 background: '#0f172a',
                 color: '#f1f5f9',
               },
               formButtonPrimary: {
-                background: 'linear-gradient(90deg, #38bdf8 0%, #818cf8 100%)',
+                background: 'linear-gradient(90deg, #818cf8 0%, #818cf8 100%)',
                 color: '#0f172a',
                 fontWeight: '700',
                 borderRadius: '9999px',
               },
-              footerActionLink: { color: '#38bdf8' },
-              dividerLine: { background: 'rgba(56,189,248,0.1)' },
+              footerActionLink: { color: '#818cf8' },
+              dividerLine: { background: 'rgba(129,140,248,0.1)' },
               dividerText: { color: '#475569' },
             },
           }}

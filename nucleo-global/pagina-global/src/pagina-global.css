@@ -1,0 +1,77 @@
+/* pagina-global.css — Container de layout central */
+
+.pg-container {
+  display: block;
+  width: 100%;
+}
+
+/* 1. LAYER: CABEÇALHO */
+.pg-cabecalho-wrapper {
+  display: block;
+  /* Não interferimos! CabecalhoGlobal usará suas margens negativas nativamente */
+}
+
+/* Acoplamento da re-posição do bloco do Título aprovada na refinação de layout de 24/03/2026. 
+   Ao aninhar no PaginaGlobal, fixamos as distâncias exatas que o usuário desenhou no olho. */
+.pg-cabecalho-wrapper .cg-header__title-block {
+  margin-top: 16px;
+}
+
+/* 2. LAYER: MÉTRICAS E AÇÕES INTERMEDIÁRIAS (Idêntico ao antigo ws-stats-row testado) */
+.pg-contexto-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  position: sticky;
+  top: 74px;
+  z-index: 40;
+  background: var(--ws-bg-body, #0f172a);
+  
+  /* Cancela o padding lateral do .ws-content pai e repõe pra dentro (Full-bleed clássico) */
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Ajuste p/ modo claro */
+body.light-theme .pg-contexto-row {
+  background: var(--ws-bg-body, #f8fafc);
+}
+
+.pg-contexto-row.pg-no-stats {
+  justify-content: flex-end;
+}
+
+.pg-stats-area {
+  flex: 1.8;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.pg-acoes-area {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 0;
+}
+
+/* 3. LAYER: CONTEÚDO (TABELA OU FORMULÁRIO) */
+.pg-conteudo-area {
+  display: block;
+  width: 100%;
+}
+
+.pg-layout-lista {
+  width: 100%;
+}
+
+.pg-layout-formulario {
+  width: 100%;
+  padding-top: 18px; /* Ajuste final milimétrico */
+}

@@ -11,6 +11,10 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/botao-global/src/index.ts'
       ),
+      '@nucleo/pagina-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/pagina-global/src/index.ts'
+      ),
       '@nucleo/cabecalho-global': path.resolve(
         __dirname,
         '../../nucleo-global/cabecalho-global/src/index.ts'
@@ -46,6 +50,18 @@ export default defineConfig({
       '@nucleo/botoes-salvar-global': path.resolve(
         __dirname,
         '../../nucleo-global/botoes-salvar-global/src/index.ts'
+      ),
+      '@nucleo/status-salvar-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/status-salvar-global/src/index.ts'
+      ),
+      '@nucleo/modal-select-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-select-global/src/index.ts'
+      ),
+      '@gravity/shell': path.resolve(
+        __dirname,
+        '../shell/index.ts'
       ),
     },
   },

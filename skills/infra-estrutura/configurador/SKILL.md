@@ -11,7 +11,7 @@ O Configurador é o **porteiro central** de toda a plataforma Gravity. Todo clie
 
 Responsabilidades:
 - Autenticação de todos os usuários da plataforma (via Clerk)
-- Gestão do Workspace (empresa mãe e empresas filhas)
+- Gestão do Workspace (organização e espaços de trabalho)
 - Gestão de usuários e permissões no nível tenant
 - Assinaturas, planos e billing (via Stripe + boleto)
 - Emissão de NF-e
@@ -87,21 +87,21 @@ servicos-global/configurador/
 
 ## Modelo de Usuários e Permissões
 
-### Nível 1 — Usuário no Tenant (empresa mãe)
+### Nível 1 — Usuário no Tenant (organização)
 
-O usuário é **criado e existe no tenant**. Pertence à empresa mãe. Sem vínculo com empresa filha, o usuário existe mas não acessa nada.
+O usuário é **criado e existe no tenant**. Pertence à organização. Sem vínculo com espaço de trabalho, o usuário existe mas não acessa nada.
 
 ```text
-Tenant (empresa mãe)
+Tenant (organização)
 └── Usuários do tenant
     ├── Daniel Mendes — Master
     ├── Ana Silva — Standard
     └── Fornecedor X — Fornecedor
 ```
 
-### Nível 2 — Habilitação em Empresa Filha
+### Nível 2 — Habilitação em espaço de trabalho
 
-Para um usuário do tenant trabalhar em uma empresa filha, ele precisa de uma **Habilitação**.
+Para um usuário do tenant trabalhar em uma espaço de trabalho, ele precisa de uma **Habilitação**.
 - 1 Tenant pode ter até 50 filhas
 - O usuário Daniel pode estar habilitado nas filhas A e B, mas não na C
 
@@ -111,8 +111,8 @@ Ao habilitar um usuário em uma filha, você define o cargo (role):
 1. **Master:** Pode fazer tudo na filha (inclusive gerir outros usuários)
 2. **Standard:** Só pode operar (conforme as permissões de produto)
 
-Cada habilitação em empresa filha tem dois níveis:
-- **Permissão de acesso ao produto:** Define quais produtos o usuário pode usar naquela empresa filha
+Cada habilitação em espaço de trabalho tem dois níveis:
+- **Permissão de acesso ao produto:** Define quais produtos o usuário pode usar naquela espaço de trabalho
 - **Permissões granulares dentro do produto:** Define o que o usuário pode fazer dentro de cada produto
 
 ---
@@ -122,7 +122,7 @@ Cada habilitação em empresa filha tem dois níveis:
 | Tipo | Comportamento |
 |:---|:---|
 | **Master** | Acesso total a todos os produtos — permissões granulares não se aplicam |
-| **Standard** | Acesso conforme permissões definidas por empresa filha e por produto |
+| **Standard** | Acesso conforme permissões definidas por espaço de trabalho e por produto |
 | **Fornecedor** | Tipo especial para acesso externo — permissões granulares obrigatórias |
 
 ---
@@ -193,7 +193,7 @@ model UserMembership {
 
 ### APIs Públicas (Clerk Auth)
 - `POST /api/v1/tenant` — criar tenant
-- `GET /api/v1/companies` — listar empresas filhas
+- `GET /api/v1/companies` — listar espaços de trabalho
 - `GET /api/v1/users` — listar usuários
 - `GET /api/v1/plans` — listar planos
 - `GET /api/v1/billing/invoices` — histórico de faturas
@@ -242,7 +242,7 @@ PORT=3000
 
 ## Checklist — Antes de Entregar o Configurador
 
-- [ ] Workspace lista empresas filhas corretamente?
+- [ ] Workspace lista espaços de trabalho corretamente?
 - [ ] Botão "Acessar" redireciona para a URL do produto com token?
 - [ ] Clerk webhooks sincronizam usuários e organizações?
 - [ ] Convite de usuário dispara e-mail do Clerk?

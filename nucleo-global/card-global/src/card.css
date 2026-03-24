@@ -39,8 +39,8 @@
 .cg-card--perigo { border-color: rgba(248, 113, 113, 0.3); }
 .cg-card--perigo:hover { border-color: #f87171; box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.2); }
 
-.cg-card--primario { border-color: rgba(56, 189, 248, 0.3); }
-.cg-card--primario:hover { border-color: #38bdf8; box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.2); }
+.cg-card--primario { border-color: rgba(129, 140, 248, 0.3); }
+.cg-card--primario:hover { border-color: #818cf8; box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.2), 0 10px 15px -3px rgba(0, 0, 0, 0.2); }
 
 /* ── Header: ícone + título ── */
 .cg-card__header {

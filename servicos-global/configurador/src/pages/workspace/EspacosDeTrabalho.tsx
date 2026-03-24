@@ -19,7 +19,7 @@ export interface Empresa {
   criadaEm: string
 }
 
-const mockEmpresas: Empresa[] = [
+const mockEspacosDeTrabalho: Empresa[] = [
   { id:  '1', nome: 'Acme Logística',          subdominio: 'acme-log',       usuarios:  8, status: 'Ativa',    criadaEm: '12/01/2025' },
   { id:  '2', nome: 'Acme Importações',        subdominio: 'acme-import',    usuarios:  3, status: 'Ativa',    criadaEm: '18/02/2025' },
   { id:  '3', nome: 'Acme Distribuição',       subdominio: 'acme-dist',      usuarios: 12, status: 'Ativa',    criadaEm: '05/03/2025' },
@@ -53,8 +53,8 @@ const mockEmpresas: Empresa[] = [
 ]
 
 
-export function Empresas() {
-  const [empresas, setEmpresas]    = useState<Empresa[]>(mockEmpresas)
+export function EspacosDeTrabalho() {
+  const [empresas, setEspacosDeTrabalho]    = useState<Empresa[]>(mockEspacosDeTrabalho)
   const [showForm, setShowForm]    = useState(false)
   const [nome, setNome]            = useState('')
   const [subdominio, setSubdomain] = useState('')
@@ -88,7 +88,7 @@ export function Empresas() {
       status: 'Ativa',
       criadaEm: new Date().toLocaleDateString('pt-BR'),
     }
-    setEmpresas(prev => [...prev, nova])
+    setEspacosDeTrabalho(prev => [...prev, nova])
     setNome(''); setSubdomain(''); setSubdErr(''); setShowForm(false)
   }
 
@@ -96,7 +96,7 @@ export function Empresas() {
     if (linha.status === 'Ativa') {
       if (!window.confirm('Suspender esta empresa filha? Todo acesso será bloqueado.')) return
     }
-    setEmpresas(prev =>
+    setEspacosDeTrabalho(prev =>
       prev.map(e => e.id === linha.id
         ? { ...e, status: e.status === 'Ativa' ? 'Suspensa' : 'Ativa' }
         : e
@@ -106,17 +106,17 @@ export function Empresas() {
 
   function handleDelete(linha: Empresa) {
     if (!window.confirm('Excluir permanentemente esta empresa filha? Esta ação não pode ser desfeita.')) return
-    setEmpresas(prev => prev.filter(e => e.id !== linha.id))
+    setEspacosDeTrabalho(prev => prev.filter(e => e.id !== linha.id))
   }
 
   const COLUNAS: TabelaGlobalColuna<Empresa>[] = [
     {
-      key: 'nome', label: 'Filial', tipo: 'texto',
-      tooltipTitulo: 'Empresa Filha',
-      tooltipDescricao: 'Nome da empresa filha cadastrada na sua conta',
+      key: 'nome', label: 'Espaço de Trabalho', tipo: 'texto',
+      tooltipTitulo: 'Espaço de Trabalho',
+      tooltipDescricao: 'Nome do espaço de trabalho cadastrado na sua conta',
       render: (v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#38bdf8' }}>
+          <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(129,140,248,0.12)', border: '1px solid rgba(129,140,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8' }}>
             {item.nome.charAt(0)}
           </div>
           <span style={{ fontWeight: 600 }}>{item.nome}</span>
@@ -125,12 +125,12 @@ export function Empresas() {
     },
     {
       key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
-      tooltipTitulo: 'Subdomínio', tooltipDescricao: 'Endereço exclusivo desta filial no workspace',
+      tooltipTitulo: 'Subdomínio', tooltipDescricao: 'Endereço exclusivo deste espaço de trabalho no workspace',
       render: (v, item) => (
         <a href={`https://${item.subdominio}.gravity.com.br`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }} onClick={ev => ev.stopPropagation()}>
-          <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
-            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.18)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+          <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
+            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
           >
             {item.subdominio}.gravity.com.br
           </code>
@@ -139,12 +139,12 @@ export function Empresas() {
     },
     {
       key: 'usuarios', label: 'Usuários', tipo: 'numero', align: 'center',
-      tooltipTitulo: 'Usuários Ativos', tooltipDescricao: 'Total de usuários com acesso habilitado nesta filial',
+      tooltipTitulo: 'Usuários Ativos', tooltipDescricao: 'Total de usuários com acesso habilitado neste espaço de trabalho',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
-      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se a filial está operando ou com acesso suspenso',
+      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se o espaço de trabalho está operando ou com acesso suspenso',
       render: (v) => (
         <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativa' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativa' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
           {v}
@@ -153,7 +153,7 @@ export function Empresas() {
     },
     {
       key: 'criadaEm', label: 'Criado em', tipo: 'texto',
-      tooltipTitulo: 'Data de Criação', tooltipDescricao: 'Data em que a filial foi cadastrada no sistema',
+      tooltipTitulo: 'Data de Criação', tooltipDescricao: 'Data em que o espaço de trabalho foi cadastrado no sistema',
       render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span>
     }
   ]
@@ -165,7 +165,7 @@ export function Empresas() {
       tooltip: 'Suspender',
       onClick: handleSuspend,
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.status === 'Ativa' ? 'Bloquear todo o acesso desta filial' : 'Reativar acesso para esta filial'}>
+        <TooltipGlobal descricao={item.status === 'Ativa' ? 'Bloquear todo o acesso deste espaço de trabalho' : 'Reativar acesso para este espaço de trabalho'}>
           <button
             type="button"
             onClick={() => handleSuspend(item)}
@@ -200,7 +200,7 @@ export function Empresas() {
     { header: 'Status',      key: 'status'     },
     { header: 'Criado em',   key: 'criadaEm'   },
   ]
-  const OPCOES_EXPORT = { nomeArquivo: 'empresas-filhas', titulo: 'Empresas Filhas' }
+  const OPCOES_EXPORT = { nomeArquivo: 'espacos-de-trabalho', titulo: 'Espaços de Trabalho' }
 
   const ACOES_EXPORT: TabelaExportAcao<Empresa>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados.map(d => ({ ...d, subdominio: `${d.subdominio}.gravity.com.br` })) as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
@@ -215,14 +215,14 @@ export function Empresas() {
     <div>
       <CabecalhoGlobal
         icone={<Buildings weight="duotone" size={22} />}
-        titulo="Empresas Filhas"
-        subtitulo="Gerencie todas as filiais cadastradas na sua conta corporativa."
+        titulo="Espaços de Trabalho"
+        subtitulo="Gerencie todos os espaços de trabalho cadastrados na sua organização."
       />
 
       <div className="ws-stats-row">
         <div className="ws-stats">
           <CardBasicoGlobal
-            titulo="Total de Filhas"
+            titulo="Total de Espaços"
             icone={<TreeStructure weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={empresas.length}
             periodos={[
@@ -246,7 +246,7 @@ export function Empresas() {
             }
           />
           <CardBasicoGlobal
-            titulo="Filhas Ativas"
+            titulo="Espaços Ativos"
             icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
             valor={ativas}
             variante="sucesso"
@@ -313,7 +313,7 @@ export function Empresas() {
             }
           />
           <CardGraficoGlobal
-            titulo="Status das Filhas"
+            titulo="Status dos Espaços"
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
             total={empresas.length}
             valorPrincipal={ativas}
@@ -348,7 +348,7 @@ export function Empresas() {
 
         <div className="ws-stats-row__action">
           <BotaoNovoGlobal
-            rotulo="Nova Empresa Filha"
+            rotulo="Novo Espaço de Trabalho"
             onClick={() => setShowForm(v => !v)}
             ativo={showForm}
           />
@@ -358,17 +358,17 @@ export function Empresas() {
       {showForm && (
         <div className="ws-form-card" style={{ marginBottom: '1.5rem' }}>
           <p className="ws-section-title" style={{ width: 'max-content' }}>
-            <TooltipGlobal titulo="Nova Filial" descricao="Cadastre uma nova filial para segregar acessos e dados operacionais">
+            <TooltipGlobal titulo="Novo Espaço" descricao="Cadastre um novo espaço de trabalho para segregar acessos e dados operacionais">
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
-                <Buildings weight="duotone" size={14} color="#38bdf8" />
-                Nova Empresa Filha
+                <Buildings weight="duotone" size={14} color="#818cf8" />
+                Novo Espaço de Trabalho
               </span>
             </TooltipGlobal>
           </p>
           <div className="ws-form-row">
             <div className="ws-field">
               <label>
-                <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social ou nome fantasia da nova filial">
+                <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social ou nome fantasia do novo espaço de trabalho">
                   <span>Nome da Empresa</span>
                 </TooltipGlobal>
               </label>
@@ -380,7 +380,7 @@ export function Empresas() {
             </div>
             <div className="ws-field">
               <label>
-                <TooltipGlobal titulo="Subdomínio" descricao="Endereço de acesso exclusivo desta filial">
+                <TooltipGlobal titulo="Subdomínio" descricao="Endereço de acesso exclusivo deste espaço de trabalho">
                   <span>Subdomínio</span>
                 </TooltipGlobal>
               </label>
@@ -392,7 +392,7 @@ export function Empresas() {
               {subdErr && <p style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.25rem' }}>{subdErr}</p>}
               {subdominio && !subdErr && (
                 <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', marginTop: '0.25rem' }}>
-                  URL: <strong style={{ color: '#38bdf8' }}>{subdominio}.gravity.com.br</strong>
+                  URL: <strong style={{ color: '#818cf8' }}>{subdominio}.gravity.com.br</strong>
                 </p>
               )}
             </div>
@@ -403,7 +403,7 @@ export function Empresas() {
               onClick={handleAdd}
               disabled={!nome.trim() || !subdominio.trim() || !!subdErr}
             >
-              Criar Empresa Filha
+              Criar Espaço de Trabalho
             </BotaoGlobal>
             <BotaoGlobal
               variante="fantasma"
@@ -422,7 +422,7 @@ export function Empresas() {
           acoes={ACOES}
           acoesExportacao={ACOES_EXPORT}
           mensagemVazio="Nenhum resultado na busca."
-          mensagemSemFiltro="Nenhuma empresa filial cadastrada."
+          mensagemSemFiltro="Nenhum espaço de trabalho cadastrado."
         />
       </div>
     </div>

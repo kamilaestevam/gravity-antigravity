@@ -19,6 +19,8 @@
         "@nucleo/botao-global": "*",
         "@nucleo/botao-novo-global": "*",
         "@nucleo/cabecalho-global": "*",
+        "@nucleo/modal-select-global": "*",
+        "@nucleo/pagina-global": "*",
         "@nucleo/tabela-global": "*",
         "@phosphor-icons/react": "^2.1.10",
         "@prisma/client": "^5.13.0",

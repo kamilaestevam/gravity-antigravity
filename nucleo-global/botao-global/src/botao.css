@@ -50,7 +50,7 @@
 }
 
 .gb-btn:focus-visible {
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.4);
 }
 
 .gb-btn:disabled {
@@ -90,25 +90,25 @@
 
 /* ── Variante: primário ───────────────────────────────────────────────────── */
 .gb-btn--primario {
-  background: var(--color-primary, #38bdf8);
-  color: #0f172a;
+  background: var(--color-primary, #6366f1);
+  color: #ffffff;
   border-color: transparent;
-  box-shadow: 0 1px 3px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25);
 }
 
 .gb-btn--primario:hover:not(:disabled) {
-  background: var(--color-primary-hover, #7dd3fc);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.35);
+  background: var(--color-primary-hover, #4f46e5);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
 }
 
-/* Badge dentro do primário: círculo levemente mais escuro */
+/* Badge dentro do primário: círculo levemente mais escuro ou translúcido */
 .gb-btn--primario .gb-btn__icon-badge {
-  background: rgba(0, 0, 0, 0.15);
-  color: inherit;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
 }
 
 .gb-btn--primario:hover:not(:disabled) .gb-btn__icon-badge {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* ── Variante: secundário ─────────────────────────────────────────────────── */
@@ -120,12 +120,12 @@
 
 .gb-btn--secundario:hover:not(:disabled) {
   background: var(--color-surface, rgba(255, 255, 255, 0.1));
-  border-color: var(--color-primary, #38bdf8);
+  border-color: var(--color-primary, #818cf8);
 }
 
 .gb-btn--secundario .gb-btn__icon-badge {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--color-primary, #38bdf8);
+  color: var(--color-primary, #818cf8);
 }
 
 /* ── Variante: fantasma ───────────────────────────────────────────────────── */
@@ -137,8 +137,8 @@
 
 .gb-btn--fantasma:hover:not(:disabled) {
   color: var(--color-text, #f1f5f9);
-  border-color: var(--color-primary, #38bdf8);
-  background: rgba(56, 189, 248, 0.06);
+  border-color: var(--color-primary, #818cf8);
+  background: rgba(129, 140, 248, 0.06);
 }
 
 .gb-btn--fantasma .gb-btn__icon-badge {
@@ -147,8 +147,8 @@
 }
 
 .gb-btn--fantasma:hover:not(:disabled) .gb-btn__icon-badge {
-  background: rgba(56, 189, 248, 0.1);
-  color: var(--color-primary, #38bdf8);
+  background: rgba(129, 140, 248, 0.1);
+  color: var(--color-primary, #818cf8);
 }
 
 /* ── Variante: perigo ─────────────────────────────────────────────────────── */

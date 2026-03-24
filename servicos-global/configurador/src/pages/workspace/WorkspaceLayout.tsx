@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useUser } from '@clerk/clerk-react'
+import { ToastContainer } from '@gravity/shell'
 import {
   Hexagon,
   Crown,
@@ -15,8 +16,8 @@ import {
 import './workspace.css'
 
 const navItems = [
-  { to: '/workspace/empresa-mae',  label: 'Empresa Mãe',    icon: <Crown       weight="duotone" size={18} /> },
-  { to: '/workspace/empresas',     label: 'Empresas Filhas', icon: <Buildings   weight="duotone" size={18} /> },
+  { to: '/workspace/organizacao',  label: 'Organização',    icon: <Crown       weight="duotone" size={18} /> },
+  { to: '/workspace/espacos-de-trabalho',     label: 'Espaços de Trabalho', icon: <Buildings   weight="duotone" size={18} /> },
   { to: '/workspace/usuarios',     label: 'Usuários',        icon: <Users       weight="duotone" size={18} /> },
   { to: '/workspace/assinaturas',  label: 'Assinaturas',     icon: <CreditCard  weight="duotone" size={18} /> },
   { to: '/workspace/financeiro',   label: 'Financeiro',      icon: <Receipt     weight="duotone" size={18} /> },
@@ -115,6 +116,9 @@ export function WorkspaceLayout() {
           <Outlet />
         </div>
       </div>
+
+      {/* ── Notificações Globais ── */}
+      <ToastContainer />
     </div>
   )
 }

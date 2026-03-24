@@ -80,6 +80,17 @@
   opacity: 0.7;
 }
 
+.sg-icone-esquerda {
+  display: flex;
+  align-items: center;
+  color: var(--_sg-muted);
+  flex-shrink: 0;
+}
+
+.sg-campo--com-icone {
+  padding-left: 0.75rem; /* Ajuste opcional, dependendo do design atual */
+}
+
 /* ─── Valor e placeholder ────────────────────────────────────────────────────── */
 .sg-valor {
   flex: 1;

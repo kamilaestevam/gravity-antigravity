@@ -73,7 +73,7 @@ export interface SelectProps {
   /** Hint abaixo do campo */
   hint?: string
   /** Ícone à esquerda do campo */
-  iconeEsquerda?: string
+  iconeEsquerda?: ReactNode
   /** Renderizador customizado de opção na lista */
   renderizarOpcao?: (opcao: SelectOpcao) => ReactNode
   /** Renderizador customizado do valor selecionado */

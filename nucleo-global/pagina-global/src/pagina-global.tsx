@@ -1,0 +1,77 @@
+import React, { ReactNode } from 'react';
+import './pagina-global.css';
+
+export interface PaginaGlobalProps {
+  /**
+   * Cabeçalho fixo no topo (geralmente CabecalhoGlobal).
+   */
+  cabecalho: ReactNode;
+  
+  /**
+   * Informações de painel ou listagem de métricas, ex: [StatCardGlobal, StatCardGlobal].
+   * Se os cards não preencherem tudo e "acoes" for definido, as "acoes" ficarão ancoradas na base dessa linha.
+   */
+  stats?: ReactNode;
+
+  /**
+   * Botões de ação como "Novo registro", "Gerar Excel", etc.
+   */
+  acoes?: ReactNode;
+
+  /**
+   * Define o comportamento de preenchimento. 
+   * "lista" -> 100% da largura. Usado com TabelaGlobal.
+   * "formulario" -> Max-width engessado no centro.
+   */
+  layout?: 'lista' | 'formulario';
+
+  /**
+   * O conteúdo principal, como uma TabelaGlobal.
+   * A PaginaGlobal engessa a altura para evitar scroll duplo e
+   * permite que o container scrolle internamente se configurado.
+   */
+  children: ReactNode;
+  
+  /**
+   * Classes extras opcionais no container pai.
+   */
+  className?: string;
+}
+
+export function PaginaGlobal({ 
+  cabecalho, 
+  stats, 
+  acoes, 
+  layout = 'lista', 
+  children, 
+  className = '' 
+}: PaginaGlobalProps) {
+  const customLayoutClass = `pg-layout-${layout}`;
+  const hasMiddleLayer = !!stats || !!acoes;
+
+  return (
+    <div className={`pg-container ${className}`}>
+      {/* 1. Header (Fixo ao topo) */}
+      <div className="pg-cabecalho-wrapper">
+        {cabecalho}
+      </div>
+
+      {/* 2. Middle Layer: Stats and/or Actions */}
+      {hasMiddleLayer && (
+        <div className={`pg-contexto-row ${stats ? 'pg-has-stats' : 'pg-no-stats'}`}>
+          <div className="pg-stats-area">
+            {stats}
+          </div>
+          <div className="pg-acoes-area">
+            {acoes}
+          </div>
+        </div>
+      )}
+
+      {/* 3. Main content (Tabela ou Formulário) */}
+      <main className={`pg-conteudo-area ${customLayoutClass}`}>
+        {children}
+      </main>
+    </div>
+  );
+}

@@ -206,7 +206,7 @@ descricao: [frase curta, ativo, sem ponto, sem jargão, max 90 chars]
 
 | Coluna | descricao aprovada |
 |---|---|
-| Filial | Nome da empresa filha cadastrada neste tenant |
+| Filial | Nome da empresa filha cadastrada na sua conta |
 | Subdomínio | Endereço exclusivo desta filial no workspace |
 | Usuários | Total de usuários com acesso habilitado nesta filial |
 | Status | Indica se a filial está operando ou com acesso suspenso |

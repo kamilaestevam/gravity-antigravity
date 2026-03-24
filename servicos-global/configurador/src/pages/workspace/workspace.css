@@ -606,8 +606,6 @@ body.light-theme [data-tooltip]:hover::after {
   padding-right: 2rem;
   padding-top: 1rem;
   padding-bottom: 1.5rem;
-  /* Separador sutil do conteúdo abaixo */
-  border-bottom: 1px solid var(--ws-accent-border);
   margin-bottom: 1.5rem;
 }
 

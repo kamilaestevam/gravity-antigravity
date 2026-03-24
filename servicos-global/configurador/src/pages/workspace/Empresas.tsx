@@ -5,6 +5,7 @@ import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 export type EmpresaStatus = 'Ativa' | 'Suspensa'
@@ -112,7 +113,7 @@ export function Empresas() {
     {
       key: 'nome', label: 'Filial', tipo: 'texto',
       tooltipTitulo: 'Empresa Filha',
-      tooltipDescricao: 'Nome da empresa filha cadastrada neste tenant.',
+      tooltipDescricao: 'Nome da empresa filha cadastrada na sua conta',
       render: (v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#38bdf8' }}>
@@ -124,7 +125,7 @@ export function Empresas() {
     },
     {
       key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
-      tooltipTitulo: 'Subdomínio', tooltipDescricao: 'Endereço exclusivo desta filial na plataforma.',
+      tooltipTitulo: 'Subdomínio', tooltipDescricao: 'Endereço exclusivo desta filial no workspace',
       render: (v, item) => (
         <a href={`https://${item.subdominio}.gravity.com.br`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }} onClick={ev => ev.stopPropagation()}>
           <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
@@ -138,12 +139,12 @@ export function Empresas() {
     },
     {
       key: 'usuarios', label: 'Usuários', tipo: 'numero', align: 'center',
-      tooltipTitulo: 'Usuários Ativos', tooltipDescricao: 'Total de acessos habilitados nesta filial.',
+      tooltipTitulo: 'Usuários Ativos', tooltipDescricao: 'Total de usuários com acesso habilitado nesta filial',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
-      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se a filial está ativa ou com acesso suspenso.',
+      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se a filial está operando ou com acesso suspenso',
       render: (v) => (
         <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativa' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativa' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
           {v}
@@ -152,7 +153,7 @@ export function Empresas() {
     },
     {
       key: 'criadaEm', label: 'Criado em', tipo: 'texto',
-      tooltipTitulo: 'Data de Criação', tooltipDescricao: 'Data em que a filial foi cadastrada no sistema.',
+      tooltipTitulo: 'Data de Criação', tooltipDescricao: 'Data em que a filial foi cadastrada no sistema',
       render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span>
     }
   ]
@@ -164,16 +165,17 @@ export function Empresas() {
       tooltip: 'Suspender',
       onClick: handleSuspend,
       renderCustom: (item) => (
-        <button
-          type="button"
-          title={item.status === 'Ativa' ? 'Suspender' : 'Reativar'}
-          onClick={() => handleSuspend(item)}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
-          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-        >
-          {item.status === 'Ativa' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-        </button>
+        <TooltipGlobal descricao={item.status === 'Ativa' ? 'Bloquear todo o acesso desta filial' : 'Reativar acesso para esta filial'}>
+          <button
+            type="button"
+            onClick={() => handleSuspend(item)}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+            onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+          >
+            {item.status === 'Ativa' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+          </button>
+        </TooltipGlobal>
       )
     },
     {
@@ -214,7 +216,7 @@ export function Empresas() {
       <CabecalhoGlobal
         icone={<Buildings weight="duotone" size={22} />}
         titulo="Empresas Filhas"
-        subtitulo="Gerencie as empresas filhas do seu tenant Gravity."
+        subtitulo="Gerencie todas as filiais cadastradas na sua conta corporativa."
       />
 
       <div className="ws-stats-row">
@@ -355,13 +357,21 @@ export function Empresas() {
 
       {showForm && (
         <div className="ws-form-card" style={{ marginBottom: '1.5rem' }}>
-          <p className="ws-section-title">
-            <Buildings weight="duotone" size={14} color="#38bdf8" />
-            Nova Empresa Filha
+          <p className="ws-section-title" style={{ width: 'max-content' }}>
+            <TooltipGlobal titulo="Nova Filial" descricao="Cadastre uma nova filial para segregar acessos e dados operacionais">
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
+                <Buildings weight="duotone" size={14} color="#38bdf8" />
+                Nova Empresa Filha
+              </span>
+            </TooltipGlobal>
           </p>
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Nome da Empresa</label>
+              <label>
+                <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social ou nome fantasia da nova filial">
+                  <span>Nome da Empresa</span>
+                </TooltipGlobal>
+              </label>
               <input
                 placeholder="Ex: Acme Logística SP"
                 value={nome}
@@ -369,7 +379,11 @@ export function Empresas() {
               />
             </div>
             <div className="ws-field">
-              <label>Subdomínio</label>
+              <label>
+                <TooltipGlobal titulo="Subdomínio" descricao="Endereço de acesso exclusivo desta filial">
+                  <span>Subdomínio</span>
+                </TooltipGlobal>
+              </label>
               <input
                 placeholder="Ex: acme-logistica-sp"
                 value={subdominio}

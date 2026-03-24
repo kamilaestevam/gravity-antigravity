@@ -99,8 +99,11 @@ export function EmpresaMae() {
   const { dirty, resetDirty } = useDirty(dadosIniciais, dados)
 
   // empresa filha selecionada para acesso operacional
+  const [filhaInicial, setFilhaInicial] = useState<string>('')
   const [filhaAtivaId, setFilhaAtivaId] = useState<string>('')
-  const [filhaSalva, setFilhaSalva] = useState(false)
+  
+  const { dirty: dirtyFilha, resetDirty: resetFilha } = useDirty(filhaInicial, filhaAtivaId)
+  const isDirty = dirty || dirtyFilha
 
   // lista de cidades do estado
   const [cidades, setCidades] = useState<SelectOpcao[]>([])
@@ -133,35 +136,39 @@ export function EmpresaMae() {
   // ── Restaurar preferência salva ao montar ────────────────────────────────
   useEffect(() => {
     const chave = storageKey(user?.id)
-    const salvoId = localStorage.getItem(chave)
-    if (salvoId) setFilhaAtivaId(salvoId)
-  }, [user?.id])
+    const salvoId = localStorage.getItem(chave) || ''
+    setFilhaInicial(salvoId)
+    setFilhaAtivaId(salvoId)
+    resetFilha(salvoId)
+  }, [user?.id, resetFilha])
 
   function set(key: keyof DadosMae, value: string) {
     setDados(p => ({ ...p, [key]: value }))
   }
 
-  // ── Salvar dados básicos ─────────────────────────────────────────────────
+  // ── Salvar todos os dados da página ──────────────────────────────────────
   function handleSalvar() {
-    // TODO: persistir via API
+    // TODO: persistir `dados` via API
     resetDirty(dados)
-  }
 
-  function handleCancelar() {
-    setDados(dadosIniciais)
-    resetDirty()
-  }
-
-  // ── Salvar preferência de empresa filha ──────────────────────────────────
-  function handleAplicarSelecao() {
+    // Persistir preferência local de empresa filha ativa
     const chave = storageKey(user?.id)
     if (filhaAtivaId) {
       localStorage.setItem(chave, filhaAtivaId)
     } else {
       localStorage.removeItem(chave)
     }
-    setFilhaSalva(true)
-    setTimeout(() => setFilhaSalva(false), 2500)
+    resetFilha(filhaAtivaId)
+  }
+
+  function handleCancelar() {
+    // Restaura dados da página
+    setDados(dadosIniciais)
+    resetDirty()
+
+    // Restaura preferência local
+    setFilhaAtivaId(filhaInicial)
+    resetFilha()
   }
 
   const filhaAtiva = EMPRESAS_FILHAS_MOCK.find(f => f.id === filhaAtivaId)
@@ -179,12 +186,12 @@ export function EmpresaMae() {
         <div className="em-identity__hero">
           <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
           <div className="em-identity__text">
-            <TooltipGlobal titulo="Tipo de Conta" descricao="Conta administradora de onde derivam todas as empresas filhas.">
+            <TooltipGlobal titulo="Tipo de Conta" descricao="Nível hierárquico principal da sua estrutura na plataforma">
               <span className="em-identity__badge" style={{ cursor: 'help' }}>Empresa Mãe</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
-              <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso, usuários e funcionalidades disponíveis.">
+              <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso e funcionalidades do seu sistema">
                 <span className="em-tag" style={{ cursor: 'help' }}>{dados.plano}</span>
               </TooltipGlobal>
               <span className="em-identity__sep">·</span>
@@ -196,14 +203,18 @@ export function EmpresaMae() {
 
       {/* ── Dados Básicos — sempre editáveis ────────────────────────────── */}
       <div className="em-section ws-fade-up ws-fade-up-d1">
-        <p className="ws-section-title">
-          <Buildings weight="duotone" size={14} color="var(--ws-accent)" />
-          Dados Básicos
+        <p className="ws-section-title" style={{ width: 'max-content' }}>
+          <TooltipGlobal titulo="Dados Básicos" descricao="Informações principais da sua empresa usadas em toda a plataforma">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
+              <Buildings weight="duotone" size={14} color="var(--ws-accent)" />
+              Dados Básicos
+            </span>
+          </TooltipGlobal>
         </p>
         <div className="em-grid">
           <div className="ws-field">
             <label>
-              <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social completa, conforme constante no CNPJ.">
+              <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social que aparece nos documentos e relatórios">
                 <span>Nome da Empresa *</span>
               </TooltipGlobal>
             </label>
@@ -218,7 +229,7 @@ export function EmpresaMae() {
           </div>
           <div className="ws-field">
             <label>
-              <TooltipGlobal titulo="CNPJ" descricao="Cadastro Nacional da Pessoa Jurídica. Utilizado para emissão de documentos fiscais.">
+              <TooltipGlobal titulo="CNPJ" descricao="Aparece em notas fiscais e documentos gerados na plataforma">
                 <span>CNPJ</span>
               </TooltipGlobal>
             </label>
@@ -235,7 +246,7 @@ export function EmpresaMae() {
         <div className="em-grid em-grid--4">
           <div className="ws-field">
             <label>
-              <TooltipGlobal titulo="Estado" descricao="Estado da sede principal da empresa. Afeta cálculos fiscais e localidade padrão.">
+              <TooltipGlobal titulo="Estado" descricao="Estado onde a empresa tem sua sede principal">
                 <span>Estado</span>
               </TooltipGlobal>
             </label>
@@ -252,7 +263,7 @@ export function EmpresaMae() {
           </div>
           <div className="ws-field">
             <label>
-              <TooltipGlobal titulo="Cidade" descricao="Município sede. Carregado via API do IBGE com base no estado selecionado.">
+              <TooltipGlobal titulo="Cidade" descricao="A lista de cidades aparece após você escolher o estado">
                 <span>Cidade</span>
               </TooltipGlobal>
             </label>
@@ -268,7 +279,7 @@ export function EmpresaMae() {
           </div>
           <div className="ws-field">
             <label>
-              <TooltipGlobal titulo="Segmento" descricao="Setor econômico de atuação. Utilizado para personalização de relatórios e categorização na plataforma.">
+              <TooltipGlobal titulo="Segmento" descricao="Usado para categorizar a empresa nos relatórios da plataforma">
                 <span>Segmento</span>
               </TooltipGlobal>
             </label>
@@ -282,7 +293,7 @@ export function EmpresaMae() {
           </div>
           <div className="ws-field">
             <label>
-              <TooltipGlobal titulo="Site" descricao="URL pública da empresa. Exibida no perfil e nos documentos gerados pela plataforma.">
+              <TooltipGlobal titulo="Site" descricao="Endereço público da empresa, exibido no perfil">
                 <span>Site</span>
               </TooltipGlobal>
             </label>
@@ -301,21 +312,29 @@ export function EmpresaMae() {
 
       {/* ── Dados do Plano ────────────────────────────────────────────────── */}
       <div className="em-section ws-fade-up ws-fade-up-d2">
-        <p className="ws-section-title">
-          <Package weight="duotone" size={14} color="var(--ws-accent)" />
-          Plano Contratado
+        <p className="ws-section-title" style={{ width: 'max-content' }}>
+          <TooltipGlobal titulo="Plano Contratado" descricao="Resumo das configurações de cobrança e limites do seu plano atual">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
+              <Package weight="duotone" size={14} color="var(--ws-accent)" />
+              Plano Contratado
+            </span>
+          </TooltipGlobal>
         </p>
         <div className="em-plan-row">
           <div className="em-plan-info">
             <div className="em-plan-icon"><Package weight="duotone" size={22} /></div>
             <div>
-              <p className="em-plan-label">Plano atual</p>
-              <p className="em-plan-name">{dados.plano}</p>
+              <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso e funcionalidades do seu sistema">
+                <div style={{ cursor: 'help' }}>
+                  <p className="em-plan-label">Plano atual</p>
+                  <p className="em-plan-name">{dados.plano}</p>
+                </div>
+              </TooltipGlobal>
             </div>
           </div>
           <div className="em-plan-meta">
             <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="Subdomínio" descricao="Endereço exclusivo desta conta na plataforma Gravity. Não pode ser alterado após a criação.">
+              <TooltipGlobal titulo="Subdomínio" descricao="Endereço exclusivo da sua conta — não pode ser alterado">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                   <Globe size={14} weight="duotone" />
                   <span>{dados.subdominio}.gravity.com.br</span>
@@ -323,7 +342,7 @@ export function EmpresaMae() {
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="Data de Início" descricao="Data em que a conta foi criada na plataforma. Utilizada no cálculo de aniversidade do contrato.">
+              <TooltipGlobal titulo="Cliente Desde" descricao="Data de ativação da conta na plataforma">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                   <CalendarBlank size={14} weight="duotone" />
                   <span>Cliente desde {dados.criadaEm}</span>
@@ -331,7 +350,7 @@ export function EmpresaMae() {
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="Localização" descricao="Cidade e estado da sede principal. Define fuso horário e timezone padrão para agendamentos.">
+              <TooltipGlobal titulo="Localização" descricao="Cidade e estado da sede principal da empresa">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                   <MapPin size={14} weight="duotone" />
                   <span>{dados.cidade}{dados.estado ? `, ${dados.estado}` : ''}</span>
@@ -339,7 +358,7 @@ export function EmpresaMae() {
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="CNPJ" descricao="Número do Cadastro Nacional da Pessoa Jurídica. Exibido em documentos e notas emitidas pela plataforma.">
+              <TooltipGlobal titulo="CNPJ" descricao="Aparece em notas fiscais e documentos gerados na plataforma">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                   <IdentificationCard size={14} weight="duotone" />
                   <span>{dados.cnpj}</span>
@@ -350,23 +369,26 @@ export function EmpresaMae() {
         </div>
       </div>
 
-      {/* ── Utilizar como empresa filha ──────────────────────────────────── */}
+      {/* ── Empresa Filha Padrão ──────────────────────────────────── */}
       <div className="em-section em-filha-section ws-fade-up ws-fade-up-d3">
-        <p className="ws-section-title">
-          <CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />
-          Utilizar essa empresa como filha
+        <p className="ws-section-title" style={{ width: 'max-content' }}>
+          <TooltipGlobal titulo="Empresa Filha Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
+              <CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />
+              Empresa Filha de Acesso Padrão
+            </span>
+          </TooltipGlobal>
         </p>
         <p className="em-filha-desc">
-          Selecione a empresa filha que deseja utilizar como contexto operacional
-          ao acessar a plataforma. O acesso e os dados exibidos serão referentes
-          à empresa selecionada.
+          Sempre que você acessar a plataforma você precisa operar em uma empresa filha. 
+          Escolha aqui qual será sua empresa de acesso padrão (se você possui apenas uma, pode deixá-la salva).
         </p>
 
         <div className="em-filha-select-row">
           <div className="ws-field" style={{ flex: 1, overflow: 'visible' }}>
             <label>
-              <TooltipGlobal titulo="Empresa Filha Ativa" descricao="Define qual empresa filha é o contexto operacional da sua sessão. Afeta dados, relatórios e filtros exibidos na plataforma.">
-                <span>Empresa filha ativa</span>
+              <TooltipGlobal titulo="Empresa Filha Padrão" descricao="Escolha a empresa filha que será seu ambiente de trabalho principal ao entrar no sistema">
+                <span>Empresa filha padrão</span>
               </TooltipGlobal>
             </label>
             <SelectGlobal
@@ -377,19 +399,7 @@ export function EmpresaMae() {
               buscavel
             />
           </div>
-          <div style={{ paddingTop: '1.375rem' }}>
-            <TooltipGlobal titulo="Aplicar Empresa Filha" descricao="Você precisará atualizar ou recarregar as páginas abertas para que o contexto entre em vigor.">
-              <BotaoGlobal
-                variante="primario"
-                disabled={!filhaAtivaId}
-                onClick={handleAplicarSelecao}
-              >
-                {filhaSalva
-                  ? <><FloppyDisk size={15} weight="bold" /> Salvo!</>
-                  : <><CheckCircle size={15} weight="bold" /> Aplicar seleção</>}
-              </BotaoGlobal>
-            </TooltipGlobal>
-          </div>
+
         </div>
 
         {filhaAtiva && (
@@ -407,7 +417,7 @@ export function EmpresaMae() {
 
       {/* ── Salvar / Cancelar ──────────────────────────────────────────────── */}
       <BotoesSalvarGlobal
-        dirty={dirty}
+        dirty={isDirty}
         onSalvar={handleSalvar}
         onCancelar={handleCancelar}
         alinhamento="direita"

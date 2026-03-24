@@ -30,16 +30,18 @@ export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>
     ref,
   ) {
     return (
-      <BotaoGlobal
-        ref={ref}
-        variante="primario"
-        type={type}
-        disabled={!dirty || carregando}
-        onClick={onClick}
-        icone={<FloppyDisk size={14} weight="bold" />}
-      >
-        {carregando ? 'Salvando…' : rotulo}
-      </BotaoGlobal>
+      <div className={dirty && !carregando ? 'bs-btn-pulse' : ''} style={{ display: 'inline-flex' }}>
+        <BotaoGlobal
+          ref={ref}
+          variante="primario"
+          type={type}
+          disabled={!dirty || carregando}
+          onClick={onClick}
+          icone={<FloppyDisk size={14} weight="bold" />}
+        >
+          {carregando ? 'Salvando…' : rotulo}
+        </BotaoGlobal>
+      </div>
     )
   },
 )

@@ -261,7 +261,7 @@ export function Usuarios() {
     },
     {
       key: 'tipo', label: 'Tipo', tipo: 'texto',
-      tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Tipo de usuário global no tenant.',
+      tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Nível de permissão principal do usuário na plataforma',
       render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#38bdf8', background: 'rgba(56,189,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
     },
     {
@@ -331,7 +331,7 @@ export function Usuarios() {
   const COLUNAS_FILIAIS: TabelaGlobalColuna<TenantUser>[] = [
     {
       key: 'nome', label: 'Usuário', tipo: 'texto',
-      tooltipTitulo: 'Usuário', tooltipDescricao: 'Nome do usuário no tenant.',
+      tooltipTitulo: 'Usuário', tooltipDescricao: 'Identificação principal do usuário na plataforma',
       render: (_, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
@@ -389,25 +389,26 @@ export function Usuarios() {
         icone={<Users weight="duotone" size={22} />}
         titulo="Usuários & Permissões"
         subtitulo="Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada."
-        acoes={
-          tab === 'tenant' ? (
-            <BotaoNovoGlobal
-              rotulo="Convidar Usuário"
-              rotuloAtivo="Cancelar"
-              ativo={showForm}
-              onClick={() => setShowForm(v => !v)}
-            />
-          ) : undefined
-        }
       />
 
-      <div className="ws-tabs">
-        <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
-          Perfis de Acesso
-        </button>
-        <button className={`ws-tab${tab === 'filiais' ? ' active' : ''}`} onClick={() => setTab('filiais')}>
-          Acesso por Empresa Filha
-        </button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '1.5rem 0' }}>
+        <div className="ws-tabs" style={{ margin: 0 }}>
+          <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
+            Perfis de Acesso
+          </button>
+          <button className={`ws-tab${tab === 'filiais' ? ' active' : ''}`} onClick={() => setTab('filiais')}>
+            Acesso por Empresa Filha
+          </button>
+        </div>
+
+        {tab === 'tenant' && (
+          <BotaoNovoGlobal
+            rotulo="Convidar Usuário"
+            rotuloAtivo="Cancelar"
+            ativo={showForm}
+            onClick={() => setShowForm(v => !v)}
+          />
+        )}
       </div>
 
       {tab === 'tenant' && (
@@ -461,7 +462,7 @@ export function Usuarios() {
               acoes={ACOES}
               acoesExportacao={ACOES_EXPORT}
               mensagemVazio="Nenhum usuário encontrado na busca."
-              mensagemSemFiltro="Nenhum usuário cadastrado neste tenant."
+              mensagemSemFiltro="Nenhum usuário cadastrado na sua conta corporativa."
             />
           </div>
         </>

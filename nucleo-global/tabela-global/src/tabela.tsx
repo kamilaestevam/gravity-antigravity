@@ -450,13 +450,15 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
           )}
           {(acoesExportacao && acoesExportacao.length > 0) && (
             <div style={{ position: 'relative' }}>
-              <button ref={exportBtnRef} type="button"
-                onClick={() => setExportMenuAberto(v => !v)}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(56,189,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#38bdf8' : 'rgba(56,189,248,0.12)'}`, color: exportMenuAberto ? '#38bdf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
-                onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.color = '#38bdf8' } }}
-                onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
-                <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-              </button>
+              <TooltipGlobal descricao="Baixe os resultados atuais da tabela">
+                <button ref={exportBtnRef} type="button"
+                  onClick={() => setExportMenuAberto(v => !v)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(56,189,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#38bdf8' : 'rgba(56,189,248,0.12)'}`, color: exportMenuAberto ? '#38bdf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
+                  onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.color = '#38bdf8' } }}
+                  onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
+                  <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                </button>
+              </TooltipGlobal>
 
               {exportMenuAberto && (
                 <div ref={exportMenuRef}
@@ -545,23 +547,23 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                         const isDis = acao.disabled ? acao.disabled(item) : false
                         const customStyle = acao.onRenderStyle ? acao.onRenderStyle(item) : {}
                         return (
-                          <button
-                            key={acao.id}
-                            type="button"
-                            title={acao.tooltip}
-                            onClick={() => !isDis && acao.onClick(item)}
-                            disabled={isDis}
-                            style={{ 
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                              width: 28, height: 28, borderRadius: '50%', background: 'transparent', 
-                              border: '1px solid transparent', color: '#64748b', cursor: isDis ? 'not-allowed' : 'pointer', 
-                              transition: 'all 0.15s', flexShrink: 0, opacity: isDis ? 0.3 : 1
-                            }}
-                            onMouseEnter={ev => { if(!isDis) { ev.currentTarget.style.background = customStyle.background ?? 'rgba(56,189,248,0.12)'; ev.currentTarget.style.borderColor = customStyle.borderColor ?? 'rgba(56,189,248,0.3)'; ev.currentTarget.style.color = customStyle.color ?? '#38bdf8' } }}
-                            onMouseLeave={ev => { if(!isDis) { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' } }}
-                          >
-                            {acao.icone}
-                          </button>
+                          <TooltipGlobal key={acao.id} descricao={acao.tooltip}>
+                            <button
+                              type="button"
+                              onClick={() => !isDis && acao.onClick(item)}
+                              disabled={isDis}
+                              style={{ 
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                                width: 28, height: 28, borderRadius: '50%', background: 'transparent', 
+                                border: '1px solid transparent', color: '#64748b', cursor: isDis ? 'not-allowed' : 'pointer', 
+                                transition: 'all 0.15s', flexShrink: 0, opacity: isDis ? 0.3 : 1
+                              }}
+                              onMouseEnter={ev => { if(!isDis) { ev.currentTarget.style.background = customStyle.background ?? 'rgba(56,189,248,0.12)'; ev.currentTarget.style.borderColor = customStyle.borderColor ?? 'rgba(56,189,248,0.3)'; ev.currentTarget.style.color = customStyle.color ?? '#38bdf8' } }}
+                              onMouseLeave={ev => { if(!isDis) { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' } }}
+                            >
+                              {acao.icone}
+                            </button>
+                          </TooltipGlobal>
                         )
                       })}
                     </div>

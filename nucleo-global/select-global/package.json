@@ -1,5 +1,5 @@
-﻿{
-    "name":  "@nucleo/select",
+{
+    "name":  "@nucleo/select-global",
     "version":  "1.0.0",
     "private":  true,
     "type":  "module",

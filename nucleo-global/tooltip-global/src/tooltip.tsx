@@ -1,137 +1,65 @@
 /**
  * @nucleo/tooltip-global — tooltip.tsx
- *
- * Tooltip acessível renderizada via ReactDOM.createPortal no document.body,
- * escapando qualquer overflow:hidden do DOM pai.
- *
- * Uso:
- *   <TooltipGlobal texto="Empresa filha vinculada ao tenant">
- *     <span>Filial</span>
- *   </TooltipGlobal>
+ * Tooltip unificada: renderiza card minimalista com título descritivo via portal.
+ * Use position:fixed calculada no onMouseEnter = zero flash.
  */
-import React, {
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  cloneElement,
-  type ReactElement,
-} from 'react'
+import React, { useState, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import './tooltip.css'
-import type { TooltipProps, TooltipPosicao } from './tipos.js'
+import type { TooltipProps } from './tipos.js'
 
-/* ── Cálculo de posição ────────────────────────────────────────────────────── */
+export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
+  const [show, setShow] = useState(false)
+  const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
+  const ref = useRef<HTMLSpanElement>(null)
 
-const GAP = 8 // px entre âncora e tooltip
-
-interface Pos { top: number; left: number }
-
-function calcularPosicao(
-  anchor: DOMRect,
-  balao: DOMRect,
-  pos: TooltipPosicao,
-  scroll: { x: number; y: number },
-): Pos {
-  const { x, y } = scroll
-  switch (pos) {
-    case 'top':
-      return {
-        top: anchor.top + y - balao.height - GAP,
-        left: anchor.left + x + anchor.width / 2,
-      }
-    case 'bottom':
-      return {
-        top: anchor.bottom + y + GAP,
-        left: anchor.left + x + anchor.width / 2,
-      }
-    case 'left':
-      return {
-        top: anchor.top + y + anchor.height / 2,
-        left: anchor.left + x - balao.width - GAP,
-      }
-    case 'right':
-      return {
-        top: anchor.top + y + anchor.height / 2,
-        left: anchor.right + x + GAP,
-      }
+  const mostra = () => {
+    if (ref.current) {
+      const r = ref.current.getBoundingClientRect()
+      
+      // Tentamos posicionar o card ACIMA do elemento.
+      // E usamos `bottom` (do viewport) como âncora para o card crescer para cima,
+      // a menos que não caiba, aí usamos `top` (abaixo do elemento).
+      const espacoAcima = r.top
+      const usaBottom = espacoAcima > 80 // Se tiver mais que 80px acima, aparece em cima.
+      
+      const pxLeft = Math.max(138, Math.min(r.left + r.width / 2, window.innerWidth - 138))
+      
+      setPos({
+        usaBottom,
+        bottom: usaBottom ? window.innerHeight - r.top + 8 : 0,
+        top: usaBottom ? 0 : r.bottom + 8,
+        left: pxLeft,
+      })
+    }
+    setShow(true)
   }
-}
-
-/* ── Componente ────────────────────────────────────────────────────────────── */
-
-export function TooltipGlobal({
-  texto,
-  posicao = 'top',
-  delay = 300,
-  children,
-}: TooltipProps) {
-  const [visivel, setVisivel] = useState(false)
-  const [pos, setPos] = useState<Pos>({ top: 0, left: 0 })
-
-  const anchorRef = useRef<HTMLElement | null>(null)
-  const balaoRef  = useRef<HTMLDivElement | null>(null)
-  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  /* Recalcula posição quando o tooltip fica visível */
-  useEffect(() => {
-    if (!visivel || !anchorRef.current || !balaoRef.current) return
-    const aRect = anchorRef.current.getBoundingClientRect()
-    const bRect = balaoRef.current.getBoundingClientRect()
-    setPos(calcularPosicao(aRect, bRect, posicao, { x: window.scrollX, y: window.scrollY }))
-  }, [visivel, posicao])
-
-  const mostrar = useCallback(() => {
-    timerRef.current = setTimeout(() => setVisivel(true), delay)
-  }, [delay])
-
-  const esconder = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    setVisivel(false)
-  }, [])
-
-  // Limpa timer ao desmontar
-  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current) }, [])
-
-  /* Injeta os event handlers no filho sem criar wrapper extra */
-  const child = cloneElement(children as ReactElement<Record<string, unknown>>, {
-    ref: (node: HTMLElement | null) => { anchorRef.current = node },
-    onMouseEnter: (e: React.MouseEvent) => {
-      mostrar()
-      const original = (children as ReactElement<Record<string, unknown>>).props.onMouseEnter
-      if (typeof original === 'function') original(e)
-    },
-    onMouseLeave: (e: React.MouseEvent) => {
-      esconder()
-      const original = (children as ReactElement<Record<string, unknown>>).props.onMouseLeave
-      if (typeof original === 'function') original(e)
-    },
-    onFocus: (e: React.FocusEvent) => {
-      mostrar()
-      const original = (children as ReactElement<Record<string, unknown>>).props.onFocus
-      if (typeof original === 'function') original(e)
-    },
-    onBlur: (e: React.FocusEvent) => {
-      esconder()
-      const original = (children as ReactElement<Record<string, unknown>>).props.onBlur
-      if (typeof original === 'function') original(e)
-    },
-  })
 
   return (
     <>
-      {child}
-      {visivel && ReactDOM.createPortal(
-        <div
-          ref={balaoRef}
-          role="tooltip"
-          className="tg-balao"
-          data-pos={posicao}
-          style={{ top: pos.top, left: pos.left }}
+      <span
+        ref={ref}
+        onMouseEnter={mostra}
+        onMouseLeave={() => setShow(false)}
+        className="tg-trigger"
+      >
+        {children}
+      </span>
+
+      {show && ReactDOM.createPortal(
+        <div 
+          className="tg-card" 
+          data-start={pos.usaBottom ? 'bottom' : 'top'}
+          style={{
+            bottom: pos.usaBottom ? pos.bottom : 'auto',
+            top:    pos.usaBottom ? 'auto'   : pos.top,
+            left:   pos.left,
+          }}
         >
-          {texto}
+          {titulo && <p className="tg-titulo">{titulo}</p>}
+          <p className="tg-descricao">{descricao}</p>
         </div>,
-        document.body,
+        document.body
       )}
     </>
   )

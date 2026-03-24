@@ -3,6 +3,9 @@
  * Select customizado — nunca usa <select> nativo.
  * Suporta single e multi select, busca interna, grupos e opções desabilitadas.
  * CSS Variables do design system Solid Slate.
+ *
+ * Dropdown renderizado via ReactDOM.createPortal (position: fixed) para
+ * escapar de qualquer stacking context criado pelos containers pai.
  */
 
 import React, {
@@ -13,8 +16,26 @@ import React, {
   useMemo,
   useCallback,
 } from 'react'
+import ReactDOM from 'react-dom'
 import type { SelectProps, SelectOpcao } from './tipos.js'
 import './select.css'
+
+// ─── Posição do dropdown (fixed) ──────────────────────────────────────────────
+
+type DropdownPos = { top: number; left: number; width: number; above: boolean }
+
+function calcPos(trigger: HTMLElement): DropdownPos {
+  const rect = trigger.getBoundingClientRect()
+  const spaceBelow = window.innerHeight - rect.bottom
+  const spaceAbove = rect.top
+  const above = spaceBelow < 260 && spaceAbove > spaceBelow
+  return {
+    top: above ? rect.top : rect.bottom + 4,
+    left: rect.left,
+    width: rect.width,
+    above,
+  }
+}
 
 // ─── Chip (para multi-select) ─────────────────────────────────────────────────
 
@@ -125,9 +146,29 @@ export function SelectGlobal({
 
   const [aberto, setAberto] = useState(false)
   const [busca, setBusca] = useState('')
+  const [pos, setPos] = useState<DropdownPos | null>(null)
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const campoRef = useRef<HTMLDivElement>(null)
   const buscaRef = useRef<HTMLInputElement>(null)
+
+  // ─── Calcular posição do dropdown ─────────────────────────────────────────
+
+  useEffect(() => {
+    if (!aberto || !campoRef.current) return
+    setPos(calcPos(campoRef.current))
+
+    // Recalcular se a janela rolar ou redimensionar enquanto aberto
+    const update = () => {
+      if (campoRef.current) setPos(calcPos(campoRef.current))
+    }
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
+  }, [aberto])
 
   // ─── Fechar ao clicar fora ────────────────────────────────────────────────
 
@@ -135,13 +176,16 @@ export function SelectGlobal({
     if (!aberto) return
     const handler = (e: MouseEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) {
+        // também verifica se o clique não foi dentro do portal do dropdown
+        const ddEl = document.getElementById(`${idLista}-portal`)
+        if (ddEl && ddEl.contains(e.target as Node)) return
         setAberto(false)
         setBusca('')
       }
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
-  }, [aberto])
+  }, [aberto, idLista])
 
   // ─── ESC fecha o dropdown ─────────────────────────────────────────────────
 
@@ -177,14 +221,20 @@ export function SelectGlobal({
   // ─── Filtro por busca ─────────────────────────────────────────────────────
 
   const opcoesFiltradas: SelectOpcao[] = useMemo(() => {
-    if (!busca.trim()) return todasOpcoes
+    // Remove opções com valor vazio (ex: { valor: '', rotulo: 'Selecione...' })
+    // O placeholder prop já cobre esse caso visual
+    const semVazias = todasOpcoes.filter(
+      (op) => op.valor !== '' && op.valor != null
+    )
+    if (!busca.trim()) return semVazias
     const termo = busca.trim().toLowerCase()
-    return todasOpcoes.filter(
+    return semVazias.filter(
       (op) =>
         op.rotulo.toLowerCase().includes(termo) ||
         op.descricao?.toLowerCase().includes(termo)
     )
   }, [todasOpcoes, busca])
+
 
   // ─── Opções filtradas por grupo ───────────────────────────────────────────
 
@@ -340,6 +390,58 @@ export function SelectGlobal({
     .filter(Boolean)
     .join(' ')
 
+  // ─── Dropdown via Portal (position: fixed) ────────────────────────────────
+
+  const dropdown = aberto && pos && ReactDOM.createPortal(
+    <div
+      id={`${idLista}-portal`}
+      className={`sg-dropdown sg-dropdown--portal ${pos.above ? 'sg-dropdown--acima' : ''}`}
+      style={{
+        position: 'fixed',
+        top: pos.above ? undefined : pos.top,
+        bottom: pos.above ? window.innerHeight - pos.top : undefined,
+        left: pos.left,
+        width: pos.width,
+        zIndex: 99999,
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      {buscavel && (
+        <div className="sg-busca-wrapper">
+          <span className="sg-busca-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="16.5" y1="16.5" x2="22" y2="22" />
+            </svg>
+          </span>
+          <input
+            ref={buscaRef}
+            className="sg-busca-input"
+            type="text"
+            placeholder="Buscar..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            aria-label="Buscar opções"
+            autoComplete="off"
+          />
+        </div>
+      )}
+
+      <ul
+        id={idLista}
+        className="sg-lista"
+        role="listbox"
+        aria-multiselectable={multiplo}
+        aria-label={ariaLabel ?? label ?? 'Opções'}
+      >
+        {renderizarLista()}
+      </ul>
+    </div>,
+    document.body
+  )
+
   return (
     <div className={`sg-wrapper input-group ${erro ? 'sg-wrapper--erro' : ''}`} ref={containerRef}>
       {label && (
@@ -352,6 +454,7 @@ export function SelectGlobal({
       {/* Campo gatilho */}
       <div
         id={id}
+        ref={campoRef}
         className={`sg-campo ${aberto ? 'sg-campo--aberto' : ''} ${desabilitado ? 'sg-campo--desabilitado' : ''} ${carregando ? 'sg-campo--carregando' : ''}`}
         role="combobox"
         aria-haspopup="listbox"
@@ -385,46 +488,20 @@ export function SelectGlobal({
               ✕
             </button>
           )}
-          {/* Chevron */}
+          {/* Chevron — SVG inline */}
           <span
             className={`sg-chevron ${aberto ? 'sg-chevron--aberto' : ''}`}
             aria-hidden="true"
           >
-            ▾
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </span>
         </div>
       </div>
 
-      {/* Dropdown */}
-      {aberto && (
-        <div className="sg-dropdown">
-          {buscavel && (
-            <div className="sg-busca-wrapper">
-              <input
-                ref={buscaRef}
-                className="sg-busca-input"
-                type="text"
-                placeholder="Buscar..."
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                aria-label="Buscar opções"
-                autoComplete="off"
-              />
-            </div>
-          )}
-
-          <ul
-            id={idLista}
-            className="sg-lista"
-            role="listbox"
-            aria-multiselectable={multiplo}
-            aria-label={ariaLabel ?? label ?? 'Opções'}
-          >
-            {renderizarLista()}
-          </ul>
-        </div>
-      )}
+      {/* Dropdown via portal */}
+      {dropdown}
 
       {/* Hint */}
       {hint && !erro && (

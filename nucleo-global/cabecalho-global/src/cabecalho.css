@@ -28,9 +28,10 @@
   height: 74px;
   min-height: 74px;
   background: var(--cg-bg);
+  border-bottom: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.15));
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 50;
   font-family: var(--font, system-ui);
 }
 

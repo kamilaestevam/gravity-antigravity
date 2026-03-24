@@ -1,353 +1,469 @@
-/**
- * @nucleo/tabela-global — tabela
- * TabelaGlobal: tabela genérica e reutilizável com filtros, paginação e export.
- * Sem estado de servidor. Sem API calls.
- */
-
-import React, { useState, useMemo, useId, useRef, useEffect } from 'react'
-import { MagnifyingGlass, DownloadSimple } from '@phosphor-icons/react'
-import { CabecalhoTabela } from './cabecalho.js'
-import { Celula } from './celula.js'
-import type {
-  TabelaProps,
-  RegistroTabela,
-  EstadoOrdenacao,
-  EstadoFiltros,
-  IdRegistro,
-  DirecaoOrdenacao,
-  FormatoExport,
-} from './tipos.js'
+import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
+import ReactDOM from 'react-dom'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, CaretDown } from '@phosphor-icons/react'
 import './tabela.css'
 
-// ─── Helpers de sort local ────────────────────────────────────────────────────
+export type ColType = 'texto' | 'numero'
+export type SortDir = 'asc' | 'desc'
 
-function compararValores(a: unknown, b: unknown, direcao: DirecaoOrdenacao): number {
-  if (a == null && b == null) return 0
-  if (a == null) return 1
-  if (b == null) return -1
-
-  if (typeof a === 'number' && typeof b === 'number') {
-    return direcao === 'asc' ? a - b : b - a
-  }
-
-  const sa = String(a).toLowerCase()
-  const sb = String(b).toLowerCase()
-  const cmp = sa.localeCompare(sb, 'pt-BR')
-  return direcao === 'asc' ? cmp : -cmp
+export interface TabelaGlobalColuna<T> {
+  key: keyof T & string
+  label: string
+  tipo: ColType
+  render?: (valor: any, item: T) => React.ReactNode
+  tooltipTitulo?: string
+  tooltipDescricao?: string
+  largura?: string | number
+  align?: 'left' | 'center' | 'right'
 }
 
-// ─── Export helpers ───────────────────────────────────────────────────────────
-
-function exportarCSV<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<T>['colunas'], nomeArquivo: string) {
-  const cols = colunas.filter((c) => !c.oculta)
-  const header = cols.map((c) => `"${c.label}"`).join(',')
-  const linhas = dados.map((linha) =>
-    cols
-      .map((c) => {
-        const v = linha[c.key]
-        return `"${v != null ? String(v).replace(/"/g, '""') : ''}"`
-      })
-      .join(',')
-  )
-  const csv = [header, ...linhas].join('\n')
-  downloadTexto(csv, `${nomeArquivo}.csv`, 'text/csv;charset=utf-8;')
+export interface TabelaGlobalAcao<T> {
+  id: string
+  icone: React.ReactNode
+  tooltip: string
+  onClick: (item: T) => void
+  disabled?: (item: T) => boolean
+  onRenderStyle?: (item: T) => { background?: string; borderColor?: string; color?: string }
+  renderCustom?: (item: T) => React.ReactNode
 }
 
-function exportarTXT<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<T>['colunas'], nomeArquivo: string) {
-  const cols = colunas.filter((c) => !c.oculta)
-  const header = cols.map((c) => c.label).join('\t')
-  const linhas = dados.map((linha) =>
-    cols.map((c) => (linha[c.key] != null ? String(linha[c.key]) : '')).join('\t')
-  )
-  downloadTexto([header, ...linhas].join('\n'), `${nomeArquivo}.txt`, 'text/plain;charset=utf-8;')
+export interface TabelaExportAcao<T> {
+  label: string
+  icone: React.ReactNode
+  onClick: (dadosVisiveis: T[]) => void
 }
 
-function escaparXML(str: string): string {
-  return str.replace(/[<>&"']/g, (ch) => ({
-    '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;',
-  }[ch] ?? ch))
+export interface TabelaGlobalProps<T extends Record<string, any>> {
+  dados: T[]
+  colunas: TabelaGlobalColuna<T>[]
+  acoes?: TabelaGlobalAcao<T>[]
+  acoesExportacao?: TabelaExportAcao<T>[]
+  idKey?: keyof T & string // Padrão "id"
+  mensagemVazio?: string
+  mensagemSemFiltro?: string
 }
 
-function exportarXML<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<T>['colunas'], nomeArquivo: string) {
-  const cols = colunas.filter((c) => !c.oculta)
-  const rows = dados
-    .map((linha) => {
-      const fields = cols
-        .map((c) => `    <${c.key}>${escaparXML(linha[c.key] != null ? String(linha[c.key]) : '')}</${c.key}>`)
-        .join('\n')
-      return `  <registro>\n${fields}\n  </registro>`
-    })
-    .join('\n')
-  downloadTexto(
-    `<?xml version="1.0" encoding="UTF-8"?>\n<dados>\n${rows}\n</dados>`,
-    `${nomeArquivo}.xml`,
-    'application/xml'
-  )
-}
+type FiltrosStateVal = Set<string> | { min: string; max: string }
 
-function exportarExcel<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<T>['colunas'], nomeArquivo: string) {
-  const cols = colunas.filter((c) => !c.oculta)
-  const header = `<tr>${cols.map((c) => `<th>${c.label}</th>`).join('')}</tr>`
-  const rows = dados
-    .map(
-      (linha) =>
-        `<tr>${cols.map((c) => `<td>${linha[c.key] != null ? String(linha[c.key]) : ''}</td>`).join('')}</tr>`
-    )
-    .join('')
-  const html = [
-    `<html xmlns:o="urn:schemas-microsoft-com:office:office"`,
-    ` xmlns:x="urn:schemas-microsoft-com:office:excel"`,
-    ` xmlns="http://www.w3.org/TR/REC-html40">`,
-    `<head><meta charset="UTF-8"></head>`,
-    `<body><table border="1">${header}${rows}</table></body></html>`,
-  ].join('')
-  downloadTexto(html, `${nomeArquivo}.xls`, 'application/vnd.ms-excel')
-}
+function PopoverFiltro({
+  tipo, coluna, label, filtros, ordenacao,
+  valoresDisponiveis, valoresSelecionados,
+  minMax,
+  triggerRef,
+  onOrdenar, onToggleValor, onFiltrarNumero, onLimpar, onFechar,
+}: {
+  tipo: ColType, coluna: string, label: string
+  filtros: any, ordenacao: any, valoresDisponiveis: string[], valoresSelecionados: Set<string>,
+  minMax: { min: string; max: string }
+  triggerRef: React.RefObject<HTMLButtonElement>
+  onOrdenar: (c: string, d: SortDir) => void
+  onToggleValor: (c: string, v: string) => void
+  onFiltrarNumero: (c: string, tipo: 'min' | 'max', v: string) => void
+  onLimpar: () => void, onFechar: () => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [buscaLocal, setBuscaLocal] = useState('')
+  const [pos, setPos] = useState({ top: 0, left: 0 })
 
-function exportarJSON<T extends RegistroTabela>(dados: T[], nomeArquivo: string) {
-  const json = JSON.stringify(dados, null, 2)
-  downloadTexto(json, `${nomeArquivo}.json`, 'application/json')
-}
-
-function downloadTexto(conteudo: string, nomeArquivo: string, tipo: string) {
-  const blob = new Blob([conteudo], { type: tipo })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = nomeArquivo
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-// ─── Componente Principal ─────────────────────────────────────────────────────
-
-export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
-  colunas,
-  dados,
-  itensPorPagina: itensPorPaginaInicial = 20,
-  opcoesItensPorPagina = [10, 20, 50, 100],
-  buscaGlobal = true,
-  buscaPlaceholder = 'Buscar...',
-  filtros,
-  selecao = false,
-  selecionados: selecionadosExterno,
-  aoMudarSelecao,
-  acoesLinha,
-  exportConfig,
-  carregando = false,
-  mensagemVazia = 'Nenhum registro encontrado.',
-  renderizarVazio,
-  aoClicarLinha,
-}: TabelaProps<T>) {
-  const id = useId()
-
-  // Estado interno
-  const [busca, setBusca] = useState('')
-  const [ordenacao, setOrdenacao] = useState<EstadoOrdenacao | null>(null)
-  const [estadoFiltros, setEstadoFiltros] = useState<EstadoFiltros>(() => {
-    const inicial: EstadoFiltros = {}
-    filtros?.forEach((f) => {
-      if (f.valorInicial !== undefined) inicial[f.key] = f.valorInicial
-    })
-    return inicial
-  })
-  const [paginaAtual, setPaginaAtual] = useState(1)
-  const [itensPorPagina, setItensPorPagina] = useState(itensPorPaginaInicial)
-  const [selecionadosInternos, setSelecionadosInternos] = useState<Set<IdRegistro>>(new Set())
-  const [mostrarFiltros, setMostrarFiltros] = useState(false)
-  const [exportMenuAberto, setExportMenuAberto] = useState(false)
-  const exportMenuRef = useRef<HTMLDivElement>(null)
-
-  // Fecha o menu de export ao clicar fora
   useEffect(() => {
-    if (!exportMenuAberto) return
-    const handler = (e: MouseEvent) => {
-      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
-        setExportMenuAberto(false)
-      }
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setPos({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+      })
     }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [exportMenuAberto])
+  }, [triggerRef])
 
-  // Seleção controlada ou interna
-  const selecionados = useMemo(
-    () => (selecionadosExterno ? new Set(selecionadosExterno) : selecionadosInternos),
-    [selecionadosExterno, selecionadosInternos]
+  useEffect(() => {
+    function fora(e: MouseEvent) {
+      if (
+        ref.current && !ref.current.contains(e.target as Node) &&
+        triggerRef.current && !triggerRef.current.contains(e.target as Node)
+      ) onFechar()
+    }
+    document.addEventListener('mousedown', fora)
+    return () => document.removeEventListener('mousedown', fora)
+  }, [onFechar, triggerRef])
+
+  const sortAtivo = ordenacao?.coluna === coluna
+
+  const valoresFiltrados = useMemo(() =>
+    buscaLocal.trim()
+      ? valoresDisponiveis.filter(v => v.toLowerCase().includes(buscaLocal.toLowerCase()))
+      : valoresDisponiveis,
+    [valoresDisponiveis, buscaLocal]
   )
 
-  const setarSelecionados = (novos: Set<IdRegistro>) => {
-    if (!selecionadosExterno) setSelecionadosInternos(novos)
-    aoMudarSelecao?.([...novos])
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '0.375rem 0.5rem 0.375rem 1.75rem',
+    background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)',
+    borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem',
+    fontFamily: 'inherit', outline: 'none',
   }
 
-  // ─── Filtragem e ordenação ──────────────────────────────────────────────────
+  const pillStyle = (ativo: boolean): React.CSSProperties => ({
+    flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    gap: '0.3rem', padding: '0.375rem 0.5rem', borderRadius: '9999px',
+    background: ativo ? 'rgba(56,189,248,0.15)' : 'rgba(255,255,255,0.04)',
+    border: `1px solid ${ativo ? 'rgba(56,189,248,0.35)' : 'rgba(255,255,255,0.1)'}`,
+    color: ativo ? '#38bdf8' : '#94a3b8',
+    fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+    fontFamily: 'inherit', transition: 'all 0.12s', whiteSpace: 'nowrap'
+  })
 
-  const dadosFiltrados = useMemo(() => {
-    let resultado = [...dados]
-
-    // Busca global
-    if (busca.trim()) {
-      const termo = busca.trim().toLowerCase()
-      const colunasFiltraveis = colunas.filter((c) => c.filtravel !== false)
-      resultado = resultado.filter((linha) =>
-        colunasFiltraveis.some((col) => {
-          const v = linha[col.key]
-          return v != null && String(v).toLowerCase().includes(termo)
-        })
-      )
-    }
-
-    // Filtros configuráveis
-    Object.entries(estadoFiltros).forEach(([key, valor]) => {
-      if (valor === undefined || valor === null || valor === '') return
-      resultado = resultado.filter((linha) => {
-        const v = linha[key as keyof T]
-        if (typeof valor === 'string') {
-          return String(v ?? '').toLowerCase().includes(valor.toLowerCase())
-        }
-        return v === valor
-      })
-    })
-
-    // Ordenação
-    if (ordenacao) {
-      resultado.sort((a, b) =>
-        compararValores(a[ordenacao.coluna as keyof T], b[ordenacao.coluna as keyof T], ordenacao.direcao)
-      )
-    }
-
-    return resultado
-  }, [dados, busca, estadoFiltros, ordenacao, colunas])
-
-  // ─── Paginação ─────────────────────────────────────────────────────────────
-
-  const totalPaginas = Math.max(1, Math.ceil(dadosFiltrados.length / itensPorPagina))
-  const paginaSegura = Math.min(paginaAtual, totalPaginas)
-  const dadosPagina = useMemo(() => {
-    const inicio = (paginaSegura - 1) * itensPorPagina
-    return dadosFiltrados.slice(inicio, inicio + itensPorPagina)
-  }, [dadosFiltrados, paginaSegura, itensPorPagina])
-
-  // ─── Handlers ──────────────────────────────────────────────────────────────
-
-  const handleOrdenar = (coluna: string, direcao: DirecaoOrdenacao) => {
-    setOrdenacao({ coluna, direcao })
-    setPaginaAtual(1)
+  const style: React.CSSProperties = {
+    position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999,
+    background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(56,189,248,0.18)',
+    borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+    minWidth: '220px', maxWidth: '280px', fontFamily: 'var(--font, Plus Jakarta Sans)',
   }
 
-  const handleBusca = (valor: string) => {
-    setBusca(valor)
-    setPaginaAtual(1)
-  }
+  return ReactDOM.createPortal(
+    <div ref={ref} style={style} onClick={e => e.stopPropagation()}>
+      <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+        <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>{label}</span>
+      </div>
 
-  const handleFiltro = (key: string, valor: unknown) => {
-    setEstadoFiltros((prev) => ({ ...prev, [key]: valor }))
-    setPaginaAtual(1)
-  }
+      <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+        <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
+        <div style={{ display: 'flex', gap: '0.375rem' }}>
+          {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [SortDir, string, React.ReactNode][]).map(([dir, rot, ico]) => {
+            const ativo = sortAtivo && ordenacao?.direcao === dir
+            return (
+              <button key={dir} type="button" onClick={() => { onOrdenar(coluna, dir); onFechar() }} style={pillStyle(ativo)}
+                onMouseEnter={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(56,189,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(56,189,248,0.2)'; e.currentTarget.style.color = '#f1f5f9' } }}
+                onMouseLeave={e => { if (!ativo) { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#94a3b8' } }}>
+                {ico} {rot}
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
-  const handleSelecionarLinha = (id: IdRegistro, selecionado: boolean) => {
-    const novo = new Set(selecionados)
-    if (selecionado) novo.add(id)
-    else novo.delete(id)
-    setarSelecionados(novo)
-  }
-
-  const handleSelecionarTodos = (selecionado: boolean) => {
-    setarSelecionados(selecionado ? new Set(dadosFiltrados.map((d) => d.id)) : new Set())
-  }
-
-  const todosSelecionados =
-    dadosFiltrados.length > 0 && dadosFiltrados.every((d) => selecionados.has(d.id))
-
-  const handleExportar = (formato: FormatoExport) => {
-    const fonte = exportConfig?.apenasSelecao
-      ? dadosFiltrados.filter((d) => selecionados.has(d.id))
-      : dadosFiltrados
-    const nome = exportConfig?.nomeArquivo ?? 'dados'
-    if (formato === 'csv')   exportarCSV(fonte, colunas, nome)
-    else if (formato === 'txt')   exportarTXT(fonte, colunas, nome)
-    else if (formato === 'xml')   exportarXML(fonte, colunas, nome)
-    else if (formato === 'excel') exportarExcel(fonte, colunas, nome)
-    else if (formato === 'json')  exportarJSON(fonte, nome)
-  }
-
-  // ─── Render ────────────────────────────────────────────────────────────────
-
-  const colunasVisiveis = colunas.filter((c) => !c.oculta)
-
-  return (
-    <div className="tg-container" role="region" aria-label="Tabela de dados">
-      {/* Toolbar */}
-      <div className="tg-toolbar">
-        <div className="tg-toolbar-esquerda">
-          {buscaGlobal && (
-            <div className="tg-busca-wrapper" role="search">
-              <span className="tg-busca-icone" aria-hidden="true">
-                <MagnifyingGlass weight="bold" size={14} />
+      {tipo === 'texto' && (
+        <div style={{ borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+          <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
+          {valoresDisponiveis.length > 5 && (
+            <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
+                <MagnifyingGlass size={11} weight="bold" />
               </span>
-              <input
-                id={`${id}-busca`}
-                className="tg-busca-input"
-                type="search"
-                placeholder={buscaPlaceholder}
-                value={busca}
-                onChange={(e) => handleBusca(e.target.value)}
-                aria-label={buscaPlaceholder}
+              <input type="text" placeholder="Buscar…" value={buscaLocal}
+                onChange={e => setBuscaLocal(e.target.value)}
+                style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
               />
             </div>
           )}
-          {filtros && filtros.length > 0 && (
-            <button
-              className={`tg-btn tg-btn-filtros ${mostrarFiltros ? 'tg-btn-filtros--ativo' : ''}`}
-              onClick={() => setMostrarFiltros((p) => !p)}
-              aria-expanded={mostrarFiltros}
-              aria-controls={`${id}-filtros`}
-            >
-              Filtros {mostrarFiltros ? '▲' : '▼'}
-            </button>
-          )}
+          <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
+            {valoresFiltrados.length === 0 ? (
+              <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>Nenhum valor</p>
+            ) : valoresFiltrados.map(v => {
+              const selecionado = valoresSelecionados.has(v)
+              return (
+                <label key={v}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.375rem', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.1s' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.06)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                >
+                  <span style={{ color: selecionado ? '#38bdf8' : '#475569', display: 'flex', lineHeight: 0, flexShrink: 0 }}>
+                    {selecionado ? <CheckSquare size={15} weight="fill" /> : <Square size={15} weight="regular" />}
+                  </span>
+                  <input type="checkbox" checked={selecionado} onChange={() => onToggleValor(coluna, v)} style={{ display: 'none' }} />
+                  <span style={{ fontSize: '0.8125rem', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
+                </label>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {tipo === 'numero' && (
+        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Intervalo</p>
+          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
+            {(['min', 'max'] as const).map((campo, i) => (
+              <input key={campo}
+                type="text" inputMode="numeric" pattern="[0-9]*"
+                placeholder={i === 0 ? 'Mín' : 'Máx'}
+                autoComplete="off"
+                value={minMax[campo]}
+                onChange={e => {
+                  const v = e.target.value.replace(/[^0-9]/g, '')
+                  onFiltrarNumero(coluna, campo, v)
+                }}
+                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ padding: '0.375rem 0.5rem 0.3rem' }}>
+        <button type="button" onClick={() => { onLimpar(); onFechar() }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', width: '100%', padding: '0.35rem 0.5rem', borderRadius: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '0.8125rem', fontFamily: 'inherit', transition: 'color 0.12s' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#f87171' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#64748b' }}>
+          <X size={12} weight="bold" /> Limpar filtro
+        </button>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
+function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: any, dados: T[], onOrdenar: any, onToggleValor: any, onFiltrarNumero: any, onLimparColuna: any }) {
+  const [aberto, setAberto] = useState(false)
+  const handleFechar = useCallback(() => setAberto(false), [])
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  
+  const coluna = col.key
+  const sortAtivo = ordenacao?.coluna === coluna
+
+  const valoresDisponiveis = useMemo(() => {
+    const vals = dados.map(e => String(e[coluna as keyof T] ?? ''))
+    return [...new Set(vals)].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  }, [dados, coluna])
+
+  const stateVal = filtros[coluna]
+  const temFiltroAtivo = col.tipo === 'texto' ? (stateVal as Set<string>).size > 0 : !!((stateVal as {min: string, max: string}).min || (stateVal as {min: string, max: string}).max)
+
+  const labelSpan = (
+    <span style={{ color: sortAtivo ? '#38bdf8' : undefined, lineHeight: 1, display: 'inline-block' }}>
+      {col.label}
+    </span>
+  )
+
+  return (
+    <th style={{ width: col.largura, padding: '0.75rem 1rem', textAlign: col.align || 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(56,189,248,0.1)', background: 'rgba(56,189,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start' }}>
+        {col.tooltipDescricao
+          ? <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>{labelSpan}</TooltipGlobal>
+          : labelSpan
+        }
+        <button ref={triggerRef} type="button" onClick={e => { e.stopPropagation(); setAberto(v => !v) }}
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(56,189,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(56,189,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#38bdf8' : '#64748b', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
+          <Funnel size={10} weight={temFiltroAtivo ? 'fill' : 'bold'} />
+        </button>
+      </div>
+      {aberto && (
+        <PopoverFiltro
+          tipo={col.tipo} coluna={coluna} label={col.label}
+          filtros={filtros} ordenacao={ordenacao}
+          valoresDisponiveis={valoresDisponiveis}
+          valoresSelecionados={col.tipo === 'texto' ? (stateVal as Set<string>) : new Set()}
+          minMax={col.tipo === 'numero' ? (stateVal as {min: string, max: string}) : {min: '', max: ''}}
+          triggerRef={triggerRef}
+          onOrdenar={onOrdenar}
+          onToggleValor={onToggleValor}
+          onFiltrarNumero={onFiltrarNumero}
+          onLimpar={() => onLimparColuna(coluna)}
+          onFechar={handleFechar}
+        />
+      )}
+    </th>
+  )
+}
+const Th = memo(ThInner) as typeof ThInner
+
+function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void }) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.5rem 0.2rem 0.65rem', borderRadius: '9999px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.25)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
+      {label}
+      <button type="button" onClick={onRemover} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: '50%', background: 'rgba(56,189,248,0.2)', border: 'none', cursor: 'pointer', color: '#38bdf8', padding: 0, flexShrink: 0 }}>
+        <X size={9} weight="bold" />
+      </button>
+    </span>
+  )
+}
+
+function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.ReactNode; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick}
+      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.45rem 0.875rem', background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s, color 0.1s' }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(56,189,248,0.07)'; e.currentTarget.style.color = '#f1f5f9' }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}>
+      <span style={{ color: '#38bdf8', display: 'flex', flexShrink: 0 }}>{icon}</span>
+      {label}
+    </button>
+  )
+}
+
+export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio = 'Nenhum resultado.', mensagemSemFiltro = 'Nenhum registro cadastrado.' }: TabelaGlobalProps<T>) {
+  const [busca, setBusca] = useState('')
+  const [ordenacao, setOrdenacao] = useState<{ coluna: string; direcao: SortDir } | null>(null)
+  
+  const initialFiltros: Record<string, FiltrosStateVal> = {}
+  colunas.forEach(c => {
+    if (c.tipo === 'texto') initialFiltros[c.key] = new Set<string>()
+    if (c.tipo === 'numero') initialFiltros[c.key] = { min: '', max: '' }
+  })
+  
+  const [filtros, setFiltros] = useState<Record<string, FiltrosStateVal>>(initialFiltros)
+  const [pagina, setPagina] = useState(1)
+  const [porPagina, setPorPagina] = useState(10)
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
+
+  const onToggleValor = useCallback((col: string, v: string) => {
+    setFiltros(prev => {
+      const copia = { ...prev }
+      const set = new Set(prev[col] as Set<string>)
+      set.has(v) ? set.delete(v) : set.add(v)
+      copia[col] = set
+      return copia
+    })
+    setPagina(1)
+  }, [])
+
+  const onFiltrarNumero = useCallback((col: string, tipo: 'min' | 'max', v: string) => {
+    setFiltros(prev => {
+      const copia = { ...prev }
+      copia[col] = { ...(prev[col] as {min: string, max: string}), [tipo]: v }
+      return copia
+    })
+    setPagina(1)
+  }, [])
+
+  const onOrdenar = useCallback((col: string, dir: SortDir) => setOrdenacao({ coluna: col, direcao: dir }), [])
+
+  const onLimparColuna = useCallback((col: string) => {
+    setFiltros(prev => {
+      const n = { ...prev }
+      if (n[col] instanceof Set) n[col] = new Set()
+      else n[col] = { min: '', max: '' }
+      return n
+    })
+    if (ordenacao?.coluna === col) setOrdenacao(null)
+    setPagina(1)
+  }, [ordenacao])
+
+  const limparTudo = useCallback(() => {
+    setBusca('')
+    setFiltros(initialFiltros)
+    setOrdenacao(null)
+    setPagina(1)
+  }, [initialFiltros])
+
+  const resultado = useMemo(() => {
+    let r = [...dados]
+
+    if (busca.trim()) {
+      const t = busca.toLowerCase()
+      r = r.filter(e => colunas.some(c => String(e[c.key]).toLowerCase().includes(t)))
+    }
+
+    colunas.forEach(c => {
+      const st = filtros[c.key]
+      if (c.tipo === 'texto') {
+        const s = st as Set<string>
+        if (s.size > 0) r = r.filter(e => s.has(String(e[c.key])))
+      } else {
+        const num = st as {min: string, max: string}
+        if (num.min !== '') r = r.filter(e => Number(e[c.key]) >= Number(num.min))
+        if (num.max !== '') r = r.filter(e => Number(e[c.key]) <= Number(num.max))
+      }
+    })
+
+    if (ordenacao) {
+      r.sort((a, b) => {
+        const va = a[ordenacao.coluna], vb = b[ordenacao.coluna]
+        if (typeof va === 'number' && typeof vb === 'number') return ordenacao.direcao === 'asc' ? va - vb : vb - va
+        return String(va).toLowerCase().localeCompare(String(vb).toLowerCase(), 'pt-BR') * (ordenacao.direcao === 'asc' ? 1 : -1)
+      })
+    }
+    return r
+  }, [dados, busca, filtros, ordenacao, colunas])
+
+  const chips = useMemo(() => {
+    const list: { key: string; label: string; onRemover: () => void }[] = []
+    if (busca.trim()) list.push({ key: 'busca', label: `"${busca}"`, onRemover: () => setBusca('') })
+    
+    colunas.forEach(c => {
+      const st = filtros[c.key]
+      if (c.tipo === 'texto') {
+        const s = st as Set<string>
+        s.forEach(v => list.push({ key: `${c.key}-${v}`, label: `${c.label}: ${v}`, onRemover: () => onToggleValor(c.key, v) }))
+      } else {
+        const num = st as {min: string, max: string}
+        if (num.min !== '' || num.max !== '') {
+          list.push({ key: c.key, label: `${c.label}: ${num.min || '0'}–${num.max || '∞'}`, onRemover: () => onLimparColuna(c.key) })
+        }
+      }
+    })
+    return list
+  }, [busca, colunas, filtros, onToggleValor, onLimparColuna])
+
+  const totalPags = Math.max(1, Math.ceil(resultado.length / porPagina))
+  const pagSafe = Math.min(pagina, totalPags)
+  const paginado = useMemo(() => resultado.slice((pagSafe - 1) * porPagina, pagSafe * porPagina), [resultado, pagSafe, porPagina])
+
+  const todosSelec = paginado.length > 0 && paginado.every(e => selecionados.has(String(e[idKey as string])))
+  const toggleSel = (id: string) => setSelecionados(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
+  const toggleTodos = (checked: boolean) => setSelecionados(checked ? new Set(paginado.map(e => String(e[idKey as string]))) : new Set())
+
+  const [exportMenuAberto, setExportMenuAberto] = useState(false)
+  const exportBtnRef = useRef<HTMLButtonElement>(null)
+  const exportMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function fora(e: MouseEvent) {
+      if (
+        exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node) &&
+        exportBtnRef.current && !exportBtnRef.current.contains(e.target as Node)
+      ) setExportMenuAberto(false)
+    }
+    document.addEventListener('mousedown', fora)
+    return () => document.removeEventListener('mousedown', fora)
+  }, [])
+
+  return (
+    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(56,189,248,0.1)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(56,189,248,0.08)' }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
+            <MagnifyingGlass size={14} weight="bold" />
+          </span>
+          <input type="search" placeholder="Localizar" value={busca}
+            onChange={e => { setBusca(e.target.value); setPagina(1) }}
+            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.18)'; e.currentTarget.style.boxShadow = 'none' }}
+          />
         </div>
 
-        <div className="tg-toolbar-direita">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+          {chips.length > 0 && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', background: 'rgba(56,189,248,0.08)', border: '1px solid rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: '0.75rem', fontWeight: 700 }}>
+              <Funnel size={11} weight="fill" />
+              {chips.length} filtro{chips.length !== 1 ? 's' : ''} ativo{chips.length !== 1 ? 's' : ''}
+            </span>
+          )}
           {selecionados.size > 0 && (
-            <span className="tg-selecao-contador text-sm">
+            <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#38bdf8', padding: '0.25rem 0.75rem', background: 'rgba(56,189,248,0.1)', borderRadius: '9999px' }}>
               {selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}
             </span>
           )}
-          {exportConfig && (
-            <div className="tg-export-wrapper" ref={exportMenuRef}>
-              <button
-                className="tg-btn tg-btn-export"
-                onClick={() => setExportMenuAberto((p) => !p)}
-                aria-label="Exportar dados"
-                aria-haspopup="true"
-                aria-expanded={exportMenuAberto}
-              >
-                <DownloadSimple weight="bold" size={14} />
-                Exportar
+          {(acoesExportacao && acoesExportacao.length > 0) && (
+            <div style={{ position: 'relative' }}>
+              <button ref={exportBtnRef} type="button"
+                onClick={() => setExportMenuAberto(v => !v)}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(56,189,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#38bdf8' : 'rgba(56,189,248,0.12)'}`, color: exportMenuAberto ? '#38bdf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
+                onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.color = '#38bdf8' } }}
+                onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
+                <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </button>
+
               {exportMenuAberto && (
-                <div className="tg-export-menu" role="menu">
-                  {([
-                    { fmt: 'excel' as FormatoExport, label: 'Excel (.xls)',  icon: '📊' },
-                    { fmt: 'csv'   as FormatoExport, label: 'CSV (.csv)',    icon: '📄' },
-                    { fmt: 'txt'   as FormatoExport, label: 'TXT (.txt)',    icon: '📝' },
-                    { fmt: 'xml'   as FormatoExport, label: 'XML (.xml)',    icon: '🗂️' },
-                    { fmt: 'json'  as FormatoExport, label: 'JSON (.json)',  icon: '{ }' },
-                  ]).map(({ fmt, label, icon }) => (
-                    <button
-                      key={fmt}
-                      className="tg-export-menu-item"
-                      role="menuitem"
-                      onClick={() => {
-                        handleExportar(fmt)
-                        setExportMenuAberto(false)
-                      }}
-                    >
-                      <span className="tg-export-menu-icon">{icon}</span>
-                      {label}
-                    </button>
+                <div ref={exportMenuRef}
+                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid rgba(56,189,248,0.18)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
+                  onClick={e => e.stopPropagation()}>
+                  {acoesExportacao.map(a => (
+                    <ExportMenuItem key={a.label} label={a.label} icon={a.icone} onClick={() => { a.onClick(resultado); setExportMenuAberto(false) }} />
                   ))}
                 </div>
               )}
@@ -356,194 +472,123 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
         </div>
       </div>
 
-      {/* Painel de filtros */}
-      {mostrarFiltros && filtros && filtros.length > 0 && (
-        <div id={`${id}-filtros`} className="tg-filtros-painel">
-          {filtros.map((filtro) => (
-            <div key={filtro.key} className="input-group tg-filtro-campo">
-              <label htmlFor={`${id}-filtro-${filtro.key}`}>{filtro.rotulo ?? filtro.key}</label>
-              {filtro.tipo === 'select' ? (
-                <select
-                  id={`${id}-filtro-${filtro.key}`}
-                  className="tg-filtro-select"
-                  value={String(estadoFiltros[filtro.key] ?? '')}
-                  onChange={(e) => handleFiltro(filtro.key, e.target.value)}
-                >
-                  <option value="">Todos</option>
-                  {filtro.opcoes?.map((op) => (
-                    <option key={String(op.valor)} value={String(op.valor)}>
-                      {op.rotulo}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  id={`${id}-filtro-${filtro.key}`}
-                  type={filtro.tipo === 'data' ? 'date' : 'text'}
-                  className="tg-filtro-input"
-                  value={String(estadoFiltros[filtro.key] ?? '')}
-                  onChange={(e) => handleFiltro(filtro.key, e.target.value)}
-                />
-              )}
-            </div>
-          ))}
-          <button
-            className="tg-filtros-limpar"
-            onClick={() => {
-              setEstadoFiltros({})
-              setPaginaAtual(1)
-            }}
-          >
-            Limpar filtros
+      {chips.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
+          {chips.map(c => <FiltroChip key={c.key} label={c.label} onRemover={c.onRemover} />)}
+          <button type="button" onClick={limparTudo}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: 'auto', padding: '0.2rem 0.65rem', borderRadius: '9999px', background: 'transparent', border: '1px solid rgba(239,68,68,0.25)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.5)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)' }}>
+            <X size={11} weight="bold" /> Limpar
           </button>
         </div>
       )}
 
-      {/* Tabela */}
-      <div className="tg-scroll-wrapper">
-        <table className="tg-tabela" aria-busy={carregando}>
-          <CabecalhoTabela
-            colunas={colunas}
-            ordenacao={ordenacao}
-            aoOrdenar={handleOrdenar}
-            selecao={selecao}
-            todosSelecionados={todosSelecionados}
-            aoSelecionarTodos={handleSelecionarTodos}
-            temAcoesLinha={!!acoesLinha?.length}
-          />
-          <tbody className="tg-body">
-            {carregando ? (
-              Array.from({ length: itensPorPagina }).map((_, i) => (
-                <tr key={`skeleton-${i}`} className="tg-tr tg-tr--skeleton">
-                  {selecao && <td className="tg-td"><div className="tg-skeleton" /></td>}
-                  {colunasVisiveis.map((c) => (
-                    <td key={c.key} className="tg-td">
-                      <div className="tg-skeleton" />
-                    </td>
-                  ))}
-                  {!!acoesLinha?.length && <td className="tg-td"><div className="tg-skeleton" /></td>}
-                </tr>
-              ))
-            ) : dadosPagina.length === 0 ? (
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
+          <thead>
+            <tr>
+              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)' }}>
+                <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
+              </th>
+              {colunas.map(col => (
+                <Th key={col.key}
+                  col={col}
+                  filtros={filtros}
+                  ordenacao={ordenacao}
+                  dados={dados}
+                  onOrdenar={onOrdenar}
+                  onToggleValor={onToggleValor}
+                  onFiltrarNumero={onFiltrarNumero}
+                  onLimparColuna={onLimparColuna}
+                />
+              ))}
+              {acoes && acoes.length > 0 && (
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
+                  Ações
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            {paginado.length === 0 ? (
               <tr>
-                <td
-                  colSpan={colunasVisiveis.length + (selecao ? 1 : 0) + (acoesLinha?.length ? 1 : 0)}
-                  className="tg-td tg-vazio"
-                >
-                  {renderizarVazio ? renderizarVazio() : mensagemVazia}
+                <td colSpan={colunas.length + (acoes?.length ? 2 : 1)} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+                  {chips.length > 0 || busca
+                    ? <span>{mensagemVazio} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
+                    : mensagemSemFiltro
+                  }
                 </td>
               </tr>
-            ) : (
-              dadosPagina.map((linha) => (
-                <tr
-                  key={linha.id}
-                  className={`tg-tr ${selecionados.has(linha.id) ? 'tg-tr--selecionada' : ''} ${aoClicarLinha ? 'tg-tr--clicavel' : ''}`}
-                  onClick={() => aoClicarLinha?.(linha)}
-                >
-                  {selecao && (
-                    <td className="tg-td tg-td--checkbox" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        className="tg-checkbox"
-                        checked={selecionados.has(linha.id)}
-                        onChange={(e) => handleSelecionarLinha(linha.id, e.target.checked)}
-                        aria-label={`Selecionar linha ${linha.id}`}
-                      />
-                    </td>
-                  )}
-                  {colunasVisiveis.map((coluna) => (
-                    <Celula key={coluna.key} coluna={coluna} linha={linha} />
-                  ))}
-                  {acoesLinha && acoesLinha.length > 0 && (
-                    <td className="tg-td tg-td--acoes" onClick={(e) => e.stopPropagation()}>
-                      <div className="tg-acoes-grupo">
-                        {acoesLinha
-                          .filter((acao) => !acao.mostrar || acao.mostrar(linha))
-                          .map((acao) => (
-                            <button
-                              key={acao.id}
-                              className={`tg-acao-btn ${acao.variante === 'danger' ? 'tg-acao-btn--danger' : ''}`}
-                              onClick={() => acao.ao_clicar(linha)}
-                              title={acao.rotulo}
-                              aria-label={acao.rotulo}
-                            >
-                              {acao.icone || acao.rotulo}
-                            </button>
-                          ))}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
+            ) : paginado.map((item, i) => {
+              const id = String(item[idKey as string])
+              return (
+              <tr key={id}
+                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(56,189,248,0.06)' : 'none', background: selecionados.has(id) ? 'rgba(56,189,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                onMouseEnter={ev => { if (!selecionados.has(id)) ev.currentTarget.style.background = 'rgba(56,189,248,0.03)' }}
+                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(id) ? 'rgba(56,189,248,0.06)' : 'transparent' }}>
+                <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
+                  <input type="checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
+                </td>
+                
+                {colunas.map(col => (
+                  <td key={col.key} style={{ padding: '0.875rem 1rem', textAlign: col.align || 'left' }}>
+                    {col.render ? col.render(item[col.key], item) : String(item[col.key] ?? '')}
+                  </td>
+                ))}
+
+                {acoes && acoes.length > 0 && (
+                  <td style={{ padding: '0.875rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                      {acoes.map(acao => {
+                        if (acao.renderCustom) return <React.Fragment key={acao.id}>{acao.renderCustom(item)}</React.Fragment>
+                        const isDis = acao.disabled ? acao.disabled(item) : false
+                        const customStyle = acao.onRenderStyle ? acao.onRenderStyle(item) : {}
+                        return (
+                          <button
+                            key={acao.id}
+                            type="button"
+                            title={acao.tooltip}
+                            onClick={() => !isDis && acao.onClick(item)}
+                            disabled={isDis}
+                            style={{ 
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                              width: 28, height: 28, borderRadius: '50%', background: 'transparent', 
+                              border: '1px solid transparent', color: '#64748b', cursor: isDis ? 'not-allowed' : 'pointer', 
+                              transition: 'all 0.15s', flexShrink: 0, opacity: isDis ? 0.3 : 1
+                            }}
+                            onMouseEnter={ev => { if(!isDis) { ev.currentTarget.style.background = customStyle.background ?? 'rgba(56,189,248,0.12)'; ev.currentTarget.style.borderColor = customStyle.borderColor ?? 'rgba(56,189,248,0.3)'; ev.currentTarget.style.color = customStyle.color ?? '#38bdf8' } }}
+                            onMouseLeave={ev => { if(!isDis) { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' } }}
+                          >
+                            {acao.icone}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </td>
+                )}
+              </tr>
+            )})}
           </tbody>
         </table>
       </div>
 
-      {/* Paginação */}
-      <div className="tg-paginacao" aria-label="Paginação">
-        <div className="tg-paginacao-info text-sm">
-          {dadosFiltrados.length === 0
-            ? 'Nenhum registro'
-            : `${(paginaSegura - 1) * itensPorPagina + 1}–${Math.min(paginaSegura * itensPorPagina, dadosFiltrados.length)} de ${dadosFiltrados.length}`}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
+        <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+          {resultado.length === 0 ? 'Nenhum registro' : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} de ${resultado.length}`}
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <button type="button" onClick={() => setPagina(1)} disabled={pagSafe === 1} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === 1 ? 0.3 : 1 }}>«</button>
+          <button type="button" onClick={() => setPagina(p => Math.max(1, p - 1))} disabled={pagSafe === 1} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === 1 ? 0.3 : 1 }}>‹</button>
+          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#f1f5f9', minWidth: '56px', textAlign: 'center' }}>{pagSafe} / {totalPags}</span>
+          <button type="button" onClick={() => setPagina(p => Math.min(totalPags, p + 1))} disabled={pagSafe === totalPags} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === totalPags ? 0.3 : 1 }}>›</button>
+          <button type="button" onClick={() => setPagina(totalPags)} disabled={pagSafe === totalPags} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === totalPags ? 0.3 : 1 }}>»</button>
         </div>
-
-        <div className="tg-paginacao-controles">
-          <button
-            className="tg-pag-btn"
-            onClick={() => setPaginaAtual(1)}
-            disabled={paginaSegura === 1}
-            aria-label="Primeira página"
-          >
-            «
-          </button>
-          <button
-            className="tg-pag-btn"
-            onClick={() => setPaginaAtual((p) => Math.max(1, p - 1))}
-            disabled={paginaSegura === 1}
-            aria-label="Página anterior"
-          >
-            ‹
-          </button>
-
-          <span className="tg-paginacao-pagina text-sm">
-            {paginaSegura} / {totalPaginas}
-          </span>
-
-          <button
-            className="tg-pag-btn"
-            onClick={() => setPaginaAtual((p) => Math.min(totalPaginas, p + 1))}
-            disabled={paginaSegura === totalPaginas}
-            aria-label="Próxima página"
-          >
-            ›
-          </button>
-          <button
-            className="tg-pag-btn"
-            onClick={() => setPaginaAtual(totalPaginas)}
-            disabled={paginaSegura === totalPaginas}
-            aria-label="Última página"
-          >
-            »
-          </button>
-        </div>
-
-        <div className="tg-paginacao-tamanho">
-          <label htmlFor={`${id}-itens-por-pagina`} className="text-sm">
-            por página:
-          </label>
-          <select
-            id={`${id}-itens-por-pagina`}
-            className="tg-select-pagina"
-            value={itensPorPagina}
-            onChange={(e) => {
-              setItensPorPagina(Number(e.target.value))
-              setPaginaAtual(1)
-            }}
-          >
-            {opcoesItensPorPagina.map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#64748b' }}>
+          por página:
+          <select value={porPagina} onChange={e => { setPorPagina(Number(e.target.value)); setPagina(1) }}
+            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(56,189,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
+            {[10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
       </div>

@@ -45,7 +45,7 @@ export default defineConfig({
     alias: {
       '@nucleo/tabela-global': path.resolve(__dirname, 'nucleo-global/tabela-global/src/index.ts'),
       '@nucleo/modal-global': path.resolve(__dirname, 'nucleo-global/modal-global/src/index.ts'),
-      '@nucleo/select': path.resolve(__dirname, 'nucleo-global/select/src/index.ts'),
+      '@nucleo/select-global': path.resolve(__dirname, 'nucleo-global/select-global/src/index.ts'),
       '@nucleo/utils': path.resolve(__dirname, 'nucleo-global/utils/src/index.ts'),
       '@gravity/shell': path.resolve(__dirname, 'servicos-global/shell/index.ts'),
       '@tenant/middleware': path.resolve(__dirname, 'servicos-global/tenant/middleware'),

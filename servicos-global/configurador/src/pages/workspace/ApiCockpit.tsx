@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { PlugsConnected, Key, Copy, CheckCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { StatCardGlobal } from '@nucleo/stat-card-global'
 
 type ApiStatus = 'Online' | 'Offline' | 'Degradado'
 
@@ -54,25 +55,22 @@ export function ApiCockpit() {
 
       {/* Status overview */}
       <div className="ws-stats ws-fade-up ws-fade-up-d1">
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">APIs Online</p>
-          <p className="ws-stat-value" style={{ color: '#34d399' }}>
-            {services.filter(s => s.status === 'Online').length}
-          </p>
-          <p className="ws-stat-sub">de {services.length} serviços</p>
-        </div>
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">APIs com Problema</p>
-          <p className="ws-stat-value" style={{ color: '#f87171' }}>
-            {services.filter(s => s.status !== 'Online').length}
-          </p>
-        </div>
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">Tokens Ativos (total)</p>
-          <p className="ws-stat-value" style={{ color: '#38bdf8' }}>
-            {services.reduce((acc, s) => acc + s.tokensAtivos, 0)}
-          </p>
-        </div>
+        <StatCardGlobal
+          titulo="APIs Online"
+          valor={services.filter(s => s.status === 'Online').length}
+          subtexto={`de ${services.length} serviços`}
+          variante="sucesso"
+        />
+        <StatCardGlobal
+          titulo="APIs com Problema"
+          valor={services.filter(s => s.status !== 'Online').length}
+          variante={services.filter(s => s.status !== 'Online').length ? 'perigo' : 'padrao'}
+        />
+        <StatCardGlobal
+          titulo="Tokens Ativos (total)"
+          valor={services.reduce((acc, s) => acc + s.tokensAtivos, 0)}
+          variante="primario"
+        />
       </div>
 
       {/* Services table */}

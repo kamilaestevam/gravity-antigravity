@@ -14,6 +14,7 @@ import { Onboarding } from './pages/Onboarding'
 import { Hub } from './pages/Hub'
 import { Store } from './pages/Store'
 import { WorkspaceLayout } from './pages/workspace/WorkspaceLayout'
+import { EmpresaMae }       from './pages/workspace/EmpresaMae'
 import { Empresas }          from './pages/workspace/Empresas'
 import { Usuarios }          from './pages/workspace/Usuarios'
 import { Assinaturas }       from './pages/workspace/Assinaturas'
@@ -79,7 +80,8 @@ export default function App() {
 
         {/* Workspace — área do cliente */}
         <Route path="/workspace" element={<ProtectedRoute><WorkspaceLayout /></ProtectedRoute>}>
-          <Route index element={<Navigate to="/workspace/empresas" replace />} />
+          <Route index element={<Navigate to="/workspace/empresa-mae" replace />} />
+          <Route path="empresa-mae" element={<EmpresaMae />} />
           <Route path="empresas"    element={<Empresas />} />
           <Route path="usuarios"    element={<Usuarios />} />
           <Route path="assinaturas" element={<Assinaturas />} />

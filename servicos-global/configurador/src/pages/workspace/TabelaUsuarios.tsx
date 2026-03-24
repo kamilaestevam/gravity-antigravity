@@ -1,73 +1,61 @@
-/**
- * TabelaEmpresas — filtros inline por coluna com valores da coluna (estilo Excel).
- * - Popover mostra valores únicos da coluna como checkboxes
- * - Sort pills side-by-side
- * - Chips de filtros ativos + Limpar condicional
- * Design System Gravity: Sky 400, Plus Jakarta Sans, dark mode.
- */
 import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
 import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, PauseCircle, PlayCircle, PencilSimple, Trash, CaretDown, FileCsv, FileText, FilePdf, FileXls, Code } from '@phosphor-icons/react'
-import {
-  exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF,
-  type ColunasExport,
-} from '../../services/exportService'
+import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
+export type UserType = 'Master' | 'Standard' | 'Fornecedor'
+export type UserStatus = 'Ativo' | 'Inativo'
 
-export type EmpresaStatus = 'Ativa' | 'Suspensa'
-
-export interface Empresa {
+export interface TenantUser {
   id: string
   nome: string
-  subdominio: string
-  usuarios: number
-  status: EmpresaStatus
-  criadaEm: string
+  email: string
+  tipo: UserType
+  status: UserStatus
 }
 
-type ColKey = keyof Empresa
+type ColKey = keyof TenantUser
 type Direcao = 'asc' | 'desc'
 
 interface OrdenacaoState { coluna: ColKey; direcao: Direcao }
 
-// Todos os filtros de coluna usam Set (seleção de valores)
 interface FiltrosState {
   nome: Set<string>
-  subdominio: Set<string>
-  usuariosMin: string
-  usuariosMax: string
+  email: Set<string>
+  tipo: Set<string>
   status: Set<string>
-  criadaEm: Set<string>
 }
 
 const FILTROS_INICIAIS: FiltrosState = {
-  nome: new Set(), subdominio: new Set(),
-  usuariosMin: '', usuariosMax: '',
-  status: new Set(), criadaEm: new Set(),
+  nome: new Set(),
+  email: new Set(),
+  tipo: new Set(),
+  status: new Set(),
 }
 
-interface TabelaEmpresasProps {
-  dados: Empresa[]
-  onSuspender: (e: Empresa) => void
-  onExcluir: (e: Empresa) => void
+interface TabelaUsuariosProps {
+  dados: TenantUser[]
+  onDeactivate: (userId: string) => void
 }
 
-// ─── Popover de filtro ────────────────────────────────────────────────────────
+const typeBadge: Record<string, string> = {
+  Master:     'ws-badge-accent',
+  Standard:   'ws-badge-surface',
+  Fornecedor: 'ws-badge-warning',
+}
 
 interface PopoverProps {
-  tipo: 'texto' | 'numero'
+  tipo: 'texto'
   coluna: ColKey
   label: string
   filtros: FiltrosState
   ordenacao: OrdenacaoState | null
   valoresDisponiveis: string[]
   valoresSelecionados: Set<string>
-  triggerRef: React.RefObject<HTMLButtonElement>   // ✅ para calcular posição
+  triggerRef: React.RefObject<HTMLButtonElement>
   onOrdenar: (col: ColKey, dir: Direcao) => void
   onToggleValor: (col: ColKey, v: string) => void
-  onFiltrarNumero: (campo: 'usuariosMin' | 'usuariosMax', v: string) => void
   onLimpar: () => void
   onFechar: () => void
 }
@@ -76,13 +64,12 @@ function PopoverFiltro({
   tipo, coluna, label, filtros, ordenacao,
   valoresDisponiveis, valoresSelecionados,
   triggerRef,
-  onOrdenar, onToggleValor, onFiltrarNumero, onLimpar, onFechar,
+  onOrdenar, onToggleValor, onLimpar, onFechar,
 }: PopoverProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [buscaLocal, setBuscaLocal] = useState('')
   const [pos, setPos] = useState({ top: 0, left: 0 })
 
-  // Calcula posição relativa ao viewport do botão trigger
   useEffect(() => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect()
@@ -93,7 +80,6 @@ function PopoverFiltro({
     }
   }, [triggerRef])
 
-  // Fecha ao clicar fora
   useEffect(() => {
     function fora(e: MouseEvent) {
       if (
@@ -107,7 +93,6 @@ function PopoverFiltro({
 
   const sortAtivo = ordenacao?.coluna === coluna
 
-  // Filtra lista de valores pelo campo de busca local
   const valoresFiltrados = useMemo(() =>
     buscaLocal.trim()
       ? valoresDisponiveis.filter(v => v.toLowerCase().includes(buscaLocal.toLowerCase()))
@@ -132,7 +117,6 @@ function PopoverFiltro({
     fontFamily: 'inherit', transition: 'all 0.12s', whiteSpace: 'nowrap' as const,
   })
 
-  // Posição via viewport (fixed) para escapar do overflow:hidden
   const style: React.CSSProperties = {
     position: 'fixed',
     top: pos.top,
@@ -149,13 +133,10 @@ function PopoverFiltro({
 
   return ReactDOM.createPortal(
     <div ref={ref} style={style} onClick={e => e.stopPropagation()}>
-
-      {/* Label */}
       <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
         <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>{label}</span>
       </div>
 
-      {/* Sort pills */}
       <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
         <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
@@ -172,79 +153,51 @@ function PopoverFiltro({
         </div>
       </div>
 
-      {/* Valores da coluna — checkboxes */}
-      {tipo === 'texto' && (
-        <div style={{ borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
-          <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
+      <div style={{ borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
+        <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
 
-          {valoresDisponiveis.length > 5 && (
-            <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
-              <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
-                <MagnifyingGlass size={11} weight="bold" />
-              </span>
-              <input type="text" placeholder="Buscar…" value={buscaLocal}
-                onChange={e => setBuscaLocal(e.target.value)}
-                style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
-              />
-            </div>
-          )}
-
-          <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
-            {valoresFiltrados.length === 0 ? (
-              <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>Nenhum valor</p>
-            ) : valoresFiltrados.map(v => {
-              const selecionado = valoresSelecionados.has(v)
-              return (
-                <label key={v}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.375rem', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.1s' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.06)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-                >
-                  <span style={{ color: selecionado ? '#38bdf8' : '#475569', display: 'flex', lineHeight: 0, flexShrink: 0 }}>
-                    {selecionado ? <CheckSquare size={15} weight="fill" /> : <Square size={15} weight="regular" />}
-                  </span>
-                  <input type="checkbox" checked={selecionado} onChange={() => onToggleValor(coluna, v)} style={{ display: 'none' }} />
-                  {coluna === 'status' ? (
-                    <span style={{ padding: '0.1rem 0.45rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', background: v === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativa' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativa' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
-                  ) : (
-                    <span style={{ fontSize: '0.8125rem', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
-                  )}
-                </label>
-              )
-            })}
+        {valoresDisponiveis.length > 5 && (
+          <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
+            <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
+              <MagnifyingGlass size={11} weight="bold" />
+            </span>
+            <input type="text" placeholder="Buscar…" value={buscaLocal}
+              onChange={e => setBuscaLocal(e.target.value)}
+              style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
+            />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Número (intervalo) */}
-      {tipo === 'numero' && (
-        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(56,189,248,0.08)' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Intervalo</p>
-          <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
-            {(['usuariosMin', 'usuariosMax'] as const).map((campo, i) => (
-              <input key={campo}
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder={i === 0 ? 'Mín' : 'Máx'}
-                autoComplete="off"
-                value={filtros[campo]}
-                onChange={e => {
-                  const v = e.target.value.replace(/[^0-9]/g, '')
-                  onFiltrarNumero(campo, v)
-                }}
-                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(56,189,248,0.05)', border: '1px solid rgba(56,189,248,0.15)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.15)' }}
-              />
-            ))}
-          </div>
+        <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
+          {valoresFiltrados.length === 0 ? (
+            <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>Nenhum valor</p>
+          ) : valoresFiltrados.map(v => {
+            const selecionado = valoresSelecionados.has(v)
+            return (
+              <label key={v}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.375rem', cursor: 'pointer', borderRadius: '6px', transition: 'background 0.1s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.06)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                <span style={{ color: selecionado ? '#38bdf8' : '#475569', display: 'flex', lineHeight: 0, flexShrink: 0 }}>
+                  {selecionado ? <CheckSquare size={15} weight="fill" /> : <Square size={15} weight="regular" />}
+                </span>
+                <input type="checkbox" checked={selecionado} onChange={() => onToggleValor(coluna, v)} style={{ display: 'none' }} />
+                {coluna === 'status' ? (
+                  <span style={{ padding: '0.1rem 0.45rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
+                ) : coluna === 'tipo' ? (
+                  <span style={{ padding: '0.1rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...((v === 'Master') ? { color: '#38bdf8', background: 'rgba(56,189,248,0.1)' } : (v === 'Fornecedor') ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
+                ) : (
+                  <span style={{ fontSize: '0.8125rem', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
+                )}
+              </label>
+            )
+          })}
         </div>
-      )}
+      </div>
 
-      {/* Limpar */}
       <div style={{ padding: '0.375rem 0.5rem 0.3rem' }}>
         <button type="button" onClick={() => { onLimpar(); onFechar() }}
           style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', width: '100%', padding: '0.35rem 0.5rem', borderRadius: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '0.8125rem', fontFamily: 'inherit', transition: 'color 0.12s' }}
@@ -258,23 +211,20 @@ function PopoverFiltro({
   )
 }
 
-// ─── Th com popover ───────────────────────────────────────────────────────────
-
 interface ThProps {
-  label: string; coluna: ColKey; tipo: 'texto' | 'numero'
+  label: string; coluna: ColKey; tipo: 'texto'
   filtros: FiltrosState; ordenacao: OrdenacaoState | null
   temFiltroAtivo: boolean
-  dados: Empresa[]   // para computar valores únicos
+  dados: TenantUser[]
   onOrdenar: (col: ColKey, dir: Direcao) => void
   onToggleValor: (col: ColKey, v: string) => void
-  onFiltrarNumero: (campo: 'usuariosMin' | 'usuariosMax', v: string) => void
   onLimparColuna: (col: ColKey) => void
   style?: React.CSSProperties
   tooltipTitulo?: string
   tooltipDescricao?: string
 }
 
-function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna, style, tooltipTitulo, tooltipDescricao }: ThProps) {
+function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dados, onOrdenar, onToggleValor, onLimparColuna, style, tooltipTitulo, tooltipDescricao }: ThProps) {
   const [aberto, setAberto] = useState(false)
   const handleFechar = useCallback(() => setAberto(false), [])
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -287,9 +237,9 @@ function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dado
 
   const valoresSelecionados = useMemo<Set<string>>(() => {
     if (coluna === 'nome') return filtros.nome
-    if (coluna === 'subdominio') return filtros.subdominio
+    if (coluna === 'email') return filtros.email
+    if (coluna === 'tipo') return filtros.tipo
     if (coluna === 'status') return filtros.status
-    if (coluna === 'criadaEm') return filtros.criadaEm
     return new Set()
   }, [coluna, filtros])
 
@@ -320,7 +270,6 @@ function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dado
           triggerRef={triggerRef}
           onOrdenar={onOrdenar}
           onToggleValor={onToggleValor}
-          onFiltrarNumero={onFiltrarNumero}
           onLimpar={() => onLimparColuna(coluna)}
           onFechar={handleFechar}
         />
@@ -329,8 +278,6 @@ function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dado
   )
 }
 const Th = memo(ThInner)
-
-// ─── Chip ─────────────────────────────────────────────────────────────────────
 
 function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void }) {
   return (
@@ -342,8 +289,6 @@ function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void
     </span>
   )
 }
-
-// ─── ExportMenuItem ───────────────────────────────────────────────────────────
 
 function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.ReactNode; onClick: () => void }) {
   return (
@@ -357,9 +302,7 @@ function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.R
   )
 }
 
-// ─── Componente Principal ─────────────────────────────────────────────────────
-
-export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresasProps) {
+export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
   const [busca, setBusca] = useState('')
   const [ordenacao, setOrdenacao] = useState<OrdenacaoState | null>(null)
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIAIS)
@@ -367,11 +310,10 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
   const [porPagina, setPorPagina] = useState(10)
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
 
-  // Toggle de valor selecionado numa coluna
   const onToggleValor = useCallback((col: ColKey, v: string) => {
     setFiltros(prev => {
       const copia = { ...prev }
-      const set = new Set(prev[col as 'nome' | 'subdominio' | 'status' | 'criadaEm'])
+      const set = new Set(prev[col as keyof FiltrosState])
       set.has(v) ? set.delete(v) : set.add(v)
       ;(copia as Record<string, unknown>)[col] = set
       return copia
@@ -379,20 +321,12 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
     setPagina(1)
   }, [])
 
-  const onFiltrarNumero = useCallback((campo: 'usuariosMin' | 'usuariosMax', v: string) => {
-    setFiltros(prev => ({ ...prev, [campo]: v })); setPagina(1)
-  }, [])
-
   const onOrdenar = useCallback((col: ColKey, dir: Direcao) => setOrdenacao({ coluna: col, direcao: dir }), [])
 
   const onLimparColuna = useCallback((col: ColKey) => {
     setFiltros(prev => {
       const n = { ...prev }
-      if (col === 'nome') n.nome = new Set()
-      else if (col === 'subdominio') n.subdominio = new Set()
-      else if (col === 'usuarios') { n.usuariosMin = ''; n.usuariosMax = '' }
-      else if (col === 'status') n.status = new Set()
-      else if (col === 'criadaEm') n.criadaEm = new Set()
+      n[col as keyof FiltrosState] = new Set()
       return n
     })
     if (ordenacao?.coluna === col) setOrdenacao(null)
@@ -403,67 +337,44 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
     setBusca(''); setFiltros(FILTROS_INICIAIS); setOrdenacao(null); setPagina(1)
   }, [])
 
-  // ─── Dados filtrados ──────────────────────────────────────────────────────
-
   const resultado = useMemo(() => {
     let r = [...dados]
 
-    // Busca global
     if (busca.trim()) {
       const t = busca.toLowerCase()
       r = r.filter(e =>
         e.nome.toLowerCase().includes(t) ||
-        e.subdominio.toLowerCase().includes(t) ||
-        e.status.toLowerCase().includes(t) ||
-        String(e.usuarios).includes(t) ||
-        e.criadaEm.includes(t)
+        e.email.toLowerCase().includes(t) ||
+        e.tipo.toLowerCase().includes(t) ||
+        e.status.toLowerCase().includes(t)
       )
     }
 
-    // Filtros por coluna (Set = lista de valores selecionados)
     if (filtros.nome.size > 0) r = r.filter(e => filtros.nome.has(e.nome))
-    if (filtros.subdominio.size > 0) r = r.filter(e => filtros.subdominio.has(e.subdominio))
-    if (filtros.usuariosMin !== '') r = r.filter(e => e.usuarios >= Number(filtros.usuariosMin))
-    if (filtros.usuariosMax !== '') r = r.filter(e => e.usuarios <= Number(filtros.usuariosMax))
+    if (filtros.email.size > 0) r = r.filter(e => filtros.email.has(e.email))
+    if (filtros.tipo.size > 0) r = r.filter(e => filtros.tipo.has(e.tipo))
     if (filtros.status.size > 0) r = r.filter(e => filtros.status.has(e.status))
-    if (filtros.criadaEm.size > 0) r = r.filter(e => filtros.criadaEm.has(e.criadaEm))
 
-    // Ordenação
     if (ordenacao) {
       r.sort((a, b) => {
         const va = a[ordenacao.coluna], vb = b[ordenacao.coluna]
-        if (typeof va === 'number' && typeof vb === 'number') return ordenacao.direcao === 'asc' ? va - vb : vb - va
         return String(va).toLowerCase().localeCompare(String(vb).toLowerCase(), 'pt-BR') * (ordenacao.direcao === 'asc' ? 1 : -1)
       })
     }
     return r
   }, [dados, busca, filtros, ordenacao])
 
-  // ─── Chips ───────────────────────────────────────────────────────────────
-
   const chips = useMemo(() => {
     const list: { key: string; label: string; onRemover: () => void }[] = []
     if (busca.trim()) list.push({ key: 'busca', label: `"${busca}"`, onRemover: () => setBusca('') })
-    filtros.nome.forEach(v => list.push({ key: `nome-${v}`, label: `Filial: ${v}`, onRemover: () => onToggleValor('nome', v) }))
-    filtros.subdominio.forEach(v => list.push({ key: `sub-${v}`, label: `Subdomínio: ${v}`, onRemover: () => onToggleValor('subdominio', v) }))
-    if (filtros.usuariosMin !== '' || filtros.usuariosMax !== '') {
-      list.push({ key: 'usuarios', label: `Usuários: ${filtros.usuariosMin || '0'}–${filtros.usuariosMax || '∞'}`, onRemover: () => { onFiltrarNumero('usuariosMin', ''); onFiltrarNumero('usuariosMax', '') } })
-    }
+    filtros.nome.forEach(v => list.push({ key: `nome-${v}`, label: `Nome: ${v}`, onRemover: () => onToggleValor('nome', v) }))
+    filtros.email.forEach(v => list.push({ key: `email-${v}`, label: `Email: ${v}`, onRemover: () => onToggleValor('email', v) }))
+    filtros.tipo.forEach(v => list.push({ key: `tipo-${v}`, label: `Tipo: ${v}`, onRemover: () => onToggleValor('tipo', v) }))
     filtros.status.forEach(v => list.push({ key: `status-${v}`, label: `Status: ${v}`, onRemover: () => onToggleValor('status', v) }))
-    filtros.criadaEm.forEach(v => list.push({ key: `data-${v}`, label: `Data: ${v}`, onRemover: () => onToggleValor('criadaEm', v) }))
     return list
-  }, [busca, filtros, onToggleValor, onFiltrarNumero])
+  }, [busca, filtros, onToggleValor])
 
-  const temFiltro = (col: ColKey) => {
-    if (col === 'nome') return filtros.nome.size > 0
-    if (col === 'subdominio') return filtros.subdominio.size > 0
-    if (col === 'usuarios') return !!filtros.usuariosMin || !!filtros.usuariosMax
-    if (col === 'status') return filtros.status.size > 0
-    if (col === 'criadaEm') return filtros.criadaEm.size > 0
-    return false
-  }
-
-  // ─── Paginação ────────────────────────────────────────────────────────────
+  const temFiltro = (col: keyof FiltrosState) => filtros[col].size > 0
 
   const totalPags = Math.max(1, Math.ceil(resultado.length / porPagina))
   const pagSafe = Math.min(pagina, totalPags)
@@ -488,34 +399,20 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
     return () => document.removeEventListener('mousedown', fora)
   }, [])
 
-  // ─── Colunas para exportação ──────────────────────────────────────────────
-
   const COLUNAS_EXPORT: ColunasExport[] = [
-    { header: 'Nome',        key: 'nome'       },
-    { header: 'Subdomínio',  key: 'subdominio' },
-    { header: 'Usuários',    key: 'usuarios'   },
-    { header: 'Status',      key: 'status'     },
-    { header: 'Criado em',   key: 'criadaEm'   },
+    { header: 'Nome',    key: 'nome'   },
+    { header: 'E-mail',  key: 'email'  },
+    { header: 'Tipo',    key: 'tipo'   },
+    { header: 'Status',  key: 'status' },
   ]
 
-  // Adapta o campo subdomínio para exibir com .gravity.com.br
-  const dadosExport = resultado.map(e => ({
-    ...e,
-    subdominio: `${e.subdominio}.gravity.com.br`,
-  })) as unknown as Record<string, unknown>[]
+  const OPCOES_EXPORT = { nomeArquivo: 'usuarios-tenant', titulo: 'Usuários do Tenant' }
 
-  const OPCOES_EXPORT = { nomeArquivo: 'empresas-filhas', titulo: 'Empresas Filhas' }
-
-  const thProps = { filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna }
-
-  // ─── Render ───────────────────────────────────────────────────────────────
+  const thProps = { filtros, ordenacao, dados, onOrdenar, onToggleValor, onLimparColuna }
 
   return (
     <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(56,189,248,0.1)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
-
-      {/* Toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(56,189,248,0.08)' }}>
-        {/* Busca global */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
             <MagnifyingGlass size={14} weight="bold" />
@@ -540,7 +437,6 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
               {selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}
             </span>
           )}
-          {/* Botão Exportar + dropdown */}
           <div style={{ position: 'relative' }}>
             <button ref={exportBtnRef} type="button"
               onClick={() => setExportMenuAberto(v => !v)}
@@ -554,17 +450,13 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
               <div ref={exportMenuRef}
                 style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid rgba(56,189,248,0.18)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
                 onClick={e => e.stopPropagation()}>
-
-                {/* Excel */}
-                <ExportMenuItem label="Excel (.xlsx)" icon={<FileXls size={14} weight="bold" />} onClick={() => { void exportarExcel(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
-
-                {/* Outros formatos */}
+                <ExportMenuItem label="Excel (.xlsx)" icon={<FileXls size={14} weight="bold" />} onClick={() => { void exportarExcel(resultado as any, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
                 <div style={{ borderTop: '1px solid rgba(56,189,248,0.08)', marginTop: '0.25rem', paddingTop: '0.25rem' }}>
-                  <ExportMenuItem label="CSV" icon={<FileCsv size={14} weight="bold" />} onClick={() => { exportarCSV(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="TXT" icon={<FileText size={14} weight="bold" />} onClick={() => { exportarTXT(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="XML" icon={<Code size={14} weight="bold" />} onClick={() => { exportarXML(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="PDF" icon={<FilePdf size={14} weight="bold" />} onClick={() => { exportarPDF(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="JSON" icon={<Code size={14} weight="bold" />} onClick={() => { exportarJSON(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="CSV" icon={<FileCsv size={14} weight="bold" />} onClick={() => { exportarCSV(resultado as any, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="TXT" icon={<FileText size={14} weight="bold" />} onClick={() => { exportarTXT(resultado as any, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="XML" icon={<Code size={14} weight="bold" />} onClick={() => { exportarXML(resultado as any, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="PDF" icon={<FilePdf size={14} weight="bold" />} onClick={() => { exportarPDF(resultado as any, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="JSON" icon={<Code size={14} weight="bold" />} onClick={() => { exportarJSON(resultado as any, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
                 </div>
               </div>
             )}
@@ -572,7 +464,6 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
         </div>
       </div>
 
-      {/* Chips de filtros ativos */}
       {chips.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
           {chips.map(c => <FiltroChip key={c.key} label={c.label} onRemover={c.onRemover} />)}
@@ -585,7 +476,6 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
         </div>
       )}
 
-      {/* Tabela */}
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
           <thead>
@@ -594,38 +484,31 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
                 <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
               <Th
-                label="Filial" coluna="nome" tipo="texto"
+                label="Usuário" coluna="nome" tipo="texto"
                 temFiltroAtivo={temFiltro('nome')}
-                tooltipTitulo="Empresa Filha"
-                tooltipDescricao="Nome da empresa filha cadastrada neste tenant."
+                tooltipTitulo="Nome Completo"
+                tooltipDescricao="Nome cadastrado do usuário."
                 {...thProps}
               />
               <Th
-                label="Subdomínio" coluna="subdominio" tipo="texto"
-                temFiltroAtivo={temFiltro('subdominio')}
-                tooltipTitulo="Subdomínio"
-                tooltipDescricao="Endereço exclusivo desta filial na plataforma."
+                label="E-mail" coluna="email" tipo="texto"
+                temFiltroAtivo={temFiltro('email')}
+                tooltipTitulo="E-mail de Acesso"
+                tooltipDescricao="E-mail utilizado no login."
                 {...thProps}
               />
               <Th
-                label="Usuários" coluna="usuarios" tipo="numero"
-                temFiltroAtivo={temFiltro('usuarios')}
-                tooltipTitulo="Usuários Ativos"
-                tooltipDescricao="Total de acessos habilitados nesta filial."
-                {...thProps} style={{ textAlign: 'center' }}
+                label="Tipo" coluna="tipo" tipo="texto"
+                temFiltroAtivo={temFiltro('tipo')}
+                tooltipTitulo="Perfil Base"
+                tooltipDescricao="Tipo de usuário global no tenant."
+                {...thProps}
               />
               <Th
                 label="Status" coluna="status" tipo="texto"
                 temFiltroAtivo={temFiltro('status')}
                 tooltipTitulo="Status Operacional"
-                tooltipDescricao="Indica se a filial está ativa ou com acesso suspenso."
-                {...thProps}
-              />
-              <Th
-                label="Criado em" coluna="criadaEm" tipo="texto"
-                temFiltroAtivo={temFiltro('criadaEm')}
-                tooltipTitulo="Data de Criação"
-                tooltipDescricao="Data em que a filial foi cadastrada no sistema."
+                tooltipDescricao="Indica se o acesso está desbloqueado."
                 {...thProps}
               />
               <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
@@ -636,69 +519,61 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
           <tbody>
             {paginado.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
                   {chips.length > 0 || busca
                     ? <span>Nenhum resultado. <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#38bdf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
-                    : 'Nenhuma empresa filial cadastrada.'
+                    : 'Nenhum usuário cadastrado.'
                   }
                 </td>
               </tr>
-            ) : paginado.map((e, i) => (
-              <tr key={e.id}
-                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(56,189,248,0.06)' : 'none', background: selecionados.has(e.id) ? 'rgba(56,189,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
-                onMouseEnter={ev => { if (!selecionados.has(e.id)) ev.currentTarget.style.background = 'rgba(56,189,248,0.03)' }}
-                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(e.id) ? 'rgba(56,189,248,0.06)' : 'transparent' }}>
+            ) : paginado.map((u, i) => (
+              <tr key={u.id}
+                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(56,189,248,0.06)' : 'none', background: selecionados.has(u.id) ? 'rgba(56,189,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                onMouseEnter={ev => { if (!selecionados.has(u.id)) ev.currentTarget.style.background = 'rgba(56,189,248,0.03)' }}
+                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(u.id) ? 'rgba(56,189,248,0.06)' : 'transparent' }}>
                 <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
-                  <input type="checkbox" checked={selecionados.has(e.id)} onChange={() => toggleSel(e.id)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
+                  <input type="checkbox" checked={selecionados.has(u.id)} onChange={() => toggleSel(u.id)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
                 </td>
                 <td style={{ padding: '0.875rem 1rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                    <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#38bdf8' }}>
-                      {e.nome.charAt(0)}
+                    <div style={{
+                      width: 32, height: 32, minWidth: 32, borderRadius: '50%',
+                      background: u.tipo === 'Master' ? 'rgba(56,189,248,0.2)' : u.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
+                      color: u.tipo === 'Master' ? '#38bdf8' : u.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+                    }}>
+                      {u.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </div>
-                    <span style={{ fontWeight: 600 }}>{e.nome}</span>
+                    <span style={{ fontWeight: 600 }}>{u.nome}</span>
                   </div>
                 </td>
-                <td style={{ padding: '0.875rem 1rem' }}>
-                  <a
-                    href={`https://${e.subdominio}.gravity.com.br`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`Abrir ${e.subdominio}.gravity.com.br`}
-                    onClick={ev => ev.stopPropagation()}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
-                  >
-                    <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
-                      onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.18)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-                      onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
-                    >
-                      {e.subdominio}.gravity.com.br
-                    </code>
-                  </a>
+                <td style={{ padding: '0.875rem 1rem', color: 'var(--ws-muted)' }}>
+                  {u.email}
                 </td>
-                <td style={{ padding: '0.875rem 1rem', textAlign: 'center', fontWeight: 600 }}>{e.usuarios}</td>
                 <td style={{ padding: '0.875rem 1rem' }}>
-                  <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: e.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: e.status === 'Ativa' ? '#34d399' : '#f87171', border: `1px solid ${e.status === 'Ativa' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
-                    {e.status}
+                  <span className={`ws-badge ${typeBadge[u.tipo.toString()] || 'ws-badge-surface'}`}>
+                    {u.tipo}
                   </span>
                 </td>
-                <td style={{ padding: '0.875rem 1rem', color: '#94a3b8' }}>{e.criadaEm}</td>
+                <td style={{ padding: '0.875rem 1rem' }}>
+                  <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: u.status === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: u.status === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${u.status === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
+                    {u.status}
+                  </span>
+                </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    {/* Suspender / Reativar */}
                     <button
                       type="button"
-                      title={e.status === 'Ativa' ? 'Suspender' : 'Reativar'}
-                      onClick={() => onSuspender(e)}
+                      title={u.status === 'Ativo' ? 'Desativar' : 'Reativar'}
+                      onClick={() => onDeactivate(u.id)}
                       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = e.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = e.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = e.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
+                      onMouseEnter={ev => { ev.currentTarget.style.background = u.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = u.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = u.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
                       onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
                     >
-                      {e.status === 'Ativa'
+                      {u.status === 'Ativo'
                         ? <PauseCircle size={16} weight="bold" />
                         : <PlayCircle size={16} weight="bold" />}
                     </button>
-                    {/* Editar */}
                     <button
                       type="button"
                       title="Editar"
@@ -708,11 +583,9 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
                     >
                       <PencilSimple size={15} weight="bold" />
                     </button>
-                    {/* Excluir */}
                     <button
                       type="button"
                       title="Excluir"
-                      onClick={() => onExcluir(e)}
                       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
                       onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(248,113,113,0.12)'; ev.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)'; ev.currentTarget.style.color = '#f87171' }}
                       onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
@@ -727,7 +600,6 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
         </table>
       </div>
 
-      {/* Paginação */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(56,189,248,0.08)', background: 'rgba(56,189,248,0.02)' }}>
         <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
           {resultado.length === 0 ? 'Nenhum registro' : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} de ${resultado.length}`}

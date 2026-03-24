@@ -1,0 +1,462 @@
+/**
+ * @nucleo/select — CSS
+ * Gravity Design System — Solid Slate palette
+ * Usa variáveis ws-* quando disponíveis, com fallback p/ tokens genéricos.
+ */
+
+/* ─── Tokens internos (mapeiam para o contexto do consumidor) ─────────────── */
+.sg-wrapper {
+  --_sg-bg:        var(--ws-surface,        var(--bg-base,       #1e293b));
+  --_sg-bg-hover:  var(--ws-surface,        var(--bg-surface,    #1e293b));
+  --_sg-bg-dd:     var(--ws-surface,        var(--bg-base,       #1e293b));
+  --_sg-border:    var(--ws-accent-border,  var(--bg-elevated,   rgba(129,140,248,.2)));
+  --_sg-accent:    var(--ws-accent,         var(--accent,        #818cf8));
+  --_sg-accent-dk: var(--ws-accent-dim,     rgba(129,140,248,.12));
+  --_sg-text:      var(--ws-text,           var(--text-primary,  #f1f5f9));
+  --_sg-muted:     var(--ws-muted,          var(--text-muted,    #94a3b8));
+  --_sg-radius:    var(--radius-md,         8px);
+  --_sg-radius-sm: var(--radius-sm,         4px);
+  --_sg-focus:     0 0 0 3px rgba(129,140,248,.25);
+  --_sg-shadow:    0 0 0 1px rgba(129,140,248,.35), 0 16px 48px rgba(0,0,0,.65), 0 4px 16px rgba(0,0,0,.4);
+
+  position: relative;
+}
+
+/* ─── Label ──────────────────────────────────────────────────────────────────── */
+.sg-label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--_sg-muted);
+  letter-spacing: 0.01em;
+}
+
+.sg-obrigatorio {
+  color: #f87171;
+  margin-left: 0.125rem;
+}
+
+/* ─── Campo gatilho ─────────────────────────────────────────────────────────── */
+.sg-campo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--ws-bg-body, #0f172a);
+  border: 1.5px solid var(--_sg-border);
+  border-radius: var(--_sg-radius);
+  padding: 0.5625rem 0.875rem;
+  cursor: pointer;
+  transition: border-color .18s ease, box-shadow .18s ease;
+  min-height: 2.5rem;
+  user-select: none;
+  font-family: inherit;
+}
+
+.sg-campo:hover:not(.sg-campo--desabilitado):not(.sg-campo--carregando) {
+  border-color: var(--_sg-accent);
+}
+
+.sg-campo--aberto {
+  border-color: var(--_sg-accent);
+  box-shadow: var(--_sg-focus);
+}
+
+.sg-campo:focus-visible {
+  outline: none;
+  border-color: var(--_sg-accent);
+  box-shadow: var(--_sg-focus);
+}
+
+.sg-campo--desabilitado {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sg-campo--carregando {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+/* ─── Valor e placeholder ────────────────────────────────────────────────────── */
+.sg-valor {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.sg-placeholder {
+  color: var(--_sg-muted);
+  font-size: 0.875rem;
+}
+
+.sg-loading {
+  color: var(--_sg-muted);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.sg-valor-selecionado {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--_sg-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Chips (multi-select) ───────────────────────────────────────────────────── */
+.sg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.sg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--_sg-accent-dk);
+  color: var(--_sg-accent);
+  border: 1px solid rgba(129,140,248,.25);
+  border-radius: 9999px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.sg-chip-remover {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: inherit;
+  font-size: 0.7rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity .1s;
+}
+
+.sg-chip-remover:hover {
+  opacity: 1;
+}
+
+/* ─── Ações (limpar + chevron) ────────────────────────────────────────────────── */
+.sg-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.sg-btn-limpar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.15rem 0.3rem;
+  color: var(--_sg-muted);
+  font-size: 0.75rem;
+  line-height: 1;
+  border-radius: var(--_sg-radius-sm);
+  display: flex;
+  align-items: center;
+  transition: color .1s, background .1s;
+}
+
+.sg-btn-limpar:hover {
+  color: var(--_sg-text);
+  background: rgba(255,255,255,.07);
+}
+
+body.light-theme .sg-btn-limpar:hover {
+  background: rgba(0,0,0,.07);
+}
+
+/* Chevron via SVG inline embutido no pseudo-elemento */
+.sg-chevron {
+  color: var(--_sg-muted);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .22s cubic-bezier(.4,0,.2,1), color .15s;
+}
+
+.sg-chevron svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+}
+
+.sg-chevron--aberto {
+  transform: rotate(180deg);
+  color: var(--_sg-accent);
+}
+
+/* ─── Dropdown ───────────────────────────────────────────────────────────────── */
+/* position é definido via style inline pelo portal (fixed) ou pelo wrapper (absolute) */
+.sg-dropdown {
+  z-index: 99999;
+  font-family: var(--font, system-ui);
+  background: rgba(22, 34, 56, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(129,140,248,.25);
+  border-radius: var(--_sg-radius);
+  box-shadow: var(--_sg-shadow);
+  overflow: hidden;
+  animation: sg-dropdown-in .14s cubic-bezier(.16,1,.3,1);
+  box-sizing: border-box;
+}
+
+/* Quando abre para cima: animação invertida */
+.sg-dropdown--acima {
+  animation: sg-dropdown-in-acima .14s cubic-bezier(.16,1,.3,1);
+}
+
+@keyframes sg-dropdown-in {
+  from { opacity: 0; transform: translateY(-6px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes sg-dropdown-in-acima {
+  from { opacity: 0; transform: translateY(6px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Busca dentro do dropdown ───────────────────────────────────────────────── */
+.sg-busca-wrapper {
+  padding: 0.5rem 0.5rem 0.375rem;
+  border-bottom: 1px solid var(--_sg-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(129,140,248,.04);
+}
+
+.sg-busca-icon {
+  color: var(--_sg-muted);
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.sg-busca-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sg-busca-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0;
+  color: var(--_sg-text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  caret-color: var(--_sg-accent);
+}
+
+.sg-busca-input:focus {
+  outline: none;
+}
+
+.sg-busca-input::placeholder {
+  color: var(--_sg-muted);
+}
+
+/* ─── Lista de opções ────────────────────────────────────────────────────────── */
+.sg-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+
+.sg-lista::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sg-lista::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sg-lista::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.1);
+  border-radius: 9999px;
+}
+
+/* Light theme scrollbar */
+body.light-theme .sg-lista {
+  scrollbar-color: rgba(0,0,0,.18) transparent;
+}
+
+body.light-theme .sg-lista::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,.18);
+}
+
+.sg-vazio {
+  padding: 0.875rem 1rem;
+  color: var(--_sg-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* ─── Grupos ─────────────────────────────────────────────────────────────────── */
+.sg-grupo {
+  list-style: none;
+}
+
+.sg-grupo-rotulo {
+  display: block;
+  padding: 0.5rem 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--_sg-muted);
+}
+
+.sg-grupo-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ─── Opção individual ───────────────────────────────────────────────────────── */
+.sg-opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .1s;
+  font-size: 0.875rem;
+  color: var(--_sg-text);
+  font-family: inherit;
+}
+
+.sg-opcao:hover:not(.sg-opcao--desabilitada) {
+  background: rgba(255,255,255,.05);
+}
+
+/* Light theme: opaque hover */
+body.light-theme .sg-opcao:hover:not(.sg-opcao--desabilitada) {
+  background: rgba(0,0,0,.05);
+}
+
+.sg-opcao--selecionada {
+  background: var(--_sg-accent-dk);
+  color: var(--_sg-accent);
+}
+
+.sg-opcao--selecionada:hover {
+  background: rgba(129,140,248,.18);
+}
+
+.sg-opcao--desabilitada {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.sg-opcao-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sg-opcao-rotulo {
+  line-height: 1.4;
+}
+
+.sg-opcao-descricao {
+  font-size: 0.75rem;
+  color: var(--_sg-muted);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Checkbox (multi) ───────────────────────────────────────────────────────── */
+.sg-check-box {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,.18);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: var(--_sg-accent);
+  transition: border-color .1s, background .1s;
+}
+
+body.light-theme .sg-check-box {
+  border-color: rgba(0,0,0,.25);
+}
+
+.sg-opcao--selecionada .sg-check-box {
+  background: var(--_sg-accent);
+  border-color: var(--_sg-accent);
+  color: #0f172a;
+}
+
+/* ─── Check mark (single) ────────────────────────────────────────────────────── */
+.sg-check-mark {
+  margin-left: auto;
+  color: var(--_sg-accent);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* ─── Hint e Erro ────────────────────────────────────────────────────────────── */
+.sg-hint {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--_sg-muted);
+}
+
+.sg-erro {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: #f87171;
+}
+
+/* ─── Erro no campo ──────────────────────────────────────────────────────────── */
+.sg-wrapper--erro .sg-campo {
+  border-color: #f87171;
+}

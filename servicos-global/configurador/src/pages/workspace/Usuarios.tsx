@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
-import { Users, Plus, X } from '@phosphor-icons/react'
+import { Users, Plus, X, PauseCircle, PlayCircle, PencilSimple, Trash, FileXls, FileCsv, FileText, FilePdf, Code } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 type UserType = 'Master' | 'Standard' | 'Fornecedor'
 type UserStatus = 'Ativo' | 'Inativo'
 
-type TenantUser = {
+export interface TenantUser {
   id: string
   nome: string
   email: string
@@ -56,7 +58,6 @@ export function Usuarios() {
   const [filiais, setFiliais] = useState<Filial[]>(mockFiliais)
   const [selectedFilial, setSelectedFilial] = useState('f1')
 
-  // Invite form
   const [showForm, setShowForm] = useState(false)
   const [fNome, setFNome]       = useState('')
   const [fEmail, setFEmail]     = useState('')
@@ -87,11 +88,96 @@ export function Usuarios() {
     }))
   }
 
-  function handleDeactivate(userId: string) {
-    const u = users.find(x => x.id === userId)!
+  function handleDeactivate(u: TenantUser) {
     if (!window.confirm(`${u.status === 'Ativo' ? 'Desativar' : 'Reativar'} usuário ${u.nome}?`)) return
-    setUsers(prev => prev.map(x => x.id === userId ? { ...x, status: x.status === 'Ativo' ? 'Inativo' : 'Ativo' } : x))
+    setUsers(prev => prev.map(x => x.id === u.id ? { ...x, status: x.status === 'Ativo' ? 'Inativo' : 'Ativo' } : x))
   }
+
+  const COLUNAS: TabelaGlobalColuna<TenantUser>[] = [
+    {
+      key: 'nome', label: 'Usuário', tipo: 'texto',
+      tooltipTitulo: 'Nome Completo', tooltipDescricao: 'Nome cadastrado do usuário.',
+      render: (v, item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{
+            width: 32, height: 32, minWidth: 32, borderRadius: '50%',
+            background: item.tipo === 'Master' ? 'rgba(56,189,248,0.2)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
+            color: item.tipo === 'Master' ? '#38bdf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+          }}>
+            {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
+          </div>
+          <span style={{ fontWeight: 600 }}>{item.nome}</span>
+        </div>
+      )
+    },
+    {
+      key: 'email', label: 'E-mail', tipo: 'texto',
+      tooltipTitulo: 'E-mail de Acesso', tooltipDescricao: 'E-mail utilizado no login.',
+      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
+    },
+    {
+      key: 'tipo', label: 'Tipo', tipo: 'texto',
+      tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Tipo de usuário global no tenant.',
+      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#38bdf8', background: 'rgba(56,189,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
+    },
+    {
+      key: 'status', label: 'Status', tipo: 'texto',
+      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se o acesso está desbloqueado.',
+      render: (v) => <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
+    }
+  ]
+
+  const ACOES: TabelaGlobalAcao<TenantUser>[] = [
+    {
+      id: 'suspend',
+      icone: <PauseCircle size={16} weight="bold" />, // Será atualizado condicionalmente
+      tooltip: 'Desativar/Reativar',
+      onClick: handleDeactivate,
+      renderCustom: (item) => (
+        <button
+          type="button"
+          title={item.status === 'Ativo' ? 'Desativar' : 'Reativar'}
+          onClick={() => handleDeactivate(item)}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
+          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+        >
+          {item.status === 'Ativo' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+        </button>
+      )
+    },
+    {
+      id: 'edit',
+      icone: <PencilSimple size={15} weight="bold" />,
+      tooltip: 'Editar',
+      onClick: () => {},
+    },
+    {
+      id: 'delete',
+      icone: <Trash size={15} weight="bold" />,
+      tooltip: 'Excluir',
+      onClick: () => {},
+      onRenderStyle: () => ({ background: 'rgba(248,113,113,0.12)', borderColor: 'rgba(248,113,113,0.3)', color: '#f87171' })
+    }
+  ]
+
+  const COLUNAS_EXPORT: ColunasExport[] = [
+    { header: 'Nome',    key: 'nome'   },
+    { header: 'E-mail',  key: 'email'  },
+    { header: 'Tipo',    key: 'tipo'   },
+    { header: 'Status',  key: 'status' },
+  ]
+  const OPCOES_EXPORT = { nomeArquivo: 'todos-os-usuarios', titulo: 'Todos os Usuários' }
+
+  const ACOES_EXPORT: TabelaExportAcao<TenantUser>[] = [
+    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'CSV', icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'TXT', icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'XML', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarXML(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'PDF', icone: <FilePdf size={14} weight="bold" />, onClick: (dados) => void exportarPDF(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'JSON', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarJSON(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+  ]
 
   const filial = filiais.find(f => f.id === selectedFilial)
 
@@ -103,7 +189,7 @@ export function Usuarios() {
             Usuários &amp; Permissões
           </h1>
           <p style={{ fontSize: '0.875rem', color: 'var(--ws-muted)' }}>
-            Gerencie quem acessa o tenant e cada empresa filha.
+            Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada.
           </p>
         </div>
         {tab === 'tenant' && (
@@ -117,22 +203,19 @@ export function Usuarios() {
         )}
       </div>
 
-      {/* Pills tabs */}
       <div className="ws-tabs">
         <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
-          Usuários do Tenant
+          Todos os Usuários
         </button>
         <button className={`ws-tab${tab === 'filiais' ? ' active' : ''}`} onClick={() => setTab('filiais')}>
-          Habilitações por Filial
+          Acesso por Empresa Filha
         </button>
       </div>
 
-      {/* ── TAB 1: Tenant users ── */}
       {tab === 'tenant' && (
         <>
-          {/* Invite form */}
           {showForm && (
-            <div className="ws-form-card ws-fade-up">
+            <div className="ws-form-card ws-fade-up" style={{ marginBottom: '1.5rem' }}>
               <p className="ws-section-title">
                 <Users weight="duotone" size={14} color="#38bdf8" />
                 Convidar Usuário
@@ -173,7 +256,6 @@ export function Usuarios() {
             </div>
           )}
 
-          {/* Type legend */}
           <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
             <span className="ws-badge ws-badge-accent">Master</span>
             <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', alignSelf: 'center' }}>Acesso total · permissões granulares não se aplicam</span>
@@ -183,55 +265,19 @@ export function Usuarios() {
             <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', alignSelf: 'center' }}>Externo · permissões obrigatórias</span>
           </div>
 
-          <div className="ws-table-wrap ws-fade-up ws-fade-up-d1">
-            <table className="ws-table">
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>E-mail</th>
-                  <th>Tipo</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(u => (
-                  <tr key={u.id}>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                        <div style={{
-                          width: 32, height: 32, borderRadius: '50%',
-                          background: u.tipo === 'Master' ? 'rgba(56,189,248,0.2)' : u.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.75rem', fontWeight: 700,
-                          color: u.tipo === 'Master' ? '#38bdf8' : u.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
-                        }}>
-                          {u.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </div>
-                        <span style={{ fontWeight: 600 }}>{u.nome}</span>
-                      </div>
-                    </td>
-                    <td style={{ color: 'var(--ws-muted)', fontSize: '0.875rem' }}>{u.email}</td>
-                    <td><span className={`ws-badge ${typeBadge[u.tipo]}`}>{u.tipo}</span></td>
-                    <td><span className={`ws-badge ${u.status === 'Ativo' ? 'ws-badge-success' : 'ws-badge-danger'}`}>{u.status}</span></td>
-                    <td>
-                      <BotaoGlobal
-                        variante={u.status === 'Ativo' ? 'fantasma' : 'primario'}
-                        tamanho="pequeno"
-                        onClick={() => handleDeactivate(u.id)}
-                      >
-                        {u.status === 'Ativo' ? 'Desativar' : 'Reativar'}
-                      </BotaoGlobal>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div style={{ position: 'relative', zIndex: 10 }}>
+            <TabelaGlobal<TenantUser>
+              dados={users}
+              colunas={COLUNAS}
+              acoes={ACOES}
+              acoesExportacao={ACOES_EXPORT}
+              mensagemVazio="Nenhum usuário encontrado na busca."
+              mensagemSemFiltro="Nenhum usuário cadastrado neste tenant."
+            />
           </div>
         </>
       )}
 
-      {/* ── TAB 2: Habilitações por Filial ── */}
       {tab === 'filiais' && (
         <div className="ws-fade-up">
           <div className="ws-filter-row">

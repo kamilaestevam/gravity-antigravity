@@ -1,4 +1,4 @@
-﻿{
+{
     "name":  "@nucleo/tabela-global",
     "version":  "1.0.0",
     "private":  true,
@@ -12,7 +12,8 @@
                 },
     "peerDependencies":  {
                              "react":  "^18.0.0",
-                             "react-dom":  "^18.0.0"
+                             "react-dom":  "^18.0.0",
+                             "@nucleo/tooltip-global": "workspace:*"
                          },
     "devDependencies":  {
                             "@types/react":  "^18.0.0",

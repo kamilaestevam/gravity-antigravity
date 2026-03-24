@@ -1,9 +1,22 @@
 import React, { useState } from 'react'
-import { Buildings } from '@phosphor-icons/react'
+import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { TabelaEmpresas, type Empresa } from './TabelaEmpresas'
+import { StatCardGlobal } from '@nucleo/stat-card-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+
+export type EmpresaStatus = 'Ativa' | 'Suspensa'
+
+export interface Empresa {
+  id: string
+  nome: string
+  subdominio: string
+  usuarios: number
+  status: EmpresaStatus
+  criadaEm: string
+}
 
 const mockEmpresas: Empresa[] = [
   { id:  '1', nome: 'Acme Logística',          subdominio: 'acme-log',       usuarios:  8, status: 'Ativa',    criadaEm: '12/01/2025' },
@@ -42,6 +55,70 @@ function slugify(v: string) {
   return v.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-')
 }
 
+function MiniDashSaude({ total, ativas, suspensas }: { total: number, ativas: number, suspensas: number }) {
+  const pctAtivas = total > 0 ? Math.round((ativas / total) * 100) : 0
+  const dashArray = `${pctAtivas}, 100`
+
+  return (
+    <div className="ws-mini-dash">
+      <div className="ws-mini-dash__header">
+        <ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8', flexShrink: 0 }} />
+        <p className="ws-mini-dash__title">Status das Filhas</p>
+      </div>
+      <div className="ws-mini-dash__body">
+        <div className="ws-mini-dash__gauge-container">
+          <svg viewBox="0 0 36 36" width="48" height="48">
+            <path
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              fill="none" stroke="rgba(129, 140, 248, 0.12)" strokeWidth="3.5"
+            />
+            <path
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              fill="none" stroke="#34d399" strokeWidth="3.5"
+              strokeDasharray={dashArray} strokeLinecap="round"
+            />
+          </svg>
+          <div className="ws-mini-dash__gauge-val">
+            <span className="ws-mini-dash__gauge-num">{pctAtivas}</span>
+            <span className="ws-mini-dash__gauge-pct">%</span>
+          </div>
+        </div>
+        <div className="ws-mini-dash__legend">
+          <div className="ws-mini-dash__leg-item"><span className="dot green" /> Ativas ({ativas})</div>
+          <div className="ws-mini-dash__leg-item"><span className="dot yellow" /> Suspensas ({suspensas})</div>
+        </div>
+      </div>
+
+      {/* Tooltip de detalhe ao hover */}
+      <div className="ws-mini-dash__tooltip">
+        <div className="ws-mini-dash__tooltip-header">
+          <ChartPieSlice weight="duotone" size={14} style={{ color: '#818cf8', flexShrink: 0 }} />
+          <p className="ws-mini-dash__tooltip-title">Status das Filhas</p>
+        </div>
+        <div className="ws-mini-dash__tooltip-row">
+          <span className="dot green" />
+          <span>Ativas</span>
+          <strong>{ativas}</strong>
+        </div>
+        <div className="ws-mini-dash__tooltip-row">
+          <span className="dot yellow" />
+          <span>Suspensas</span>
+          <strong>{suspensas}</strong>
+        </div>
+        <div className="ws-mini-dash__tooltip-divider" />
+        <div className="ws-mini-dash__tooltip-row">
+          <span style={{ color: 'var(--ws-muted)' }}>Total</span>
+          <strong>{total}</strong>
+        </div>
+        <div className="ws-mini-dash__tooltip-row">
+          <span style={{ color: 'var(--ws-muted)' }}>Taxa de atividade</span>
+          <strong style={{ color: '#34d399' }}>{pctAtivas}%</strong>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function Empresas() {
   const [empresas, setEmpresas]    = useState<Empresa[]>(mockEmpresas)
   const [showForm, setShowForm]    = useState(false)
@@ -50,6 +127,7 @@ export function Empresas() {
   const [subdErr, setSubdErr]      = useState('')
 
   const ativas = empresas.filter(e => e.status === 'Ativa').length
+  const suspensas = empresas.filter(e => e.status === 'Suspensa').length
   const limite = 50
 
   function handleSubChange(v: string) {
@@ -93,32 +171,196 @@ export function Empresas() {
     setEmpresas(prev => prev.filter(e => e.id !== linha.id))
   }
 
+  const COLUNAS: TabelaGlobalColuna<Empresa>[] = [
+    {
+      key: 'nome', label: 'Filial', tipo: 'texto',
+      tooltipTitulo: 'Empresa Filha',
+      tooltipDescricao: 'Nome da empresa filha cadastrada neste tenant.',
+      render: (v, item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#38bdf8' }}>
+            {item.nome.charAt(0)}
+          </div>
+          <span style={{ fontWeight: 600 }}>{item.nome}</span>
+        </div>
+      )
+    },
+    {
+      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
+      tooltipTitulo: 'Subdomínio', tooltipDescricao: 'Endereço exclusivo desta filial na plataforma.',
+      render: (v, item) => (
+        <a href={`https://${item.subdominio}.gravity.com.br`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }} onClick={ev => ev.stopPropagation()}>
+          <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
+            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.18)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+          >
+            {item.subdominio}.gravity.com.br
+          </code>
+        </a>
+      )
+    },
+    {
+      key: 'usuarios', label: 'Usuários', tipo: 'numero', align: 'center',
+      tooltipTitulo: 'Usuários Ativos', tooltipDescricao: 'Total de acessos habilitados nesta filial.',
+      render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
+    },
+    {
+      key: 'status', label: 'Status', tipo: 'texto',
+      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se a filial está ativa ou com acesso suspenso.',
+      render: (v) => (
+        <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativa' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativa' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
+          {v}
+        </span>
+      )
+    },
+    {
+      key: 'criadaEm', label: 'Criado em', tipo: 'texto',
+      tooltipTitulo: 'Data de Criação', tooltipDescricao: 'Data em que a filial foi cadastrada no sistema.',
+      render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span>
+    }
+  ]
+
+  const ACOES: TabelaGlobalAcao<Empresa>[] = [
+    {
+      id: 'suspend',
+      icone: <PauseCircle size={16} weight="bold" />, // Será atualizado condicionalmente embaixo
+      tooltip: 'Suspender',
+      onClick: handleSuspend,
+      renderCustom: (item) => (
+        <button
+          type="button"
+          title={item.status === 'Ativa' ? 'Suspender' : 'Reativar'}
+          onClick={() => handleSuspend(item)}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
+          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+        >
+          {item.status === 'Ativa' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+        </button>
+      )
+    },
+    {
+      id: 'edit',
+      icone: <PencilSimple size={15} weight="bold" />,
+      tooltip: 'Editar',
+      onClick: () => {},
+    },
+    {
+      id: 'delete',
+      icone: <Trash size={15} weight="bold" />,
+      tooltip: 'Excluir',
+      onClick: handleDelete,
+      onRenderStyle: () => ({ background: 'rgba(248,113,113,0.12)', borderColor: 'rgba(248,113,113,0.3)', color: '#f87171' })
+    }
+  ]
+
+  const COLUNAS_EXPORT: ColunasExport[] = [
+    { header: 'Nome',        key: 'nome'       },
+    { header: 'Subdomínio',  key: 'subdominio' },
+    { header: 'Usuários',    key: 'usuarios'   },
+    { header: 'Status',      key: 'status'     },
+    { header: 'Criado em',   key: 'criadaEm'   },
+  ]
+  const OPCOES_EXPORT = { nomeArquivo: 'empresas-filhas', titulo: 'Empresas Filhas' }
+
+  const ACOES_EXPORT: TabelaExportAcao<Empresa>[] = [
+    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados.map(d => ({ ...d, subdominio: `${d.subdominio}.gravity.com.br` })) as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'CSV', icone: <FileCsv size={14} weight="bold" />, onClick: (dados) => void exportarCSV(dados.map(d => ({ ...d, subdominio: `${d.subdominio}.gravity.com.br` })) as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'TXT', icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(dados.map(d => ({ ...d, subdominio: `${d.subdominio}.gravity.com.br` })) as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'XML', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarXML(dados.map(d => ({ ...d, subdominio: `${d.subdominio}.gravity.com.br` })) as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'PDF', icone: <FilePdf size={14} weight="bold" />, onClick: (dados) => void exportarPDF(dados.map(d => ({ ...d, subdominio: `${d.subdominio}.gravity.com.br` })) as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+    { label: 'JSON', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarJSON(dados.map(d => ({ ...d, subdominio: `${d.subdominio}.gravity.com.br` })) as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
+  ]
 
   return (
-    <div className="ws-fade-up">
+    <div>
       <CabecalhoGlobal
         icone={<Buildings weight="duotone" size={22} />}
         titulo="Empresas Filhas"
         subtitulo="Gerencie as empresas filhas do seu tenant Gravity."
       />
 
-      {/* Stat cards + action row */}
-      <div className="ws-stats-row ws-fade-up ws-fade-up-d1">
+      <div className="ws-stats-row">
         <div className="ws-stats">
-          <div className="ws-stat-card">
-            <p className="ws-stat-label">Total de Filhas</p>
-            <p className="ws-stat-value">{empresas.length}</p>
-          </div>
-          <div className="ws-stat-card">
-            <p className="ws-stat-label">Filhas Ativas</p>
-            <p className="ws-stat-value" style={{ color: '#34d399' }}>{ativas}</p>
-          </div>
-          <div className="ws-stat-card">
-            <p className="ws-stat-label">Limite do Plano</p>
-            <p className="ws-stat-value">{empresas.length}<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--ws-muted)' }}>/{limite}</span></p>
-            <p className="ws-stat-sub">{limite - empresas.length} slots disponíveis</p>
-          </div>
+          <StatCardGlobal
+            titulo="Total de Filhas"
+            icone={<TreeStructure weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+            valor={empresas.length}
+            tendencia={{ valor: "0%", direcao: "neutral" }}
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">Visão Geral</p>
+                <div className="scg-tooltip__row">
+                  <span>Total cadastradas</span>
+                  <strong>{empresas.length}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Adicionadas hoje</span>
+                  <strong>0</strong>
+                </div>
+              </>
+            }
+          />
+          <StatCardGlobal
+            titulo="Filhas Ativas"
+            icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={ativas}
+            variante="sucesso"
+            tendencia={{ valor: "+2", direcao: "up" }}
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">Atividade</p>
+                <div className="scg-tooltip__row">
+                  <span>Ativas</span>
+                  <strong style={{ color: '#34d399' }}>{ativas}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Suspensas</span>
+                  <strong style={{ color: '#f87171' }}>{suspensas}</strong>
+                </div>
+                <div className="scg-tooltip__divider" />
+                <div className="scg-tooltip__row">
+                  <span>Taxa de atividade</span>
+                  <strong style={{ color: '#34d399' }}>{empresas.length ? Math.round(ativas / empresas.length * 100) : 0}%</strong>
+                </div>
+              </>
+            }
+          />
+          <StatCardGlobal
+            titulo="Limite do Plano"
+            icone={<Gauge weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+            valor={empresas.length}
+            subtexto={`${limite - empresas.length} slots disponíveis`}
+            tendencia={{ valor: `/${limite}`, direcao: 'neutral' }}
+            variante="aviso"
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">Plano Enterprise</p>
+                <div className="scg-tooltip__row">
+                  <span>Limit total</span>
+                  <strong>{limite}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Utilizados</span>
+                  <strong style={{ color: '#fbbf24' }}>{empresas.length}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Disponíveis</span>
+                  <strong style={{ color: '#34d399' }}>{limite - empresas.length}</strong>
+                </div>
+                <div className="scg-tooltip__divider" />
+                <div className="scg-tooltip__row">
+                  <span>Uso</span>
+                  <strong style={{ color: empresas.length / limite > 0.8 ? '#f87171' : '#fbbf24' }}>
+                    {Math.round(empresas.length / limite * 100)}%
+                  </strong>
+                </div>
+              </>
+            }
+          />
+          <MiniDashSaude total={empresas.length} ativas={ativas} suspensas={suspensas} />
         </div>
+
         <div className="ws-stats-row__action">
           <BotaoNovoGlobal
             rotulo="Nova Empresa Filha"
@@ -128,9 +370,8 @@ export function Empresas() {
         </div>
       </div>
 
-      {/* Inline form */}
       {showForm && (
-        <div className="ws-form-card ws-fade-up" style={{ marginBottom: '1.5rem' }}>
+        <div className="ws-form-card" style={{ marginBottom: '1.5rem' }}>
           <p className="ws-section-title">
             <Buildings weight="duotone" size={14} color="#38bdf8" />
             Nova Empresa Filha
@@ -177,14 +418,17 @@ export function Empresas() {
         </div>
       )}
 
-      {/* TabelaEmpresas — filtros inline por coluna */}
-      <div className="ws-fade-up ws-fade-up-d2">
-        <TabelaEmpresas
+      <div style={{ position: 'relative', zIndex: 10 }}>
+        <TabelaGlobal<Empresa>
           dados={empresas}
-          onSuspender={handleSuspend}
-          onExcluir={handleDelete}
+          colunas={COLUNAS}
+          acoes={ACOES}
+          acoesExportacao={ACOES_EXPORT}
+          mensagemVazio="Nenhum resultado na busca."
+          mensagemSemFiltro="Nenhuma empresa filial cadastrada."
         />
       </div>
     </div>
   )
 }
+

@@ -31,6 +31,18 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/botao-novo-global/src/index.ts'
       ),
+      '@nucleo/select-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/select-global/src/index.ts'
+      ),
+      '@nucleo/stat-card-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/stat-card-global/src/index.ts'
+      ),
+      '@nucleo/acoes-formulario-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/acoes-formulario-global/src/index.ts'
+      ),
     },
   },
   server: {

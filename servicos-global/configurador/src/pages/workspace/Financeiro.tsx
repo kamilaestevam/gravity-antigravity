@@ -1,6 +1,7 @@
 import React from 'react'
 import { Receipt, DownloadSimple, CalendarBlank } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { StatCardGlobal } from '@nucleo/stat-card-global'
 
 type FaturaStatus = 'Pago' | 'Pendente' | 'Atrasado'
 
@@ -53,25 +54,23 @@ export function Financeiro() {
 
       {/* Stat cards */}
       <div className="ws-stats ws-fade-up ws-fade-up-d1">
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">
-            <CalendarBlank weight="duotone" size={12} style={{ display: 'inline', marginRight: '0.25rem' }} />
-            Próximo Vencimento
-          </p>
-          <p className="ws-stat-value" style={{ fontSize: '1.25rem' }}>{vencimento?.vencimento ?? '—'}</p>
-          <p className="ws-stat-sub">{vencimento?.competencia ?? 'Sem faturas abertas'}</p>
-        </div>
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">Valor a Pagar</p>
-          <p className="ws-stat-value" style={{ fontSize: '1.375rem', color: emAberto.length ? '#fbbf24' : '#34d399' }}>
-            {emAberto.length ? `R$ ${valorAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}
-          </p>
-        </div>
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">Faturas em Aberto</p>
-          <p className="ws-stat-value" style={{ color: emAberto.length > 0 ? '#f87171' : '#34d399' }}>{emAberto.length}</p>
-          <p className="ws-stat-sub">{emAberto.length === 0 ? 'Tudo em dia 🎉' : 'Requer atenção'}</p>
-        </div>
+        <StatCardGlobal
+          titulo="Próximo Vencimento"
+          icone={<CalendarBlank weight="duotone" size={16} />}
+          valor={vencimento?.vencimento ?? '—'}
+          subtexto={vencimento?.competencia ?? 'Sem faturas abertas'}
+        />
+        <StatCardGlobal
+          titulo="Valor a Pagar"
+          valor={emAberto.length ? `R$ ${valorAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}
+          variante={emAberto.length ? 'aviso' : 'sucesso'}
+        />
+        <StatCardGlobal
+          titulo="Faturas em Aberto"
+          valor={emAberto.length}
+          subtexto={emAberto.length === 0 ? 'Tudo em dia 🎉' : 'Requer atenção'}
+          variante={emAberto.length > 0 ? 'perigo' : 'sucesso'}
+        />
       </div>
 
       {/* Invoices table */}

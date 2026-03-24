@@ -137,7 +137,7 @@ body.light-theme .ws-badge-surface {
 }
 
 .ws-global-chip__label {
-  font-size: 0.375rem;
+  font-size: 0.5rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -198,7 +198,7 @@ body.light-theme .ws-badge-surface {
 
 .ws-sidebar__logo {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   padding: 36px 0.875rem 26px 1.25rem;
   border-bottom: 1px solid var(--ws-accent-border);
@@ -236,7 +236,7 @@ body.light-theme .ws-badge-surface {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.625rem 0.875rem;
+  padding: 7px 0.875rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -416,43 +416,8 @@ body.light-theme .ws-badge-surface {
   z-index: 20;
 }
 
-/* ── Page header — sticky top, alinhado com o logo do sidebar ─────────── */
-.ws-page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  height: 74px;
-  min-height: 74px;
-  background: var(--ws-bg-body);
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  gap: 1rem;
-  /* sem border — layout limpo */
-}
+/* ws-page-header* removido — use @nucleo/cabecalho-global */
 
-.ws-page-header__title-block {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.125rem;
-}
-
-.ws-page-header__title {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: var(--ws-text);
-  line-height: 1.2;
-  margin: 0;
-}
-
-.ws-page-header__subtitle {
-  font-size: 0.875rem;
-  color: var(--ws-muted);
-  margin: 0;
-  line-height: 1.4;
-}
 
 /* ── Tenant chip ──────────────────────────────────────── */
 .ws-tenant-chip {
@@ -576,6 +541,27 @@ body.light-theme .ws-badge-surface {
 }
 
 /* ── Stat cards ─────────────────────────────────────────────────────────── */
+
+/* Row wrapper: cards à esquerda, botão de ação alinhado à direita + base */
+.ws-stats-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 24px;
+}
+
+.ws-stats-row .ws-stats {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.ws-stats-row__action {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 0;
+}
+
 .ws-stats {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -992,4 +978,13 @@ body.light-theme .ws-badge-surface {
   white-space: nowrap;
   pointer-events: none;
   z-index: 50;
+}
+
+/* ── Search input da TabelaEmpresas — placeholder ──────────────────────── */
+input[type="search"]::placeholder {
+  color: #64748b;
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.875rem;
+  font-weight: 400;
+  opacity: 1;
 }

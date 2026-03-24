@@ -7,7 +7,12 @@
  */
 import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
 import ReactDOM from 'react-dom'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, PauseCircle, PlayCircle, PencilSimple, Trash, CaretDown, FileCsv, FileText, FilePdf, FileXls, Code } from '@phosphor-icons/react'
+import {
+  exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF,
+  type ColunasExport,
+} from '../../services/exportService'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -265,12 +270,13 @@ interface ThProps {
   onFiltrarNumero: (campo: 'usuariosMin' | 'usuariosMax', v: string) => void
   onLimparColuna: (col: ColKey) => void
   style?: React.CSSProperties
+  tooltip?: string
 }
 
-function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna, style }: ThProps) {
+function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna, style, tooltip }: ThProps) {
   const [aberto, setAberto] = useState(false)
   const handleFechar = useCallback(() => setAberto(false), [])
-  const triggerRef = useRef<HTMLButtonElement>(null)   // ✅ ref para o botão funil
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const sortAtivo = ordenacao?.coluna === coluna
 
   const valoresDisponiveis = useMemo(() => {
@@ -286,13 +292,21 @@ function ThInner({ label, coluna, tipo, filtros, ordenacao, temFiltroAtivo, dado
     return new Set()
   }, [coluna, filtros])
 
+  const labelSpan = (
+    <span style={{ color: sortAtivo ? '#38bdf8' : undefined, lineHeight: 1, display: 'inline-block', cursor: tooltip ? 'help' : undefined }}>
+      {label}
+    </span>
+  )
+
   return (
-    <th style={{ padding: '0.75rem 1rem', textAlign: 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(56,189,248,0.1)', background: 'rgba(56,189,248,0.04)', position: 'relative', userSelect: 'none', ...style }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: (style as React.CSSProperties)?.textAlign === 'center' ? 'center' : undefined }}>
-        <span style={{ color: sortAtivo ? '#38bdf8' : undefined }}>{label}</span>
-        {/* botão com ref para calcular posição do portal */}
+    <th style={{ padding: '0.75rem 1rem', textAlign: 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(56,189,248,0.1)', background: 'rgba(56,189,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle', ...style }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: (style as React.CSSProperties)?.textAlign === 'center' ? 'center' : 'flex-start' }}>
+        {tooltip
+          ? <TooltipGlobal texto={tooltip} posicao="top" delay={250}>{labelSpan}</TooltipGlobal>
+          : labelSpan
+        }
         <button ref={triggerRef} type="button" onClick={e => { e.stopPropagation(); setAberto(v => !v) }}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 20, height: 20, borderRadius: '5px', background: temFiltroAtivo || aberto ? 'rgba(56,189,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(56,189,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#38bdf8' : '#64748b', transition: 'all 0.12s' }}>
+          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(56,189,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(56,189,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#38bdf8' : '#64748b', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
           <Funnel size={10} weight={temFiltroAtivo ? 'fill' : 'bold'} />
         </button>
       </div>
@@ -473,55 +487,23 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
     return () => document.removeEventListener('mousedown', fora)
   }, [])
 
-  function baixarBlob(conteudo: string, nome: string, tipo: string) {
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(new Blob([conteudo], { type: tipo }))
-    a.download = nome
-    a.click()
-  }
+  // ─── Colunas para exportação ──────────────────────────────────────────────
 
-  function exportCSV() {
-    const header = 'Nome,Subdomínio,Usuários,Status,Criado em'
-    const rows = resultado.map(e => `"${e.nome}","${e.subdominio}.gravity.com.br",${e.usuarios},"${e.status}","${e.criadaEm}"`).join('\n')
-    baixarBlob(header + '\n' + rows, 'empresas.csv', 'text/csv;charset=utf-8;')
-  }
+  const COLUNAS_EXPORT: ColunasExport[] = [
+    { header: 'Nome',        key: 'nome'       },
+    { header: 'Subdomínio',  key: 'subdominio' },
+    { header: 'Usuários',    key: 'usuarios'   },
+    { header: 'Status',      key: 'status'     },
+    { header: 'Criado em',   key: 'criadaEm'   },
+  ]
 
-  function exportTXT() {
-    const header = 'Nome\tSubdomínio\tUsuários\tStatus\tCriado em'
-    const rows = resultado.map(e => `${e.nome}\t${e.subdominio}.gravity.com.br\t${e.usuarios}\t${e.status}\t${e.criadaEm}`).join('\n')
-    baixarBlob(header + '\n' + rows, 'empresas.txt', 'text/plain;charset=utf-8;')
-  }
+  // Adapta o campo subdomínio para exibir com .gravity.com.br
+  const dadosExport = resultado.map(e => ({
+    ...e,
+    subdominio: `${e.subdominio}.gravity.com.br`,
+  })) as unknown as Record<string, unknown>[]
 
-  function exportJSON() {
-    const data = resultado.map(e => ({ nome: e.nome, subdominio: `${e.subdominio}.gravity.com.br`, usuarios: e.usuarios, status: e.status, criadaEm: e.criadaEm }))
-    baixarBlob(JSON.stringify(data, null, 2), 'empresas.json', 'application/json')
-  }
-
-  function exportXML() {
-    const rows = resultado.map(e =>
-      `  <empresa>\n    <nome>${e.nome}</nome>\n    <subdominio>${e.subdominio}.gravity.com.br</subdominio>\n    <usuarios>${e.usuarios}</usuarios>\n    <status>${e.status}</status>\n    <criadaEm>${e.criadaEm}</criadaEm>\n  </empresa>`
-    ).join('\n')
-    baixarBlob(`<?xml version="1.0" encoding="UTF-8"?>\n<empresas>\n${rows}\n</empresas>`, 'empresas.xml', 'application/xml')
-  }
-
-  function exportExcel(ext: string) {
-    // Gera um TSV (tab-separated) renomeado com a extensão escolhida
-    // para abertura nativa no Excel/LibreOffice
-    const header = 'Nome\tSubdomínio\tUsuários\tStatus\tCriado em'
-    const rows = resultado.map(e => `${e.nome}\t${e.subdominio}.gravity.com.br\t${e.usuarios}\t${e.status}\t${e.criadaEm}`).join('\n')
-    const mime = ext === 'ods' ? 'application/vnd.oasis.opendocument.spreadsheet' : 'application/vnd.ms-excel'
-    baixarBlob(header + '\n' + rows, `empresas.${ext}`, mime)
-  }
-
-  function exportPDF() {
-    const win = window.open('', '_blank')
-    if (!win) return
-    const rows = resultado.map(e =>
-      `<tr><td>${e.nome}</td><td>${e.subdominio}.gravity.com.br</td><td style="text-align:center">${e.usuarios}</td><td>${e.status}</td><td>${e.criadaEm}</td></tr>`
-    ).join('')
-    win.document.write(`<!DOCTYPE html><html><head><title>Empresas Filhas</title><style>body{font-family:sans-serif;padding:24px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#1e293b;color:#fff;padding:8px 12px;text-align:left}td{padding:8px 12px;border-bottom:1px solid #e2e8f0}@media print{button{display:none}}</style></head><body><h2>Empresas Filhas</h2><table><thead><tr><th>Nome</th><th>Subdomínio</th><th>Usuários</th><th>Status</th><th>Criado em</th></tr></thead><tbody>${rows}</tbody></table><br/><button onclick="window.print()">🖨️ Imprimir / Salvar PDF</button></body></html>`)
-    win.document.close()
-  }
+  const OPCOES_EXPORT = { nomeArquivo: 'empresas-filhas', titulo: 'Empresas Filhas' }
 
   const thProps = { filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna }
 
@@ -534,14 +516,14 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(56,189,248,0.08)' }}>
         {/* Busca global */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: '0.75rem', color: '#64748b', display: 'flex', lineHeight: 0 }}>
+          <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
             <MagnifyingGlass size={14} weight="bold" />
           </span>
-          <input type="search" placeholder="Localizar em todos os campos…" value={busca}
+          <input type="search" placeholder="Localizar" value={busca}
             onChange={e => { setBusca(e.target.value); setPagina(1) }}
-            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(56,189,248,0.12)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: '#f1f5f9', fontSize: '0.875rem', fontFamily: 'inherit', minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#38bdf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(56,189,248,0.12)' }}
-            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(56,189,248,0.12)'; e.currentTarget.style.boxShadow = 'none' }}
+            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+            onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.18)'; e.currentTarget.style.boxShadow = 'none' }}
           />
         </div>
 
@@ -573,15 +555,15 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
                 onClick={e => e.stopPropagation()}>
 
                 {/* Excel */}
-                <ExportMenuItem label="Excel (.xlsx)" icon={<FileXls size={14} weight="bold" />} onClick={() => { exportExcel('xlsx'); setExportMenuAberto(false) }} />
+                <ExportMenuItem label="Excel (.xlsx)" icon={<FileXls size={14} weight="bold" />} onClick={() => { void exportarExcel(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
 
                 {/* Outros formatos */}
                 <div style={{ borderTop: '1px solid rgba(56,189,248,0.08)', marginTop: '0.25rem', paddingTop: '0.25rem' }}>
-                  <ExportMenuItem label="CSV" icon={<FileCsv size={14} weight="bold" />} onClick={() => { exportCSV(); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="TXT" icon={<FileText size={14} weight="bold" />} onClick={() => { exportTXT(); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="XML" icon={<Code size={14} weight="bold" />} onClick={() => { exportXML(); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="PDF" icon={<FilePdf size={14} weight="bold" />} onClick={() => { exportPDF(); setExportMenuAberto(false) }} />
-                  <ExportMenuItem label="JSON" icon={<Code size={14} weight="bold" />} onClick={() => { exportJSON(); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="CSV" icon={<FileCsv size={14} weight="bold" />} onClick={() => { exportarCSV(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="TXT" icon={<FileText size={14} weight="bold" />} onClick={() => { exportarTXT(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="XML" icon={<Code size={14} weight="bold" />} onClick={() => { exportarXML(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="PDF" icon={<FilePdf size={14} weight="bold" />} onClick={() => { exportarPDF(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
+                  <ExportMenuItem label="JSON" icon={<Code size={14} weight="bold" />} onClick={() => { exportarJSON(dadosExport, COLUNAS_EXPORT, OPCOES_EXPORT); setExportMenuAberto(false) }} />
                 </div>
               </div>
             )}
@@ -610,7 +592,7 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
               <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)' }}>
                 <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
-              <Th label="Filial" coluna="nome" tipo="texto" temFiltroAtivo={temFiltro('nome')} {...thProps} />
+              <Th label="Filial" coluna="nome" tipo="texto" temFiltroAtivo={temFiltro('nome')} tooltip="Empresa filha vinculada ao tenant" {...thProps} />
               <Th label="Subdomínio" coluna="subdominio" tipo="texto" temFiltroAtivo={temFiltro('subdominio')} {...thProps} />
               <Th label="Usuários" coluna="usuarios" tipo="numero" temFiltroAtivo={temFiltro('usuarios')} {...thProps} style={{ textAlign: 'center' }} />
               <Th label="Status" coluna="status" tipo="texto" temFiltroAtivo={temFiltro('status')} {...thProps} />

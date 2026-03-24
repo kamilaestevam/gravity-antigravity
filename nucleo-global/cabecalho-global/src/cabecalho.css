@@ -1,0 +1,84 @@
+/* cabecalho.css — CabecalhoGlobal · Gravity Design System
+   Tokens esperados no host:
+     --cg-text        (padrão: #f1f5f9)
+     --cg-muted       (padrão: #94a3b8)
+     --cg-accent      (padrão: #818cf8)
+     --cg-bg          (padrão: transparent — herda do layout)
+     --font           (padrão: system-ui)
+*/
+
+/* ── Fallbacks de tokens (caso o host não os defina) ─────────────────── */
+.cg-header {
+  --cg-text:   var(--ws-text,   var(--color-text,   #f1f5f9));
+  --cg-muted:  var(--ws-muted,  var(--color-text-muted, #94a3b8));
+  --cg-accent: var(--ws-accent, var(--color-primary, #818cf8));
+  --cg-bg:     var(--ws-bg-body, transparent);
+}
+
+/* ── Container principal ─────────────────────────────────────────────── */
+.cg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  /* Compensa o padding do ws-content pai (24px topo, 2rem laterais)
+     para que o cabeçalho fique colado ao topo e alinhado com a tabela */
+  margin: -24px -2rem 0 -2rem;
+  padding: 0 2rem;
+  height: 74px;
+  min-height: 74px;
+  background: var(--cg-bg);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  font-family: var(--font, system-ui);
+}
+
+/* ── Bloco título + subtítulo ────────────────────────────────────────── */
+.cg-header__title-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.125rem;
+}
+
+/* Linha do ícone + h1 */
+.cg-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Ícone */
+.cg-header__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--cg-accent);
+}
+
+/* H1 */
+.cg-header__title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--cg-text);
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Subtítulo — alinhado com o ícone (mesma borda esquerda) */
+.cg-header__subtitle {
+  font-size: 0.875rem;
+  color: var(--cg-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Slot de ações (direita) ─────────────────────────────────────────── */
+.cg-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}

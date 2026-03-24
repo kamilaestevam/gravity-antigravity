@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Buildings, Plus, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaEmpresas, type Empresa } from './TabelaEmpresas'
 
 const mockEmpresas: Empresa[] = [
@@ -67,40 +68,37 @@ export function Empresas() {
 
   return (
     <div className="ws-fade-up">
-      {/* Header — sticky, alinhado ao topo junto com o logo do sidebar */}
-      <div className="ws-page-header">
-        <div className="ws-page-header__title-block">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Buildings weight="duotone" size={22} style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
-            <h1 className="ws-page-header__title">Empresas Filhas</h1>
-          </div>
-          <p className="ws-page-header__subtitle">
-            Gerencie as empresas filhas do seu tenant Gravity.
-          </p>
-        </div>
-        <BotaoGlobal
-          variante={showForm ? 'fantasma' : 'primario'}
-          icone={showForm ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
-          onClick={() => setShowForm(v => !v)}
-        >
-          {showForm ? 'Cancelar' : 'Nova Empresa Filha'}
-        </BotaoGlobal>
-      </div>
+      <CabecalhoGlobal
+        icone={<Buildings weight="duotone" size={22} />}
+        titulo="Empresas Filhas"
+        subtitulo="Gerencie as empresas filhas do seu tenant Gravity."
+      />
 
-      {/* Stat cards */}
-      <div className="ws-stats ws-fade-up ws-fade-up-d1">
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">Total de Filhas</p>
-          <p className="ws-stat-value">{empresas.length}</p>
+      {/* Stat cards + action row */}
+      <div className="ws-stats-row ws-fade-up ws-fade-up-d1">
+        <div className="ws-stats">
+          <div className="ws-stat-card">
+            <p className="ws-stat-label">Total de Filhas</p>
+            <p className="ws-stat-value">{empresas.length}</p>
+          </div>
+          <div className="ws-stat-card">
+            <p className="ws-stat-label">Filhas Ativas</p>
+            <p className="ws-stat-value" style={{ color: '#34d399' }}>{ativas}</p>
+          </div>
+          <div className="ws-stat-card">
+            <p className="ws-stat-label">Limite do Plano</p>
+            <p className="ws-stat-value">{empresas.length}<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--ws-muted)' }}>/{limite}</span></p>
+            <p className="ws-stat-sub">{limite - empresas.length} slots disponíveis</p>
+          </div>
         </div>
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">Filhas Ativas</p>
-          <p className="ws-stat-value" style={{ color: '#34d399' }}>{ativas}</p>
-        </div>
-        <div className="ws-stat-card">
-          <p className="ws-stat-label">Limite do Plano</p>
-          <p className="ws-stat-value">{empresas.length}<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--ws-muted)' }}>/{limite}</span></p>
-          <p className="ws-stat-sub">{limite - empresas.length} slots disponíveis</p>
+        <div className="ws-stats-row__action">
+          <BotaoGlobal
+            variante={showForm ? 'fantasma' : 'primario'}
+            icone={showForm ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
+            onClick={() => setShowForm(v => !v)}
+          >
+            {showForm ? 'Cancelar' : 'Nova Empresa Filha'}
+          </BotaoGlobal>
         </div>
       </div>
 

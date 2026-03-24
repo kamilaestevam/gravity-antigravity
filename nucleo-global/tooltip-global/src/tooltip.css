@@ -1,0 +1,102 @@
+/* ── tooltip-global.css ──────────────────────────────────────────────────────
+   Estilos do TooltipGlobal — Design System Gravity.
+   Usa variáveis CSS do workspace para manter consistência de tema.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@keyframes tg-fade-in {
+  from { opacity: 0; transform: var(--tg-enter-transform); }
+  to   { opacity: 1; transform: var(--tg-end-transform); }
+}
+
+/* ── Balão ─────────────────────────────────────────────────────────────────── */
+.tg-balao {
+  position: absolute;
+  z-index: 99999;
+  pointer-events: none;
+
+  background: #0f172a;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: #94a3b8;
+
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(56, 189, 248, 0.06);
+
+  /* animação */
+  animation: tg-fade-in 0.15s ease forwards;
+}
+
+/* ── Seta ───────────────────────────────────────────────────────────────────── */
+.tg-balao::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #0f172a;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  transform: rotate(45deg);
+}
+
+/* ── Posições ────────────────────────────────────────────────────────────────
+   As variáveis de transform são usadas pela animação de entrada.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* TOP */
+.tg-balao[data-pos="top"] {
+  --tg-enter-transform: translate(-50%, 4px);
+  --tg-end-transform:   translate(-50%, 0);
+  transform-origin: bottom center;
+}
+.tg-balao[data-pos="top"]::after {
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  border-top: none;
+  border-left: none;
+}
+
+/* BOTTOM */
+.tg-balao[data-pos="bottom"] {
+  --tg-enter-transform: translate(-50%, -4px);
+  --tg-end-transform:   translate(-50%, 0);
+  transform-origin: top center;
+}
+.tg-balao[data-pos="bottom"]::after {
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  border-bottom: none;
+  border-right: none;
+}
+
+/* LEFT */
+.tg-balao[data-pos="left"] {
+  --tg-enter-transform: translateY(-50%) translateX(4px);
+  --tg-end-transform:   translateY(-50%) translateX(0);
+}
+.tg-balao[data-pos="left"]::after {
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border-top: none;
+  border-left: none;
+}
+
+/* RIGHT */
+.tg-balao[data-pos="right"] {
+  --tg-enter-transform: translateY(-50%) translateX(-4px);
+  --tg-end-transform:   translateY(-50%) translateX(0);
+}
+.tg-balao[data-pos="right"]::after {
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border-bottom: none;
+  border-right: none;
+}

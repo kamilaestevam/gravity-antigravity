@@ -11,6 +11,10 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/botao-global/src/index.ts'
       ),
+      '@nucleo/cabecalho-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/cabecalho-global/src/index.ts'
+      ),
       '@nucleo/tabela-global': path.resolve(
         __dirname,
         '../../nucleo-global/tabela-global/src/index.ts'
@@ -18,6 +22,10 @@ export default defineConfig({
       '@nucleo/utils': path.resolve(
         __dirname,
         '../../nucleo-global/utils/src/index.ts'
+      ),
+      '@nucleo/tooltip-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/tooltip-global/src/index.ts'
       ),
     },
   },

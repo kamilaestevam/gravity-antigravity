@@ -1,6 +1,6 @@
 /**
- * @nucleo/acoes-formulario-global — tipos
- * Props dos componentes BotaoSalvar, BotaoCancelar e AcoesFormulario.
+ * @nucleo/botoes-salvar-global — tipos
+ * Props dos componentes BotaoSalvar, BotaoCancelar e BotoesSalvarGlobal.
  */
 
 export interface BotaoSalvarProps {
@@ -27,7 +27,7 @@ export interface BotaoCancelarProps {
   type?: 'button' | 'reset'
 }
 
-export interface AcoesFormularioProps {
+export interface BotoesSalvarGlobalProps {
   /** Há alterações pendentes? Controla enable/disable dos dois botões */
   dirty?: boolean
   /** Loading do save */

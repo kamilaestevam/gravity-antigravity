@@ -1,6 +1,6 @@
 /**
- * AcoesFormulario — Barra de ações Salvar / Cancelar
- * @nucleo/acoes-formulario-global
+ * BotoesSalvarGlobal — Barra de ações Salvar / Cancelar
+ * @nucleo/botoes-salvar-global
  *
  * Aparece automaticamente quando dirty=true.
  * Desaparece (com animação) quando dirty=false.
@@ -8,7 +8,7 @@
  * @example
  * const { dirty, resetDirty } = useDirty(dadosIniciais, dados)
  *
- * <AcoesFormulario
+ * <BotoesSalvarGlobal
  *   dirty={dirty}
  *   salvando={salvando}
  *   onSalvar={async () => { await salvar(dados); resetDirty(dados) }}
@@ -17,10 +17,10 @@
  */
 
 import React from 'react'
-import { FloppyDisk, X, Circle } from '@phosphor-icons/react'
+import { FloppyDisk, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import type { AcoesFormularioProps, BotaoSalvarProps, BotaoCancelarProps } from './tipos.js'
-import './acoes-formulario.css'
+import type { BotoesSalvarGlobalProps, BotaoSalvarProps, BotaoCancelarProps } from './tipos.js'
+import './botoes-salvar.css'
 
 // ── BotaoSalvar ────────────────────────────────────────────────────────────
 
@@ -66,30 +66,29 @@ export const BotaoCancelar = React.forwardRef<HTMLButtonElement, BotaoCancelarPr
   },
 )
 
-// ── AcoesFormulario (composto) ─────────────────────────────────────────────
+// ── BotoesSalvarGlobal (composto) ─────────────────────────────────────────────
 
-export function AcoesFormulario({
+export function BotoesSalvarGlobal({
   dirty = false,
   salvando = false,
   onSalvar,
   onCancelar,
   alinhamento = 'direita',
-}: AcoesFormularioProps) {
+}: BotoesSalvarGlobalProps) {
   return (
     <div
       className={[
-        'af-barra',
-        `af-barra--${alinhamento}`,
-        dirty ? 'af-barra--visivel' : '',
+        'bs-barra',
+        `bs-barra--${alinhamento}`,
+        dirty ? 'bs-barra--dirty' : '',
       ]
         .filter(Boolean)
         .join(' ')}
-      aria-hidden={!dirty}
     >
       {/* Hint à esquerda (apenas quando direita/centro) */}
       {alinhamento !== 'esquerda' && (
-        <span className="af-hint">
-          <span className="af-hint__dot" />
+        <span className="bs-hint">
+          <span className="bs-hint__dot" />
           Alterações não salvas
         </span>
       )}

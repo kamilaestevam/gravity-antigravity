@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { CreditCard, X, ArrowUp, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, ArrowsClockwise } from '@phosphor-icons/react'
+import { CreditCard, X, ArrowUp, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
@@ -137,7 +137,7 @@ export function Assinaturas() {
   const ACOES: TabelaGlobalAcao<Produto>[] = [
     {
       id: 'suspend',
-      icone: <ArrowsClockwise size={15} weight="bold" />,
+      icone: <PauseCircle size={16} weight="bold" />,
       tooltip: 'Suspender / Reativar',
       onClick: handleSuspend,
       renderCustom: (item) => (
@@ -153,7 +153,7 @@ export function Assinaturas() {
           }}
           onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
         >
-          <ArrowsClockwise size={15} weight="bold" />
+          {item.status === 'Suspenso' ? <PlayCircle size={16} weight="bold" /> : <PauseCircle size={16} weight="bold" />}
         </button>
       )
     },

@@ -15,7 +15,8 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { SelectGlobal } from '@nucleo/select-global'
 import type { SelectOpcao } from '@nucleo/select-global'
-import { AcoesFormulario, useDirty } from '@nucleo/acoes-formulario-global'
+import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 // ── Mock — substituir por contexto real de tenant ──────────────────────────
 const EMPRESAS_FILHAS_MOCK = [
@@ -178,10 +179,14 @@ export function EmpresaMae() {
         <div className="em-identity__hero">
           <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
           <div className="em-identity__text">
-            <p className="em-identity__badge">Empresa Mãe</p>
+            <TooltipGlobal titulo="Tipo de Conta" descricao="Conta administradora de onde derivam todas as empresas filhas.">
+              <span className="em-identity__badge" style={{ cursor: 'help' }}>Empresa Mãe</span>
+            </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
-              <span className="em-tag">{dados.plano}</span>
+              <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso, usuários e funcionalidades disponíveis.">
+                <span className="em-tag" style={{ cursor: 'help' }}>{dados.plano}</span>
+              </TooltipGlobal>
               <span className="em-identity__sep">·</span>
               {dados.subdominio}.gravity.com.br
             </p>
@@ -197,7 +202,11 @@ export function EmpresaMae() {
         </p>
         <div className="em-grid">
           <div className="ws-field">
-            <label>Nome da Empresa *</label>
+            <label>
+              <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social completa, conforme constante no CNPJ.">
+                <span>Nome da Empresa *</span>
+              </TooltipGlobal>
+            </label>
             <div className="ws-input-icon-wrap">
               <Buildings size={16} />
               <input
@@ -208,7 +217,11 @@ export function EmpresaMae() {
             </div>
           </div>
           <div className="ws-field">
-            <label>CNPJ</label>
+            <label>
+              <TooltipGlobal titulo="CNPJ" descricao="Cadastro Nacional da Pessoa Jurídica. Utilizado para emissão de documentos fiscais.">
+                <span>CNPJ</span>
+              </TooltipGlobal>
+            </label>
             <div className="ws-input-icon-wrap">
               <IdentificationCard size={16} />
               <input
@@ -220,22 +233,29 @@ export function EmpresaMae() {
           </div>
         </div>
         <div className="em-grid em-grid--4">
-          {/* Estado */}
           <div className="ws-field">
-            <label>Estado</label>
+            <label>
+              <TooltipGlobal titulo="Estado" descricao="Estado da sede principal da empresa. Afeta cálculos fiscais e localidade padrão.">
+                <span>Estado</span>
+              </TooltipGlobal>
+            </label>
             <SelectGlobal
               opcoes={OPCOES_ESTADOS}
               valor={dados.estado}
               aoMudarValor={v => {
                 set('estado', String(v ?? ''))
-                set('cidade', '') // Limpa a cidade ao mudar de estado
+                set('cidade', '')
               }}
               placeholder="Selecione..."
               buscavel
             />
           </div>
           <div className="ws-field">
-            <label>Cidade</label>
+            <label>
+              <TooltipGlobal titulo="Cidade" descricao="Município sede. Carregado via API do IBGE com base no estado selecionado.">
+                <span>Cidade</span>
+              </TooltipGlobal>
+            </label>
             <SelectGlobal
               opcoes={cidades}
               valor={dados.cidade || null}
@@ -247,7 +267,11 @@ export function EmpresaMae() {
             />
           </div>
           <div className="ws-field">
-            <label>Segmento</label>
+            <label>
+              <TooltipGlobal titulo="Segmento" descricao="Setor econômico de atuação. Utilizado para personalização de relatórios e categorização na plataforma.">
+                <span>Segmento</span>
+              </TooltipGlobal>
+            </label>
             <SelectGlobal
               opcoes={OPCOES_SEGMENTOS}
               valor={dados.segmento}
@@ -257,7 +281,11 @@ export function EmpresaMae() {
             />
           </div>
           <div className="ws-field">
-            <label>Site</label>
+            <label>
+              <TooltipGlobal titulo="Site" descricao="URL pública da empresa. Exibida no perfil e nos documentos gerados pela plataforma.">
+                <span>Site</span>
+              </TooltipGlobal>
+            </label>
             <div className="ws-input-icon-wrap">
               <Globe size={16} />
               <input
@@ -270,12 +298,6 @@ export function EmpresaMae() {
         </div>
       </div>
 
-      {/* ── Barra Salvar / Cancelar (aparece com alterações) ──────────────── */}
-      <AcoesFormulario
-        dirty={dirty}
-        onSalvar={handleSalvar}
-        onCancelar={handleCancelar}
-      />
 
       {/* ── Dados do Plano ────────────────────────────────────────────────── */}
       <div className="em-section ws-fade-up ws-fade-up-d2">
@@ -293,20 +315,36 @@ export function EmpresaMae() {
           </div>
           <div className="em-plan-meta">
             <div className="em-plan-meta-item">
-              <Globe size={14} weight="duotone" />
-              <span>{dados.subdominio}.gravity.com.br</span>
+              <TooltipGlobal titulo="Subdomínio" descricao="Endereço exclusivo desta conta na plataforma Gravity. Não pode ser alterado após a criação.">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <Globe size={14} weight="duotone" />
+                  <span>{dados.subdominio}.gravity.com.br</span>
+                </span>
+              </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <CalendarBlank size={14} weight="duotone" />
-              <span>Cliente desde {dados.criadaEm}</span>
+              <TooltipGlobal titulo="Data de Início" descricao="Data em que a conta foi criada na plataforma. Utilizada no cálculo de aniversidade do contrato.">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <CalendarBlank size={14} weight="duotone" />
+                  <span>Cliente desde {dados.criadaEm}</span>
+                </span>
+              </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <MapPin size={14} weight="duotone" />
-              <span>{dados.cidade}{dados.estado ? `, ${dados.estado}` : ''}</span>
+              <TooltipGlobal titulo="Localização" descricao="Cidade e estado da sede principal. Define fuso horário e timezone padrão para agendamentos.">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <MapPin size={14} weight="duotone" />
+                  <span>{dados.cidade}{dados.estado ? `, ${dados.estado}` : ''}</span>
+                </span>
+              </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <IdentificationCard size={14} weight="duotone" />
-              <span>{dados.cnpj}</span>
+              <TooltipGlobal titulo="CNPJ" descricao="Número do Cadastro Nacional da Pessoa Jurídica. Exibido em documentos e notas emitidas pela plataforma.">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <IdentificationCard size={14} weight="duotone" />
+                  <span>{dados.cnpj}</span>
+                </span>
+              </TooltipGlobal>
             </div>
           </div>
         </div>
@@ -326,7 +364,11 @@ export function EmpresaMae() {
 
         <div className="em-filha-select-row">
           <div className="ws-field" style={{ flex: 1, overflow: 'visible' }}>
-            <label>Empresa filha ativa</label>
+            <label>
+              <TooltipGlobal titulo="Empresa Filha Ativa" descricao="Define qual empresa filha é o contexto operacional da sua sessão. Afeta dados, relatórios e filtros exibidos na plataforma.">
+                <span>Empresa filha ativa</span>
+              </TooltipGlobal>
+            </label>
             <SelectGlobal
               opcoes={OPCOES_FILHAS}
               valor={filhaAtivaId || null}
@@ -336,15 +378,17 @@ export function EmpresaMae() {
             />
           </div>
           <div style={{ paddingTop: '1.375rem' }}>
-            <BotaoGlobal
-              variante="primario"
-              disabled={!filhaAtivaId}
-              onClick={handleAplicarSelecao}
-            >
-              {filhaSalva
-                ? <><FloppyDisk size={15} weight="bold" /> Salvo!</>
-                : <><CheckCircle size={15} weight="bold" /> Aplicar seleção</>}
-            </BotaoGlobal>
+            <TooltipGlobal titulo="Aplicar Empresa Filha" descricao="Você precisará atualizar ou recarregar as páginas abertas para que o contexto entre em vigor.">
+              <BotaoGlobal
+                variante="primario"
+                disabled={!filhaAtivaId}
+                onClick={handleAplicarSelecao}
+              >
+                {filhaSalva
+                  ? <><FloppyDisk size={15} weight="bold" /> Salvo!</>
+                  : <><CheckCircle size={15} weight="bold" /> Aplicar seleção</>}
+              </BotaoGlobal>
+            </TooltipGlobal>
           </div>
         </div>
 
@@ -360,6 +404,14 @@ export function EmpresaMae() {
           </div>
         )}
       </div>
+
+      {/* ── Salvar / Cancelar ──────────────────────────────────────────────── */}
+      <BotoesSalvarGlobal
+        dirty={dirty}
+        onSalvar={handleSalvar}
+        onCancelar={handleCancelar}
+        alinhamento="direita"
+      />
     </div>
   )
 }

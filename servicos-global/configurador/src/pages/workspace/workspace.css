@@ -131,6 +131,7 @@ body.light-theme [data-tooltip]:hover::after {
   }
 }
 
+
 .ws-fade-up {
   animation: ws-fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   opacity: 0;
@@ -627,6 +628,7 @@ body.light-theme [data-tooltip]:hover::after {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem;
   margin-bottom: 24px;
+  overflow: visible; /* permite que tooltips dos cards escapem */
 }
 
 .ws-stat-card {
@@ -703,7 +705,7 @@ body.light-theme [data-tooltip]:hover::after {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ws-muted);
-  line-height: 1.2;
+  line-height: 1;
   margin: 0;
 }
 
@@ -826,6 +828,13 @@ body.light-theme [data-tooltip]:hover::after {
   letter-spacing: 0.06em;
   color: var(--ws-muted);
   margin: 0;
+  line-height: 1;
+}
+
+/* Quando standalone (seção abaixo do header) recebe respiro abaixo */
+.ws-mini-dash__tooltip-row + .ws-mini-dash__tooltip-title,
+.ws-mini-dash__tooltip-divider + .ws-mini-dash__tooltip-title {
+  margin-bottom: 0.5rem;
 }
 
 .ws-mini-dash__tooltip-row {

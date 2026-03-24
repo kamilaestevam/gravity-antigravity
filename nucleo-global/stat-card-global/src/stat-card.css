@@ -75,7 +75,7 @@
   letter-spacing: 0.06em;
   color: var(--ws-muted, #94a3b8);
   margin: 0;
-  line-height: 1.2;
+  line-height: 1;
 }
 
 .scg-card__body {
@@ -198,7 +198,14 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ws-muted, #94a3b8);
-  margin: 0 0 0.5rem; /* 8px abaixo — respiro entre label e rows */
+  margin: 0 0 0.5rem;
+  line-height: 1;
+}
+
+/* Quando dentro do header flex não deve ter margem nem interferir no alinhamento */
+.scg-tooltip__header .scg-tooltip__title {
+  margin: 0;
+  line-height: 1;
 }
 
 .scg-tooltip__row {

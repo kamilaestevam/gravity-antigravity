@@ -25,7 +25,8 @@
     "../../nucleo-global/botao-global/src/**/*",
     "../../nucleo-global/tabela-global/src/**/*",
     "../../nucleo-global/utils/src/**/*",
-    "../../nucleo-global/stat-card-global/src/**/*"
+    "../../nucleo-global/stat-card-global/src/**/*",
+    "../../nucleo-global/card-global/src/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

@@ -20,15 +20,15 @@ export interface BotaoNovoProps {
  * BotaoNovoGlobal — Botão de ação primária para criação de registros.
  *
  * Composição: usa BotaoGlobal internamente. O CSS deste componente cuida
- * apenas do posicionamento absolute (bottom-right do contêiner relativo).
- *
- * Use dentro de um elemento com `position: relative` que envolva a tabela.
+ * do seu comportamento em linha (inline-flex). O posicionamento visual 
+ * real depende do contêiner pai (ex: slot acoes do CabecalhoGlobal ou
+ * uma flex action row num painel).
  *
  * @example
- * <div style={{ position: 'relative' }}>
- *   <TabelaEmpresas ... />
- *   <BotaoNovoGlobal rotulo="Nova Empresa Filha" onClick={toggle} ativo={showForm} />
- * </div>
+ *   <CabecalhoGlobal
+ *     titulo="Exemplo"
+ *     acoes={<BotaoNovoGlobal rotulo="Novo" onClick={toggle} ativo={showForm} />}
+ *   />
  */
 export function BotaoNovoGlobal({
   rotulo,

@@ -2,6 +2,16 @@
  * @nucleo/tooltip-global — tooltip.tsx
  * Tooltip unificada: renderiza card minimalista com título descritivo via portal.
  * Use position:fixed calculada no onMouseEnter = zero flash.
+ *
+ * ⚠️  ANTES DE ESCREVER QUALQUER titulo OU descricao:
+ *     Leia obrigatoriamente a skill de escrita de tooltips:
+ *     skills/ux/tooltip/SKILL.md
+ *
+ *     Regras principais:
+ *     - Sem ponto final na descricao
+ *     - Linguagem do usuário — nunca mencione implementação técnica
+ *     - Máximo ~90 caracteres na descricao
+ *     - descricao responde: "o que esse campo faz pela minha empresa?"
  */
 import React, { useState, useRef } from 'react'
 import ReactDOM from 'react-dom'

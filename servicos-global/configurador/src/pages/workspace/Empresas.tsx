@@ -3,7 +3,7 @@ import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, F
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { StatCardGlobal } from '@nucleo/stat-card-global'
+import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
@@ -51,73 +51,6 @@ const mockEmpresas: Empresa[] = [
   { id: '30', nome: 'Atlas Logística Global',  subdominio: 'atlas-global',   usuarios: 19, status: 'Ativa',    criadaEm: '23/03/2025' },
 ]
 
-function slugify(v: string) {
-  return v.toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/--+/g, '-')
-}
-
-function MiniDashSaude({ total, ativas, suspensas }: { total: number, ativas: number, suspensas: number }) {
-  const pctAtivas = total > 0 ? Math.round((ativas / total) * 100) : 0
-  const dashArray = `${pctAtivas}, 100`
-
-  return (
-    <div className="ws-mini-dash">
-      <div className="ws-mini-dash__header">
-        <ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8', flexShrink: 0 }} />
-        <p className="ws-mini-dash__title">Status das Filhas</p>
-      </div>
-      <div className="ws-mini-dash__body">
-        <div className="ws-mini-dash__gauge-container">
-          <svg viewBox="0 0 36 36" width="48" height="48">
-            <path
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              fill="none" stroke="rgba(129, 140, 248, 0.12)" strokeWidth="3.5"
-            />
-            <path
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              fill="none" stroke="#34d399" strokeWidth="3.5"
-              strokeDasharray={dashArray} strokeLinecap="round"
-            />
-          </svg>
-          <div className="ws-mini-dash__gauge-val">
-            <span className="ws-mini-dash__gauge-num">{pctAtivas}</span>
-            <span className="ws-mini-dash__gauge-pct">%</span>
-          </div>
-        </div>
-        <div className="ws-mini-dash__legend">
-          <div className="ws-mini-dash__leg-item"><span className="dot green" /> Ativas ({ativas})</div>
-          <div className="ws-mini-dash__leg-item"><span className="dot yellow" /> Suspensas ({suspensas})</div>
-        </div>
-      </div>
-
-      {/* Tooltip de detalhe ao hover */}
-      <div className="ws-mini-dash__tooltip">
-        <div className="ws-mini-dash__tooltip-header">
-          <ChartPieSlice weight="duotone" size={14} style={{ color: '#818cf8', flexShrink: 0 }} />
-          <p className="ws-mini-dash__tooltip-title">Status das Filhas</p>
-        </div>
-        <div className="ws-mini-dash__tooltip-row">
-          <span className="dot green" />
-          <span>Ativas</span>
-          <strong>{ativas}</strong>
-        </div>
-        <div className="ws-mini-dash__tooltip-row">
-          <span className="dot yellow" />
-          <span>Suspensas</span>
-          <strong>{suspensas}</strong>
-        </div>
-        <div className="ws-mini-dash__tooltip-divider" />
-        <div className="ws-mini-dash__tooltip-row">
-          <span style={{ color: 'var(--ws-muted)' }}>Total</span>
-          <strong>{total}</strong>
-        </div>
-        <div className="ws-mini-dash__tooltip-row">
-          <span style={{ color: 'var(--ws-muted)' }}>Taxa de atividade</span>
-          <strong style={{ color: '#34d399' }}>{pctAtivas}%</strong>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 export function Empresas() {
   const [empresas, setEmpresas]    = useState<Empresa[]>(mockEmpresas)
@@ -129,6 +62,10 @@ export function Empresas() {
   const ativas = empresas.filter(e => e.status === 'Ativa').length
   const suspensas = empresas.filter(e => e.status === 'Suspensa').length
   const limite = 50
+
+  function slugify(v: string) {
+    return v.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+  }
 
   function handleSubChange(v: string) {
     const cleaned = slugify(v)
@@ -282,74 +219,89 @@ export function Empresas() {
 
       <div className="ws-stats-row">
         <div className="ws-stats">
-          <StatCardGlobal
+          <CardBasicoGlobal
             titulo="Total de Filhas"
             icone={<TreeStructure weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={empresas.length}
-            tendencia={{ valor: "0%", direcao: "neutral" }}
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '+1',  direcao: 'up',     descricao: 'vs semana anterior' },
+              { periodo: '30d', rotulo: '30 dias', valor: '+3',  direcao: 'up',     descricao: 'vs mês anterior'    },
+              { periodo: '6m',  rotulo: '6 meses', valor: '+12', direcao: 'up',     descricao: 'vs semestre anterior'},
+              { periodo: '1a',  rotulo: '1 ano',   valor: '+30', direcao: 'up',     descricao: 'vs ano anterior'    },
+            ] as PeriodoTendencia[]}
             tooltip={
               <>
-                <p className="scg-tooltip__title">Visão Geral</p>
-                <div className="scg-tooltip__row">
+                <p className="cg-tooltip__title">Visão Geral</p>
+                <div className="cg-tooltip__row">
                   <span>Total cadastradas</span>
                   <strong>{empresas.length}</strong>
                 </div>
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__row">
                   <span>Adicionadas hoje</span>
                   <strong>0</strong>
                 </div>
               </>
             }
           />
-          <StatCardGlobal
+          <CardBasicoGlobal
             titulo="Filhas Ativas"
             icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
             valor={ativas}
             variante="sucesso"
-            tendencia={{ valor: "+2", direcao: "up" }}
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '+1',  direcao: 'up',     descricao: 'vs semana anterior' },
+              { periodo: '30d', rotulo: '30 dias', valor: '+2',  direcao: 'up',     descricao: 'vs mês anterior'    },
+              { periodo: '6m',  rotulo: '6 meses', valor: '+8',  direcao: 'up',     descricao: 'vs semestre anterior'},
+              { periodo: '1a',  rotulo: '1 ano',   valor: '-1',  direcao: 'down',   descricao: 'vs ano anterior'    },
+            ] as PeriodoTendencia[]}
             tooltip={
               <>
-                <p className="scg-tooltip__title">Atividade</p>
-                <div className="scg-tooltip__row">
+                <p className="cg-tooltip__title">Atividade</p>
+                <div className="cg-tooltip__row">
                   <span>Ativas</span>
                   <strong style={{ color: '#34d399' }}>{ativas}</strong>
                 </div>
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__row">
                   <span>Suspensas</span>
                   <strong style={{ color: '#f87171' }}>{suspensas}</strong>
                 </div>
-                <div className="scg-tooltip__divider" />
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
                   <span>Taxa de atividade</span>
                   <strong style={{ color: '#34d399' }}>{empresas.length ? Math.round(ativas / empresas.length * 100) : 0}%</strong>
                 </div>
               </>
             }
           />
-          <StatCardGlobal
+          <CardBasicoGlobal
             titulo="Limite do Plano"
             icone={<Gauge weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
             valor={empresas.length}
             subtexto={`${limite - empresas.length} slots disponíveis`}
-            tendencia={{ valor: `/${limite}`, direcao: 'neutral' }}
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '+1',  direcao: 'up',     descricao: 'vs semana anterior' },
+              { periodo: '30d', rotulo: '30 dias', valor: '+3',  direcao: 'up',     descricao: 'vs mês anterior'    },
+              { periodo: '6m',  rotulo: '6 meses', valor: '+12', direcao: 'up',     descricao: 'vs semestre anterior'},
+              { periodo: '1a',  rotulo: '1 ano',   valor: '+30', direcao: 'up',     descricao: 'vs ano anterior'    },
+            ] as PeriodoTendencia[]}
             variante="aviso"
             tooltip={
               <>
-                <p className="scg-tooltip__title">Plano Enterprise</p>
-                <div className="scg-tooltip__row">
-                  <span>Limit total</span>
+                <p className="cg-tooltip__title">Plano Enterprise</p>
+                <div className="cg-tooltip__row">
+                  <span>Limite total</span>
                   <strong>{limite}</strong>
                 </div>
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__row">
                   <span>Utilizados</span>
                   <strong style={{ color: '#fbbf24' }}>{empresas.length}</strong>
                 </div>
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__row">
                   <span>Disponíveis</span>
                   <strong style={{ color: '#34d399' }}>{limite - empresas.length}</strong>
                 </div>
-                <div className="scg-tooltip__divider" />
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
                   <span>Uso</span>
                   <strong style={{ color: empresas.length / limite > 0.8 ? '#f87171' : '#fbbf24' }}>
                     {Math.round(empresas.length / limite * 100)}%
@@ -358,7 +310,38 @@ export function Empresas() {
               </>
             }
           />
-          <MiniDashSaude total={empresas.length} ativas={ativas} suspensas={suspensas} />
+          <CardGraficoGlobal
+            titulo="Status das Filhas"
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
+            total={empresas.length}
+            valorPrincipal={ativas}
+            corGauge="#34d399"
+            legenda={[
+              { label: 'Ativas',    valor: ativas,    cor: 'green'  },
+              { label: 'Suspensas', valor: suspensas, cor: 'yellow' },
+            ]}
+            tooltip={
+              <>
+                <div className="cg-tooltip__row">
+                  <span>Ativas</span>
+                  <strong style={{ color: '#34d399' }}>{ativas}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Suspensas</span>
+                  <strong style={{ color: '#fbbf24' }}>{suspensas}</strong>
+                </div>
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>Total</span>
+                  <strong>{empresas.length}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Taxa de atividade</span>
+                  <strong style={{ color: '#34d399' }}>{empresas.length ? Math.round(ativas / empresas.length * 100) : 0}%</strong>
+                </div>
+              </>
+            }
+          />
         </div>
 
         <div className="ws-stats-row__action">

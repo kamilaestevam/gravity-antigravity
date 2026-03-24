@@ -3,6 +3,9 @@ import { Receipt, DownloadSimple, CalendarBlank } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/stat-card-global'
 
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+
 type FaturaStatus = 'Pago' | 'Pendente' | 'Atrasado'
 
 type Fatura = {
@@ -41,6 +44,43 @@ export function Financeiro() {
     alert(`Download de ${tipo} ${num} — funcionalidade disponível quando o backend estiver conectado.`)
   }
 
+  const COLUNAS: TabelaGlobalColuna<Fatura>[] = [
+    {
+      key: 'num', label: '#', tipo: 'texto', align: 'center',
+      tooltipTitulo: 'Número da Fatura', tooltipDescricao: 'Identificador único.',
+      render: (v) => <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>{v}</code>
+    },
+    {
+      key: 'competencia', label: 'Competência', tipo: 'texto',
+      tooltipTitulo: 'Mês/Ano', tooltipDescricao: 'Período de faturamento da fatura.',
+      render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
+    },
+    {
+      key: 'descricao', label: 'Descrição', tipo: 'texto',
+      tooltipTitulo: 'Serviços Cobrados', tooltipDescricao: 'Resumo dos produtos em uso.',
+      render: (v) => <span style={{ color: 'var(--ws-muted)', maxWidth: '260px', display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v}</span>
+    },
+    {
+      key: 'valor', label: 'Valor', tipo: 'texto',
+      tooltipTitulo: 'Valor a Pagar', tooltipDescricao: 'Soma dos itens, em Reais.',
+      render: (v) => <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{v}</span>
+    },
+    {
+      key: 'vencimento', label: 'Vencimento', tipo: 'texto',
+      tooltipTitulo: 'Dia do Vencimento', tooltipDescricao: 'Data limite para pagamento.',
+      render: (v, item) => <span style={{ color: item.status === 'Atrasado' ? '#f87171' : 'var(--ws-muted)' }}>{v}</span>
+    },
+    {
+      key: 'status', label: 'Status', tipo: 'texto',
+      tooltipTitulo: 'Status da Fatura', tooltipDescricao: 'Qual a situação atual do boleto.',
+      render: (v) => <span className={`ws-badge ${statusBadge[v as FaturaStatus]}`}>{v}</span>
+    }
+  ]
+
+  const ACOES_EXPORT: TabelaExportAcao<Fatura>[] = [
+    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS as any, { nomeArquivo: 'faturas', titulo: 'Histórico de Faturas' }) },
+  ]
+
   return (
     <div className="ws-fade-up">
       <div style={{ marginBottom: '1.5rem' }}>
@@ -78,58 +118,23 @@ export function Financeiro() {
         <Receipt weight="duotone" size={14} color="#38bdf8" />
         Histórico de Faturas
       </p>
-      <div className="ws-table-wrap ws-fade-up ws-fade-up-d2">
-        <table className="ws-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Competência</th>
-              <th>Descrição</th>
-              <th>Valor</th>
-              <th>Vencimento</th>
-              <th>Status</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {faturas.map(f => (
-              <tr key={f.id}>
-                <td>
-                  <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>
-                    {f.num}
-                  </code>
-                </td>
-                <td style={{ fontWeight: 600 }}>{f.competencia}</td>
-                <td style={{ color: 'var(--ws-muted)', maxWidth: '260px' }}>{f.descricao}</td>
-                <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{f.valor}</td>
-                <td style={{ color: f.status === 'Atrasado' ? '#f87171' : 'var(--ws-muted)' }}>{f.vencimento}</td>
-                <td><span className={`ws-badge ${statusBadge[f.status]}`}>{f.status}</span></td>
-                <td>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <BotaoGlobal
-                      variante="fantasma"
-                      tamanho="pequeno"
-                      icone={<DownloadSimple weight="bold" size={13} />}
-                      onClick={() => handleDownload('Boleto', f.num)}
-                      title="Download Boleto"
-                    >
-                      Boleto
-                    </BotaoGlobal>
-                    <BotaoGlobal
-                      variante="fantasma"
-                      tamanho="pequeno"
-                      icone={<DownloadSimple weight="bold" size={13} />}
-                      onClick={() => handleDownload('NF-e', f.num)}
-                      title="Download NF-e"
-                    >
-                      NF-e
-                    </BotaoGlobal>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
+        <TabelaGlobal<Fatura>
+          dados={faturas}
+          colunas={COLUNAS}
+          acoes={[
+            {
+              id: 'boleto', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Boleto', labelAcao: 'Boleto',
+              onClick: (f) => handleDownload('Boleto', f.num),
+            },
+            {
+              id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar NF-e', labelAcao: 'NF-e',
+              onClick: (f) => handleDownload('NF-e', f.num),
+            }
+          ]}
+          mensagemVazio="Nenhuma fatura encontrada."
+          mensagemSemFiltro="Sem faturas geradas."
+        />
       </div>
 
       {/* Info card */}

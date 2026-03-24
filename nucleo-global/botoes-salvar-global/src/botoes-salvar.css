@@ -1,0 +1,56 @@
+/* botoes-salvar.css — Estilos do BotoesSalvarGlobal (@nucleo/botoes-salvar-global)
+ * Gravity Design System
+ *
+ * A barra é sempre visível. Os botões ficam desabilitados (opacity 0.4)
+ * quando não há alterações pendentes (dirty=false).
+ *
+ * Tokens esperados no host:
+ *   --color-surface, --color-border
+ *   --color-primary, --color-primary-hover
+ *   --color-text, --color-text-muted
+ *   --font
+ */
+
+/* ── Barra de ações — sem container, só os botões ───────────────────────── */
+.bs-barra {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 1.25rem;
+}
+
+/* ── Alinhamentos ───────────────────────────────────────────────────────── */
+.bs-barra--esquerda { justify-content: flex-start; }
+.bs-barra--centro   { justify-content: center; }
+.bs-barra--direita  { justify-content: flex-end; }
+
+/* ── Hint "alterações pendentes" — só aparece quando dirty ──────────────── */
+.bs-hint {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted, #64748b);
+  font-family: var(--font, 'Inter', sans-serif);
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.bs-barra--dirty .bs-hint {
+  opacity: 1;
+}
+
+.bs-hint__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-warning, #f59e0b);
+  flex-shrink: 0;
+  animation: bs-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes bs-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}

@@ -15,6 +15,10 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/cabecalho-global/src/index.ts'
       ),
+      '@nucleo/card-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/card-global/src/index.ts'
+      ),
       '@nucleo/tabela-global': path.resolve(
         __dirname,
         '../../nucleo-global/tabela-global/src/index.ts'
@@ -39,9 +43,9 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/stat-card-global/src/index.ts'
       ),
-      '@nucleo/acoes-formulario-global': path.resolve(
+      '@nucleo/botoes-salvar-global': path.resolve(
         __dirname,
-        '../../nucleo-global/acoes-formulario-global/src/index.ts'
+        '../../nucleo-global/botoes-salvar-global/src/index.ts'
       ),
     },
   },

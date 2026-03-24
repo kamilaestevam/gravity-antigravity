@@ -148,7 +148,8 @@ body.light-theme .ws-badge-surface {
 /* ── Layout ─────────────────────────────────────────────────────────────── */
 .ws-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--ws-bg-body);
   font-family: var(--font);
   color: var(--ws-text);
@@ -236,7 +237,7 @@ body.light-theme .ws-badge-surface {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 7px 0.875rem;
+  padding: 12px 0.875rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -271,6 +272,7 @@ body.light-theme .ws-badge-surface {
 .ws-sidebar__footer {
   padding: 0.75rem;
   border-top: 1px solid var(--ws-accent-border);
+  margin-top: -24px;
 }
 
 /* ── Sidebar footer user block ──────────────────────────────────────── */
@@ -398,9 +400,11 @@ body.light-theme .ws-badge-surface {
 .ws-main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 
 /* Separator line between sidebar and content — clean, no glow */
@@ -489,6 +493,9 @@ body.light-theme .ws-badge-surface {
 .ws-content {
   padding: 24px 2rem 2rem;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* ── Bottom user bar ────────────────────────────────────────────────────── */
@@ -543,11 +550,27 @@ body.light-theme .ws-badge-surface {
 /* ── Stat cards ─────────────────────────────────────────────────────────── */
 
 /* Row wrapper: cards à esquerda, botão de ação alinhado à direita + base */
+/* Row wrapper: cards à esquerda, botão de ação alinhado à direita + base */
 .ws-stats-row {
   display: flex;
   align-items: flex-end;
   gap: 1rem;
-  margin-bottom: 24px;
+  /* Sticky abaixo do CabecalhoGlobal (74px) */
+  position: sticky;
+  top: 74px;
+  z-index: 4;
+  /* Fundo cobre conteúdo que rola por baixo */
+  background: var(--ws-bg-body);
+  /* Estica de borda a borda (compensa padding do ws-content) */
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+  /* Separador sutil do conteúdo abaixo */
+  border-bottom: 1px solid var(--ws-accent-border);
+  margin-bottom: 1.5rem;
 }
 
 .ws-stats-row .ws-stats {
@@ -978,6 +1001,227 @@ body.light-theme .ws-badge-surface {
   white-space: nowrap;
   pointer-events: none;
   z-index: 50;
+}
+
+/* ── Empresa Mãe card ───────────────────────────────────────────────────── */
+.ws-mae-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.06) 0%, var(--ws-surface) 60%);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.ws-mae-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+  background-size: 200% 100%;
+  animation: ws-bar-slide 5s linear infinite;
+}
+
+.ws-mae-card__left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.ws-mae-card__crown {
+  position: absolute;
+  top: 0.875rem;
+  left: 1.125rem;
+  color: #fbbf24;
+  line-height: 1;
+}
+
+.ws-mae-card__avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1.5px solid rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+  font-weight: 800;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 1.25rem;
+}
+
+.ws-mae-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.ws-mae-card__label {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fbbf24;
+}
+
+.ws-mae-card__nome {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ws-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-mae-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--ws-muted);
+}
+
+.ws-mae-card__dot {
+  color: var(--ws-accent-border);
+}
+
+.ws-mae-card__right {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-shrink: 0;
+}
+
+.ws-mae-card__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.ws-mae-card__stat-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ws-muted);
+}
+
+.ws-mae-card__stat-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text);
+}
+
+.ws-mae-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.625rem;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.ws-mae-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #fbbf24;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.ws-mae-card__link:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+/* ── Empresa Filha Ativa bar ────────────────────────────────────────────── */
+.ws-ativa-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--ws-accent-dim);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 10px;
+  padding: 0.625rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ws-ativa-bar__left {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.ws-ativa-bar__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ws-muted);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ws-ativa-bar__avatar {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 6px;
+  background: var(--ws-accent-dim);
+  border: 1px solid var(--ws-accent-border);
+  color: var(--ws-accent);
+  font-weight: 700;
+  font-size: 0.6875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ws-ativa-bar__nome {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--ws-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-ativa-bar__sub {
+  font-size: 0.75rem;
+  color: var(--ws-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-ativa-bar__right {
+  flex-shrink: 0;
 }
 
 /* ── Search input da TabelaEmpresas — placeholder ──────────────────────── */

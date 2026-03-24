@@ -18,3 +18,23 @@ export interface TooltipProps {
   /** Conteúdo que vai receber o hover — deve ser um único elemento React */
   children: React.ReactElement
 }
+
+/** Props do TooltipAcao */
+export interface TooltipAcaoProps {
+  /** ID único da ação — usado na chave do localStorage para controlar se foi visto */
+  acaoId: string
+  /** Título do card (ex: "Filtro por coluna") */
+  titulo: string
+  /** Descrição curta orientada à ação (máx 2 linhas) */
+  descricao: string
+  /** URL/import da mídia de preview (WebP animado) */
+  midia?: string
+  /** Chip de categoria. Padrão: 'TUTORIAL' */
+  categoria?: string
+  /** Duração exibida no chip e no rodapé (ex: '0:12') */
+  duracao?: string
+  /** Link de documentação opcional */
+  linkDoc?: string
+  /** Botão/elemento que recebe o hover */
+  children: React.ReactElement
+}

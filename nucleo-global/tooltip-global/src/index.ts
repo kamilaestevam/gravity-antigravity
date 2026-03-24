@@ -5,3 +5,6 @@
 
 export { TooltipGlobal } from './tooltip.js'
 export type { TooltipProps, TooltipPosicao } from './tipos.js'
+
+export { TooltipAcao } from './tooltip-acao.js'
+export type { TooltipAcaoProps } from './tipos.js'

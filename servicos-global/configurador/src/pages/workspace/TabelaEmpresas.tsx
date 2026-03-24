@@ -191,7 +191,7 @@ function PopoverFiltro({
             </div>
           )}
 
-          <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem' }}>
+          <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
             {valoresFiltrados.length === 0 ? (
               <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>Nenhum valor</p>
             ) : valoresFiltrados.map(v => {
@@ -592,7 +592,7 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
               <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(56,189,248,0.04)', borderBottom: '1px solid rgba(56,189,248,0.1)' }}>
                 <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#38bdf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
-              <Th label="Filial" coluna="nome" tipo="texto" temFiltroAtivo={temFiltro('nome')} tooltip="Empresa filha vinculada ao tenant" {...thProps} />
+              <Th label="Filial" coluna="nome" tipo="texto" temFiltroAtivo={temFiltro('nome')} tooltip="Nome da empresa filha vinculada ao seu tenant" {...thProps} />
               <Th label="Subdomínio" coluna="subdominio" tipo="texto" temFiltroAtivo={temFiltro('subdominio')} {...thProps} />
               <Th label="Usuários" coluna="usuarios" tipo="numero" temFiltroAtivo={temFiltro('usuarios')} {...thProps} style={{ textAlign: 'center' }} />
               <Th label="Status" coluna="status" tipo="texto" temFiltroAtivo={temFiltro('status')} {...thProps} />
@@ -629,9 +629,21 @@ export function TabelaEmpresas({ dados, onSuspender, onExcluir }: TabelaEmpresas
                   </div>
                 </td>
                 <td style={{ padding: '0.875rem 1rem' }}>
-                  <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>
-                    {e.subdominio}.gravity.com.br
-                  </code>
+                  <a
+                    href={`https://${e.subdominio}.gravity.com.br`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Abrir ${e.subdominio}.gravity.com.br`}
+                    onClick={ev => ev.stopPropagation()}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
+                  >
+                    <code style={{ fontSize: '0.8125rem', color: '#38bdf8', background: 'rgba(56,189,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
+                      onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.18)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+                      onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(56,189,248,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+                    >
+                      {e.subdominio}.gravity.com.br
+                    </code>
+                  </a>
                 </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'center', fontWeight: 600 }}>{e.usuarios}</td>
                 <td style={{ padding: '0.875rem 1rem' }}>

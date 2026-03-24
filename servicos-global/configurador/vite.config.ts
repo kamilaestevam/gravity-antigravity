@@ -27,6 +27,10 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/tooltip-global/src/index.ts'
       ),
+      '@nucleo/botao-novo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/botao-novo-global/src/index.ts'
+      ),
     },
   },
   server: {

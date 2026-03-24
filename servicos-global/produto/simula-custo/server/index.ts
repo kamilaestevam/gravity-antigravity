@@ -5,11 +5,26 @@
 
 import express from 'express'
 import { simulateRouter } from './routes/simulate.js'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT ?? 8020
 
 app.use(express.json())
+
+// CORS para acesso do Configurador
+app.use((_req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  next()
+})
+
+// Serve a interface HTML na raiz
+app.use(express.static(join(__dirname, '..', 'public')))
 
 // Health check
 app.get('/health', (_req, res) => {

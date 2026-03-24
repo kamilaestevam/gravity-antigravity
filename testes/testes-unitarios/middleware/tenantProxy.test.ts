@@ -98,10 +98,10 @@ function makeReq(options: {
   req.headers  = options.headers ?? {}
   ;(req as unknown as Record<string, unknown>).readableEnded = false
 
-  setImmediate(() => {
+  setTimeout(() => {
     if (options.body) req.emit('data', Buffer.from(options.body))
     req.emit('end')
-  })
+  }, 0)
 
   return req
 }
@@ -119,9 +119,8 @@ function mockSuccess(statusCode = 200, body = '{"ok":true}') {
 
     const fakeReq = new EventEmitter()
     ;(fakeReq as unknown as Record<string, unknown>)['write'] = vi.fn()
-    ;(fakeReq as unknown as Record<string, unknown>)['end']   = vi.fn()
-
-    setImmediate(() => {
+    ;(fakeReq as unknown as Record<string, unknown>)['end']   = vi.fn(() => {
+      // Engatilha resposta assim que o req cliente termina
       cb(fakeRes)
       fakeRes.emit('data', Buffer.from(body))
       fakeRes.emit('end')
@@ -138,9 +137,7 @@ function mockFailThenSucceed(failCount: number, successBody = '{"ok":true}') {
     calls++
     const fakeReq = new EventEmitter()
     ;(fakeReq as unknown as Record<string, unknown>)['write'] = vi.fn()
-    ;(fakeReq as unknown as Record<string, unknown>)['end']   = vi.fn()
-
-    setImmediate(() => {
+    ;(fakeReq as unknown as Record<string, unknown>)['end']   = vi.fn(() => {
       if (calls <= failCount) {
         fakeReq.emit('error', new Error(`Network failure #${calls}`))
       } else {
@@ -162,9 +159,7 @@ function mockAlwaysFail() {
   mockHttpRequestImpl.mockImplementation(() => {
     const fakeReq = new EventEmitter()
     ;(fakeReq as unknown as Record<string, unknown>)['write'] = vi.fn()
-    ;(fakeReq as unknown as Record<string, unknown>)['end']   = vi.fn()
-
-    setImmediate(() => {
+    ;(fakeReq as unknown as Record<string, unknown>)['end']   = vi.fn(() => {
       fakeReq.emit('error', new Error('Connection refused'))
     })
 
@@ -201,7 +196,7 @@ describe('createTenantProxy — roteamento', () => {
     const res = makeRes()
 
     const p = createTenantProxy('inexistente', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     expect(res.statusCode).toBe(502)
@@ -215,7 +210,7 @@ describe('createTenantProxy — roteamento', () => {
     const res = makeRes()
 
     const p = createTenantProxy('dashboard', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     expect(res.statusCode).toBe(200)
@@ -229,7 +224,7 @@ describe('createTenantProxy — roteamento', () => {
     const res = makeRes()
 
     const p = createTenantProxy('relatorios', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     expect(res.statusCode).toBe(200)
@@ -242,7 +237,7 @@ describe('createTenantProxy — roteamento', () => {
     const res = makeRes()
 
     const p = createTenantProxy('dashboard', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     const opts = mockHttpRequestImpl.mock.calls[0][0] as { method: string }
@@ -259,7 +254,7 @@ describe('createTenantProxy — roteamento', () => {
     const res = makeRes()
 
     const p = createTenantProxy('dashboard', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     expect(res.statusCode).toBe(503)
@@ -279,7 +274,7 @@ describe('createTenantProxy — retry e backoff', () => {
     const res = makeRes()
 
     const p = createTenantProxy('dashboard', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     expect(mockHttpRequestImpl).toHaveBeenCalledTimes(2)
@@ -335,7 +330,7 @@ describe('createTenantProxy — retry e backoff', () => {
     const res = makeRes()
 
     const p = createTenantProxy('dashboard', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     expect(state.failures).toBe(0)
@@ -375,7 +370,7 @@ describe('createTenantProxy — circuit breaker', () => {
     const res = makeRes()
 
     const p = createTenantProxy('dashboard', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     // Após half-open e sucesso, CB deve estar fechado
@@ -395,7 +390,7 @@ describe('createTenantProxy — circuit breaker', () => {
     const res = makeRes()
 
     const p = createTenantProxy('dashboard', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     expect(res.statusCode).toBe(503)
@@ -414,7 +409,7 @@ describe('createTenantProxy — circuit breaker', () => {
     const res = makeRes()
 
     const p = createTenantProxy('relatorios', req, res)
-    vi.runAllTimers()
+    await vi.runAllTimersAsync()
     await p
 
     // relatorios não foi afetado pelo CB do dashboard

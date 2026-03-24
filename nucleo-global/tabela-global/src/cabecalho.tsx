@@ -17,20 +17,6 @@ interface CabecalhoTabelaProps<T extends RegistroTabela> {
   temAcoesLinha?: boolean
 }
 
-function IconeOrdenacao({ direcao, ativa }: { direcao: DirecaoOrdenacao | null; ativa: boolean }) {
-  if (!ativa || !direcao) {
-    return (
-      <span className="tg-sort-icon tg-sort-icon--idle" aria-hidden="true">
-        ⇅
-      </span>
-    )
-  }
-  return (
-    <span className="tg-sort-icon tg-sort-icon--ativa" aria-hidden="true">
-      {direcao === 'asc' ? '↑' : '↓'}
-    </span>
-  )
-}
 
 export function CabecalhoTabela<T extends RegistroTabela>({
   colunas,
@@ -80,12 +66,6 @@ export function CabecalhoTabela<T extends RegistroTabela>({
             >
               <span className="tg-th-conteudo">
                 {coluna.label}
-                {coluna.ordenavel && (
-                  <IconeOrdenacao
-                    direcao={ativa ? (ordenacao?.direcao ?? null) : null}
-                    ativa={ativa}
-                  />
-                )}
               </span>
             </th>
           )

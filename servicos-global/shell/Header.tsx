@@ -37,18 +37,10 @@ function getPageLabel(pathname: string): string {
   return ROUTE_LABELS[base] ?? 'Gravity'
 }
 
-function getInitials(name: string): string {
-  if (!name) return '?'
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-}
+
 
 /**
- * Header — barra superior com info do tenant.
+ * Header — barra superior do shell.
  *
  * Exibe:
  * - Botão toggle da sidebar
@@ -56,8 +48,8 @@ function getInitials(name: string): string {
  * - Botão de busca (evento, sem lógica de produto)
  * - Toggle de tema dark/light
  * - Badge de notificações pendentes
- * - Avatar + nome do usuário e tenant
  *
+ * Info de usuário/tenant exibida na sidebar (footer).
  * Nunca contém lógica de produto.
  */
 export function Header() {
@@ -66,7 +58,6 @@ export function Header() {
     toggleSidebar,
     toggleTheme,
     currentTheme,
-    currentUser,
     notifications,
   } = useShellStore()
 
@@ -163,37 +154,6 @@ export function Header() {
             />
           )}
         </button>
-
-        {/* Badge de usuário + tenant */}
-        <div
-          className="shell-header__tenant-badge"
-          role="button"
-          tabIndex={0}
-          aria-label={`Usuário: ${currentUser.name || 'Não identificado'}${
-            currentUser.tenantName ? ` — Tenant: ${currentUser.tenantName}` : ''
-          }`}
-        >
-          <div className="shell-header__avatar" aria-hidden="true">
-            {currentUser.avatarUrl ? (
-              <img
-                src={currentUser.avatarUrl}
-                alt={`Avatar de ${currentUser.name}`}
-              />
-            ) : (
-              <span>{getInitials(currentUser.name)}</span>
-            )}
-          </div>
-          {currentUser.name && (
-            <div className="shell-header__user-info" aria-hidden="true">
-              <span className="shell-header__user-name">{currentUser.name}</span>
-              {currentUser.tenantName && (
-                <span className="shell-header__tenant-name">
-                  {currentUser.tenantName}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
       </div>
     </header>
   )

@@ -132,6 +132,40 @@ Todo agente que escreve código garante:
 
 ---
 
+## Política de Auto-Execução de Comandos
+
+O agente **nunca** precisa pedir aprovação para comandos de **leitura e consulta** — ele deve executá-los diretamente com `SafeToAutoRun: true`.
+
+### ✅ Auto-executar sem confirmação (`SafeToAutoRun: true`)
+
+| Categoria | Exemplos |
+|:---|:---|
+| Leitura de arquivos | `cat`, `type`, `Get-Content`, `view_file` |
+| Listagem de diretórios | `ls`, `dir`, `find_by_name`, `list_dir` |
+| Verificação de status | `git status`, `git log`, `git diff` |
+| Verificação de tipos | `npx tsc --noEmit` |
+| Verificação de dependências | `npm ls`, `npm outdated` |
+| Health checks | `curl http://localhost:xxxx/health` |
+| Busca em código | `grep_search`, `rg`, `findstr` |
+| Leitura de processos | `command_status`, `read_terminal` |
+| Status de servidores | verificar porta, verificar se processo está rodando |
+
+### ❌ Sempre requerer aprovação (`SafeToAutoRun: false`)
+
+| Categoria | Exemplos |
+|:---|:---|
+| Instalar pacotes | `npm install`, `npm ci`, `npx` (com efeito colateral) |
+| Deletar arquivos/dirs | `rm`, `del`, `Remove-Item` |
+| Modificar o sistema | `npm run build`, `npm run migrate` |
+| Operações Git destrutivas | `git push`, `git reset --hard`, `git checkout` |
+| Deploy / infraestrutura | qualquer script de deploy |
+| Scripts de banco | `prisma migrate`, `prisma db push` |
+| Iniciar novos servidores | `npm run dev` (nova instância), `vite --port` |
+
+> **Regra de ouro:** Se o comando apenas **lê, verifica ou consulta** — auto-executa. Se o comando **cria, altera, instala ou deleta** — pede aprovação.
+
+---
+
 ## Quando Parar e Escalar
 
 O agente **para tudo e notifica o Líder** quando:

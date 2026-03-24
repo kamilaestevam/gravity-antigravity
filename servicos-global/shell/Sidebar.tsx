@@ -62,6 +62,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: 'Sistema',
     items: [
+      { to: '/store', icon: <Star weight="duotone" size={20} />, label: 'Gravity Store' },
       { to: '/configurador', icon: <Gear weight="duotone" size={20} />, label: 'Configurações' },
     ],
   },

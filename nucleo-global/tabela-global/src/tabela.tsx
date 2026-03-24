@@ -4,7 +4,8 @@
  * Sem estado de servidor. Sem API calls.
  */
 
-import React, { useState, useMemo, useId } from 'react'
+import React, { useState, useMemo, useId, useRef, useEffect } from 'react'
+import { MagnifyingGlass, DownloadSimple } from '@phosphor-icons/react'
 import { CabecalhoTabela } from './cabecalho.js'
 import { Celula } from './celula.js'
 import type {
@@ -50,6 +51,57 @@ function exportarCSV<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<
   )
   const csv = [header, ...linhas].join('\n')
   downloadTexto(csv, `${nomeArquivo}.csv`, 'text/csv;charset=utf-8;')
+}
+
+function exportarTXT<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<T>['colunas'], nomeArquivo: string) {
+  const cols = colunas.filter((c) => !c.oculta)
+  const header = cols.map((c) => c.label).join('\t')
+  const linhas = dados.map((linha) =>
+    cols.map((c) => (linha[c.key] != null ? String(linha[c.key]) : '')).join('\t')
+  )
+  downloadTexto([header, ...linhas].join('\n'), `${nomeArquivo}.txt`, 'text/plain;charset=utf-8;')
+}
+
+function escaparXML(str: string): string {
+  return str.replace(/[<>&"']/g, (ch) => ({
+    '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;',
+  }[ch] ?? ch))
+}
+
+function exportarXML<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<T>['colunas'], nomeArquivo: string) {
+  const cols = colunas.filter((c) => !c.oculta)
+  const rows = dados
+    .map((linha) => {
+      const fields = cols
+        .map((c) => `    <${c.key}>${escaparXML(linha[c.key] != null ? String(linha[c.key]) : '')}</${c.key}>`)
+        .join('\n')
+      return `  <registro>\n${fields}\n  </registro>`
+    })
+    .join('\n')
+  downloadTexto(
+    `<?xml version="1.0" encoding="UTF-8"?>\n<dados>\n${rows}\n</dados>`,
+    `${nomeArquivo}.xml`,
+    'application/xml'
+  )
+}
+
+function exportarExcel<T extends RegistroTabela>(dados: T[], colunas: TabelaProps<T>['colunas'], nomeArquivo: string) {
+  const cols = colunas.filter((c) => !c.oculta)
+  const header = `<tr>${cols.map((c) => `<th>${c.label}</th>`).join('')}</tr>`
+  const rows = dados
+    .map(
+      (linha) =>
+        `<tr>${cols.map((c) => `<td>${linha[c.key] != null ? String(linha[c.key]) : ''}</td>`).join('')}</tr>`
+    )
+    .join('')
+  const html = [
+    `<html xmlns:o="urn:schemas-microsoft-com:office:office"`,
+    ` xmlns:x="urn:schemas-microsoft-com:office:excel"`,
+    ` xmlns="http://www.w3.org/TR/REC-html40">`,
+    `<head><meta charset="UTF-8"></head>`,
+    `<body><table border="1">${header}${rows}</table></body></html>`,
+  ].join('')
+  downloadTexto(html, `${nomeArquivo}.xls`, 'application/vnd.ms-excel')
 }
 
 function exportarJSON<T extends RegistroTabela>(dados: T[], nomeArquivo: string) {
@@ -103,6 +155,20 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
   const [itensPorPagina, setItensPorPagina] = useState(itensPorPaginaInicial)
   const [selecionadosInternos, setSelecionadosInternos] = useState<Set<IdRegistro>>(new Set())
   const [mostrarFiltros, setMostrarFiltros] = useState(false)
+  const [exportMenuAberto, setExportMenuAberto] = useState(false)
+  const exportMenuRef = useRef<HTMLDivElement>(null)
+
+  // Fecha o menu de export ao clicar fora
+  useEffect(() => {
+    if (!exportMenuAberto) return
+    const handler = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setExportMenuAberto(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [exportMenuAberto])
 
   // Seleção controlada ou interna
   const selecionados = useMemo(
@@ -199,8 +265,11 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
       ? dadosFiltrados.filter((d) => selecionados.has(d.id))
       : dadosFiltrados
     const nome = exportConfig?.nomeArquivo ?? 'dados'
-    if (formato === 'csv') exportarCSV(fonte, colunas, nome)
-    else if (formato === 'json') exportarJSON(fonte, nome)
+    if (formato === 'csv')   exportarCSV(fonte, colunas, nome)
+    else if (formato === 'txt')   exportarTXT(fonte, colunas, nome)
+    else if (formato === 'xml')   exportarXML(fonte, colunas, nome)
+    else if (formato === 'excel') exportarExcel(fonte, colunas, nome)
+    else if (formato === 'json')  exportarJSON(fonte, nome)
   }
 
   // ─── Render ────────────────────────────────────────────────────────────────
@@ -214,7 +283,9 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
         <div className="tg-toolbar-esquerda">
           {buscaGlobal && (
             <div className="tg-busca-wrapper" role="search">
-              <span className="tg-busca-icone" aria-hidden="true">⌕</span>
+              <span className="tg-busca-icone" aria-hidden="true">
+                <MagnifyingGlass weight="bold" size={14} />
+              </span>
               <input
                 id={`${id}-busca`}
                 className="tg-busca-input"
@@ -228,7 +299,7 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
           )}
           {filtros && filtros.length > 0 && (
             <button
-              className={`btn btn-ghost tg-btn-filtros ${mostrarFiltros ? 'tg-btn-filtros--ativo' : ''}`}
+              className={`tg-btn tg-btn-filtros ${mostrarFiltros ? 'tg-btn-filtros--ativo' : ''}`}
               onClick={() => setMostrarFiltros((p) => !p)}
               aria-expanded={mostrarFiltros}
               aria-controls={`${id}-filtros`}
@@ -245,17 +316,41 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
             </span>
           )}
           {exportConfig && (
-            <div className="tg-export-grupo">
-              {exportConfig.formatos.map((fmt) => (
-                <button
-                  key={fmt}
-                  className="btn btn-secondary"
-                  onClick={() => handleExportar(fmt)}
-                  aria-label={`Exportar ${fmt.toUpperCase()}`}
-                >
-                  ↓ {fmt.toUpperCase()}
-                </button>
-              ))}
+            <div className="tg-export-wrapper" ref={exportMenuRef}>
+              <button
+                className="tg-btn tg-btn-export"
+                onClick={() => setExportMenuAberto((p) => !p)}
+                aria-label="Exportar dados"
+                aria-haspopup="true"
+                aria-expanded={exportMenuAberto}
+              >
+                <DownloadSimple weight="bold" size={14} />
+                Exportar
+              </button>
+              {exportMenuAberto && (
+                <div className="tg-export-menu" role="menu">
+                  {([
+                    { fmt: 'excel' as FormatoExport, label: 'Excel (.xls)',  icon: '📊' },
+                    { fmt: 'csv'   as FormatoExport, label: 'CSV (.csv)',    icon: '📄' },
+                    { fmt: 'txt'   as FormatoExport, label: 'TXT (.txt)',    icon: '📝' },
+                    { fmt: 'xml'   as FormatoExport, label: 'XML (.xml)',    icon: '🗂️' },
+                    { fmt: 'json'  as FormatoExport, label: 'JSON (.json)',  icon: '{ }' },
+                  ]).map(({ fmt, label, icon }) => (
+                    <button
+                      key={fmt}
+                      className="tg-export-menu-item"
+                      role="menuitem"
+                      onClick={() => {
+                        handleExportar(fmt)
+                        setExportMenuAberto(false)
+                      }}
+                    >
+                      <span className="tg-export-menu-icon">{icon}</span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -293,7 +388,7 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
             </div>
           ))}
           <button
-            className="btn btn-ghost tg-filtros-limpar"
+            className="tg-filtros-limpar"
             onClick={() => {
               setEstadoFiltros({})
               setPaginaAtual(1)
@@ -367,7 +462,7 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
                           .map((acao) => (
                             <button
                               key={acao.id}
-                              className={`btn btn-ghost tg-acao-btn ${acao.variante === 'danger' ? 'tg-acao-btn--danger' : ''}`}
+                              className={`tg-acao-btn ${acao.variante === 'danger' ? 'tg-acao-btn--danger' : ''}`}
                               onClick={() => acao.ao_clicar(linha)}
                               title={acao.rotulo}
                               aria-label={acao.rotulo}
@@ -395,7 +490,7 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
 
         <div className="tg-paginacao-controles">
           <button
-            className="btn btn-ghost tg-pag-btn"
+            className="tg-pag-btn"
             onClick={() => setPaginaAtual(1)}
             disabled={paginaSegura === 1}
             aria-label="Primeira página"
@@ -403,7 +498,7 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
             «
           </button>
           <button
-            className="btn btn-ghost tg-pag-btn"
+            className="tg-pag-btn"
             onClick={() => setPaginaAtual((p) => Math.max(1, p - 1))}
             disabled={paginaSegura === 1}
             aria-label="Página anterior"
@@ -416,7 +511,7 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
           </span>
 
           <button
-            className="btn btn-ghost tg-pag-btn"
+            className="tg-pag-btn"
             onClick={() => setPaginaAtual((p) => Math.min(totalPaginas, p + 1))}
             disabled={paginaSegura === totalPaginas}
             aria-label="Próxima página"
@@ -424,7 +519,7 @@ export function TabelaGlobal<T extends RegistroTabela = RegistroTabela>({
             ›
           </button>
           <button
-            className="btn btn-ghost tg-pag-btn"
+            className="tg-pag-btn"
             onClick={() => setPaginaAtual(totalPaginas)}
             disabled={paginaSegura === totalPaginas}
             aria-label="Última página"

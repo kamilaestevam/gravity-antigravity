@@ -1,0 +1,995 @@
+/* workspace.css — Design System Gravity para área /workspace
+   Tokens base (index.html): --color-bg, --color-surface, --color-surface-2,
+   --color-border, --color-primary, --color-text, --color-text-muted,
+   --color-success, --color-warning, --color-danger, --radius, --font
+*/
+
+/* ── Design tokens — Violet accent (Configurador Global) ───────────────── */
+:root {
+  --ws-accent: #818cf8;
+  --ws-accent-dim: rgba(129, 140, 248, 0.12);
+  --ws-accent-border: rgba(129, 140, 248, 0.20);
+  --ws-bg-body: #0f172a;
+  --ws-surface: #1e293b;
+  --ws-surface-2: #0f172a;
+  --ws-text: #f1f5f9;
+  --ws-muted: #94a3b8;
+  --ws-sidebar-w: 240px;
+}
+
+/* ── Light theme overrides ─────────────────────────────────── */
+body.light-theme {
+  --ws-bg-body: #f8fafc;
+  --ws-surface: #ffffff;
+  --ws-surface-2: #f1f5f9;
+  --ws-text: #0f172a;
+  --ws-muted: #475569;
+  --ws-accent-dim: rgba(129, 140, 248, 0.10);
+  --ws-accent-border: rgba(129, 140, 248, 0.25);
+}
+
+body.light-theme .ws-shell {
+  background: var(--ws-bg-body);
+}
+
+body.light-theme .ws-sidebar {
+  background: var(--ws-surface);
+}
+
+body.light-theme .ws-header {
+  background: var(--ws-bg-body);
+}
+
+body.light-theme .ws-stat-card {
+  background: var(--ws-surface-2);
+}
+
+body.light-theme .ws-table-wrap {
+  background: var(--ws-surface);
+}
+
+body.light-theme .ws-table thead {
+  background: rgba(129, 140, 248, 0.06);
+}
+
+body.light-theme .ws-field input,
+body.light-theme .ws-field select {
+  background: var(--ws-surface-2);
+  color: var(--ws-text);
+}
+
+body.light-theme .ws-toggle-track {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .ws-badge-surface {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--ws-muted);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ── Animations ─────────────────────────────────────────────────────────── */
+@keyframes ws-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ws-glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(129, 140, 248, 0);
+    opacity: 0.7;
+  }
+
+  50% {
+    box-shadow: 0 0 0 6px rgba(129, 140, 248, 0.25), 0 0 12px rgba(129, 140, 248, 0.18);
+    opacity: 1;
+  }
+}
+
+.ws-fade-up {
+  animation: ws-fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.ws-fade-up-d1 {
+  animation-delay: 0.07s;
+}
+
+.ws-fade-up-d2 {
+  animation-delay: 0.14s;
+}
+
+.ws-fade-up-d3 {
+  animation-delay: 0.21s;
+}
+
+/* ── Chip CONFIGURADOR GLOBAL — inline no logo ────────────────────────── */
+.ws-global-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(129, 140, 248, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.30);
+  border-radius: 9999px;
+  animation: ws-glow-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.ws-global-chip__dot {
+  width: 5px;
+  height: 5px;
+  min-width: 5px;
+  border-radius: 50%;
+  background: #818cf8;
+  box-shadow: 0 0 8px rgba(129, 140, 248, 1), 0 0 3px rgba(129, 140, 248, 0.8);
+}
+
+.ws-global-chip__label {
+  font-size: 0.375rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #818cf8;
+  white-space: nowrap;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+.ws-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--ws-bg-body);
+  font-family: var(--font);
+  color: var(--ws-text);
+  position: relative;
+}
+
+/* Barra de modo — violet no topo da janela */
+.ws-shell::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #818cf8 0%, #a78bfa 50%, #818cf8 100%);
+  background-size: 200% 100%;
+  animation: ws-bar-slide 4s linear infinite;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+@keyframes ws-bar-slide {
+  0% {
+    background-position: 0% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.ws-sidebar {
+  width: var(--ws-sidebar-w);
+  min-width: var(--ws-sidebar-w);
+  /* Undertone violet no topo — identidade Configurador */
+  background: linear-gradient(180deg, rgba(129, 140, 248, 0.06) 0%, var(--ws-surface) 120px);
+  /* border-right handled by .ws-main::before glow pseudo-element */
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.ws-sidebar__logo {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 36px 0.875rem 26px 1.25rem;
+  border-bottom: 1px solid var(--ws-accent-border);
+  text-decoration: none;
+  overflow: hidden;
+}
+
+
+.ws-sidebar__logo-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ws-text);
+  letter-spacing: -0.01em;
+}
+
+.ws-sidebar__nav {
+  flex: 1;
+  padding: 26px 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ws-sidebar__nav-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ws-muted);
+  padding: 0 0.875rem 0.375rem;
+  margin-bottom: 0.125rem;
+}
+
+.ws-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ws-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font);
+}
+
+.ws-nav-item:hover {
+  background: var(--ws-accent-dim);
+  color: var(--ws-text);
+}
+
+.ws-nav-item.active {
+  background: var(--ws-accent-dim);
+  color: var(--ws-accent);
+  font-weight: 600;
+  border-radius: 9999px;
+  box-shadow: inset 3px 0 0 var(--ws-accent);
+}
+
+.ws-nav-item.active svg {
+  color: var(--ws-accent);
+}
+
+.ws-sidebar__footer {
+  padding: 0.75rem;
+  border-top: 1px solid var(--ws-accent-border);
+}
+
+/* ── Sidebar footer user block ──────────────────────────────────────── */
+.ws-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.5rem;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+
+.ws-sidebar-user:hover {
+  background: var(--ws-accent-dim);
+}
+
+.ws-sidebar-user__avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  font-weight: 700;
+  font-size: 0.6875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ws-sidebar-user__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.ws-sidebar-user__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-sidebar-user__role {
+  font-size: 0.6875rem;
+  color: var(--ws-muted);
+  white-space: nowrap;
+}
+
+/* ── Sidebar tenant info block ─────────────────────────────────────────── */
+.ws-sidebar__tenant {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--ws-accent-border);
+  background: rgba(56, 189, 248, 0.04);
+}
+
+.ws-sidebar__tenant-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ws-sidebar__tenant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  min-width: 0;
+}
+
+.ws-sidebar__tenant-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-sidebar__tenant-plan {
+  font-size: 0.6875rem;
+  color: var(--ws-accent);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ws-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ws-muted);
+  text-decoration: none;
+  width: 100%;
+  transition: color 0.15s, background 0.15s;
+}
+
+.ws-back-btn:hover {
+  color: var(--ws-text);
+  background: var(--ws-accent-dim);
+}
+
+/* ── Main content ───────────────────────────────────────────────────────── */
+.ws-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Separator line between sidebar and content — clean, no glow */
+.ws-main::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ── Page header — sticky top, alinhado com o logo do sidebar ─────────── */
+.ws-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 74px;
+  min-height: 74px;
+  background: var(--ws-bg-body);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  gap: 1rem;
+  /* sem border — layout limpo */
+}
+
+.ws-page-header__title-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.125rem;
+}
+
+.ws-page-header__title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--ws-text);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.ws-page-header__subtitle {
+  font-size: 0.875rem;
+  color: var(--ws-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Tenant chip ──────────────────────────────────────── */
+.ws-tenant-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--ws-accent-dim);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 9999px;
+  padding: 0.375rem 0.875rem 0.375rem 0.375rem;
+}
+
+.ws-tenant-chip__avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.6875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ws-tenant-chip__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  line-height: 1.2;
+}
+
+.ws-tenant-chip__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text);
+  white-space: nowrap;
+}
+
+.ws-tenant-chip__plan {
+  font-size: 0.6875rem;
+  color: var(--ws-muted);
+  white-space: nowrap;
+}
+
+/* ── Theme toggle button ───────────────────────────────── */
+.ws-theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ws-accent-dim);
+  border: 1px solid var(--ws-accent-border);
+  color: var(--ws-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.ws-theme-toggle:hover {
+  background: var(--ws-accent-dim);
+  border-color: var(--ws-accent);
+  color: var(--ws-accent);
+}
+
+.ws-content {
+  padding: 24px 2rem 2rem;
+  flex: 1;
+}
+
+/* ── Bottom user bar ────────────────────────────────────────────────────── */
+.ws-user-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--ws-accent-border);
+  background: var(--ws-bg-body);
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+}
+
+.ws-user-bar__avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+  font-weight: 700;
+  font-size: 0.6875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ws-user-bar__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  line-height: 1.2;
+}
+
+.ws-user-bar__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text);
+  white-space: nowrap;
+}
+
+.ws-user-bar__role {
+  font-size: 0.6875rem;
+  color: var(--ws-muted);
+  white-space: nowrap;
+}
+
+/* ── Stat cards ─────────────────────────────────────────────────────────── */
+.ws-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 24px;
+}
+
+.ws-stat-card {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.ws-stat-card:hover {
+  border-color: var(--ws-accent);
+  box-shadow: 0 0 0 1px var(--ws-accent-border), 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.ws-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ws-muted);
+}
+
+.ws-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--ws-text);
+  line-height: 1;
+}
+
+.ws-stat-sub {
+  font-size: 0.8125rem;
+  color: var(--ws-muted);
+}
+
+/* ── Section header ─────────────────────────────────────────────────────── */
+.ws-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ws-muted);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+.ws-table-wrap {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+}
+
+.ws-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ws-table thead {
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.ws-table thead th {
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ws-muted);
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--ws-accent-border);
+  white-space: nowrap;
+}
+
+.ws-table tbody tr {
+  border-bottom: 1px solid rgba(56, 189, 248, 0.06);
+  transition: background 0.1s;
+}
+
+.ws-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.ws-table tbody tr:hover {
+  background: rgba(56, 189, 248, 0.04);
+}
+
+.ws-table td {
+  padding: 1rem 1.25rem;
+  color: var(--ws-text);
+  vertical-align: middle;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+/* Removido — use <BotaoGlobal> de @nucleo/botao-global */
+
+/* ── Badges ─────────────────────────────────────────────────────────────── */
+.ws-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ws-badge-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.ws-badge-warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.ws-badge-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.ws-badge-accent {
+  background: var(--ws-accent-dim);
+  color: var(--ws-accent);
+  border: 1px solid var(--ws-accent-border);
+}
+
+.ws-badge-surface {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ws-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── Tabs pill ──────────────────────────────────────────────────────────── */
+.ws-tabs {
+  display: inline-flex;
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 9999px;
+  padding: 0.25rem;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.ws-tab {
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ws-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-family: var(--font);
+  transition: background 0.15s, color 0.15s;
+}
+
+.ws-tab:hover {
+  color: var(--ws-text);
+}
+
+.ws-tab.active {
+  background: var(--ws-accent);
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* ── Toggle ─────────────────────────────────────────────────────────────── */
+.ws-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.ws-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ws-toggle-track {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.ws-toggle input:checked+.ws-toggle-track {
+  background: var(--ws-accent);
+  border-color: var(--ws-accent);
+}
+
+.ws-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.ws-toggle input:checked~.ws-toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* ── Inline form card ───────────────────────────────────────────────────── */
+.ws-form-card {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ws-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.ws-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.ws-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ws-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ws-field input,
+.ws-field select {
+  background: var(--ws-bg-body);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  color: var(--ws-text);
+  font-size: 0.875rem;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.ws-field input:focus,
+.ws-field select:focus {
+  border-color: var(--ws-accent);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.ws-field input::placeholder {
+  color: var(--ws-muted);
+}
+
+.ws-field select option {
+  background: #1e293b;
+  color: var(--ws-text);
+}
+
+.ws-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* ── Plan card ──────────────────────────────────────────────────────────── */
+.ws-plan-card {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent);
+  border-radius: 14px;
+  padding: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.ws-plan-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ws-accent), #818cf8);
+}
+
+/* ── Modal overlay ──────────────────────────────────────────────────────── */
+.ws-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ws-fade-up 0.2s ease;
+}
+
+.ws-modal {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 480px;
+  max-width: 95vw;
+  position: relative;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+}
+
+.ws-modal h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--ws-text);
+  margin-bottom: 1.25rem;
+}
+
+/* ── Code block (API) ───────────────────────────────────────────────────── */
+.ws-code-block {
+  background: #020617;
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 0.8125rem;
+  color: #7dd3fc;
+  line-height: 1.7;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+.ws-empty {
+  text-align: center;
+  padding: 3rem;
+  color: var(--ws-muted);
+}
+
+/* ── Select filter row ──────────────────────────────────────────────────── */
+.ws-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ws-select-inline {
+  background: var(--ws-surface);
+  border: 1px solid var(--ws-accent-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  color: var(--ws-text);
+  font-size: 0.875rem;
+  font-family: var(--font);
+  outline: none;
+}
+
+.ws-select-inline:focus {
+  border-color: var(--ws-accent);
+}
+
+/* ── Tooltip ────────────────────────────────────────────────────────────── */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  border: 1px solid var(--ws-accent-border);
+  color: var(--ws-muted);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.625rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 50;
+}

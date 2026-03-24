@@ -408,6 +408,10 @@ button {
 }
 
 /* ---- Seções ---- */
+section {
+  width: 100%;
+}
+
 .section {
   padding: 5rem 0;
 }

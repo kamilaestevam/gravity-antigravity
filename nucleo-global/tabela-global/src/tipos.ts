@@ -109,7 +109,7 @@ export interface RegistroTabela {
 
 // ─── Exportação ───────────────────────────────────────────────────────────────
 
-export type FormatoExport = 'csv' | 'json' | 'excel'
+export type FormatoExport = 'csv' | 'json' | 'excel' | 'txt' | 'xml'
 
 export interface ExportConfig {
   /** Formatos disponíveis */

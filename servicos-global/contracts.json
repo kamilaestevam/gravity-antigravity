@@ -40,6 +40,10 @@
       "baseUrl": "http://localhost:8019",
       "pathPrefix": "/api/v1/whatsapp"
     },
+    "simula-custo": {
+      "baseUrl": "http://localhost:8020",
+      "pathPrefix": "/api/v1/simula-custo"
+    },
     "helpdesk": {
       "baseUrl": "http://localhost:8020",
       "pathPrefix": "/api/v1/helpdesk"

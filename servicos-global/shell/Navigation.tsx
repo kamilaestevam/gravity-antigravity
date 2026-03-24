@@ -119,8 +119,9 @@ export function Navigation() {
         <Route path="/helpdesk/*"     element={<HelpdeskModule />} />
         <Route path="/conector-erp/*" element={<ConectorErpModule />} />
 
-        {/* Configurador (Onda 2) */}
+        {/* Configurador (Onda 2) e Gravity Store */}
         <Route path="/configurador/*" element={<ConfiguradorModule />} />
+        <Route path="/store/*" element={<ConfiguradorModule />} />
 
         {/* Fallback 404 */}
         <Route

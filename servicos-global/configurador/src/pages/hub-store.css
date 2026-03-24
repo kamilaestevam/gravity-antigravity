@@ -1,0 +1,222 @@
+/* hub-store.css — Estilos complementares usando os tokens do Configurador */
+/* Tokens disponíveis no index.html do Configurador:
+   --color-bg, --color-surface, --color-surface-2, --color-border,
+   --color-primary, --color-primary-hover, --color-text, --color-text-muted,
+   --color-success, --color-warning, --color-danger, --radius, --font
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hs-fade-up    { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+.hs-fade-up-d1 { animation-delay: 0.08s; }
+.hs-fade-up-d2 { animation-delay: 0.16s; }
+.hs-fade-up-d3 { animation-delay: 0.24s; }
+
+/* ── Page ───────────────────────────────────────────────────────────────── */
+.hs-page {
+  padding: 2rem 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  font-family: var(--font);
+  color: var(--color-text);
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+
+/* ── Section label ──────────────────────────────────────────────────────── */
+.hs-section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Product Card ────────────────────────────────────────────────────────── */
+.hs-product-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;      /* ← impede filhos de esticar horizontalmente */
+  gap: 0.75rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Badge ocupa só o espaço do texto */
+.hs-product-card .hs-badge {
+  align-self: flex-start;
+  margin-top: auto;
+  width: fit-content;
+}
+
+.hs-product-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary), 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ── Trial row ───────────────────────────────────────────────────────────── */
+.hs-trial-row {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* ── Upsell card ─────────────────────────────────────────────────────────── */
+.hs-upsell-card {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  transition: background 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+
+.hs-upsell-card:hover {
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+/* Upsell card name — stronger weight */
+.hs-upsell-card span[style] {
+  font-weight: 700 !important;
+}
+
+/* ── Icon box ────────────────────────────────────────────────────────────── */
+.hs-icon-box {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Tenant badge ────────────────────────────────────────────────────────── */
+.hs-tenant-badge {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0.875rem 0.375rem 0.375rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.hs-tenant-badge:hover { background: var(--color-surface-2); }
+
+.hs-tenant-avatar {
+  width: 30px; height: 30px; min-width: 30px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Buttons (Pill) ──────────────────────────────────────────────────────── */
+/* Removido — use <BotaoGlobal> de @nucleo/botao-global */
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.hs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.hs-badge-success {
+  background: rgba(16,185,129,0.12);
+  color: var(--color-success);
+  border: 1px solid rgba(16,185,129,0.2);
+}
+
+.hs-badge-warning {
+  background: rgba(245,158,11,0.12);
+  color: var(--color-warning);
+  border: 1px solid rgba(245,158,11,0.2);
+}
+
+/* ── Store hero ──────────────────────────────────────────────────────────── */
+.hs-store-hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ── Store product card ──────────────────────────────────────────────────── */
+.hs-store-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.hs-store-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.hs-store-card__body {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hs-store-card__footer {
+  padding: 1rem 1.5rem;
+  background: var(--color-surface-2);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 0.625rem;
+}
+
+/* ── Price ───────────────────────────────────────────────────────────────── */
+.hs-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.hs-price span {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}

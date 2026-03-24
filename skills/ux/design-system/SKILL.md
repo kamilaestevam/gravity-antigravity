@@ -226,6 +226,69 @@ addNotification({ type: 'warning', message: 'Atenção: campo obrigatório' })
 
 ---
 
+## 8 — Ícones
+
+**Biblioteca obrigatória:** `@phosphor-icons/react`
+
+```typescript
+import { House, Users, Buildings } from '@phosphor-icons/react'
+```
+
+### Peso padrão
+
+| Contexto | Peso (`weight`) |
+|---|---|
+| UI geral (nav, header, botões) | `"duotone"` |
+| Destaque / call-to-action | `"fill"` |
+| Ícone sutil / placeholder | `"regular"` |
+
+> **Regra:** sempre usar `weight="duotone"` como padrão, salvo necessidade explícita.
+
+### Tamanhos canônicos
+
+| Contexto | `size` |
+|---|---|
+| Sidebar nav item | `18` |
+| Header título (inline com texto) | `20` |
+| Botão com texto | `16` |
+| Botão ícone-only / toggle | `18` |
+| Badge | `14` |
+
+### Cor
+
+- **Ícones de acento** (destaque, header): `color="#38bdf8"` (= `--accent`)
+- **Ícones neutros** (nav, botões secundários): herdam `color` do elemento pai via CSS
+
+### Espaçamento (gap)
+
+O ícone nunca tem `margin` próprio — o espaçamento é controlado pelo **flex container pai**:
+
+| Contexto | `gap` |
+|---|---|
+| Botão (`.btn`) | `0.5rem` |
+| Nav item (`.ws-nav-item`) | `0.75rem` |
+| Header título (`.ws-header__title-row`) | `0.5rem` |
+| Badge (`.badge`) | `0.25rem` |
+
+```css
+/* Exemplo: título de header com ícone */
+.ws-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+```
+
+```tsx
+// Exemplo de uso em header
+<div className="ws-header__title-row">
+  <House weight="duotone" size={20} color="#38bdf8" />
+  <p className="ws-header__title">Área do Cliente</p>
+</div>
+```
+
+---
+
 ## 9 — Navigation Tabs
 
 ```css

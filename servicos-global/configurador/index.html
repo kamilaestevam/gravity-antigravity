@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gravity Configurador — Admin Panel" />
+    <title>Gravity Configurador</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* === Gravity Design System — Solid Slate === */
+        --color-bg:           #0f172a;   /* bg-body-dark */
+        --color-surface:      #1e293b;   /* bg-base */
+        --color-surface-2:    #334155;   /* bg-surface */
+        --color-border:       rgba(56, 189, 248, 0.1);  /* accent translúcido */
+        --color-border-solid: #334155;
+
+        /* Accent: Sky 400 — substituiu Indigo */
+        --color-primary:      #38bdf8;
+        --color-primary-hover:#0ea5e9;
+
+        /* Texto */
+        --color-text:         #f1f5f9;
+        --color-text-muted:   #94a3b8;
+
+        /* Status */
+        --color-success:      #22c55e;
+        --color-warning:      #f59e0b;
+        --color-danger:       #ef4444;
+
+        /* Geometria */
+        --radius:             8px;
+        --radius-pill:        9999px;
+
+        /* Sombras */
+        --shadow-sm:          0 1px 3px rgba(0,0,0,0.4);
+        --shadow-md:          0 4px 12px rgba(0,0,0,0.5);
+
+        /* Tipografia */
+        --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+        /* Alias para bg-body-dark (usado no App.tsx) */
+        --bg-body-dark: #0f172a;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: var(--font);
+        background: var(--color-bg);
+        color: var(--color-text);
+        -webkit-font-smoothing: antialiased;
+      }
+      #root { min-height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

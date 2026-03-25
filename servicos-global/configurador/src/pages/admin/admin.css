@@ -1,0 +1,46 @@
+/* admin.css — Sobrescreve design tokens globais do workspace para o modo Admin HQ (verde) */
+
+body.admin-theme {
+  /* Tokens Base da Área Workspace */
+  --ws-accent: #10b981;
+  --ws-accent-dim: rgba(16, 185, 129, 0.12);
+  --ws-accent-border: rgba(16, 185, 129, 0.25);
+  
+  /* Tokens Primários (caso algum componente global leia diretamente) */
+  --color-primary: #10b981;
+}
+
+/* Identidade Visual Padronizada para Modais e Caixas Flutuantes na área Admin */
+body.admin-theme .mg-dialog,
+body.admin-theme [role="dialog"],
+body.admin-theme [role="alertdialog"],
+body.admin-theme .Radix-MenuContent,
+body.admin-theme [data-radix-popper-content-wrapper] > div {
+  border: 1px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 16px 48px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Ajuste no foco dos inputs globais para Admin */
+body.admin-theme .ws-field:focus-within,
+body.admin-theme .ws-input-icon-wrap:focus-within,
+body.admin-theme .ws-field:focus,
+body.admin-theme .em-readonly {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 1px #10b981 !important;
+}
+
+/* Identidade Visual Padronizada para Blocos Conteúdo de Página (Visão Geral, Tenants, etc) */
+body.admin-theme .em-identity,
+body.admin-theme .em-section,
+body.admin-theme .em-plan-row,
+body.admin-theme .ws-stat-card,
+body.admin-theme .ws-table-wrap,
+body.admin-theme .ws-tenant-chip,
+body.admin-theme .em-readonly {
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Override .em-identity background gradient to be green instead of yellow */
+body.admin-theme .em-identity {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.07) 0%, var(--ws-surface) 55%) !important;
+}

@@ -2,9 +2,10 @@ import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from '
 import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, CaretDown } from '@phosphor-icons/react'
+import { CalendarioCampoGlobal } from '@nucleo/calendario-campo-global'
 import './tabela.css'
 
-export type ColType = 'texto' | 'numero'
+export type ColType = 'texto' | 'numero' | 'periodo'
 export type SortDir = 'asc' | 'desc'
 
 export interface TabelaGlobalColuna<T> {
@@ -42,24 +43,27 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
   idKey?: keyof T & string // Padrão "id"
   mensagemVazio?: string
   mensagemSemFiltro?: string
+  renderExpandido?: (item: T) => React.ReactNode
 }
 
-type FiltrosStateVal = Set<string> | { min: string; max: string }
+type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
 
 function PopoverFiltro({
   tipo, coluna, label, filtros, ordenacao,
   valoresDisponiveis, valoresSelecionados,
-  minMax,
+  minMax, periodo,
   triggerRef,
-  onOrdenar, onToggleValor, onFiltrarNumero, onLimpar, onFechar,
+  onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimpar, onFechar,
 }: {
   tipo: ColType, coluna: string, label: string
   filtros: any, ordenacao: any, valoresDisponiveis: string[], valoresSelecionados: Set<string>,
   minMax: { min: string; max: string }
+  periodo: { inicio: Date | null; fim: Date | null }
   triggerRef: React.RefObject<HTMLButtonElement>
   onOrdenar: (c: string, d: SortDir) => void
   onToggleValor: (c: string, v: string) => void
   onFiltrarNumero: (c: string, tipo: 'min' | 'max', v: string) => void
+  onFiltrarPeriodo: (c: string, p: { inicio: Date | null; fim: Date | null }) => void
   onLimpar: () => void, onFechar: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -204,6 +208,16 @@ function PopoverFiltro({
         </div>
       )}
 
+      {tipo === 'periodo' && (
+        <div style={{ padding: '0.625rem 0.5rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Selecione o Período</p>
+          <CalendarioCampoGlobal 
+            valor={periodo as any}
+            aoMudarValor={(v: any) => { onFiltrarPeriodo(coluna, v) }}
+          />
+        </div>
+      )}
+
       <div style={{ padding: '0.375rem 0.5rem 0.3rem' }}>
         <button type="button" onClick={() => { onLimpar(); onFechar() }}
           style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', width: '100%', padding: '0.35rem 0.5rem', borderRadius: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '0.8125rem', fontFamily: 'inherit', transition: 'color 0.12s' }}
@@ -217,7 +231,7 @@ function PopoverFiltro({
   )
 }
 
-function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onLimparColuna }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: any, dados: T[], onOrdenar: any, onToggleValor: any, onFiltrarNumero: any, onLimparColuna: any }) {
+function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimparColuna }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: any, dados: T[], onOrdenar: any, onToggleValor: any, onFiltrarNumero: any, onFiltrarPeriodo: any, onLimparColuna: any }) {
   const [aberto, setAberto] = useState(false)
   const handleFechar = useCallback(() => setAberto(false), [])
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -231,7 +245,9 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   }, [dados, coluna])
 
   const stateVal = filtros[coluna]
-  const temFiltroAtivo = col.tipo === 'texto' ? (stateVal as Set<string>).size > 0 : !!((stateVal as {min: string, max: string}).min || (stateVal as {min: string, max: string}).max)
+  const temFiltroAtivo = col.tipo === 'texto' ? (stateVal as Set<string>).size > 0 
+    : col.tipo === 'numero' ? !!((stateVal as {min: string, max: string}).min || (stateVal as {min: string, max: string}).max)
+    : !!((stateVal as {inicio: Date | null, fim: Date | null}).inicio || (stateVal as {inicio: Date | null, fim: Date | null}).fim)
 
   const labelSpan = (
     <span style={{ color: sortAtivo ? '#818cf8' : undefined, lineHeight: 1, display: 'inline-block' }}>
@@ -258,10 +274,12 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
           valoresDisponiveis={valoresDisponiveis}
           valoresSelecionados={col.tipo === 'texto' ? (stateVal as Set<string>) : new Set()}
           minMax={col.tipo === 'numero' ? (stateVal as {min: string, max: string}) : {min: '', max: ''}}
+          periodo={col.tipo === 'periodo' ? (stateVal as {inicio: Date | null, fim: Date | null}) : {inicio: null, fim: null}}
           triggerRef={triggerRef}
           onOrdenar={onOrdenar}
           onToggleValor={onToggleValor}
           onFiltrarNumero={onFiltrarNumero}
+          onFiltrarPeriodo={onFiltrarPeriodo}
           onLimpar={() => onLimparColuna(coluna)}
           onFechar={handleFechar}
         />
@@ -294,7 +312,7 @@ function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.R
   )
 }
 
-export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio = 'Nenhum resultado.', mensagemSemFiltro = 'Nenhum registro cadastrado.' }: TabelaGlobalProps<T>) {
+export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio = 'Nenhum resultado.', mensagemSemFiltro = 'Nenhum registro cadastrado.', renderExpandido }: TabelaGlobalProps<T>) {
   const [busca, setBusca] = useState('')
   const [ordenacao, setOrdenacao] = useState<{ coluna: string; direcao: SortDir } | null>(null)
   
@@ -302,12 +320,22 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
   colunas.forEach(c => {
     if (c.tipo === 'texto') initialFiltros[c.key] = new Set<string>()
     if (c.tipo === 'numero') initialFiltros[c.key] = { min: '', max: '' }
+    if (c.tipo === 'periodo') initialFiltros[c.key] = { inicio: null, fim: null }
   })
   
   const [filtros, setFiltros] = useState<Record<string, FiltrosStateVal>>(initialFiltros)
   const [pagina, setPagina] = useState(1)
   const [porPagina, setPorPagina] = useState(10)
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
+  const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
+
+  const toggleExpandido = useCallback((id: string) => {
+    setExpandidos(prev => {
+      const s = new Set(prev)
+      s.has(id) ? s.delete(id) : s.add(id)
+      return s
+    })
+  }, [])
 
   const onToggleValor = useCallback((col: string, v: string) => {
     setFiltros(prev => {
@@ -329,12 +357,18 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
     setPagina(1)
   }, [])
 
+  const onFiltrarPeriodo = useCallback((col: string, val: { inicio: Date | null, fim: Date | null }) => {
+    setFiltros(prev => ({ ...prev, [col]: val }))
+    setPagina(1)
+  }, [])
+
   const onOrdenar = useCallback((col: string, dir: SortDir) => setOrdenacao({ coluna: col, direcao: dir }), [])
 
   const onLimparColuna = useCallback((col: string) => {
     setFiltros(prev => {
       const n = { ...prev }
-      if (n[col] instanceof Set) n[col] = new Set()
+      if (colunas.find(x => x.key === col)?.tipo === 'periodo') n[col] = { inicio: null, fim: null }
+      else if (n[col] instanceof Set) n[col] = new Set()
       else n[col] = { min: '', max: '' }
       return n
     })
@@ -362,10 +396,31 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
       if (c.tipo === 'texto') {
         const s = st as Set<string>
         if (s.size > 0) r = r.filter(e => s.has(String(e[c.key])))
-      } else {
+      } else if (c.tipo === 'numero') {
         const num = st as {min: string, max: string}
         if (num.min !== '') r = r.filter(e => Number(e[c.key]) >= Number(num.min))
         if (num.max !== '') r = r.filter(e => Number(e[c.key]) <= Number(num.max))
+      } else if (c.tipo === 'periodo') {
+        const p = st as { inicio: Date | null; fim: Date | null }
+        if (p.inicio || p.fim) {
+          r = r.filter(e => {
+            const val = e[c.key]
+            if (!val) return false
+            const d = new Date(val as any)
+            if (isNaN(d.getTime())) return true // ignora filtragem real se o campo n for data
+            if (p.inicio) {
+              const ini = new Date(p.inicio)
+              ini.setHours(0,0,0,0)
+              if (d < ini) return false
+            }
+            if (p.fim) {
+              const fim = new Date(p.fim)
+              fim.setHours(23,59,59,999)
+              if (d > fim) return false
+            }
+            return true
+          })
+        }
       }
     })
 
@@ -388,10 +443,17 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
       if (c.tipo === 'texto') {
         const s = st as Set<string>
         s.forEach(v => list.push({ key: `${c.key}-${v}`, label: `${c.label}: ${v}`, onRemover: () => onToggleValor(c.key, v) }))
-      } else {
+      } else if (c.tipo === 'numero') {
         const num = st as {min: string, max: string}
         if (num.min !== '' || num.max !== '') {
           list.push({ key: c.key, label: `${c.label}: ${num.min || '0'}–${num.max || '∞'}`, onRemover: () => onLimparColuna(c.key) })
+        }
+      } else if (c.tipo === 'periodo') {
+        const p = st as { inicio: Date | null, fim: Date | null }
+        if (p.inicio || p.fim) {
+          const iniStr = p.inicio ? p.inicio.toLocaleDateString('pt-BR') : '...'
+          const fimStr = p.fim ? p.fim.toLocaleDateString('pt-BR') : '...'
+          list.push({ key: c.key, label: `${c.label}: ${iniStr} - ${fimStr}`, onRemover: () => onLimparColuna(c.key) })
         }
       }
     })
@@ -502,6 +564,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                   onOrdenar={onOrdenar}
                   onToggleValor={onToggleValor}
                   onFiltrarNumero={onFiltrarNumero}
+                  onFiltrarPeriodo={onFiltrarPeriodo}
                   onLimparColuna={onLimparColuna}
                 />
               ))}
@@ -509,6 +572,9 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                 <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
                   Ações
                 </th>
+              )}
+              {renderExpandido && (
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)' }}></th>
               )}
             </tr>
           </thead>
@@ -524,9 +590,12 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               </tr>
             ) : paginado.map((item, i) => {
               const id = String(item[idKey as string])
+              const isExpanded = expandidos.has(id)
               return (
-              <tr key={id}
-                style={{ borderBottom: i < paginado.length - 1 ? '1px solid rgba(129,140,248,0.06)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
+              <React.Fragment key={id}>
+              <tr
+                onClick={renderExpandido ? () => toggleExpandido(id) : undefined}
+                style={{ cursor: renderExpandido ? 'pointer' : 'default', borderBottom: (isExpanded || i < paginado.length - 1) ? '1px solid rgba(129,140,248,0.06)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
                 onMouseEnter={ev => { if (!selecionados.has(id)) ev.currentTarget.style.background = 'rgba(129,140,248,0.03)' }}
                 onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent' }}>
                 <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
@@ -569,7 +638,20 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                     </div>
                   </td>
                 )}
+                {renderExpandido && (
+                  <td style={{ padding: '0.875rem 1rem', textAlign: 'center', width: 1, color: '#64748b' }}>
+                    <CaretDown size={14} weight="bold" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
+                  </td>
+                )}
               </tr>
+              {isExpanded && renderExpandido && (
+                <tr>
+                  <td colSpan={colunas.length + (acoes?.length ? 2 : 1) + 1} style={{ padding: 0, borderBottom: i < paginado.length - 1 ? '1px solid rgba(129,140,248,0.06)' : 'none', background: 'rgba(15,23,42,0.3)' }}>
+                    {renderExpandido(item)}
+                  </td>
+                </tr>
+              )}
+              </React.Fragment>
             )})}
           </tbody>
         </table>

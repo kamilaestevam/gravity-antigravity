@@ -192,11 +192,15 @@ export function CalendarioCampoGlobal({
         {textoDisplay ? (
           <TooltipGlobal titulo={textoDisplay} descricao="">
             <div 
-              className="ws-input-icon-wrap" 
               onClick={() => { if (!disabled) setIsOpen(v => !v) }}
-              style={{ cursor: disabled ? 'not-allowed' : 'pointer', overflow: 'hidden' }}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '8px', 
+                background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', 
+                padding: '0.4375rem 0.75rem', borderRadius: '6px',
+                cursor: disabled ? 'not-allowed' : 'pointer', overflow: 'hidden' 
+              }}
             >
-              <CalendarBlank size={16} />
+              <CalendarBlank size={16} style={{ color: 'var(--ws-muted)', flexShrink: 0, position: 'static' }} />
               
               <input
                 type="text"
@@ -246,11 +250,15 @@ export function CalendarioCampoGlobal({
           </TooltipGlobal>
         ) : (
           <div 
-            className="ws-input-icon-wrap" 
             onClick={() => { if (!disabled) setIsOpen(v => !v) }}
-            style={{ cursor: disabled ? 'not-allowed' : 'pointer', overflow: 'hidden' }}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '8px', 
+              background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', 
+              padding: '0.4375rem 0.75rem', borderRadius: '6px',
+              cursor: disabled ? 'not-allowed' : 'pointer', overflow: 'hidden' 
+            }}
           >
-            <CalendarBlank size={16} />
+            <CalendarBlank size={16} style={{ color: 'var(--ws-muted)', flexShrink: 0, position: 'static' }} />
             
             <input
               type="text"

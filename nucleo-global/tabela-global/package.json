@@ -15,7 +15,8 @@
                              "react-dom":  "^18.0.0"
                          },
     "dependencies": {
-        "@nucleo/tooltip-global": "*"
+        "@nucleo/tooltip-global": "*",
+        "@nucleo/calendario-campo-global": "*"
     },
     "devDependencies":  {
                             "@types/react":  "^18.0.0",

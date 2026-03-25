@@ -19,7 +19,6 @@ import type { SelectOpcao } from '@nucleo/select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
-import { StatusSalvarGlobal, type StatusSalvar } from '@nucleo/status-salvar-global'
 import { ModalSelectGlobal } from '@nucleo/modal-select-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
 
@@ -113,15 +112,6 @@ export function Organizacao() {
 
   // Status de salvamento inline
   const [salvando, setSalvando] = useState(false)
-  const [statusReq, setStatusReq] = useState<'success' | 'error' | null>(null)
-
-  const statusSalvar: StatusSalvar = salvando
-    ? 'saving'
-    : statusReq
-      ? statusReq
-      : isDirty
-        ? 'dirty'
-        : 'idle'
 
   // lista de cidades do estado
   const [cidades, setCidades] = useState<SelectOpcao[]>([])
@@ -168,7 +158,6 @@ export function Organizacao() {
   async function handleSalvar() {
     try {
       setSalvando(true)
-      setStatusReq(null)
       
       // fake delay
       await new Promise(res => setTimeout(res, 1200))
@@ -185,13 +174,11 @@ export function Organizacao() {
       }
       resetEspaco(espacoAtivoId)
 
-      setStatusReq('success')
       addNotification({
         type: 'success',
         message: 'Organização salva com sucesso!'
       })
     } catch (err) {
-      setStatusReq('error')
       addNotification({
         type: 'error',
         message: 'Não foi possível salvar a organização. Tente novamente.'
@@ -222,15 +209,6 @@ export function Organizacao() {
           icone={<Crown weight="duotone" size={22} />}
           titulo="Organização"
           subtitulo="Dados da empresa que contratou a plataforma Gravity"
-          acoes={
-            <div style={{ marginLeft: '1rem' }}>
-              <StatusSalvarGlobal
-                status={statusSalvar}
-                onAutoReset={() => setStatusReq(null)}
-                hideOnIdle={true}
-              />
-            </div>
-          }
         />
       }
     >

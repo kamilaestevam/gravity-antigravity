@@ -9,6 +9,14 @@ export type Page =
   | { name: 'store' }
 
 import { AdminPanel } from './pages/AdminPanel'
+import { AdminLayout } from './pages/admin/AdminLayout'
+import { VisaoGeralAdmin } from './pages/admin/VisaoGeralAdmin'
+import { ProdutosAdmin } from './pages/admin/ProdutosAdmin'
+import { HistoricoGlobalAdmin } from './pages/admin/HistoricoGlobalAdmin'
+import { AdminFinanceiro } from './pages/admin/AdminFinanceiro'
+import { LogTestes } from './pages/admin/LogTestes'
+import { MonitorApisAdmin } from './pages/admin/MonitorApisAdmin'
+import { UsuariosGlobaisAdmin } from './pages/admin/UsuariosGlobaisAdmin'
 import { TenantDetail } from './pages/TenantDetail'
 import { Onboarding } from './pages/Onboarding'
 import { Hub } from './pages/Hub'
@@ -21,11 +29,12 @@ import { Assinaturas }       from './pages/workspace/Assinaturas'
 import { Financeiro }        from './pages/workspace/Financeiro'
 import { ApiCockpit }        from './pages/workspace/ApiCockpit'
 import { SelecionarWorkspace } from './pages/SelecionarWorkspace'
+import { DeployRailwayAdmin } from './pages/admin/DeployRailwayAdmin'
 
 function TenantDetailWrapper() {
   const { id } = useParams()
   const navigate = useNavigate()
-  return <TenantDetail tenantId={id!} onBack={() => navigate('/admin')} />
+  return <TenantDetail tenantId={id!} onBack={() => navigate('/admin/tenants')} />
 }
 
 /** Rota raiz: se logado → /selecionar-workspace, se não → AuthPage */
@@ -56,7 +65,7 @@ export default function App() {
   const routerNavigate = useNavigate()
 
   const adminNavigate = (next: Page) => {
-    if (next.name === 'admin') routerNavigate('/admin')
+    if (next.name === 'admin') routerNavigate('/admin/tenants')
     if (next.name === 'tenant-detail') routerNavigate(`/admin/tenant/${next.tenantId}`)
   }
 
@@ -66,6 +75,7 @@ export default function App() {
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />
         <Route path="/sign-in/*" element={<AuthPage />} />
+        <Route path="/sign-up/*" element={<AuthPage />} />
 
         {/* Onboarding — novos clientes vindos do Marketplace */}
         <Route path="/trial" element={<Onboarding />} />
@@ -75,8 +85,21 @@ export default function App() {
         <Route path="/hub" element={<Navigate to="/selecionar-workspace" replace />} />
         <Route path="/selecionar-workspace" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><Store /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><AdminPanel navigate={adminNavigate} /></ProtectedRoute>} />
-        <Route path="/admin/tenant/:id" element={<ProtectedRoute><TenantDetailWrapper /></ProtectedRoute>} />
+
+        {/* Admin — área interna restrita */}
+        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route index element={<Navigate to="/admin/visao-geral" replace />} />
+          <Route path="visao-geral" element={<VisaoGeralAdmin />} />
+          <Route path="usuarios" element={<UsuariosGlobaisAdmin />} />
+          <Route path="produtos" element={<ProdutosAdmin />} />
+          <Route path="financeiro" element={<AdminFinanceiro />} />
+          <Route path="historico" element={<HistoricoGlobalAdmin />} />
+          <Route path="deploy" element={<DeployRailwayAdmin />} />
+          <Route path="testes" element={<LogTestes />} />
+          <Route path="apis" element={<MonitorApisAdmin />} />
+          <Route path="tenants" element={<AdminPanel navigate={adminNavigate} />} />
+          <Route path="tenant/:id" element={<TenantDetailWrapper />} />
+        </Route>
 
         {/* Workspace — área do cliente */}
         <Route path="/workspace" element={<ProtectedRoute><WorkspaceLayout /></ProtectedRoute>}>

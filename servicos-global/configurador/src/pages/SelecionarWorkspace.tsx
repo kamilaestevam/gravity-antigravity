@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useClerk } from '@clerk/clerk-react'
+import { useClerk, useUser } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -7,6 +7,7 @@ import {
   Plus,
   Buildings,
   CheckCircle,
+  ShieldCheck,
 } from '@phosphor-icons/react'
 
 interface Empresa {
@@ -32,8 +33,11 @@ const planoBadgeColor: Record<string, string> = {
 
 export function SelecionarWorkspace() {
   const { signOut } = useClerk()
+  const { user } = useUser()
   const navigate = useNavigate()
   const [selecionando, setSelecionando] = useState<string | null>(null)
+
+  const isAdmin = user?.publicMetadata?.role === 'gravity_admin'
 
   function handleSelect(empresa: Empresa) {
     setSelecionando(empresa.id)
@@ -249,6 +253,45 @@ export function SelecionarWorkspace() {
           <Plus weight="bold" size={16} />
           Criar nova empresa
         </button>
+
+        {/* Acesso Admin */}
+        {isAdmin && (
+          <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(129,140,248,0.08)' }}>
+            <button
+              id="sw-admin-panel"
+              type="button"
+              onClick={() => navigate('/admin')}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                width: '100%', padding: '0.8125rem',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '12px',
+                color: '#10b981', fontSize: '0.875rem', fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'var(--font)',
+                transition: 'all 0.15s',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.5)'
+                e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.2)'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%)'
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.3)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.1)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              <ShieldCheck weight="duotone" size={20} />
+              Acessar Painel Admin (Gravity)
+            </button>
+          </div>
+        )}
       </div>
 
       <style>{`

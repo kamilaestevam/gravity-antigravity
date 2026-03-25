@@ -5,6 +5,7 @@ import { StatCardGlobal } from '@nucleo/stat-card-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CalendarioCampoGlobal } from '@nucleo/calendario-campo-global'
 
 type ApiStatus = 'Online' | 'Offline' | 'Degradado'
 
@@ -14,14 +15,17 @@ type ApiService = {
   baseUrl: string
   tokensAtivos: number
   status: ApiStatus
+  tipoCobranca: 'Processo' | 'Documento' | 'Requisição' | 'Fixo'
+  consumoAtual: number
+  consumoLimite: number | null
 }
 
 const services: ApiService[] = [
-  { id: 's1', produto: 'Dashboard Global',    baseUrl: 'https://api.gravity.com.br/dashboard/v1',   tokensAtivos: 3, status: 'Online'   },
-  { id: 's2', produto: 'Gestão de Atividades', baseUrl: 'https://api.gravity.com.br/atividades/v2', tokensAtivos: 1, status: 'Online'   },
-  { id: 's3', produto: 'SimulaCusto',          baseUrl: 'https://api.gravity.com.br/sim-custo/v1',  tokensAtivos: 2, status: 'Online'   },
-  { id: 's4', produto: 'Gabi IA Assistant',    baseUrl: 'https://api.gravity.com.br/gabi/v1',      tokensAtivos: 0, status: 'Degradado' },
-  { id: 's5', produto: 'WhatsApp Business',    baseUrl: 'https://api.gravity.com.br/whatsapp/v1',  tokensAtivos: 0, status: 'Offline'   },
+  { id: 's1', produto: 'Dashboard Global',    baseUrl: 'https://api.gravity.com.br/dashboard/v1',   tokensAtivos: 3, status: 'Online',    tipoCobranca: 'Fixo',       consumoAtual: 0,    consumoLimite: null },
+  { id: 's2', produto: 'Gestão de Atividades', baseUrl: 'https://api.gravity.com.br/atividades/v2', tokensAtivos: 1, status: 'Online',    tipoCobranca: 'Processo',   consumoAtual: 1450, consumoLimite: 5000 },
+  { id: 's3', produto: 'SimulaCusto',          baseUrl: 'https://api.gravity.com.br/sim-custo/v1',  tokensAtivos: 2, status: 'Online',    tipoCobranca: 'Documento',  consumoAtual: 850,  consumoLimite: 1000 },
+  { id: 's4', produto: 'Gabi IA Assistant',    baseUrl: 'https://api.gravity.com.br/gabi/v1',      tokensAtivos: 0, status: 'Degradado', tipoCobranca: 'Requisição', consumoAtual: 9800, consumoLimite: 10000 },
+  { id: 's5', produto: 'WhatsApp Business',    baseUrl: 'https://api.gravity.com.br/whatsapp/v1',  tokensAtivos: 0, status: 'Offline',   tipoCobranca: 'Fixo',       consumoAtual: 0,    consumoLimite: null },
 ]
 
 const statusBadge: Record<ApiStatus, string> = {
@@ -106,7 +110,29 @@ export function ApiCockpit() {
       )
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'consumoAtual', label: 'Volume Consumido', tipo: 'periodo',
+      render: (_, item) => {
+        if (item.tipoCobranca === 'Fixo') return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>Ilimitado (Fixo)</span>
+        
+        const perc = item.consumoLimite ? Math.round((item.consumoAtual / item.consumoLimite) * 100) : 0
+        const color = perc > 90 ? '#f87171' : perc > 75 ? '#fbbf24' : '#34d399'
+        const sigla = item.tipoCobranca === 'Processo' ? 'procs' : item.tipoCobranca === 'Documento' ? 'docs' : 'reqs'
+
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', width: '130px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+              <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{item.consumoAtual.toLocaleString('pt-BR')}</span>
+              <span style={{ color: 'var(--ws-muted)' }}>/ {item.consumoLimite?.toLocaleString('pt-BR')} {sigla}</span>
+            </div>
+            <div style={{ height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${Math.min(perc, 100)}%`, background: color }} />
+            </div>
+          </div>
+        )
+      }
+    },
+    {
+      key: 'status', label: 'Status da API', tipo: 'texto',
       render: (v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{
@@ -175,9 +201,15 @@ export function ApiCockpit() {
             variante={services.filter(s => s.status !== 'Online').length ? 'perigo' : 'padrao'}
           />
           <StatCardGlobal
-            titulo="Tokens Ativos (total)"
+            titulo="Tokens Ativos"
             valor={services.reduce((acc, s) => acc + s.tokensAtivos, 0)}
             variante="primario"
+          />
+          <StatCardGlobal
+            titulo="Alertas de Consumo"
+            valor={services.filter(s => s.consumoLimite && (s.consumoAtual / s.consumoLimite) > 0.85).length}
+            subtexto="Serviços com >85% de uso"
+            variante={services.filter(s => s.consumoLimite && (s.consumoAtual / s.consumoLimite) > 0.85).length > 0 ? 'perigo' : 'sucesso'}
           />
         </>
       }
@@ -205,10 +237,12 @@ export function ApiCockpit() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {/* Services table */}
           <div>
-            <p className="ws-section-title ws-fade-up ws-fade-up-d2">
-              <PlugsConnected weight="duotone" size={14} color="#818cf8" />
-              Status dos Serviços
-            </p>
+            <div className="ws-fade-up ws-fade-up-d2" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <p className="ws-section-title" style={{ margin: 0 }}>
+                <PlugsConnected weight="duotone" size={14} color="#818cf8" />
+                Status dos Serviços
+              </p>
+            </div>
             <div className="ws-fade-up ws-fade-up-d2" style={{ position: 'relative', zIndex: 10 }}>
               <TabelaGlobal<ApiService>
                 dados={services}

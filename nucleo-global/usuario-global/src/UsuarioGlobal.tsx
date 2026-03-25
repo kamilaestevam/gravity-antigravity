@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { CaretDown, ShieldCheck, Gear, Buildings, CreditCard, Moon, Sun, Robot, Sparkle, SignOut } from '@phosphor-icons/react'
+import { CaretDown, ShieldCheck, Gear, Buildings, CreditCard, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 export interface UsuarioGlobalProps {
@@ -12,6 +12,10 @@ export interface UsuarioGlobalProps {
   onNavigateOrganizacao: () => void
   onNavigateAssinaturas: () => void
   onSignOut: () => void
+  isAdmin?: boolean
+  isAdminPanel?: boolean
+  onNavigateAdmin?: () => void
+  onNavigateConfigurador?: () => void
 }
 
 export function UsuarioGlobal({
@@ -24,6 +28,10 @@ export function UsuarioGlobal({
   onNavigateOrganizacao,
   onNavigateAssinaturas,
   onSignOut,
+  isAdmin,
+  isAdminPanel,
+  onNavigateAdmin,
+  onNavigateConfigurador,
 }: UsuarioGlobalProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -91,50 +99,82 @@ export function UsuarioGlobal({
           <div className="ws-profile-separator" />
 
           <div className="ws-profile-section">
-            {userRole !== 'Master' ? (
-              <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar a organização.">
-                <button 
-                  className="ws-profile-item disabled-item" 
-                  type="button"
-                  style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
-                > 
-                  <Buildings weight="duotone" size={16} /> Gerenciar Organização
-                </button>
-              </TooltipGlobal>
-            ) : (
-              <button 
-                className="ws-profile-item" 
-                type="button"
-                onClick={() => {
-                  onNavigateOrganizacao()
-                  setIsProfileOpen(false)
-                }}
-              > 
-                <Buildings weight="duotone" size={16} /> Gerenciar Organização
-              </button>
+            {!isAdminPanel && (
+              <>
+                {userRole !== 'Master' ? (
+                  <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar a organização.">
+                    <button 
+                      className="ws-profile-item disabled-item" 
+                      type="button"
+                      style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
+                    > 
+                      <Buildings weight="duotone" size={16} /> Gerenciar Organização
+                    </button>
+                  </TooltipGlobal>
+                ) : (
+                  <button 
+                    className="ws-profile-item" 
+                    type="button"
+                    onClick={() => {
+                      onNavigateOrganizacao()
+                      setIsProfileOpen(false)
+                    }}
+                  > 
+                    <Buildings weight="duotone" size={16} /> Gerenciar Organização
+                  </button>
+                )}
+
+                {userRole !== 'Master' ? (
+                  <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar assinaturas.">
+                    <button 
+                      className="ws-profile-item disabled-item" 
+                      type="button"
+                      style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed', marginTop: '0.125rem' }}
+                    > 
+                      <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
+                    </button>
+                  </TooltipGlobal>
+                ) : (
+                  <button 
+                    className="ws-profile-item" 
+                    type="button"
+                    style={{ marginTop: '0.125rem' }}
+                    onClick={() => {
+                      onNavigateAssinaturas()
+                      setIsProfileOpen(false)
+                    }}
+                  > 
+                    <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
+                  </button>
+                )}
+              </>
             )}
 
-            {userRole !== 'Master' ? (
-              <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar assinaturas.">
-                <button 
-                  className="ws-profile-item disabled-item" 
-                  type="button"
-                  style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed', marginTop: '0.125rem' }}
-                > 
-                  <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
-                </button>
-              </TooltipGlobal>
-            ) : (
+            {isAdmin && !isAdminPanel && (
               <button 
-                className="ws-profile-item" 
+                className="ws-profile-item ws-profile-item--admin" 
                 type="button"
                 style={{ marginTop: '0.125rem' }}
                 onClick={() => {
-                  onNavigateAssinaturas()
+                  if (onNavigateAdmin) onNavigateAdmin()
                   setIsProfileOpen(false)
                 }}
               > 
-                <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
+                <Crown weight="duotone" size={16} /> Acesso ao Admin
+              </button>
+            )}
+
+            {isAdmin && isAdminPanel && (
+              <button 
+                className="ws-profile-item ws-profile-item--configurador" 
+                type="button"
+                style={{ marginTop: '0.125rem' }}
+                onClick={() => {
+                  if (onNavigateConfigurador) onNavigateConfigurador()
+                  setIsProfileOpen(false)
+                }}
+              > 
+                <Gear weight="duotone" size={16} /> Acesso ao Configurador
               </button>
             )}
           </div>

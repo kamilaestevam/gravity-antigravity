@@ -215,3 +215,41 @@
     to   { transform: translateY(0);   opacity: 1; }
   }
 }
+
+/* ─── Custom Footer Utilities (Botoes) ───────────────────────────────────────────────────────────── */
+.mg-footer-personalizado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-base);
+  border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+}
+
+.botoes-footer-padrao {
+  display: flex !important;
+  gap: 0.75rem !important;
+  align-items: center !important;
+}
+
+.botoes-footer-padrao button,
+.mg-btn-danger-fix {
+  height: 38px !important;
+  padding: 0 1.25rem !important;
+  font-size: 0.875rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+.botoes-footer-padrao button.gb-btn--com-icone {
+  padding-left: 0.875rem !important;
+  padding-right: 1.25rem !important;
+}
+
+.botoes-footer-padrao > div {
+  display: flex !important;
+  align-items: center !important;
+}

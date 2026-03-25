@@ -72,13 +72,15 @@ function SecaoTitulo({
   icone,
   titulo,
   tooltip,
+  marginBottom = '1rem',
 }: {
   icone: React.ReactNode
   titulo: string
   tooltip?: string
+  marginBottom?: string | number
 }) {
   return (
-    <p className="ws-section-title" style={{ width: 'max-content', marginBottom: '1rem', marginTop: 0 }}>
+    <p className="ws-section-title" style={{ width: 'max-content', marginBottom, marginTop: 0 }}>
       {tooltip ? (
         <TooltipGlobal titulo={titulo} descricao={tooltip}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
@@ -184,11 +186,39 @@ function AbaInformacoes({
 
       {/* Seção: Identidade */}
       <div>
-        <SecaoTitulo
-          icone={<IdentificationCard size={16} weight="duotone" />}
-          titulo="Identidade"
-          tooltip="Nome e identificação visual do espaço de trabalho na plataforma"
-        />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <SecaoTitulo
+            icone={<IdentificationCard size={16} weight="duotone" />}
+            titulo="Identidade"
+            tooltip="Nome e identificação visual do espaço de trabalho na plataforma"
+            marginBottom={0}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '0.15rem 0.5rem',
+              borderRadius: '9999px',
+              fontSize: '0.6875rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: empresa.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+              color: empresa.status === 'Ativa' ? '#34d399' : '#f87171',
+              border: `1px solid ${empresa.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+            }}>
+              {empresa.status}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
+              <CalendarBlank size={14} />
+              <span>Criado em {empresa.criadaEm}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
+              <Buildings size={14} />
+              <span>{empresa.organizacao || 'Gravity Principal'}</span>
+            </div>
+          </div>
+        </div>
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
             <GeralCampoGlobal label="Nome da Empresa" obrigatorio>
@@ -345,53 +375,6 @@ function AbaInformacoes({
         </div>
       </div>
 
-      {/* Seção: Dados do Sistema */}
-      <div>
-        <SecaoTitulo
-          icone={<Info size={16} weight="duotone" />}
-          titulo="Dados do Sistema"
-        />
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1.5rem',
-          padding: '1rem 1.25rem',
-          background: 'rgba(255, 255, 255, 0.02)', // Fundo ultra sutil
-          border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
-          borderRadius: 'var(--radius-md, 8px)',
-          alignItems: 'center'
-        }}>
-          {/* Status Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              padding: '0.15rem 0.5rem',
-              borderRadius: '9999px',
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              background: empresa.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-              color: empresa.status === 'Ativa' ? '#34d399' : '#f87171',
-              border: `1px solid ${empresa.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
-            }}>
-              {empresa.status}
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.8125rem' }}>
-            <CalendarBlank size={16} />
-            <span>Criado em {empresa.criadaEm}</span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.8125rem' }}>
-            <Buildings size={16} />
-            <span>{empresa.organizacao || 'Gravity Principal'}</span>
-          </div>
-        </div>
-      </div>
-      
       {/* Spacer para garantir scroll adicional da tela */}
       <div style={{ height: '5rem', width: '100%', flexShrink: 0 }} />
     </div>
@@ -495,41 +478,7 @@ export function ModalEditarEspaco({
       tamanho="lg"
       altura="680px"
       renderizarFooter={() => (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', margin: '-1.25rem -1.5rem', padding: '1.25rem 1.5rem', background: 'var(--bg-base)' }}>
-          {/* Custom style for exact button match */}
-          <style>{`
-            .botoes-footer-padrao {
-              display: flex;
-              gap: 0.75rem;
-              align-items: center;
-            }
-            .botoes-footer-padrao button {
-              height: 38px !important;
-              padding: 0 1.25rem !important;
-              font-size: 0.875rem !important;
-              display: inline-flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-              box-sizing: border-box !important;
-            }
-            .botoes-footer-padrao button.gb-btn--com-icone {
-              padding-left: 0.375rem !important;
-              padding-right: 1.25rem !important;
-            }
-            .botoes-footer-padrao > div {
-              display: inline-flex;
-              align-items: center;
-              height: 38px;
-            }
-            .mg-btn-danger-fix {
-              height: 38px !important;
-              padding: 0 1.25rem !important;
-              display: inline-flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-              box-sizing: border-box !important;
-            }
-          `}</style>
+        <div className="mg-footer-personalizado">
           
           {/* Ação primária de perigo separada à esquerda */}
           <button
@@ -540,7 +489,7 @@ export function ModalEditarEspaco({
           </button>
           
           {/* Ações de formulário à direita */}
-          <div className="botoes-footer-padrao" style={{ alignItems: 'center' }}>
+          <div className="botoes-footer-padrao">
             <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
             <BotaoCancelar
               dirty={dirty}

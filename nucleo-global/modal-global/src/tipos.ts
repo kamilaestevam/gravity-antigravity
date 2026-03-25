@@ -64,6 +64,8 @@ export interface ModalProps {
   abas?: AbaModal[]
   /** Estilo das abas. Padrão: 'underline' */
   tipoAbas?: 'underline' | 'pill'
+  /** Aba a ser selecionada inicialmente ao abrir o modal */
+  abaAtivaInicial?: string
   /** Header inteiro customizado (substitui o padrão do modal) */
   cabecalhoPersonalizado?: ReactNode
   /** Conteúdo direto (quando não usa abas) */

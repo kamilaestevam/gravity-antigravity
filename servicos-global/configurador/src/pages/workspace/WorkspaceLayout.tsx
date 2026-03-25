@@ -40,7 +40,6 @@ const navItems = [
   { to: '/workspace/assinaturas',  label: 'Assinaturas',     icon: <CreditCard  weight="duotone" size={18} /> },
   { to: '/workspace/financeiro',   label: 'Financeiro',      icon: <Receipt     weight="duotone" size={18} /> },
   { to: '/workspace/api-cockpit',  label: 'API Cockpit',     icon: <PlugsConnected weight="duotone" size={18} /> },
-  { to: '/workspace/conector-cargowise', label: 'CargoWise', icon: <Truck       weight="duotone" size={18} /> },
 ]
 
 export function WorkspaceLayout() {
@@ -137,6 +136,8 @@ export function WorkspaceLayout() {
             onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
             onNavigateAssinaturas={() => navigate('/workspace/assinaturas')}
             onSignOut={() => signOut()}
+            isAdmin={userEmail === 'dmmltda@gmail.com' || userEmail === 'admin@gravity.com.br' || userRole === 'Master'}
+            onNavigateAdmin={() => navigate('/admin/visao-geral')}
           />
         </div>
 

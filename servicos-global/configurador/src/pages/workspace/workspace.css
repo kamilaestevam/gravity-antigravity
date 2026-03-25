@@ -661,6 +661,42 @@ body.light-theme .ws-profile-dropdown {
   color: #ef4444;
 }
 
+.ws-profile-item--admin {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.ws-profile-item--admin svg {
+  color: #10b981;
+}
+
+.ws-profile-item--admin:hover {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.ws-profile-item--admin:hover svg {
+  color: #10b981;
+}
+
+.ws-profile-item--configurador {
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.ws-profile-item--configurador svg {
+  color: #818cf8;
+}
+
+.ws-profile-item--configurador:hover {
+  background: rgba(129, 140, 248, 0.1);
+  color: #818cf8;
+}
+
+.ws-profile-item--configurador:hover svg {
+  color: #818cf8;
+}
+
 .ws-profile-new-dot {
   width: 6px;
   height: 6px;

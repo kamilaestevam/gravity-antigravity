@@ -113,6 +113,7 @@ export function ModalGlobal({
   iconeTitulo,
   abas,
   tipoAbas = 'underline',
+  abaAtivaInicial,
   cabecalhoPersonalizado,
   children,
   botoes,
@@ -126,7 +127,15 @@ export function ModalGlobal({
   const id = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
   const primeiraAba = abas?.[0]?.id ?? ''
-  const [abaAtiva, setAbaAtiva] = useState(primeiraAba)
+  const [abaAtiva, setAbaAtiva] = useState(abaAtivaInicial || primeiraAba)
+
+  useEffect(() => {
+    if (aberto && abaAtivaInicial) {
+      setAbaAtiva(abaAtivaInicial)
+    } else if (aberto && !abaAtivaInicial) {
+      setAbaAtiva(primeiraAba)
+    }
+  }, [aberto, abaAtivaInicial, primeiraAba])
 
   // Sincroniza a aba ativa quando as abas mudam
   useEffect(() => {

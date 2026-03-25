@@ -129,6 +129,10 @@ export function AdminLayout() {
             onNavigateOrganizacao={() => navigate('/admin/visao-geral')}
             onNavigateAssinaturas={() => {}}
             onSignOut={() => signOut()}
+            isAdmin={true}
+            isAdminPanel={true}
+            onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            onNavigateConfigurador={() => navigate('/workspace/espacos-de-trabalho')}
           />
         </div>
 

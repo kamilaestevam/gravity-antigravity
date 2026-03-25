@@ -84,6 +84,10 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/modal-sem-sessoes-global/src/index.ts'
       ),
+      '@nucleo/modal-formulario-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-formulario-global/src/index.ts'
+      ),
       '@nucleo/localizar-campo-global': path.resolve(
         __dirname,
         '../../nucleo-global/localizar-campo-global/src/index.ts'

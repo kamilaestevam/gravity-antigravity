@@ -404,6 +404,311 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
   )
 }
 
+/* ── De-Para Rows (SAP) ────────────────────────────────── */
+type DeParaRowSAP = { id: number; gravityField: string; sapField: string }
+
+const INITIAL_DEPARA_SAP: DeParaRowSAP[] = [
+  { id: 1, gravityField: 'ncm', sapField: 'CommodityCode' },
+  { id: 2, gravityField: 'cfop', sapField: 'CFOP' },
+  { id: 3, gravityField: 'icms_aliquota', sapField: 'TaxRateICMS' },
+  { id: 4, gravityField: 'pis_cofins_cst', sapField: 'TaxStatusCode' },
+]
+
+/* ── SAP Config Panel ──────────────────────────────────── */
+function SapConfig({ onBack }: { onBack: () => void }) {
+  const [subTab, setSubTab] = useState<'odata' | 'depara' | 'teste'>('odata')
+  const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
+  const [saved, setSaved] = useState(false)
+  const [depara, setDepara] = useState<DeParaRowSAP[]>(INITIAL_DEPARA_SAP)
+  const [nextId, setNextId] = useState(5)
+
+  function addRow() {
+    setDepara(prev => [...prev, { id: nextId, gravityField: '', sapField: '' }])
+    setNextId(n => n + 1)
+  }
+  function removeRow(id: number) {
+    setDepara(prev => prev.filter(r => r.id !== id))
+  }
+  function updateRow(id: number, field: 'gravityField' | 'sapField', value: string) {
+    setDepara(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
+  }
+
+  function handleTest() {
+    setTestStatus('testing')
+    setTimeout(() => setTestStatus(Math.random() > 0.3 ? 'success' : 'error'), 2200)
+  }
+
+  function handleSave() {
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
+
+  return (
+    <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      {/* Back + Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button onClick={onBack} style={{
+          background: 'var(--ws-accent-dim)', border: '1px solid var(--ws-accent-border)',
+          borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', color: 'var(--ws-muted)',
+          display: 'flex', alignItems: 'center', transition: 'all 0.15s',
+        }}><ArrowLeft weight="bold" size={16}/></button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1 }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: '10px',
+            background: 'rgba(0,112,242,0.12)', border: '1px solid rgba(0,112,242,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1rem', fontWeight: 800, color: '#0070f2',
+          }}>SAP</div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: 'var(--ws-text)' }}>
+              SAP ERP / S4HANA
+            </h3>
+            <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
+              ERP · v2.3.1 · OData v4
+            </span>
+          </div>
+        </div>
+        <span className="ws-badge ws-badge-success" style={{ gap: '0.375rem' }}>
+          <CloudCheck weight="bold" size={11}/> Conectado
+        </span>
+      </div>
+
+      {/* Sub-tabs */}
+      <div className="ws-tabs" style={{ margin: 0 }}>
+        <button className={`ws-tab${subTab === 'odata' ? ' active' : ''}`} onClick={() => setSubTab('odata')}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+            <Database weight="bold" size={13}/> Conexão OData
+          </span>
+        </button>
+        <button className={`ws-tab${subTab === 'depara' ? ' active' : ''}`} onClick={() => setSubTab('depara')}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+            <ArrowsLeftRight weight="bold" size={13}/> Mapeamento De-Para
+          </span>
+        </button>
+        <button className={`ws-tab${subTab === 'teste' ? ' active' : ''}`} onClick={() => setSubTab('teste')}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+            <Play weight="bold" size={13}/> Teste de Conexão
+          </span>
+        </button>
+      </div>
+
+      {/* ── OData ─────────────────────────────────────── */}
+      {subTab === 'odata' && (
+        <div className="ws-form-card ws-fade-up" style={{ marginBottom: 0 }}>
+          <p className="ws-section-title" style={{ margin: 0 }}>
+            <Database weight="duotone" size={14} color="#0070f2"/> Configurações do Conector ERP/SAP
+          </p>
+          <div className="ws-form-row">
+            <div className="ws-field">
+              <label>Protocolo de Integração</label>
+              <select defaultValue="odata">
+                <option value="odata">OData v4 (SAP)</option>
+                <option value="rest">REST API Genérica</option>
+                <option value="jdbc">JDBC/ODBC DB</option>
+              </select>
+            </div>
+            <div className="ws-field">
+              <label>Base URL do seu ERP</label>
+              <input type="text" placeholder="https://sap.minhaempresa.com.br/odata" defaultValue="https://s4hana.gravity.internal/odata/v4" />
+            </div>
+          </div>
+          <div className="ws-form-row">
+            <div className="ws-field">
+              <label>Usuário de Integração</label>
+              <input type="text" placeholder="Ex: gravity_sync" defaultValue="gravity_sync_prod" />
+            </div>
+            <div className="ws-field">
+              <label>Senha ou Token (Criptografada em AES-256)</label>
+              <div style={{ position: 'relative' }}>
+                <input type="password" placeholder="••••••••••••••" defaultValue="secretpassword" style={{ paddingRight: '2.5rem' }} />
+                <ShieldCheck size={18} color="#10b981" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} />
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', borderTop: '1px solid var(--ws-accent-border)', paddingTop: '1.25rem' }}>
+            <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14} />} onClick={handleSave}>
+              {saved ? 'Credenciais Salvas ✓' : 'Salvar Credenciais'}
+            </BotaoGlobal>
+            <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<ArrowSquareOut weight="bold" size={14} />}>
+              Documentação SAP OData
+            </BotaoGlobal>
+          </div>
+        </div>
+      )}
+
+      {/* ── De-Para Mapping (SAP) ───────────────────────── */}
+      {subTab === 'depara' && (
+        <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p className="ws-section-title" style={{ margin: 0 }}>
+              <ArrowsLeftRight weight="duotone" size={14} color="#0070f2"/> Mapeamento De-Para — Objetos SAP
+            </p>
+            <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Plus weight="bold" size={13}/>} onClick={addRow}>
+              Adicionar Campo
+            </BotaoGlobal>
+          </div>
+
+          <div style={{
+            background: 'rgba(0,112,242,0.06)', border: '1px solid rgba(0,112,242,0.15)',
+            borderRadius: '8px', padding: '0.75rem 1rem', fontSize: '0.8125rem',
+            color: 'var(--ws-muted)', lineHeight: 1.55,
+          }}>
+            Configure o mapeamento entre os campos do Gravity e os campos do SAP S/4HANA (via OData).
+            Esses mapeamentos são usados durante o espelhamento de Master Data e Documentos.
+          </div>
+
+          <div style={{
+            background: 'var(--ws-surface)', border: '1px solid var(--ws-accent-border)',
+            borderRadius: '12px', overflow: 'hidden',
+          }}>
+            {/* Header */}
+            <div style={{
+              display: 'grid', gridTemplateColumns: '40px 1fr 40px 1fr 50px',
+              gap: '1rem', padding: '0.75rem 1.25rem', alignItems: 'center',
+              background: 'rgba(129,140,248,0.05)', borderBottom: '1px solid var(--ws-accent-border)',
+            }}>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>#</span>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Campo Gravity</span>
+              <span/>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Campo SAP</span>
+              <span/>
+            </div>
+
+            {/* Rows */}
+            {depara.map((row, idx) => (
+              <div key={row.id} style={{
+                display: 'grid', gridTemplateColumns: '40px 1fr 40px 1fr 50px',
+                gap: '1rem', padding: '0.625rem 1.25rem', alignItems: 'center',
+                borderBottom: idx < depara.length - 1 ? '1px solid rgba(129,140,248,0.06)' : 'none',
+                transition: 'background 0.1s',
+              }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ws-muted)' }}>{idx + 1}</span>
+                <input
+                  type="text" value={row.gravityField}
+                  onChange={e => updateRow(row.id, 'gravityField', e.target.value)}
+                  style={{
+                    background: 'var(--ws-bg-body)', border: '1px solid var(--ws-accent-border)',
+                    borderRadius: '6px', padding: '0.5rem 0.75rem', color: '#818cf8',
+                    fontSize: '0.8125rem', fontFamily: "'Fira Code', monospace", outline: 'none',
+                  }}
+                />
+                <ArrowsLeftRight weight="bold" size={14} color="var(--ws-muted)" style={{ justifySelf: 'center' }}/>
+                <input
+                  type="text" value={row.sapField}
+                  onChange={e => updateRow(row.id, 'sapField', e.target.value)}
+                  style={{
+                    background: 'var(--ws-bg-body)', border: '1px solid var(--ws-accent-border)',
+                    borderRadius: '6px', padding: '0.5rem 0.75rem', color: '#0070f2',
+                    fontSize: '0.8125rem', fontFamily: "'Fira Code', monospace", outline: 'none',
+                  }}
+                />
+                <button onClick={() => removeRow(row.id)} style={{
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  color: 'var(--ws-muted)', padding: '0.375rem', borderRadius: '6px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s',
+                }}><Trash weight="bold" size={14}/></button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14}/>}>
+              Salvar Mapeamento
+            </BotaoGlobal>
+            <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<CloudArrowUp weight="bold" size={14}/>}>
+              Importar CSV
+            </BotaoGlobal>
+          </div>
+        </div>
+      )}
+
+      {/* ── Connection Test ────────────────────────────── */}
+      {subTab === 'teste' && (
+        <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <p className="ws-section-title" style={{ margin: 0 }}>
+            <Lightning weight="duotone" size={14} color="#0070f2"/> Teste de Conexão — SAP
+          </p>
+
+          {/* Test card */}
+          <div className="ws-form-card" style={{ marginBottom: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', padding: '1.5rem 0' }}>
+              <div style={{
+                width: 72, height: 72, borderRadius: '50%',
+                background: testStatus === 'success' ? 'rgba(16,185,129,0.12)' :
+                            testStatus === 'error'   ? 'rgba(239,68,68,0.12)' :
+                            testStatus === 'testing'  ? 'rgba(0,112,242,0.12)' : 'var(--ws-accent-dim)',
+                border: `2px solid ${
+                  testStatus === 'success' ? 'rgba(16,185,129,0.3)' :
+                  testStatus === 'error'   ? 'rgba(239,68,68,0.3)' :
+                  testStatus === 'testing'  ? 'rgba(0,112,242,0.3)' : 'var(--ws-accent-border)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.3s',
+              }}>
+                {testStatus === 'idle' && <Plugs weight="duotone" size={32} color="var(--ws-muted)"/>}
+                {testStatus === 'testing' && <Spinner weight="bold" size={32} color="#0070f2" className="ws-spin"/>}
+                {testStatus === 'success' && <CheckCircle weight="fill" size={32} color="#34d399"/>}
+                {testStatus === 'error' && <XCircle weight="fill" size={32} color="#f87171"/>}
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-text)', margin: '0 0 0.25rem' }}>
+                  {testStatus === 'idle' && 'Pronto para testar'}
+                  {testStatus === 'testing' && 'Conectando ao SAP S/4HANA...'}
+                  {testStatus === 'success' && 'Conexão estabelecida com sucesso!'}
+                  {testStatus === 'error' && 'Falha na conexão'}
+                </p>
+                <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', margin: 0 }}>
+                  {testStatus === 'idle' && 'Clique abaixo para testar a comunicação OData v4.'}
+                  {testStatus === 'testing' && 'Verificando a metadata do serviço OData e endpoint /sap/opu/odata/...'}
+                  {testStatus === 'success' && 'OData metadata recuperada com sucesso. Latência: 45ms'}
+                  {testStatus === 'error' && 'Conexão recusada. Verifique as credenciais e o status do Gateway.'}
+                </p>
+              </div>
+
+              <BotaoGlobal
+                variante={testStatus === 'error' ? 'perigo' : 'primario'}
+                tamanho="pequeno"
+                icone={testStatus === 'testing' ? <Spinner weight="bold" size={14}/> : <Play weight="bold" size={14}/>}
+                onClick={handleTest}
+                style={{ marginTop: '0.5rem' }}
+              >
+                {testStatus === 'testing' ? 'Testando...' : testStatus === 'error' ? 'Tentar Novamente' : 'Iniciar Teste'}
+              </BotaoGlobal>
+            </div>
+
+            {/* Test details */}
+            {(testStatus === 'success' || testStatus === 'error') && (
+              <div style={{
+                borderTop: '1px solid var(--ws-accent-border)', paddingTop: '1.25rem',
+                display: 'flex', flexDirection: 'column', gap: '0.5rem',
+              }}>
+                <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--ws-muted)', margin: 0 }}>
+                  Detalhes do Teste
+                </p>
+                {[
+                  { label: 'Autenticação (Basic)', value: testStatus === 'success' ? 'OK' : 'Falha — 401', ok: testStatus === 'success' },
+                  { label: 'OData $metadata', value: testStatus === 'success' ? '200 OK' : 'Não alcançado', ok: testStatus === 'success' },
+                  { label: 'Cloud Connector', value: testStatus === 'success' ? 'Túnel Ativo' : 'Offline', ok: testStatus === 'success' },
+                ].map(item => (
+                  <div key={item.label} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '0.5rem 0.75rem', borderRadius: '6px',
+                    background: item.ok ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
+                  }}>
+                    <span style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)' }}>{item.label}</span>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: item.ok ? '#34d399' : '#f87171' }}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Connector Card ────────────────────────────────────── */
 function ConnectorCard({ c, onClick }: { c: Conector; onClick: () => void }) {
   const st = statusMap[c.status]
@@ -481,8 +786,39 @@ function ConnectorCard({ c, onClick }: { c: Conector; onClick: () => void }) {
 export function Conectores() {
   const [selected, setSelected] = useState<ConectorId | null>(null)
 
+  if (selected === 'sap') {
+    return <SapConfig onBack={() => setSelected(null)}/>
+  }
   if (selected === 'onesource') {
     return <OnesourceConfig onBack={() => setSelected(null)}/>
+  }
+
+  // Handle placeholders
+  if (selected === 'cargowise' || selected === 'bysoft') {
+    const c = CONECTORES.find(x => x.id === selected)
+    return (
+      <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button onClick={() => setSelected(null)} style={{
+            background: 'var(--ws-accent-dim)', border: '1px solid var(--ws-accent-border)',
+            borderRadius: '8px', padding: '0.5rem', cursor: 'pointer', color: 'var(--ws-muted)',
+            display: 'flex', alignItems: 'center', transition: 'all 0.15s',
+          }}><ArrowLeft weight="bold" size={16}/></button>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700, color: 'var(--ws-text)' }}>
+              {c?.nome}
+            </h3>
+          </div>
+        </div>
+        <div className="ws-form-card">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem 0', gap: '1rem' }}>
+             <Lock weight="duotone" size={48} color="var(--ws-muted)" />
+             <p style={{ margin: 0, fontWeight: 600, color: 'var(--ws-text)' }}>Em desenvolvimento</p>
+             <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--ws-muted)' }}>O conector para {c?.nome} estará disponível em breve.</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

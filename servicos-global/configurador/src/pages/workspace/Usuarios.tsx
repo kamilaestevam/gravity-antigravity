@@ -8,6 +8,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+import { ModalEditarUsuario } from './ModalEditarUsuario'
 
 type UserType = 'Master' | 'Standard' | 'Fornecedor'
 type UserStatus = 'Ativo' | 'Inativo'
@@ -208,6 +209,9 @@ export function Usuarios() {
   const [fEmail, setFEmail]     = useState('')
   const [fTipo, setFTipo]       = useState<UserType>('Standard')
 
+  const [usuarioEditando, setUsuarioEditando] = useState<TenantUser | null>(null)
+  const [abaEditando, setAbaEditando] = useState<string>('dados')
+
   function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
     const newUser: TenantUser = {
@@ -278,7 +282,7 @@ export function Usuarios() {
       id: 'permissions',
       icone: <Key size={15} weight="bold" />,
       tooltip: 'Permissões do Usuário',
-      onClick: () => {},
+      onClick: (u) => { setUsuarioEditando(u); setAbaEditando('permissoes') },
     },
     {
       id: 'suspend',
@@ -303,7 +307,7 @@ export function Usuarios() {
       id: 'edit',
       icone: <PencilSimple size={15} weight="bold" />,
       tooltip: 'Editar',
-      onClick: () => {},
+      onClick: (u) => { setUsuarioEditando(u); setAbaEditando('dados') },
     }
   ]
 
@@ -595,6 +599,18 @@ export function Usuarios() {
           />
         </div>
       )}
+
+      {/* Modal Edição do Usuário */}
+      <ModalEditarUsuario
+        usuario={usuarioEditando}
+        abaInicial={abaEditando}
+        aoFechar={() => setUsuarioEditando(null)}
+        aoSalvar={(uEditado, permissoes) => {
+          setUsers(prev => prev.map(u => u.id === uEditado.id ? uEditado : u))
+          setUsuarioEditando(null)
+          // Aqui faria algo com `permissoes` para persistir os acessos
+        }}
+      />
     </PaginaGlobal>
   )
 }

@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, FileXls } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { StatCardGlobal } from '@nucleo/stat-card-global'
+import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
+import { ModalGlobal } from '@nucleo/modal-global'
 
 type ProdutoStatus = 'Ativo' | 'Em Breve' | 'Legado'
 
@@ -85,6 +87,8 @@ const getStatusBadge = (status: ProdutoStatus) => {
 }
 
 export function ProdutosAdmin() {
+  const [tab, setTab] = useState<'catalogo' | 'negociacoes'>('catalogo')
+  const [modalAberto, setModalAberto] = useState(false)
 
   const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoConfigured>[] = [
     {
@@ -186,15 +190,28 @@ export function ProdutosAdmin() {
           />
         </>
       }
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-        
-        {/* Bloco Catálogo Geral */}
-        <div>
-          <p className="ws-section-title ws-fade-up ws-fade-up-d2" style={{ marginBottom: '1rem' }}>
-            <Tag weight="duotone" size={14} color="#818cf8" />
+      toolbar={
+        <div className="ws-tabs" style={{ margin: 0 }}>
+          <button className={`ws-tab${tab === 'catalogo' ? ' active' : ''}`} onClick={() => setTab('catalogo')}>
             Catálogo Geral
-          </p>
+          </button>
+          <button className={`ws-tab${tab === 'negociacoes' ? ' active' : ''}`} onClick={() => setTab('negociacoes')}>
+            Negociações Especiais
+          </button>
+        </div>
+      }
+    >
+      {tab === 'catalogo' && (
+        <div className="ws-fade-up">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <p className="ws-section-title" style={{ margin: 0 }}>
+              <Tag weight="duotone" size={14} color="#818cf8" /> Catálogo Geral
+            </p>
+            <BotaoNovoGlobal 
+              rotulo="Novo Produto" 
+              onClick={() => setModalAberto(true)} 
+            />
+          </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<ProdutoConfigured>
               dados={produtosGlobais}
@@ -203,13 +220,15 @@ export function ProdutosAdmin() {
             />
           </div>
         </div>
+      )}
 
-        {/* Bloco Negociações Especiais */}
-        <div>
-          <p className="ws-section-title ws-fade-up ws-fade-up-d3" style={{ marginBottom: '1rem' }}>
-            <CurrencyCircleDollar weight="duotone" size={14} color="#f59e0b" />
-            Negociações Especiais
-          </p>
+      {tab === 'negociacoes' && (
+        <div className="ws-fade-up">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <p className="ws-section-title" style={{ margin: 0 }}>
+              <CurrencyCircleDollar weight="duotone" size={14} color="#f59e0b" /> Negociações Especiais
+            </p>
+          </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<NegociacaoEspecial>
               dados={negociacoesEspeciais}
@@ -218,8 +237,24 @@ export function ProdutosAdmin() {
             />
           </div>
         </div>
+      )}
 
-      </div>
+      {/* Modal de Novo Produto */}
+      <ModalGlobal
+        aberto={modalAberto}
+        aoFechar={() => setModalAberto(false)}
+        titulo="Novo Produto"
+        subtitulo="Preencha os dados básicos para adicionar um novo produto."
+        tamanho="md"
+        botoes={[
+          { rotulo: "Cancelar", variante: "ghost", ao_clicar: () => setModalAberto(false) },
+          { rotulo: "Continuar", variante: "primary", ao_clicar: () => alert("Implementar step de criação.") }
+        ]}
+      >
+        <div style={{ padding: '1rem 0' }}>
+          <p style={{ color: 'var(--ws-muted)' }}>Os campos do formulário para criação (nome, descrição, preços, limites e modelo de cobrança) serão inseridos aqui.</p>
+        </div>
+      </ModalGlobal>
     </PaginaGlobal>
   )
 }

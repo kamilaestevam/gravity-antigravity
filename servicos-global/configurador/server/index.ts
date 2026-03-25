@@ -2,13 +2,7 @@
 // Agente Configurador — Servidor Express
 // Porta: 8005 | Banco: configurador-db | Auth: Clerk | Billing: Stripe
 
-import { config } from 'dotenv'
-import { resolve, dirname } from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
-config({ path: resolve(__dirname, '../../.env') })
-
+import 'dotenv/config'
 import express from 'express'
 import { correlationMiddleware } from './middleware/correlationId.js'
 import { errorHandler } from './middleware/errorHandler.js'

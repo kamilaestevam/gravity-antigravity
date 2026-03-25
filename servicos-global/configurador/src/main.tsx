@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
+import { ModalProvider } from '@nucleo/modal-global'
 import App from './App'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
@@ -16,6 +17,7 @@ createRoot(root).render(
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <BrowserRouter>
         <App />
+        <ModalProvider />
       </BrowserRouter>
     </ClerkProvider>
   </StrictMode>

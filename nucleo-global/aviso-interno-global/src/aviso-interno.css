@@ -189,6 +189,12 @@
   display: block !important; /* Força exibir o input mesmo se o componente achar que não está expandido */
   width: 100% !important;
 }
+.aig-combo-wrap input {
+  font-size: 11px !important;
+}
+.aig-combo-wrap input::placeholder {
+  font-size: 11px !important;
+}
 .aig-combo-wrap .ws-global-cmd {
   display: none !important; /* Oculta a tecla de atalho K nesse contexto */
 }
@@ -339,6 +345,7 @@
 
 .aig-list-content {
   flex: 1;
+  min-width: 0; /* Impede que flex-item estoure o container pai */
   display: flex;
   flex-direction: column;
   gap: 0.3rem; /* Distância exata pedida */
@@ -362,24 +369,26 @@
 }
 
 .aig-list-text {
-  font-size: 0.75rem;
-  font-weight: 400; /* Mesma intensidade (peso) do calendário */
-  color: var(--aig-muted);
-  line-height: 1.5; /* Aumentado para 1.5 para dar mais respiro nas palavras */
+  font-size: 0.75rem; /* 12px */
+  font-weight: 400;
+  color: #ffffff;
+  opacity: 0.65;
+  line-height: 1.5;
   margin: 0;
-  -webkit-font-smoothing: antialiased; /* Suavizar no modo escuro Windows */
-  text-align: justify; /* Alinhamento fluido como pedido */
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+  word-break: break-word;
   
   /* Limite Máximo de Linhas */
   display: -webkit-box;
-  -webkit-line-clamp: 4; /* Limita em exatas 4 linhas antes de truncar */
+  -webkit-line-clamp: 4;
   line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.aig-list-item:not(.read) .aig-list-text {
-  color: var(--aig-text); /* Mesma cor exata do calendário (100% var(--ws-text)) */
+.aig-list-item.read .aig-list-text {
+  opacity: 0.4; /* Mensagens lidas ficam mais apagadas */
 }
 
 .aig-list-check {

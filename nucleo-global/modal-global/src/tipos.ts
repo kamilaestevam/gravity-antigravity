@@ -55,13 +55,17 @@ export interface ModalProps {
 
   // Conteúdo
   /** Título do modal */
-  titulo: string
+  titulo: string | ReactNode
   /** Subtítulo opcional */
-  subtitulo?: string
+  subtitulo?: string | ReactNode
   /** Ícone no header (Phosphor) */
   iconeTitulo?: string
   /** Abas do modal */
   abas?: AbaModal[]
+  /** Estilo das abas. Padrão: 'underline' */
+  tipoAbas?: 'underline' | 'pill'
+  /** Header inteiro customizado (substitui o padrão do modal) */
+  cabecalhoPersonalizado?: ReactNode
   /** Conteúdo direto (quando não usa abas) */
   children?: ReactNode
 
@@ -74,6 +78,8 @@ export interface ModalProps {
   // Tamanho
   /** Tamanho do modal. Padrão: 'md' */
   tamanho?: TamanhoModal
+  /** Altura fixa do diálogo (ex: '680px'). Por padrão é dinâmica (fit-content). */
+  altura?: string
 
   // Comportamento
   /** Fechar ao clicar no overlay. Padrão: true */

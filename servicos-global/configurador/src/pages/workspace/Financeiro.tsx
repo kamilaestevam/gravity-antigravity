@@ -1,7 +1,9 @@
 import React from 'react'
-import { Receipt, DownloadSimple, CalendarBlank } from '@phosphor-icons/react'
+import { Receipt, DownloadSimple, CalendarBlank, FileXls } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/stat-card-global'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
@@ -82,36 +84,77 @@ export function Financeiro() {
   ]
 
   return (
-    <div className="ws-fade-up">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--ws-text)', marginBottom: '0.25rem' }}>
-          Financeiro
-        </h1>
-        <p style={{ fontSize: '0.875rem', color: 'var(--ws-muted)' }}>
-          Acompanhe faturas, boletos e notas fiscais da sua conta Gravity.
-        </p>
-      </div>
-
-      {/* Stat cards */}
-      <div className="ws-stats ws-fade-up ws-fade-up-d1">
-        <StatCardGlobal
-          titulo="Próximo Vencimento"
-          icone={<CalendarBlank weight="duotone" size={16} />}
-          valor={vencimento?.vencimento ?? '—'}
-          subtexto={vencimento?.competencia ?? 'Sem faturas abertas'}
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          titulo="Financeiro"
+          subtitulo="Acompanhe faturas, boletos e notas fiscais da sua conta Gravity."
+          icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
         />
-        <StatCardGlobal
-          titulo="Valor a Pagar"
-          valor={emAberto.length ? `R$ ${valorAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}
-          variante={emAberto.length ? 'aviso' : 'sucesso'}
-        />
-        <StatCardGlobal
-          titulo="Faturas em Aberto"
-          valor={emAberto.length}
-          subtexto={emAberto.length === 0 ? 'Tudo em dia 🎉' : 'Requer atenção'}
-          variante={emAberto.length > 0 ? 'perigo' : 'sucesso'}
-        />
-      </div>
+      }
+      stats={
+        <>
+          <StatCardGlobal
+            titulo="Próximo Vencimento"
+            icone={<CalendarBlank weight="duotone" size={16} />}
+            valor={<span style={{ fontSize: '1.5rem' }}>{vencimento?.vencimento ?? '—'}</span>}
+            subtexto={vencimento?.competencia ?? 'Sem faturas abertas'}
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">DETALHES DA FATURA</p>
+                <div className="scg-tooltip__row">
+                  <span>Fatura Nº</span>
+                  <strong>{vencimento?.num ?? '—'}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Valor esperado</span>
+                  <strong>{vencimento?.valor ?? '—'}</strong>
+                </div>
+              </>
+            }
+          />
+          <StatCardGlobal
+            titulo="Valor a Pagar"
+            valor={<span style={{ fontSize: '1.5rem' }}>{emAberto.length ? `R$ ${valorAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}</span>}
+            variante={emAberto.length ? 'aviso' : 'sucesso'}
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">COMPOSIÇÃO DO VALOR</p>
+                <div className="scg-tooltip__row">
+                  <span>Faturas pendentes</span>
+                  <strong>{emAberto.filter(f => f.status === 'Pendente').length}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Faturas atrasadas</span>
+                  <strong>{emAberto.filter(f => f.status === 'Atrasado').length}</strong>
+                </div>
+              </>
+            }
+          />
+          <StatCardGlobal
+            titulo="Faturas em Aberto"
+            valor={<span style={{ fontSize: '1.75rem' }}>{emAberto.length}</span>}
+            subtexto={emAberto.length === 0 ? 'Tudo em dia 🎉' : 'Requer atenção'}
+            variante={emAberto.length > 0 ? 'perigo' : 'sucesso'}
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">SITUAÇÃO GERAL</p>
+                <div className="scg-tooltip__row">
+                  <span>Total lançadas</span>
+                  <strong>{faturas.length}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Faturas pagas</span>
+                  <strong>{faturas.filter(x => x.status === 'Pago').length}</strong>
+                </div>
+              </>
+            }
+          />
+        </>
+      }
+    >
 
       {/* Invoices table */}
       <p className="ws-section-title ws-fade-up ws-fade-up-d2">
@@ -122,13 +165,14 @@ export function Financeiro() {
         <TabelaGlobal<Fatura>
           dados={faturas}
           colunas={COLUNAS}
+          acoesExportacao={ACOES_EXPORT}
           acoes={[
             {
-              id: 'boleto', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Boleto', labelAcao: 'Boleto',
+              id: 'boleto', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Boleto',
               onClick: (f) => handleDownload('Boleto', f.num),
             },
             {
-              id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar NF-e', labelAcao: 'NF-e',
+              id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar NF-e',
               onClick: (f) => handleDownload('NF-e', f.num),
             }
           ]}
@@ -149,6 +193,6 @@ export function Financeiro() {
       }}>
         💡 <strong style={{ color: 'var(--ws-text)' }}>Segunda via</strong> — O download de boletos e NF-e fica disponível após conectar o backend de cobrança. Para dúvidas, contate <strong style={{ color: '#818cf8' }}>financeiro@gravity.com.br</strong>.
       </div>
-    </div>
+    </PaginaGlobal>
   )
 }

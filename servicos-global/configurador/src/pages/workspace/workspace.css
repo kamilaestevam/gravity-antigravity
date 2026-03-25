@@ -1523,6 +1523,16 @@ body.light-theme .ws-profile-dropdown {
   margin-bottom: 1.25rem;
 }
 
+/* ── Cabeçalho customizado em modais (.ws-modal-cabecalho) ───────────── */
+.ws-modal-cabecalho .cg-header {
+  margin: 0 !important;
+  padding: 1.25rem 1.5rem 1.5rem 1.5rem !important;
+  height: auto !important;
+  min-height: auto !important;
+  background: transparent !important;
+  position: static !important;
+}
+
 /* ── Code block (API) ───────────────────────────────────────────────────── */
 .ws-code-block {
   background: #020617;

@@ -26,7 +26,7 @@
   position: relative;
   z-index: 20;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 1rem;
   flex-shrink: 0;
   background: var(--ws-bg-body, #0f172a);
@@ -37,12 +37,10 @@
   padding-left: 2rem;
   padding-right: 2rem;
   
-  /* Descendo +14px em relação à posição original (14px pra baixo, total 12px de folga após ajustes finos) */
   margin-top: 12px;
-  padding-top: 0;
-  padding-bottom: 1.5rem;
-  /* Compensando para segurar a tabela estática (-6px) */
-  margin-bottom: -6px;
+  padding-top: 0.75rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 0;
 }
 
 /* Ajuste p/ modo claro */
@@ -55,20 +53,35 @@ body.light-theme .pg-contexto-row {
 }
 
 .pg-stats-area {
-  flex: 1.8;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  flex-shrink: 0;
 }
 
 .pg-acoes-area {
   flex-shrink: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  align-self: center;
   padding-bottom: 0;
+  margin-left: auto;
 }
 
-/* 3. LAYER: CONTEÚDO (TABELA OU FORMULÁRIO) */
+/* 3. LAYER: TOOLBAR FIXO (abas, filtros, etc.) */
+.pg-toolbar-wrapper {
+  flex-shrink: 0;
+  background: var(--ws-bg-body, #0f172a);
+  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Ajuste p/ modo claro */
+body.light-theme .pg-toolbar-wrapper {
+  background: var(--ws-bg-body, #f8fafc);
+}
+
+/* 4. LAYER: CONTEÚDO (TABELA OU FORMULÁRIO) */
 .pg-conteudo-area {
   display: block;
   width: 100%;

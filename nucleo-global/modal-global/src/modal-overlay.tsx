@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useRef, useState, useId } from 'react'
+import { X } from '@phosphor-icons/react'
 import type { ModalProps, AbaModal } from './tipos.js'
 import './modal.css'
 
@@ -25,28 +26,51 @@ function NavegacaoAbas({
   abaAtiva,
   aoMudarAba,
   idBase,
+  tipoAbas,
 }: {
   abas: AbaModal[]
   abaAtiva: string
   aoMudarAba: (id: string) => void
   idBase: string
+  tipoAbas?: 'underline' | 'pill'
 }) {
+  const isPill = tipoAbas === 'pill'
+
   return (
-    <nav className="mg-nav-abas tabs-underline" role="tablist" aria-label="Abas do modal">
-      {abas.map((aba) => (
-        <button
-          key={aba.id}
-          id={`${idBase}-tab-${aba.id}`}
-          className={`tab-underline ${abaAtiva === aba.id ? 'active' : ''}`}
-          role="tab"
-          aria-selected={abaAtiva === aba.id}
-          aria-controls={`${idBase}-panel-${aba.id}`}
-          disabled={aba.desabilitada}
-          onClick={() => !aba.desabilitada && aoMudarAba(aba.id)}
-        >
-          {aba.rotulo}
-        </button>
-      ))}
+    <nav className={`mg-nav-abas ${isPill ? 'mg-tabs-pill-wrap' : 'tabs-underline'}`} role="tablist" aria-label="Abas do modal">
+      {isPill ? (
+        <div className="mg-tabs-pill">
+          {abas.map((aba) => (
+            <button
+              key={aba.id}
+              id={`${idBase}-tab-${aba.id}`}
+              className={`mg-tab-pill ${abaAtiva === aba.id ? 'active' : ''}`}
+              role="tab"
+              aria-selected={abaAtiva === aba.id}
+              aria-controls={`${idBase}-panel-${aba.id}`}
+              disabled={aba.desabilitada}
+              onClick={() => !aba.desabilitada && aoMudarAba(aba.id)}
+            >
+              {aba.rotulo}
+            </button>
+          ))}
+        </div>
+      ) : (
+        abas.map((aba) => (
+          <button
+            key={aba.id}
+            id={`${idBase}-tab-${aba.id}`}
+            className={`tab-underline ${abaAtiva === aba.id ? 'active' : ''}`}
+            role="tab"
+            aria-selected={abaAtiva === aba.id}
+            aria-controls={`${idBase}-panel-${aba.id}`}
+            disabled={aba.desabilitada}
+            onClick={() => !aba.desabilitada && aoMudarAba(aba.id)}
+          >
+            {aba.rotulo}
+          </button>
+        ))
+      )}
     </nav>
   )
 }
@@ -86,11 +110,15 @@ export function ModalGlobal({
   aoFechar,
   titulo,
   subtitulo,
+  iconeTitulo,
   abas,
+  tipoAbas = 'underline',
+  cabecalhoPersonalizado,
   children,
   botoes,
   renderizarFooter,
   tamanho = 'md',
+  altura,
   fecharAoClicarOverlay = true,
   fecharPorESC = true,
   semFechar = false,
@@ -157,28 +185,44 @@ export function ModalGlobal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={`${id}-titulo`}
-        style={{ maxWidth: LARGURA_MODAL[tamanho] }}
+        style={{ maxWidth: LARGURA_MODAL[tamanho], ...(altura ? { height: altura } : {}) }}
       >
         {/* Header */}
-        <div className="mg-header modal-header">
-          <div className="mg-header-texto">
-            <h2 id={`${id}-titulo`} className="mg-titulo text-h3">
-              {titulo}
-            </h2>
-            {subtitulo && (
-              <p className="mg-subtitulo text-sm">{subtitulo}</p>
+        {cabecalhoPersonalizado ? (
+          <div style={{ position: 'relative' }}>
+            {cabecalhoPersonalizado}
+            {!semFechar && (
+              <button
+                className="mg-btn-fechar"
+                onClick={aoFechar}
+                aria-label="Fechar modal"
+                style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', zIndex: 10 }}
+              >
+                <X size={20} weight="bold" />
+              </button>
             )}
           </div>
-          {!semFechar && (
-            <button
-              className="mg-btn-fechar btn btn-ghost"
-              onClick={aoFechar}
-              aria-label="Fechar modal"
-            >
-              ✕
-            </button>
-          )}
-        </div>
+        ) : (
+          <div className="mg-header modal-header">
+            <div className="mg-header-texto">
+              <h2 id={`${id}-titulo`} className="mg-titulo text-h3">
+                {titulo}
+              </h2>
+              {subtitulo && (
+                <p className="mg-subtitulo text-sm">{subtitulo}</p>
+              )}
+            </div>
+            {!semFechar && (
+              <button
+                className="mg-btn-fechar"
+                onClick={aoFechar}
+                aria-label="Fechar modal"
+              >
+                <X size={20} weight="bold" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Abas */}
         {abas && abas.length > 0 && (
@@ -187,6 +231,7 @@ export function ModalGlobal({
             abaAtiva={abaAtiva}
             aoMudarAba={setAbaAtiva}
             idBase={id}
+            tipoAbas={tipoAbas}
           />
         )}
 

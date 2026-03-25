@@ -126,7 +126,7 @@ export function SelecionarWorkspace() {
             fontSize: '0.875rem', color: '#64748b', lineHeight: 1.6,
             maxWidth: '300px', margin: '0 auto',
           }}>
-            Escolha a empresa que deseja acessar.<br />
+            Escolha a empresa que deseja acessar<br />
             Cada workspace tem seus próprios produtos e usuários.
           </p>
         </div>
@@ -223,7 +223,7 @@ export function SelecionarWorkspace() {
         <button
           id="sw-criar-empresa"
           type="button"
-          onClick={() => navigate('/trial')}
+          onClick={() => navigate('/workspace/espacos-de-trabalho')}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: '0.5rem', width: '100%',

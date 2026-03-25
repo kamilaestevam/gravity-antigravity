@@ -1,7 +1,10 @@
 import React, { useState } from 'react'
-import { CreditCard, X, ArrowUp, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle } from '@phosphor-icons/react'
+import { CreditCard, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { StatCardGlobal } from '@nucleo/stat-card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { PaginaGlobal } from '@nucleo/pagina-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 type ProdutoStatus = 'Ativo' | 'Trial' | 'Suspenso'
@@ -37,24 +40,19 @@ const upsellProducts = [
   { id: 'bi',   nome: 'BI Analytics Pro', desc: 'Dashboards avançados com drill-down e exportação.',    valor: 'R$ 399/mês', billing: 'SaaS' as BillingType },
 ]
 
-type Plan = { name: string; valor: string; renovacao: string }
-const plans: Plan[] = [
-  { name: 'Enterprise',   valor: 'R$ 2.499/mês', renovacao: '01/05/2025' },
-  { name: 'Professional', valor: 'R$ 999/mês',   renovacao: '01/05/2025' },
-  { name: 'Starter',      valor: 'R$ 299/mês',   renovacao: '01/05/2025' },
-]
-
 export function Assinaturas() {
-  const [currentPlan, setCurrentPlan]   = useState(plans[0])
-  const [showModal, setShowModal]       = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState(plans[0].name)
   const [produtos, setProdutos]         = useState<Produto[]>(mockProdutos)
 
-  function handleUpgrade() {
-    const p = plans.find(pl => pl.name === selectedPlan)!
-    setCurrentPlan(p)
-    setShowModal(false)
-  }
+  const totalAtivos = produtos.filter(p => p.status === 'Ativo' || p.status === 'Trial').length
+  const totalSuspensos = produtos.filter(p => p.status === 'Suspenso').length
+  
+  const custoSaaSAtivos = produtos
+    .filter(p => (p.status === 'Ativo' || p.status === 'Trial') && p.billing === 'SaaS')
+    .reduce((acc, p) => {
+      const vStr = p.valor.replace('R$ ', '').replace('/mês', '').replace('.', '').replace(',', '.')
+      const v = parseFloat(vStr)
+      return acc + (isNaN(v) ? 0 : v)
+    }, 0)
 
   function handleSuspend(p: Produto) {
     const msg = p.status === 'Suspenso'
@@ -193,44 +191,75 @@ export function Assinaturas() {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div className="ws-fade-up">
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.375rem', fontWeight: 700, color: 'var(--ws-text)', marginBottom: '0.25rem' }}>
-          Assinaturas &amp; Planos
-        </h1>
-        <p style={{ fontSize: '0.875rem', color: 'var(--ws-muted)' }}>
-          Gerencie seus planos, produtos contratados e upgrades.
-        </p>
-      </div>
-
-      {/* Current plan card */}
-      <div className="ws-plan-card ws-fade-up">
-        <div>
-          <p className="ws-section-title" style={{ marginBottom: '0.375rem' }}>
-            <CreditCard weight="duotone" size={14} color="#818cf8" />
-            Plano Atual
-          </p>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#818cf8', marginBottom: '0.25rem' }}>
-            {currentPlan.name}
-          </h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--ws-muted)' }}>
-            Renovação em <strong style={{ color: 'var(--ws-text)' }}>{currentPlan.renovacao}</strong>
-          </p>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <p style={{ fontSize: '1.875rem', fontWeight: 700, color: 'var(--ws-text)', marginBottom: '0.5rem' }}>
-            {currentPlan.valor}
-          </p>
-          <BotaoGlobal
-            variante="primario"
-            icone={<ArrowUp weight="bold" size={14} />}
-            onClick={() => setShowModal(true)}
-          >
-            Upgrade de Plano
-          </BotaoGlobal>
-        </div>
-      </div>
-
+    <PaginaGlobal
+      className="ws-fade-up"
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<CreditCard weight="duotone" size={22} color="#818cf8" />}
+          titulo="Assinaturas & Planos"
+          subtitulo="Gerencie seus planos, produtos contratados e upgrades"
+        />
+      }
+      stats={
+        <>
+          <StatCardGlobal
+            titulo="Produtos Ativos"
+            icone={<Package weight="duotone" size={16} />}
+            valor={<span style={{ fontSize: '1.5rem' }}>{totalAtivos}</span>}
+            subtexto={produtos.length > 0 ? `${produtos.length} no total` : 'Sem produtos'}
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">STATUS DOS PRODUTOS</p>
+                <div className="scg-tooltip__row">
+                  <span>Ativos</span>
+                  <strong>{produtos.filter(p => p.status === 'Ativo').length}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Em Trial</span>
+                  <strong>{produtos.filter(p => p.status === 'Trial').length}</strong>
+                </div>
+              </>
+            }
+          />
+          <StatCardGlobal
+            titulo="Custo Fixo Estimado"
+            icone={<CurrencyDollar weight="duotone" size={16} />}
+            valor={<span style={{ fontSize: '1.5rem' }}>R$ {custoSaaSAtivos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>}
+            subtexto="Mensalidade SaaS"
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">COMPOSIÇÃO DO CUSTO</p>
+                <div className="scg-tooltip__row">
+                  <span>SaaS (Ativo/Trial)</span>
+                  <strong>R$ {custoSaaSAtivos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
+                </div>
+                <div className="scg-tooltip__row">
+                  <span>Custo por uso</span>
+                  <strong>Variável</strong>
+                </div>
+              </>
+            }
+          />
+          <StatCardGlobal
+            titulo="Acessos Suspensos"
+            icone={<WarningCircle weight="duotone" size={16} />}
+            valor={<span style={{ fontSize: '1.75rem' }}>{totalSuspensos}</span>}
+            subtexto={totalSuspensos === 0 ? 'Tudo operacional' : 'Requer atenção'}
+            variante={totalSuspensos > 0 ? 'perigo' : 'padrao'}
+            tooltip={
+              <>
+                <p className="scg-tooltip__title">ATENÇÃO</p>
+                <div className="scg-tooltip__row">
+                  <span>Produtos suspensos</span>
+                  <strong>{totalSuspensos}</strong>
+                </div>
+              </>
+            }
+          />
+        </>
+      }
+    >
       {/* Produtos contratados — TabelaGlobal */}
       <p className="ws-section-title" style={{ marginBottom: '0.875rem', marginTop: '0.25rem' }}>
         Produtos Contratados
@@ -290,58 +319,6 @@ export function Assinaturas() {
         ))}
       </div>
 
-      {/* Upgrade modal */}
-      {showModal && (
-        <div className="ws-modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="ws-modal" onClick={e => e.stopPropagation()}>
-            <button
-              type="button"
-              onClick={() => setShowModal(false)}
-              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--ws-muted)' }}
-            >
-              <X weight="bold" size={18} />
-            </button>
-            <h3>Alterar Plano</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              {plans.map(pl => (
-                <label key={pl.name} style={{
-                  display: 'flex', alignItems: 'center', gap: '0.875rem',
-                  background: selectedPlan === pl.name ? 'rgba(129,140,248,0.08)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${selectedPlan === pl.name ? '#818cf8' : 'rgba(129,140,248,0.1)'}`,
-                  borderRadius: '10px',
-                  padding: '0.875rem 1rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}>
-                  <input
-                    type="radio"
-                    name="plan"
-                    value={pl.name}
-                    checked={selectedPlan === pl.name}
-                    onChange={() => setSelectedPlan(pl.name)}
-                    style={{ accentColor: '#818cf8' }}
-                  />
-                  <div>
-                    <p style={{ fontWeight: 700, color: 'var(--ws-text)', margin: '0 0 0.125rem' }}>{pl.name}</p>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', margin: 0 }}>{pl.valor}</p>
-                  </div>
-                  {pl.name === currentPlan.name && (
-                    <span className="ws-badge ws-badge-accent" style={{ marginLeft: 'auto' }}>Atual</span>
-                  )}
-                </label>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <BotaoGlobal variante="primario" onClick={handleUpgrade}>
-                Confirmar Alteração
-              </BotaoGlobal>
-              <BotaoGlobal variante="fantasma" onClick={() => setShowModal(false)}>
-                Cancelar
-              </BotaoGlobal>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </PaginaGlobal>
   )
 }

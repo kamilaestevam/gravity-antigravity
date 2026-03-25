@@ -7,6 +7,7 @@ import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nuc
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { ModalEditarEspaco } from './ModalEditarEspaco'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 export type EmpresaStatus = 'Ativa' | 'Suspensa'
@@ -18,6 +19,12 @@ export interface Empresa {
   usuarios: number
   status: EmpresaStatus
   criadaEm: string
+  cnpj?: string
+  estado?: string
+  cidade?: string
+  segmento?: string
+  site?: string
+  organizacao?: string
 }
 
 const mockEspacosDeTrabalho: Empresa[] = [
@@ -60,6 +67,7 @@ export function EspacosDeTrabalho() {
   const [nome, setNome]            = useState('')
   const [subdominio, setSubdomain] = useState('')
   const [subdErr, setSubdErr]      = useState('')
+  const [empresaEditando, setEmpresaEditando] = useState<Empresa | null>(null)
 
   const ativas = empresas.filter(e => e.status === 'Ativa').length
   const suspensas = empresas.filter(e => e.status === 'Suspensa').length
@@ -106,6 +114,10 @@ export function EspacosDeTrabalho() {
   function handleDelete(linha: Empresa) {
     if (!window.confirm('Excluir permanentemente este espaço de trabalho? Esta ação não pode ser desfeita.')) return
     setEspacosDeTrabalho(prev => prev.filter(e => e.id !== linha.id))
+  }
+
+  function handleEdit(linha: Empresa) {
+    setEmpresaEditando(linha)
   }
 
   const COLUNAS: TabelaGlobalColuna<Empresa>[] = [
@@ -181,7 +193,7 @@ export function EspacosDeTrabalho() {
       id: 'edit',
       icone: <PencilSimple size={15} weight="bold" />,
       tooltip: 'Editar',
-      onClick: () => {},
+      onClick: handleEdit,
     },
     {
       id: 'delete',
@@ -211,6 +223,7 @@ export function EspacosDeTrabalho() {
   ]
 
   return (
+    <>
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
@@ -218,7 +231,7 @@ export function EspacosDeTrabalho() {
         <CabecalhoGlobal
           icone={<Buildings weight="duotone" size={22} />}
           titulo="Espaços de Trabalho"
-          subtitulo="Gerencie todos os espaços de trabalho cadastrados na sua organização."
+          subtitulo="Gerencie todos os espaços de trabalho cadastrados na sua organização"
         />
       }
       stats={
@@ -427,6 +440,21 @@ export function EspacosDeTrabalho() {
         />
       </div>
     </PaginaGlobal>
+
+    <ModalEditarEspaco
+      empresa={empresaEditando}
+      aoFechar={() => setEmpresaEditando(null)}
+      aoSalvar={(dados) => {
+        setEspacosDeTrabalho(prev =>
+          prev.map(e => e.id === empresaEditando?.id ? { ...e, ...dados } : e)
+        )
+        setEmpresaEditando(null)
+      }}
+      aoExcluir={(emp) => {
+        setEspacosDeTrabalho(prev => prev.filter(e => e.id !== emp.id))
+      }}
+    />
+    </>
   )
 }
 

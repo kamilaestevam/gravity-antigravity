@@ -4,7 +4,7 @@ export interface StatCardProps {
   /** Rótulo principal do card (ex: "TOTAL DE FILHAS") */
   titulo: string
   /** Valor numérico ou string a ser exibido em destaque (ex: "30" ou "2") */
-  valor: string | number
+  valor: ReactNode
   /** Objeto opcional para indicar tendência métrica (ex: { valor: "15%", direcao: "up" }) */
   tendencia?: {
     valor: string

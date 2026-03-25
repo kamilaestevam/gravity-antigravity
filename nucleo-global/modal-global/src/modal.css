@@ -71,17 +71,25 @@
 
 .mg-btn-fechar {
   flex-shrink: 0;
-  padding: 0.25rem 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   color: var(--text-muted);
+  background: transparent;
+  border: none;
   border-radius: var(--radius-md);
   line-height: 1;
   font-size: 1rem;
+  cursor: pointer;
   transition: color 0.15s, background 0.15s;
 }
 
 .mg-btn-fechar:hover {
   color: var(--text-primary);
-  background: var(--bg-elevated);
+  background: var(--bg-elevated, rgba(255,255,255,0.05));
 }
 
 /* ─── Abas ───────────────────────────────────────────────────────────────────── */
@@ -92,6 +100,44 @@
 }
 
 /* .tabs-underline e .tab-underline já definidos no design system */
+
+/* ─── Abas Pill (Configurador) ──────────────────────────────────────────────── */
+.mg-nav-abas.mg-tabs-pill-wrap {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  background: var(--bg-base);
+}
+
+.mg-tabs-pill {
+  display: inline-flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9999px;
+  padding: 0.25rem;
+  gap: 0.25rem;
+}
+
+.mg-tab-pill {
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mg-tab-pill:hover {
+  color: var(--text-primary);
+}
+
+.mg-tab-pill.active {
+  background: var(--color-primary);
+  color: #0f172a;
+  font-weight: 700;
+}
 
 /* ─── Body ───────────────────────────────────────────────────────────────────── */
 /* .modal-body já definido no design system */

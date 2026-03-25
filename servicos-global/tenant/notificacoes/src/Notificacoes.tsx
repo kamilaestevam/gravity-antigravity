@@ -1,7 +1,5 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { AvisoInternoGlobal, AvisoInterno } from '@nucleo/aviso-interno-global'
-import { Bell } from '@phosphor-icons/react'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 export interface NotificationItem {
   id: string
@@ -44,11 +42,7 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = Array.from({ length: 30 }).map((_
 
 export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: string }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS)
-  const [unreadCount, setUnreadCount] = useState(MOCK_NOTIFICATIONS.filter(n => !n.read).length)
-  const [isOpen, setIsOpen] = useState(false)
   const [isPolling, setIsPolling] = useState(false)
-
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const syncState = useCallback(async () => {
     try {
@@ -102,22 +96,8 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
     }
   }, [userId, syncState, isPolling])
 
-  // Fecha o dropdown ao clicar fora
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [dropdownRef]);
-
   const handleMarkAsRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-    setUnreadCount(prev => Math.max(0, prev - 1))
     
     try {
       await fetch(`/api/tenant/notificacoes/${id}/read`, {
@@ -131,7 +111,6 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
 
   const handleReadAll = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-    setUnreadCount(0)
 
     try {
       await fetch(`/api/tenant/notificacoes/read-all`, {
@@ -156,7 +135,6 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
     }
 
     setNotifications(prev => [novoAviso, ...prev])
-    setUnreadCount(prev => prev + 1)
 
     try {
       // Bate no backend instruindo a criar um novo aviso/lembrete/chamado interno
@@ -186,8 +164,6 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
     }
   }
 
-  const badgeText = unreadCount > 9 ? '9+' : unreadCount > 0 ? unreadCount : null
-
   // Mapear os dados vindos da API para o formato padronizado visual do AvisoInternoGlobal
   const avisosMapeados: AvisoInterno[] = notifications.map(n => ({
     id: n.id,
@@ -200,41 +176,11 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
   }))
 
   return (
-    <div style={{ position: 'relative', display: 'flex' }} ref={dropdownRef}>
-      {/* Gatilho (Botão do Sininho) */}
-      <TooltipGlobal titulo="Quadro de Avisos" descricao="Acompanhe lembretes e pendências que exigem sua ação">
-        <button 
-          className="ws-global-btn"
-          onClick={() => setIsOpen(!isOpen)}
-          type="button" 
-          style={{ position: 'relative' }}
-        >
-          <Bell weight="bold" size={18} />
-          {badgeText && (
-            <span className="ws-global-badge" style={{ 
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '9px', fontWeight: 'bold', color: 'white', background: 'red'
-            }}>
-              {unreadCount > 9 ? '' : unreadCount}
-            </span>
-          )}
-        </button>
-      </TooltipGlobal>
-
-      {/* Popover/Dropdown com a nova Central de Chamados/Avisos */}
-      {isOpen && (
-        <div style={{
-          position: 'absolute', right: 0, top: '44px', zIndex: 1000
-        }}>
-          <AvisoInternoGlobal 
-            avisos={avisosMapeados}
-            onMarcarLido={handleMarkAsRead}
-            onMarcarTodosLidos={handleReadAll}
-            onCriarAviso={handleCriarAviso}
-            onFechar={() => setIsOpen(false)}
-          />
-        </div>
-      )}
-    </div>
+    <AvisoInternoGlobal 
+      avisos={avisosMapeados}
+      onMarcarLido={handleMarkAsRead}
+      onMarcarTodosLidos={handleReadAll}
+      onCriarAviso={handleCriarAviso}
+    />
   )
 }

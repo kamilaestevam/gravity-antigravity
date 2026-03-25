@@ -1,28 +1,16 @@
 {
   "compilerOptions": {
-    "strict": true,
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react-jsx",
+    "strict": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@nucleo/*": ["nucleo-global/*"],
-      "@tenant/*": ["servicos-global/tenant/*"],
-      "@produto/*": ["servicos-global/produto/*"]
-    },
-    "outDir": "dist",
-    "rootDir": ".",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "composite": true
-  },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ]
+    "sourceMap": true
+  }
 }

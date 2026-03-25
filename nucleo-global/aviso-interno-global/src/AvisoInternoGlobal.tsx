@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   X, 
   MagnifyingGlass, 
@@ -44,11 +44,27 @@ export function AvisoInternoGlobal({
   onFechar,
   className = ''
 }: AvisoInternoGlobalProps) {
+  const CHAR_LIMIT = 170;
+
   const [busca, setBusca] = useState('');
   const [dataFiltro, setDataFiltro] = useState<{ inicio: Date | null, fim: Date | null }>({ inicio: null, fim: null });
   const [novoAviso, setNovoAviso] = useState('');
   const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const [filtroStatus, setFiltroStatus] = useState<'todas' | 'nao_lidas'>('todas');
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const unreadCount = avisos.filter(a => !a.lido).length;
+  const badgeText = unreadCount > 9 ? '9+' : unreadCount > 0 ? unreadCount : null;
 
   const handleBuscar = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBusca(e.target.value);
@@ -76,7 +92,7 @@ export function AvisoInternoGlobal({
         const textToSearch = [a.conteudo, a.autor?.nome || 'Sistema'].join(' ').toLowerCase();
         if (!textToSearch.includes(termo)) return false;
       }
-      if (filtroStatus === 'nao_lidas' && a.lido) return false;
+      if (a.lido) return false;
 
       if (dataFiltro.inicio || dataFiltro.fim) {
         // Formato BR esperado gerado pelo backend toLocaleString() => dd/mm/yyyy
@@ -108,13 +124,39 @@ export function AvisoInternoGlobal({
       
       return true;
     });
-  }, [avisos, filtroStatus, busca, dataFiltro]);
+  }, [avisos, busca, dataFiltro]);
 
   return (
-    <div className={`aig-dropdown ${className}`}>
+    <div style={{ position: 'relative', display: 'flex' }} ref={dropdownRef}>
+      <TooltipGlobal titulo="Quadro de Avisos" descricao="Acompanhe lembretes e pendências que exigem sua ação">
+        <button 
+          className="ws-global-btn"
+          onClick={() => setIsOpen(!isOpen)}
+          type="button" 
+          style={{ position: 'relative' }}
+        >
+          <Bell weight="bold" size={18} />
+          {badgeText && (
+            <span className="ws-global-badge" style={{ 
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'absolute', top: '-2px', right: '-2px',
+              fontSize: '11px', fontWeight: 'bold', color: '#ffffff', background: '#3b82f6', 
+              lineHeight: 1, padding: '2px', minWidth: '18px', height: '18px', borderRadius: '50%',
+              boxShadow: '0 0 0 2px var(--ws-bg-body, #0f172a)'
+            }}>
+              {unreadCount > 9 ? '' : unreadCount}
+            </span>
+          )}
+        </button>
+      </TooltipGlobal>
+
+      {isOpen && (
+        <div style={{ position: 'absolute', right: 0, top: '44px', zIndex: 1000 }} className={`aig-dropdown ${className}`}>
       <style>{`
         .aig-combo-wrap .ws-global-search { width: 100% !important; padding: 0 0.75rem !important; }
         .aig-combo-wrap .ws-global-search__input { display: block !important; width: 100% !important; }
+        .aig-combo-wrap input { font-size: 11px !important; }
+        .aig-combo-wrap input::placeholder { font-size: 11px !important; }
         .aig-combo-wrap .ws-global-cmd { display: none !important; }
         .aig-combo-wrap .ws-input-icon-wrap { padding: 0 0.75rem 0 2.25rem !important; }
       `}</style>
@@ -155,37 +197,32 @@ export function AvisoInternoGlobal({
             className="aig-textarea-tall"
             placeholder="Escreva sua mensagem ou aviso aqui..." 
             value={novoAviso}
-            onChange={(e) => setNovoAviso(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= CHAR_LIMIT) setNovoAviso(e.target.value);
+            }}
             onKeyDown={handleKeyDown}
             rows={4}
             autoFocus
           />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-            <button type="button" className="aig-btn-primary" onClick={handleCriar} disabled={!novoAviso.trim()}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.375rem' }}>
+            <span style={{
+              fontSize: '0.6rem',
+              fontWeight: 500,
+              color: 'var(--ws-muted, #94a3b8)'
+            }}>
+              {novoAviso.length} / {CHAR_LIMIT}
+            </span>
+            <button
+              type="button"
+              className="aig-btn-primary"
+              onClick={handleCriar}
+              disabled={!novoAviso.trim() || novoAviso.length > CHAR_LIMIT}
+            >
               Salvar
             </button>
           </div>
         </div>
       )}
-
-      {/* ORDENAR / STATUS */}
-      <div className="aig-section">
-        <span className="aig-label">STATUS</span>
-        <div className="aig-pills">
-          <button 
-            className={`aig-pill ${filtroStatus === 'todas' ? 'active' : ''}`}
-            onClick={() => setFiltroStatus('todas')}
-          >
-            Todas
-          </button>
-          <button 
-            className={`aig-pill ${filtroStatus === 'nao_lidas' ? 'active' : ''}`}
-            onClick={() => setFiltroStatus('nao_lidas')}
-          >
-            Não lidas
-          </button>
-        </div>
-      </div>
 
       {/* BUSCA / DATA COMBO */}
       <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0' }}>
@@ -248,13 +285,13 @@ export function AvisoInternoGlobal({
         <button type="button" className="aig-footer-btn" onClick={() => {
            setBusca('');
            setDataFiltro({ inicio: null, fim: null });
-           setFiltroStatus('nao_lidas');
            if (onFechar) onFechar();
         }}>
           <X size={14} weight="bold" /> Limpar filtros
         </button>
       </div>
-
+        </div>
+      )}
     </div>
   );
 }

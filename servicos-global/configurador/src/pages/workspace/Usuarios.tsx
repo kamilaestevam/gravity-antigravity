@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Users, Plus, X, PauseCircle, PlayCircle, PencilSimple, Trash, FileXls, FileCsv, FileText, FilePdf, Code } from '@phosphor-icons/react'
+import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, Trash, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 type UserType = 'Master' | 'Standard' | 'Fornecedor'
@@ -274,6 +275,12 @@ export function Usuarios() {
 
   const ACOES: TabelaGlobalAcao<TenantUser>[] = [
     {
+      id: 'permissions',
+      icone: <Key size={15} weight="bold" />,
+      tooltip: 'Permissões do Usuário',
+      onClick: () => {},
+    },
+    {
       id: 'suspend',
       icone: <PauseCircle size={16} weight="bold" />, // Será atualizado condicionalmente
       tooltip: 'Desativar/Reativar',
@@ -385,6 +392,10 @@ export function Usuarios() {
     { label: 'JSON',          icone: <Code     size={14} weight="bold" />, onClick: (dados) => void exportarJSON(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
   ]
 
+  const totalVinculos = users.reduce((acc, u) => acc + (u.tipo === 'Master' ? espacos.length : (VINCULOS[u.id]?.length || 0)), 0)
+  const mediaEspacosPorUsuario = users.length ? (totalVinculos / users.length).toFixed(1) : '0'
+  const usuariosComAcesso = users.filter(u => u.tipo === 'Master' ? espacos.length > 0 : (VINCULOS[u.id]?.length || 0) > 0).length
+
   return (
     <PaginaGlobal
       className="ws-fade-up"
@@ -393,8 +404,113 @@ export function Usuarios() {
         <CabecalhoGlobal
           icone={<Users weight="duotone" size={22} />}
           titulo="Usuários & Permissões"
-          subtitulo="Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada."
+          subtitulo="Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada"
         />
+      }
+      stats={
+        <>
+          <CardBasicoGlobal
+            titulo="Total de Usuários"
+            valor={users.length}
+            icone={<Users weight="duotone" size={18} />}
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '+2',  direcao: 'up',   descricao: 'vs semana anterior' },
+              { periodo: '30d', rotulo: '30 dias', valor: '+5',  direcao: 'up',   descricao: 'vs mês anterior'    },
+              { periodo: '6m',  rotulo: '6 meses', valor: '+18', direcao: 'up',   descricao: 'vs semestre anterior' },
+              { periodo: '1a',  rotulo: '1 ano',   valor: '+32', direcao: 'up',   descricao: 'vs ano anterior'    },
+            ] as PeriodoTendencia[]}
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Visão Geral</p>
+                <div className="cg-tooltip__row">
+                  <span>Total de registros</span>
+                  <strong>{users.length}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Novos hoje</span>
+                  <strong>0</strong>
+                </div>
+              </>
+            }
+          />
+          <CardBasicoGlobal
+            titulo="Acessos Concedidos"
+            valor={totalVinculos}
+            icone={<UserCircleCheck weight="duotone" size={18} />}
+            variante="sucesso"
+            subtexto="Total de ligações usuário-empresa"
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '+5',  direcao: 'up',   descricao: 'vs semana anterior' },
+              { periodo: '30d', rotulo: '30 dias', valor: '+15', direcao: 'up',   descricao: 'vs mês anterior'    },
+              { periodo: '6m',  rotulo: '6 meses', valor: '+45', direcao: 'up',   descricao: 'vs semestre anterior' },
+              { periodo: '1a',  rotulo: '1 ano',   valor: '+82', direcao: 'up',   descricao: 'vs ano anterior'    },
+            ] as PeriodoTendencia[]}
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Vínculos de Acesso</p>
+                <div className="cg-tooltip__row">
+                  <span>Total de acessos</span>
+                  <strong style={{ color: '#34d399' }}>{totalVinculos}</strong>
+                </div>
+              </>
+            }
+          />
+          <CardBasicoGlobal
+            titulo="Média de Acessos Concedidos"
+            valor={mediaEspacosPorUsuario}
+            icone={<ChartPieSlice weight="duotone" size={18} />}
+            variante="padrao"
+            subtexto="Empresas por usuário ativo"
+            periodos={[
+              { periodo: '7d',  rotulo: '7 dias',  valor: '+0.1', direcao: 'up' },
+              { periodo: '30d', rotulo: '30 dias', valor: '+0.3', direcao: 'up' },
+              { periodo: '6m',  rotulo: '6 meses', valor: '+1.2', direcao: 'up' },
+              { periodo: '1a',  rotulo: '1 ano',   valor: '+2.5', direcao: 'up' },
+            ] as PeriodoTendencia[]}
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Distribuição Média</p>
+                <div className="cg-tooltip__row">
+                  <span>Média geral</span>
+                  <strong>{mediaEspacosPorUsuario} empresas</strong>
+                </div>
+              </>
+            }
+          />
+          <CardGraficoGlobal
+            titulo="Total Espaços de Trabalho"
+            icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
+            total={users.length}
+            valorPrincipal={usuariosComAcesso}
+            corGauge="#8b5cf6"
+            legenda={[
+              { label: 'Com acesso', valor: usuariosComAcesso, cor: '#8b5cf6' },
+              { label: 'Sem acesso', valor: users.length - usuariosComAcesso, cor: '#64748b' },
+            ]}
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Densidade & Distribuição</p>
+                <div className="cg-tooltip__row">
+                  <span>Total de Usuários</span>
+                  <strong>{users.length}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Total de Espaços</span>
+                  <strong>{espacos.length}</strong>
+                </div>
+                <div className="cg-tooltip__divider" />
+                <div className="cg-tooltip__row">
+                  <span>Vínculos Ativos</span>
+                  <strong>{totalVinculos}</strong>
+                </div>
+                <div className="cg-tooltip__row">
+                  <span>Média p/ Usuário</span>
+                  <strong style={{ color: '#8b5cf6' }}>{mediaEspacosPorUsuario}</strong>
+                </div>
+              </>
+            }
+          />
+        </>
       }
       acoes={
         tab === 'tenant' ? (
@@ -406,17 +522,17 @@ export function Usuarios() {
           />
         ) : undefined
       }
-    >
-      <div style={{ marginBottom: '1.5rem' }}>
+      toolbar={
         <div className="ws-tabs" style={{ margin: 0 }}>
           <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
-            Perfis de Acesso
+            Perfis de Usuários
           </button>
           <button className={`ws-tab${tab === 'espacos' ? ' active' : ''}`} onClick={() => setTab('espacos')}>
-            Acesso por Espaço de Trabalho
+            Empresas Vinculadas por Usuário
           </button>
         </div>
-      </div>
+      }
+    >
 
       {tab === 'tenant' && (
         <>

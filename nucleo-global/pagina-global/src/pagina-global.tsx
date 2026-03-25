@@ -19,6 +19,12 @@ export interface PaginaGlobalProps {
   acoes?: ReactNode;
 
   /**
+   * Barra fixa entre os cards e o conteúdo (ex: abas, filtros rápidos).
+   * Fica fora da área de scroll, garantindo visibilidade constante.
+   */
+  toolbar?: ReactNode;
+
+  /**
    * Define o comportamento de preenchimento. 
    * "lista" -> 100% da largura. Usado com TabelaGlobal.
    * "formulario" -> Max-width engessado no centro.
@@ -41,7 +47,8 @@ export interface PaginaGlobalProps {
 export function PaginaGlobal({ 
   cabecalho, 
   stats, 
-  acoes, 
+  acoes,
+  toolbar,
   layout = 'lista', 
   children, 
   className = '' 
@@ -68,7 +75,14 @@ export function PaginaGlobal({
         </div>
       )}
 
-      {/* 3. Main content (Tabela ou Formulário) */}
+      {/* 3. Toolbar fixo: abas, filtros rápidos, etc. */}
+      {toolbar && (
+        <div className="pg-toolbar-wrapper">
+          {toolbar}
+        </div>
+      )}
+
+      {/* 4. Main content (Tabela ou Formulário) */}
       <main className={`pg-conteudo-area ${customLayoutClass}`}>
         {children}
       </main>

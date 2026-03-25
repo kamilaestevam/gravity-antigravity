@@ -8,6 +8,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type Tabe
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalEditarEspaco } from './ModalEditarEspaco'
+import { ModalExclusao } from './ModalExclusao'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 export type EmpresaStatus = 'Ativa' | 'Suspensa'
@@ -68,6 +69,7 @@ export function EspacosDeTrabalho() {
   const [subdominio, setSubdomain] = useState('')
   const [subdErr, setSubdErr]      = useState('')
   const [empresaEditando, setEmpresaEditando] = useState<Empresa | null>(null)
+  const [empresaParaExcluir, setEmpresaParaExcluir] = useState<Empresa | null>(null)
 
   const ativas = empresas.filter(e => e.status === 'Ativa').length
   const suspensas = empresas.filter(e => e.status === 'Suspensa').length
@@ -112,8 +114,13 @@ export function EspacosDeTrabalho() {
   }
 
   function handleDelete(linha: Empresa) {
-    if (!window.confirm('Excluir permanentemente este espaço de trabalho? Esta ação não pode ser desfeita.')) return
-    setEspacosDeTrabalho(prev => prev.filter(e => e.id !== linha.id))
+    setEmpresaParaExcluir(linha)
+  }
+
+  function confirmarExclusao() {
+    if (!empresaParaExcluir) return
+    setEspacosDeTrabalho(prev => prev.filter(e => e.id !== empresaParaExcluir.id))
+    setEmpresaParaExcluir(null)
   }
 
   function handleEdit(linha: Empresa) {
@@ -453,6 +460,15 @@ export function EspacosDeTrabalho() {
       aoExcluir={(emp) => {
         setEspacosDeTrabalho(prev => prev.filter(e => e.id !== emp.id))
       }}
+    />
+
+    <ModalExclusao
+      aberto={!!empresaParaExcluir}
+      titulo="Excluir Espaço de Trabalho"
+      descricao={<>Tem certeza de que deseja excluir permanentemente o espaço de trabalho <strong>{empresaParaExcluir?.nome}</strong>?</>}
+      nomeItem="Esta ação é irreversível e excluirá todos os dados permanentemente."
+      aoConfirmar={confirmarExclusao}
+      aoCancelar={() => setEmpresaParaExcluir(null)}
     />
     </>
   )

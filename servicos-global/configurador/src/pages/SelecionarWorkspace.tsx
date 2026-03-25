@@ -185,26 +185,31 @@ export function SelecionarWorkspace() {
 
               {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{
-                  fontWeight: 600, fontSize: '0.9375rem',
-                  color: '#f1f5f9', margin: '0 0 0.175rem',
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  margin: '0 0 0.175rem',
                 }}>
-                  {emp.nome}
-                </p>
-                <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0 }}>
-                  {emp.cnpj}
+                  <p style={{
+                    fontWeight: 600, fontSize: '0.9375rem',
+                    color: '#f1f5f9', margin: 0,
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  }}>
+                    {emp.nome}
+                  </p>
                   <span style={{
-                    marginLeft: '0.5rem',
                     padding: '0.1rem 0.45rem',
                     borderRadius: '9999px',
                     fontSize: '0.7rem', fontWeight: 700,
                     background: `${planoBadgeColor[emp.plano] ?? '#94a3b8'}15`,
                     color: planoBadgeColor[emp.plano] ?? '#94a3b8',
                     border: `1px solid ${planoBadgeColor[emp.plano] ?? '#94a3b8'}25`,
+                    flexShrink: 0,
                   }}>
                     {emp.plano}
                   </span>
+                </div>
+                <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0 }}>
+                  {emp.cnpj}
                 </p>
               </div>
 

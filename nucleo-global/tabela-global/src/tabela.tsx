@@ -102,7 +102,7 @@ function PopoverFiltro({
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '0.375rem 0.5rem 0.375rem 1.75rem',
-    background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)',
+    background: 'rgba(129,140,248,0.05)', border: '1px solid var(--ws-accent-border)',
     borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem',
     fontFamily: 'inherit', outline: 'none',
   }
@@ -119,18 +119,18 @@ function PopoverFiltro({
 
   const style: React.CSSProperties = {
     position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999,
-    background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(129,140,248,0.18)',
+    background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)',
     borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
     minWidth: '220px', maxWidth: '280px', fontFamily: 'var(--font, Plus Jakarta Sans)',
   }
 
   return ReactDOM.createPortal(
     <div ref={ref} style={style} onClick={e => e.stopPropagation()}>
-      <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
+      <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
         <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>{label}</span>
       </div>
 
-      <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
+      <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
         <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
           {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [SortDir, string, React.ReactNode][]).map(([dir, rot, ico]) => {
@@ -147,7 +147,7 @@ function PopoverFiltro({
       </div>
 
       {tipo === 'texto' && (
-        <div style={{ borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
+        <div style={{ borderBottom: '1px solid var(--ws-accent-border)' }}>
           <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
           {valoresDisponiveis.length > 5 && (
             <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
@@ -186,7 +186,7 @@ function PopoverFiltro({
       )}
 
       {tipo === 'numero' && (
-        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
+        <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
           <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Intervalo</p>
           <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
             {(['min', 'max'] as const).map((campo, i) => (
@@ -199,7 +199,7 @@ function PopoverFiltro({
                   const v = e.target.value.replace(/[^0-9]/g, '')
                   onFiltrarNumero(coluna, campo, v)
                 }}
-                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
+                style={{ flex: 1, width: 0, padding: '0.375rem 0.5rem', background: 'rgba(129,140,248,0.05)', border: '1px solid var(--ws-accent-border)', borderRadius: '6px', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', outline: 'none' }}
                 onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
                 onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.15)' }}
               />
@@ -209,7 +209,7 @@ function PopoverFiltro({
       )}
 
       {tipo === 'periodo' && (
-        <div style={{ padding: '0.625rem 0.5rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
+        <div style={{ padding: '0.625rem 0.5rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
           <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Selecione o Período</p>
           <CalendarioCampoGlobal 
             valor={periodo as any}
@@ -256,7 +256,7 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   )
 
   return (
-    <th style={{ width: col.largura, padding: '0.75rem 1rem', textAlign: col.align || 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid rgba(129,140,248,0.1)', background: 'rgba(129,140,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
+    <th style={{ width: col.largura, padding: '0.75rem 1rem', textAlign: col.align || 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid var(--ws-accent-border)', background: 'rgba(129,140,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start' }}>
         {col.tooltipDescricao
           ? <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>{labelSpan}</TooltipGlobal>
@@ -484,15 +484,15 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
   }, [])
 
   return (
-    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid rgba(129,140,248,0.1)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid rgba(129,140,248,0.08)' }}>
+    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid var(--ws-accent-border)' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
             <MagnifyingGlass size={14} weight="bold" />
           </span>
           <input type="search" placeholder="Localizar" value={busca}
             onChange={e => { setBusca(e.target.value); setPagina(1) }}
-            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
             onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
             onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.18)'; e.currentTarget.style.boxShadow = 'none' }}
           />
@@ -524,7 +524,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
 
               {exportMenuAberto && (
                 <div ref={exportMenuRef}
-                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
+                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid var(--ws-accent-border)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
                   onClick={e => e.stopPropagation()}>
                   {acoesExportacao.map(a => (
                     <ExportMenuItem key={a.label} label={a.label} icon={a.icone} onClick={() => { a.onClick(resultado); setExportMenuAberto(false) }} />
@@ -537,7 +537,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
       </div>
 
       {chips.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid rgba(129,140,248,0.08)', background: 'rgba(129,140,248,0.02)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.375rem', padding: '0.625rem 1.25rem', borderBottom: '1px solid var(--ws-accent-border)', background: 'rgba(129,140,248,0.02)' }}>
           {chips.map(c => <FiltroChip key={c.key} label={c.label} onRemover={c.onRemover} />)}
           <button type="button" onClick={limparTudo}
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: 'auto', padding: '0.2rem 0.65rem', borderRadius: '9999px', background: 'transparent', border: '1px solid rgba(239,68,68,0.25)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
@@ -552,7 +552,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
           <thead>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)' }}>
+              <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)' }}>
                 <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
               {colunas.map(col => (
@@ -569,12 +569,12 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                 />
               ))}
               {acoes && acoes.length > 0 && (
-                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
                   Ações
                 </th>
               )}
               {renderExpandido && (
-                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)' }}></th>
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)' }}></th>
               )}
             </tr>
           </thead>
@@ -595,7 +595,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               <React.Fragment key={id}>
               <tr
                 onClick={renderExpandido ? () => toggleExpandido(id) : undefined}
-                style={{ cursor: renderExpandido ? 'pointer' : 'default', borderBottom: (isExpanded || i < paginado.length - 1) ? '1px solid rgba(129,140,248,0.06)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                style={{ cursor: renderExpandido ? 'pointer' : 'default', borderBottom: (isExpanded || i < paginado.length - 1) ? '1px solid var(--ws-accent-border)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
                 onMouseEnter={ev => { if (!selecionados.has(id)) ev.currentTarget.style.background = 'rgba(129,140,248,0.03)' }}
                 onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent' }}>
                 <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
@@ -646,7 +646,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               </tr>
               {isExpanded && renderExpandido && (
                 <tr>
-                  <td colSpan={colunas.length + (acoes?.length ? 2 : 1) + 1} style={{ padding: 0, borderBottom: i < paginado.length - 1 ? '1px solid rgba(129,140,248,0.06)' : 'none', background: 'rgba(15,23,42,0.3)' }}>
+                  <td colSpan={colunas.length + (acoes?.length ? 2 : 1) + 1} style={{ padding: 0, borderBottom: i < paginado.length - 1 ? '1px solid var(--ws-accent-border)' : 'none', background: 'rgba(15,23,42,0.3)' }}>
                     {renderExpandido(item)}
                   </td>
                 </tr>
@@ -657,7 +657,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
         </table>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(129,140,248,0.08)', background: 'rgba(129,140,248,0.02)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid var(--ws-accent-border)', background: 'rgba(129,140,248,0.02)' }}>
         <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
           {resultado.length === 0 ? 'Nenhum registro' : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} de ${resultado.length}`}
         </span>
@@ -671,7 +671,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#64748b' }}>
           por página:
           <select value={porPagina} onChange={e => { setPorPagina(Number(e.target.value)); setPagina(1) }}
-            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
+            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
             {[10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>

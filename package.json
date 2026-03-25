@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@clerk/localizations": "^4.2.3"
+  }
+}

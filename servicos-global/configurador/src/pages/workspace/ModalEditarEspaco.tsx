@@ -34,10 +34,27 @@ import { ModalGlobal } from '@nucleo/modal-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
+import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { SelectGlobal } from '@nucleo/select-global'
+import type { SelectOpcao } from '@nucleo/select-global'
+import { ModalExclusao } from './ModalExclusao'
 import type { Empresa } from './EspacosDeTrabalho'
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
+// ─── Constantes ─────────────────────────────────────────────────────────────
+
+const ESTADOS_BR = [
+  'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS',
+  'MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC',
+  'SP','SE','TO',
+]
+
+const OPCOES_ESTADOS: SelectOpcao[] = [
+  { valor: '', rotulo: 'Selecione...' },
+  ...ESTADOS_BR.map(uf => ({ valor: uf, rotulo: uf }))
+]
+
+// ─── Helper ─────────────────────────────────────────────────────────────────
 
 function slugify(v: string) {
   return v
@@ -46,6 +63,8 @@ function slugify(v: string) {
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '')
 }
+
+
 
 // ─── Cabeçalho de seção — padrão Organizacao.tsx ─────────────────────────────
 
@@ -133,6 +152,33 @@ function AbaInformacoes({
   onSub: (v: string) => void
   onDadoExtend: (key: string, v: string) => void
 }) {
+  const [cidades, setCidades] = useState<SelectOpcao[]>([])
+  const [carregandoCidades, setCarregandoCidades] = useState(false)
+
+  // ── Carregar Cidades do IBGE ─────────────────────────────────────────────
+  useEffect(() => {
+    if (!empresa.estado) {
+      setCidades([])
+      return
+    }
+    setCarregandoCidades(true)
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${empresa.estado}/municipios`)
+      .then(res => res.json())
+      .then(data => {
+        const opcoes = data.map((c: any) => ({
+          valor: c.nome,
+          rotulo: c.nome
+        }))
+        opcoes.sort((a: SelectOpcao, b: SelectOpcao) => a.rotulo.localeCompare(b.rotulo))
+        setCidades(opcoes)
+      })
+      .catch(err => {
+        console.error("Erro ao buscar cidades do IBGE:", err)
+        setCidades([])
+      })
+      .finally(() => setCarregandoCidades(false))
+  }, [empresa.estado])
+
   return (
     <div style={{ padding: '0 1.5rem 2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
@@ -188,29 +234,32 @@ function AbaInformacoes({
 
           <div>
             <GeralCampoGlobal label="Estado">
-              <div className="ws-input-icon-wrap">
-                <MapPin size={16} />
-                <input
-                  value={empresa.estado || ''}
-                  placeholder="Ex: SP"
-                  onChange={e => onDadoExtend('estado', e.target.value)}
-                  style={{ width: '100%' }}
-                />
-              </div>
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={OPCOES_ESTADOS}
+                valor={empresa.estado || null}
+                aoMudarValor={(v: string | number | null) => {
+                  onDadoExtend('estado', String(v ?? ''))
+                  onDadoExtend('cidade', '')
+                }}
+                placeholder="Ex: SP"
+                buscavel
+              />
             </GeralCampoGlobal>
           </div>
 
           <div>
             <GeralCampoGlobal label="Cidade">
-              <div className="ws-input-icon-wrap">
-                <MapPin size={16} />
-                <input
-                  value={empresa.cidade || ''}
-                  placeholder="Ex: São Paulo"
-                  onChange={e => onDadoExtend('cidade', e.target.value)}
-                  style={{ width: '100%' }}
-                />
-              </div>
+              <SelectGlobal
+                iconeEsquerda={<MapPin size={16} />}
+                opcoes={cidades}
+                valor={empresa.cidade || null}
+                aoMudarValor={v => onDadoExtend('cidade', String(v ?? ''))}
+                placeholder={empresa.estado ? "Ex: São Paulo" : "Selecione o estado..."}
+                buscavel
+                desabilitado={!empresa.estado}
+                carregando={carregandoCidades}
+              />
             </GeralCampoGlobal>
           </div>
         </div>
@@ -302,45 +351,43 @@ function AbaInformacoes({
           icone={<Info size={16} weight="duotone" />}
           titulo="Dados do Sistema"
         />
-        <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-          
-          {/* Status Label + Badge Borderless */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Status
-            </label>
-            <div>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                padding: '0.2rem 0.6rem',
-                borderRadius: '9999px',
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                background: empresa.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-                color: empresa.status === 'Ativa' ? '#34d399' : '#f87171',
-                border: `1px solid ${empresa.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
-              }}>
-                {empresa.status}
-              </span>
-            </div>
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '1.5rem',
+          padding: '1rem 1.25rem',
+          background: 'rgba(255, 255, 255, 0.02)', // Fundo ultra sutil
+          border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
+          borderRadius: 'var(--radius-md, 8px)',
+          alignItems: 'center'
+        }}>
+          {/* Status Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '0.15rem 0.5rem',
+              borderRadius: '9999px',
+              fontSize: '0.6875rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: empresa.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+              color: empresa.status === 'Ativa' ? '#34d399' : '#f87171',
+              border: `1px solid ${empresa.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+            }}>
+              {empresa.status}
+            </span>
           </div>
 
-          <CampoReadonly
-            label="Criado em"
-            valor={empresa.criadaEm}
-            icone={<CalendarBlank size={16} />}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.8125rem' }}>
+            <CalendarBlank size={16} />
+            <span>Criado em {empresa.criadaEm}</span>
+          </div>
 
-          <div style={{ gridColumn: '1 / -1' }}>
-            <CampoReadonly
-              label="Vinculado à Organização"
-              valor={empresa.organizacao || 'Gravity Principal'}
-              icone={<Buildings size={16} />}
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.8125rem' }}>
+            <Buildings size={16} />
+            <span>{empresa.organizacao || 'Gravity Principal'}</span>
           </div>
         </div>
       </div>
@@ -370,6 +417,7 @@ export function ModalEditarEspaco({
   const [sub, setSub]           = useState('')
   const [erroSub, setErroSub]   = useState('')
   const [extendData, setExtendData] = useState<Partial<Empresa>>({})
+  const [mostrarExclusao, setMostrarExclusao] = useState(false)
 
   // Preenche os campos ao abrir (empresa muda)
   useEffect(() => {
@@ -419,8 +467,13 @@ export function ModalEditarEspaco({
 
   function handleExcluir() {
     if (!empresa) return
-    if (!window.confirm(`Excluir permanentemente "${empresa.nome}"? Esta ação não pode ser desfeita.`)) return
+    setMostrarExclusao(true)
+  }
+
+  function confirmarExclusao() {
+    if (!empresa) return
     aoExcluir(empresa)
+    setMostrarExclusao(false)
     aoFechar()
   }
 
@@ -443,6 +496,7 @@ export function ModalEditarEspaco({
   ] : []
 
   return (
+    <>
     <ModalGlobal
       aberto={!!empresa}
       aoFechar={handleCancelar}
@@ -494,7 +548,8 @@ export function ModalEditarEspaco({
           </button>
           
           {/* Ações de formulário à direita */}
-          <div className="botoes-footer-padrao">
+          <div className="botoes-footer-padrao" style={{ alignItems: 'center' }}>
+            <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
             <BotaoCancelar
               dirty={dirty}
               rotulo="Cancelar"
@@ -509,5 +564,15 @@ export function ModalEditarEspaco({
         </div>
       )}
     />
+
+    <ModalExclusao
+      aberto={mostrarExclusao}
+      titulo="Excluir Espaço de Trabalho"
+      descricao={<>Tem certeza de que deseja excluir permanentemente o espaço de trabalho <strong>{empresa?.nome}</strong>?</>}
+      nomeItem="Esta ação é irreversível e excluirá todos os dados permanentemente."
+      aoConfirmar={confirmarExclusao}
+      aoCancelar={() => setMostrarExclusao(false)}
+    />
+    </>
   )
 }

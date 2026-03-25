@@ -5,6 +5,7 @@ import { StatCardGlobal } from '@nucleo/stat-card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { ModalExclusao } from './ModalExclusao'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 type ProdutoStatus = 'Ativo' | 'Trial' | 'Suspenso'
@@ -42,6 +43,8 @@ const upsellProducts = [
 
 export function Assinaturas() {
   const [produtos, setProdutos]         = useState<Produto[]>(mockProdutos)
+  const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null)
+  const [produtoParaSuspender, setProdutoParaSuspender] = useState<Produto | null>(null)
 
   const totalAtivos = produtos.filter(p => p.status === 'Ativo' || p.status === 'Trial').length
   const totalSuspensos = produtos.filter(p => p.status === 'Suspenso').length
@@ -55,19 +58,26 @@ export function Assinaturas() {
     }, 0)
 
   function handleSuspend(p: Produto) {
-    const msg = p.status === 'Suspenso'
-      ? `Reativar "${p.nome}"?`
-      : `Suspender "${p.nome}"? O acesso será bloqueado imediatamente.`
-    if (!window.confirm(msg)) return
-    setProdutos(prev => prev.map(x => x.id === p.id
+    setProdutoParaSuspender(p)
+  }
+
+  function confirmarSuspensao() {
+    if (!produtoParaSuspender) return
+    setProdutos(prev => prev.map(x => x.id === produtoParaSuspender.id
       ? { ...x, status: x.status === 'Suspenso' ? 'Ativo' : 'Suspenso' }
       : x
     ))
+    setProdutoParaSuspender(null)
   }
 
   function handleDelete(p: Produto) {
-    if (!window.confirm(`Cancelar a assinatura de "${p.nome}"? Esta ação não pode ser desfeita.`)) return
-    setProdutos(prev => prev.filter(x => x.id !== p.id))
+    setProdutoParaExcluir(p)
+  }
+
+  function confirmarExclusao() {
+    if (!produtoParaExcluir) return
+    setProdutos(prev => prev.filter(x => x.id !== produtoParaExcluir.id))
+    setProdutoParaExcluir(null)
   }
 
   // ── Colunas da TabelaGlobal ───────────────────────────────────────────────────
@@ -191,6 +201,7 @@ export function Assinaturas() {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
+    <>
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
@@ -320,5 +331,24 @@ export function Assinaturas() {
       </div>
 
     </PaginaGlobal>
+
+    <ModalExclusao
+      aberto={!!produtoParaExcluir}
+      titulo="Cancelar Assinatura"
+      descricao={<>Tem certeza de que deseja cancelar a assinatura de <strong>{produtoParaExcluir?.nome}</strong>?</>}
+      nomeItem="Esta ação é irreversível e o acesso ao produto será bloqueado imediatamente."
+      aoConfirmar={confirmarExclusao}
+      aoCancelar={() => setProdutoParaExcluir(null)}
+    />
+
+    <ModalExclusao
+      aberto={!!produtoParaSuspender}
+      titulo={produtoParaSuspender?.status === 'Suspenso' ? 'Reativar Produto' : 'Suspender Produto'}
+      descricao={<>Tem certeza de que deseja {produtoParaSuspender?.status === 'Suspenso' ? 'reativar' : 'suspender'} a assinatura de <strong>{produtoParaSuspender?.nome}</strong>?</>}
+      nomeItem={produtoParaSuspender?.status === 'Suspenso' ? 'O acesso será reativado para todos os usuários.' : 'O acesso será bloqueado imediatamente para todos os usuários deste serviço.'}
+      aoConfirmar={confirmarSuspensao}
+      aoCancelar={() => setProdutoParaSuspender(null)}
+    />
+    </>
   )
 }

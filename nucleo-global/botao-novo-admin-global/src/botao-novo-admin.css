@@ -1,0 +1,11 @@
+.bng-admin-wrapper {
+  display: inline-flex;
+  /* Sobrescreve os tokens do Gravity para este escopo específico (Admin) */
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+}
+
+/* Garante que o badge do ícone também herde a cor corretamente se necessário */
+.bng-admin-wrapper .gb-btn--primario .gb-btn__icon-badge {
+  background: rgba(255, 255, 255, 0.2) !important;
+}

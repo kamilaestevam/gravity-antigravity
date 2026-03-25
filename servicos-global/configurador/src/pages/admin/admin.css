@@ -1,46 +1,62 @@
 /* admin.css — Sobrescreve design tokens globais do workspace para o modo Admin HQ (verde) */
 
 body.admin-theme {
-  /* Tokens Base da Área Workspace */
-  --ws-accent: #10b981;
+  /* Apenas o accent principal fica verde (botões primários, tab ativa, toggles) */
+  --ws-accent:     #10b981;
   --ws-accent-dim: rgba(16, 185, 129, 0.12);
-  --ws-accent-border: rgba(16, 185, 129, 0.25);
-  
-  /* Tokens Primários (caso algum componente global leia diretamente) */
+
+  /* NÃO sobrescrevemos --ws-accent-border aqui.
+     Isso evita que bordas internas de tabelas, inputs,
+     divisores e componentes herde a cor verde. */
+
   --color-primary: #10b981;
 }
 
-/* Identidade Visual Padronizada para Modais e Caixas Flutuantes na área Admin */
+/* ── Borda verde APENAS no modal externo (container principal) ─────────── */
 body.admin-theme .mg-dialog,
 body.admin-theme [role="dialog"],
-body.admin-theme [role="alertdialog"],
-body.admin-theme .Radix-MenuContent,
-body.admin-theme [data-radix-popper-content-wrapper] > div {
+body.admin-theme [role="alertdialog"] {
   border: 1px solid rgba(16, 185, 129, 0.4) !important;
   box-shadow: 0 16px 48px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.1) !important;
 }
 
-/* Ajuste no foco dos inputs globais para Admin */
-body.admin-theme .ws-field:focus-within,
-body.admin-theme .ws-input-icon-wrap:focus-within,
-body.admin-theme .ws-field:focus,
-body.admin-theme .em-readonly {
+/* ── Foco de inputs — borda verde apenas no input em si ────────────────── */
+body.admin-theme .ws-field input:focus,
+body.admin-theme .ws-field select:focus,
+body.admin-theme .ws-input-icon-wrap input:focus,
+body.admin-theme .ws-input-icon-wrap select:focus {
   border-color: #10b981 !important;
-  box-shadow: 0 0 0 1px #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
 }
 
-/* Identidade Visual Padronizada para Blocos Conteúdo de Página (Visão Geral, Tenants, etc) */
-body.admin-theme .em-identity,
-body.admin-theme .em-section,
-body.admin-theme .em-plan-row,
-body.admin-theme .ws-stat-card,
-body.admin-theme .ws-table-wrap,
-body.admin-theme .ws-tenant-chip,
-body.admin-theme .em-readonly {
-  border-color: rgba(16, 185, 129, 0.25) !important;
+/* ── Efeito de ping do BotaoSalvar (verde em vez de roxo) ──────────────── */
+@keyframes bs-btn-ping-green {
+  0%   { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);   }
+  100% { box-shadow: 0 0 0 0    rgba(16, 185, 129, 0);   }
 }
 
-/* Override .em-identity background gradient to be green instead of yellow */
-body.admin-theme .em-identity {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.07) 0%, var(--ws-surface) 55%) !important;
+body.admin-theme .bs-btn-pulse {
+  animation-name: bs-btn-ping-green;
+}
+
+/* ── Spinner do input[type=number] — cor verde da admin-theme ───────────── */
+body.admin-theme input[type="number"]::-webkit-inner-spin-button,
+body.admin-theme input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%2310b981' d='M10 6l-4 4h8z'/%3E%3Cpath fill='%2310b981' d='M10 14l4-4H6z'/%3E%3C/svg%3E")
+    no-repeat center / 14px 14px,
+    rgba(16,185,129,0.08);
+  border-left: 1px solid rgba(16,185,129,0.25);
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+body.admin-theme input[type="number"]::-webkit-inner-spin-button:hover,
+body.admin-theme input[type="number"]::-webkit-outer-spin-button:hover {
+  background-color: rgba(16,185,129,0.18);
 }

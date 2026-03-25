@@ -498,7 +498,7 @@ body.light-theme [data-tooltip]:hover::after {
 }
 
 .ws-global-user__name {
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   color: var(--ws-text);
   white-space: nowrap;

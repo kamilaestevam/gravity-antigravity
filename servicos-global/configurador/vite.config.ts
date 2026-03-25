@@ -8,9 +8,49 @@ export default defineConfig({
   resolve: {
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom'],
     alias: {
+      '@nucleo/botao-novo-admin-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/botao-novo-admin-global/src/index.ts'
+      ),
+      '@nucleo/botao-novo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/botao-novo-global/src/index.ts'
+      ),
       '@nucleo/botao-global': path.resolve(
         __dirname,
         '../../nucleo-global/botao-global/src/index.ts'
+      ),
+      '@nucleo/modal-formulario-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-formulario-global/src/index.ts'
+      ),
+      '@nucleo/modal-formulario-abas-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-formulario-abas-global/src/index.ts'
+      ),
+      '@nucleo/modal-sem-sessoes-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-sem-sessoes-global/src/index.ts'
+      ),
+      '@nucleo/modal-select-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-select-global/src/index.ts'
+      ),
+      '@nucleo/modal-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-global/src/index.ts'
+      ),
+      '@nucleo/calendario-campo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/calendario-campo-global/src/index.ts'
+      ),
+      '@nucleo/localizar-campo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/localizar-campo-global/src/index.ts'
+      ),
+      '@nucleo/geral-campo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/geral-campo-global/src/index.ts'
       ),
       '@nucleo/pagina-global': path.resolve(
         __dirname,
@@ -28,25 +68,21 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/tabela-global/src/index.ts'
       ),
-      '@nucleo/utils': path.resolve(
+      '@nucleo/tabela-camadas-global': path.resolve(
         __dirname,
-        '../../nucleo-global/utils/src/index.ts'
+        '../../nucleo-global/tabela-camadas-global/src/index.ts'
       ),
       '@nucleo/tooltip-global': path.resolve(
         __dirname,
         '../../nucleo-global/tooltip-global/src/index.ts'
       ),
-      '@nucleo/botao-novo-global': path.resolve(
+      '@nucleo/stat-card-global': path.resolve(
         __dirname,
-        '../../nucleo-global/botao-novo-global/src/index.ts'
+        '../../nucleo-global/stat-card-global/src/index.ts'
       ),
       '@nucleo/select-global': path.resolve(
         __dirname,
         '../../nucleo-global/select-global/src/index.ts'
-      ),
-      '@nucleo/stat-card-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/stat-card-global/src/index.ts'
       ),
       '@nucleo/botoes-salvar-global': path.resolve(
         __dirname,
@@ -56,10 +92,6 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/status-salvar-global/src/index.ts'
       ),
-      '@nucleo/modal-select-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/modal-select-global/src/index.ts'
-      ),
       '@nucleo/aviso-interno-global': path.resolve(
         __dirname,
         '../../nucleo-global/aviso-interno-global/src/index.ts'
@@ -68,45 +100,25 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/usuario-global/src/index.ts'
       ),
-      '@nucleo/calendario-campo-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/calendario-campo-global/src/index.ts'
-      ),
-      '@nucleo/geral-campo-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/geral-campo-global/src/index.ts'
-      ),
-      '@nucleo/modal-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/modal-global/src/index.ts'
-      ),
-      '@nucleo/modal-sem-sessoes-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/modal-sem-sessoes-global/src/index.ts'
-      ),
-      '@nucleo/modal-formulario-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/modal-formulario-global/src/index.ts'
-      ),
-      '@nucleo/localizar-campo-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/localizar-campo-global/src/index.ts'
-      ),
       '@nucleo/logo-global': path.resolve(
         __dirname,
         '../../nucleo-global/logo-global/src/index.ts'
-      ),
-      '@nucleo/login-global': path.resolve(
-        __dirname,
-        '../../nucleo-global/login-global/src/index.ts'
       ),
       '@nucleo/login-novo-global': path.resolve(
         __dirname,
         '../../nucleo-global/login-novo-global/src/index.ts'
       ),
+      '@nucleo/login-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/login-global/src/index.ts'
+      ),
       '@nucleo/workspace-selecao-global': path.resolve(
         __dirname,
         '../../nucleo-global/workspace-selecao-global/src/index.ts'
+      ),
+      '@nucleo/utils': path.resolve(
+        __dirname,
+        '../../nucleo-global/utils/src/index.ts'
       ),
       '@tenant/gabi': path.resolve(
         __dirname,

@@ -1,10 +1,17 @@
 import React from 'react'
-import { ModalSemSessoesGlobal } from '@nucleo/modal-sem-sessoes-global'
+import { ModalGlobal } from '@nucleo/modal-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
 
-export interface ModalFormularioGlobalProps {
+export interface AbaFormulario {
+  id: string
+  rotulo: string
+  conteudo: React.ReactNode
+  desabilitada?: boolean
+}
+
+export interface ModalFormularioAbasGlobalProps {
   aberto: boolean
   aoFechar: () => void
   aoSalvar: () => void
@@ -16,10 +23,12 @@ export interface ModalFormularioGlobalProps {
   podesSalvar?: boolean
   tamanho?: "sm" | "md" | "lg" | "xl" | "full"
   altura?: string
-  children: React.ReactNode
+  abas: AbaFormulario[]
+  abaAtivaInicial?: string
+  tipoAbas?: 'underline' | 'pill'
 }
 
-export function ModalFormularioGlobal({
+export function ModalFormularioAbasGlobal({
   aberto,
   aoFechar,
   aoSalvar,
@@ -31,24 +40,31 @@ export function ModalFormularioGlobal({
   podesSalvar = false,
   tamanho = "lg",
   altura = "680px",
-  children
-}: ModalFormularioGlobalProps) {
+  abas,
+  abaAtivaInicial,
+  tipoAbas = 'pill'
+}: ModalFormularioAbasGlobalProps) {
   return (
-    <ModalSemSessoesGlobal
+    <ModalGlobal
       aberto={aberto}
       aoFechar={aoFechar}
       titulo="" // Preenchido via cabecalhoPersonalizado
       cabecalhoPersonalizado={
-        <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: 'calc(1.5rem + 2px)', paddingBottom: 'calc(0.2rem - 2px)', marginTop: '4px' }}>
-          <CabecalhoGlobal
-            icone={icone}
-            titulo={titulo}
-            subtitulo={subtitulo || ''}
-          />
+        <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: 'calc(0.5rem + 2px)', paddingBottom: '0.2rem', paddingTop: '8px' }}>
+          <div style={{ position: 'relative', top: '2px' }}>
+            <CabecalhoGlobal
+              icone={icone}
+              titulo={titulo}
+              subtitulo={subtitulo || ''}
+            />
+          </div>
         </div>
       }
       tamanho={tamanho}
       altura={altura}
+      abas={abas}
+      abaAtivaInicial={abaAtivaInicial}
+      tipoAbas={tipoAbas}
       renderizarFooter={() => (
         <div className="mg-footer-personalizado">
           {aoExcluir ? (
@@ -77,8 +93,6 @@ export function ModalFormularioGlobal({
           </div>
         </div>
       )}
-    >
-      {children}
-    </ModalSemSessoesGlobal>
+    />
   )
 }

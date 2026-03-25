@@ -75,7 +75,7 @@ export function StatusSalvarGlobal({
   autoResetMs = 3000,
   onAutoReset,
   className = '',
-  hideOnIdle = false,
+  hideOnIdle = true,
 }: StatusSalvarGlobalProps) {
   const [internalStatus, setInternalStatus] = useState<StatusSalvar>(propStatus)
 

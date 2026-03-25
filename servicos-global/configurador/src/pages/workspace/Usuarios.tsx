@@ -510,7 +510,7 @@ export function Usuarios() {
         </>
       }
       toolbar={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', transform: 'translateY(-7px)' }}>
           <div className="ws-tabs" style={{ margin: 0 }}>
             <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
               Perfis de Usuários

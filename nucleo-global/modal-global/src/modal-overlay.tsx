@@ -235,13 +235,15 @@ export function ModalGlobal({
 
         {/* Abas */}
         {abas && abas.length > 0 && (
-          <NavegacaoAbas
-            abas={abas}
-            abaAtiva={abaAtiva}
-            aoMudarAba={setAbaAtiva}
-            idBase={id}
-            tipoAbas={tipoAbas}
-          />
+          <div style={{ position: 'relative', top: '2px' }}>
+            <NavegacaoAbas
+              abas={abas}
+              abaAtiva={abaAtiva}
+              aoMudarAba={setAbaAtiva}
+              idBase={id}
+              tipoAbas={tipoAbas}
+            />
+          </div>
         )}
 
         {/* Body */}

@@ -103,7 +103,7 @@
 
 /* ─── Abas Pill (Configurador) ──────────────────────────────────────────────── */
 .mg-nav-abas.mg-tabs-pill-wrap {
-  padding: 0 1.5rem 1.5rem 1.5rem;
+  padding: 0 1.5rem 0.5rem 1.5rem; /* 8px bottom */
   background: var(--bg-base);
 }
 

@@ -38,8 +38,8 @@
   padding-right: 2rem;
   
   margin-top: 12px;
-  padding-top: 0.75rem;
-  padding-bottom: 1.25rem;
+  padding-top: 12px;
+  padding-bottom: 16px;
   margin-bottom: 0;
 
   overflow: visible;
@@ -47,7 +47,7 @@
 
 /* Ajuste p/ modo claro */
 body.light-theme .pg-contexto-row {
-  background: var(--ws-bg-body, #f8fafc);
+  background: var(--ws-bg-body, #0f172a);
 }
 
 .pg-contexto-row.pg-no-stats {
@@ -74,8 +74,8 @@ body.light-theme .pg-contexto-row {
 .pg-toolbar-wrapper {
   flex-shrink: 0;
   background: var(--ws-bg-body, #0f172a);
-  padding-top: 0.5rem;
-  padding-bottom: 0.75rem;
+  padding-top: 0;
+  padding-bottom: 16px;
 }
 
 /* Ajuste p/ modo claro */

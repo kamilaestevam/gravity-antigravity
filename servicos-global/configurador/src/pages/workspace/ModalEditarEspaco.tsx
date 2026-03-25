@@ -30,11 +30,8 @@ import {
   Link,
   Info
 } from '@phosphor-icons/react'
-import { ModalSemSessoesGlobal } from '@nucleo/modal-sem-sessoes-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
-import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
-import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/select-global'
 import type { SelectOpcao } from '@nucleo/select-global'
@@ -66,38 +63,7 @@ function slugify(v: string) {
 
 
 
-// ─── Cabeçalho de seção — padrão Organizacao.tsx ─────────────────────────────
-
-function SecaoTitulo({
-  icone,
-  titulo,
-  tooltip,
-  marginBottom = '1rem',
-}: {
-  icone: React.ReactNode
-  titulo: string
-  tooltip?: string
-  marginBottom?: string | number
-}) {
-  return (
-    <p className="ws-section-title" style={{ width: 'max-content', marginBottom, marginTop: 0 }}>
-      {tooltip ? (
-        <TooltipGlobal titulo={titulo} descricao={tooltip}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
-            <span style={{ color: 'var(--ws-accent)', display: 'flex', alignItems: 'center' }}>{icone}</span>
-            {titulo}
-          </span>
-        </TooltipGlobal>
-      ) : (
-        <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-          <span style={{ color: 'var(--ws-accent)', display: 'flex', alignItems: 'center' }}>{icone}</span>
-          {titulo}
-        </span>
-      )}
-    </p>
-  )
-}
-
+// ─── Componentes auxiliares (Removidos em favor de SecaoFormularioGlobal) ──────────────────
 // ─── Valor de campo readonly ──────────────────────────────────────────────────
 
 function CampoReadonly({
@@ -187,7 +153,7 @@ function AbaInformacoes({
       {/* Seção: Identidade */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <SecaoTitulo
+          <SecaoFormularioGlobal
             icone={<IdentificationCard size={16} weight="duotone" />}
             titulo="Identidade"
             tooltip="Nome e identificação visual do espaço de trabalho na plataforma"
@@ -297,7 +263,7 @@ function AbaInformacoes({
 
       {/* Seção: Endereço & Web */}
       <div>
-        <SecaoTitulo
+        <SecaoFormularioGlobal
           icone={<Globe size={16} weight="duotone" />}
           titulo="Acesso e Web"
         />
@@ -462,48 +428,16 @@ export function ModalEditarEspaco({
 
   return (
     <>
-    <ModalSemSessoesGlobal
+    <ModalFormularioGlobal
       aberto={!!empresa}
       aoFechar={handleCancelar}
-      titulo="" // Preenchido via cabecalhoPersonalizado
-      cabecalhoPersonalizado={
-        <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: '1.5rem', paddingBottom: '0.2rem' }}>
-          <CabecalhoGlobal
-            icone={<Buildings weight="duotone" size={24} />}
-            titulo={empresa?.nome ?? ''}
-            subtitulo="Edite as informações e configurações do espaço de trabalho"
-          />
-        </div>
-      }
-      tamanho="lg"
-      altura="680px"
-      renderizarFooter={() => (
-        <div className="mg-footer-personalizado">
-          
-          {/* Ação primária de perigo separada à esquerda */}
-          <button
-            className="mg-btn-danger mg-btn-danger-fix"
-            onClick={handleExcluir}
-          >
-            Excluir
-          </button>
-          
-          {/* Ações de formulário à direita */}
-          <div className="botoes-footer-padrao">
-            <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
-            <BotaoCancelar
-              dirty={dirty}
-              rotulo="Cancelar"
-              onClick={handleCancelar}
-            />
-            <BotaoSalvar
-              dirty={podesSalvar}
-              rotulo="Salvar Alterações"
-              onClick={handleSalvar}
-            />
-          </div>
-        </div>
-      )}
+      aoSalvar={handleSalvar}
+      aoExcluir={handleExcluir}
+      icone={<Buildings weight="duotone" size={24} />}
+      titulo={empresa?.nome ?? ''}
+      subtitulo="Edite as informações e configurações do espaço de trabalho"
+      dirty={!!dirty}
+      podesSalvar={podesSalvar}
     >
       {empresa && (
         <AbaInformacoes
@@ -516,7 +450,7 @@ export function ModalEditarEspaco({
           onDadoExtend={(k, v) => setExtendData(p => ({...p, [k]: v}))}
         />
       )}
-    </ModalSemSessoesGlobal>
+    </ModalFormularioGlobal>
 
     <ModalExclusao
       aberto={mostrarExclusao}

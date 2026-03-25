@@ -1,0 +1,521 @@
+/**
+ * @nucleo/tabela-camadas-global — CSS
+ * Tabela em camadas (tree table) com linhas expansíveis.
+ * Herda tokens do DS Gravity. Prefixo: .tcg-
+ */
+
+/* ─── Tokens internos ─────────────────────────────────────────────────────── */
+.tcg-container {
+  --tcg-bg:           var(--ws-surface, #1e293b);
+  --tcg-bg-alt:       var(--ws-bg-body, #0f172a);
+  --tcg-bg-hover:     rgba(129, 140, 248, 0.04);
+  --tcg-bg-child:     rgba(15, 23, 42, 0.6);
+  --tcg-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
+  --tcg-border-solid: var(--color-border, #334155);
+  --tcg-accent:       var(--ws-accent, #818cf8);
+  --tcg-green:        #34d399;
+  --tcg-text:         var(--ws-text, #f1f5f9);
+  --tcg-muted:        var(--ws-muted, #94a3b8);
+  --tcg-radius:       12px;
+  --tcg-radius-sm:    6px;
+  --tcg-focus-ring:   0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+/* ─── Container ───────────────────────────────────────────────────────────── */
+.tcg-container {
+  display: flex;
+  flex-direction: column;
+  background: var(--tcg-bg);
+  border-radius: var(--tcg-radius);
+  border: 1px solid var(--tcg-border);
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* ─── Toolbar ─────────────────────────────────────────────────────────────── */
+.tcg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--tcg-bg);
+  border-bottom: 1px solid var(--tcg-border);
+  flex-wrap: wrap;
+}
+
+.tcg-toolbar-esquerda,
+.tcg-toolbar-direita {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Busca ───────────────────────────────────────────────────────────────── */
+.tcg-busca-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tcg-busca-icone {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--tcg-muted);
+  pointer-events: none;
+  line-height: 0;
+}
+
+.tcg-busca-input {
+  background: var(--tcg-bg-alt);
+  border: 1px solid var(--tcg-border-solid);
+  border-radius: 9999px;
+  padding: 0.4375rem 1rem 0.4375rem 2.25rem;
+  color: var(--tcg-text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  min-width: 240px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.tcg-busca-input:focus {
+  outline: none;
+  border-color: var(--tcg-accent);
+  box-shadow: var(--tcg-focus-ring);
+}
+
+.tcg-busca-input::placeholder {
+  color: var(--tcg-muted);
+  opacity: 0.7;
+}
+
+/* ─── Btn genérico ────────────────────────────────────────────────────────── */
+.tcg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--tcg-border-solid);
+  background: transparent;
+  color: var(--tcg-muted);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.tcg-btn:hover:not(:disabled) {
+  border-color: var(--tcg-accent);
+  color: var(--tcg-accent);
+  background: rgba(129, 140, 248, 0.06);
+}
+
+.tcg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Export ──────────────────────────────────────────────────────────────── */
+.tcg-export-wrapper {
+  position: relative;
+}
+
+.tcg-export-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  background: var(--tcg-bg);
+  border: 1px solid var(--tcg-border-solid);
+  border-radius: 10px;
+  padding: 0.375rem;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.tcg-export-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 7px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tcg-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s, color 0.12s;
+}
+
+.tcg-export-item:hover {
+  background: rgba(129, 140, 248, 0.08);
+  color: var(--tcg-text);
+}
+
+/* ─── Scroll ──────────────────────────────────────────────────────────────── */
+.tcg-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Tabela ──────────────────────────────────────────────────────────────── */
+.tcg-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  color: var(--tcg-text);
+}
+
+/* ─── Cabeçalho ───────────────────────────────────────────────────────────── */
+.tcg-cabecalho {
+  background: rgba(129, 140, 248, 0.04);
+}
+
+.tcg-th {
+  padding: 0.75rem 1.25rem;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--tcg-muted);
+  border-bottom: 1px solid var(--tcg-border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tcg-th--center { text-align: center; }
+.tcg-th--right  { text-align: right; }
+.tcg-th--expand { width: 40px; }
+.tcg-th--acoes  { width: 1px; white-space: nowrap; }
+
+.tcg-th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* ─── Linha PAI ───────────────────────────────────────────────────────────── */
+.tcg-tr-pai {
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.tcg-tr-pai:hover {
+  background: var(--tcg-bg-hover);
+}
+
+.tcg-tr-pai--expandida {
+  background: rgba(129, 140, 248, 0.05);
+  border-bottom: none;
+}
+
+.tcg-tr-pai--expandida:hover {
+  background: rgba(129, 140, 248, 0.07);
+}
+
+/* ─── Linha FILHA wrapper (tr que contém o accordion) ─────────────────────── */
+.tcg-tr-filhos-wrapper {
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
+}
+
+.tcg-tr-filhos-wrapper:last-child {
+  border-bottom: none;
+}
+
+/* ─── Área expansível (accordion) ────────────────────────────────────────── */
+.tcg-accordion {
+  overflow: hidden;
+  transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+  max-height: 0;
+  opacity: 0;
+}
+
+.tcg-accordion--aberto {
+  max-height: 2000px;
+  opacity: 1;
+}
+
+/* ─── Sub-tabela (filhos) ─────────────────────────────────────────────────── */
+.tcg-subtabela-wrapper {
+  background: var(--tcg-bg-child);
+  border-top: 1px solid rgba(129, 140, 248, 0.08);
+  border-left: 3px solid rgba(129, 140, 248, 0.25);
+}
+
+.tcg-subtabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8375rem;
+}
+
+.tcg-subtabela-cabecalho {
+  background: rgba(129, 140, 248, 0.03);
+}
+
+.tcg-sub-th {
+  padding: 0.5625rem 1.25rem 0.5625rem 1.75rem;
+  text-align: left;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(148,163,184,0.6);
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
+  white-space: nowrap;
+}
+
+.tcg-sub-th--center { text-align: center; }
+.tcg-sub-th--right  { text-align: right; }
+.tcg-sub-th--acoes  { width: 1px; white-space: nowrap; }
+
+/* ─── Linha filha ─────────────────────────────────────────────────────────── */
+.tcg-tr-filho {
+  border-bottom: 1px solid rgba(129, 140, 248, 0.04);
+  transition: background 0.1s;
+}
+
+.tcg-tr-filho:last-child {
+  border-bottom: none;
+}
+
+.tcg-tr-filho:hover {
+  background: rgba(129, 140, 248, 0.04);
+}
+
+/* ─── Células ─────────────────────────────────────────────────────────────── */
+.tcg-td {
+  padding: 0.875rem 1.25rem;
+  color: var(--tcg-text);
+  vertical-align: middle;
+}
+
+.tcg-td--acoes {
+  width: 1px;
+  white-space: nowrap;
+}
+
+.tcg-td--center { text-align: center; }
+.tcg-td--right  { text-align: right; }
+
+/* Célula da primeira coluna dos filhos tem indent extra */
+.tcg-sub-td {
+  padding: 0.75rem 1.25rem 0.75rem 1.75rem;
+  color: var(--tcg-text);
+  vertical-align: middle;
+}
+
+.tcg-sub-td--acoes {
+  width: 1px;
+  white-space: nowrap;
+  padding-right: 1.25rem;
+}
+
+.tcg-sub-td--center { text-align: center; }
+.tcg-sub-td--right  { text-align: right; }
+
+/* ─── Chevron (toggle expansão) ───────────────────────────────────────────── */
+.tcg-td--expand {
+  width: 40px;
+  padding: 0.875rem 0 0.875rem 1.25rem;
+}
+
+.tcg-chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--tcg-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.tcg-chevron-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.2);
+  color: var(--tcg-accent);
+}
+
+.tcg-chevron-icon {
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 0;
+}
+
+.tcg-chevron-icon--aberto {
+  transform: rotate(90deg);
+}
+
+/* Badge contador de filhos */
+.tcg-badge-filhos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 0.375rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--tcg-accent);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  margin-left: 0.375rem;
+}
+
+/* ─── Ações de linha ──────────────────────────────────────────────────────── */
+.tcg-acoes-grupo {
+  display: flex;
+  gap: 0.375rem;
+  justify-content: flex-end;
+}
+
+.tcg-acao-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--tcg-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.tcg-acao-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.2);
+  color: var(--tcg-accent);
+}
+
+/* ─── Estado vazio ────────────────────────────────────────────────────────── */
+.tcg-vazio {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--tcg-muted);
+  font-size: 0.9375rem;
+}
+
+/* ─── Skeleton ────────────────────────────────────────────────────────────── */
+.tcg-skeleton {
+  height: 1rem;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(129,140,248,0.06) 25%,
+    rgba(129,140,248,0.12) 50%,
+    rgba(129,140,248,0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: tcg-shimmer 1.5s infinite;
+}
+
+@keyframes tcg-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Paginação ───────────────────────────────────────────────────────────── */
+.tcg-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(129, 140, 248, 0.03);
+  border-top: 1px solid var(--tcg-border);
+  flex-wrap: wrap;
+}
+
+.tcg-paginacao-info {
+  color: var(--tcg-muted);
+  font-size: 0.8125rem;
+  min-width: 120px;
+}
+
+.tcg-paginacao-controles {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tcg-paginacao-pagina {
+  color: var(--tcg-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  min-width: 64px;
+  text-align: center;
+}
+
+.tcg-pag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.5rem;
+  min-width: 2rem;
+  border-radius: var(--tcg-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--tcg-muted);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.tcg-pag-btn:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.08);
+  color: var(--tcg-accent);
+  border-color: var(--tcg-border);
+}
+
+.tcg-pag-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.tcg-paginacao-tamanho {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--tcg-muted);
+}
+
+.tcg-select-pagina {
+  background: var(--tcg-bg-alt);
+  border: 1px solid var(--tcg-border-solid);
+  border-radius: var(--tcg-radius-sm);
+  padding: 0.25rem 0.5rem;
+  color: var(--tcg-text);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.tcg-select-pagina:focus {
+  outline: none;
+  border-color: var(--tcg-accent);
+}

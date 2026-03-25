@@ -5,7 +5,7 @@ import { useOrganization } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
-import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
+import { BotaoNovoAdminGlobal } from '../../../../../nucleo-global/botao-novo-admin-global/src/index'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
@@ -143,7 +143,7 @@ export function UsuariosGlobaisAdmin() {
         </>
       }
       acoes={
-        <BotaoNovoGlobal
+        <BotaoNovoAdminGlobal
           rotulo="Convidar Admin"
           rotuloAtivo="Cancelar"
           ativo={showForm}

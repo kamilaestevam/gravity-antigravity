@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, Trash, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key } from '@phosphor-icons/react'
+import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -304,13 +304,6 @@ export function Usuarios() {
       icone: <PencilSimple size={15} weight="bold" />,
       tooltip: 'Editar',
       onClick: () => {},
-    },
-    {
-      id: 'delete',
-      icone: <Trash size={15} weight="bold" />,
-      tooltip: 'Excluir',
-      onClick: () => {},
-      onRenderStyle: () => ({ background: 'rgba(248,113,113,0.12)', borderColor: 'rgba(248,113,113,0.3)', color: '#f87171' })
     }
   ]
 
@@ -512,24 +505,24 @@ export function Usuarios() {
           />
         </>
       }
-      acoes={
-        tab === 'tenant' ? (
-          <BotaoNovoGlobal
-            rotulo="Convidar Usuário"
-            rotuloAtivo="Cancelar"
-            ativo={showForm}
-            onClick={() => setShowForm(v => !v)}
-          />
-        ) : undefined
-      }
       toolbar={
-        <div className="ws-tabs" style={{ margin: 0 }}>
-          <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
-            Perfis de Usuários
-          </button>
-          <button className={`ws-tab${tab === 'espacos' ? ' active' : ''}`} onClick={() => setTab('espacos')}>
-            Empresas Vinculadas por Usuário
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+          <div className="ws-tabs" style={{ margin: 0 }}>
+            <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
+              Perfis de Usuários
+            </button>
+            <button className={`ws-tab${tab === 'espacos' ? ' active' : ''}`} onClick={() => setTab('espacos')}>
+              Empresas Vinculadas por Usuário
+            </button>
+          </div>
+          {tab === 'tenant' && (
+            <BotaoNovoGlobal
+              rotulo="Convidar Usuário"
+              rotuloAtivo="Cancelar"
+              ativo={showForm}
+              onClick={() => setShowForm(v => !v)}
+            />
+          )}
         </div>
       }
     >

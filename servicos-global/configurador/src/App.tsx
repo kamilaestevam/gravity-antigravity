@@ -28,6 +28,7 @@ import { Usuarios }          from './pages/workspace/Usuarios'
 import { Assinaturas }       from './pages/workspace/Assinaturas'
 import { Financeiro }        from './pages/workspace/Financeiro'
 import { ApiCockpit }        from './pages/workspace/ApiCockpit'
+import { ConectorCargoWise } from './pages/workspace/ConectorCargoWise'
 import { SelecionarWorkspace } from './pages/SelecionarWorkspace'
 import { DeployRailwayAdmin } from './pages/admin/DeployRailwayAdmin'
 
@@ -110,6 +111,7 @@ export default function App() {
           <Route path="assinaturas" element={<Assinaturas />} />
           <Route path="financeiro"  element={<Financeiro />} />
           <Route path="api-cockpit" element={<ApiCockpit />} />
+          <Route path="conector-cargowise" element={<ConectorCargoWise />} />
         </Route>
       </Routes>
     </div>

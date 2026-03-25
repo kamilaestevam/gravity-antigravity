@@ -26,7 +26,7 @@ const billingColor: Record<BillingType, string> = {
   Setup: '#fb923c',
 }
 
-const mockProdutos: Produto[] = [
+export const mockProdutos: Produto[] = [
   { id: 'dash',     nome: 'Dashboard Global',     status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 299/mês',  renovacao: '01/05/2025' },
   { id: 'ativ',     nome: 'Gestão de Atividades',  status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 199/mês',  renovacao: '01/05/2025' },
   { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 0,15/sim', renovacao: 'Variável'   },
@@ -133,7 +133,7 @@ export function Assinaturas() {
         }
         const c = cfg[v as string] ?? cfg['Suspenso']
         return (
-          <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: c.bg, color: c.color, border: `1px solid ${c.border}` }}>
+          <span className={v === 'Trial' ? 'ux-pulse-trial' : undefined} style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: c.bg, color: c.color, border: `1px solid ${c.border}` }}>
             {v}
           </span>
         )
@@ -202,6 +202,37 @@ export function Assinaturas() {
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <>
+    <style>
+      {`
+        @keyframes ripplePulse {
+          0% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0.4), 0 4px 12px rgba(0, 0, 0, 0.1); }
+          70% { box-shadow: 0 0 0 8px rgba(129, 140, 248, 0), 0 4px 12px rgba(0, 0, 0, 0.1); }
+          100% { box-shadow: 0 0 0 0 rgba(129, 140, 248, 0), 0 4px 12px rgba(0, 0, 0, 0.1); }
+        }
+        .ux-pulse-card {
+          background: linear-gradient(145deg, var(--ws-surface) 0%, rgba(129, 140, 248, 0.05) 100%) !important;
+          border: 1px solid rgba(129, 140, 248, 0.35) !important;
+          animation: ripplePulse 2.5s infinite;
+          transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+          position: relative;
+        }
+        .ux-pulse-card:hover {
+          transform: translateY(-2px);
+          border-color: rgba(129, 140, 248, 0.7) !important;
+          background: linear-gradient(145deg, var(--ws-surface) 0%, rgba(129, 140, 248, 0.1) 100%) !important;
+          animation: none;
+          box-shadow: 0 8px 24px rgba(129, 140, 248, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes ripplePulseTrial {
+          0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5); }
+          70% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
+        }
+        .ux-pulse-trial {
+          animation: ripplePulseTrial 2s infinite !important;
+        }
+      `}
+    </style>
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
@@ -292,23 +323,10 @@ export function Assinaturas() {
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }} className="ws-fade-up ws-fade-up-d2">
         {upsellProducts.map(p => (
-          <div key={p.id} style={{
-            background: 'var(--ws-surface)',
-            border: '1px solid var(--ws-accent-border)',
+          <div key={p.id} className="ux-pulse-card" style={{
             borderRadius: '12px',
             padding: '1.375rem',
             display: 'flex', flexDirection: 'column', gap: '0.625rem',
-            transition: 'border-color 0.15s, box-shadow 0.15s',
-          }}
-          onMouseEnter={e => {
-            const el = e.currentTarget
-            el.style.borderColor = '#818cf8'
-            el.style.boxShadow = '0 0 0 1px rgba(129,140,248,0.15), 0 4px 16px rgba(0,0,0,0.3)'
-          }}
-          onMouseLeave={e => {
-            const el = e.currentTarget
-            el.style.borderColor = 'rgba(129,140,248,0.18)'
-            el.style.boxShadow = 'none'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--ws-text)', margin: 0 }}>{p.nome}</p>

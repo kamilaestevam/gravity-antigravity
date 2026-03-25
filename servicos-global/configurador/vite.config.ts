@@ -6,6 +6,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
+    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom'],
     alias: {
       '@nucleo/botao-global': path.resolve(
         __dirname,
@@ -79,6 +80,10 @@ export default defineConfig({
         __dirname,
         '../../nucleo-global/modal-global/src/index.ts'
       ),
+      '@nucleo/modal-sem-sessoes-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/modal-sem-sessoes-global/src/index.ts'
+      ),
       '@nucleo/localizar-campo-global': path.resolve(
         __dirname,
         '../../nucleo-global/localizar-campo-global/src/index.ts'
@@ -86,6 +91,22 @@ export default defineConfig({
       '@nucleo/logo-global': path.resolve(
         __dirname,
         '../../nucleo-global/logo-global/src/index.ts'
+      ),
+      '@nucleo/login-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/login-global/src/index.ts'
+      ),
+      '@nucleo/login-novo-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/login-novo-global/src/index.ts'
+      ),
+      '@nucleo/workspace-selecao-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/workspace-selecao-global/src/index.ts'
+      ),
+      '@tenant/gabi': path.resolve(
+        __dirname,
+        '../tenant/gabi'
       ),
       '@gravity/shell': path.resolve(
         __dirname,

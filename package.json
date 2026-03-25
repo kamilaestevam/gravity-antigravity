@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "@clerk/localizations": "^4.2.3"
+    "@clerk/localizations": "^4.2.3",
+    "@prisma/client": "^5.22.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0"
   }
 }

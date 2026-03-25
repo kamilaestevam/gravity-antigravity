@@ -5,42 +5,7 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import { ModalProvider } from '@nucleo/modal-global'
 import App from './App'
 
-const ptBR = {
-  socialButtonsBlockButton: 'Continuar com {{provider|titleize}}',
-  dividerText: 'ou',
-  formFieldLabel: {
-    firstName: 'Primeiro nome',
-    lastName: 'Sobrenome',
-    emailAddress: 'Endereço de e-mail',
-    password: 'Senha',
-  },
-  formFieldInputPlaceholder: {
-    emailAddress: 'Insira seu e-mail',
-    password: 'Insira sua senha',
-    firstName: 'Insira seu primeiro nome',
-    lastName: 'Insira seu último nome',
-  },
-  formButtonPrimary: 'Continuar',
-  formFieldHintText: {
-    optional: 'Opcional',
-  },
-  signIn: {
-    start: {
-      actionText: 'Novo por aqui?',
-      actionLink: 'Criar conta',
-      title: 'Acessar a plataforma',
-      subtitle: 'Para continuar a Gravity',
-    }
-  },
-  signUp: {
-    start: {
-      actionText: 'Já tem uma conta?',
-      actionLink: 'Entrar',
-      title: 'Criar sua conta',
-      subtitle: 'Para continuar a Gravity',
-    }
-  }
-}
+import { ptBR } from './ptBR'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 

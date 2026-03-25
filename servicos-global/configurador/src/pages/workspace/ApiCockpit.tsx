@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
-import { PlugsConnected, Key, Copy, CheckCircle, BookBookmark, Database, Trash, Target, Plugs, ShieldCheck } from '@phosphor-icons/react'
+import { PlugsConnected, Key, Copy, CheckCircle, Database, Trash, Target, Plugs, ShieldCheck } from '@phosphor-icons/react'
+import { Conectores } from './Conectores'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/stat-card-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CalendarioCampoGlobal } from '@nucleo/calendario-campo-global'
+import { DocPortal } from './DocPortal'
+import { mockProdutos } from './Assinaturas'
 
 type ApiStatus = 'Online' | 'Offline' | 'Degradado'
 
@@ -351,78 +354,12 @@ export function ApiCockpit() {
       )}
 
       {tab === 'docs' && (
-        <div className="ws-fade-up" style={{ display: 'flex', gap: '2rem', minHeight: '500px', background: 'var(--ws-surface)', borderRadius: '14px', border: '1px solid var(--ws-accent-border)', padding: '1.5rem' }}>
-          <div style={{ width: '250px', borderRight: '1px solid var(--ws-accent-border)', paddingRight: '1.5rem' }}>
-            <p style={{ fontWeight: 700, color: 'var(--ws-muted)', fontSize: '0.75rem', marginBottom: '1rem', letterSpacing: '0.05em' }}>SIMULACUSTO</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <button style={{ textAlign: 'left', padding: '0.625rem 0.875rem', background: 'rgba(129,140,248,0.1)', color: '#818cf8', borderRadius: '8px', border: '1px solid rgba(129,140,248,0.2)', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer' }}>POST /simulacoes</button>
-              <button style={{ textAlign: 'left', padding: '0.625rem 0.875rem', background: 'transparent', color: 'var(--ws-text)', borderRadius: '8px', border: '1px solid transparent', fontSize: '0.8125rem', opacity: 0.7, cursor: 'pointer' }}>GET /simulacoes/:id</button>
-            </div>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-              <span className="ws-badge ws-badge-success" style={{ fontSize: '0.8125rem' }}>POST</span>
-              <h2 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--ws-text)' }}>Criar Simulação</h2>
-            </div>
-            <p style={{ color: 'var(--ws-muted)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '2rem' }}>Cria uma nova simulação de custos de importação baseada no NCM, origem e valor aduaneiro.</p>
-            
-            <p style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--ws-text)', marginBottom: '0.75rem' }}>Body Requisito (JSON)</p>
-            <pre className="ws-code-block" style={{ margin: 0, border: '1px solid var(--ws-accent-border)' }}>
-{`{
-  "titulo": "Importação de Peças",
-  "valor": 15000.00,
-  "ncm": "84821010",
-  "origem": "CN"
-}`}
-            </pre>
-            
-            <div style={{ marginTop: '2rem' }}>
-              <BotaoGlobal variante="primario" tamanho="pequeno" icone={<Target weight="bold" size={14} />}>Testar no Playground</BotaoGlobal>
-            </div>
-          </div>
+        <div className="ws-fade-up">
+          <DocPortal produtosAssinados={mockProdutos} />
         </div>
       )}
 
-      {tab === 'conectores' && (
-        <div className="ws-fade-up">
-          <div className="ws-form-card">
-            <p className="ws-section-title">
-              <Database weight="duotone" size={14} color="#818cf8"/> Configurações do Conector ERP/SAP
-            </p>
-            <div className="ws-form-row">
-              <div className="ws-field">
-                <label>Protocolo de Integração</label>
-                <select defaultValue="odata">
-                  <option value="odata">OData v4 (SAP)</option>
-                  <option value="rest">REST API Genérica</option>
-                  <option value="jdbc">JDBC/ODBC DB</option>
-                </select>
-              </div>
-              <div className="ws-field">
-                <label>Base URL do seu ERP</label>
-                <input type="text" placeholder="https://sap.minhaempresa.com.br/odata" />
-              </div>
-            </div>
-            <div className="ws-form-row">
-              <div className="ws-field">
-                <label>Usuário de Integração</label>
-                <input type="text" placeholder="Ex: gravity_sync" />
-              </div>
-              <div className="ws-field">
-                <label>Senha ou Token (Criptografada em AES-256)</label>
-                <div style={{ position: 'relative' }}>
-                  <input type="password" placeholder="••••••••••••••" style={{ paddingRight: '2.5rem' }} />
-                  <ShieldCheck size={18} color="#10b981" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} />
-                </div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', borderTop: '1px solid var(--ws-accent-border)', paddingTop: '1.5rem' }}>
-              <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14} />}>Salvar Credenciais</BotaoGlobal>
-              <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Plugs weight="bold" size={14} />}>Testar Comunicação</BotaoGlobal>
-            </div>
-          </div>
-        </div>
-      )}
+      {tab === 'conectores' && <Conectores />}
     </PaginaGlobal>
   )
 }

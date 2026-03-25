@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
 import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, PauseCircle, PlayCircle, PencilSimple, Trash, CaretDown, FileCsv, FileText, FilePdf, FileXls, Code } from '@phosphor-icons/react'
+import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, PauseCircle, PlayCircle, PencilSimple, CaretDown, FileCsv, FileText, FilePdf, FileXls, Code } from '@phosphor-icons/react'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 export type UserType = 'Master' | 'Standard' | 'Fornecedor'
@@ -582,15 +582,6 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
                       onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
                     >
                       <PencilSimple size={15} weight="bold" />
-                    </button>
-                    <button
-                      type="button"
-                      title="Excluir"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(248,113,113,0.12)'; ev.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)'; ev.currentTarget.style.color = '#f87171' }}
-                      onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-                    >
-                      <Trash size={15} weight="bold" />
                     </button>
                   </div>
                 </td>

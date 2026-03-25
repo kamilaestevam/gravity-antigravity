@@ -30,7 +30,7 @@ import {
   Link,
   Info
 } from '@phosphor-icons/react'
-import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalSemSessoesGlobal } from '@nucleo/modal-sem-sessoes-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
@@ -477,27 +477,9 @@ export function ModalEditarEspaco({
     aoFechar()
   }
 
-  const abas = empresa ? [
-    {
-      id: 'informacoes',
-      rotulo: 'Sessão 1',
-      conteudo: (
-        <AbaInformacoes
-          empresa={{...empresa, ...extendData, nome, subdominio: sub}}
-          nome={nome}
-          subdominio={sub}
-          erroSub={erroSub}
-          onNome={setNome}
-          onSub={handleSubChange}
-          onDadoExtend={(k, v) => setExtendData(p => ({...p, [k]: v}))}
-        />
-      ),
-    }
-  ] : []
-
   return (
     <>
-    <ModalGlobal
+    <ModalSemSessoesGlobal
       aberto={!!empresa}
       aoFechar={handleCancelar}
       titulo="" // Preenchido via cabecalhoPersonalizado
@@ -512,15 +494,14 @@ export function ModalEditarEspaco({
       }
       tamanho="lg"
       altura="680px"
-      abas={abas}
-      tipoAbas="pill"
       renderizarFooter={() => (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '1.25rem 1.5rem', background: 'var(--bg-base)', borderTop: 'none', position: 'absolute', bottom: 0, left: 0, zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', margin: '-1.25rem -1.5rem', padding: '1.25rem 1.5rem', background: 'var(--bg-base)' }}>
           {/* Custom style for exact button match */}
           <style>{`
             .botoes-footer-padrao {
               display: flex;
               gap: 0.75rem;
+              align-items: center;
             }
             .botoes-footer-padrao button {
               height: 38px !important;
@@ -529,6 +510,16 @@ export function ModalEditarEspaco({
               display: inline-flex !important;
               align-items: center !important;
               justify-content: center !important;
+              box-sizing: border-box !important;
+            }
+            .botoes-footer-padrao button.gb-btn--com-icone {
+              padding-left: 0.375rem !important;
+              padding-right: 1.25rem !important;
+            }
+            .botoes-footer-padrao > div {
+              display: inline-flex;
+              align-items: center;
+              height: 38px;
             }
             .mg-btn-danger-fix {
               height: 38px !important;
@@ -536,6 +527,7 @@ export function ModalEditarEspaco({
               display: inline-flex !important;
               align-items: center !important;
               justify-content: center !important;
+              box-sizing: border-box !important;
             }
           `}</style>
           
@@ -563,7 +555,19 @@ export function ModalEditarEspaco({
           </div>
         </div>
       )}
-    />
+    >
+      {empresa && (
+        <AbaInformacoes
+          empresa={{...empresa, ...extendData, nome, subdominio: sub}}
+          nome={nome}
+          subdominio={sub}
+          erroSub={erroSub}
+          onNome={setNome}
+          onSub={handleSubChange}
+          onDadoExtend={(k, v) => setExtendData(p => ({...p, [k]: v}))}
+        />
+      )}
+    </ModalSemSessoesGlobal>
 
     <ModalExclusao
       aberto={mostrarExclusao}

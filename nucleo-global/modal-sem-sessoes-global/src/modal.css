@@ -1,0 +1,170 @@
+/**
+ * @nucleo/modal-sem-sessoes-global — CSS
+ * Estilos usando CSS Variables do design system Solid Slate.
+ * Sem cores hardcoded.
+ */
+
+/* ─── Overlay ────────────────────────────────────────────────────────────────── */
+.mg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  animation: mg-fade-in 0.15s ease;
+}
+
+@keyframes mg-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Dialog (caixa do modal) ────────────────────────────────────────────────── */
+.mg-dialog {
+  position: relative;
+  width: 100%;
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: mg-slide-up 0.2s ease;
+}
+
+@keyframes mg-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+/* .modal-header já definido no design system; aqui sobrescrevemos apenas o que é
+   específico do componente */
+.mg-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.mg-header-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.mg-titulo {
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mg-subtitulo {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.mg-btn-fechar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  line-height: 1;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.mg-btn-fechar:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated, rgba(255,255,255,0.05));
+}
+
+/* ─── Body ───────────────────────────────────────────────────────────────────── */
+/* .modal-body já definido no design system */
+.mg-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────────── */
+/* .modal-footer já definido no design system */
+
+/* ─── Botão danger ───────────────────────────────────────────────────────────── */
+.mg-btn-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mg-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.mg-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Loading state ──────────────────────────────────────────────────────────── */
+.mg-btn-loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.mg-spinner {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: mg-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes mg-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Responsivo ─────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mg-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .mg-dialog {
+    max-width: 100% !important;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    animation: mg-slide-up-mobile 0.25s ease;
+  }
+
+  @keyframes mg-slide-up-mobile {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+  }
+}

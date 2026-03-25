@@ -1,29 +1,21 @@
 import React from 'react'
 import { Warning, Trash } from '@phosphor-icons/react'
 import { ModalGlobal } from '@nucleo/modal-global'
+import { SelecaoExcluirProps } from './tipos'
 
-export interface ModalExclusaoProps {
-  aberto: boolean
-  titulo: string
-  descricao: string | React.ReactNode
-  nomeItem?: string
-  aoConfirmar: () => void
-  aoCancelar: () => void
-}
-
-export function ModalExclusao({
+export function SelecaoExcluirGlobal({
   aberto,
   titulo,
   descricao,
   nomeItem,
   aoConfirmar,
   aoCancelar
-}: ModalExclusaoProps) {
+}: SelecaoExcluirProps) {
   return (
     <ModalGlobal
       aberto={aberto}
       aoFechar={aoCancelar}
-      tamanho="md" // Mudado de 'sm' para 'md' para ficar mais retangular e mais largo
+      tamanho="md"
       titulo=""
       cabecalhoPersonalizado={
         <div style={{ 

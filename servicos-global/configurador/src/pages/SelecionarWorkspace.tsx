@@ -5,31 +5,15 @@ import { useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   Plus,
-  Buildings,
-  CheckCircle,
   ShieldCheck,
 } from '@phosphor-icons/react'
-
-interface Empresa {
-  id: string
-  nome: string
-  cnpj: string
-  plano: string
-  cor: string
-  iniciais: string
-}
+import { WorkspaceSelecaoGlobal, type Empresa } from '@nucleo/workspace-selecao-global'
 
 const mockEmpresas: Empresa[] = [
   { id: 'e1', nome: 'Acme Corporation',  cnpj: '12.345.678/0001-90', plano: 'Enterprise',   cor: '#818cf8', iniciais: 'AC' },
   { id: 'e2', nome: 'Importex SA',       cnpj: '96.765.432/0001-10', plano: 'Profissional', cor: '#818cf8', iniciais: 'IS' },
   { id: 'e3', nome: 'TradeFlow Comex',   cnpj: '55.123.000/0001-44', plano: 'Básico',       cor: '#34d399', iniciais: 'TF' },
 ]
-
-const planoBadgeColor: Record<string, string> = {
-  Enterprise:   '#818cf8',
-  Profissional: '#818cf8',
-  Básico:       '#94a3b8',
-}
 
 export function SelecionarWorkspace() {
   const { signOut } = useClerk()
@@ -138,86 +122,13 @@ export function SelecionarWorkspace() {
         {/* Lista de empresas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
           {mockEmpresas.map(emp => (
-            <button
+            <WorkspaceSelecaoGlobal
               key={emp.id}
-              id={`sw-empresa-${emp.id}`}
-              type="button"
+              empresa={emp}
+              selecionando={selecionando === emp.id}
               onClick={() => handleSelect(emp)}
               disabled={selecionando !== null}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.875rem',
-                padding: '0.875rem 1rem',
-                background: selecionando === emp.id
-                  ? 'rgba(129,140,248,0.1)'
-                  : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${selecionando === emp.id
-                  ? 'rgba(129,140,248,0.35)'
-                  : 'rgba(255,255,255,0.07)'}`,
-                borderRadius: '12px',
-                cursor: selecionando !== null ? 'default' : 'pointer',
-                textAlign: 'left', width: '100%',
-                fontFamily: 'var(--font)',
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => {
-                if (!selecionando) {
-                  e.currentTarget.style.background = 'rgba(129,140,248,0.07)'
-                  e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)'
-                }
-              }}
-              onMouseLeave={e => {
-                if (selecionando !== emp.id) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
-                }
-              }}
-            >
-              {/* Avatar */}
-              <div style={{
-                width: 40, height: 40, minWidth: 40,
-                borderRadius: '10px',
-                background: `${emp.cor}18`,
-                border: `1px solid ${emp.cor}30`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Buildings weight="duotone" size={18} color={emp.cor} />
-              </div>
-
-              {/* Info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '0.5rem',
-                  margin: '0 0 0.175rem',
-                }}>
-                  <p style={{
-                    fontWeight: 600, fontSize: '0.9375rem',
-                    color: '#f1f5f9', margin: 0,
-                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                  }}>
-                    {emp.nome}
-                  </p>
-                  <span style={{
-                    padding: '0.1rem 0.45rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.7rem', fontWeight: 700,
-                    background: `${planoBadgeColor[emp.plano] ?? '#94a3b8'}15`,
-                    color: planoBadgeColor[emp.plano] ?? '#94a3b8',
-                    border: `1px solid ${planoBadgeColor[emp.plano] ?? '#94a3b8'}25`,
-                    flexShrink: 0,
-                  }}>
-                    {emp.plano}
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.78rem', color: '#64748b', margin: 0 }}>
-                  {emp.cnpj}
-                </p>
-              </div>
-
-              {/* Check ao selecionar */}
-              {selecionando === emp.id && (
-                <CheckCircle weight="fill" size={20} color="#818cf8" />
-              )}
-            </button>
+            />
           ))}
         </div>
 

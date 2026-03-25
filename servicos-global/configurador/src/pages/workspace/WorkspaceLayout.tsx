@@ -25,6 +25,7 @@ import {
   Sparkle,
   SignOut,
   Robot,
+  Truck,
 } from '@phosphor-icons/react'
 import { LocalizarCampoGlobal } from '@nucleo/localizar-campo-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
@@ -39,6 +40,7 @@ const navItems = [
   { to: '/workspace/assinaturas',  label: 'Assinaturas',     icon: <CreditCard  weight="duotone" size={18} /> },
   { to: '/workspace/financeiro',   label: 'Financeiro',      icon: <Receipt     weight="duotone" size={18} /> },
   { to: '/workspace/api-cockpit',  label: 'API Cockpit',     icon: <PlugsConnected weight="duotone" size={18} /> },
+  { to: '/workspace/conector-cargowise', label: 'CargoWise', icon: <Truck       weight="duotone" size={18} /> },
 ]
 
 export function WorkspaceLayout() {

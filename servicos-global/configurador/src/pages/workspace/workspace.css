@@ -495,6 +495,7 @@ body.light-theme [data-tooltip]:hover::after {
   display: flex;
   flex-direction: column;
   line-height: 1.2;
+  gap: 0.125rem; /* Adicionado 2px de gap */
 }
 
 .ws-global-user__name {
@@ -562,7 +563,7 @@ body.light-theme .ws-profile-dropdown {
 .ws-profile-details {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem;
+  gap: 0.25rem; /* Aumentado de 0.125rem para 0.25rem (+2px) */
   overflow: hidden;
 }
 

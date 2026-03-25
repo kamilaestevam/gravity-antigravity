@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
-import { Desktop, User, Robot, Export, DownloadSimple, HardDrives } from '@phosphor-icons/react'
+import React, { useState, useEffect } from 'react'
+import { Desktop, User, Robot, Export, DownloadSimple, HardDrives, Info, Funnel } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { SelectGlobal } from '@nucleo/select-global'
 
 type DiffObj = {
   campo: string
@@ -12,7 +14,7 @@ type DiffObj = {
 
 type LogHistorico = {
   id: string
-  quando: string // ISO date pra sorting se precisar, ou texto amigável pra exibição direta
+  quando: string // ISO date
   quemNome: string
   quemTipo: 'user' | 'gabi' | 'system'
   acao: string
@@ -20,65 +22,6 @@ type LogHistorico = {
   entidade: string
   diff?: DiffObj[]
 }
-
-const mockLogs: LogHistorico[] = [
-  {
-    id: 'l1',
-    quando: '2026-03-24T15:40:00',
-    quemNome: 'Daniel Martins',
-    quemTipo: 'user',
-    acao: 'ALTERAÇÃO',
-    oQueFoiFeito: 'Alterou configurações da Gabi: GEMINI_API_KEY atualizada',
-    entidade: 'Configurações da Gabi AI',
-    diff: [
-      { campo: 'GEMINI_API_KEY', antes: 'undefined', depois: 'sk-antigravity...' }
-    ]
-  },
-  {
-    id: 'l2',
-    quando: '2026-03-20T15:42:00',
-    quemNome: 'Daniel Martins',
-    quemTipo: 'user',
-    acao: 'ALTERAÇÃO',
-    oQueFoiFeito: 'Alterou configurações da Gabi: GEMINI_API_KEY atualizada',
-    entidade: 'Configurações da Gabi AI',
-    diff: [
-      { campo: 'GEMINI_API_KEY', antes: 'undefined', depois: 'sk-antigravity...' }
-    ]
-  },
-  {
-    id: 'l3',
-    quando: '2026-03-18T21:47:00',
-    quemNome: 'Daniel Martins',
-    quemTipo: 'user',
-    acao: 'ALTERAÇÃO',
-    oQueFoiFeito: 'Alterou configurações da Gabi: GEMINI_API_KEY atualizada',
-    entidade: 'Configurações da Gabi AI',
-    diff: [
-      { campo: 'GEMINI_API_KEY', antes: 'undefined', depois: 'sk-antigravity...' }
-    ]
-  },
-  {
-    id: 'l4',
-    quando: '2026-03-15T10:15:00',
-    quemNome: 'Gabi AI',
-    quemTipo: 'gabi',
-    acao: 'IA',
-    oQueFoiFeito: 'Gerou relatório de performance de acessos do tenant Gravity HQ',
-    entidade: 'Relatórios Inteligentes',
-    diff: []
-  },
-  {
-    id: 'l5',
-    quando: '2026-03-10T08:00:00',
-    quemNome: 'Sistema',
-    quemTipo: 'system',
-    acao: 'EXPORTAÇÃO',
-    oQueFoiFeito: 'Backup semanal da base de dados concluído',
-    entidade: 'Backup Global',
-    diff: []
-  }
-]
 
 const corAcao: Record<string, { bg: string, text: string, border: string }> = {
   'CRIAÇÃO': { bg: 'rgba(52,211,153,0.12)', text: '#34d399', border: 'rgba(52,211,153,0.3)' },
@@ -132,6 +75,38 @@ function renderDiffTable(diffs: DiffObj[]) {
 }
 
 export function HistoricoGlobalAdmin() {
+  const [logs, setLogs] = useState<LogHistorico[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadLogs() {
+      try {
+        setLoading(true)
+        const res = await fetch('/api/tenant/historico-global/logs')
+        if (res.ok) {
+           const result = await res.json()
+           // Mapeamento DB -> Frontend
+           const mappedLogs: LogHistorico[] = (result.data || []).map((dbLog: any) => ({
+             id: dbLog.id,
+             quando: dbLog.created_at,
+             quemNome: dbLog.actor_id,
+             quemTipo: dbLog.actor_type === 'GABI_IA' ? 'gabi' : dbLog.actor_type === 'SYSTEM' ? 'system' : 'user',
+             acao: dbLog.action,
+             oQueFoiFeito: dbLog.metadata?.oQueFoiFeito || dbLog.action,
+             entidade: dbLog.metadata?.entidade || dbLog.product_id || 'Sistema',
+             diff: dbLog.metadata?.diff || []
+           }))
+           setLogs(mappedLogs)
+        }
+      } catch (err) {
+        console.warn("Falha ao carregar registros do histórico:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadLogs()
+  }, [])
+
   const COLUNAS: TabelaGlobalColuna<LogHistorico>[] = [
     {
       key: 'quando', label: 'QUANDO', tipo: 'periodo',
@@ -208,6 +183,24 @@ export function HistoricoGlobalAdmin() {
     { label: 'Exportar Backup Log (.json)', icone: <DownloadSimple size={14} />, onClick: () => {} }
   ]
 
+  const opcoesResponsavel = [
+    { valor: 'todos', rotulo: 'Todos os Responsáveis' },
+    { valor: 'user', rotulo: 'Usuários Administrativos' },
+    { valor: 'gabi', rotulo: 'Gabi AI' },
+    { valor: 'system', rotulo: 'Sistema / Rotinas' },
+  ]
+
+  const opcoesAcao = [
+    { valor: 'todas', rotulo: 'Todas as Ações' },
+    { valor: 'alteracao', rotulo: 'Alterações' },
+    { valor: 'criacao', rotulo: 'Criações' },
+    { valor: 'exclusao', rotulo: 'Exclusões' },
+    { valor: 'login', rotulo: 'Logins / Acessos' },
+  ]
+
+  const [filtroResponsavel, setFiltroResponsavel] = useState<string | null>('todos')
+  const [filtroAcao, setFiltroAcao] = useState<string | null>('todas')
+
   return (
     <PaginaGlobal
       className="ws-fade-up"
@@ -217,19 +210,76 @@ export function HistoricoGlobalAdmin() {
           icone={<Desktop weight="duotone" size={22} />}
           titulo="Histórico Global"
           subtitulo="Registro cronológico completo de todas as alterações feitas na plataforma Gravity"
+          acoes={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <TooltipGlobal 
+                titulo="Processamento Descentralizado" 
+                descricao="Registros recentes podem levar alguns instantes para constar no histórico devido ao processamento assíncrono e análise temporal."
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '6px', borderRadius: '6px', cursor: 'help' }}>
+                  <Info size={18} weight="duotone" color="#3b82f6" />
+                </div>
+              </TooltipGlobal>
+            </div>
+          }
         />
       }
     >
-      <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10, marginTop: '32px' }}>
-        <TabelaGlobal<LogHistorico>
-          dados={mockLogs}
+      <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', marginTop: '16px', position: 'relative', zIndex: 10 }}>
+        {/* Toolbar de Filtros - UX 10 */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '12px', 
+          marginBottom: '16px',
+          background: 'none', 
+          padding: '0',
+          border: 'none'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', marginRight: '4px' }}>
+            <Funnel size={14} weight="bold" />
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Filtrar</span>
+          </div>
+
+          <div style={{ width: '220px' }}>
+            <SelectGlobal 
+              opcoes={opcoesResponsavel} 
+              valor={filtroResponsavel} 
+              aoMudarValor={(v) => setFiltroResponsavel(v as string)} 
+              placeholder="Responsável..." 
+            />
+          </div>
+
+          <div style={{ width: '200px' }}>
+            <SelectGlobal 
+              opcoes={opcoesAcao} 
+              valor={filtroAcao} 
+              aoMudarValor={(v) => setFiltroAcao(v as string)} 
+              placeholder="Ação..." 
+            />
+          </div>
+
+          <div style={{ width: '160px' }}>
+            <input 
+              type="date"
+              className="ws-global-input"
+              style={{ width: '100%', height: '36px', padding: '0 12px', background: 'var(--ws-bg-body)', border: '1px solid var(--ws-border-subtle)', borderRadius: '6px', color: 'var(--ws-text-primary)' }}
+            />
+          </div>
+        </div>
+
+        <div style={{ position: 'relative' }}>
+          <TabelaGlobal<LogHistorico>
+            dados={logs}
           colunas={COLUNAS}
           acoesExportacao={acoesExportacao}
-          mensagemVazio="Nenhuma alteração encontrada para estes filtros."
+          mensagemVazio={loading ? "Carregando registros..." : "Nenhuma alteração encontrada para estes filtros."}
           mensagemSemFiltro="Nenhuma atividade registrada no histórico global."
           renderExpandido={(item) => renderDiffTable(item.diff || [])}
         />
       </div>
+      </div>
     </PaginaGlobal>
   )
 }
+

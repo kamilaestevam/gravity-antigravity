@@ -1,0 +1,27 @@
+model HistoryLog {
+  id         String    @id @default(uuid())
+  tenant_id  String
+  actor_id   String
+  actor_type ActorType
+  action     String
+
+  product_id String?
+  user_id    String?
+
+  // Multiaxial details
+  metadata Json?
+
+  created_at DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, created_at])
+}
+
+enum ActorType {
+  USER
+  SYSTEM
+  GABI_IA
+  ADMIN
+}

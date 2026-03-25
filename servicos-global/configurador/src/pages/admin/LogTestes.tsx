@@ -4,6 +4,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
+import { ModalAgendamentoTestes } from './ModalAgendamentoTestes'
 
 type TipoTeste = 'E2E' | 'FUNCIONAL' | 'UNITARIO'
 type Resultado = 'APROVADO' | 'REPROVADO' | 'ERRO_CATASTROFICO'
@@ -24,10 +25,66 @@ interface LogTeste {
     sugestaoCorrecao: string
     arquivo: string
     codigoDiff?: { old: string; new: string }
+    provaVisual?: string
   }
 }
 
 const DADOS_MOCK: LogTeste[] = [
+  {
+    id: 't-vg-ok-001',
+    data: '25/03/2026',
+    hora: '20:45:10',
+    tipo: 'E2E',
+    modulo: 'Admin',
+    teste: 'Visão Geral: Reteste de UX e Animação',
+    resultado: 'APROVADO',
+    duracao: '6.8s',
+    aiAnalise: {
+      erroResumo: 'Interface sincronizada com sucesso',
+      motivo: 'A barra de ações agora obedece rigorosamente ao estado do formulário. A ocultação via CSS (opacity/visibility) removeu o conflito visual detectado anteriormente.',
+      sugestaoCorrecao: 'Nenhuma ação necessária. Validação final concluída com prova visual anexada.',
+      arquivo: 'servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx',
+      provaVisual: '/print-e2e-sucesso.png'
+    }
+  },
+  {
+    id: 't-vg-001',
+    data: '25/03/2026',
+    hora: '19:43:10',
+    tipo: 'E2E',
+    modulo: 'Admin',
+    teste: 'Visão Geral: CRUD e Persistência',
+    resultado: 'REPROVADO',
+    duracao: '4.2s',
+    erroLog: 'AssertionError: expected footer buttons to be hidden after save/cancel.\n    at validateDirtyState (testes/admin/e2e/visao-geral.spec.ts:145:32)',
+    aiAnalise: {
+      erroResumo: 'Botões de salvar continuam visíveis após o sucesso',
+      motivo: 'O sistema salvou as informações, mas a interface não foi avisada de que o formulário não tem mais alterações pendentes. Isso faz com que os botões de "Salvar" e "Cancelar" continuem aparecendo mesmo sem necessidade.',
+      sugestaoCorrecao: 'Garantir que a função de "limpar estado" (resetDirty) seja disparada corretamente após o aviso de sucesso, forçando o rodapé a se esconder automaticamente.',
+      arquivo: 'servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx',
+      provaVisual: '/print-e2e-visao-geral.png'
+    }
+  },
+  {
+    id: 't-vg-002',
+    data: '25/03/2026',
+    hora: '20:15:00',
+    tipo: 'E2E',
+    modulo: 'Produtos',
+    teste: 'Criação de Produto Complexo',
+    resultado: 'APROVADO',
+    duracao: '3.8s'
+  },
+  {
+    id: 't-vg-003',
+    data: '25/03/2026',
+    hora: '20:30:15',
+    tipo: 'UNITARIO',
+    modulo: 'Configurador',
+    teste: 'Validação de CPF/CNPJ Global',
+    resultado: 'APROVADO',
+    duracao: '45ms'
+  },
   {
     id: 't1',
     data: '24/03/2026',
@@ -91,6 +148,7 @@ const DADOS_MOCK: LogTeste[] = [
 export function LogTestes() {
   const [dados, setDados] = useState<LogTeste[]>(DADOS_MOCK)
   const [loadingCode, setLoadingCode] = useState<string | null>(null)
+  const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
 
   const aprovadosCount = dados.filter(d => d.resultado === 'APROVADO').length
   const reprovadosCount = dados.filter(d => d.resultado === 'REPROVADO').length
@@ -275,6 +333,17 @@ export function LogTestes() {
                        </div>
                     </div>
                   )}
+
+                  {item.aiAnalise.provaVisual && (
+                    <div style={{ marginTop: '1rem' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#f87171', marginBottom: '0.5rem' }}>
+                        📸 Prova Visual (QA E2E)
+                      </span>
+                      <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(239, 68, 68, 0.4)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
+                        <img src={item.aiAnalise.provaVisual} alt="Evidência do Erro" style={{ width: '100%', display: 'block' }} />
+                      </div>
+                    </div>
+                  )}
                </div>
              </div>
            </div>
@@ -297,6 +366,8 @@ export function LogTestes() {
       acoes={
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', height: '100%', paddingBottom: '0.1rem' }}>
           <button
+             type="button"
+             onClick={() => setModalAgendamentoAberto(true)}
              style={{ 
                display: 'flex', alignItems: 'center', gap: '0.5rem', 
                padding: '0.5rem 1rem', borderRadius: '8px', 
@@ -358,6 +429,11 @@ export function LogTestes() {
           mensagemSemFiltro="Não há histórico de testes disponível no momento."
         />
       </div>
+
+      <ModalAgendamentoTestes 
+        aberto={modalAgendamentoAberto} 
+        aoFechar={() => setModalAgendamentoAberto(false)} 
+      />
     </PaginaGlobal>
   )
 }

@@ -1,16 +1,17 @@
 // @nucleo/tabela-camadas-global — componente principal
-// Tabela em camadas: linhas pai (Organizações) com accordion expansível para filhos (Espaços de Trabalho).
+// Tabela em camadas: linhas pai (Organizações) com linhas filhas (Espaços de Trabalho)
+// diretamente no mesmo <tbody> — garantindo alinhamento perfeito com as colunas pai.
 // NÃO altera nem depende de tabela-global.
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import './tabela-camadas.css'
 import type { TabelaCamadasGlobalProps, TCGColuna, TCGAcao } from './tipos.js'
 
-// ─── Ícones internos (SVG inline para não depender de phosphor) ───────────────
+// ─── Ícones internos ──────────────────────────────────────────────────────────
 
 function IconeChevron() {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
       <path d="M4 2L8 6L4 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
@@ -18,7 +19,7 @@ function IconeChevron() {
 
 function IconeBusca() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
       <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2"/>
       <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     </svg>
@@ -27,7 +28,7 @@ function IconeBusca() {
 
 function IconeExport() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
       <path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
@@ -49,9 +50,9 @@ function IconeProximo() {
   )
 }
 
-// ─── Célula ───────────────────────────────────────────────────────────────────
+// ─── Render de célula ─────────────────────────────────────────────────────────
 
-function renderCelula<T>(coluna: TCGColuna<T>, item: T, isPai: boolean): React.ReactNode {
+function renderCelula<T>(coluna: TCGColuna<T>, item: T): React.ReactNode {
   const valor = (item as any)[coluna.key]
   if (coluna.render) return coluna.render(valor, item)
   if (valor === null || valor === undefined) return <span style={{ color: 'var(--tcg-muted)' }}>—</span>
@@ -60,7 +61,7 @@ function renderCelula<T>(coluna: TCGColuna<T>, item: T, isPai: boolean): React.R
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
-function SkeletonLinhas({ colunas }: { colunas: number }) {
+function SkeletonLinhas({ colunas, temAcoes }: { colunas: number; temAcoes: boolean }) {
   return (
     <>
       {Array.from({ length: 6 }).map((_, i) => (
@@ -73,9 +74,11 @@ function SkeletonLinhas({ colunas }: { colunas: number }) {
               <div className="tcg-skeleton" style={{ width: j === 0 ? '70%' : '50%' }} />
             </td>
           ))}
-          <td className="tcg-td tcg-td--acoes">
-            <div className="tcg-skeleton" style={{ width: 60, height: 24, borderRadius: 12 }} />
-          </td>
+          {temAcoes && (
+            <td className="tcg-td tcg-td--acoes">
+              <div className="tcg-skeleton" style={{ width: 60, height: 24, borderRadius: 12 }} />
+            </td>
+          )}
         </tr>
       ))}
     </>
@@ -133,7 +136,6 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
   const [exportMenuAberto, setExportMenuAberto] = useState(false)
   const exportRef = useRef<HTMLDivElement>(null)
 
-  // Fechar menu de export ao clicar fora
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
@@ -144,18 +146,15 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // Filtro de busca
   const dadosFiltrados = useMemo(() => {
     if (!busca.trim()) return dados
     const q = busca.toLowerCase()
     return dados.filter(item => {
       if (campoBusca) return String((item as any)[campoBusca]).toLowerCase().includes(q)
-      // Busca em todos os campos string
-      return Object.values(item as any).some(v => typeof v === 'string' && v.toLowerCase().includes(q))
+      return Object.values(item as any).some((v: unknown) => typeof v === 'string' && v.toLowerCase().includes(q))
     })
   }, [dados, busca, campoBusca])
 
-  // Paginação
   const totalPaginas = Math.max(1, Math.ceil(dadosFiltrados.length / itensPorPagina))
   const paginaAtual = Math.min(pagina, totalPaginas)
   const inicio = (paginaAtual - 1) * itensPorPagina
@@ -170,7 +169,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
   }
 
   const temExport = acoesExportacao.length > 0
-  const colSpanTotal = colunas.length + 2 // expand + colunas + acoes
+  const temAcoes = acoes.length > 0
 
   return (
     <div className="tcg-container">
@@ -193,11 +192,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
         {temExport && (
           <div className="tcg-toolbar-direita">
             <div className="tcg-export-wrapper" ref={exportRef}>
-              <button
-                type="button"
-                className="tcg-btn"
-                onClick={() => setExportMenuAberto(v => !v)}
-              >
+              <button type="button" className="tcg-btn" onClick={() => setExportMenuAberto(v => !v)}>
                 <IconeExport />
                 Exportar
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
@@ -207,12 +202,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
               {exportMenuAberto && (
                 <div className="tcg-export-menu">
                   {acoesExportacao.map((acao, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className="tcg-export-item"
-                      onClick={() => { acao.onClick(); setExportMenuAberto(false) }}
-                    >
+                    <button key={i} type="button" className="tcg-export-item" onClick={() => { acao.onClick(); setExportMenuAberto(false) }}>
                       {acao.icone}
                       {acao.label}
                     </button>
@@ -227,11 +217,11 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
       {/* ── Tabela ── */}
       <div className="tcg-scroll">
         <table className="tcg-tabela">
+
+          {/* Cabeçalho — compartilhado por pai e filho */}
           <thead className="tcg-cabecalho">
             <tr>
-              {/* Coluna expand */}
               <th className="tcg-th tcg-th--expand" />
-              {/* Colunas pai */}
               {colunas.map(col => (
                 <th
                   key={col.key}
@@ -242,23 +232,23 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                     {col.tooltipTitulo && (
                       <span
                         title={`${col.tooltipTitulo}${col.tooltipDescricao ? '\n\n' + col.tooltipDescricao : ''}`}
-                        style={{ cursor: 'help', opacity: 0.5, fontSize: '0.625rem' }}
+                        style={{ cursor: 'help', opacity: 0.4, fontSize: '0.625rem' }}
                       >▾</span>
                     )}
                   </span>
                 </th>
               ))}
-              {/* Coluna ações */}
-              {acoes.length > 0 && <th className="tcg-th tcg-th--acoes">AÇÕES</th>}
+              {temAcoes && <th className="tcg-th tcg-th--acoes">AÇÕES</th>}
             </tr>
           </thead>
 
+          {/* Body — pai e filho no mesmo tbody */}
           <tbody>
             {carregando ? (
-              <SkeletonLinhas colunas={colunas.length} />
+              <SkeletonLinhas colunas={colunas.length} temAcoes={temAcoes} />
             ) : dadosPagina.length === 0 ? (
               <tr>
-                <td colSpan={colSpanTotal} className="tcg-vazio">
+                <td colSpan={colunas.length + (temAcoes ? 2 : 1)} className="tcg-vazio">
                   {mensagemVazio}
                 </td>
               </tr>
@@ -268,12 +258,14 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                 const aberto = expandidos.has(id)
                 const filhosItem = filhos(item)
                 const temFilhos = filhosItem.length > 0
+                const ehUltimoGrupo = dadosPagina[dadosPagina.length - 1] === item
 
                 return (
                   <React.Fragment key={id}>
+
                     {/* ── Linha PAI ── */}
                     <tr
-                      className={`tcg-tr-pai${aberto ? ' tcg-tr-pai--expandida' : ''}`}
+                      className={`tcg-tr-pai${aberto ? ' tcg-tr-pai--expandida' : ''}${!aberto && !ehUltimoGrupo ? ' tcg-tr-pai--borda' : ''}`}
                       onClick={() => temFilhos && toggleExpandido(id)}
                     >
                       {/* Chevron */}
@@ -294,7 +286,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                         )}
                       </td>
 
-                      {/* Células pai — injetamos o badge de contagem na primeira coluna */}
+                      {/* Células pai */}
                       {colunas.map((col, colIdx) => (
                         <td
                           key={col.key}
@@ -302,70 +294,62 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                         >
                           {colIdx === 0 && temFilhos ? (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 0 }}>
-                              {renderCelula(col, item, true)}
+                              {renderCelula(col, item)}
                               <span className="tcg-badge-filhos">{filhosItem.length}</span>
                             </span>
                           ) : (
-                            renderCelula(col, item, true)
+                            renderCelula(col, item)
                           )}
                         </td>
                       ))}
 
                       {/* Ações pai */}
-                      {acoes.length > 0 && (
+                      {temAcoes && (
                         <td className="tcg-td tcg-td--acoes" onClick={e => e.stopPropagation()}>
                           <AcoesLinha acoes={acoes} item={item} />
                         </td>
                       )}
                     </tr>
 
-                    {/* ── Linha de accordion (filhos) ── */}
-                    {temFilhos && (
-                      <tr className="tcg-tr-filhos-wrapper">
-                        <td colSpan={colSpanTotal} style={{ padding: 0 }}>
-                          <div className={`tcg-accordion${aberto ? ' tcg-accordion--aberto' : ''}`}>
-                            <div className="tcg-subtabela-wrapper">
-                              <table className="tcg-subtabela">
-                                {/* Cabeçalho sub-tabela */}
-                                <thead className="tcg-subtabela-cabecalho">
-                                  <tr>
-                                    {colunasFilhas.map(col => (
-                                      <th
-                                        key={col.key}
-                                        className={`tcg-sub-th${col.align === 'center' ? ' tcg-sub-th--center' : col.align === 'right' ? ' tcg-sub-th--right' : ''}`}
-                                      >
-                                        {col.label}
-                                      </th>
-                                    ))}
-                                    {acoesFilhas.length > 0 && <th className="tcg-sub-th tcg-sub-th--acoes">AÇÕES</th>}
-                                  </tr>
-                                </thead>
-                                {/* Linhas filhas */}
-                                <tbody>
-                                  {filhosItem.map((filho, fi) => (
-                                    <tr key={(filho as any).id ?? fi} className="tcg-tr-filho">
-                                      {colunasFilhas.map((col, i) => (
-                                        <td
-                                          key={col.key}
-                                          className={`tcg-sub-td${col.align === 'center' ? ' tcg-sub-td--center' : col.align === 'right' ? ' tcg-sub-td--right' : ''}`}
-                                        >
-                                          {renderCelula(col, filho, false)}
-                                        </td>
-                                      ))}
-                                      {acoesFilhas.length > 0 && (
-                                        <td className="tcg-sub-td tcg-sub-td--acoes">
-                                          <AcoesLinha acoes={acoesFilhas} item={filho} />
-                                        </td>
-                                      )}
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
+                    {/* ── Linhas FILHAS — mesmo tbody, alinhadas com pai ── */}
+                    {temFilhos && filhosItem.map((filho, fi) => {
+                      const isUltimo = fi === filhosItem.length - 1
+                      return (
+                        <tr
+                          key={(filho as any).id ?? fi}
+                          className={`tcg-tr-filho${aberto ? ' tcg-tr-filho--visivel' : ''}${isUltimo ? ' tcg-tr-filho--ultimo' : ''}`}
+                          style={{ animationDelay: `${fi * 20}ms` }}
+                        >
+                          {/* Indicador de hierarquia */}
+                          <td className="tcg-td tcg-td--filho-expand">
+                            <span className="tcg-conector">
+                              {isUltimo ? '└' : '├'}
+                            </span>
+                          </td>
+
+                          {/* Células filha — alinhadas com colunas pai */}
+                          {colunasFilhas.map((col, colIdx) => (
+                            <td
+                              key={col.key}
+                              className={`tcg-td tcg-td--filho${col.align === 'center' ? ' tcg-td--center' : col.align === 'right' ? ' tcg-td--right' : ''}${colIdx === 0 ? ' tcg-td--filho-first' : ''}`}
+                            >
+                              {renderCelula(col, filho)}
+                            </td>
+                          ))}
+
+                          {/* Ações filha */}
+                          {temAcoes && (
+                            <td className="tcg-td tcg-td--acoes tcg-td--filho">
+                              {acoesFilhas.length > 0
+                                ? <AcoesLinha acoes={acoesFilhas} item={filho} />
+                                : null
+                              }
+                            </td>
+                          )}
+                        </tr>
+                      )
+                    })}
+
                   </React.Fragment>
                 )
               })
@@ -385,11 +369,11 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
 
         <div className="tcg-paginacao-controles">
           <button className="tcg-pag-btn" disabled={paginaAtual <= 1} onClick={() => setPagina(1)}>«</button>
-          <button className="tcg-pag-btn" disabled={paginaAtual <= 1} onClick={() => setPagina(p => p - 1)}>
+          <button className="tcg-pag-btn" disabled={paginaAtual <= 1} onClick={() => setPagina((p: number) => p - 1)}>
             <IconeAnterior />
           </button>
           <span className="tcg-paginacao-pagina">{paginaAtual} / {totalPaginas}</span>
-          <button className="tcg-pag-btn" disabled={paginaAtual >= totalPaginas} onClick={() => setPagina(p => p + 1)}>
+          <button className="tcg-pag-btn" disabled={paginaAtual >= totalPaginas} onClick={() => setPagina((p: number) => p + 1)}>
             <IconeProximo />
           </button>
           <button className="tcg-pag-btn" disabled={paginaAtual >= totalPaginas} onClick={() => setPagina(totalPaginas)}>»</button>

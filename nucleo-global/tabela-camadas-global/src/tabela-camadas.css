@@ -1,7 +1,7 @@
 /**
  * @nucleo/tabela-camadas-global — CSS
- * Tabela em camadas (tree table) com linhas expansíveis.
- * Herda tokens do DS Gravity. Prefixo: .tcg-
+ * Tabela em camadas (tree table) com linhas filhas diretamente no tbody.
+ * Prefixo: .tcg-
  */
 
 /* ─── Tokens internos ─────────────────────────────────────────────────────── */
@@ -9,11 +9,10 @@
   --tcg-bg:           var(--ws-surface, #1e293b);
   --tcg-bg-alt:       var(--ws-bg-body, #0f172a);
   --tcg-bg-hover:     rgba(129, 140, 248, 0.04);
-  --tcg-bg-child:     rgba(15, 23, 42, 0.6);
+  --tcg-bg-filho:     rgba(10, 18, 36, 0.55);
   --tcg-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
   --tcg-border-solid: var(--color-border, #334155);
   --tcg-accent:       var(--ws-accent, #818cf8);
-  --tcg-green:        #34d399;
   --tcg-text:         var(--ws-text, #f1f5f9);
   --tcg-muted:        var(--ws-muted, #94a3b8);
   --tcg-radius:       12px;
@@ -92,7 +91,7 @@
   opacity: 0.7;
 }
 
-/* ─── Btn genérico ────────────────────────────────────────────────────────── */
+/* ─── Botão genérico ──────────────────────────────────────────────────────── */
 .tcg-btn {
   display: inline-flex;
   align-items: center;
@@ -209,9 +208,9 @@
 
 /* ─── Linha PAI ───────────────────────────────────────────────────────────── */
 .tcg-tr-pai {
-  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
   cursor: pointer;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
 }
 
 .tcg-tr-pai:hover {
@@ -219,82 +218,36 @@
 }
 
 .tcg-tr-pai--expandida {
-  background: rgba(129, 140, 248, 0.05);
+  background: rgba(129, 140, 248, 0.04);
   border-bottom: none;
 }
 
 .tcg-tr-pai--expandida:hover {
-  background: rgba(129, 140, 248, 0.07);
+  background: rgba(129, 140, 248, 0.06);
 }
 
-/* ─── Linha FILHA wrapper (tr que contém o accordion) ─────────────────────── */
-.tcg-tr-filhos-wrapper {
-  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
-}
-
-.tcg-tr-filhos-wrapper:last-child {
-  border-bottom: none;
-}
-
-/* ─── Área expansível (accordion) ────────────────────────────────────────── */
-.tcg-accordion {
-  overflow: hidden;
-  transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.2s ease;
-  max-height: 0;
-  opacity: 0;
-}
-
-.tcg-accordion--aberto {
-  max-height: 2000px;
-  opacity: 1;
-}
-
-/* ─── Sub-tabela (filhos) ─────────────────────────────────────────────────── */
-.tcg-subtabela-wrapper {
-  background: var(--tcg-bg-child);
-  border-top: 1px solid rgba(129, 140, 248, 0.08);
-  border-left: 3px solid rgba(129, 140, 248, 0.25);
-}
-
-.tcg-subtabela {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8375rem;
-}
-
-.tcg-subtabela-cabecalho {
-  background: rgba(129, 140, 248, 0.03);
-}
-
-.tcg-sub-th {
-  padding: 0.5625rem 1.25rem 0.5625rem 1.75rem;
-  text-align: left;
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: rgba(148,163,184,0.6);
-  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
-  white-space: nowrap;
-}
-
-.tcg-sub-th--center { text-align: center; }
-.tcg-sub-th--right  { text-align: right; }
-.tcg-sub-th--acoes  { width: 1px; white-space: nowrap; }
-
-/* ─── Linha filha ─────────────────────────────────────────────────────────── */
+/* ─── Linha FILHA ─────────────────────────────────────────────────────────── */
 .tcg-tr-filho {
+  display: none;
+  background: var(--tcg-bg-filho);
+}
+
+.tcg-tr-filho--visivel {
+  display: table-row;
+  animation: tcg-fade-slide 0.18s ease forwards;
+}
+
+.tcg-tr-filho--visivel td {
   border-bottom: 1px solid rgba(129, 140, 248, 0.04);
-  transition: background 0.1s;
 }
 
-.tcg-tr-filho:last-child {
-  border-bottom: none;
+.tcg-tr-filho--ultimo td {
+  border-bottom: 2px solid rgba(129, 140, 248, 0.1);
 }
 
-.tcg-tr-filho:hover {
-  background: rgba(129, 140, 248, 0.04);
+@keyframes tcg-fade-slide {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ─── Células ─────────────────────────────────────────────────────────────── */
@@ -312,28 +265,45 @@
 .tcg-td--center { text-align: center; }
 .tcg-td--right  { text-align: right; }
 
-/* Célula da primeira coluna dos filhos tem indent extra */
-.tcg-sub-td {
-  padding: 0.75rem 1.25rem 0.75rem 1.75rem;
-  color: var(--tcg-text);
-  vertical-align: middle;
-}
-
-.tcg-sub-td--acoes {
-  width: 1px;
-  white-space: nowrap;
-  padding-right: 1.25rem;
-}
-
-.tcg-sub-td--center { text-align: center; }
-.tcg-sub-td--right  { text-align: right; }
-
-/* ─── Chevron (toggle expansão) ───────────────────────────────────────────── */
+/* ─── Coluna expand (pai) ─────────────────────────────────────────────────── */
 .tcg-td--expand {
   width: 40px;
   padding: 0.875rem 0 0.875rem 1.25rem;
 }
 
+/* ─── Coluna expand (filho — conector de hierarquia) ─────────────────────── */
+.tcg-td--filho-expand {
+  width: 40px;
+  padding: 0 0 0 1.25rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* ─── Células filha ───────────────────────────────────────────────────────── */
+.tcg-td--filho {
+  padding-top: 0.6875rem;
+  padding-bottom: 0.6875rem;
+  font-size: 0.85rem;
+}
+
+/* Primeira célula de dados da linha filha — borda esquerda de hierarquia */
+.tcg-td--filho-first {
+  border-left: 2px solid rgba(129, 140, 248, 0.22);
+}
+
+/* ─── Conector de hierarquia ──────────────────────────────────────────────── */
+.tcg-conector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: rgba(129, 140, 248, 0.35);
+  line-height: 1;
+  user-select: none;
+}
+
+/* ─── Chevron ─────────────────────────────────────────────────────────────── */
 .tcg-chevron-btn {
   display: flex;
   align-items: center;

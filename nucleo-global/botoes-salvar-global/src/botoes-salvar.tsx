@@ -77,12 +77,14 @@ export function BotoesSalvarGlobal({
   onCancelar,
   alinhamento = 'direita',
 }: BotoesSalvarGlobalProps) {
+  const isVisible = dirty || salvando;
+
   return (
     <div
       className={[
         'bs-barra',
         `bs-barra--${alinhamento}`,
-        dirty ? 'bs-barra--dirty' : '',
+        isVisible ? 'bs-barra--dirty' : '',
       ]
         .filter(Boolean)
         .join(' ')}

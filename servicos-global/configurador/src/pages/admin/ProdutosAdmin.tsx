@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, CalendarCheck } from '@phosphor-icons/react'
+import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash } from '@phosphor-icons/react'
+import { ModalExclusao } from '../workspace/ModalExclusao'
+import { CalendarioCampoGlobal } from '@nucleo/calendario-campo-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -9,6 +11,7 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
 import { SelectGlobal } from '@nucleo/select-global'
+import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 
 type ProdutoStatus = 'Ativo' | 'Em Breve' | 'Legado' | 'Suspenso'
 
@@ -149,20 +152,31 @@ function mascaraMoeda(valor: string): string {
 }
 
 export function ProdutosAdmin() {
+  const { logEvent } = useHistoricoLogger()
   const [produtos, setProdutos] = useState<ProdutoConfigured[]>(produtosGlobais)
   const [negociacoes, setNegociacoes] = useState<NegociacaoEspecial[]>(negociacoesEspeciaisIniciais)
 
   const toggleProdutoStatus = (id: string) => {
-    setProdutos(prev => prev.map(p => {
-      if (p.id !== id) return p
-      const novoStatus: ProdutoStatus = p.status === 'Ativo' ? 'Suspenso' : 'Ativo'
-      return { ...p, status: novoStatus }
-    }))
+    const produto = produtos.find(p => p.id === id)
+    if (!produto) return
+
+    const novoStatus: ProdutoStatus = produto.status === 'Ativo' ? 'Suspenso' : 'Ativo'
+    
+    // Disparo assíncrono para garantir o rastreio da suspensão/ativação (Onda 3)
+    logEvent({
+      acao: 'ALTERAÇÃO',
+      entidade: 'Produtos (Catálogo)',
+      oQueFoiFeito: `Alteração do Status do produto ${produto.nome}`,
+      diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }]
+    })
+
+    setProdutos(prev => prev.map(p => p.id === id ? { ...p, status: novoStatus } : p))
   }
 
   const [tab, setTab] = useState<'catalogo' | 'negociacoes'>('catalogo')
   const [modalAberto, setModalAberto] = useState(false)
   const [produtoEditando, setProdutoEditando] = useState<ProdutoConfigured | null>(null)
+  const [produtoParaExcluir, setProdutoParaExcluir] = useState<ProdutoConfigured | null>(null)
   const [formDirty, setFormDirty] = useState(false)
 
   // 01. Dados Básicos
@@ -196,7 +210,8 @@ export function ProdutosAdmin() {
   // 06. Negociação Especial
   const [vincularOrg, setVincularOrg] = useState<'sim' | 'nao'>('nao')
   const [orgSelecionada, setOrgSelecionada] = useState<string | null>(null)
-  const [acordoNeg, setAcordoNeg] = useState('')
+  const [vigenciaIlimitada, setVigenciaIlimitada] = useState<'sim' | 'nao'>('nao')
+  const [vigenciaPeriodo, setVigenciaPeriodo] = useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null })
   const [vigenciaNeg, setVigenciaNeg] = useState('')
 
   const dirty = (fn: () => void) => { fn(); setFormDirty(true) }
@@ -210,7 +225,8 @@ export function ProdutosAdmin() {
     setTipoCobranca(''); setMoedaProduto('BRL'); setValorUnitario(''); setValorMinimo(''); setValorTotal('')
     setLimiteUsuarios('limitada'); setQtdUsuarios(''); setMoedaUsuario('BRL'); setValorUsuarioAdicional('')
     setTotalHoras(''); setMoedaHelpDesk('BRL')
-    setVincularOrg('nao'); setOrgSelecionada(null); setAcordoNeg(''); setVigenciaNeg('')
+    setVincularOrg('nao'); setOrgSelecionada(null)
+    setVigenciaIlimitada('nao'); setVigenciaPeriodo({ inicio: null, fim: null }); setVigenciaNeg('')
   }
 
   const handleEditarProduto = (item: ProdutoConfigured) => {
@@ -220,6 +236,19 @@ export function ProdutosAdmin() {
     setFormDataLancamento('')
     setFormStatus(item.status === 'Ativo' ? 'ativo' : 'inativo')
     setModalAberto(true)
+  }
+  
+  const handleConfirmarExclusao = () => {
+    if (!produtoParaExcluir) return
+    
+    logEvent({
+      acao: 'EXCLUSÃO',
+      entidade: 'Produtos (Catálogo)',
+      oQueFoiFeito: `Exclusão definitiva do produto ${produtoParaExcluir.nome}`,
+    })
+    
+    setProdutos(prev => prev.filter(p => p.id !== produtoParaExcluir.id))
+    setProdutoParaExcluir(null)
   }
 
 
@@ -313,6 +342,24 @@ export function ProdutosAdmin() {
           onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
         >
           <PencilSimple size={16} weight="bold" />
+        </button>
+      )
+    },
+    {
+      id: 'excluir',
+      icone: <Trash size={15} weight="bold" />,
+      tooltip: 'Excluir Produto',
+      onClick: (item) => setProdutoParaExcluir(item),
+      renderCustom: (item) => (
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setProdutoParaExcluir(item) }}
+          title="Excluir produto"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)'; ev.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'; ev.currentTarget.style.color = '#ef4444' }}
+          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+        >
+          <Trash size={16} weight="bold" />
         </button>
       )
     }
@@ -435,13 +482,13 @@ export function ProdutosAdmin() {
         aberto={modalAberto}
         aoFechar={handleFecharModal}
         aoSalvar={() => {
-          // Adiciona negociação especial se vinculada
-          if (vincularOrg === 'sim' && orgSelecionada && acordoNeg.trim()) {
+          // Adiciona negociação especial se organização vinculada
+          if (vincularOrg === 'sim' && orgSelecionada) {
             const novaId = `n${Date.now()}`
             const prodId = produtoEditando?.id ?? `p${Date.now()}`
             setNegociacoes(prev => [
               ...prev,
-              { id: novaId, produtoId: prodId, cliente: orgSelecionada, acordo: acordoNeg.trim(), vigencia: vigenciaNeg.trim() || 'Indeterminado' }
+              { id: novaId, produtoId: prodId, cliente: orgSelecionada, acordo: 'Negociação personalizada', vigencia: vigenciaIlimitada === 'sim' ? 'Indeterminado' : (vigenciaPeriodo.inicio ? `${vigenciaPeriodo.inicio.toLocaleDateString('pt-BR')}${vigenciaPeriodo.fim ? ` a ${vigenciaPeriodo.fim.toLocaleDateString('pt-BR')}` : ''}` : 'Indeterminado') }
             ])
           }
           handleFecharModal()
@@ -650,82 +697,84 @@ export function ProdutosAdmin() {
                 </div>
               </div>
             )
-          }
-        ]}
-          ...(() => {
-            // Aba extra de Negociações
-            const ORGS_OPCOES = [
-              { valor: 'Importas SA', rotulo: 'Importas SA' },
-              { valor: 'TechCorp Brasil', rotulo: 'TechCorp Brasil' },
-              { valor: 'Mega Retail', rotulo: 'Mega Retail' },
-              { valor: 'Global Trade Ltda', rotulo: 'Global Trade Ltda' },
-              { valor: 'Aduaneiro Plus', rotulo: 'Aduaneiro Plus' },
-            ]
-            return [{
-              id: 'negociacao',
-              rotulo: 'Negociação',
-              conteudo: (
-                <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                  <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo="Negociação Especial" tooltip="Condição de preço exclusiva para uma organização" />
+          },
+          {
+            id: 'negociacao',
+            rotulo: 'Negociação',
+            conteudo: (
+              <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo="Negociação Especial" tooltip="Condição de preço exclusiva para uma organização" />
 
-                  <GeralCampoGlobal label="Vincular Organização?">
-                    <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                      <TogBtn val="nao" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Não" />
-                      <TogBtn val="sim" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Sim" />
-                    </div>
-                  </GeralCampoGlobal>
+                <GeralCampoGlobal label="Vincular Organização?">
+                  <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
+                    <TogBtn val="nao" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Não" />
+                    <TogBtn val="sim" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Sim" />
+                  </div>
+                </GeralCampoGlobal>
 
-                  {vincularOrg === 'sim' && (
-                    <>
-                      <GeralCampoGlobal label="Empresa / Organização" obrigatorio>
-                        <SelectGlobal
-                          opcoes={ORGS_OPCOES}
-                          valor={orgSelecionada}
-                          aoMudarValor={v => dirty(() => setOrgSelecionada(v ? String(v) : null))}
-                          iconeEsquerda={<Buildings size={16} />}
-                          placeholder="Selecionar organização..."
-                          buscavel
+                {vincularOrg === 'sim' && (
+                  <>
+                    <GeralCampoGlobal label="Empresa / Organização" obrigatorio>
+                      <SelectGlobal
+                        opcoes={[
+                          { valor: 'Importas SA', rotulo: 'Importas SA' },
+                          { valor: 'TechCorp Brasil', rotulo: 'TechCorp Brasil' },
+                          { valor: 'Mega Retail', rotulo: 'Mega Retail' },
+                          { valor: 'Global Trade Ltda', rotulo: 'Global Trade Ltda' },
+                          { valor: 'Aduaneiro Plus', rotulo: 'Aduaneiro Plus' },
+                        ]}
+                        valor={orgSelecionada}
+                        aoMudarValor={v => dirty(() => setOrgSelecionada(v ? String(v) : null))}
+                        iconeEsquerda={<Buildings size={16} />}
+                        placeholder="Selecionar organização..."
+                        buscavel
+                      />
+                    </GeralCampoGlobal>
+
+
+                    <GeralCampoGlobal label="Vigência">
+                      <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', marginBottom: '0.5rem' }}>
+                        <TogBtn val="nao" cur={vigenciaIlimitada} set={v => dirty(() => setVigenciaIlimitada(v as 'sim' | 'nao'))} label="Com data" />
+                        <TogBtn val="sim" cur={vigenciaIlimitada} set={v => dirty(() => { setVigenciaIlimitada(v as 'sim' | 'nao'); setVigenciaPeriodo({ inicio: null, fim: null }) })} label="Ilimitada" />
+                      </div>
+                      {vigenciaIlimitada === 'nao' && (
+                        <CalendarioCampoGlobal
+                          placeholder="Selecione o período de vigência..."
+                          valor={vigenciaPeriodo}
+                          aoMudarValor={v => dirty(() => setVigenciaPeriodo(v))}
                         />
-                      </GeralCampoGlobal>
-
-                      <GeralCampoGlobal label="Condição Especial" obrigatorio>
-                        <div className="ws-input-icon-wrap">
-                          <Handshake size={16} />
-                          <input
-                            placeholder="Ex: R$ 3,00 / processo extra"
-                            style={{ width: '100%' }}
-                            value={acordoNeg}
-                            onChange={e => dirty(() => setAcordoNeg(e.target.value))}
-                          />
-                        </div>
-                      </GeralCampoGlobal>
-
-                      <GeralCampoGlobal label="Vigência">
-                        <div className="ws-input-icon-wrap">
-                          <CalendarCheck size={16} />
-                          <input
-                            placeholder="Ex: 12 meses, Indeterminado"
-                            style={{ width: '100%' }}
-                            value={vigenciaNeg}
-                            onChange={e => dirty(() => setVigenciaNeg(e.target.value))}
-                          />
-                        </div>
-                      </GeralCampoGlobal>
-
-                      {/* Preview da negociação */}
-                      {orgSelecionada && acordoNeg.trim() && (
-                        <div style={{ padding: '0.75rem 1rem', borderRadius: 8, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                          <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#10b981' }}>Preview da Negociação</span>
-                          <span style={{ fontSize: '0.875rem', color: 'var(--ws-text)' }}>
-                            <strong>{orgSelecionada}</strong> — {acordoNeg}{vigenciaNeg ? ` · ${vigenciaNeg}` : ''}
-                          </span>
+                      )}
+                      {vigenciaIlimitada === 'sim' && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.375rem 0.875rem', borderRadius: '9999px', background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)', color: '#818cf8', fontSize: '0.8125rem', fontWeight: 600 }}>
+                          <Infinity size={15} weight="bold" />
+                          Sem data de expiração
                         </div>
                       )}
-                    </>
-                  )}
-                </div>
-              )
+                    </GeralCampoGlobal>
+
+                    {orgSelecionada && (
+                      <div style={{ padding: '0.75rem 1rem', borderRadius: 8, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#10b981' }}>Preview da Negociação</span>
+                        <span style={{ fontSize: '0.875rem', color: 'var(--ws-text)' }}>
+                          <strong>{orgSelecionada}</strong>{vigenciaNeg ? ` · ${vigenciaNeg}` : ''}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )
+          }
         ]}
+      />
+
+      <ModalExclusao
+        aberto={!!produtoParaExcluir}
+        titulo="Excluir Produto"
+        descricao={<>Tem certeza de que deseja excluir permanentemente o produto <strong>{produtoParaExcluir?.nome}</strong>?</>}
+        nomeItem="Esta ação removerá o produto do catálogo e não poderá ser desfeita."
+        aoConfirmar={handleConfirmarExclusao}
+        aoCancelar={() => setProdutoParaExcluir(null)}
       />
     </PaginaGlobal>
   )

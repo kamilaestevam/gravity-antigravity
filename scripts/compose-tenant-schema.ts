@@ -46,7 +46,7 @@ const TENANT_SERVICES: string[] = [
   'whatsapp',
   'dashboard',
   'relatorios',
-  'historico',
+  'historico-global',
   'agendamento',
   'gabi',
 ]

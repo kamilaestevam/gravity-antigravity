@@ -1,8 +1,8 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-03-23T02:28:38.910Z
-// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico, agendamento, gabi
+// Gerado em: 2026-03-25T23:56:16.441Z
+// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi
 // Todos os fragments encontrados.
 // ============================================================================
 
@@ -745,53 +745,33 @@ model ExportJob {
 }
 
 
-// --- Fragment: historico ---
-model LogAlteracao {
-  id             String  @id @default(cuid())
-  tenant_id      String
-  product_id     String?
+// --- Fragment: historico-global ---
+model HistoryLog {
+  id         String    @id @default(uuid())
+  tenant_id  String
+  actor_id   String
+  actor_type ActorType
+  action     String
 
-  // Ator
-  actor_id       String?
-  actor_type     String  @default("user") // user | gabi | system
-  actor_name     String
+  product_id String?
+  user_id    String?
 
-  // Ação
-  action         String
-  entity         String
-  entity_label   String
-  entity_id      String?
-  description    String
+  // Multiaxial details
+  metadata Json?
 
-  // Diff
-  diff           Json?
-
-  // Integridade
-  integrity_hash String?
-
-  // Contexto
-  ip_address     String?
-  user_agent     String?
-  created_at     DateTime @default(now())
+  created_at DateTime @default(now())
 
   @@index([tenant_id])
-  @@index([tenant_id, actor_id])
-  @@index([tenant_id, action])
-  @@index([tenant_id, entity])
-  @@index([tenant_id, created_at])
   @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, created_at])
 }
 
-model EntidadeAuditada {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  entity_name  String   @unique
-  is_active    Boolean  @default(true)
-  
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  @@index([tenant_id])
+enum ActorType {
+  USER
+  SYSTEM
+  GABI_IA
+  ADMIN
 }
 
 

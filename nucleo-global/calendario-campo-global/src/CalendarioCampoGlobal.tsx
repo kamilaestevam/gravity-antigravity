@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { GeralCampoGlobal, type GeralCampoGlobalProps } from '@nucleo/geral-campo-global'
 import { CalendarBlank, CaretLeft, CaretRight, X, CaretDown } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -45,6 +45,7 @@ export function CalendarioCampoGlobal({
 
   const [hoverDate, setHoverDate] = useState<Date | null>(null)
   const [etapa, setEtapa] = useState<'inicio' | 'fim'>('inicio')
+  const [panelPos, setPanelPos] = useState<{ top: number; left: number; width: number } | null>(null)
 
   useEffect(() => {
     setInicio(valor.inicio)
@@ -61,10 +62,16 @@ export function CalendarioCampoGlobal({
         setIsOpen(false)
       }
     }
+    // Fechar calendário ao scroll do pai (evita painel flutuante desalinhado)
+    function handleScroll() { setIsOpen(false) }
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
+      window.addEventListener('scroll', handleScroll, true)
     }
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('scroll', handleScroll, true)
+    }
   }, [isOpen])
 
   function handleDayClick(d: Date) {
@@ -130,6 +137,18 @@ export function CalendarioCampoGlobal({
     setEtapa('inicio')
   }
 
+  // Calcula posição do painel relativa ao viewport (position: fixed)
+  const calcularPosicao = useCallback(() => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect()
+      setPanelPos({
+        top: rect.bottom + 8,
+        left: rect.left,
+        width: Math.max(rect.width, 380),
+      })
+    }
+  }, [])
+
   function doConfirm() {
     aoMudarValor?.({ inicio, fim })
     setIsOpen(false)
@@ -192,7 +211,7 @@ export function CalendarioCampoGlobal({
         {textoDisplay ? (
           <TooltipGlobal titulo={textoDisplay} descricao="">
             <div 
-              onClick={() => { if (!disabled) setIsOpen(v => !v) }}
+              onClick={() => { if (!disabled) { calcularPosicao(); setIsOpen(v => !v) } }}
               style={{ 
                 display: 'flex', alignItems: 'center', gap: '8px', 
                 background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', 
@@ -250,7 +269,7 @@ export function CalendarioCampoGlobal({
           </TooltipGlobal>
         ) : (
           <div 
-            onClick={() => { if (!disabled) setIsOpen(v => !v) }}
+            onClick={() => { if (!disabled) { calcularPosicao(); setIsOpen(v => !v) } }}
             style={{ 
               display: 'flex', alignItems: 'center', gap: '8px', 
               background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', 
@@ -288,7 +307,15 @@ export function CalendarioCampoGlobal({
         )}
 
         {isOpen && (
-          <div className="ws-calendario-panel">
+          <div
+            className="ws-calendario-panel"
+            style={panelPos ? {
+              position: 'fixed',
+              top: panelPos.top,
+              left: panelPos.left,
+              zIndex: 9999,
+            } : undefined}
+          >
             {/* Sidebar Periods */}
             <div className="ws-calendario-sidebar">
               <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('hoje')}>Hoje</button>

@@ -283,7 +283,7 @@ function AbaInformacoes({
           </div>
 
           <div style={{ gridColumn: '1 / -1' }}>
-            <GeralCampoGlobal label="Domínio (Subdomínio)" obrigatorio>
+            <GeralCampoGlobal label="Subdominio" obrigatorio>
               <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
                 <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
                   <Globe size={16} />

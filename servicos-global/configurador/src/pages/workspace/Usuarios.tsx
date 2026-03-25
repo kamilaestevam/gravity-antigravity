@@ -1,23 +1,25 @@
 import React, { useState } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key } from '@phosphor-icons/react'
+import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
+import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
+import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
 
-type UserType = 'Master' | 'Standard' | 'Fornecedor'
-type UserStatus = 'Ativo' | 'Inativo'
+// ─── Tipos ────────────────────────────────────────────────────────────────────
+// Documentação central em src/types/niveis-acesso.ts
 
 export interface TenantUser {
   id: string
   nome: string
   email: string
-  tipo: UserType
+  tipo: NivelAcesso
   status: UserStatus
 }
 
@@ -51,6 +53,7 @@ const mockEspacos: EspacoTrabalho[] = ALL_FILIAIS
 const mockUsers: TenantUser[] = [
   { id: 'u01', nome: 'Daniel Marques',      email: 'daniel@acme.com.br',        tipo: 'Master',     status: 'Ativo'   },
   { id: 'u02', nome: 'Carla Souza',         email: 'carla@acme.com.br',          tipo: 'Master',     status: 'Ativo'   },
+  { id: 'u01a', nome: 'Mariana Financeiro', email: 'mariana.fin@acme.com.br',    tipo: 'Admin',      status: 'Ativo'   },
   { id: 'u03', nome: 'Felipe Lima',         email: 'felipe@acme.com.br',         tipo: 'Standard',   status: 'Inativo' },
   { id: 'u04', nome: 'Rodrigo Faria',       email: 'rodrigo@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
   { id: 'u05', nome: 'Ana Beatriz Costa',   email: 'ana.beatriz@acme.com.br',    tipo: 'Standard',   status: 'Ativo'   },
@@ -192,10 +195,12 @@ function EmpresasAcessoCell({ empresas, isMaster }: { empresas: EspacoTrabalho[]
   )
 }
 
-const typeBadge: Record<UserType, string> = {
-  Master:     'ws-badge-accent',
-  Standard:   'ws-badge-surface',
-  Fornecedor: 'ws-badge-warning',
+const typeBadge: Record<NivelAcesso, string> = {
+  'Super Admin': 'ws-badge-success',
+  'Admin':       'ws-badge-info',
+  'Master':      'ws-badge-accent',
+  'Standard':    'ws-badge-surface',
+  'Fornecedor':  'ws-badge-warning',
 }
 
 export function Usuarios() {
@@ -207,7 +212,7 @@ export function Usuarios() {
   const [showForm, setShowForm] = useState(false)
   const [fNome, setFNome]       = useState('')
   const [fEmail, setFEmail]     = useState('')
-  const [fTipo, setFTipo]       = useState<UserType>('Standard')
+  const [fTipo, setFTipo]       = useState<NivelAcesso>('Standard')
 
   const [usuarioEditando, setUsuarioEditando] = useState<TenantUser | null>(null)
   const [abaEditando, setAbaEditando] = useState<string>('dados')
@@ -250,9 +255,9 @@ export function Usuarios() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
             width: 32, height: 32, minWidth: 32, borderRadius: '50%',
-            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Admin' ? 'rgba(6,182,212,0.15)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
-            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Admin' ? '#06b6d4' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
           }}>
             {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
@@ -268,7 +273,7 @@ export function Usuarios() {
     {
       key: 'tipo', label: 'Tipo', tipo: 'texto',
       tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Nível de permissão principal do usuário na plataforma',
-      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
+      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
@@ -342,9 +347,9 @@ export function Usuarios() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
             width: 32, height: 32, minWidth: 32, borderRadius: '50%',
-            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+            background: item.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : item.tipo === 'Admin' ? 'rgba(6,182,212,0.15)' : item.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
-            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+            color: item.tipo === 'Master' ? '#818cf8' : item.tipo === 'Admin' ? '#06b6d4' : item.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
           }}>
             {item.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
           </div>
@@ -360,7 +365,7 @@ export function Usuarios() {
     {
       key: 'tipo', label: 'Tipo', tipo: 'texto',
       tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Tipo de acesso do usuário.',
-      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
+      render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
     },
     {
       key: 'id', label: 'Empresas vinculadas', tipo: 'texto',
@@ -520,12 +525,12 @@ export function Usuarios() {
             </button>
           </div>
           {tab === 'tenant' && (
-            <BotaoNovoGlobal
-              rotulo="Convidar Usuário"
-              rotuloAtivo="Cancelar"
-              ativo={showForm}
-              onClick={() => setShowForm(v => !v)}
-            />
+            <BotaoGlobal
+              variante="primario"
+              onClick={() => setShowForm(true)}
+            >
+              Convidar Usuário
+            </BotaoGlobal>
           )}
         </div>
       }
@@ -533,48 +538,6 @@ export function Usuarios() {
 
       {tab === 'tenant' && (
         <>
-          {showForm && (
-            <div className="ws-form-card ws-fade-up" style={{ marginBottom: '1.5rem' }}>
-              <p className="ws-section-title">
-                <Users weight="duotone" size={14} color="#818cf8" />
-                Convidar Usuário
-              </p>
-              <div className="ws-form-row">
-                <div className="ws-field">
-                  <label>Nome Completo</label>
-                  <input placeholder="Ex: Ana Paula" value={fNome} onChange={e => setFNome(e.target.value)} />
-                </div>
-                <div className="ws-field">
-                  <label>E-mail</label>
-                  <input type="email" placeholder="usuario@empresa.com" value={fEmail} onChange={e => setFEmail(e.target.value)} />
-                </div>
-                <div className="ws-field">
-                  <label>Tipo de Usuário</label>
-                  <select value={fTipo} onChange={e => setFTipo(e.target.value as UserType)}>
-                    <option value="Standard">Standard — Acesso conforme permissões</option>
-                    <option value="Master">Master — Acesso total</option>
-                    <option value="Fornecedor">Fornecedor — Acesso externo granular</option>
-                  </select>
-                </div>
-              </div>
-              <div className="ws-form-actions">
-                <BotaoGlobal
-                  variante="primario"
-                  onClick={handleInvite}
-                  disabled={!fNome.trim() || !fEmail.trim()}
-                >
-                  Enviar Convite
-                </BotaoGlobal>
-                <BotaoGlobal
-                  variante="fantasma"
-                  onClick={() => { setShowForm(false); setFNome(''); setFEmail('') }}
-                >
-                  Cancelar
-                </BotaoGlobal>
-              </div>
-            </div>
-          )}
-
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<TenantUser>
               dados={users}
@@ -599,6 +562,63 @@ export function Usuarios() {
           />
         </div>
       )}
+
+      {/* Modal Convidar Usuário */}
+      <ModalFormularioGlobal
+        aberto={showForm}
+        aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard') }}
+        aoSalvar={handleInvite}
+        icone={<User size={20} weight="duotone" />}
+        titulo="Convidar Usuário"
+        subtitulo="Preencha os dados para convidar um novo usuário para o workspace"
+        tamanho="md"
+        altura="480px"
+        dirty={!!(fNome || fEmail)}
+        podesSalvar={!!(fNome.trim() && fEmail.trim())}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <GeralCampoGlobal label="Nome Completo" obrigatorio>
+            <div className="ws-input-icon-wrap">
+              <User size={16} />
+              <input
+                value={fNome}
+                placeholder="Ex: Ana Paula"
+                onChange={e => setFNome(e.target.value)}
+                style={{ width: '100%' }}
+              />
+            </div>
+          </GeralCampoGlobal>
+
+          <GeralCampoGlobal label="E-mail" obrigatorio>
+            <div className="ws-input-icon-wrap">
+              <EnvelopeSimple size={16} />
+              <input
+                type="email"
+                value={fEmail}
+                placeholder="usuario@empresa.com"
+                onChange={e => setFEmail(e.target.value)}
+                style={{ width: '100%' }}
+              />
+            </div>
+          </GeralCampoGlobal>
+
+          <GeralCampoGlobal label="Tipo de Usuário">
+            <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
+              <select
+                value={fTipo}
+                onChange={e => setFTipo(e.target.value as NivelAcesso)}
+                style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--ws-text)', padding: '0 1rem 0 2.5rem', appearance: 'none', height: '100%' }}
+              >
+                <option value="Standard">Standard — Acesso conf. permissões</option>
+                <option value="Master">Master — Acesso total org/workspaces</option>
+                <option value="Admin">Admin — Auxiliar administrativo</option>
+                <option value="Fornecedor">Fornecedor — Acesso externo granular</option>
+              </select>
+              <ShieldCheck size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
+            </div>
+          </GeralCampoGlobal>
+        </div>
+      </ModalFormularioGlobal>
 
       {/* Modal Edição do Usuário */}
       <ModalEditarUsuario

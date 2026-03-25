@@ -6,6 +6,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type Tabe
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalExclusao } from './ModalExclusao'
+import { ModalEditarAssinatura } from './ModalEditarAssinatura'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
 type ProdutoStatus = 'Ativo' | 'Trial' | 'Suspenso'
@@ -45,6 +46,7 @@ export function Assinaturas() {
   const [produtos, setProdutos]         = useState<Produto[]>(mockProdutos)
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null)
   const [produtoParaSuspender, setProdutoParaSuspender] = useState<Produto | null>(null)
+  const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null)
 
   const totalAtivos = produtos.filter(p => p.status === 'Ativo' || p.status === 'Trial').length
   const totalSuspensos = produtos.filter(p => p.status === 'Suspenso').length
@@ -169,7 +171,7 @@ export function Assinaturas() {
       id: 'edit',
       icone: <PencilSimple size={15} weight="bold" />,
       tooltip: 'Editar assinatura',
-      onClick: () => {},
+      onClick: (p) => setProdutoEditando(p),
     },
     {
       id: 'cancel',
@@ -366,6 +368,15 @@ export function Assinaturas() {
       nomeItem={produtoParaSuspender?.status === 'Suspenso' ? 'O acesso será reativado para todos os usuários.' : 'O acesso será bloqueado imediatamente para todos os usuários deste serviço.'}
       aoConfirmar={confirmarSuspensao}
       aoCancelar={() => setProdutoParaSuspender(null)}
+    />
+
+    <ModalEditarAssinatura
+      produto={produtoEditando}
+      aoFechar={() => setProdutoEditando(null)}
+      aoSalvar={(dados) => {
+        setProdutos(prev => prev.map(p => p.id === dados.id ? dados : p))
+        setProdutoEditando(null)
+      }}
     />
     </>
   )

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
@@ -63,7 +63,20 @@ const mockEspacosDeTrabalho: Empresa[] = [
 
 
 export function EspacosDeTrabalho() {
-  const [empresas, setEspacosDeTrabalho]    = useState<Empresa[]>(mockEspacosDeTrabalho)
+  const [empresas, setEspacosDeTrabalho] = useState<Empresa[]>(() => {
+    try {
+      const salvo = localStorage.getItem('gravity:espacos-trabalho-dados')
+      if (salvo) return JSON.parse(salvo)
+    } catch (e) {
+      console.error('Erro ao ler espaços de trabalho do localStorage', e)
+    }
+    return mockEspacosDeTrabalho
+  })
+
+  // Salvar no localStorage sempre que houver mudança na lista de espaços de trabalho
+  useEffect(() => {
+    localStorage.setItem('gravity:espacos-trabalho-dados', JSON.stringify(empresas))
+  }, [empresas])
   const [showForm, setShowForm]    = useState(false)
   const [nome, setNome]            = useState('')
   const [subdominio, setSubdomain] = useState('')

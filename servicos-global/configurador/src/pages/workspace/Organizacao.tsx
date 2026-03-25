@@ -80,13 +80,7 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
   ...SEGMENTOS.map(s => ({ valor: s, rotulo: s }))
 ]
 
-const OPCOES_ESPACOS: SelectOpcao[] = [
-  ...ESPACOS_TRABALHO_MOCK.map(f => ({
-    valor:   f.id,
-    rotulo:  f.nome,
-    descricao: `${f.subdominio}.gravity.com.br`,
-  }))
-]
+// As opções de espaços serão carregadas dinamicamente dentro do componente
 
 /** Chave do localStorage vinculada ao usuário */
 function storageKey(userId: string | undefined) {
@@ -97,11 +91,36 @@ export function Organizacao() {
   const { user } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
 
+  // Carregar os espaços do localStorage em um state
+  const [espacosLocais] = useState<any[]>(() => {
+    try {
+      const salvo = localStorage.getItem('gravity:espacos-trabalho-dados')
+      if (salvo) return JSON.parse(salvo)
+    } catch (e) {}
+    return ESPACOS_TRABALHO_MOCK
+  })
+
+  const OPCOES_ESPACOS: SelectOpcao[] = espacosLocais.map(f => ({
+    valor:   f.id,
+    rotulo:  f.nome,
+    descricao: `${f.subdominio}.gravity.com.br`,
+  }))
+
   // dados editáveis diretamente — sem modo "editando"
-  const [dados, setDados] = useState<DadosMae>(dadosIniciais)
+  const [dadosIniciaisLocal, setDadosIniciaisLocal] = useState<DadosMae>(() => {
+    try {
+      const salvo = localStorage.getItem('gravity:organizacao-dados')
+      if (salvo) return JSON.parse(salvo)
+    } catch (e) {
+      console.error('Erro ao ler organizacao do localStorage', e)
+    }
+    return dadosIniciais
+  })
+
+  const [dados, setDados] = useState<DadosMae>(dadosIniciaisLocal)
 
   // detecção de alterações para habilitar Salvar / Cancelar
-  const { dirty, resetDirty } = useDirty(dadosIniciais, dados)
+  const { dirty, resetDirty } = useDirty(dadosIniciaisLocal, dados)
 
   // espaço de trabalho selecionada para acesso operacional
   const [espacoInicial, setFilhaInicial] = useState<string>('')
@@ -162,7 +181,9 @@ export function Organizacao() {
       // fake delay
       await new Promise(res => setTimeout(res, 1200))
 
-      // TODO: persistir `dados` via API
+      // Persistir dados via mock localStorage
+      localStorage.setItem('gravity:organizacao-dados', JSON.stringify(dados))
+      setDadosIniciaisLocal(dados)
       resetDirty(dados)
 
       // Persistir preferência local de espaço de trabalho ativa
@@ -190,15 +211,15 @@ export function Organizacao() {
 
   function handleCancelar() {
     // Restaura dados da página
-    setDados(dadosIniciais)
-    resetDirty()
+    setDados(dadosIniciaisLocal)
+    resetDirty(dadosIniciaisLocal)
 
     // Restaura preferência local
     setFilhaAtivaId(espacoInicial)
     resetEspaco()
   }
 
-  const espacoAtivo = ESPACOS_TRABALHO_MOCK.find(f => f.id === espacoAtivoId)
+  const espacoAtivo = espacosLocais.find(f => f.id === espacoAtivoId)
 
   return (
     <PaginaGlobal

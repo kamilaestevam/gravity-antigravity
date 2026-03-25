@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { ModalGlobal } from '@nucleo/modal-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
-import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
-import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
+import { TabelaCamadasGlobal, type TCGColuna } from '@nucleo/tabela-camadas-global'
 import type { TenantUser } from './Usuarios'
 
 interface ModalEditarUsuarioProps {
@@ -152,6 +150,115 @@ function AbaDados({ nome, email, tipo, onValoresChange }: any) {
   )
 }
 
+function StatusBadge({ v }: { v: string }) {
+  const isAtivo = v === 'Ativo' || v === 'Ativa'
+  const bg = isAtivo ? 'rgba(52,211,153,0.12)' : 'rgba(251,191,36,0.12)'
+  const cor = isAtivo ? '#34d399' : '#fbbf24'
+  const label = isAtivo ? 'ATIVO' : 'SUSPENSO'
+  
+  return (
+    <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: bg, color: cor, border: `1px solid ${bg}` }}>
+      {label}
+    </span>
+  )
+}
+
+function AbaEspacos() {
+  const mockTenants = [
+    {
+      id: 'org_1', name: 'Acme Logística', subdominio: 'acme', status: 'Ativa', plano: 'Enterprise',
+      workspaces: [
+        { id: 'ws_1', nome: 'Acme SP', subdominio: 'acme-sp', status: 'Ativa', plano: 'Enterprise', perfil: 'Master' },
+        { id: 'ws_2', nome: 'Acme RJ', subdominio: 'acme-rj', status: 'Ativa', plano: 'Enterprise', perfil: 'Standard' }
+      ]
+    },
+    {
+      id: 'org_2', name: 'Global Commerce', subdominio: 'global', status: 'Ativa', plano: 'Pro',
+      workspaces: [
+        { id: 'ws_3', nome: 'Global Sul', subdominio: 'global-sul', status: 'Ativa', plano: 'Pro', perfil: 'Fornecedor' }
+      ]
+    }
+  ]
+
+  const COLUNAS_PAI: TCGColuna<any>[] = [
+    {
+      key: 'name', label: 'Organização',
+      render: (_v, item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#6366f1' }}>
+            {item.name.charAt(0)}
+          </div>
+          <span style={{ fontWeight: 600 }}>{item.name}</span>
+        </div>
+      )
+    },
+    {
+      key: 'subdominio', label: 'Subdomínio',
+      render: (_v, item) => (
+        <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>
+          {item.subdominio}.gravity.com.br
+        </code>
+      )
+    },
+    {
+      key: 'status', label: 'Status',
+      render: (v) => <StatusBadge v={v as string} />
+    },
+    {
+      key: 'plano', label: 'Plano',
+      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>
+    }
+  ]
+
+  const COLUNAS_FILHAS: TCGColuna<any>[] = [
+    {
+      key: 'nome', label: 'Espaço de Trabalho',
+      render: (_v, item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
+            {item.nome.charAt(0)}
+          </div>
+          <span style={{ fontWeight: 500 }}>{item.nome}</span>
+        </div>
+      )
+    },
+    {
+      key: 'subdominio', label: 'Subdomínio',
+      render: (_v, item) => (
+        <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
+          {item.subdominio}.gravity.com.br
+        </code>
+      )
+    },
+    {
+      key: 'status', label: 'Status',
+      render: (v) => <StatusBadge v={v as string} />
+    },
+    {
+      key: 'perfil', label: 'Perfil no Espaço',
+      render: (v) => (
+        <span style={{ color: '#818cf8', fontWeight: 600, fontSize: '0.8125rem' }}>{v as string}</span>
+      )
+    }
+  ]
+
+  return (
+    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '400px' }}>
+      <TabelaCamadasGlobal
+        dados={mockTenants}
+        colunas={COLUNAS_PAI}
+        colunasFilhas={COLUNAS_FILHAS}
+        filhos={item => item.workspaces}
+        itemId={item => item.id}
+        expandidosPadrao={['org_1', 'org_2']}
+        placeholderBusca="Localizar espaço..."
+        campoBusca="name"
+        itensPorPagina={10}
+      />
+    </div>
+  )
+}
+
 function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: any) {
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -264,6 +371,12 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
       rotulo: `Permissões (${countPermissoes}/${TOTAL_PERMISSOES_DISPONIVEIS})`,
       icone: 'shield-check',
       conteudo: <AbaPermissoes master={tipo === 'Master'} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />
+    },
+    {
+      id: 'espacos',
+      rotulo: 'Espaços Vinculados',
+      icone: 'buildings',
+      conteudo: <AbaEspacos />
     }
   ], [nome, email, tipo, permissoesAtivas, countPermissoes])
 
@@ -275,9 +388,11 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
   }
 
   return (
-    <ModalGlobal
+    <ModalFormularioAbasGlobal
       aberto={!!usuario}
       aoFechar={aoFechar}
+      aoSalvar={handleSalvar}
+      icone={<User size={20} weight="duotone" />}
       titulo="Editar Usuário"
       subtitulo="Ajuste dados básicos e permissões de acesso aos módulos"
       tamanho="lg"
@@ -285,16 +400,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
       tipoAbas="pill"
       abaAtivaInicial={abaInicial}
       abas={abas}
-      renderizarFooter={() => (
-        <div className="mg-footer-personalizado">
-          <div /> {/* Espaçador opcional para manter os botões à direita (space-between) */}
-          <div className="botoes-footer-padrao">
-            <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle />
-            <BotaoCancelar rotulo="Cancelar" dirty={!!dirty} onClick={aoFechar} />
-            <BotaoSalvar rotulo="Salvar Alterações" dirty={!!dirty && !!nome && !!email} onClick={handleSalvar} />
-          </div>
-        </div>
-      )}
+      dirty={!!dirty}
+      podesSalvar={!!dirty && !!nome && !!email}
     />
   )
 }

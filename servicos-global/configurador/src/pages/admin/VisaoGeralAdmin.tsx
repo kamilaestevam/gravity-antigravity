@@ -174,13 +174,13 @@ export function VisaoGeralAdmin() {
           </TooltipGlobal>
         </p>
         <div className="em-grid">
-          <GeralCampoGlobal label="Razão Social" obrigatorio>
+          <GeralCampoGlobal label="Nome da Empresa" obrigatorio>
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <Buildings size={16} />
               <input value={dados.nome} onChange={e => set('nome', e.target.value)} />
             </div>
           </GeralCampoGlobal>
-          <GeralCampoGlobal label="CNPJ Raiz">
+          <GeralCampoGlobal label="CNPJ">
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <IdentificationCard size={16} />
               <input value={dados.cnpj} onChange={e => set('cnpj', e.target.value)} />
@@ -207,7 +207,7 @@ export function VisaoGeralAdmin() {
               buscavel desabilitado={!dados.estado} carregando={carregandoCidades}
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal label="Domínio">
+          <GeralCampoGlobal label="Segmento">
             <SelectGlobal
               iconeEsquerda={<Package size={16} />}
               opcoes={OPCOES_SEGMENTOS}
@@ -216,7 +216,7 @@ export function VisaoGeralAdmin() {
               buscavel
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal label="Website Oficial">
+          <GeralCampoGlobal label="Site">
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <Globe size={16} />
               <input value={dados.site} onChange={e => set('site', e.target.value)} />

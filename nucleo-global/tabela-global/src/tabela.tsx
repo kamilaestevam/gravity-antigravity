@@ -68,7 +68,16 @@ function PopoverFiltro({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [buscaLocal, setBuscaLocal] = useState('')
-  const [pos, setPos] = useState({ top: 0, left: 0 })
+  const [pos, setPos] = useState(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      return {
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+      }
+    }
+    return { top: 0, left: 0 }
+  })
 
   useEffect(() => {
     if (triggerRef.current) {
@@ -484,7 +493,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
   }, [])
 
   return (
-    <div style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
+    <div className={`tg-container ${expandidos.size > 0 ? 'tg-container--focado' : ''}`} style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid var(--ws-accent-border)' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
@@ -594,8 +603,9 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               return (
               <React.Fragment key={id}>
               <tr
+                className={`tg-tr ${isExpanded ? 'tg-tr--expandida' : ''}`}
                 onClick={renderExpandido ? () => toggleExpandido(id) : undefined}
-                style={{ cursor: renderExpandido ? 'pointer' : 'default', borderBottom: (isExpanded || i < paginado.length - 1) ? '1px solid var(--ws-accent-border)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s' }}
+                style={{ cursor: renderExpandido ? 'pointer' : 'default', borderBottom: (isExpanded || i < paginado.length - 1) ? '1px solid var(--ws-accent-border)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s, opacity 0.2s, filter 0.2s' }}
                 onMouseEnter={ev => { if (!selecionados.has(id)) ev.currentTarget.style.background = 'rgba(129,140,248,0.03)' }}
                 onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent' }}>
                 <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
@@ -645,8 +655,8 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                 )}
               </tr>
               {isExpanded && renderExpandido && (
-                <tr>
-                  <td colSpan={colunas.length + (acoes?.length ? 2 : 1) + 1} style={{ padding: 0, borderBottom: i < paginado.length - 1 ? '1px solid var(--ws-accent-border)' : 'none', background: 'rgba(15,23,42,0.3)' }}>
+                <tr className="tg-tr-expandida-conteudo">
+                  <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + (renderExpandido ? 1 : 0) + 1} style={{ padding: 0, borderBottom: i < paginado.length - 1 ? '1px solid var(--ws-accent-border)' : 'none', background: 'rgba(15,23,42,0.3)', transition: 'opacity 0.2s, filter 0.2s' }}>
                     {renderExpandido(item)}
                   </td>
                 </tr>

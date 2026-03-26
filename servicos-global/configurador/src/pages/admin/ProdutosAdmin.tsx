@@ -1,89 +1,22 @@
 import React, { useState } from 'react'
-import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash } from '@phosphor-icons/react'
-import { ModalExclusao } from '../workspace/ModalExclusao'
+import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus } from '@phosphor-icons/react'
 import { CalendarioCampoGlobal } from '@nucleo/calendario-campo-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
-import { StatCardGlobal } from '@nucleo/stat-card-global'
+import { CardBasicoGlobal } from '@nucleo/card-global'
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
 import { SelectGlobal } from '@nucleo/select-global'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
+import { catalogService } from '../../services/catalogService'
+import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
 
-type ProdutoStatus = 'Ativo' | 'Em Breve' | 'Legado' | 'Suspenso'
+// Dados iniciais agora vêm do catalogService
 
-type ProdutoConfigured = {
-  id: string
-  nome: string
-  descricao: string
-  publicoAlvo: string
-  valorBase: string
-  limite: string
-  cobrancaPor: string
-  status: ProdutoStatus
-}
-
-type NegociacaoEspecial = {
-  id: string
-  produtoId: string
-  cliente: string
-  acordo: string
-  vigencia: string
-}
-
-const produtosGlobais: ProdutoConfigured[] = [
-  {
-    id: 'p1',
-    nome: 'SimulaCusto',
-    descricao: 'Gestão de custos estimados de exportação e importação',
-    publicoAlvo: 'Importadores, exportadores, despachantes aduaneiros e tradings',
-    valorBase: 'Free',
-    limite: 'Até 10 estim.',
-    cobrancaPor: 'Excedente: R$10,90 / usuário',
-    status: 'Ativo'
-  },
-  {
-    id: 'p2',
-    nome: 'Gravity Journey',
-    descricao: 'Controle de fluxo logístico e processos end-to-end',
-    publicoAlvo: 'Agentes de carga, Tradings, Importadores',
-    valorBase: 'R$ 499,00',
-    limite: 'Até 50 processos',
-    cobrancaPor: 'R$ 5,50 / processo extra',
-    status: 'Ativo'
-  },
-  {
-    id: 'p3',
-    nome: 'Gravity Analytics',
-    descricao: 'Dashboards e BI em tempo real das operações',
-    publicoAlvo: 'C-Level, Gestores Logísticos',
-    valorBase: 'R$ 299,00',
-    limite: 'Acessos ilimitados',
-    cobrancaPor: 'Fixo mensal',
-    status: 'Ativo'
-  },
-  {
-    id: 'p4',
-    nome: 'AutoDUIMP',
-    descricao: 'Automatização e registro de DUIMP',
-    publicoAlvo: 'Despachantes Aduaneiros',
-    valorBase: 'R$ 899,00',
-    limite: 'Até 100 DUIMPs',
-    cobrancaPor: 'R$ 8,90 / DUIMP extra',
-    status: 'Em Breve'
-  }
-]
-
-const negociacoesEspeciaisIniciais: NegociacaoEspecial[] = [
-  { id: 'n1', produtoId: 'p1', cliente: 'Importas SA', acordo: 'R$ 5,90 / usuário (excedente)', vigencia: '12 meses' },
-  { id: 'n2', produtoId: 'p2', cliente: 'TechCorp Brasil', acordo: 'R$ 3,00 / processo extra', vigencia: 'Indeterminado' },
-  { id: 'n3', produtoId: 'p4', cliente: 'Mega Retail', acordo: 'R$ 7,50 / DUIMP extra', vigencia: '24 meses' },
-]
-
-const getStatusBadge = (status: ProdutoStatus) => {
+const getStatusBadge = (status: StatusGlobal) => {
   switch (status) {
     case 'Ativo': return 'ws-badge-success'
     case 'Em Breve': return 'ws-badge-warning'
@@ -93,7 +26,7 @@ const getStatusBadge = (status: ProdutoStatus) => {
   }
 }
 
-const getStatusLabel = (status: ProdutoStatus) => {
+const getStatusLabel = (status: StatusGlobal) => {
   switch (status) {
     case 'Ativo': return 'ATIVO'
     case 'Em Breve': return 'EM BREVE'
@@ -103,7 +36,7 @@ const getStatusLabel = (status: ProdutoStatus) => {
   }
 }
 
-const getStatusColor = (status: ProdutoStatus) => {
+const getStatusColor = (status: StatusGlobal) => {
   switch (status) {
     case 'Ativo': return { cor: '#34d399', bg: 'rgba(52,211,153,0.12)' }
     case 'Em Breve': return { cor: '#818cf8', bg: 'rgba(129,140,248,0.12)' }
@@ -132,8 +65,21 @@ const MOEDAS_OPCOES = [
   { valor: 'UYU', rotulo: 'UYU — Peso Uruguaio' },
 ]
 
+function getSimboloMoeda(moeda: string): string {
+  switch (moeda) {
+    case 'BRL': return 'R$'
+    case 'USD': return '$'
+    case 'EUR': return '€'
+    case 'GBP': return '£'
+    case 'ARS': return 'AR$'
+    case 'CNY': return '¥'
+    case 'JPY': return '¥'
+    default: return moeda
+  }
+}
+
 const TIPOS_COBRANCA_OPCOES = [
-  'Mensalidade', 'Por Processo', 'Por Documento',
+  'Mensalidade', 'Por Processo', 'Por Documento', 'Por Estimativa',
   'Por DI/DUIMP', 'Por DUE', 'Por Produto', 'Por Fluxo', 'Por LPCO',
 ].map(t => ({ valor: t, rotulo: t }))
 
@@ -153,66 +99,85 @@ function mascaraMoeda(valor: string): string {
 
 export function ProdutosAdmin() {
   const { logEvent } = useHistoricoLogger()
-  const [produtos, setProdutos] = useState<ProdutoConfigured[]>(produtosGlobais)
-  const [negociacoes, setNegociacoes] = useState<NegociacaoEspecial[]>(negociacoesEspeciaisIniciais)
+  const [produtos, setProdutos] = React.useState<ProdutoCatalogo[]>([])
+  const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
+
+  const carregarDados = React.useCallback(() => {
+    let prods = catalogService.getProdutos()
+    // Silent Migration: se encontrar o preço antigo ou portfólio legado, reseta
+    const simula = prods.find(p => p.id === 'p1')
+    if (simula && simula.precoUnitario.valor === '10,90') {
+      catalogService.resetParaIniciais()
+      prods = catalogService.getProdutos()
+    }
+    setProdutos(prods)
+    setNegociacoes(catalogService.getNegociacoes())
+  }, [])
+
+  React.useEffect(() => {
+    carregarDados()
+  }, [carregarDados])
 
   const toggleProdutoStatus = (id: string) => {
     const produto = produtos.find(p => p.id === id)
     if (!produto) return
 
-    const novoStatus: ProdutoStatus = produto.status === 'Ativo' ? 'Suspenso' : 'Ativo'
+    const novoStatus: StatusGlobal = produto.status === 'Ativo' ? 'Suspenso' : 'Ativo'
     
-    // Disparo assíncrono para garantir o rastreio da suspensão/ativação (Onda 3)
+    catalogService.toggleProdutoStatus(id)
+    carregarDados()
+
     logEvent({
       acao: 'ALTERAÇÃO',
       entidade: 'Produtos (Catálogo)',
       oQueFoiFeito: `Alteração do Status do produto ${produto.nome}`,
       diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }]
     })
-
-    setProdutos(prev => prev.map(p => p.id === id ? { ...p, status: novoStatus } : p))
   }
 
   const [tab, setTab] = useState<'catalogo' | 'negociacoes'>('catalogo')
   const [modalAberto, setModalAberto] = useState(false)
-  const [produtoEditando, setProdutoEditando] = useState<ProdutoConfigured | null>(null)
-  const [produtoParaExcluir, setProdutoParaExcluir] = useState<ProdutoConfigured | null>(null)
+  const [produtoEditando, setProdutoEditando] = useState<ProdutoCatalogo | null>(null)
   const [formDirty, setFormDirty] = useState(false)
 
   // 01. Dados Básicos
-  const [formNome, setFormNome] = useState('')
-  const [formDescricao, setFormDescricao] = useState('')
-  const [formDataLancamento, setFormDataLancamento] = useState('')
-  const [formStatus, setFormStatus] = useState<'ativo' | 'inativo'>('ativo')
+  // 01. Dados Básicos
+  const [formNome, setFormNome] = React.useState('')
+  const [formDescricao, setFormDescricao] = React.useState('')
+  const [formDataLancamento, setFormDataLancamento] = React.useState('')
+  const [formStatus, setFormStatus] = React.useState<'ativo' | 'inativo'>('ativo')
 
   // 02. Setup
-  const [temSetup, setTemSetup] = useState<'sim' | 'nao'>('nao')
-  const [moedaSetup, setMoedaSetup] = useState('BRL')
-  const [valorSetup, setValorSetup] = useState('')
+  const [temSetup, setTemSetup] = React.useState<'sim' | 'nao'>('nao')
+  const [moedaSetup, setMoedaSetup] = React.useState('BRL')
+  const [valorSetup, setValorSetup] = React.useState('')
 
   // 03. Valores do Produto
-  const [tipoCobranca, setTipoCobranca] = useState('')
-  const [moedaProduto, setMoedaProduto] = useState('BRL')
-  const [valorUnitario, setValorUnitario] = useState('')
-  const [valorMinimo, setValorMinimo] = useState('')
-  const [valorTotal, setValorTotal] = useState('')
+  const [tipoCobranca, setTipoCobranca] = React.useState('')
+  const [moedaProduto, setMoedaProduto] = React.useState('BRL')
+  const [valorUnitario, setValorUnitario] = React.useState('')
+  const [valorMinimo, setValorMinimo] = React.useState('')
+  const [valorTotal, setValorTotal] = React.useState('')
 
   // 04. Usuários
-  const [limiteUsuarios, setLimiteUsuarios] = useState<'ilimitada' | 'limitada'>('limitada')
-  const [qtdUsuarios, setQtdUsuarios] = useState('')
-  const [moedaUsuario, setMoedaUsuario] = useState('BRL')
-  const [valorUsuarioAdicional, setValorUsuarioAdicional] = useState('')
+  const [limiteUsuarios, setLimiteUsuarios] = React.useState<'ilimitada' | 'limitada'>('limitada')
+  const [qtdUsuarios, setQtdUsuarios] = React.useState('')
+  const [moedaUsuario, setMoedaUsuario] = React.useState('BRL')
+  const [valorUsuarioAdicional, setValorUsuarioAdicional] = React.useState('')
 
   // 05. Help Desk
-  const [totalHoras, setTotalHoras] = useState('')
-  const [moedaHelpDesk, setMoedaHelpDesk] = useState('BRL')
+  const [totalHoras, setTotalHoras] = React.useState('')
+  const [moedaHelpDesk, setMoedaHelpDesk] = React.useState('BRL')
 
   // 06. Negociação Especial
-  const [vincularOrg, setVincularOrg] = useState<'sim' | 'nao'>('nao')
-  const [orgSelecionada, setOrgSelecionada] = useState<string | null>(null)
-  const [vigenciaIlimitada, setVigenciaIlimitada] = useState<'sim' | 'nao'>('nao')
-  const [vigenciaPeriodo, setVigenciaPeriodo] = useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null })
-  const [vigenciaNeg, setVigenciaNeg] = useState('')
+  const [vincularOrg, setVincularOrg] = React.useState<'sim' | 'nao'>('nao')
+  const [orgSelecionada, setOrgSelecionada] = React.useState<string | null>(null)
+  const [vigenciaIlimitada, setVigenciaIlimitada] = React.useState<'sim' | 'nao'>('nao')
+  const [vigenciaPeriodo, setVigenciaPeriodo] = React.useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null })
+  const [vigenciaNeg, setVigenciaNeg] = React.useState('')
+
+  // 07. Faixas de Preço (Novo na Onda 3)
+  const [faixas, setFaixas] = React.useState<FaixaPreco[]>([])
 
   const dirty = (fn: () => void) => { fn(); setFormDirty(true) }
 
@@ -227,28 +192,31 @@ export function ProdutosAdmin() {
     setTotalHoras(''); setMoedaHelpDesk('BRL')
     setVincularOrg('nao'); setOrgSelecionada(null)
     setVigenciaIlimitada('nao'); setVigenciaPeriodo({ inicio: null, fim: null }); setVigenciaNeg('')
+    setFaixas([])
   }
 
-  const handleEditarProduto = (item: ProdutoConfigured) => {
+  const handleEditarProduto = (item: ProdutoCatalogo) => {
     setProdutoEditando(item)
     setFormNome(item.nome)
     setFormDescricao(item.descricao)
-    setFormDataLancamento('')
+    setFormDataLancamento(item.dataLancamento || '')
     setFormStatus(item.status === 'Ativo' ? 'ativo' : 'inativo')
+    setTemSetup(item.temSetup ? 'sim' : 'nao')
+    setMoedaSetup(item.precoSetup?.moeda || 'BRL')
+    setValorSetup(item.precoSetup?.valor || '')
+    setTipoCobranca(item.tipoCobranca)
+    setMoedaProduto(item.precoUnitario.moeda)
+    setValorUnitario(item.precoUnitario.valor)
+    setValorMinimo(item.precoMinimo.valor)
+    setValorTotal(item.precoTotal?.valor || '')
+    setLimiteUsuarios(item.limiteUsuarios)
+    setQtdUsuarios(String(item.qtdUsuariosBase || ''))
+    setMoedaUsuario(item.precoUsuarioAdicional?.moeda || 'BRL')
+    setValorUsuarioAdicional(item.precoUsuarioAdicional?.valor || '')
+    setTotalHoras(String(item.horasHelpDesk))
+    setMoedaHelpDesk(item.precoHoraAdicional?.moeda || 'BRL')
+    setFaixas(item.faixasPreco || [])
     setModalAberto(true)
-  }
-  
-  const handleConfirmarExclusao = () => {
-    if (!produtoParaExcluir) return
-    
-    logEvent({
-      acao: 'EXCLUSÃO',
-      entidade: 'Produtos (Catálogo)',
-      oQueFoiFeito: `Exclusão definitiva do produto ${produtoParaExcluir.nome}`,
-    })
-    
-    setProdutos(prev => prev.filter(p => p.id !== produtoParaExcluir.id))
-    setProdutoParaExcluir(null)
   }
 
 
@@ -262,7 +230,7 @@ export function ProdutosAdmin() {
     }}>{label}</button>
   )
 
-  const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoConfigured>[] = [
+  const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoCatalogo>[] = [
     {
       key: 'nome', label: 'Nome do Produto', tipo: 'texto',
       tooltipTitulo: 'Entity: Produto', tooltipDescricao: 'Identificação comercial mapeada na arquitetura de billing.',
@@ -274,30 +242,44 @@ export function ProdutosAdmin() {
       render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
     },
     {
-      key: 'publicoAlvo', label: 'Para quem', tipo: 'texto',
-      tooltipTitulo: 'Segmentação Geográfica/Mercado', tooltipDescricao: 'Filtro usado pelo motor de recomendação (IA).',
+      key: 'moduloBackend', label: 'Slug / Módulo', tipo: 'texto',
+      tooltipTitulo: 'Route / Module Binding', tooltipDescricao: 'O vínculo técnico com a API do backend.',
+      render: (v) => <code style={{ color: '#8b5cf6', fontSize: '0.75rem' }}>{v}</code>
+    },
+    {
+      key: 'precoUnitario', label: 'Valor Adicional', tipo: 'texto',
+      tooltipTitulo: 'Pricing Base', tooltipDescricao: 'Valor aplicado após consumir o limite da franquia.',
+      render: (v, item) => {
+        if (item.faixasPreco && item.faixasPreco.length > 0) {
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.8125rem' }}>Ver Camadas ({item.faixasPreco.length})</span>
+              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>A partir de {getSimboloMoeda(item.faixasPreco[0].moeda)} {item.faixasPreco[item.faixasPreco.length - 1].valor}</span>
+            </div>
+          )
+        }
+        const p = v as any
+        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(p.moeda)} {p.valor}</span>
+      }
+    },
+    {
+      key: 'qtdUsuariosBase', label: 'Franquia Free', tipo: 'texto',
+      tooltipTitulo: 'Quota / Free Tier', tooltipDescricao: 'Quantidade de uso incluída no pacote antes da cobrança.',
+      render: (v, item) => (
+        <span style={{ color: item.qtdUsuariosBase ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtdUsuariosBase ? 600 : 400 }}>
+          {item.qtdUsuariosBase ? `${item.qtdUsuariosBase} ${item.tipoCobranca.replace('Por ', '')}s` : 'Zero'}
+        </span>
+      )
+    },
+    {
+      key: 'tipoCobranca', label: 'Unidade', tipo: 'texto',
+      tooltipTitulo: 'Billing Unit', tooltipDescricao: 'Métrica usada para o cálculo do excedente.',
       render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
     },
     {
-      key: 'valorBase', label: 'Valor Base', tipo: 'texto',
-      tooltipTitulo: 'Pricing Base', tooltipDescricao: 'SKU inicial antes de modificadores de uso ou descontos.',
-      render: (v) => <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{v}</span>
-    },
-    {
-      key: 'limite', label: 'Limite / Franquia', tipo: 'texto',
-      tooltipTitulo: 'Rate Limit / Quota', tooltipDescricao: 'Limites técnicos (hard/soft) configurados no API Gateway.',
-      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
-    },
-    {
-      key: 'cobrancaPor', label: 'Cobrança Adicional', tipo: 'texto',
-      tooltipTitulo: 'Billing Excedente', tooltipDescricao: 'Métrica de pay-as-you-go coletada via eventos (Kafka).',
-      render: (v) => <span style={{ color: 'var(--ws-text)', fontSize: '0.85rem' }}>{v}</span>
-    },
-    {
       key: 'status', label: 'Status', tipo: 'texto',
-      tooltipTitulo: 'Lifecycle Status', tooltipDescricao: 'Determina disponibilidade no checkout e rotina de deprecation.',
       render: (v) => {
-        const st = v as ProdutoStatus
+        const st = v as StatusGlobal
         const { cor, bg } = getStatusColor(st)
         return (
           <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: bg, color: cor, border: `1px solid ${bg}` }}>
@@ -308,7 +290,7 @@ export function ProdutosAdmin() {
     }
   ]
 
-  const ACOES_PRODUTOS: TabelaGlobalAcao<ProdutoConfigured>[] = [
+  const ACOES_PRODUTOS: TabelaGlobalAcao<ProdutoCatalogo>[] = [
     {
       id: 'toggle-status',
       icone: <PauseCircle size={15} weight="bold" />,
@@ -347,19 +329,24 @@ export function ProdutosAdmin() {
     },
     {
       id: 'excluir',
-      icone: <Trash size={15} weight="bold" />,
+      icone: <Tag size={15} weight="bold" />,
       tooltip: 'Excluir Produto',
-      onClick: (item) => setProdutoParaExcluir(item),
+      onClick: (item) => {
+        if (confirm(`Deseja realmente remover ${item.nome} do catálogo?`)) {
+          catalogService.deleteProduto(item.id)
+          carregarDados()
+        }
+      },
       renderCustom: (item) => (
         <button
           type="button"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setProdutoParaExcluir(item) }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (confirm(`Deseja realmente remover ${item.nome} do catálogo?`)) { catalogService.deleteProduto(item.id); carregarDados(); } }}
           title="Excluir produto"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)'; ev.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)'; ev.currentTarget.style.color = '#ef4444' }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(239,68,68,0.12)'; ev.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; ev.currentTarget.style.color = '#ef4444' }}
           onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
         >
-          <Trash size={16} weight="bold" />
+          <Tag size={16} weight="bold" style={{ transform: 'rotate(45deg)' }} />
         </button>
       )
     }
@@ -367,7 +354,7 @@ export function ProdutosAdmin() {
 
   const COLUNAS_NEGOCIACOES: TabelaGlobalColuna<NegociacaoEspecial>[] = [
     {
-      key: 'cliente', label: 'Cliente', tipo: 'texto',
+      key: 'tenantNome', label: 'Cliente', tipo: 'texto',
       tooltipTitulo: 'Referência ao Tenant ID', tooltipDescricao: 'Vinculação FK com a tabela de Organizations (Clerk).',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
@@ -385,9 +372,13 @@ export function ProdutosAdmin() {
       render: (v) => <span style={{ color: '#818cf8', fontWeight: 500 }}>{v}</span>
     },
     {
-      key: 'vigencia', label: 'Vigência', tipo: 'texto',
+      key: 'ilimitada', label: 'Vigência', tipo: 'texto',
       tooltipTitulo: 'TTL / Data de Expiração', tooltipDescricao: 'Determina reversão automática para o pricing base após a data limite.',
-      render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
+      render: (v, item) => (
+        <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>
+          {v ? 'Indeterminado' : (item.fim || 'Expirado')}
+        </span>
+      )
     }
   ]
 
@@ -397,33 +388,53 @@ export function ProdutosAdmin() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Produtos & Serviços"
-          subtitulo="Gestão do catálogo de produtos, franquias e negociações de preços da plataforma Gravity."
+          titulo="Produtos"
+          subtitulo="Toda a gestão de produtos, catálogos e negociações da plataforma Gravity é realizada por aqui."
           icone={<ShoppingBagOpen weight="duotone" size={22} color="#818cf8" />}
         />
       }
       stats={
         <>
-          <StatCardGlobal
+          <CardBasicoGlobal
             titulo="Total de Produtos"
-            icone={<BoxArrowUp weight="duotone" size={16} />}
-            valor={<span style={{ fontSize: '1.5rem' }}>{produtos.length}</span>}
+            icone={<BoxArrowUp weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+            valor={produtos.length}
             subtexto="No catálogo oficial"
-            variante="padrao"
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Portfólio de Soluções</p>
+                <div className="cg-tooltip__row"><span>Produtos Mapeados</span> <strong>{produtos.length}</strong></div>
+                <div className="cg-tooltip__row"><span>Disponibilidade</span> <strong>Global</strong></div>
+              </>
+            }
           />
-          <StatCardGlobal
+          <CardBasicoGlobal
             titulo="Produtos Ativos"
-            icone={<Tag weight="duotone" size={16} />}
-            valor={<span style={{ fontSize: '1.5rem' }}>{produtos.filter(p => p.status === 'Ativo').length}</span>}
+            icone={<Tag weight="duotone" size={16} style={{ color: '#34d399' }} />}
+            valor={produtos.filter(p => p.status === 'Ativo').length}
             subtexto="Disponíveis para assinatura"
             variante="sucesso"
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Status Comercial</p>
+                <div className="cg-tooltip__row"><span>Ativos no Catálogo</span> <strong>{produtos.filter(p => p.status === 'Ativo').length}</strong></div>
+                <div className="cg-tooltip__row"><span>Checkout Habilitado</span> <strong>Sim</strong></div>
+              </>
+            }
           />
-          <StatCardGlobal
+          <CardBasicoGlobal
             titulo="Negociações Ativas"
-            icone={<Users weight="duotone" size={16} />}
-            valor={<span style={{ fontSize: '1.5rem' }}>{negociacoes.length}</span>}
+            icone={<Users weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+            valor={negociacoes.length}
             subtexto="Condições exclusivas de clientes"
             variante="aviso"
+            tooltip={
+              <>
+                <p className="cg-tooltip__title">Acordos Especiais</p>
+                <div className="cg-tooltip__row"><span>Contratos de Exceção</span> <strong>{negociacoes.length}</strong></div>
+                <div className="cg-tooltip__row"><span>Taxa de Conversão</span> <strong>Alta</strong></div>
+              </>
+            }
           />
         </>
       }
@@ -450,7 +461,7 @@ export function ProdutosAdmin() {
             />
           </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
-            <TabelaGlobal<ProdutoConfigured>
+            <TabelaGlobal<ProdutoCatalogo>
               dados={produtos}
               colunas={COLUNAS_PRODUTOS}
               acoes={ACOES_PRODUTOS}
@@ -477,20 +488,48 @@ export function ProdutosAdmin() {
         </div>
       )}
 
-      {/* Modal de Novo Produto */}
       <ModalFormularioAbasGlobal
         aberto={modalAberto}
         aoFechar={handleFecharModal}
         aoSalvar={() => {
-          // Adiciona negociação especial se organização vinculada
-          if (vincularOrg === 'sim' && orgSelecionada) {
-            const novaId = `n${Date.now()}`
-            const prodId = produtoEditando?.id ?? `p${Date.now()}`
-            setNegociacoes(prev => [
-              ...prev,
-              { id: novaId, produtoId: prodId, cliente: orgSelecionada, acordo: 'Negociação personalizada', vigencia: vigenciaIlimitada === 'sim' ? 'Indeterminado' : (vigenciaPeriodo.inicio ? `${vigenciaPeriodo.inicio.toLocaleDateString('pt-BR')}${vigenciaPeriodo.fim ? ` a ${vigenciaPeriodo.fim.toLocaleDateString('pt-BR')}` : ''}` : 'Indeterminado') }
-            ])
+          const prodId = produtoEditando?.id ?? `p${Date.now()}`
+          
+          const novoProduto: ProdutoCatalogo = {
+            id: prodId,
+            nome: formNome,
+            descricao: formDescricao,
+            slug: formNome.toLowerCase().replace(/\s+/g, '-'),
+            status: formStatus === 'ativo' ? 'Ativo' : 'Inativo',
+            dataLancamento: formDataLancamento,
+            temSetup: temSetup === 'sim',
+            precoSetup: temSetup === 'sim' ? { valor: valorSetup, moeda: moedaSetup } : undefined,
+            tipoCobranca,
+            precoUnitario: { valor: valorUnitario, moeda: moedaProduto },
+            precoMinimo: { valor: valorMinimo, moeda: moedaProduto },
+            precoTotal: valorTotal ? { valor: valorTotal, moeda: moedaProduto } : undefined,
+            limiteUsuarios,
+            qtdUsuariosBase: Number(qtdUsuarios) || undefined,
+            precoUsuarioAdicional: valorUsuarioAdicional ? { valor: valorUsuarioAdicional, moeda: moedaUsuario } : undefined,
+            horasHelpDesk: Number(totalHoras) || 0,
+            precoHoraAdicional: { valor: '0,00', moeda: moedaHelpDesk },
+            faixasPreco: faixas.length > 0 ? faixas : undefined
           }
+
+          catalogService.saveProduto(novoProduto)
+
+          if (vincularOrg === 'sim' && orgSelecionada) {
+            catalogService.saveNegociacao({
+              id: `n${Date.now()}`,
+              produtoId: prodId,
+              tenantId: 't_unknown',
+              tenantNome: orgSelecionada,
+              acordo: 'Negociação personalizada via catálogo',
+              ilimitada: vigenciaIlimitada === 'sim',
+              fim: vigenciaPeriodo.fim?.toISOString().split('T')[0]
+            })
+          }
+          
+          carregarDados()
           handleFecharModal()
         }}
         icone={<ShoppingBagOpen weight="duotone" size={24} />}
@@ -566,7 +605,7 @@ export function ProdutosAdmin() {
                     </GeralCampoGlobal>
                     <GeralCampoGlobal label="Valor do Setup">
                       <div className="ws-input-icon-wrap">
-                        <Coins size={16} />
+                        <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaSetup)}</span>
                         <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorSetup} onChange={e => dirty(() => setValorSetup(mascaraMoeda(e.target.value)))} />
                       </div>
                     </GeralCampoGlobal>
@@ -593,35 +632,133 @@ export function ProdutosAdmin() {
                   />
                 </GeralCampoGlobal>
 
-                <GeralCampoGlobal label="Moeda">
-                  <SelectGlobal
-                    opcoes={MOEDAS_OPCOES}
-                    valor={moedaProduto}
-                    aoMudarValor={v => dirty(() => setMoedaProduto(String(v ?? 'BRL')))}
-                    iconeEsquerda={<CurrencyCircleDollar size={16} />}
-                    buscavel
-                  />
-                </GeralCampoGlobal>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <GeralCampoGlobal label="Moeda">
+                    <SelectGlobal
+                      opcoes={MOEDAS_OPCOES}
+                      valor={moedaProduto}
+                      aoMudarValor={v => dirty(() => setMoedaProduto(String(v ?? 'BRL')))}
+                      iconeEsquerda={<CurrencyCircleDollar size={16} />}
+                      buscavel
+                    />
+                  </GeralCampoGlobal>
+                  <GeralCampoGlobal label="Franquia Free (Qtd)">
+                    <div className="ws-input-icon-wrap">
+                      <Tag size={16} />
+                      <input type="number" placeholder="Ex: 10" style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
+                    </div>
+                  </GeralCampoGlobal>
+                </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                   <GeralCampoGlobal label="Valor Unitário">
                     <div className="ws-input-icon-wrap">
-                      <CurrencyCircleDollar size={16} />
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorUnitario} onChange={e => dirty(() => setValorUnitario(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
                   <GeralCampoGlobal label="Valor Mínimo">
                     <div className="ws-input-icon-wrap">
-                      <CurrencyCircleDollar size={16} />
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorMinimo} onChange={e => dirty(() => setValorMinimo(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
                   <GeralCampoGlobal label="Valor Total">
                     <div className="ws-input-icon-wrap">
-                      <CurrencyCircleDollar size={16} />
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorTotal} onChange={e => dirty(() => setValorTotal(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
+                </div>
+
+                <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                    <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                      <Sliders size={18} weight="duotone" color="var(--color-primary)" /> Configuração de Camadas (Tiers)
+                    </p>
+                    <button 
+                      type="button" 
+                      onClick={() => dirty(() => setFaixas([...faixas, { id: `f${Date.now()}`, de: 0, ate: undefined, valor: '0,00', moeda: moedaProduto }]))}
+                      style={{ fontSize: '0.8125rem', fontWeight: 600, background: 'rgba(52,211,153,0.08)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)', padding: '0.375rem 0.875rem', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.15s' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.15)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.25)' }}
+                    >
+                      <Plus size={14} weight="bold" /> Adicionar Faixa
+                    </button>
+                  </div>
+
+                  {faixas.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {faixas.map((f, idx) => {
+                        const updateFaixa = (changes: Partial<FaixaPreco>) => {
+                          dirty(() => setFaixas(faixas.map(fx => fx.id === f.id ? { ...fx, ...changes } : fx)))
+                        }
+
+                        return (
+                          <div key={f.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 1fr) minmax(120px, 1fr) 1.5fr 44px', gap: '12px', alignItems: 'end', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <GeralCampoGlobal label="De">
+                              <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
+                                <button type="button" onClick={() => updateFaixa({ de: Math.max(0, f.de - 1) })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
+                                <input 
+                                  type="text" 
+                                  inputMode="numeric"
+                                  style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} 
+                                  value={f.de === 0 ? '' : f.de} 
+                                  placeholder="0"
+                                  onChange={e => {
+                                    const val = e.target.value.replace(/\D/g, '')
+                                    updateFaixa({ de: val === '' ? 0 : Number(val) })
+                                  }} 
+                                />
+                                <button type="button" onClick={() => updateFaixa({ de: f.de + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
+                              </div>
+                            </GeralCampoGlobal>
+
+                            <GeralCampoGlobal label="Até">
+                              <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
+                                <button type="button" onClick={() => updateFaixa({ ate: f.ate ? Math.max(0, f.ate - 1) : undefined })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
+                                <input 
+                                  type="text" 
+                                  inputMode="numeric"
+                                  placeholder="∞" 
+                                  style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} 
+                                  value={f.ate === undefined ? '' : f.ate} 
+                                  onChange={e => {
+                                    const val = e.target.value.replace(/\D/g, '')
+                                    updateFaixa({ ate: val === '' ? undefined : Number(val) })
+                                  }} 
+                                />
+                                <button type="button" onClick={() => updateFaixa({ ate: (f.ate || 0) + 1 })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Plus size={12} weight="bold" /></button>
+                              </div>
+                            </GeralCampoGlobal>
+
+                            <GeralCampoGlobal label="Valor da Camada">
+                              <div className="ws-input-icon-wrap">
+                                <span style={{ fontSize: '0.875rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
+                                <input style={{ width: '100%', border: 'none', background: 'transparent', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} value={f.valor} onChange={e => updateFaixa({ valor: mascaraMoeda(e.target.value) })} />
+                              </div>
+                            </GeralCampoGlobal>
+
+                            <button 
+                              type="button" 
+                              onClick={() => dirty(() => setFaixas(faixas.filter(fx => fx.id !== f.id)))}
+                              style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)' }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.15)' }}
+                            >
+                              <Trash size={18} />
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ padding: '2.5rem', border: '2px dashed rgba(255,255,255,0.04)', borderRadius: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.01)' }}>
+                      <div style={{ opacity: 0.4, marginBottom: '0.75rem' }}><Sliders size={32} weight="duotone" /></div>
+                      <p style={{ margin: 0, color: 'var(--ws-muted)', fontSize: '0.8125rem', fontWeight: 500 }}>Nenhuma faixa configurada.</p>
+                      <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem' }}>O sistema utilizará o valor unitário base definido acima.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -661,7 +798,7 @@ export function ProdutosAdmin() {
                       </GeralCampoGlobal>
                       <GeralCampoGlobal label="Valor por Usuário Adicional">
                         <div className="ws-input-icon-wrap">
-                          <Coins size={16} />
+                          <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaUsuario)}</span>
                           <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorUsuarioAdicional} onChange={e => dirty(() => setValorUsuarioAdicional(mascaraMoeda(e.target.value)))} />
                         </div>
                       </GeralCampoGlobal>
@@ -766,15 +903,6 @@ export function ProdutosAdmin() {
             )
           }
         ]}
-      />
-
-      <ModalExclusao
-        aberto={!!produtoParaExcluir}
-        titulo="Excluir Produto"
-        descricao={<>Tem certeza de que deseja excluir permanentemente o produto <strong>{produtoParaExcluir?.nome}</strong>?</>}
-        nomeItem="Esta ação removerá o produto do catálogo e não poderá ser desfeita."
-        aoConfirmar={handleConfirmarExclusao}
-        aoCancelar={() => setProdutoParaExcluir(null)}
       />
     </PaginaGlobal>
   )

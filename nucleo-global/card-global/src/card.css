@@ -408,3 +408,9 @@
 .cg-dot--green  { background: #34d399; }
 .cg-dot--yellow { background: #fbbf24; }
 .cg-dot--red    { background: #f87171; }
+
+/* ── Variantes Especiais ── */
+.cg-card--reduced-2px .cg-card__label { font-size: 10px; }
+.cg-card--reduced-2px .cg-gauge__num  { font-size: 13px; }
+.cg-card--reduced-2px .cg-gauge__pct  { font-size: 7px; }
+.cg-card--reduced-2px .cg-legend      { font-size: 10px; }

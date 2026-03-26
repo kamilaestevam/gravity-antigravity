@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   Users, UserCircleCheck, UserCircleMinus,
   PauseCircle, PlayCircle, PencilSimple,
-  FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck
+  FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck, Crown, Lightning
 } from '@phosphor-icons/react'
+import { SelectGlobal, type SelectOpcao } from '@nucleo/select-global'
 
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -115,7 +116,18 @@ function OrgBadge({ nome }: { nome: string }) {
   )
 }
 
+const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
+  { valor: 'Fornecedor',  rotulo: 'Fornecedor',  descricao: 'Acesso externo restrito para prestadores de serviço', meta: { icone: <Buildings size={16} weight="duotone" color="#fbbf24" /> } },
+  { valor: 'Standard',    rotulo: 'Standard',    descricao: 'Usuário operacional vinculado a espaços específicos', meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> } },
+  { valor: 'Master',      rotulo: 'Master',      descricao: 'Gestor máximo da organização (acesso total no tenant)', meta: { icone: <Crown size={16} weight="duotone" color="#818cf8" /> } },
+  { valor: 'Admin',       rotulo: 'Admin',       descricao: 'Administrador da plataforma com permissões específicas', meta: { icone: <ShieldCheck size={16} weight="duotone" color="#06b6d4" /> } },
+  { valor: 'Super Admin', rotulo: 'Super Admin', descricao: 'Controle total global da plataforma (todas as orgs)', meta: { icone: <Lightning size={16} weight="duotone" color="#22c55e" /> } },
+]
+
 export function UsuariosGlobaisAdmin() {
+  // Mock do usuário logado — No futuro, recuperar de um AuthContext
+  const [perfilLogado] = useState<NivelAcesso>('Super Admin')
+
   const [users, setUsers] = useState<GlobalUser[]>(mockAllUsers)
 
   const [showForm, setShowForm]   = useState(false)
@@ -123,6 +135,13 @@ export function UsuariosGlobaisAdmin() {
   const [fEmail, setFEmail]       = useState('')
   const [fTipo, setFTipo]         = useState<NivelAcesso>('Standard')
   const [fOrg, setFOrg]           = useState(ORGS[0])
+
+  // Filtro de opções com base no perfil logado
+  const opcoesDisponiveis = useMemo(() => {
+    if (perfilLogado === 'Super Admin') return OPCOES_TIPO_ADMIN
+    // Admin não pode criar Super Admin
+    return OPCOES_TIPO_ADMIN.filter(op => op.valor !== 'Super Admin')
+  }, [perfilLogado])
 
   const [usuarioEditando, setUsuarioEditando] = useState<GlobalUser | null>(null)
   const [abaEditando, setAbaEditando]         = useState<string>('dados')
@@ -373,6 +392,7 @@ export function UsuariosGlobaisAdmin() {
             }
           />
           <CardGraficoGlobal
+            className="cg-card--reduced-2px"
             titulo="Organizações com Usuários"
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
             total={ORGS.length}
@@ -445,8 +465,8 @@ export function UsuariosGlobaisAdmin() {
         dirty={!!(fNome || fEmail)}
         podesSalvar={!!(fNome.trim() && fEmail.trim())}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <GeralCampoGlobal label="Nome Completo" obrigatorio>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <GeralCampoGlobal label="NOME COMPLETO" obrigatorio>
             <div className="ws-input-icon-wrap">
               <User size={16} />
               <input
@@ -458,7 +478,7 @@ export function UsuariosGlobaisAdmin() {
             </div>
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="E-mail" obrigatorio>
+          <GeralCampoGlobal label="E-MAIL" obrigatorio>
             <div className="ws-input-icon-wrap">
               <EnvelopeSimple size={16} />
               <input
@@ -471,34 +491,40 @@ export function UsuariosGlobaisAdmin() {
             </div>
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="Tipo de Usuário">
-            <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
-              <select
-                value={fTipo}
-                onChange={e => setFTipo(e.target.value as NivelAcesso)}
-                style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--ws-text)', padding: '0 1rem 0 2.5rem', appearance: 'none', height: '100%' }}
-              >
-                <option value="Super Admin">Super Admin — Controle total global</option>
-                <option value="Admin">Admin — Controle global c/ permissões</option>
-                <option value="Master">Master — Admin de Organização</option>
-                <option value="Standard">Standard — Usuário operacional</option>
-                <option value="Fornecedor">Fornecedor — Acesso externo</option>
-              </select>
-              <ShieldCheck size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
-            </div>
+          <GeralCampoGlobal label="TIPO DE USUÁRIO">
+            <SelectGlobal
+              opcoes={opcoesDisponiveis}
+              valor={fTipo}
+              aoMudarValor={(v) => setFTipo(v as NivelAcesso)}
+              iconeEsquerda={<ShieldCheck size={18} weight="duotone" />}
+              buscavel={false}
+              placeholder="Selecione o perfil corporativo..."
+              renderizarOpcao={(op) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                    width: '32px', height: '32px', borderRadius: '8px', 
+                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)'
+                  }}>
+                    {op.meta?.icone as React.ReactNode}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{op.rotulo}</span>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>{op.descricao}</span>
+                  </div>
+                </div>
+              )}
+            />
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="Organização">
-            <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
-              <select
-                value={fOrg}
-                onChange={e => setFOrg(e.target.value)}
-                style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--ws-text)', padding: '0 1rem 0 2.5rem', appearance: 'none', height: '100%' }}
-              >
-                {ORGS.map(o => <option key={o} value={o}>{o}</option>)}
-              </select>
-              <Buildings size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
-            </div>
+          <GeralCampoGlobal label="ORGANIZAÇÃO">
+            <SelectGlobal
+              opcoes={ORGS.map(o => ({ valor: o, rotulo: o }))}
+              valor={fOrg}
+              aoMudarValor={(v) => setFOrg(v as string)}
+              iconeEsquerda={<Buildings size={18} weight="duotone" />}
+              placeholder="Selecionar organização de destino..."
+            />
           </GeralCampoGlobal>
         </div>
       </ModalFormularioGlobal>

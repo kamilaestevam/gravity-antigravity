@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
-import { CreditCard, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle } from '@phosphor-icons/react'
+import { CreditCard, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle, TreeStructure } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/stat-card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalExclusao } from './ModalExclusao'
 import { ModalEditarAssinatura } from './ModalEditarAssinatura'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+import { catalogService } from '../../services/catalogService'
+import { getSimboloMoeda } from '../../utils/formatters'
 
 type ProdutoStatus = 'Ativo' | 'Trial' | 'Suspenso'
 type BillingType = 'SaaS' | 'Uso' | 'Setup'
@@ -19,6 +22,7 @@ export interface Produto {
   billing: BillingType
   valor: string
   renovacao: string
+  workspacesHabilitados: string[]
 }
 
 const billingColor: Record<BillingType, string> = {
@@ -28,12 +32,9 @@ const billingColor: Record<BillingType, string> = {
 }
 
 export const mockProdutos: Produto[] = [
-  { id: 'dash',     nome: 'Dashboard Global',     status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 299/mês',  renovacao: '01/05/2025' },
-  { id: 'ativ',     nome: 'Gestão de Atividades',  status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 199/mês',  renovacao: '01/05/2025' },
-  { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 0,15/sim', renovacao: 'Variável'   },
-  { id: 'gabi',     nome: 'Gabi IA Assistant',     status: 'Trial',   billing: 'SaaS',  valor: 'R$ 499/mês',  renovacao: 'Em trial'   },
-  { id: 'whats',    nome: 'WhatsApp Business',     status: 'Trial',   billing: 'SaaS',  valor: 'R$ 349/mês',  renovacao: 'Em trial'   },
-  { id: 'erp',      nome: 'Conector ERP',          status: 'Suspenso',billing: 'SaaS',  valor: 'R$ 599/mês',  renovacao: 'Suspenso'  },
+  { id: 'dash',     nome: 'Dashboard Global',     status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 299/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo', 'Filial Rio'] },
+  { id: 'ativ',     nome: 'Gestão de Atividades',  status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 199/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo'] },
+  { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 10,99/est', renovacao: 'Variável',  workspacesHabilitados: ['Importes SA', 'Filial Sul'] },
 ]
 
 const upsellProducts = [
@@ -124,6 +125,34 @@ export function Assinaturas() {
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
+      key: 'workspacesHabilitados', label: 'Espaços Habilitados', tipo: 'texto',
+      tooltipTitulo: 'Distribuição por Workspace',
+      tooltipDescricao: 'Resumo das instâncias ativas para este serviço.',
+      render: (v) => {
+        const list = v as string[]
+        if (!list || list.length === 0) return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>Nenhum espaço habilitado</span>
+        
+        const show = list.slice(0, 2)
+        const rest = list.length - show.length
+
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+            {show.map((name, i) => (
+              <span key={i} style={{ 
+                fontSize: '0.625rem', fontWeight: 700,
+                background: 'rgba(52,211,153,0.08)',
+                color: '#34d399',
+                padding: '0.125rem 0.4rem', borderRadius: '4px', border: '1px solid rgba(52,211,153,0.15)'
+              }}>
+                {name}
+              </span>
+            ))}
+            {rest > 0 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 700 }}>+{rest} (clique para ver)</span>}
+          </div>
+        )
+      }
+    },
+    {
       key: 'status', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Status do Produto',
       tooltipDescricao: 'Indica se o módulo está operacional, em teste ou suspenso.',
@@ -191,6 +220,13 @@ export function Assinaturas() {
     { header: 'Status',    key: 'status'   },
   ]
   const OPCOES_EXPORT = { nomeArquivo: 'assinaturas', titulo: 'Assinaturas & Planos' }
+  const TODOS_WORKSPACES_MAPP = [
+    { nome: 'Sede São Paulo', status: 'Ativa', id: 'ws1' },
+    { nome: 'Filial Rio', status: 'Ativa', id: 'ws2' },
+    { nome: 'Filial Sul', status: 'Ativa', id: 'ws3' },
+    { nome: 'Importes SA', status: 'Ativa', id: 'ws4' },
+    { nome: 'Logística MG', status: 'Suspensa', id: 'ws5' }
+  ]
 
   const ACOES_EXPORT: TabelaExportAcao<Produto>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (d) => void exportarExcel(d as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
@@ -316,35 +352,154 @@ export function Assinaturas() {
           acoesExportacao={ACOES_EXPORT}
           mensagemVazio="Nenhum produto encontrado na busca."
           mensagemSemFiltro="Nenhum produto contratado."
+          renderExpandido={(produto) => (
+            <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+              <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <TreeStructure size={14} /> Auditoria de Consumo por Espaço
+              </div>
+              <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
+                <TabelaGlobal<{ nome: string; status: string; id: string }>
+                  dados={TODOS_WORKSPACES_MAPP.map(ws => ({
+                    ...ws,
+                    status: produto.workspacesHabilitados.includes(ws.nome) ? 'Ativo' : 'Inativo'
+                  }))}
+                  colunas={[
+                    { key: 'nome', label: 'Nome do Espaço', tipo: 'texto', render: (v) => <span style={{ fontWeight: 600 }}>{v as string}</span> },
+                    { 
+                      key: 'status', label: 'Status do Serviço', tipo: 'texto', 
+                      render: (v) => {
+                        const ativo = v === 'Ativo'
+                        return (
+                          <span style={{ 
+                            display: 'inline-flex', padding: '0.15rem 0.5rem', borderRadius: '4px', 
+                            fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
+                            background: ativo ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
+                            color: ativo ? '#34d399' : 'var(--ws-muted)',
+                            border: ativo ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.1)'
+                          }}>
+                            {ativo ? 'HABILITADO' : 'BLOQUEADO'}
+                          </span>
+                        )
+                      }
+                    },
+                    { 
+                      key: 'id', label: 'Ações', tipo: 'texto', align: 'right',
+                      render: (_v, wsItem) => {
+                        const ativo = produto.workspacesHabilitados.includes(wsItem.nome)
+                        return (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                            <TooltipGlobal descricao={ativo ? 'Suspender acesso neste espaço' : 'Reativar acesso neste espaço'}>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  console.log('[DEBUG] Toggle workspace:', wsItem.nome, 'for product:', produto.nome)
+                                  const novoLote = ativo 
+                                    ? produto.workspacesHabilitados.filter(n => n !== wsItem.nome)
+                                    : [...produto.workspacesHabilitados, wsItem.nome]
+                                  
+                                  setProdutos(prev => prev.map(p => p.id === produto.id ? { ...p, workspacesHabilitados: novoLote } : p))
+                                }}
+                                style={{ 
+                                  background: 'transparent', border: 'none', cursor: 'pointer', color: ativo ? '#34d399' : 'var(--ws-muted)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.1)' }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+                              >
+                                {ativo ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+                              </button>
+                            </TooltipGlobal>
+
+                            <TooltipGlobal descricao="Remover vínculo deste espaço">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  console.log('[DEBUG] CLICK REMOVER VINCULO:', wsItem.nome, 'for product:', produto.nome)
+                                  const novoLote = produto.workspacesHabilitados.filter(n => n !== wsItem.nome)
+                                  setProdutos(prev => prev.map(p => p.id === produto.id ? { ...p, workspacesHabilitados: novoLote } : p))
+                                }}
+                                style={{ 
+                                  background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--ws-muted)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '4px', transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(248,113,113,0.1)' }}
+                                onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-muted)'; e.currentTarget.style.background = 'transparent' }}
+                              >
+                                <Trash size={16} weight="bold" />
+                              </button>
+                            </TooltipGlobal>
+                          </div>
+                        )
+                      }
+                    }
+                  ]}
+                  mensagemVazio="Nenhum espaço de trabalho cadastrado."
+                />
+              </div>
+            </div>
+          )}
         />
       </div>
 
-      {/* Upsell cards */}
+      {/* Upsell cards dinâmicos do catalogService */}
       <p className="ws-section-title ws-fade-up ws-fade-up-d2" style={{ marginBottom: '0.875rem' }}>
         Produtos Disponíveis para Contratar
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }} className="ws-fade-up ws-fade-up-d2">
-        {upsellProducts.map(p => (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }} className="ws-fade-up ws-fade-up-d2">
+        {catalogService.getProdutos().map(p => (
           <div key={p.id} className="ux-pulse-card" style={{
             borderRadius: '12px',
-            padding: '1.375rem',
-            display: 'flex', flexDirection: 'column', gap: '0.625rem',
+            padding: '1.5rem',
+            display: 'flex', flexDirection: 'column', gap: '0.75rem',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.05)',
+            transition: 'all 0.2s',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <p style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--ws-text)', margin: 0 }}>{p.nome}</p>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-text)', margin: 0 }}>{p.nome}</p>
               <span style={{
-                padding: '0.175rem 0.5rem', borderRadius: '9999px',
-                fontSize: '0.6875rem', fontWeight: 700, lineHeight: 1,
-                background: `${billingColor[p.billing]}18`,
-                color: billingColor[p.billing],
-                border: `1px solid ${billingColor[p.billing]}30`,
+                padding: '0.175rem 0.5rem', borderRadius: '4px',
+                fontSize: '0.625rem', fontWeight: 800, lineHeight: 1,
+                background: 'rgba(52,211,153,0.1)',
+                color: '#34d399',
+                border: '1px solid rgba(52,211,153,0.2)',
                 textTransform: 'uppercase',
-              }}>{p.billing}</span>
+              }}>{p.tipoCobranca.replace('Por ', '')}</span>
             </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0 }}>{p.desc}</p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.25rem' }}>
-              <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--ws-text)' }}>{p.valor}</span>
-              <BotaoGlobal variante="primario" tamanho="pequeno">Contratar</BotaoGlobal>
+            
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0, minHeight: '3em' }}>{p.descricao}</p>
+            
+            {p.faixasPreco ? (
+              <div style={{ padding: '0.625rem', background: 'rgba(129,140,248,0.05)', borderRadius: '8px', border: '1px solid rgba(129,140,248,0.1)' }}>
+                <p style={{ fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8', marginBottom: '0.375rem', textTransform: 'uppercase' }}>Tabela de Preços</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  {p.faixasPreco.slice(0, 2).map((fx, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
+                      <span style={{ color: 'var(--ws-muted)' }}>{fx.ate ? `${fx.de}-${fx.ate}` : `Acima de ${fx.de}`} {p.tipoCobranca.replace('Por ', '')}s</span>
+                      <strong style={{ color: 'var(--ws-text)' }}>{getSimboloMoeda(fx.moeda)} {fx.valor}</strong>
+                    </div>
+                  ))}
+                  {p.faixasPreco.length > 2 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', textAlign: 'center', marginTop: '4px' }}>+ {p.faixasPreco.length - 2} faixas disponíveis</span>}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                 <div style={{ padding: '4px 8px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }}>
+                   <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', display: 'block' }}>VALOR UNITÁRIO</span>
+                   <strong style={{ fontSize: '1rem', color: 'var(--ws-text)' }}>{getSimboloMoeda(p.precoUnitario.moeda)} {p.precoUnitario.valor}</strong>
+                 </div>
+                 {p.qtdUsuariosBase && (
+                   <div style={{ padding: '4px 8px', background: 'rgba(52,211,153,0.05)', borderRadius: '4px', border: '1px solid rgba(52,211,153,0.1)' }}>
+                     <span style={{ fontSize: '0.6875rem', color: '#34d399', display: 'block' }}>FRANQUIA</span>
+                     <strong style={{ fontSize: '1rem', color: '#34d399' }}>{p.qtdUsuariosBase} Free</strong>
+                   </div>
+                 )}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{p.temSetup ? 'Requer Setup' : 'Ativação Instantânea'}</span>
+              <BotaoGlobal variante="primario" tamanho="pequeno">Assinar</BotaoGlobal>
             </div>
           </div>
         ))}

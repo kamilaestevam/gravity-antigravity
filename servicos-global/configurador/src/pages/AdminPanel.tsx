@@ -3,16 +3,17 @@
 
 import React, { useState, useEffect } from 'react'
 import type { Page } from '../App'
-import { HardDrives, WarningCircle, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, ShieldCheck } from '@phosphor-icons/react'
+import { HardDrives, Buildings, TreeStructure, ChartPieSlice, WarningCircle, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, ShieldCheck } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
 
 import { BotaoNovoAdminGlobal } from '../../../../nucleo-global/botao-novo-admin-global/src/index'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { CardBasicoGlobal } from '@nucleo/card-global'
-import { TabelaCamadasGlobal, type TCGColuna, type TCGAcao, type TCGAcaoExport } from '@nucleo/tabela-camadas-global'
+import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrganizacao'
+import { Tenant as GlobalTenant } from '../types/entidades'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -34,13 +35,7 @@ export interface Workspace {
   site?: string
 }
 
-export interface Tenant {
-  id: string
-  name: string
-  slug: string
-  status: EmpresaStatus
-  created_at: string
-  _count: { users: number; companies: number }
+export interface Tenant extends GlobalTenant {
   subscriptions: Array<{ plan: string; status: string }>
   workspaces: Workspace[]
 }
@@ -49,6 +44,9 @@ interface Stats {
   totalTenants: number
   activeTenants: number
   suspendedTenants: number
+  totalWorkspaces: number
+  activeWorkspaces: number
+  suspendedWorkspaces: number
   totalUsers: number
 }
 
@@ -93,19 +91,28 @@ const MOCK_TENANTS: Tenant[] = [
   {
     id: 't_2', name: 'Acme Corp LTDA', slug: 'acme-ltda', status: 'Ativa',
     created_at: '2025-02-14', _count: { users: 48, companies: 3 },
-    subscriptions: [{ plan: 'Pro', status: 'ACTIVE' }],
+    subscriptions: [
+      { plan: 'Pro', status: 'ACTIVE' },
+      { plan: 'SimulaCusto', status: 'ACTIVE' },
+      { plan: 'Smart Read', status: 'ACTIVE' }
+    ],
     workspaces: [
-      { id: 'ws_2_1', nome: 'Acme São Paulo',     subdominio: 'acme-sp',     status: 'Ativa',    usuarios: 22, plano: 'Pro', criadaEm: '14/02/2025' },
-      { id: 'ws_2_2', nome: 'Acme Rio de Janeiro', subdominio: 'acme-rj',    status: 'Ativa',    usuarios: 18, plano: 'Pro', criadaEm: '20/02/2025' },
+      { id: 'ws_2_1', nome: 'Acme São Paulo',     subdominio: 'acme-sp',     status: 'Ativa',    usuarios: 22, plano: 'Pro, SimulaCusto', criadaEm: '14/02/2025' },
+      { id: 'ws_2_2', nome: 'Acme Rio de Janeiro', subdominio: 'acme-rj',    status: 'Ativa',    usuarios: 18, plano: 'Pro, Smart Read', criadaEm: '20/02/2025' },
       { id: 'ws_2_3', nome: 'Acme Campinas',       subdominio: 'acme-cps',   status: 'Suspensa', usuarios: 8,  plano: 'Pro', criadaEm: '01/03/2025' },
     ]
   },
   {
     id: 't_3', name: 'Stark Industries', slug: 'stark-global', status: 'Ativa',
     created_at: '2025-02-28', _count: { users: 120, companies: 5 },
-    subscriptions: [{ plan: 'Enterprise', status: 'ACTIVE' }],
+    subscriptions: [
+      { plan: 'Enterprise', status: 'ACTIVE' },
+      { plan: 'SimulaCusto', status: 'ACTIVE' },
+      { plan: 'Smart Read', status: 'ACTIVE' },
+      { plan: 'Gestão Atividades', status: 'ACTIVE' }
+    ],
     workspaces: [
-      { id: 'ws_3_1', nome: 'Stark NY',    subdominio: 'stark-ny',   status: 'Ativa',        usuarios: 40, plano: 'Enterprise', criadaEm: '28/02/2025' },
+      { id: 'ws_3_1', nome: 'Stark NY',    subdominio: 'stark-ny',   status: 'Ativa',        usuarios: 40, plano: 'Enterprise, SimulaCusto', criadaEm: '28/02/2025' },
       { id: 'ws_3_2', nome: 'Stark Malibu', subdominio: 'stark-ml',  status: 'Ativa',        usuarios: 30, plano: 'Enterprise', criadaEm: '02/03/2025' },
       { id: 'ws_3_3', nome: 'Stark Europe', subdominio: 'stark-eu',  status: 'Ativa',        usuarios: 25, plano: 'Enterprise', criadaEm: '05/03/2025' },
       { id: 'ws_3_4', nome: 'Stark Asia',   subdominio: 'stark-as',  status: 'Ativa',        usuarios: 20, plano: 'Enterprise', criadaEm: '10/03/2025' },
@@ -207,8 +214,11 @@ const MOCK_TENANTS: Tenant[] = [
 
 const MOCK_STATS: Stats = {
   totalTenants: 154,
-  activeTenants: 142,
+  activeTenants: 145,
   suspendedTenants: 9,
+  totalWorkspaces: 240,
+  activeWorkspaces: 212,
+  suspendedWorkspaces: 28,
   totalUsers: 4832
 }
 
@@ -254,6 +264,13 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       ...t,
       workspaces: t.workspaces.map(ws => ws.id === id ? { ...ws, status } : ws)
     })))
+    
+    if (status === 'Suspensa') {
+      setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces - 1, suspendedWorkspaces: prev.suspendedWorkspaces + 1 } : null)
+    } else {
+      setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces + 1, suspendedWorkspaces: prev.suspendedWorkspaces - 1 } : null)
+    }
+    
     addNotification({ 
       type: status === 'Suspensa' ? 'warning' : 'success', 
       message: `Espaço de trabalho ${status === 'Suspensa' ? 'suspenso' : 'reativado'} com sucesso.` 
@@ -277,13 +294,13 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     setShowNovaOrg(false)
   }
 
-  // ── Colunas PAI — mesmas labels que serão espelhadas nos filhos ────────────
-  const COLUNAS: TCGColuna<Tenant>[] = [
+  // ── Colunas PAI ────────────────────────────────────────────────────────────
+  const COLUNAS: TabelaGlobalColuna<Tenant>[] = [
     {
-      key: 'name', label: 'Organização',
+      key: 'name', label: 'Organização', tipo: 'texto',
       tooltipTitulo: 'Nó Raiz de Organização (Clerk Org ID / Supabase Schema)',
       tooltipDescricao: 'Referência principal do tenant. Isolamento lógico primário (RLS) em todas as tabelas transacionais.',
-      render: (_v, item) => (
+      render: (_v: unknown, item: Tenant) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <TooltipGlobal titulo={`ID Técnico: ${item.id}`} descricao="Chave UUID primária no cluster">
             <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#6366f1', cursor: 'help' }}>
@@ -291,14 +308,19 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
             </div>
           </TooltipGlobal>
           <span style={{ fontWeight: 600 }}>{item.name}</span>
+          {item.workspaces.length > 0 && (
+             <span className="ws-badge ws-badge-surface" style={{ marginLeft: 8, height: 18, fontSize: '0.65rem', padding: '0 6px' }}>
+                {item.workspaces.length}
+             </span>
+          )}
         </div>
       )
     },
     {
-      key: 'slug', label: 'Subdominio',
+      key: 'slug', label: 'Subdominio', tipo: 'texto',
       tooltipTitulo: 'Roteamento DNS (Subdomain CNAME)',
       tooltipDescricao: 'Alias em uso pelo API Gateway Edge para o Tenant Routing.',
-      render: (_v, item) => (
+      render: (_v: unknown, item: Tenant) => (
         <a href={`https://${item.slug}.gravity.com.br`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }} onClick={ev => ev.stopPropagation()}>
           <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s', cursor: 'pointer' }}
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
@@ -310,30 +332,50 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       )
     },
     {
-      key: 'status', label: 'Status',
+      key: 'status', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Status do Tenant',
       tooltipDescricao: 'Estado operacional no middleware de borda.',
-      render: (v) => <StatusBadge v={v as string} />
+      render: (v: unknown) => <StatusBadge v={v as string} />
     },
     {
-      key: 'subscriptions', label: 'Plano',
-      tooltipTitulo: 'Plano Contratado',
+      key: 'id' as any, label: 'Plano / Produtos', tipo: 'texto',
+      tooltipTitulo: 'Plano Contratado & Serviços',
       tooltipDescricao: 'Define quota de endpoints, restrições e armazenamento.',
-      render: (_v, item) => <span style={{ color: 'var(--ws-muted)' }}>{item.subscriptions?.[0]?.plan || 'N/A'}</span>
+      render: (_v: unknown, item: Tenant) => {
+        const subs = item.subscriptions || []
+        const show = subs.slice(0, 2)
+        const rest = subs.length - show.length
+
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+            {show.map((s, i) => (
+              <span key={i} style={{ 
+                fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase',
+                background: i === 0 ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.05)',
+                color: i === 0 ? '#818cf8' : 'var(--ws-muted)',
+                padding: '0.125rem 0.375rem', borderRadius: '4px', border: i === 0 ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(255,255,255,0.1)'
+              }}>
+                {s.plan}
+              </span>
+            ))}
+            {rest > 0 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 700 }}>+{rest}</span>}
+          </div>
+        )
+      }
     },
     {
-      key: 'users_count', label: 'Usuários', align: 'center',
+      key: 'id' as any, label: 'Usuários', align: 'center', tipo: 'texto',
       tooltipTitulo: 'Pool de Usuários',
       tooltipDescricao: 'Registros na tabela Identity associados a este WorkspaceRoot',
-      render: (_v, item) => <span style={{ fontWeight: 600 }}>{item._count?.users || 0}</span>
+      render: (_v: unknown, item: Tenant) => <span style={{ fontWeight: 600 }}>{item._count?.users || 0}</span>
     },
   ]
 
-  // ── Colunas FILHAS — mesmas labels do pai, campos espelhados do Workspace ──
-  const COLUNAS_FILHAS: TCGColuna<Workspace>[] = [
+  // ── Colunas FILHAS ──────────────────────────────────────────────────────────
+  const COLUNAS_FILHAS: TabelaGlobalColuna<Workspace>[] = [
     {
-      key: 'nome', label: 'Organização', // mesma label do pai
-      render: (_v, item) => (
+      key: 'nome', label: 'Nome do Espaço', tipo: 'texto',
+      render: (_v: unknown, item: Workspace) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
             {item.nome.charAt(0).toUpperCase()}
@@ -343,29 +385,46 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       )
     },
     {
-      key: 'subdominio', label: 'Subdominio', // mesma label do pai
-      render: (_v, item) => (
+      key: 'subdominio', label: 'Subdominio', tipo: 'texto',
+      render: (_v: unknown, item: Workspace) => (
         <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
           {item.subdominio}.gravity.com.br
         </code>
       )
     },
     {
-      key: 'status', label: 'Status', // mesma label do pai
-      render: (v) => <StatusBadge v={v as string} />
+      key: 'status', label: 'Status', tipo: 'texto',
+      render: (v: unknown) => <StatusBadge v={v as string} />
     },
     {
-      key: 'plano', label: 'Plano', // mesma label do pai
-      render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.875rem' }}>{v as string}</span>
+      key: 'plano', label: 'Plano / Produtos', tipo: 'texto',
+      render: (v: unknown) => {
+        const parts = String(v).split(',').map(p => p.trim())
+        const show = parts.slice(0, 2)
+        const rest = parts.length - show.length
+
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            {show.map((p, i) => (
+              <span key={i} style={{ 
+                fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 600, 
+                padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.03)', 
+                borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)' 
+              }}>{p}</span>
+            ))}
+            {rest > 0 && <span style={{ fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 700 }}>+{rest}</span>}
+          </div>
+        )
+      }
     },
     {
-      key: 'usuarios', label: 'Usuários', align: 'center', // mesma label do pai
-      render: (v) => <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{v as number}</span>
+      key: 'usuarios', label: 'Usuários', align: 'center', tipo: 'texto',
+      render: (v: unknown) => <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{v as number}</span>
     },
   ]
 
   // ── Ações PAI ──────────────────────────────────────────────────────────────
-  const ACOES: TCGAcao<Tenant>[] = [
+  const ACOES: TabelaGlobalAcao<Tenant>[] = [
     {
       id: 'inspect',
       icone: <MagnifyingGlass size={15} weight="bold" />,
@@ -374,24 +433,25 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     },
     {
       id: 'suspend',
+      icone: <PauseCircle size={15} weight="bold" />, // icone desktop padrão, renderCustom faz o override
+      tooltip: 'Alternar Status',
+      onClick: (item) => updateStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa'),
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.status === 'Ativa' ? 'Enviar SYS_LOCK: bloqueia JWT tokens deste tenant.' : 'Enviar SYS_UNLOCK: restaura acesso ao tenant.'}>
-          <button
-            type="button"
-            onClick={e => { e.preventDefault(); e.stopPropagation(); updateStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa') }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-            onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
-            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-          >
-            {item.status === 'Ativa' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-          </button>
-        </TooltipGlobal>
+        <button
+          type="button"
+          onClick={e => { e.preventDefault(); e.stopPropagation(); updateStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa') }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
+          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+        >
+          {item.status === 'Ativa' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
+        </button>
       )
     }
   ]
 
   // ── Ações FILHAS ───────────────────────────────────────────────────────────
-  const ACOES_FILHAS: TCGAcao<Workspace>[] = [
+  const ACOES_FILHAS: TabelaGlobalAcao<Workspace>[] = [
     {
       id: 'inspect-ws',
       icone: <MagnifyingGlass size={13} weight="bold" />,
@@ -400,24 +460,25 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     },
     {
       id: 'suspend-ws',
+      icone: <PauseCircle size={14} weight="bold" />,
+      tooltip: 'Alternar Status do Espaço',
+      onClick: (item) => updateWorkspaceStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa'),
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.status === 'Ativa' ? 'Suspender Espaço' : 'Ativar Espaço'}>
-          <button
-            type="button"
-            onClick={e => { e.preventDefault(); e.stopPropagation(); updateWorkspaceStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa') }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-            onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
-            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-          >
-            {item.status === 'Ativa' ? <PauseCircle size={14} weight="bold" /> : <PlayCircle size={14} weight="bold" />}
-          </button>
-        </TooltipGlobal>
+        <button
+          type="button"
+          onClick={e => { e.preventDefault(); e.stopPropagation(); updateWorkspaceStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa') }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+          onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
+          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+        >
+          {item.status === 'Ativa' ? <PauseCircle size={14} weight="bold" /> : <PlayCircle size={14} weight="bold" />}
+        </button>
       )
     },
   ]
 
   // ── Exportação ─────────────────────────────────────────────────────────────
-  const ACOES_EXPORT: TCGAcaoExport[] = [
+  const ACOES_EXPORT: TabelaExportAcao<Tenant>[] = [
     { label: 'Dump PG (Data)', icone: <Database size={14} weight="bold" />, onClick: () => {} },
     { label: 'Logs de Cluster (CSV)', icone: <FileCsv size={14} weight="bold" />, onClick: () => {} },
     { label: 'Matriz XML', icone: <FileXls size={14} weight="bold" />, onClick: () => {} },
@@ -438,44 +499,68 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         stats ? (
           <>
             <CardBasicoGlobal
-              titulo="Schemas de Banco Totais"
-              icone={<Database weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+              titulo="Total de Organizações"
+              icone={<Buildings weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
               valor={stats.totalTenants}
-              tooltip={<><p className="cg-tooltip__title">Armazenamento Físico</p><div className="cg-tooltip__row"><span>Quantidade total de schemas em pool no Supabase/Postgres.</span></div></>}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Clientes & Tenants</p>
+                  <div className="cg-tooltip__row"><span>Organizações Totais</span> <strong>{stats.totalTenants}</strong></div>
+                  <div className="cg-tooltip__row"><span>Status Ativa</span> <strong style={{ color: '#34d399' }}>{stats.activeTenants}</strong></div>
+                  <div className="cg-tooltip__row"><span>Status Suspensa</span> <strong style={{ color: '#fbbf24' }}>{stats.suspendedTenants}</strong></div>
+                </>
+              }
             />
             <CardBasicoGlobal
-              titulo="Middlewares Ativos (Allow-list)"
-              icone={<ShieldCheck weight="duotone" size={16} style={{ color: '#34d399' }} />}
-              valor={stats.activeTenants}
-              variante="sucesso"
-              tooltip={<><p className="cg-tooltip__title">Tráfego HTTP Livre</p><div className="cg-tooltip__row"><span>Rotas com banda de I/O de rede alocada no WAF.</span></div></>}
+              titulo="Total de Espaços de Trabalho"
+              icone={<TreeStructure weight="duotone" size={16} style={{ color: '#34d399' }} />}
+              valor={stats.totalWorkspaces}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Ambientes Lógicos</p>
+                  <div className="cg-tooltip__row"><span>Total de Workspaces</span> <strong>{stats.totalWorkspaces}</strong></div>
+                  <div className="cg-tooltip__divider" />
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Média de {Math.round(stats.totalWorkspaces / (stats.totalTenants || 1) * 10) / 10} espaços por organização.</span>
+                </>
+              }
             />
             <CardBasicoGlobal
-              titulo="Quarentena Edge (403 block)"
-              icone={<WarningCircle weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-              valor={stats.suspendedTenants}
-              variante="aviso"
-              tooltip={<><p className="cg-tooltip__title">Lock por Billing/Infra</p><div className="cg-tooltip__row"><span>Tráfego derrubado pelo Redis rate-limiter na borda.</span></div></>}
-            />
-            <CardBasicoGlobal
-              titulo="Volumetria JWTs / Contas"
+              titulo="Total de Usuários"
               icone={<UsersThree weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
               valor={stats.totalUsers}
-              tooltip={<><p className="cg-tooltip__title">Sessões & Identity</p><div className="cg-tooltip__row"><span>Carga total nas chaves de autenticação mestre do Clerk B2B.</span></div></>}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Identidades Globais</p>
+                  <div className="cg-tooltip__row"><span>Usuários Únicos</span> <strong>{stats.totalUsers}</strong></div>
+                  <div className="cg-tooltip__row"><span>Sessões Ativas</span> <strong>100%</strong></div>
+                </>
+              }
+            />
+            <CardGraficoGlobal
+              titulo="Status dos Espaços"
+              icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+              total={stats.totalWorkspaces}
+              valorPrincipal={stats.activeWorkspaces}
+              corGauge="#34d399"
+              legenda={[
+                { label: 'Ativas',    valor: stats.activeWorkspaces,    cor: 'green'  },
+                { label: 'Suspensas', valor: stats.suspendedWorkspaces, cor: 'yellow' },
+              ]}
+              tooltip={
+                <>
+                  <p className="cg-tooltip__title">Saúde Operacional</p>
+                  <div className="cg-tooltip__row"><span>Espaços Ativos</span> <strong style={{ color: '#34d399' }}>{stats.activeWorkspaces}</strong></div>
+                  <div className="cg-tooltip__row"><span>Espaços Suspensos</span> <strong style={{ color: '#fbbf24' }}>{stats.suspendedWorkspaces}</strong></div>
+                  <div className="cg-tooltip__divider" />
+                  <div className="cg-tooltip__row"><span>Taxa de Disponibilidade</span> <strong style={{ color: '#34d399' }}>{Math.round(stats.activeWorkspaces / (stats.totalWorkspaces || 1) * 100)}%</strong></div>
+                </>
+              }
             />
           </>
         ) : undefined
       }
       acoes={
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => fetchData()}
-            disabled={loading}
-          >
-            Reaquecer Cache
-          </button>
           <BotaoNovoAdminGlobal
             rotulo="Nova Instância"
             onClick={() => setShowNovaOrg(true)}
@@ -491,20 +576,27 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       )}
 
       <div style={{ position: 'relative', zIndex: 10 }}>
-        <TabelaCamadasGlobal<Tenant, Workspace>
+        <TabelaGlobal<Tenant>
           dados={tenants}
           colunas={COLUNAS}
-          colunasFilhas={COLUNAS_FILHAS}
-          filhos={item => item.workspaces}
           acoes={ACOES}
-          acoesFilhas={ACOES_FILHAS}
           acoesExportacao={ACOES_EXPORT}
-          placeholderBusca="Localizar"
-          campoBusca="name"
           mensagemVazio={loading ? 'Interrogando estado do database global...' : 'Nenhuma instância retornou resultados.'}
-          carregando={loading}
-          itemId={item => item.id}
-          itensPorPagina={10}
+          renderExpandido={(tenant) => (
+            <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+              <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <TreeStructure size={14} /> Espaços de Trabalho ({tenant.workspaces.length})
+              </div>
+              <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
+                <TabelaGlobal<Workspace>
+                  dados={tenant.workspaces}
+                  colunas={COLUNAS_FILHAS}
+                  acoes={ACOES_FILHAS}
+                  mensagemVazio="Nenhum espaço de trabalho cadastrado."
+                />
+              </div>
+            </div>
+          )}
         />
       </div>
 

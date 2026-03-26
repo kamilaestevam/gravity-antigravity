@@ -26,6 +26,8 @@ export interface ModalFormularioAbasGlobalProps {
   abas: AbaFormulario[]
   abaAtivaInicial?: string
   tipoAbas?: 'underline' | 'pill'
+  textoSalvar?: string
+  textoCancelar?: string
 }
 
 export function ModalFormularioAbasGlobal({
@@ -42,7 +44,9 @@ export function ModalFormularioAbasGlobal({
   altura = "680px",
   abas,
   abaAtivaInicial,
-  tipoAbas = 'pill'
+  tipoAbas = 'pill',
+  textoSalvar = "Salvar Alterações",
+  textoCancelar = "Cancelar"
 }: ModalFormularioAbasGlobalProps) {
   return (
     <ModalGlobal
@@ -50,8 +54,8 @@ export function ModalFormularioAbasGlobal({
       aoFechar={aoFechar}
       titulo="" // Preenchido via cabecalhoPersonalizado
       cabecalhoPersonalizado={
-        <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: 'calc(0.5rem + 2px)', paddingBottom: '0.2rem', paddingTop: '8px' }}>
-          <div style={{ position: 'relative', top: '2px' }}>
+        <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: '0.4rem', paddingBottom: '0.1rem', paddingTop: '8px' }}>
+          <div style={{ position: 'relative', top: '1px' }}>
             <CabecalhoGlobal
               icone={icone}
               titulo={titulo}
@@ -82,12 +86,12 @@ export function ModalFormularioAbasGlobal({
             <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
             <BotaoCancelar
               dirty={dirty}
-              rotulo="Cancelar"
+              rotulo={textoCancelar}
               onClick={aoFechar}
             />
             <BotaoSalvar
               dirty={podesSalvar}
-              rotulo="Salvar Alterações"
+              rotulo={textoSalvar}
               onClick={aoSalvar}
             />
           </div>

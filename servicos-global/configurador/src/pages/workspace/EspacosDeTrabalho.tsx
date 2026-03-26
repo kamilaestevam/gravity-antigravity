@@ -78,9 +78,6 @@ export function EspacosDeTrabalho() {
     localStorage.setItem('gravity:espacos-trabalho-dados', JSON.stringify(empresas))
   }, [empresas])
   const [showForm, setShowForm]    = useState(false)
-  const [nome, setNome]            = useState('')
-  const [subdominio, setSubdomain] = useState('')
-  const [subdErr, setSubdErr]      = useState('')
   const [empresaEditando, setEmpresaEditando] = useState<Empresa | null>(null)
   const [empresaParaExcluir, setEmpresaParaExcluir] = useState<Empresa | null>(null)
 
@@ -88,32 +85,27 @@ export function EspacosDeTrabalho() {
   const suspensas = empresas.filter(e => e.status === 'Suspensa').length
   const limite = 50
 
-  function slugify(v: string) {
-    return v.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
-  }
 
-  function handleSubChange(v: string) {
-    const cleaned = slugify(v)
-    setSubdomain(cleaned)
-    if (cleaned && !/^[a-z][a-z0-9-]*$/.test(cleaned)) {
-      setSubdErr('Use apenas letras minúsculas e hífens.')
-    } else {
-      setSubdErr('')
-    }
-  }
-
-  function handleAdd() {
-    if (!nome.trim() || !subdominio.trim() || subdErr) return
+  function handleAdd(dados: { nome: string; subdominio: string }) {
     const nova: Empresa = {
       id: String(Date.now()),
-      nome: nome.trim(),
-      subdominio: subdominio.trim(),
+      nome: dados.nome,
+      subdominio: dados.subdominio,
       usuarios: 0,
       status: 'Ativa',
       criadaEm: new Date().toLocaleDateString('pt-BR'),
     }
     setEspacosDeTrabalho(prev => [...prev, nova])
-    setNome(''); setSubdomain(''); setSubdErr(''); setShowForm(false)
+    setShowForm(false)
+  }
+
+  function handleUpdate(dados: Partial<Empresa>) {
+    if (!empresaEditando) return
+    setEspacosDeTrabalho(prev =>
+      prev.map(e => e.id === empresaEditando.id ? { ...e, ...dados } : e)
+    )
+    setShowForm(false)
+    setEmpresaEditando(null)
   }
 
   function handleSuspend(linha: Empresa) {
@@ -138,6 +130,7 @@ export function EspacosDeTrabalho() {
 
   function handleEdit(linha: Empresa) {
     setEmpresaEditando(linha)
+    setShowForm(true)
   }
 
   const COLUNAS: TabelaGlobalColuna<Empresa>[] = [
@@ -384,71 +377,11 @@ export function EspacosDeTrabalho() {
       acoes={
         <BotaoNovoGlobal
           rotulo="Novo Espaço de Trabalho"
-          onClick={() => setShowForm(v => !v)}
-          ativo={showForm}
+          onClick={() => { setEmpresaEditando(null); setShowForm(true); }}
+          ativo={showForm && !empresaEditando}
         />
       }
     >
-      {showForm && (
-        <div className="ws-form-card" style={{ marginBottom: '1.5rem' }}>
-          <p className="ws-section-title" style={{ width: 'max-content' }}>
-            <TooltipGlobal titulo="Novo Espaço" descricao="Cadastre um novo espaço de trabalho para segregar acessos e dados operacionais">
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
-                <Buildings weight="duotone" size={14} color="#818cf8" />
-                Novo Espaço de Trabalho
-              </span>
-            </TooltipGlobal>
-          </p>
-          <div className="ws-form-row">
-            <div className="ws-field">
-              <label>
-                <TooltipGlobal titulo="Nome da Empresa" descricao="Razão social ou nome fantasia do novo espaço de trabalho">
-                  <span>Nome da Empresa</span>
-                </TooltipGlobal>
-              </label>
-              <input
-                placeholder="Ex: Acme Logística SP"
-                value={nome}
-                onChange={e => setNome(e.target.value)}
-              />
-            </div>
-            <div className="ws-field">
-              <label>
-                <TooltipGlobal titulo="Subdomínio" descricao="Endereço de acesso exclusivo deste espaço de trabalho">
-                  <span>Subdomínio</span>
-                </TooltipGlobal>
-              </label>
-              <input
-                placeholder="Ex: acme-logistica-sp"
-                value={subdominio}
-                onChange={e => handleSubChange(e.target.value)}
-              />
-              {subdErr && <p style={{ fontSize: '0.75rem', color: '#f87171', marginTop: '0.25rem' }}>{subdErr}</p>}
-              {subdominio && !subdErr && (
-                <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', marginTop: '0.25rem' }}>
-                  URL: <strong style={{ color: '#818cf8' }}>{subdominio}.gravity.com.br</strong>
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="ws-form-actions">
-            <BotaoGlobal
-              variante="primario"
-              onClick={handleAdd}
-              disabled={!nome.trim() || !subdominio.trim() || !!subdErr}
-            >
-              Criar Espaço de Trabalho
-            </BotaoGlobal>
-            <BotaoGlobal
-              variante="fantasma"
-              onClick={() => { setShowForm(false); setNome(''); setSubdomain(''); setSubdErr('') }}
-            >
-              Cancelar
-            </BotaoGlobal>
-          </div>
-        </div>
-      )}
-
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<Empresa>
           dados={empresas}
@@ -462,13 +395,15 @@ export function EspacosDeTrabalho() {
     </PaginaGlobal>
 
     <ModalEditarEspaco
+      aberto={showForm}
       empresa={empresaEditando}
-      aoFechar={() => setEmpresaEditando(null)}
+      aoFechar={() => { setShowForm(false); setEmpresaEditando(null); }}
       aoSalvar={(dados) => {
-        setEspacosDeTrabalho(prev =>
-          prev.map(e => e.id === empresaEditando?.id ? { ...e, ...dados } : e)
-        )
-        setEmpresaEditando(null)
+        if (empresaEditando) {
+          handleUpdate(dados)
+        } else {
+          handleAdd(dados as any)
+        }
       }}
       aoExcluir={(emp) => {
         setEspacosDeTrabalho(prev => prev.filter(e => e.id !== emp.id))

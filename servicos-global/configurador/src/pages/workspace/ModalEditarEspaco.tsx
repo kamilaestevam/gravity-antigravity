@@ -1,38 +1,17 @@
-/**
- * ModalEditarEspaco
- * Modal de edição de Espaço de Trabalho — padrão Gravity Design System.
- *
- * Componentes usados:
- *  - ModalGlobal         (@nucleo/modal-global)
- *  - GeralCampoGlobal    (@nucleo/geral-campo-global)
- *  - BotaoSalvar /
- *    BotaoCancelar       (@nucleo/botoes-salvar-global)
- *  - TooltipGlobal       (@nucleo/tooltip-global)
- *
- * Classes CSS do design system:
- *  - .em-section / .em-grid para layout de seções
- *  - .ws-field / .ws-input-icon-wrap para campos
- *  - .ws-section-title para cabeçalhos de seção
- */
-
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Buildings,
   Globe,
   IdentificationCard,
-  Gear,
   Warning,
-  Lock,
   CalendarBlank,
-  UsersThree,
   MapPin,
   Tag,
-  Link,
-  Info
+  Link
 } from '@phosphor-icons/react'
-import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
+import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/select-global'
 import type { SelectOpcao } from '@nucleo/select-global'
 import { ModalExclusao } from './ModalExclusao'
@@ -61,44 +40,13 @@ function slugify(v: string) {
     .replace(/^-|-$/g, '')
 }
 
-
-
-// ─── Componentes auxiliares (Removidos em favor de SecaoFormularioGlobal) ──────────────────
-// ─── Valor de campo readonly ──────────────────────────────────────────────────
-
-function CampoReadonly({
-  label,
-  valor,
-  icone,
-  tooltip,
-}: {
-  label: string
-  valor: string
-  icone?: React.ReactNode
-  tooltip?: string
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-      <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        {label}
-      </label>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--ws-muted)' }}>
-        {icone && (
-          <span style={{ display: 'flex', alignItems: 'center', opacity: 0.8 }}>
-            {icone}
-          </span>
-        )}
-        <span style={{ fontStyle: 'italic', fontSize: '0.875rem' }}>
-          {valor || '—'}
-        </span>
-        {tooltip && (
-          <TooltipGlobal descricao={tooltip}>
-            <Lock size={12} style={{ opacity: 0.5, cursor: 'help' }} />
-          </TooltipGlobal>
-        )}
-      </div>
-    </div>
-  )
+function formatarCNPJ(v: string) {
+  const digits = v.replace(/\D/g, '').slice(0, 14)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 5) return `${digits.slice(0, 2)}.${digits.slice(2)}`
+  if (digits.length <= 8) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5)}`
+  if (digits.length <= 12) return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8)}`
+  return `${digits.slice(0, 2)}.${digits.slice(2, 5)}.${digits.slice(5, 8)}/${digits.slice(8, 12)}-${digits.slice(12)}`
 }
 
 // ─── Aba: Informações (campos editáveis) ──────────────────────────────────────
@@ -112,7 +60,7 @@ function AbaInformacoes({
   onSub,
   onDadoExtend
 }: {
-  empresa: Empresa
+  empresa: Partial<Empresa>
   nome: string
   subdominio: string
   erroSub: string
@@ -147,8 +95,10 @@ function AbaInformacoes({
       .finally(() => setCarregandoCidades(false))
   }, [empresa.estado])
 
+  const ehNovo = !empresa.id
+
   return (
-    <div style={{ padding: '0 1.5rem 2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
       {/* Seção: Identidade */}
       <div>
@@ -159,31 +109,33 @@ function AbaInformacoes({
             tooltip="Nome e identificação visual do espaço de trabalho na plataforma"
             marginBottom={0}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              padding: '0.15rem 0.5rem',
-              borderRadius: '9999px',
-              fontSize: '0.6875rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              background: empresa.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
-              color: empresa.status === 'Ativa' ? '#34d399' : '#f87171',
-              border: `1px solid ${empresa.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
-            }}>
-              {empresa.status}
-            </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
-              <CalendarBlank size={14} />
-              <span>Criado em {empresa.criadaEm}</span>
+          {!ehNovo && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '0.15rem 0.5rem',
+                borderRadius: '9999px',
+                fontSize: '0.6875rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                background: empresa.status === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)',
+                color: empresa.status === 'Ativa' ? '#34d399' : '#f87171',
+                border: `1px solid ${empresa.status === 'Ativa' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+              }}>
+                {empresa.status}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
+                <CalendarBlank size={14} />
+                <span>Criado em {empresa.criadaEm}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
+                <Buildings size={14} />
+                <span>{empresa.organizacao || 'Gravity Principal'}</span>
+              </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
-              <Buildings size={14} />
-              <span>{empresa.organizacao || 'Gravity Principal'}</span>
-            </div>
-          </div>
+          )}
         </div>
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
@@ -195,6 +147,7 @@ function AbaInformacoes({
                   placeholder="Ex: Acme Logística SP"
                   onChange={e => onNome(e.target.value)}
                   style={{ width: '100%' }}
+                  autoFocus={ehNovo}
                 />
               </div>
             </GeralCampoGlobal>
@@ -207,7 +160,7 @@ function AbaInformacoes({
                 <input
                   value={empresa.cnpj || ''}
                   placeholder="00.000.000/0000-00"
-                  onChange={e => onDadoExtend('cnpj', e.target.value)}
+                  onChange={e => onDadoExtend('cnpj', formatarCNPJ(e.target.value))}
                   style={{ width: '100%' }}
                 />
               </div>
@@ -291,7 +244,8 @@ function AbaInformacoes({
                     value={subdominio}
                     placeholder="Ex: acme-logistica-sp"
                     onChange={e => onSub(slugify(e.target.value))}
-                    style={{ borderRadius: '8px 0 0 8px', borderRight: 'none', width: '100%', height: '100%' }}
+                    disabled={ehNovo}
+                    style={{ borderRadius: '8px 0 0 8px', borderRight: 'none', width: '100%', height: '100%', cursor: ehNovo ? 'not-allowed' : 'text', opacity: ehNovo ? 0.7 : 1 }}
                   />
                 </div>
                 <div style={{
@@ -341,8 +295,6 @@ function AbaInformacoes({
         </div>
       </div>
 
-      {/* Spacer para garantir scroll adicional da tela */}
-      <div style={{ height: '5rem', width: '100%', flexShrink: 0 }} />
     </div>
   )
 }
@@ -350,14 +302,16 @@ function AbaInformacoes({
 // ─── Modal principal ───────────────────────────────────────────────────────────
 
 export interface ModalEditarEspacoProps {
-  empresa: Empresa | null
+  empresa: Empresa | null // Se id sumir, vira criação
+  aberto: boolean
   aoFechar: () => void
   aoSalvar: (dados: Partial<Empresa>) => void
-  aoExcluir: (empresa: Empresa) => void
+  aoExcluir?: (empresa: Empresa) => void
 }
 
 export function ModalEditarEspaco({
   empresa,
+  aberto,
   aoFechar,
   aoSalvar,
   aoExcluir,
@@ -366,17 +320,26 @@ export function ModalEditarEspaco({
   const [sub, setSub]           = useState('')
   const [erroSub, setErroSub]   = useState('')
   const [extendData, setExtendData] = useState<Partial<Empresa>>({})
+  const [manualSub, setManualSub] = useState(false)
   const [mostrarExclusao, setMostrarExclusao] = useState(false)
 
-  // Preenche os campos ao abrir (empresa muda)
+  // Preenche os campos ao abrir
   useEffect(() => {
-    if (empresa) {
-      setNome(empresa.nome)
-      setSub(empresa.subdominio)
-      setErroSub('')
-      setExtendData(empresa)
+    if (aberto) {
+      if (empresa) {
+        setNome(empresa.nome || '')
+        setSub(empresa.subdominio || '')
+        setErroSub('')
+        setExtendData(empresa)
+      } else {
+        setNome('')
+        setSub('')
+        setErroSub('')
+        setExtendData({})
+        setManualSub(false)
+      }
     }
-  }, [empresa?.id])
+  }, [aberto, empresa?.id])
 
   function handleSubChange(v: string) {
     const clean = slugify(v)
@@ -388,12 +351,16 @@ export function ModalEditarEspaco({
     }
   }
 
-  const dirty = !!empresa && (
-    nome.trim() !== empresa.nome ||
-    sub.trim()  !== empresa.subdominio ||
-    ['cnpj', 'estado', 'cidade', 'segmento', 'site'].some(k => extendData[k as keyof Empresa] !== empresa[k as keyof Empresa])
-  )
-  const podesSalvar = dirty && !!nome.trim() && !!sub.trim() && !erroSub
+  const ehNovo = !empresa?.id
+  const dirty = ehNovo 
+    ? (nome.trim().length > 0 || sub.trim().length > 0)
+    : (
+      nome.trim() !== empresa?.nome ||
+      sub.trim()  !== empresa?.subdominio ||
+      ['cnpj', 'estado', 'cidade', 'segmento', 'site'].some(k => extendData[k as keyof Empresa] !== empresa?.[k as keyof Empresa])
+    )
+    
+  const podesSalvar = !!nome.trim() && !!sub.trim() && !erroSub
 
   function handleSalvar() {
     if (!podesSalvar) return
@@ -404,16 +371,6 @@ export function ModalEditarEspaco({
     })
   }
 
-  function handleCancelar() {
-    if (empresa) {
-      setNome(empresa.nome)
-      setSub(empresa.subdominio)
-      setErroSub('')
-      setExtendData(empresa)
-    }
-    aoFechar()
-  }
-
   function handleExcluir() {
     if (!empresa) return
     setMostrarExclusao(true)
@@ -421,36 +378,53 @@ export function ModalEditarEspaco({
 
   function confirmarExclusao() {
     if (!empresa) return
-    aoExcluir(empresa)
+    aoExcluir?.(empresa)
     setMostrarExclusao(false)
     aoFechar()
   }
 
-  return (
-    <>
-    <ModalFormularioGlobal
-      aberto={!!empresa}
-      aoFechar={handleCancelar}
-      aoSalvar={handleSalvar}
-      aoExcluir={handleExcluir}
-      icone={<Buildings weight="duotone" size={24} />}
-      titulo={empresa?.nome ?? ''}
-      subtitulo="Edite as informações e configurações do espaço de trabalho"
-      dirty={!!dirty}
-      podesSalvar={podesSalvar}
-    >
-      {empresa && (
+  const abas = useMemo(() => [
+    {
+      id: 'geral',
+      rotulo: 'Informações Gerais',
+      conteudo: (
         <AbaInformacoes
-          empresa={{...empresa, ...extendData, nome, subdominio: sub}}
+          empresa={{...extendData, id: empresa?.id, nome, subdominio: sub}}
           nome={nome}
           subdominio={sub}
           erroSub={erroSub}
-          onNome={setNome}
-          onSub={handleSubChange}
+          onNome={(v) => {
+            setNome(v)
+            if (ehNovo && !manualSub) {
+              handleSubChange(v)
+            }
+          }}
+          onSub={(v) => {
+            setManualSub(true)
+            handleSubChange(v)
+          }}
           onDadoExtend={(k, v) => setExtendData(p => ({...p, [k]: v}))}
         />
-      )}
-    </ModalFormularioGlobal>
+      )
+    }
+  ], [extendData, empresa?.id, nome, sub, erroSub])
+
+  return (
+    <>
+    <ModalFormularioAbasGlobal
+      aberto={aberto}
+      aoFechar={aoFechar}
+      aoSalvar={handleSalvar}
+      aoExcluir={ehNovo ? undefined : handleExcluir}
+      icone={<Buildings weight="duotone" size={24} />}
+      titulo={ehNovo ? (nome || "Novo Espaço de Trabalho") : (empresa?.nome ?? '')}
+      subtitulo={ehNovo ? "Cadastre um novo espaço de trabalho na plataforma" : "Edite as informações e configurações do espaço de trabalho"}
+      dirty={!!dirty}
+      podesSalvar={podesSalvar}
+      tamanho="lg"
+      altura="680px"
+      abas={abas}
+    />
 
     <ModalExclusao
       aberto={mostrarExclusao}

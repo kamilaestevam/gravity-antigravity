@@ -235,7 +235,7 @@ export function ModalGlobal({
 
         {/* Abas */}
         {abas && abas.length > 0 && (
-          <div style={{ position: 'relative', top: '2px' }}>
+          <div style={{ position: 'relative', top: '1px' }}>
             <NavegacaoAbas
               abas={abas}
               abaAtiva={abaAtiva}

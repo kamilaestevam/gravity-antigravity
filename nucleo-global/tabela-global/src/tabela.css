@@ -373,6 +373,31 @@
   background: var(--tg-bg-hover);
 }
 
+/* ─── Foco em Expansão ───────────────────────────────────────────────────── */
+.tg-container--focado .tg-tr:not(.tg-tr--expandida),
+.tg-container--focado .tg-cabecalho {
+  opacity: 0.2;
+  filter: blur(0.8px);
+  transition: opacity 0.3s, filter 0.3s;
+}
+
+.tg-container--focado .tg-tr--expandida,
+.tg-container--focado .tg-tr-expandida-conteudo {
+  opacity: 1;
+  filter: none;
+  pointer-events: auto;
+  background: rgba(129, 140, 248, 0.02);
+}
+
+/* Reset para tabelas aninhadas (ex: Espaços dentro de Organização) */
+.tg-tr-expandida-conteudo .tg-tr,
+.tg-tr-expandida-conteudo .tg-cabecalho,
+.tg-tr-expandida-conteudo .tg-container {
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: auto !important;
+}
+
 .tg-tr--selecionada {
   background: var(--tg-bg-selected);
 }

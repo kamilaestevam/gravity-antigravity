@@ -17,6 +17,8 @@ export interface ModalFormularioGlobalProps {
   tamanho?: "sm" | "md" | "lg" | "xl" | "full"
   altura?: string
   children: React.ReactNode
+  textoSalvar?: string
+  textoCancelar?: string
 }
 
 export function ModalFormularioGlobal({
@@ -31,7 +33,9 @@ export function ModalFormularioGlobal({
   podesSalvar = false,
   tamanho = "lg",
   altura = "680px",
-  children
+  children,
+  textoSalvar = "Salvar Alterações",
+  textoCancelar = "Cancelar"
 }: ModalFormularioGlobalProps) {
   return (
     <ModalSemSessoesGlobal
@@ -39,7 +43,30 @@ export function ModalFormularioGlobal({
       aoFechar={aoFechar}
       titulo="" // Preenchido via cabecalhoPersonalizado
       cabecalhoPersonalizado={
-        <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: 'calc(1.5rem + 2px)', paddingBottom: 'calc(0.2rem - 2px)', marginTop: '4px' }}>
+        <div 
+          className="ws-modal-cabecalho" 
+          style={{ 
+            borderBottom: '1px solid var(--ws-accent-border)', 
+            marginBottom: '1.5rem', 
+            paddingTop: '1.5rem',
+            paddingBottom: '1rem',
+            paddingLeft: '1.5rem',
+            paddingRight: '3.5rem', // Espaço para o botão fechar
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          {/* Sobrescreve margens negativas do CabecalhoGlobal que são específicas para páginas */}
+          <style dangerouslySetInnerHTML={{ __html: `
+            .ws-modal-cabecalho .cg-header {
+              margin: 0 !important;
+              padding: 0 !important;
+              height: auto !important;
+              min-height: 0 !important;
+              background: transparent !important;
+              position: static !important;
+            }
+          `}} />
           <CabecalhoGlobal
             icone={icone}
             titulo={titulo}
@@ -66,12 +93,12 @@ export function ModalFormularioGlobal({
             <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
             <BotaoCancelar
               dirty={dirty}
-              rotulo="Cancelar"
+              rotulo={textoCancelar}
               onClick={aoFechar}
             />
             <BotaoSalvar
               dirty={podesSalvar}
-              rotulo="Salvar Alterações"
+              rotulo={textoSalvar}
               onClick={aoSalvar}
             />
           </div>

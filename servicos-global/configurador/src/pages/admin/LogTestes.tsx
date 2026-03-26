@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Bug, Sparkle, XCircle, CheckCircle, Warning, Code, Wrench, PlayCircle, CalendarBlank } from '@phosphor-icons/react'
+import { Bug, Sparkle, XCircle, CheckCircle, Warning, Code, Wrench, PlayCircle, CalendarBlank, Clock } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -30,6 +30,23 @@ interface LogTeste {
 }
 
 const DADOS_MOCK: LogTeste[] = [
+  {
+    id: 't-pd-ok-001',
+    data: '25/03/2026',
+    hora: '21:35:10',
+    tipo: 'E2E',
+    modulo: 'Admin',
+    teste: 'Produtos: Cadastro e Modal com Abas',
+    resultado: 'APROVADO',
+    duracao: '12.4s',
+    aiAnalise: {
+      erroResumo: 'Navegação de abas validada',
+      motivo: 'O fluxo de cadastro de novos produtos, incluindo a troca entre as 5 abas de configuração, está operando sem perdas de estado ou erros de script.',
+      sugestaoCorrecao: 'Apenas inconsistência menor nos nomes das colunas da tabela em relação ao script de teste.',
+      arquivo: 'servicos-global/configurador/src/pages/admin/ProdutosAdmin.tsx',
+      provaVisual: '/print-e2e-produtos.png'
+    }
+  },
   {
     id: 't-vg-ok-001',
     data: '25/03/2026',
@@ -149,6 +166,7 @@ export function LogTestes() {
   const [dados, setDados] = useState<LogTeste[]>(DADOS_MOCK)
   const [loadingCode, setLoadingCode] = useState<string | null>(null)
   const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
+  const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
 
   const aprovadosCount = dados.filter(d => d.resultado === 'APROVADO').length
   const reprovadosCount = dados.filter(d => d.resultado === 'REPROVADO').length
@@ -358,26 +376,51 @@ export function LogTestes() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          icone={<Bug weight="duotone" size={22} />}
+          icone={
+            <div style={{ position: 'relative' }}>
+              <Bug weight="duotone" size={22} />
+              {agendamentoAtivo && (
+                <div style={{ 
+                  position: 'absolute', top: -3, right: -3, 
+                  width: 10, height: 10, borderRadius: '50%', 
+                  background: '#10b981', border: '2px solid #0f172a',
+                  animation: 'ws-pulse-active 2s infinite' 
+                }} />
+              )}
+            </div>
+          }
           titulo="Log de Testes"
           subtitulo="Acompanhamento e correção automatizada de testes vitest e playwright"
         />
       }
       acoes={
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', height: '100%', paddingBottom: '0.1rem' }}>
+          <style>
+            {`
+              @keyframes ws-pulse-active {
+                0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+                70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+              }
+            `}
+          </style>
           <button
              type="button"
              onClick={() => setModalAgendamentoAberto(true)}
              style={{ 
                display: 'flex', alignItems: 'center', gap: '0.5rem', 
                padding: '0.5rem 1rem', borderRadius: '8px', 
-               background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#e2e8f0', 
-               fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s' 
+               background: agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)', 
+               border: `1px solid ${agendamentoAtivo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
+               color: agendamentoAtivo ? '#10b981' : '#e2e8f0', 
+               fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+               animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none'
              }}
-             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-             onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+             onMouseEnter={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.1)'}
+             onMouseLeave={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)'}
           >
-            <CalendarBlank size={16} weight="bold" /> Agendamento de testes
+            <Clock size={16} weight={agendamentoAtivo ? "fill" : "bold"} style={{ color: agendamentoAtivo ? '#10b981' : 'inherit' }} />
+            Agendamento ativo
           </button>
           <button
              style={{ 
@@ -432,7 +475,8 @@ export function LogTestes() {
 
       <ModalAgendamentoTestes 
         aberto={modalAgendamentoAberto} 
-        aoFechar={() => setModalAgendamentoAberto(false)} 
+        aoFechar={() => setModalAgendamentoAberto(false)}
+        aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
       />
     </PaginaGlobal>
   )

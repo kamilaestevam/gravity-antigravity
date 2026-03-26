@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck } from '@phosphor-icons/react'
+import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -8,6 +8,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type Tabe
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
+import { SelectGlobal, type SelectOpcao } from '@nucleo/select-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
@@ -203,8 +204,28 @@ const typeBadge: Record<NivelAcesso, string> = {
   'Fornecedor':  'ws-badge-warning',
 }
 
+const OPCOES_TIPO: SelectOpcao[] = [
+  { 
+    valor: 'Standard',   
+    rotulo: 'Standard',   
+    descricao: 'Acesso configurado por permissões de trabalho',
+    meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> }
+  },
+  { 
+    valor: 'Master',     
+    rotulo: 'Master',     
+    descricao: 'Acesso total na organização e em todos os workspaces',
+    meta: { icone: <Crown size={16} weight="duotone" color="#818cf8" /> }
+  },
+  { 
+    valor: 'Fornecedor', 
+    rotulo: 'Fornecedor', 
+    descricao: 'Acesso externo granular para parceiros',
+    meta: { icone: <Buildings size={16} weight="duotone" color="#fbbf24" /> }
+  },
+]
+
 export function Usuarios() {
-  const [tab, setTab]         = useState<'tenant' | 'espacos'>('tenant')
   const [users, setUsers]     = useState<TenantUser[]>(mockUsers)
   const [espacos, setFiliais] = useState<EspacoTrabalho[]>(mockEspacos)
 
@@ -279,6 +300,15 @@ export function Usuarios() {
       key: 'status', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se o acesso está desbloqueado.',
       render: (v) => <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
+    },
+    {
+      key: 'id', label: 'Acesso', tipo: 'texto',
+      tooltipTitulo: 'Empresas Vinculadas', tooltipDescricao: 'Resumo dos workspaces onde o usuário tem permissão.',
+      render: (_, item) => {
+        const isMaster = item.tipo === 'Master'
+        const empresas = isMaster ? espacos : espacosDoUsuario(item.id)
+        return <EmpresasAcessoCell empresas={empresas} isMaster={isMaster} />
+      }
     }
   ]
 
@@ -386,12 +416,7 @@ export function Usuarios() {
   const OPCOES_EXPORT_FILIAIS = { nomeArquivo: 'acesso-por-espaco-trabalho', titulo: 'Acesso por Espaço de Trabalho' }
 
   const ACOES_EXPORT_FILIAIS: TabelaExportAcao<TenantUser>[] = [
-    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
-    { label: 'CSV',           icone: <FileCsv  size={14} weight="bold" />, onClick: (dados) => void exportarCSV(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
-    { label: 'TXT',           icone: <FileText size={14} weight="bold" />, onClick: (dados) => void exportarTXT(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
-    { label: 'XML',           icone: <Code     size={14} weight="bold" />, onClick: (dados) => void exportarXML(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
-    { label: 'PDF',           icone: <FilePdf  size={14} weight="bold" />, onClick: (dados) => void exportarPDF(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
-    { label: 'JSON',          icone: <Code     size={14} weight="bold" />, onClick: (dados) => void exportarJSON(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
+    { label: 'Exportação Completa', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
   ]
 
   const totalVinculos = users.reduce((acc, u) => acc + (u.tipo === 'Master' ? espacos.length : (VINCULOS[u.id]?.length || 0)), 0)
@@ -515,53 +540,69 @@ export function Usuarios() {
         </>
       }
       toolbar={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', transform: 'translateY(-7px)' }}>
-          <div className="ws-tabs" style={{ margin: 0 }}>
-            <button className={`ws-tab${tab === 'tenant' ? ' active' : ''}`} onClick={() => setTab('tenant')}>
-              Perfis de Usuários
-            </button>
-            <button className={`ws-tab${tab === 'espacos' ? ' active' : ''}`} onClick={() => setTab('espacos')}>
-              Empresas Vinculadas por Usuário
-            </button>
-          </div>
-          {tab === 'tenant' && (
-            <BotaoGlobal
-              variante="primario"
-              onClick={() => setShowForm(true)}
-            >
-              Convidar Usuário
-            </BotaoGlobal>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', transform: 'translateY(-7px)' }}>
+          <BotaoGlobal
+            variante="primario"
+            onClick={() => setShowForm(true)}
+            icone={<User size={18} />}
+          >
+            Convidar Usuário
+          </BotaoGlobal>
         </div>
       }
     >
 
-      {tab === 'tenant' && (
-        <>
-          <div style={{ position: 'relative', zIndex: 10 }}>
-            <TabelaGlobal<TenantUser>
-              dados={users}
-              colunas={COLUNAS}
-              acoes={ACOES}
-              acoesExportacao={ACOES_EXPORT}
-              mensagemVazio="Nenhum usuário encontrado na busca."
-              mensagemSemFiltro="Nenhum usuário cadastrado na sua conta corporativa."
-            />
-          </div>
-        </>
-      )}
-
-      {tab === 'espacos' && (
-        <div className="ws-fade-up">
-          <TabelaGlobal<TenantUser>
-            dados={users}
-            colunas={COLUNAS_FILIAIS}
-            acoesExportacao={ACOES_EXPORT_FILIAIS}
-            mensagemVazio="Nenhum usuário encontrado na busca."
-            mensagemSemFiltro="Nenhum usuário cadastrado."
-          />
-        </div>
-      )}
+      <div style={{ position: 'relative', zIndex: 10 }}>
+        <TabelaGlobal<TenantUser>
+          dados={users}
+          colunas={COLUNAS}
+          acoes={ACOES}
+          acoesExportacao={ACOES_EXPORT}
+          mensagemVazio="Nenhum usuário encontrado na busca."
+          mensagemSemFiltro="Nenhum usuário cadastrado na sua conta corporativa."
+          renderExpandido={(usuario) => {
+            const vinculados = usuario.tipo === 'Master' ? espacos : espacosDoUsuario(usuario.id)
+            return (
+              <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', background: 'rgba(0,0,0,0.15)' }}>
+                <div style={{ padding: '1.25rem 1rem 0.75rem 1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Espaço de Trabalho
+                </div>
+                
+                {vinculados.length > 0 ? (
+                  <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden', background: 'var(--ws-surface)' }}>
+                    <TabelaGlobal<EspacoTrabalho>
+                      dados={vinculados}
+                      colunas={[
+                        { key: 'nome', label: 'Nome do Espaço', tipo: 'texto', render: (v) => <span style={{ fontWeight: 600 }}>{v as string}</span> },
+                        { key: 'id', label: 'ID Técnica', tipo: 'texto', render: (v) => <code style={{ fontSize: '0.625rem', opacity: 0.6 }}>{v as string}</code> },
+                        { 
+                          key: 'id', label: 'Privilégio', tipo: 'texto', 
+                          render: () => (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
+                              {usuario.tipo === 'Master' ? 'Acesso Total (Master)' : 'Acesso Padrão'}
+                            </span>
+                          )
+                        },
+                        {
+                          key: 'id', label: 'Status no Espaço', tipo: 'texto', align: 'right',
+                          render: () => (
+                             <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700 }}>HABILITADO</span>
+                          )
+                        }
+                      ]}
+                      mensagemVazio="Este usuário não possui acessos vinculados."
+                    />
+                  </div>
+                ) : (
+                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                    O usuário <strong>{usuario.nome}</strong> ainda não possui espacos de trabalho vinculados.
+                  </div>
+                )}
+              </div>
+            )
+          }}
+        />
+      </div>
 
       {/* Modal Convidar Usuário */}
       <ModalFormularioGlobal
@@ -577,7 +618,7 @@ export function Usuarios() {
         podesSalvar={!!(fNome.trim() && fEmail.trim())}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <GeralCampoGlobal label="Nome Completo" obrigatorio>
+          <GeralCampoGlobal label="NOME COMPLETO" obrigatorio>
             <div className="ws-input-icon-wrap">
               <User size={16} />
               <input
@@ -589,7 +630,7 @@ export function Usuarios() {
             </div>
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="E-mail" obrigatorio>
+          <GeralCampoGlobal label="E-MAIL" obrigatorio>
             <div className="ws-input-icon-wrap">
               <EnvelopeSimple size={16} />
               <input
@@ -602,20 +643,30 @@ export function Usuarios() {
             </div>
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="Tipo de Usuário">
-            <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
-              <select
-                value={fTipo}
-                onChange={e => setFTipo(e.target.value as NivelAcesso)}
-                style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--ws-text)', padding: '0 1rem 0 2.5rem', appearance: 'none', height: '100%' }}
-              >
-                <option value="Standard">Standard — Acesso conf. permissões</option>
-                <option value="Master">Master — Acesso total org/workspaces</option>
-                <option value="Admin">Admin — Auxiliar administrativo</option>
-                <option value="Fornecedor">Fornecedor — Acesso externo granular</option>
-              </select>
-              <ShieldCheck size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
-            </div>
+          <GeralCampoGlobal label="TIPO DE USUÁRIO">
+            <SelectGlobal
+              opcoes={OPCOES_TIPO}
+              valor={fTipo}
+              aoMudarValor={(v) => setFTipo(v as NivelAcesso)}
+              iconeEsquerda={<ShieldCheck size={18} weight="duotone" />}
+              buscavel={false}
+              placeholder="Selecione o perfil..."
+              renderizarOpcao={(op) => (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                    width: '32px', height: '32px', borderRadius: '8px', 
+                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)'
+                  }}>
+                    {op.meta?.icone as React.ReactNode}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>{op.rotulo}</span>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>{op.descricao}</span>
+                  </div>
+                </div>
+              )}
+            />
           </GeralCampoGlobal>
         </div>
       </ModalFormularioGlobal>

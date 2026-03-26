@@ -62,6 +62,9 @@ app.use('/api/internal', serviceTokenRouter)
 
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
+import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
+app.use('/api/tenant/historico-global', historicoRouter)
+
 app.use('/api/admin', adminRouter)
 
 // ─── Handler de erros global ─────────────────────────────────────────────────

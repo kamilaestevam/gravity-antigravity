@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { 
   Receipt, Buildings, DownloadSimple, CalendarBlank, FileXls, ChartLineUp, 
   Plus, FilePdf, Paperclip, Trash
@@ -135,6 +135,8 @@ export function AdminFinanceiro() {
     status: 'Pendente' as FaturaStatus
   })
   const [docsLocal, setDocsLocal] = useState<DocumentoFatura[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [docIdEmUpload, setDocIdEmUpload] = useState<string | null>(null)
 
   function abrirModalNovo() {
     setFaturaEditando(null)
@@ -177,6 +179,25 @@ export function AdminFinanceiro() {
     
     alert('Fatura salva com sucesso! (Simulação em State Local)')
     setModalAberto(false)
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file && docIdEmUpload) {
+      setDocsLocal(prev => prev.map(d => d.id === docIdEmUpload ? { 
+        ...d, 
+        nome: file.name, 
+        status: 'Anexado' as const 
+      } : d))
+      setDocIdEmUpload(null)
+    }
+    // Limpa o valor para permitir selecionar o mesmo arquivo novamente se necessário
+    e.target.value = ''
+  }
+
+  function dispararUpload(id: string) {
+    setDocIdEmUpload(id)
+    fileInputRef.current?.click()
   }
 
   // === Tooltip de Valor (hover) ──────────────────────────────────────────────
@@ -430,8 +451,8 @@ export function AdminFinanceiro() {
         titulo={faturaEditando ? `Editar Fatura ${faturaEditando.num}` : 'Lançar Nova Fatura'}
         subtitulo="Preencha os dados de faturamento e anexe os documentos necessários."
         icone={<Receipt weight="duotone" size={24} />}
-        dirty={true}
-        podesSalvar={true}
+        tamanho="lg"
+        tipoAbas="pill"
         abas={[
           {
             id: 'dados',
@@ -467,91 +488,98 @@ export function AdminFinanceiro() {
             id: 'arquivos',
             rotulo: 'Documentos (PDF)',
             conteudo: (
-              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <SecaoFormularioGlobal titulo="Lista de Documentos" icone={<Paperclip size={16} />} />
-                  <BotaoGlobal 
-                    texto="Adicionar Documento" 
-                    variante="sucesso" 
-                    tamanho="sm" 
-                    icone={<Plus weight="bold" />}
-                    onClick={() => setDocsLocal([...docsLocal, { id: `d${Date.now()}`, nome: 'Pendente', tipo: 'Outros', status: 'Pendente' }])}
-                  />
+                  <SecaoFormularioGlobal titulo="Anexos da Fatura" icone={<Paperclip size={16} weight="duotone" />} marginBottom={0} />
+                  <button 
+                    type="button" 
+                    onClick={() => setDocsLocal([...docsLocal, { id: `d${Date.now()}`, nome: 'Aguardando PDF...', tipo: 'Outros', status: 'Pendente' }])}
+                    style={{ fontSize: '0.8125rem', fontWeight: 700, background: 'rgba(52,211,153,0.08)', color: '#34d399', border: '1px solid rgba(52,211,153,0.25)', padding: '0.375rem 0.875rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.15)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.25)' }}
+                  >
+                    <Plus size={14} weight="bold" /> Adicionar Documento
+                  </button>
                 </div>
                 
                 {docsLocal.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {docsLocal.map((doc: DocumentoFatura, idx: number) => (
-                      <div key={doc.id} style={{ 
-                        display: 'grid', gridTemplateColumns: '160px 1fr 44px', gap: '12px', alignItems: 'end', 
-                        background: 'rgba(255,255,255,0.03)', padding: '0.875rem 1rem', borderRadius: '10px', 
-                        border: '1px solid rgba(255,255,255,0.05)' 
-                      }}>
-                        <GeralCampoGlobal label="Tipo">
-                          <SelectGlobal
-                            valor={doc.tipo}
-                            opcoes={[
-                              { valor: 'Boleto', rotulo: 'Boleto Bancário' },
-                              { valor: 'Nota Fiscal', rotulo: 'Nota Fiscal (NF-e)' },
-                              { valor: 'Relatório', rotulo: 'Relatório de Uso' },
-                              { valor: 'Outros', rotulo: 'Outro Documento' },
-                            ]}
-                            aoMudarValor={(v) => {
-                              const newList = [...docsLocal]
-                              newList[idx].tipo = v as any
-                              setDocsLocal(newList)
-                            }}
-                          />
-                        </GeralCampoGlobal>
+                  <div style={{ border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'hidden' }}>
+                    <TabelaGlobal<DocumentoFatura>
+                      dados={docsLocal}
+                      idKey="id"
+                      colunas={[
+                        { 
+                          key: 'tipo', label: 'Tipo de Documento', tipo: 'texto', largura: '200px',
+                          render: (v, item) => (
+                            <SelectGlobal
+                              valor={v}
+                              opcoes={[
+                                { valor: 'Boleto', rotulo: 'Boleto Bancário' },
+                                { valor: 'Nota Fiscal', rotulo: 'Nota Fiscal (NF-e)' },
+                                { valor: 'Relatório', rotulo: 'Relatório de Uso' },
+                                { valor: 'Outros', rotulo: 'Outro Documento' },
+                              ]}
+                              aoMudarValor={(newVal) => {
+                                setDocsLocal(prev => prev.map(d => d.id === item.id ? { ...d, tipo: newVal as any } : d))
+                              }}
+                            />
+                          )
+                        },
+                        {
+                          key: 'nome', label: 'Arquivo / Link', tipo: 'texto',
+                          render: (v, item) => (
+                            <div style={{ 
+                              display: 'flex', alignItems: 'center', gap: '8px', 
+                              padding: '2px 8px', background: 'rgba(255,255,255,0.02)', 
+                              borderRadius: '6px', border: '1px solid rgba(255,255,255,0.04)',
+                              fontSize: '0.8125rem'
+                            }}>
+                              {item.tipo === 'Boleto' && <FilePdf size={16} weight="duotone" color="#fbbf24" />}
+                              {item.tipo === 'Nota Fiscal' && <Receipt size={16} weight="duotone" color="#34d399" />}
+                              {item.tipo !== 'Boleto' && item.tipo !== 'Nota Fiscal' && <Paperclip size={16} weight="duotone" color="#818cf8" />}
+                              
+                              <span style={{ flex: 1, color: item.status === 'Anexado' ? 'var(--ws-text)' : 'var(--ws-muted)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {v}
+                              </span>
 
-                        <GeralCampoGlobal label="Arquivo / Status">
-                          <div style={{ 
-                            display: 'flex', alignItems: 'center', gap: '10px', 
-                            padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', 
-                            borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)',
-                            fontSize: '0.8125rem'
-                          }}>
-                            {doc.tipo === 'Boleto' && <FilePdf size={18} weight="duotone" color="#fbbf24" />}
-                            {doc.tipo === 'Nota Fiscal' && <Receipt size={18} weight="duotone" color="#34d399" />}
-                            {doc.tipo !== 'Boleto' && doc.tipo !== 'Nota Fiscal' && <Paperclip size={18} weight="duotone" color="#818cf8" />}
-                            
-                            <span style={{ flex: 1, color: doc.status === 'Anexado' ? 'var(--ws-text)' : 'var(--ws-muted)', fontWeight: 500 }}>
-                              {doc.nome}
+                              <button 
+                                type="button"
+                                onClick={() => dispararUpload(item.id)}
+                                style={{ 
+                                  fontSize: '0.7rem', fontWeight: 700, background: item.status === 'Anexado' ? 'rgba(52,211,153,0.1)' : 'rgba(129,140,248,0.1)', 
+                                  color: item.status === 'Anexado' ? '#34d399' : '#818cf8', border: 'none', 
+                                  padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap'
+                                }}
+                              >
+                                {item.status === 'Anexado' ? 'Trocar' : 'Anexar'}
+                              </button>
+                            </div>
+                          )
+                        },
+                        {
+                          key: 'status', label: 'Status', tipo: 'texto', align: 'center', largura: '100px',
+                          render: (v) => (
+                            <span style={{ 
+                              display: 'inline-flex', alignItems: 'center', gap: '4px', 
+                              fontSize: '0.6875rem', fontWeight: 700, 
+                              color: v === 'Anexado' ? '#34d399' : '#fbbf24'
+                            }}>
+                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: v === 'Anexado' ? '#34d399' : '#fbbf24' }} />
+                              {v === 'Anexado' ? 'OK' : 'Pendente'}
                             </span>
-
-                            <button 
-                              type="button"
-                              onClick={() => {
-                                const newList = [...docsLocal]
-                                newList[idx].status = 'Anexado'
-                                newList[idx].nome = `doc_${doc.tipo.toLowerCase()}_${Date.now()}.pdf`
-                                setDocsLocal(newList)
-                              }}
-                              style={{ 
-                                fontSize: '0.75rem', fontWeight: 700, background: doc.status === 'Anexado' ? 'rgba(52,211,153,0.1)' : 'rgba(129,140,248,0.1)', 
-                                color: doc.status === 'Anexado' ? '#34d399' : '#818cf8', border: 'none', 
-                                padding: '4px 10px', borderRadius: '6px', cursor: 'pointer' 
-                              }}
-                            >
-                              {doc.status === 'Anexado' ? 'Substituir' : 'Anexar PDF'}
-                            </button>
-                          </div>
-                        </GeralCampoGlobal>
-
-                        <button 
-                          type="button" 
-                          onClick={() => setDocsLocal(docsLocal.filter((d: DocumentoFatura) => d.id !== doc.id))}
-                          style={{ 
-                            width: '40px', height: '40px', borderRadius: '8px', 
-                            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', 
-                            color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', 
-                            justifyContent: 'center', transition: 'all 0.15s' 
-                          }}
-                        >
-                          <Trash size={18} />
-                        </button>
-                      </div>
-                    ))}
+                          )
+                        }
+                      ]}
+                      acoes={[
+                        {
+                          id: 'remover',
+                          icone: <Trash size={14} color="#ef4444" />,
+                          tooltip: 'Excluir documento',
+                          onClick: (item) => setDocsLocal(prev => prev.filter(d => d.id !== item.id))
+                        }
+                      ]}
+                      mensagemVazio="Nenhum documento anexado."
+                    />
                   </div>
                 ) : (
                   <div style={{ padding: '2.5rem', border: '2px dashed rgba(255,255,255,0.04)', borderRadius: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.01)' }}>
@@ -571,6 +599,15 @@ export function AdminFinanceiro() {
                 }}>
                   ⚠️ Os arquivos anexados ficarão disponíveis imediatamente para o cliente na área "Financeiro" do workspace dele.
                 </div>
+
+                {/* Input de arquivo oculto para funcionalidade real */}
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  style={{ display: 'none' }} 
+                  accept="application/pdf"
+                  onChange={handleFileChange}
+                />
               </div>
             )
           }

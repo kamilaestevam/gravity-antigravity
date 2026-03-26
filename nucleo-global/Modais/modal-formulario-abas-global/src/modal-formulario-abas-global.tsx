@@ -9,6 +9,8 @@ export interface AbaFormulario {
   rotulo: string
   conteudo: React.ReactNode
   desabilitada?: boolean
+  tooltipTitulo?: string
+  tooltipDescricao?: string
 }
 
 export interface ModalFormularioAbasGlobalProps {

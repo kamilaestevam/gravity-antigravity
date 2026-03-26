@@ -90,6 +90,7 @@ export default function App() {
         <Route path="/" element={<RootRedirect />} />
         <Route path="/sign-in/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
         <Route path="/sign-up/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
+        <Route path="/forgot-password/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
 
         {/* Onboarding — novos clientes vindos do Marketplace */}
         <Route path="/trial" element={<Onboarding />} />

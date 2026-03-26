@@ -73,7 +73,9 @@ function AbaInformacoes({
   erroSub,
   onNome,
   onSub,
-  onDadoExtend
+  onDadoExtend,
+  cidades,
+  carregandoCidades
 }: {
   empresa: Partial<Empresa>
   nome: string
@@ -82,34 +84,9 @@ function AbaInformacoes({
   onNome: (v: string) => void
   onSub: (v: string) => void
   onDadoExtend: (key: string, v: string) => void
+  cidades: SelectOpcao[]
+  carregandoCidades: boolean
 }) {
-  const [cidades, setCidades] = useState<SelectOpcao[]>([])
-  const [carregandoCidades, setCarregandoCidades] = useState(false)
-
-  // ── Carregar Cidades do IBGE ─────────────────────────────────────────────
-  useEffect(() => {
-    if (!empresa.estado) {
-      setCidades([])
-      return
-    }
-    setCarregandoCidades(true)
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${empresa.estado}/municipios`)
-      .then(res => res.json())
-      .then(data => {
-        const opcoes = data.map((c: any) => ({
-          valor: c.nome,
-          rotulo: c.nome
-        }))
-        opcoes.sort((a: SelectOpcao, b: SelectOpcao) => a.rotulo.localeCompare(b.rotulo))
-        setCidades(opcoes)
-      })
-      .catch(err => {
-        console.error("Erro ao buscar cidades do IBGE:", err)
-        setCidades([])
-      })
-      .finally(() => setCarregandoCidades(false))
-  }, [empresa.estado])
-
   const ehNovo = !empresa.id
 
   return (
@@ -333,6 +310,40 @@ export function ModalEditarWorkspace({
   const [erroSub, setErroSub]   = useState('')
   const [extendData, setExtendData] = useState<Partial<Empresa>>({})
   const [manualSub, setManualSub] = useState(false)
+  const [cidades, setCidades]         = useState<SelectOpcao[]>([])
+  const [carregandoCidades, setCarregandoCidades] = useState(false)
+
+  // ── Carregar Cidades do IBGE ─────────────────────────────────────────────
+  useEffect(() => {
+    // Busca o estado atual do extendData ou da empresa original
+    const estadoAtual = extendData.estado
+    
+    if (!estadoAtual) {
+      setCidades([])
+      return
+    }
+
+    setCarregandoCidades(true)
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoAtual}/municipios`)
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data)) {
+          setCidades([])
+          return
+        }
+        const opcoes = data.map((c: any) => ({
+          valor: c.nome,
+          rotulo: c.nome
+        }))
+        opcoes.sort((a: SelectOpcao, b: SelectOpcao) => a.rotulo.localeCompare(b.rotulo))
+        setCidades(opcoes)
+      })
+      .catch(err => {
+        console.error("Erro ao buscar cidades do IBGE:", err)
+        setCidades([])
+      })
+      .finally(() => setCarregandoCidades(false))
+  }, [extendData.estado])
 
   // Preenche os campos ao abrir
   useEffect(() => {
@@ -403,10 +414,12 @@ export function ModalEditarWorkspace({
             handleSubChange(v)
           }}
           onDadoExtend={(k, v) => setExtendData(p => ({...p, [k]: v}))}
+          cidades={cidades}
+          carregandoCidades={carregandoCidades}
         />
       )
     }
-  ], [extendData, empresa?.id, nome, sub, erroSub])
+  ], [extendData, empresa?.id, nome, sub, erroSub, cidades, carregandoCidades])
 
   return (
     <>

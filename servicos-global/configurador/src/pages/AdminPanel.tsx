@@ -537,9 +537,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
 
   // ── Exportação ─────────────────────────────────────────────────────────────
   const ACOES_EXPORT: TabelaExportAcao<Tenant>[] = [
-    { label: 'Dump PG (Data)', icone: <Database size={14} weight="bold" />, onClick: () => {} },
-    { label: 'Logs de Cluster (CSV)', icone: <FileCsv size={14} weight="bold" />, onClick: () => {} },
-    { label: 'Matriz XML', icone: <FileXls size={14} weight="bold" />, onClick: () => {} },
+    { label: 'Dump PG (Data)', icone: <Database size={14} weight="bold" />, onClick: () => {}, tooltipDescricao: 'Exporta a estrutura completa do banco de dados' },
+    { label: 'Logs de Cluster (CSV)', icone: <FileCsv size={14} weight="bold" />, onClick: () => {}, tooltipDescricao: 'Gera planilha com o histórico de eventos do servidor' },
+    { label: 'Matriz XML', icone: <FileXls size={14} weight="bold" />, onClick: () => {}, tooltipDescricao: 'Exporta configuração técnica para migração entre ambientes' },
   ]
 
   return (

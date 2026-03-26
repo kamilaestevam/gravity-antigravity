@@ -18,6 +18,10 @@ export interface AbaModal {
   conteudo: ReactNode
   /** Se true, a aba está desabilitada */
   desabilitada?: boolean
+  /** Título do tooltip (opcional) */
+  tooltipTitulo?: string
+  /** Descrição do tooltip (opcional) */
+  tooltipDescricao?: string
 }
 
 // ─── Botões do footer ─────────────────────────────────────────────────────────

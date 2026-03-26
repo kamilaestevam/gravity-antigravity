@@ -1,10 +1,14 @@
 import { SignIn, SignUp } from '@clerk/clerk-react'
-import { useLocation, Link } from 'react-router-dom'
+import { useLocation, Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Envelope, ArrowLeft, CheckCircle, WarningCircle, CircleNotch } from '@phosphor-icons/react'
 import './login-global.css'
 
 export function LoginGlobal() {
   const location = useLocation()
+  const navigate = useNavigate()
   const isSignUp = location.pathname.includes('/sign-up')
+  const isForgotPassword = location.pathname.includes('/forgot-password')
 
   const clerkAppearance = {
     variables: {
@@ -80,11 +84,21 @@ export function LoginGlobal() {
   return (
     <div className="login-global-panel">
       <div className="login-global-header">
-        <p className="login-global-title">{isSignUp ? 'Criar sua conta' : 'Acessar a plataforma'}</p>
-        <p className="login-global-subtitle">{isSignUp ? 'Preencha os dados e comece agora' : 'Entre com suas credenciais para continuar'}</p>
+        <p className="login-global-title">
+          {isForgotPassword ? 'Recuperar senha' : isSignUp ? 'Criar sua conta' : 'Acessar a plataforma'}
+        </p>
+        <p className="login-global-subtitle">
+          {isForgotPassword 
+            ? 'Informe seu e-mail para receber o link de recuperação' 
+            : isSignUp 
+              ? 'Preencha os dados e comece agora' 
+              : 'Entre com suas credenciais para continuar'}
+        </p>
       </div>
 
-      {isSignUp ? (
+      {isForgotPassword ? (
+        <ForgotPasswordFlow onBack={() => navigate('/sign-in')} />
+      ) : isSignUp ? (
         <SignUp
           routing="hash"
           afterSignUpUrl="/trial"
@@ -92,33 +106,127 @@ export function LoginGlobal() {
           appearance={clerkAppearance as any}
         />
       ) : (
-        <SignIn
-          routing="hash"
-          afterSignInUrl="/hub"
-          signUpUrl="/sign-up"
-          appearance={clerkAppearance as any}
-        />
+        <>
+          <SignIn
+            routing="hash"
+            afterSignInUrl="/hub"
+            signUpUrl="/sign-up"
+            forgotPasswordUrl="/forgot-password"
+            appearance={clerkAppearance as any}
+          />
+          <div className="login-forgot-manual">
+            <Link to="/forgot-password">Esqueceu a senha?</Link>
+          </div>
+        </>
       )}
 
-      <div className="login-global-footer">
-        <p className="login-footer-main">
-          {isSignUp ? (
-            <>
-              Possui uma conta? <Link to="/sign-in">Entrar</Link>
-            </>
-          ) : (
-            <>
-              Não possui uma conta? <Link to="/sign-up">Registre-se</Link>
-            </>
-          )}
+      {!isForgotPassword && (
+        <div className="login-global-footer">
+          <p className="login-footer-main">
+            {isSignUp ? (
+              <>
+                Possui uma conta? <Link to="/sign-in">Entrar</Link>
+              </>
+            ) : (
+              <>
+                Não possui uma conta? <Link to="/sign-up">Registre-se</Link>
+              </>
+            )}
+          </p>
+          <p className="login-footer-secondary">
+            {isSignUp ? 'Já conhece a plataforma? ' : 'Novo por aqui? '}
+            <a href="http://localhost:8002" target="_blank" rel="noreferrer">
+              {isSignUp ? 'Saiba mais' : 'Conheça a plataforma'}
+            </a>
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const navigate = useNavigate()
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
+
+    setStatus('loading')
+    
+    // Simulação de envio
+    setTimeout(() => {
+      if (email.includes('error')) {
+        setStatus('error')
+      } else {
+        setStatus('success')
+      }
+    }, 1500)
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="forgot-password-container success">
+        <div className="status-icon success">
+          <CheckCircle size={48} weight="duotone" />
+        </div>
+        <h2 className="forgot-title">Verifique seu e-mail</h2>
+        <p className="forgot-desc">
+          Enviamos as instruções de recuperação para: <br />
+          <strong>{email}</strong>
         </p>
-        <p className="login-footer-secondary">
-          {isSignUp ? 'Já conhece a plataforma? ' : 'Novo por aqui? '}
-          <a href="http://localhost:8002" target="_blank" rel="noreferrer">
-            {isSignUp ? 'Saiba mais' : 'Conheça a plataforma'}
-          </a>
-        </p>
+        <Link className="forgot-button" to="/sign-in" onClick={onBack}>
+          Voltar para o login
+        </Link>
       </div>
+    )
+  }
+
+  return (
+    <div className="forgot-password-container">
+      <form onSubmit={handleSubmit} className="forgot-form">
+        <div className="forgot-field">
+          <label htmlFor="email">E-mail</label>
+          <div className="forgot-input-wrapper">
+            <Envelope size={20} className="forgot-input-icon" />
+            <input
+              id="email"
+              type="email"
+              placeholder="Digite seu e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={status === 'loading'}
+            />
+          </div>
+        </div>
+
+        {status === 'error' && (
+          <div className="forgot-error-msg">
+            <WarningCircle size={18} />
+            <span>Não encontramos nenhuma conta com este e-mail.</span>
+          </div>
+        )}
+
+        <button 
+          type="submit" 
+          className={`forgot-button ${status === 'loading' ? 'loading' : ''}`}
+          disabled={status === 'loading'}
+        >
+          {status === 'loading' ? <CircleNotch size={20} className="spin" /> : 'Enviar instruções'}
+        </button>
+      </form>
+
+      <Link 
+        className="forgot-back-link" 
+        to="/sign-in" 
+        onClick={onBack}
+      >
+        <ArrowLeft size={16} />
+        Voltar para o login
+      </Link>
     </div>
   )
 }

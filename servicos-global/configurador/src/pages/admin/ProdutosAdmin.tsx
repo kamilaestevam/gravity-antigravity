@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus, Stack } from '@phosphor-icons/react'
 import { ModalExclusao } from '../workspace/ModalExclusao'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -235,22 +236,26 @@ export function ProdutosAdmin() {
   const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoCatalogo>[] = [
     {
       key: 'nome', label: 'Nome do Produto', tipo: 'texto',
-      tooltipTitulo: 'Entity: Produto', tooltipDescricao: 'Identificação comercial mapeada na arquitetura de billing.',
+      tooltipTitulo: 'NOME COMERCIAL',
+      tooltipDescricao: 'Identificação do serviço no catálogo e no marketplace',
       render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>
     },
     {
       key: 'descricao', label: 'O que é', tipo: 'texto',
-      tooltipTitulo: 'Meta Description', tooltipDescricao: 'Resumo estruturado exibido no frontend para conversão.',
+      tooltipTitulo: 'DESCRIÇÃO',
+      tooltipDescricao: 'Resumo das funcionalidades principais exibido para o cliente',
       render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
     },
     {
       key: 'moduloBackend', label: 'Slug / Módulo', tipo: 'texto',
-      tooltipTitulo: 'Route / Module Binding', tooltipDescricao: 'O vínculo técnico com a API do backend.',
+      tooltipTitulo: 'VÍNCULO TÉCNICO',
+      tooltipDescricao: 'Identificador do sistema para ativação automática das funções',
       render: (v) => <code style={{ color: '#8b5cf6', fontSize: '0.75rem' }}>{v}</code>
     },
     {
       key: 'precoUnitario', label: 'Valor Adicional', tipo: 'texto',
-      tooltipTitulo: 'Pricing Base', tooltipDescricao: 'Valor aplicado após consumir o limite da franquia.',
+      tooltipTitulo: 'CUSTO EXCEDENTE',
+      tooltipDescricao: 'Custo aplicado ao consumo que ultrapassa o limite da franquia',
       render: (v, item) => {
         if (item.faixasPreco && item.faixasPreco.length > 0) {
           return (
@@ -266,7 +271,8 @@ export function ProdutosAdmin() {
     },
     {
       key: 'qtdUsuariosBase', label: 'Franquia Free', tipo: 'texto',
-      tooltipTitulo: 'Quota / Free Tier', tooltipDescricao: 'Quantidade de uso incluída no pacote antes da cobrança.',
+      tooltipTitulo: 'COTA INCLUÍDA',
+      tooltipDescricao: 'Volume de uso liberado sem custo adicional em cada ciclo',
       render: (v, item) => (
         <span style={{ color: item.qtdUsuariosBase ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtdUsuariosBase ? 600 : 400 }}>
           {item.qtdUsuariosBase ? `${item.qtdUsuariosBase} ${item.tipoCobranca.replace('Por ', '')}s` : 'Zero'}
@@ -275,11 +281,14 @@ export function ProdutosAdmin() {
     },
     {
       key: 'tipoCobranca', label: 'Unidade', tipo: 'texto',
-      tooltipTitulo: 'Billing Unit', tooltipDescricao: 'Métrica usada para o cálculo do excedente.',
+      tooltipTitulo: 'MÉTRICA',
+      tooltipDescricao: 'Unidade de medida usada para o cálculo do faturamento',
       render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
+      tooltipTitulo: 'DISPONIBILIDADE',
+      tooltipDescricao: 'Indica se o serviço está ativo para novas contratações',
       render: (v) => {
         const st = v as StatusGlobal
         const { cor, bg } = getStatusColor(st)
@@ -540,6 +549,8 @@ export function ProdutosAdmin() {
           {
             id: 'dados-basicos',
             rotulo: 'Dados Básicos',
+            tooltipTitulo: 'IDENTIFICAÇÃO',
+            tooltipDescricao: 'Dados principais e categoria do produto no catálogo.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo="Dados Básicos" tooltip="Identificação e configuração geral do produto" />
@@ -591,6 +602,8 @@ export function ProdutosAdmin() {
           {
             id: 'setup',
             rotulo: 'Setup',
+            tooltipTitulo: 'OPERAÇÃO INICIAL',
+            tooltipDescricao: 'Taxa de ativação e onboarding (One-time fee).',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Wrench size={16} weight="duotone" />} titulo="Setup" />
@@ -627,6 +640,8 @@ export function ProdutosAdmin() {
           {
             id: 'valor-produto',
             rotulo: 'Valor do Produto',
+            tooltipTitulo: 'PRECIFICAÇÃO',
+            tooltipDescricao: 'Modelo de cobrança, recorrência e camadas de preço.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Sliders size={16} weight="duotone" />} titulo="Valores do Produto" />
@@ -683,9 +698,11 @@ export function ProdutosAdmin() {
 
                 <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                    <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                      <Sliders size={18} weight="duotone" color="var(--color-primary)" /> Configuração de Camadas (Tiers)
-                    </p>
+                    <TooltipGlobal titulo="TABELA DE FAIXAS" descricao="Estrutura de precificação progressiva por volume de unidades.">
+                      <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                        <Stack size={18} weight="duotone" color="var(--color-primary)" /> Configuração de Camadas (Tiers)
+                      </p>
+                    </TooltipGlobal>
                     <button 
                       type="button" 
                       onClick={() => dirty(() => setFaixas([...faixas, { id: `f${Date.now()}`, de: 0, ate: undefined, valor: '0,00', moeda: moedaProduto }]))}
@@ -776,6 +793,8 @@ export function ProdutosAdmin() {
           {
             id: 'usuarios',
             rotulo: 'Usuários',
+            tooltipTitulo: 'LICENCIAMENTO',
+            tooltipDescricao: 'Regras de cobrança por assento e usuários excedentes.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Users size={16} weight="duotone" />} titulo="Usuários" />
@@ -821,6 +840,8 @@ export function ProdutosAdmin() {
           {
             id: 'help-desk',
             rotulo: 'Help Desk',
+            tooltipTitulo: 'SUPORTE TÉCNICO',
+            tooltipDescricao: 'Franquia de horas mensais e custo de hora adicional.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Headset size={16} weight="duotone" />} titulo="Help Desk" />
@@ -848,6 +869,8 @@ export function ProdutosAdmin() {
           {
             id: 'negociacao',
             rotulo: 'Negociação',
+            tooltipTitulo: 'CONDIÇÃO ESPECIAL',
+            tooltipDescricao: 'Preço exclusivo vinculado a uma organização específica.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo="Negociação Especial" tooltip="Condição de preço exclusiva para uma organização" />

@@ -6,6 +6,7 @@
 
 import React, { useEffect, useRef, useState, useId } from 'react'
 import { X } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ModalProps, AbaModal } from './tipos.js'
 import './modal.css'
 
@@ -40,11 +41,35 @@ function NavegacaoAbas({
     <nav className={`mg-nav-abas ${isPill ? 'mg-tabs-pill-wrap' : 'tabs-underline'}`} role="tablist" aria-label="Abas do modal">
       {isPill ? (
         <div className="mg-tabs-pill">
-          {abas.map((aba) => (
+          {abas.map((aba) => {
+            const btn = (
+              <button
+                key={aba.id}
+                id={`${idBase}-tab-${aba.id}`}
+                className={`mg-tab-pill ${abaAtiva === aba.id ? 'active' : ''}`}
+                role="tab"
+                aria-selected={abaAtiva === aba.id}
+                aria-controls={`${idBase}-panel-${aba.id}`}
+                disabled={aba.desabilitada}
+                onClick={() => !aba.desabilitada && aoMudarAba(aba.id)}
+              >
+                {aba.rotulo}
+              </button>
+            )
+            return (aba.tooltipTitulo || aba.tooltipDescricao) ? (
+              <TooltipGlobal key={aba.id} titulo={aba.tooltipTitulo} descricao={aba.tooltipDescricao}>
+                {btn}
+              </TooltipGlobal>
+            ) : btn
+          })}
+        </div>
+      ) : (
+        abas.map((aba) => {
+          const btn = (
             <button
               key={aba.id}
               id={`${idBase}-tab-${aba.id}`}
-              className={`mg-tab-pill ${abaAtiva === aba.id ? 'active' : ''}`}
+              className={`tab-underline ${abaAtiva === aba.id ? 'active' : ''}`}
               role="tab"
               aria-selected={abaAtiva === aba.id}
               aria-controls={`${idBase}-panel-${aba.id}`}
@@ -53,23 +78,13 @@ function NavegacaoAbas({
             >
               {aba.rotulo}
             </button>
-          ))}
-        </div>
-      ) : (
-        abas.map((aba) => (
-          <button
-            key={aba.id}
-            id={`${idBase}-tab-${aba.id}`}
-            className={`tab-underline ${abaAtiva === aba.id ? 'active' : ''}`}
-            role="tab"
-            aria-selected={abaAtiva === aba.id}
-            aria-controls={`${idBase}-panel-${aba.id}`}
-            disabled={aba.desabilitada}
-            onClick={() => !aba.desabilitada && aoMudarAba(aba.id)}
-          >
-            {aba.rotulo}
-          </button>
-        ))
+          )
+          return (aba.tooltipTitulo || aba.tooltipDescricao) ? (
+            <TooltipGlobal key={aba.id} titulo={aba.tooltipTitulo} descricao={aba.tooltipDescricao}>
+              {btn}
+            </TooltipGlobal>
+          ) : btn
+        })
       )}
     </nav>
   )

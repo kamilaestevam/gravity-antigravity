@@ -36,6 +36,25 @@ export function UsuarioGlobal({
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
+  // ── Inteligência de Identidade ──────────────────────────────────────────
+  // Centralizamos aqui quem é Super Admin da plataforma Gravity
+  const SUPER_ADMIN_EMAILS = ['dmmltda@gmail.com', 'admin@gravity.com.br']
+  const isSuperAdminUser = SUPER_ADMIN_EMAILS.includes(userEmail)
+  
+  // O papel exibido e o acesso administrativo são calculados aqui
+  const displayRole = isSuperAdminUser ? 'Super Admin' : userRole
+  const hasAdminPrivileges = isSuperAdminUser || isAdmin
+
+  // Estilos específicos para Super Admin (Verde Platinum)
+  // Caso contrário, mantemos os estilos padrão (Master/Violet/Muted)
+  const roleTextStyles: React.CSSProperties = isSuperAdminUser 
+    ? { color: '#22c55e', fontWeight: 700 } 
+    : {}
+
+  const badgeStyles: React.CSSProperties = isSuperAdminUser
+    ? { color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.15)' }
+    : {}
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
@@ -55,10 +74,10 @@ export function UsuarioGlobal({
           onClick={() => setIsProfileOpen(v => !v)}
           aria-expanded={isProfileOpen}
         >
-          <div className="ws-global-user__avatar">{userInitials}</div>
+          <div className="ws-global-user__avatar" style={isSuperAdminUser ? { borderColor: 'rgba(34, 197, 94, 0.3)', color: '#22c55e', background: 'rgba(34, 197, 94, 0.08)' } : {}}>{userInitials}</div>
           <div className="ws-global-user__info">
             <span className="ws-global-user__name">{userName}</span>
-            <span className="ws-global-user__role">{userRole}</span>
+            <span className="ws-global-user__role" style={roleTextStyles}>{displayRole}</span>
           </div>
           <CaretDown weight="bold" size={14} className="ws-global-caret" />
         </button>
@@ -67,11 +86,11 @@ export function UsuarioGlobal({
       {isProfileOpen && (
         <div className="ws-profile-dropdown">
           <div className="ws-profile-header">
-            <div className="ws-profile-avatar-lg">{userInitials}</div>
+            <div className="ws-profile-avatar-lg" style={isSuperAdminUser ? { borderColor: 'rgba(34, 197, 94, 0.3)', color: '#22c55e', background: 'rgba(34, 197, 94, 0.08)' } : {}}>{userInitials}</div>
             <div className="ws-profile-details">
               <span className="ws-profile-name" title={userName}>{userName}</span>
               <span className="ws-profile-email" title={userEmail}>{userEmail}</span>
-              <span className="ws-profile-badge">{userRole}</span>
+              <span className="ws-profile-badge" style={badgeStyles}>{displayRole}</span>
             </div>
           </div>
 
@@ -101,7 +120,7 @@ export function UsuarioGlobal({
           <div className="ws-profile-section">
             {!isAdminPanel && (
               <>
-                {userRole !== 'Master' ? (
+                {displayRole !== 'Master' && !isSuperAdminUser ? (
                   <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar a organização.">
                     <button 
                       className="ws-profile-item disabled-item" 
@@ -124,7 +143,7 @@ export function UsuarioGlobal({
                   </button>
                 )}
 
-                {userRole !== 'Master' ? (
+                {displayRole !== 'Master' && !isSuperAdminUser ? (
                   <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar assinaturas.">
                     <button 
                       className="ws-profile-item disabled-item" 
@@ -150,7 +169,7 @@ export function UsuarioGlobal({
               </>
             )}
 
-            {isAdmin && !isAdminPanel && (
+            {hasAdminPrivileges && !isAdminPanel && (
               <button 
                 className="ws-profile-item ws-profile-item--admin" 
                 type="button"
@@ -164,7 +183,7 @@ export function UsuarioGlobal({
               </button>
             )}
 
-            {isAdmin && isAdminPanel && (
+            {hasAdminPrivileges && isAdminPanel && (
               <button 
                 className="ws-profile-item ws-profile-item--configurador" 
                 type="button"

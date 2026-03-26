@@ -1,32 +1,31 @@
 # Documentação Visual — BotaoNovoAdminGlobal
 
-Referência de criação exclusiva para o ambiente administrativo (**Verde Emerald #10b981**).
+Referência definitiva e literal para o botão de ação principal do Painel de Administração Gravity, baseada fisicamente na `div.bng-admin-wrapper` herdando do `BotaoGlobal`. As imagens abaixos são relatórios exatos do DOM.
 
-## 1. Folha de Especificação Técnica de UX
-Definição visual do estado Padrão e Ativo no Verde Emerald Gravity.
+## 1. Folha Técnica: Estados Reais
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+Abaixo estão as variantes deste escopo. Ele não implementa CSS reativo customizado extenso, apenas sobrescreve a variável de escopo `--color-primary` para se moldar ao `BotaoGlobal`.
+
+![Estados Admin](./real-preview-estados.png)
+
+## 2. Blueprint: Layout de Composição
+
+O Layout comprova que, com a adoção do `bng-admin-wrapper` como base em vez de um botão cru, as dimensões físicas como "42px" e o espaçamento da elipse de "10px" permanecem intactas (herdadas de forma modular).
+
+![Blueprint Layout](./real-preview-layout.png)
 
 ---
 
-## 2. Especificação de Composição
-Blueprint técnico com medidas do botão admin e do seu badge circular.
+## 3. Composição de Ancoragem Global (Contexto)
 
-![Especificação de Composição](./preview-layout.png)
+Na interface Desktop / Gravity Shell, o Botão de Administração Novo localiza-se estritamente no topo direito da tabela-alvo, alinhado à sua margem direita.
 
----
+![Composição de Contexto](./real-preview-contexto.png)
 
-## 3. Composição de Ancoragem Global
-Blueprint de posicionamento estratégico no Painel Admin (HQ).
-
-![Composição de Ancoragem Global](./preview-contexto.png)
-
-| Regra de Ancoragem | Referência Técnica |
+| Medida Relevante | Verificação Técnica no CSS (Real) |
 | :--- | :--- |
-| **Referência Vertical (Y)** | Alinhado à base inferior dos StatCards de topo. |
-| **Referência Horizontal (X)** | Ponto extremo à direita (Margem Lateral de 24px). |
-| **Espaçamento Relacional** | Manter **16px** (p-4) de distância do topo da Tabela. |
-| **Relacional (Cards)** | O botão serve como limite visual final da seção de status. |
+| **Alinhamento Direita** | Limite absoluto direito ancorado junto com o painel tabular principal. |
+| **Abertura Vertical** | 16px (`mt-4`) de distância limpa para a caixa da Tabela, permitindo respiração visual. |
 
 ---
 
@@ -35,13 +34,9 @@ Blueprint de posicionamento estratégico no Painel Admin (HQ).
 ```tsx
 import { BotaoNovoAdminGlobal } from '@nucleo/botoes/botao-novo-admin-global'
 
-<CabecalhoGlobal
-  titulo="Gestão de Instâncias"
-  acoes={
-    <BotaoNovoAdminGlobal 
-      rotulo="Nova Instância" 
-      onClick={() => setAbrirModal(true)} 
-    />
-  }
+<BotaoNovoAdminGlobal
+  rotulo="Nova Categoria"
+  ativo={false}
+  onClick={() => console.log('Novo')}
 />
 ```

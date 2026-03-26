@@ -212,97 +212,62 @@ export function CalendarioCampoGlobal({
           <TooltipGlobal titulo={textoDisplay} descricao="">
             <div 
               onClick={() => { if (!disabled) { calcularPosicao(); setIsOpen(v => !v) } }}
-              style={{ 
-                display: 'flex', alignItems: 'center', gap: '8px', 
-                background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', 
-                padding: '0.4375rem 0.75rem', borderRadius: '6px',
-                cursor: disabled ? 'not-allowed' : 'pointer', overflow: 'hidden' 
-              }}
+              className={`sg-campo ${isOpen ? 'sg-campo--aberto' : ''} ${disabled ? 'sg-campo--desabilitado' : ''}`}
             >
-              <CalendarBlank size={16} style={{ color: 'var(--ws-muted)', flexShrink: 0, position: 'static' }} />
+              <span className="sg-icone-esquerda" aria-hidden="true">
+                <CalendarBlank size={16} />
+              </span>
               
-              <input
-                type="text"
-                readOnly
-                value={textoDisplay || ''}
-                placeholder={placeholder}
-                style={{ 
-                  flex: 1, 
-                  color: 'var(--ws-text)', 
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  fontFamily: 'var(--font)',
-                  fontSize: '12px',
-                  fontWeight: 400,
-                  letterSpacing: 'normal',
-                  padding: 0,
-                  margin: 0,
-                  cursor: disabled ? 'not-allowed' : 'pointer',
-                  textOverflow: 'ellipsis',
-                  minWidth: 0
-                }}
-              />
+              <div className="sg-valor">
+                <span className="sg-valor-selecionado">{textoDisplay}</span>
+              </div>
 
-              {!disabled ? (
-                <button
-                  title="Limpar"
-                  className="ws-clear-btn"
-                  onClick={e => {
-                    e.stopPropagation()
-                    setInicio(null)
-                    setFim(null)
-                    aoMudarValor?.({ inicio: null, fim: null })
-                  }}
-                  style={{
-                    background: 'transparent', border: 'none', cursor: 'pointer',
-                    color: 'var(--ws-muted)', display: 'flex', alignItems: 'center',
-                    flexShrink: 0
-                  }}
-                >
-                  <X size={14} weight="bold" style={{ position: 'relative', left: 'auto', pointerEvents: 'auto' }} />
-                </button>
-              ) : (
-                <CaretDown size={14} weight="bold" style={{ color: 'var(--ws-muted)', position: 'relative', left: 'auto', flexShrink: 0 }} />
-              )}
+              <div className="sg-acoes">
+                {!disabled ? (
+                  <button
+                    title="Limpar"
+                    className="sg-btn-limpar"
+                    type="button"
+                    onClick={e => {
+                      e.stopPropagation()
+                      setInicio(null)
+                      setFim(null)
+                      aoMudarValor?.({ inicio: null, fim: null })
+                    }}
+                    aria-label="Limpar seleção"
+                    tabIndex={-1}
+                  >
+                    ✕
+                  </button>
+                ) : null}
+                <span className={`sg-chevron ${isOpen ? 'sg-chevron--aberto' : ''}`} aria-hidden="true">
+                  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </span>
+              </div>
             </div>
           </TooltipGlobal>
         ) : (
           <div 
             onClick={() => { if (!disabled) { calcularPosicao(); setIsOpen(v => !v) } }}
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '8px', 
-              background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.15)', 
-              padding: '0.4375rem 0.75rem', borderRadius: '6px',
-              cursor: disabled ? 'not-allowed' : 'pointer', overflow: 'hidden' 
-            }}
+            className={`sg-campo ${isOpen ? 'sg-campo--aberto' : ''} ${disabled ? 'sg-campo--desabilitado' : ''}`}
           >
-            <CalendarBlank size={16} style={{ color: 'var(--ws-muted)', flexShrink: 0, position: 'static' }} />
+            <span className="sg-icone-esquerda" aria-hidden="true">
+              <CalendarBlank size={16} />
+            </span>
             
-            <input
-              type="text"
-              readOnly
-              value={''}
-              placeholder={placeholder}
-              style={{ 
-                flex: 1, 
-                color: 'var(--ws-muted)', 
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                fontFamily: 'var(--font)',
-                fontSize: '12px',
-                fontWeight: 400,
-                letterSpacing: 'normal',
-                padding: 0,
-                margin: 0,
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                textOverflow: 'ellipsis',
-                minWidth: 0
-              }}
-            />
+            <div className="sg-valor">
+              <span className="sg-placeholder">{placeholder}</span>
+            </div>
 
-            <CaretDown size={14} weight="bold" style={{ color: 'var(--ws-muted)', position: 'relative', left: 'auto', flexShrink: 0 }} />
+            <div className="sg-acoes">
+              <span className={`sg-chevron ${isOpen ? 'sg-chevron--aberto' : ''}`} aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </span>
+            </div>
           </div>
         )}
 

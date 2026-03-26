@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus } from '@phosphor-icons/react'
+import { ModalExclusao } from '../workspace/ModalExclusao'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -41,7 +42,7 @@ const getStatusColor = (status: StatusGlobal) => {
     case 'Ativo': return { cor: '#34d399', bg: 'rgba(52,211,153,0.12)' }
     case 'Em Breve': return { cor: '#818cf8', bg: 'rgba(129,140,248,0.12)' }
     case 'Legado': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
-    case 'Suspenso': return { cor: '#fbbf24', bg: 'rgba(251,191,36,0.12)' }
+    case 'Suspenso': return { cor: '#f87171', bg: 'rgba(248,113,113,0.12)' }
     default: return { cor: '#64748b', bg: 'rgba(100,116,139,0.12)' }
   }
 }
@@ -138,6 +139,7 @@ export function ProdutosAdmin() {
   const [tab, setTab] = useState<'catalogo' | 'negociacoes'>('catalogo')
   const [modalAberto, setModalAberto] = useState(false)
   const [produtoEditando, setProdutoEditando] = useState<ProdutoCatalogo | null>(null)
+  const [produtoParaExcluir, setProdutoParaExcluir] = useState<ProdutoCatalogo | null>(null)
   const [formDirty, setFormDirty] = useState(false)
 
   // 01. Dados Básicos
@@ -331,16 +333,11 @@ export function ProdutosAdmin() {
       id: 'excluir',
       icone: <Tag size={15} weight="bold" />,
       tooltip: 'Excluir Produto',
-      onClick: (item) => {
-        if (confirm(`Deseja realmente remover ${item.nome} do catálogo?`)) {
-          catalogService.deleteProduto(item.id)
-          carregarDados()
-        }
-      },
+      onClick: (item) => setProdutoParaExcluir(item),
       renderCustom: (item) => (
         <button
           type="button"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (confirm(`Deseja realmente remover ${item.nome} do catálogo?`)) { catalogService.deleteProduto(item.id); carregarDados(); } }}
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setProdutoParaExcluir(item) }}
           title="Excluir produto"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
           onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(239,68,68,0.12)'; ev.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; ev.currentTarget.style.color = '#ef4444' }}
@@ -383,6 +380,7 @@ export function ProdutosAdmin() {
   ]
 
   return (
+    <>
     <PaginaGlobal
       className="ws-fade-up"
       layout="lista"
@@ -562,10 +560,22 @@ export function ProdutosAdmin() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <GeralCampoGlobal label="Data de Lançamento">
-                    <div className="ws-input-icon-wrap">
-                      <CalendarBlank size={16} />
-                      <input type="date" style={{ width: '100%' }} value={formDataLancamento} onChange={e => dirty(() => setFormDataLancamento(e.target.value))} />
-                    </div>
+                    <CalendarioCampoGlobal
+                      valor={{
+                        inicio: formDataLancamento ? new Date(formDataLancamento + 'T00:00:00') : null,
+                        fim: formDataLancamento ? new Date(formDataLancamento + 'T00:00:00') : null,
+                      }}
+                      aoMudarValor={(v: { inicio: Date | null; fim: Date | null }) => {
+                        const d = v.inicio
+                        if (d) {
+                          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+                          dirty(() => setFormDataLancamento(iso))
+                        } else {
+                          dirty(() => setFormDataLancamento(''))
+                        }
+                      }}
+                      placeholder="Selecione a data..."
+                    />
                   </GeralCampoGlobal>
 
                   <GeralCampoGlobal label="Status">
@@ -905,5 +915,21 @@ export function ProdutosAdmin() {
         ]}
       />
     </PaginaGlobal>
+
+    <ModalExclusao
+      aberto={!!produtoParaExcluir}
+      titulo="Excluir Produto do Catálogo"
+      descricao={<>Tem certeza de que deseja remover <strong>{produtoParaExcluir?.nome}</strong> do catálogo de produtos?</>}
+      nomeItem="Esta ação é irreversível. Todos os vínculos com organizações e negociações especiais serão removidos."
+      aoConfirmar={() => {
+        if (produtoParaExcluir) {
+          catalogService.deleteProduto(produtoParaExcluir.id)
+          carregarDados()
+          setProdutoParaExcluir(null)
+        }
+      }}
+      aoCancelar={() => setProdutoParaExcluir(null)}
+    />
+    </>
   )
 }

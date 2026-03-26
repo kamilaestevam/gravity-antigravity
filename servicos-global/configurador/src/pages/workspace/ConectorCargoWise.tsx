@@ -25,7 +25,8 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { StatCardGlobal } from '@nucleo/stat-card-global'
+import { StatCardGlobal } from '@nucleo/card-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 
 /* ─── eAdaptor XML sample ───────────────────────────────────────── */
 const XML_EADAPTOR = `<?xml version="1.0" encoding="UTF-8"?>
@@ -155,6 +156,7 @@ export function ConectorCargoWise() {
   const [password, setPassword] = useState('')
   const [enterpriseCode, setEnterpriseCode] = useState('')
   const [staffCode, setStaffCode] = useState('')
+  const [timeout, setTimeout_] = useState('30000')
 
   function handleCopyXML() {
     navigator.clipboard.writeText(XML_EADAPTOR).then(() => {
@@ -354,11 +356,16 @@ export function ConectorCargoWise() {
             </div>
             <div className="ws-field">
               <label>Timeout da Requisição (ms)</label>
-              <select defaultValue="30000">
-                <option value="15000">15 000 ms (Rápido)</option>
-                <option value="30000">30 000 ms (Padrão)</option>
-                <option value="60000">60 000 ms (Lento / Payloads grandes)</option>
-              </select>
+              <SelectGlobal
+                opcoes={[
+                  { valor: '15000', rotulo: '15 000 ms (Rápido)' },
+                  { valor: '30000', rotulo: '30 000 ms (Padrão)' },
+                  { valor: '60000', rotulo: '60 000 ms (Lento / Payloads grandes)' },
+                ]}
+                valor={timeout}
+                aoMudarValor={(v) => setTimeout_(String(v ?? '30000'))}
+                placeholder="Selecione..."
+              />
             </div>
           </div>
 

@@ -27,7 +27,7 @@ import {
   Robot,
   Truck,
 } from '@phosphor-icons/react'
-import { LocalizarCampoGlobal } from '@nucleo/campo-localizar-global'
+import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import GabiChat from '@tenant/gabi/src/Gabi'
@@ -55,12 +55,11 @@ export function WorkspaceLayout() {
   const tenantPlan = 'Profissional'
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userRole = 'Master'
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
 
   const { signOut } = useClerk()
 
-  // Handle frontend search filtering e estado foi movido para o componente LocalizarCampoGlobal
+  // Handle frontend search filtering e estado foi movido para o componente LocalizarExpandidoCampoGlobal
   
   useEffect(() => {
     if (isLight) {
@@ -86,7 +85,7 @@ export function WorkspaceLayout() {
       <div className="ws-main">
         {/* ── Global Actions (Floating over content, no bar) ── */}
         <div className="ws-global-actions">
-          <LocalizarCampoGlobal 
+          <LocalizarExpandidoCampoGlobal 
             onBuscarNavigate={(term) => {
               const termLower = term.toLowerCase()
               const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
@@ -104,13 +103,13 @@ export function WorkspaceLayout() {
             userName={userName}
             userEmail={userEmail}
             userInitials={userInitials}
-            userRole={userRole}
+            userRole="Master"
             isLight={isLight}
             onToggleTheme={toggleTheme}
             onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
             onNavigateAssinaturas={() => navigate('/workspace/assinaturas')}
             onSignOut={() => signOut()}
-            isAdmin={userEmail === 'dmmltda@gmail.com' || userEmail === 'admin@gravity.com.br' || userRole === 'Master'}
+            isAdmin={false} // UsuarioGlobal resolverá privilégios de Super Admin via e-mail
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
           />
         </div>

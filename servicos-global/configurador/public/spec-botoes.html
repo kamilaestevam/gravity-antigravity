@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* BASE TOKENS & BOTAO GLOBAL CSS */
+        :root {
+            --color-primary: #6366f1; --color-primary-hover: #4f46e5;
+            --color-text: #f1f5f9; --color-text-muted: #94a3b8;
+            --color-surface: rgba(255, 255, 255, 0.1); --color-surface-2: rgba(255, 255, 255, 0.06);
+            --color-border: rgba(255, 255, 255, 0.12); --color-warning: #f59e0b;
+            --font: 'Inter', sans-serif;
+        }
+
+        body { background: #0f172a; color: #f1f5f9; padding: 40px; font-family: 'Inter', sans-serif; margin: 0; }
+        svg.ph { width: 14px; height: 14px; fill: currentColor; }
+        
+        /* BOTAO GLOBAL */
+        .gb-btn { display: inline-flex; align-items: center; gap: 0.625rem; padding: 0.5rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; line-height: 1; white-space: nowrap; cursor: pointer; border: 1px solid transparent; font-family: var(--font); transition: all 0.18s ease; text-decoration: none; position: relative; }
+        .gb-btn--com-icone { padding-left: 0.3125rem; }
+        .gb-btn__icon-badge { display: inline-flex; align-items: center; justify-content: center; width: 1.625rem; height: 1.625rem; border-radius: 50%; flex-shrink: 0; background: rgba(255, 255, 255, 0.15); color: #ffffff;}
+        .gb-btn--primario { background: var(--color-primary); color: #ffffff; box-shadow: 0 1px 3px rgba(99, 102, 241, 0.25); }
+        .gb-btn--fantasma { background: transparent; color: var(--color-text-muted); border-color: transparent; }
+        .gb-btn--fantasma .gb-btn__icon-badge { background: rgba(255, 255, 255, 0.06); color: inherit; }
+        .gb-btn:disabled { opacity: 0.4; pointer-events: none; }
+
+        /* BOTAO NOVO ADMIN */
+        .bng-admin-wrapper { display: inline-flex; --color-primary: #10b981; --color-primary-hover: #059669; }
+        .bng-admin-wrapper .gb-btn--primario .gb-btn__icon-badge { background: rgba(255, 255, 255, 0.2) !important; }
+
+        /* BOTOES SALVAR */
+        .bs-barra { display: flex; align-items: center; gap: 0.625rem; margin-top: 1.25rem; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bs-barra--direita { justify-content: flex-end; }
+        .bs-barra--dirty { opacity: 1; visibility: visible; transform: translateY(0); }
+        .bs-hint { flex: 1; font-size: 0.8125rem; color: #64748b; font-family: var(--font); display: flex; align-items: center; gap: 0.375rem; opacity: 1; }
+        .bs-hint__dot { width: 6px; height: 6px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; }
+        .bs-btn-pulse { position: relative; display: inline-flex; border-radius: 9999px; }
+
+        /* DOCUMENTATION STYLES */
+        .view { display: none; }
+        .sheet-title { font-size: 24px; font-weight: 800; border-bottom: 2px solid #1e293b; padding-bottom: 10px; margin-bottom: 30px; }
+        .card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 30px; margin-bottom: 30px;}
+        .annot-red { position: absolute; background: #ef4444; }
+        .annot-label { position: absolute; color: #ef4444; font-family: monospace; font-size: 13px; font-weight: 600; white-space: nowrap;}
+        .grid-bg { position: relative; padding: 80px; border: 1px solid #334155; background-image: linear-gradient(#1e293b 1px, transparent 1px), linear-gradient(90deg, #1e293b 1px, transparent 1px); background-size: 20px 20px; }
+    </style>
+    <script>
+        function showView() {
+            document.querySelectorAll('.view').forEach(e => e.style.display = 'none');
+            const hash = window.location.hash.substring(1) || 'admin-estados';
+            const el = document.getElementById(hash);
+            if(el) el.style.display = 'block';
+        }
+        window.addEventListener('hashchange', showView);
+        window.onload = showView;
+    </script>
+</head>
+<body>
+
+<!-- ========================================== -->
+<!-- BotaoNovoAdminGlobal                       -->
+<!-- ========================================== -->
+
+<div id="admin-estados" class="view">
+    <h1 class="sheet-title">FOLHA TÉCNICA: BotaoNovoAdminGlobal</h1>
+    <div class="card">
+        <h3 style="color:#94a3b8; font-size:12px; letter-spacing:1px; text-transform:uppercase;">Inativo (Padrão Verde)</h3>
+        <div style="padding: 20px 0;">
+            <div class="bng-admin-wrapper">
+                <button class="gb-btn gb-btn--primario gb-btn--com-icone" style="background: #10b981; border-color: #059669; color: #fff;">
+                    <span class="gb-btn__icon-badge"> <svg class="ph" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg> </span>
+                    Nova Categoria
+                </button>
+            </div>
+        </div>
+        <div style="font-family:monospace; color:#818cf8; font-size:13px;">O CSS força --color-primary para #10b981 dentro do wrapper.</div>
+    </div>
+    <div class="card">
+        <h3 style="color:#94a3b8; font-size:12px; letter-spacing:1px; text-transform:uppercase;">Ativo (Cancelamento)</h3>
+        <div style="padding: 20px 0;">
+            <div class="bng-admin-wrapper">
+                <button class="gb-btn gb-btn--fantasma gb-btn--com-icone">
+                    <span class="gb-btn__icon-badge"> <svg class="ph" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66a8,8,0,0,1,11.32-11.32L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg> </span>
+                    Cancelar
+                </button>
+            </div>
+        </div>
+        <div style="font-family:monospace; color:#818cf8; font-size:13px;">Reverte para variante "Fantasma" herdada do Gravity, mudando o ícone para X.</div>
+    </div>
+</div>
+
+<div id="admin-layout" class="view">
+    <h1 class="sheet-title">COMPOSIÇÃO: BotaoNovoAdminGlobal</h1>
+    <div class="grid-bg">
+        <div style="position:relative; display:inline-flex; border: 1px dashed #ef4444;">
+            <div class="bng-admin-wrapper">
+                <button class="gb-btn gb-btn--primario gb-btn--com-icone" style="background: #10b981; border-color: #059669; color: #fff;">
+                    <span class="gb-btn__icon-badge"> <svg class="ph" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg> </span>
+                    Nova Categoria
+                </button>
+            </div>
+            
+            <!-- Medidas -->
+            <div class="annot-red" style="width:1px; height:42px; right:-20px; top:0;"></div>
+            <div class="annot-label" style="top:12px; right:-65px;">42px</div>
+
+            <div class="annot-red" style="width:10px; height:1px; left:31px; top:-10px;"></div>
+            <div class="annot-label" style="top:-30px; left:20px;">Gap 10px</div>
+        </div>
+    </div>
+</div>
+
+<div id="admin-contexto" class="view">
+    <h1 class="sheet-title">CONTEXTUAL: BotaoNovoAdminGlobal</h1>
+    <div style="background:#1e293b; width: 800px; height: 300px; position:relative; padding:24px; border-radius:8px;">
+        <!-- Header admin ficticio -->
+        <h2 style="margin:0 0 32px 0; border-bottom:1px solid #334155; padding-bottom:16px;">Configurações Administrativas</h2>
+        
+        <div style="display:flex; justify-content: space-between; align-items:flex-end;">
+            <div style="font-weight:600; color:#cbd5e1;">Lista de Categorias</div>
+            <div class="bng-admin-wrapper" style="position:relative;">
+                <button class="gb-btn gb-btn--primario gb-btn--com-icone" style="background: #10b981; border-color: #059669; color: #fff;">
+                    <span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg></span>
+                    Novo Cadastro
+                </button>
+
+                <!-- Annotation alinhamento à direita -->
+                <div class="annot-red" style="width:1px; height:40px; right:0; bottom:-40px;"></div>
+                <div class="annot-label" style="bottom:-60px; right:-10px;">Alinhado Extremidade Direita da Tabela</div>
+            </div>
+        </div>
+        
+        <!-- Fake Tabela -->
+        <div style="margin-top:16px; border:1px solid #334155; height:100px; border-radius:8px; background:rgba(0,0,0,0.2); position:relative;">
+            <!-- Annotation distance -->
+            <div class="annot-red" style="width:1px; height:16px; right:100px; top:-16px;"></div>
+            <div class="annot-label" style="top:-25px; right:110px;">16px</div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- BotoesSalvarGlobal                         -->
+<!-- ========================================== -->
+
+<div id="salvar-estados" class="view">
+    <h1 class="sheet-title">FOLHA TÉCNICA: BotoesSalvarGlobal</h1>
+    <div class="card">
+        <h3 style="color:#94a3b8; font-size:12px; letter-spacing:1px; text-transform:uppercase;">Visível (dirty=true, align=direita)</h3>
+        <div style="padding: 20px 0;">
+            <div class="bs-barra bs-barra--direita bs-barra--dirty">
+                <span class="bs-hint"><span class="bs-hint__dot"></span> Alterações não salvas</span>
+                <button class="gb-btn gb-btn--fantasma gb-btn--com-icone"><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66a8,8,0,0,1,11.32-11.32L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg></span>Cancelar</button>
+                <div class="bs-btn-pulse">
+                    <button class="gb-btn gb-btn--primario gb-btn--com-icone"><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M208,40H48A16,16,0,0,0,32,56V200a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM152,56V88H104V56ZM88,200V152H168v48ZM208,200H184V144a8,8,0,0,0-8-8H80a8,8,0,0,0-8,8v56H48V56H88V96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V56h40Z"></path></svg></span>Salvar</button>
+                </div>
+            </div>
+        </div>
+        <div style="font-family:monospace; color:#818cf8; font-size:13px;">Container com opacidade 1, translate(0) e botão primário com animação bs-btn-pulse.</div>
+    </div>
+    <div class="card">
+        <h3 style="color:#94a3b8; font-size:12px; letter-spacing:1px; text-transform:uppercase;">Oculto / Desabilitado (dirty=false)</h3>
+        <div style="padding: 20px 0; border: 1px dashed rgba(255,255,255,0.1); position:relative; overflow:hidden; height:50px;">
+            <div class="bs-barra bs-barra--direita" style="opacity:0.3; transform:none; visibility:visible;">
+                 <span class="bs-hint" style="opacity:0;"><span class="bs-hint__dot"></span> Alterações não salvas</span>
+                 <button class="gb-btn gb-btn--fantasma gb-btn--com-icone" disabled><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66a8,8,0,0,1,11.32-11.32L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg></span>Cancelar</button>
+                 <button class="gb-btn gb-btn--primario gb-btn--com-icone" disabled><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M208,40H48A16,16,0,0,0,32,56V200a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM152,56V88H104V56ZM88,200V152H168v48ZM208,200H184V144a8,8,0,0,0-8-8H80a8,8,0,0,0-8,8v56H48V56H88V96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V56h40Z"></path></svg></span>Salvar</button>
+            </div>
+            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.6); font-weight:bold;">O container some com translateY(10px) e opacity 0 real</div>
+        </div>
+    </div>
+</div>
+
+<div id="salvar-layout" class="view">
+    <h1 class="sheet-title">COMPOSIÇÃO: BotoesSalvarGlobal</h1>
+    <div class="grid-bg">
+        <div style="position:relative; width: 600px; display:inline-block;">
+             <div class="bs-barra bs-barra--direita bs-barra--dirty" style="border: 1px dashed #ef4444; padding:0;">
+                <span class="bs-hint"><span class="bs-hint__dot"></span> Alterações não salvas</span>
+                
+                <div style="position:relative;">
+                    <button class="gb-btn gb-btn--fantasma gb-btn--com-icone"><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66a8,8,0,0,1,11.32-11.32L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg></span>Cancelar</button>
+                </div>
+
+                <div class="bs-btn-pulse">
+                    <button class="gb-btn gb-btn--primario gb-btn--com-icone"><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M208,40H48A16,16,0,0,0,32,56V200a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM152,56V88H104V56ZM88,200V152H168v48ZM208,200H184V144a8,8,0,0,0-8-8H80a8,8,0,0,0-8,8v56H48V56H88V96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V56h40Z"></path></svg></span>Salvar</button>
+                </div>
+            </div>
+            
+            <!-- Annotations -->
+            <div class="annot-red" style="width:1px; height:20px; right:0; top:-20px;"></div>
+            <div class="annot-red" style="width:600px; height:1px; right:0; top:-20px;"></div>
+            <div class="annot-red" style="width:1px; height:20px; left:0; top:-20px;"></div>
+            <div class="annot-label" style="top:-40px; left:250px;">Largura Flex do Layout (Direita)</div>
+
+            <div class="annot-red" style="width:10px; height:1px; right:110px; top:45px;"></div>
+            <div class="annot-label" style="top:50px; right:70px;">Gap 10px</div>
+            
+            <div class="annot-red" style="width:1px; height:20px; left:0; bottom:-5px;"></div>
+            <div class="annot-label" style="bottom:-25px; left:0;">Dot Laranja Pulsante (flex: 1 para crescer)</div>
+        </div>
+    </div>
+</div>
+
+<div id="salvar-contexto" class="view">
+    <h1 class="sheet-title">CONTEXTUAL: BotoesSalvarGlobal</h1>
+    <div style="background:#1e293b; width: 800px; height: 350px; position:relative; padding:24px; border-radius:8px;">
+        <!-- Body dummy -->
+        <h2 style="margin:0 0 16px 0;">Editar Configurações</h2>
+        
+        <div style="border: 1px solid #334155; height: 120px; border-radius: 8px; padding: 16px;">
+            Input Area ...
+        </div>
+
+        <div style="position:relative;">
+            <!-- O container real tem margin-top: 1.25rem (20px) -->
+            <div class="bs-barra bs-barra--direita bs-barra--dirty">
+                <span class="bs-hint"><span class="bs-hint__dot"></span> Alterações não salvas</span>
+                <button class="gb-btn gb-btn--fantasma gb-btn--com-icone"><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66a8,8,0,0,1,11.32-11.32L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg></span>Cancelar</button>
+                <div class="bs-btn-pulse">
+                    <button class="gb-btn gb-btn--primario gb-btn--com-icone"><span class="gb-btn__icon-badge"><svg class="ph" viewBox="0 0 256 256"><path d="M208,40H48A16,16,0,0,0,32,56V200a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40ZM152,56V88H104V56ZM88,200V152H168v48ZM208,200H184V144a8,8,0,0,0-8-8H80a8,8,0,0,0-8,8v56H48V56H88V96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V56h40Z"></path></svg></span>Salvar</button>
+                </div>
+            </div>
+            
+            <!-- Annotations context -->
+            <div class="annot-red" style="width:1px; height:20px; right:200px; top:-20px;"></div>
+            <div class="annot-label" style="top:-15px; right:210px;">Margem Superior (margin-top: 20px)</div>
+
+            <div class="annot-red" style="width:1px; height:40px; right:0; bottom:-40px;"></div>
+            <div class="annot-label" style="bottom:-30px; right:-120px;">Alinhado Diretório (Direita)</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

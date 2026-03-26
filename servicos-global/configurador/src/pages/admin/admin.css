@@ -23,6 +23,8 @@ body.admin-theme [role="alertdialog"] {
 /* ── Foco de inputs — borda verde apenas no input em si ────────────────── */
 body.admin-theme .ws-field input:focus,
 body.admin-theme .ws-field select:focus,
+body.admin-theme .cg-wrapper input:focus,
+body.admin-theme .cg-wrapper select:focus,
 body.admin-theme .ws-input-icon-wrap input:focus,
 body.admin-theme .ws-input-icon-wrap select:focus {
   border-color: #10b981 !important;

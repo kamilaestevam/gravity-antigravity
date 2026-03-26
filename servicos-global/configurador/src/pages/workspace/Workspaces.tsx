@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash } from '@phosphor-icons/react'
+import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { BotaoNovoGlobal } from '@nucleo/botao-novo-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
@@ -356,11 +355,13 @@ export function Workspaces() {
         </>
       }
       acoes={
-        <BotaoNovoGlobal
-          rotulo="Novo Workspace"
+        <BotaoGlobal
+          variante={showForm && !empresaEditando ? 'fantasma' : 'primario'}
+          icone={showForm && !empresaEditando ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
           onClick={() => { setEmpresaEditando(null); setShowForm(true); }}
-          ativo={showForm && !empresaEditando}
-        />
+        >
+          {showForm && !empresaEditando ? 'Cancelar' : 'Novo Workspace'}
+        </BotaoGlobal>
       }
     >
       <div style={{ position: 'relative', zIndex: 10 }}>

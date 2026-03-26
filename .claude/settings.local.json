@@ -1,8 +1,39 @@
 {
   "permissions": {
     "allow": [
-      "Bash(__NEW_LINE_869702e68f560bf4__ echo:*)",
-      "Read(//c/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/**)"
-    ]
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Bash",
+      "WebFetch",
+      "WebSearch",
+      "Bash(cp login-global/src/LoginGlobal.tsx Login/login-global/src/)",
+      "Bash(cp login-global/src/login-global.css Login/login-global/src/)",
+      "Bash(cp login-global/src/index.ts Login/login-global/src/)",
+      "Bash(cp login-global/package.json Login/login-global/)",
+      "Bash(cp login-global/tsconfig.json Login/login-global/)",
+      "Bash(mv Login/login-global/PREVISAO_VISUAL.md /tmp/_lg_previsao.md)",
+      "Bash(mv Login/login-global/preview-*.png /tmp/)",
+      "Bash(mv Login/login-novo-global/PREVISAO_VISUAL.md /tmp/_lng_previsao.md)",
+      "Bash(mv Login/login-novo-global/preview-*.png /tmp/_lng_)",
+      "Bash(rm -rf Login)",
+      "Bash(mv login-global:*)",
+      "Bash(mv login-novo-global:*)",
+      "Bash(mkdir Login)",
+      "Bash(mkdir -p Login/login-global Login/login-novo-global)",
+      "Bash(cp -r login-global/* Login/login-global/)",
+      "Bash(cp -r login-novo-global/* Login/login-novo-global/)",
+      "Bash(cp -r \"c:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/nucleo-global/Feedback/aviso-interno-global/src/\"* \"c:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/nucleo-global/Mensageria Global/mensageria-global/src/\")",
+      "Bash(cp \"c:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/nucleo-global/Feedback/aviso-interno-global/\"preview-*.png \"c:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/nucleo-global/Mensageria Global/mensageria-global/\")",
+      "Bash(grep -roh @nucleo/[a-z-]* servicos-global/configurador/src/)",
+      "Bash(while read:*)",
+      "Bash(do full=\"servicos-global/configurador/$rel\")",
+      "Bash(test -f \"$full\")",
+      "Bash(done)",
+      "Bash(find 'c:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/nucleo-global' -path */stat-card* -type f)"
+    ],
+    "defaultMode": "bypassPermissions"
   }
 }

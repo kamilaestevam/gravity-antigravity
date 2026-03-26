@@ -11,6 +11,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrganizacao'
 import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalEditarOrganizacao'
@@ -57,24 +58,6 @@ interface Stats {
 const STATUS_LABEL: Record<string, string> = {
   Ativa:    'Ativa',
   Suspensa: 'Suspensa',
-}
-
-function StatusBadge({ v }: { v: string }) {
-  let cor = '#64748b', bg = 'rgba(100,116,139,0.12)'
-  // Fallback para caps se vier do server antigo
-  const isAtivo = v === 'Ativa' || v === 'ATIVA' || v === 'ACTIVE'
-  const isSuspenso = v === 'Suspensa' || v === 'SUSPENSA' || v === 'SUSPENDED'
-
-  if (isAtivo) { cor = '#34d399'; bg = 'rgba(52,211,153,0.12)' }
-  if (isSuspenso) { cor = '#fbbf24'; bg = 'rgba(251,191,36,0.12)' }
-  
-  const label = isAtivo ? 'ATIVA' : isSuspenso ? 'SUSPENSA' : v.toUpperCase()
-  
-  return (
-    <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: bg, color: cor, border: `1px solid ${bg}` }}>
-      {label}
-    </span>
-  )
 }
 
 const API = '/api/admin'
@@ -383,7 +366,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       key: 'status', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Status do Tenant',
       tooltipDescricao: 'Estado operacional no middleware de borda.',
-      render: (v: unknown) => <StatusBadge v={v as string} />
+      render: (v: unknown) => <StatusBadgeGlobal valor={v as string} />
     },
     {
       key: 'id' as any, label: 'Plano / Produtos', tipo: 'texto',
@@ -453,7 +436,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
-      render: (v: unknown) => <StatusBadge v={v as string} />
+      render: (v: unknown) => <StatusBadgeGlobal valor={v as string} />
     },
     {
       key: 'plano', label: 'Plano / Produtos', tipo: 'texto',
@@ -485,12 +468,6 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
   // ── Ações PAI ──────────────────────────────────────────────────────────────
   const ACOES: TabelaGlobalAcao<Tenant>[] = [
     {
-      id: 'inspect',
-      icone: <MagnifyingGlass size={15} weight="bold" />,
-      tooltip: 'Painel de Auditoria',
-      onClick: (item) => navigate({ name: 'tenant-detail', tenantId: item.id }),
-    },
-    {
       id: 'suspend',
       icone: <PauseCircle size={15} weight="bold" />, // icone desktop padrão, renderCustom faz o override
       tooltip: 'Alternar Status',
@@ -512,7 +489,13 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       icone: <PencilSimple size={15} weight="bold" />,
       tooltip: 'Editar Organização',
       onClick: handleEditOrg,
-    }
+    },
+    {
+      id: 'inspect',
+      icone: <MagnifyingGlass size={15} weight="bold" />,
+      tooltip: 'Painel de Auditoria',
+      onClick: (item) => navigate({ name: 'tenant-detail', tenantId: item.id }),
+    },
   ]
 
   // ── Ações FILHAS ───────────────────────────────────────────────────────────

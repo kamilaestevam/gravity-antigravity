@@ -1,0 +1,12 @@
+{
+  "name": "@nucleo/mensageria-global",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@nucleo/campo-select-global": "*",
+    "@nucleo/tooltip-global": "*",
+    "@nucleo/campo-localizar-expandido-global": "*",
+    "@nucleo/campo-calendario-global": "*",
+    "@phosphor-icons/react": "*"
+  }
+}

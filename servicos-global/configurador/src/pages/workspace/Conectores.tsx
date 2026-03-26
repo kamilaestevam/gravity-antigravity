@@ -6,6 +6,7 @@ import {
   CloudArrowUp, CloudCheck, XCircle, Spinner, ArrowSquareOut
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 
 /* ── Types ─────────────────────────────────────────────── */
 type ConectorId = 'sap' | 'onesource' | 'cargowise' | 'bysoft'
@@ -78,6 +79,8 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
   const [depara, setDepara] = useState<DeParaRow[]>(INITIAL_DEPARA)
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
   const [oauthSaved, setOauthSaved] = useState(false)
+  const [ambiente, setAmbiente] = useState('production')
+  const [grantType, setGrantType] = useState('client_credentials')
   const [nextId, setNextId] = useState(6)
 
   function addRow() {
@@ -198,20 +201,30 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
             </div>
             <div className="ws-field">
               <label>Ambiente</label>
-              <select defaultValue="production">
-                <option value="sandbox">Sandbox (Testes)</option>
-                <option value="production">Production</option>
-              </select>
+              <SelectGlobal
+                opcoes={[
+                  { valor: 'sandbox', rotulo: 'Sandbox (Testes)' },
+                  { valor: 'production', rotulo: 'Production' },
+                ]}
+                valor={ambiente}
+                aoMudarValor={(v) => setAmbiente(String(v ?? 'production'))}
+                placeholder="Selecione..."
+              />
             </div>
           </div>
 
           <div className="ws-form-row">
             <div className="ws-field">
               <label>Grant Type</label>
-              <select defaultValue="client_credentials">
-                <option value="client_credentials">Client Credentials</option>
-                <option value="authorization_code">Authorization Code</option>
-              </select>
+              <SelectGlobal
+                opcoes={[
+                  { valor: 'client_credentials', rotulo: 'Client Credentials' },
+                  { valor: 'authorization_code', rotulo: 'Authorization Code' },
+                ]}
+                valor={grantType}
+                aoMudarValor={(v) => setGrantType(String(v ?? 'client_credentials'))}
+                placeholder="Selecione..."
+              />
             </div>
             <div className="ws-field">
               <label>Token Expiry (segundos)</label>
@@ -501,11 +514,16 @@ function SapConfig({ onBack }: { onBack: () => void }) {
           <div className="ws-form-row">
             <div className="ws-field">
               <label>Protocolo de Integração</label>
-              <select defaultValue="odata">
-                <option value="odata">OData v4 (SAP)</option>
-                <option value="rest">REST API Genérica</option>
-                <option value="jdbc">JDBC/ODBC DB</option>
-              </select>
+              <SelectGlobal
+                opcoes={[
+                  { valor: 'odata', rotulo: 'OData v4 (SAP)' },
+                  { valor: 'rest', rotulo: 'REST API Genérica' },
+                  { valor: 'jdbc', rotulo: 'JDBC/ODBC DB' },
+                ]}
+                valor="odata"
+                aoMudarValor={() => {}}
+                placeholder="Selecione..."
+              />
             </div>
             <div className="ws-field">
               <label>Base URL do seu ERP</label>

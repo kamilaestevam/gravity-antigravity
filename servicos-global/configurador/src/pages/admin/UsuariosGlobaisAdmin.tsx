@@ -438,13 +438,16 @@ export function UsuariosGlobaisAdmin() {
           />
         </>
       }
-      acoes={
-        <BotaoGlobal
-          variante="primario"
-          onClick={() => setShowForm(true)}
-        >
-          Convidar Usuário
-        </BotaoGlobal>
+      toolbar={
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', transform: 'translateY(-7px)' }}>
+          <BotaoGlobal
+            variante="primario"
+            onClick={() => setShowForm(true)}
+            icone={<User size={18} />}
+          >
+            Convidar Usuário
+          </BotaoGlobal>
+        </div>
       }
     >
 

@@ -53,12 +53,15 @@ body.light-theme .ws-table thead {
 }
 
 body.light-theme .ws-field input,
-body.light-theme .ws-field select {
+body.light-theme .ws-field select,
+body.light-theme .cg-wrapper input,
+body.light-theme .cg-wrapper select {
   background: var(--ws-surface-2);
   color: var(--ws-text);
 }
 
-body.light-theme .ws-field select option {
+body.light-theme .ws-field select option,
+body.light-theme .cg-wrapper select option {
   background: #ffffff;
   color: #0f172a;
 }
@@ -1453,7 +1456,9 @@ body.light-theme .ws-profile-dropdown {
 }
 
 .ws-field input,
-.ws-field select {
+.ws-field select,
+.cg-wrapper input,
+.cg-wrapper select {
   background: var(--ws-bg-body);
   border: 1px solid var(--ws-accent-border);
   border-radius: 8px;
@@ -1466,7 +1471,9 @@ body.light-theme .ws-profile-dropdown {
 }
 
 .ws-field input:focus,
-.ws-field select:focus {
+.ws-field select:focus,
+.cg-wrapper input:focus,
+.cg-wrapper select:focus {
   border-color: var(--ws-accent);
   box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.12);
 }
@@ -1489,11 +1496,13 @@ body.light-theme .ws-profile-dropdown {
   padding-left: 2.5rem;
 }
 
-.ws-field input::placeholder {
+.ws-field input::placeholder,
+.cg-wrapper input::placeholder {
   color: var(--ws-muted);
 }
 
-.ws-field select option {
+.ws-field select option,
+.cg-wrapper select option {
   background: #1e293b;
   color: #f1f5f9;
 }

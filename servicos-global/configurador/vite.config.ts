@@ -10,26 +10,25 @@ export default defineConfig({
     alias: {
       // ── Botoes ──
       '@nucleo/botao-global': path.resolve(__dirname, '../../nucleo-global/Botoes/botao-global/src/index.ts'),
-      '@nucleo/botao-novo-global': path.resolve(__dirname, '../../nucleo-global/Botoes/botao-novo-global/src/index.ts'),
       '@nucleo/botao-novo-admin-global': path.resolve(__dirname, '../../nucleo-global/Botoes/botao-novo-admin-global/src/index.ts'),
       '@nucleo/botoes-salvar-global': path.resolve(__dirname, '../../nucleo-global/Botoes/botoes-salvar-global/src/index.ts'),
       // ── Campos ──
       '@nucleo/campo-calendario-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-calendario-global/src/index.ts'),
       '@nucleo/campo-geral-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-geral-global/src/index.ts'),
-      '@nucleo/campo-localizar-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-localizar-global/src/index.ts'),
+      '@nucleo/campo-localizar-expandido-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-localizar-expandido-global/src/index.ts'),
       '@nucleo/campo-select-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-select-global/src/index.ts'),
-      '@nucleo/campo-selecao-excluir-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-selecao-excluir-global/src/index.ts'),
-      '@nucleo/campo-workspace-selecao-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-workspace-selecao-global/src/index.ts'),
+      '@nucleo/modal-confirmar-excluir-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'),
+      '@nucleo/modal-workspace-inicial-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-workspace-inicial-global/src/index.ts'),
       // ── Feedback ──
-      '@nucleo/aviso-interno-global': path.resolve(__dirname, '../../nucleo-global/Feedback/aviso-interno-global/src/index.ts'),
+      '@nucleo/mensageria-global': path.resolve(__dirname, '../../nucleo-global/Mensageria Global/mensageria-global/src/index.ts'),
+      '@nucleo/status-badge-global': path.resolve(__dirname, '../../nucleo-global/Feedback/status-badge-global/src/index.ts'),
       '@nucleo/status-salvar-global': path.resolve(__dirname, '../../nucleo-global/Feedback/status-salvar-global/src/index.ts'),
       '@nucleo/tooltip-global': path.resolve(__dirname, '../../nucleo-global/Feedback/tooltip-global/src/index.ts'),
       // ── Layout ──
       '@nucleo/cabecalho-global': path.resolve(__dirname, '../../nucleo-global/Layout/cabecalho-global/src/index.ts'),
-      '@nucleo/card-global': path.resolve(__dirname, '../../nucleo-global/Layout/card-global/src/index.ts'),
       '@nucleo/logo-global': path.resolve(__dirname, '../../nucleo-global/Layout/logo-global/src/index.ts'),
       '@nucleo/pagina-global': path.resolve(__dirname, '../../nucleo-global/Layout/pagina-global/src/index.ts'),
-      '@nucleo/stat-card-global': path.resolve(__dirname, '../../nucleo-global/Layout/stat-card-global/src/index.ts'),
+      '@nucleo/card-global': path.resolve(__dirname, '../../nucleo-global/Layout/card-global/src/index.ts'),
       '@nucleo/usuario-global': path.resolve(__dirname, '../../nucleo-global/Layout/usuario-global/src/index.ts'),
       '@nucleo/menu-lateral-global': path.resolve(__dirname, '../../nucleo-global/Layout/menu-lateral-global/src/index.ts'),
       // ── Modais ──
@@ -43,9 +42,9 @@ export default defineConfig({
       '@nucleo/tabela-camadas-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-camadas-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils': path.resolve(__dirname, '../../nucleo-global/Utilidades/utils/src/index.ts'),
-      // ── Login (raiz) ──
-      '@nucleo/login-novo-global': path.resolve(__dirname, '../../nucleo-global/login-novo-global/src/index.ts'),
-      '@nucleo/login-global': path.resolve(__dirname, '../../nucleo-global/login-global/src/index.ts'),
+      // ── Login ──
+
+      '@nucleo/login-global': path.resolve(__dirname, '../../nucleo-global/Login/login-global/src/index.ts'),
       '@tenant/gabi': path.resolve(
         __dirname,
         '../tenant/gabi'

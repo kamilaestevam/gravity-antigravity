@@ -1,6 +1,6 @@
 
 
-.modal-select-global {
+.modal-campo-select-global {
   background: linear-gradient(135deg, rgba(129, 140, 248, 0.04) 0%, var(--ws-surface) 60%);
   border: 1px solid rgba(129, 140, 248, 0.30);
   border-radius: 12px;
@@ -9,7 +9,7 @@
   overflow: visible;
 }
 
-.modal-select-global__title {
+.modal-campo-select-global__title {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -21,14 +21,14 @@
   gap: 0.5rem;
 }
 
-.modal-select-global__desc {
+.modal-campo-select-global__desc {
   font-size: 0.875rem;
   color: var(--ws-muted);
   margin: -0.25rem 0 1rem;
   line-height: 1.6;
 }
 
-.modal-select-global__row {
+.modal-campo-select-global__row {
   display: flex;
   align-items: flex-end;
   gap: 0.75rem;
@@ -36,16 +36,16 @@
   overflow: visible;
 }
 
-.modal-select-global__field {
+.modal-campo-select-global__field {
   flex: 1;
   overflow: visible;
 }
 
-.modal-select-global__action {
+.modal-campo-select-global__action {
   flex-shrink: 0;
 }
 
-.modal-select-global__active {
+.modal-campo-select-global__active {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -58,7 +58,7 @@
   color: var(--ws-text);
 }
 
-.modal-select-global__active-sub {
+.modal-campo-select-global__active-sub {
   color: var(--ws-muted);
   font-size: 0.8125rem;
 }

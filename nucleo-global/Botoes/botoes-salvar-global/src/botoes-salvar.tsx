@@ -2,8 +2,8 @@
  * BotoesSalvarGlobal — Barra de ações Salvar / Cancelar
  * @nucleo/botoes-salvar-global
  *
- * Aparece automaticamente quando dirty=true.
- * Desaparece (com animação) quando dirty=false.
+ * Sempre visível na tela em modo persistente (opaco quando sem alterações).
+ * Ativa animações e dicas visuais quando dirty=true.
  *
  * @example
  * const { dirty, resetDirty } = useDirty(dadosIniciais, dados)

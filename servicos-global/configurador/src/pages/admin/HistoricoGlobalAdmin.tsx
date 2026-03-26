@@ -5,6 +5,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 
 type DiffObj = {
   campo: string
@@ -259,11 +260,9 @@ export function HistoricoGlobalAdmin() {
             />
           </div>
 
-          <div style={{ width: '160px' }}>
-            <input 
-              type="date"
-              className="ws-global-input"
-              style={{ width: '100%', height: '36px', padding: '0 12px', background: 'var(--ws-bg-body)', border: '1px solid var(--ws-border-subtle)', borderRadius: '6px', color: 'var(--ws-text-primary)' }}
+          <div style={{ width: '220px' }}>
+            <CalendarioCampoGlobal
+              placeholder="Filtrar por data..."
             />
           </div>
         </div>

@@ -3,8 +3,9 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
-import { LocalizarCampoGlobal } from '@nucleo/campo-localizar-global'
+import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
+import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
   Buildings,
@@ -45,7 +46,6 @@ export function AdminLayout() {
 
   const userName = user?.fullName ?? user?.firstName ?? 'Gravity Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userRole = 'Super Admin'
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'admin@gravity.com.br'
 
   useEffect(() => {
@@ -67,47 +67,20 @@ export function AdminLayout() {
   return (
     <div className="ws-shell">
       {/* ── Sidebar ── */}
-      <aside className="ws-sidebar">
-        {/* Logo + chip inline */}
-        <div className="ws-sidebar__logo">
-          <LogoGlobal iconSize={28} iconColor="#10b981" />
-          <div className="ws-global-chip" style={{ background: '#10b981', borderColor: '#059669', color: '#ffffff', boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)' }}>
-            <span className="ws-global-chip__dot" style={{ background: '#ffffff', boxShadow: 'none' }} />
-            <span className="ws-global-chip__label" style={{ color: '#ffffff' }}>Admin Panel</span>
-          </div>
-        </div>
-
-        {/* Tenant info block */}
-        <div className="ws-sidebar__tenant">
-          <div className="ws-sidebar__tenant-avatar" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>G</div>
-          <div className="ws-sidebar__tenant-info">
-            <span className="ws-sidebar__tenant-name">Gravity HQ</span>
-            <span className="ws-sidebar__tenant-plan" style={{ color: '#10b981' }}>Núcleo Central</span>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="ws-sidebar__nav">
-          <p className="ws-sidebar__nav-label">Plataforma</p>
-          {navItems.map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => `ws-nav-item${isActive ? ' active' : ''}`}
-            >
-              {item.icon}
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-      </aside>
+      <MenuLateralGlobal
+        tenantName="Gravity HQ"
+        tenantPlan="Núcleo Central"
+        navItems={navItems}
+        moduleName="Admin Panel"
+        moduleColor="#10b981"
+        defaultCollapsed={false}
+      />
 
       {/* ── Main area ── */}
       <div className="ws-main">
         {/* ── Global Actions ── */}
         <div className="ws-global-actions">
-          <LocalizarCampoGlobal 
+          <LocalizarExpandidoCampoGlobal 
             onBuscarNavigate={(term) => {
               const termLower = term.toLowerCase()
               const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
@@ -123,7 +96,7 @@ export function AdminLayout() {
             userName={userName}
             userEmail={userEmail}
             userInitials={userInitials}
-            userRole={userRole}
+            userRole="Admin" 
             isLight={isLight}
             onToggleTheme={toggleTheme}
             onNavigateOrganizacao={() => navigate('/admin/visao-geral')}

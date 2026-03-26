@@ -351,16 +351,13 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
             <div>
               <GeralCampoGlobal label="Plano Contratado">
-                <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
-                  <select
-                    value={plano}
-                    onChange={e => setPlano(e.target.value)}
-                    style={{ width: '100%', background: 'transparent', border: 'none', color: 'var(--ws-text)', padding: '0 1rem 0 2.5rem', appearance: 'none', height: '100%' }}
-                  >
-                    {PLANOS.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                  <Ticket size={16} style={{ position: 'absolute', left: '0.875rem', color: 'var(--ws-muted)' }} />
-                </div>
+                <SelectGlobal
+                  iconeEsquerda={<Ticket size={16} />}
+                  opcoes={PLANOS.map(p => ({ valor: p, rotulo: p }))}
+                  valor={plano || null}
+                  aoMudarValor={(v: string | number | null) => setPlano(String(v ?? ''))}
+                  placeholder="Selecione o plano..."
+                />
               </GeralCampoGlobal>
             </div>
           </div>

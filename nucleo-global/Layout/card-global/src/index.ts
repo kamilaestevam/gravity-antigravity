@@ -3,6 +3,8 @@
 
 export { CardBasicoGlobal }  from './CardBasicoGlobal'
 export { CardGraficoGlobal } from './CardGraficoGlobal'
+export { StatCardGlobal } from './stat-card'
+export type { StatCardGlobalProps } from './stat-card'
 
 export type {
   CardBasicoProps,
@@ -14,4 +16,5 @@ export type {
   GaugeLegendaItem,
   PeriodoCodigo,
   PeriodoTendencia,
+  StatCardProps,
 } from './tipos'

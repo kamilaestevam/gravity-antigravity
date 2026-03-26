@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { CaretLineLeft, CaretLineRight } from '@phosphor-icons/react'
+import { SidebarSimple } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './menu-lateral.css'
@@ -43,6 +43,16 @@ export function MenuLateralGlobal({
       className={`mlg-sidebar ${isCollapsed ? 'collapsed' : ''}`}
       style={cssVars}
     >
+      {/* ── Toggle — flutua na borda direita, entre tenant e nav ── */}
+      <TooltipGlobal descricao={isCollapsed ? 'Expandir menu' : 'Recolher menu'}>
+        <button 
+          className="mlg-toggle-btn" 
+          onClick={toggleCollapse}
+        >
+          <SidebarSimple weight={isCollapsed ? 'duotone' : 'regular'} size={16} />
+        </button>
+      </TooltipGlobal>
+
       {/* ── Logo + Chip ── */}
       <div className="mlg-logo-area">
         <LogoGlobal iconSize={28} iconColor={moduleColor} hideText={isCollapsed} />
@@ -103,21 +113,6 @@ export function MenuLateralGlobal({
           return link
         })}
       </nav>
-
-      {/* ── Toggle button no rodapé ── */}
-      <div className="mlg-footer">
-        <TooltipGlobal descricao={isCollapsed ? 'Expandir menu' : 'Recolher menu'}>
-          <button 
-            className="mlg-toggle-btn" 
-            onClick={toggleCollapse}
-          >
-            {isCollapsed 
-              ? <CaretLineRight weight="bold" size={16} /> 
-              : <CaretLineLeft weight="bold" size={16} />
-            }
-          </button>
-        </TooltipGlobal>
-      </div>
     </aside>
   )
 }

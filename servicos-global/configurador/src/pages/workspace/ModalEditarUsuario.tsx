@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
 import { TabelaCamadasGlobal, type TCGColuna } from '@nucleo/tabela-camadas-global'
 import type { TenantUser } from './Usuarios'
@@ -150,19 +151,6 @@ function AbaDados({ nome, email, tipo, onValoresChange }: any) {
   )
 }
 
-function StatusBadge({ v }: { v: string }) {
-  const isAtivo = v === 'Ativo' || v === 'Ativa'
-  const bg = isAtivo ? 'rgba(52,211,153,0.12)' : 'rgba(251,191,36,0.12)'
-  const cor = isAtivo ? '#34d399' : '#fbbf24'
-  const label = isAtivo ? 'ATIVO' : 'SUSPENSO'
-  
-  return (
-    <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: bg, color: cor, border: `1px solid ${bg}` }}>
-      {label}
-    </span>
-  )
-}
-
 function AbaEspacos() {
   const mockTenants = [
     {
@@ -202,7 +190,7 @@ function AbaEspacos() {
     },
     {
       key: 'status', label: 'Status',
-      render: (v) => <StatusBadge v={v as string} />
+      render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
     },
     {
       key: 'plano', label: 'Plano',
@@ -232,7 +220,7 @@ function AbaEspacos() {
     },
     {
       key: 'status', label: 'Status',
-      render: (v) => <StatusBadge v={v as string} />
+      render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
     },
     {
       key: 'perfil', label: 'Perfil no Workspace',

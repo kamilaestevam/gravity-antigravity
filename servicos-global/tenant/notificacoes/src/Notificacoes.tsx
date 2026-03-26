@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { AvisoInternoGlobal, AvisoInterno } from '@nucleo/aviso-interno-global'
+import { AvisoInternoGlobal, AvisoInterno } from '@nucleo/mensageria-global'
 
 export interface NotificationItem {
   id: string

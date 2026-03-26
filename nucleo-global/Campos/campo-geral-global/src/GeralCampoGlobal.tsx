@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import './campo-geral.css'
 
 export interface GeralCampoGlobalProps {
   label?: string
@@ -8,6 +9,8 @@ export interface GeralCampoGlobalProps {
   children: ReactNode
   className?: string
   obrigatorio?: boolean
+  erro?: string
+  hint?: string
 }
 
 export function GeralCampoGlobal({
@@ -16,14 +19,16 @@ export function GeralCampoGlobal({
   tooltipDescricao,
   children,
   className = '',
-  obrigatorio = false
+  obrigatorio = false,
+  erro,
+  hint,
 }: GeralCampoGlobalProps) {
   const compLabel = label ? (obrigatorio ? `${label} *` : label) : null
 
   return (
-    <div className={`ws-field ${className}`.trim()}>
+    <div className={`cg-wrapper ${erro ? 'cg-wrapper--erro' : ''} ${className}`.trim()}>
       {compLabel && (
-        <label>
+        <label className="cg-label">
           {tooltipTitulo && tooltipDescricao ? (
             <TooltipGlobal titulo={tooltipTitulo} descricao={tooltipDescricao}>
               <span style={{ cursor: 'help' }}>{compLabel}</span>
@@ -34,6 +39,12 @@ export function GeralCampoGlobal({
         </label>
       )}
       {children}
+      {hint && !erro && (
+        <span className="cg-hint">{hint}</span>
+      )}
+      {erro && (
+        <span className="cg-erro" role="alert">{erro}</span>
+      )}
     </div>
   )
 }

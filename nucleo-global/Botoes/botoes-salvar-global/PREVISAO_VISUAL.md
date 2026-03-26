@@ -1,32 +1,32 @@
 # Documentação Visual — BotoesSalvarGlobal
 
-Referência definitiva do conjunto de ações de rodapé (Padrão Workspace — Roxo).
+Folha de Especificação 100% fotográfica (via DOM) do ecossistema de botões de base.
 
-## 1. Folha de Especificação Técnica de UX
-Detalhamento de estados, cores e botões de ação para persistência de dados.
+## 1. Folha Técnica: Estados Reais
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+A barra de ações desaparece e aparece modificando dinamicamente e suavemente transições de estado complexas, inclusive um `box-shadow` infinito pro botão Salvar (pulse). O badge "Dot" obedece às animações de transformações com FPS alto (`bs-pulse`).
+
+![Estados Salvar](./real-preview-estados.png)
+
+## 2. Blueprint: Layout de Composição
+
+Ao contrário de imagens conceituais, visualiza-se aqui que o Container em flex cresce por todo o eixo horizontal para encostar à direita a dupla de botões sem o uso de `float` ou magia de CSS — os eixos de `gap` de 10px são cravados no CSS flex.
+
+![Blueprint Layout](./real-preview-layout.png)
 
 ---
 
-## 2. Especificação de Composição
-Anatomia técnica da barra de rodapé com medidas, gaps e hierarquia de botões.
+## 3. Composição de Ancoragem Global (Contexto)
 
-![Especificação de Composição](./preview-layout.png)
+Posicionamento modular em containers isolados de Modais e de Configurações, onde o comportamento padrão encerra a margem limitante do canto direito da área de edição.
 
----
+![Composição de Contexto](./real-preview-contexto.png)
 
-## 3. Composição de Ancoragem Global
-Blueprint de posicionamento final (Docking) em rodapés de Modais ou Páginas.
-
-![Composição de Ancoragem Global](./preview-contexto.png)
-
-| Regra de Ancoragem | Referência Técnica |
+| Medida Relevante | Verificação Técnica no CSS (Real) |
 | :--- | :--- |
-| **Ponto Base (Y)** | Ancorado no fundo do Modal ou a **24px** da base da janela. |
-| **Ponto Terminal (X)** | Alinhado à margem direita da área útil (**24px**). |
-| **Relacional (Excluir)** | Botão de exclusão isolado à **Extrema Esquerda** (Ação Perigosa). |
-| **Gap de Ações** | Espaçamento de **16px** (p-4) entre Cancelar e Salvar. |
+| **Distância Superior** | Usa a classe estática que embute `margin-top: 1.25rem` (20px) para não acavalar nos inputs do formulário. |
+| **Condicional de Tela** | Desvia a leitura do eixo Z negativo `transform: translateY(10px)` e volta para a superfície em `translateY(0)`. |
+| **Dot Laranja** | O aviso "Alterações não salvas" não toma tamanho fixo horizontal pois usa `flex: 1`, empurrando silenciosamente os botões pra extremidade oposta. |
 
 ---
 
@@ -36,10 +36,10 @@ Blueprint de posicionamento final (Docking) em rodapés de Modais ou Páginas.
 import { BotoesSalvarGlobal } from '@nucleo/botoes/botoes-salvar-global'
 
 <BotoesSalvarGlobal
-  dirty={dirty}
-  salvando={salvando}
-  onSalvar={handleSalvar}
-  onCancelar={handleCancelar}
+  dirty={true}
+  salvando={false}
   alinhamento="direita"
+  onSalvar={() => submit()}
+  onCancelar={() => cancel()}
 />
 ```

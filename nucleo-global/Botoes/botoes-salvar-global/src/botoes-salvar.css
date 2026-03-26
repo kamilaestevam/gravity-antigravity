@@ -17,9 +17,8 @@
   align-items: center;
   gap: 0.625rem;
   margin-top: 1.25rem;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
+  opacity: 1;
+  visibility: visible;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -41,11 +40,7 @@
   transition: opacity 0.2s ease;
 }
 
-.bs-barra--dirty {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
+
 
 .bs-barra--dirty .bs-hint {
   opacity: 1;

@@ -14,6 +14,9 @@
                              "react":  "^18.0.0",
                              "react-dom":  "^18.0.0"
                          },
+    "dependencies":  {
+                            "@nucleo/campo-geral-global":  "*"
+                        },
     "devDependencies":  {
                             "@types/react":  "^18.0.0",
                             "@types/react-dom":  "^18.0.0",

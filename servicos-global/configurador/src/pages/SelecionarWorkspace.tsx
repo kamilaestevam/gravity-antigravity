@@ -7,7 +7,7 @@ import {
   Plus,
   ShieldCheck,
 } from '@phosphor-icons/react'
-import { WorkspaceSelecaoGlobal, type Empresa } from '@nucleo/campo-workspace-selecao-global'
+import { WorkspaceSelecaoGlobal, type Empresa } from '@nucleo/modal-workspace-inicial-global'
 
 const mockEmpresas: Empresa[] = [
   { id: 'e1', nome: 'Acme Corporation',  cnpj: '12.345.678/0001-90', plano: 'Enterprise',   cor: '#818cf8', iniciais: 'AC' },

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { CreditCard, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle, TreeStructure } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { StatCardGlobal } from '@nucleo/stat-card-global'
+import { StatCardGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -295,12 +295,12 @@ export function Assinaturas() {
             subtexto={produtos.length > 0 ? `${produtos.length} no total` : 'Sem produtos'}
             tooltip={
               <>
-                <p className="scg-tooltip__title">STATUS DOS PRODUTOS</p>
-                <div className="scg-tooltip__row">
+                <p className="cg-tooltip__title">STATUS DOS PRODUTOS</p>
+                <div className="cg-tooltip__row">
                   <span>Ativos</span>
                   <strong>{produtos.filter(p => p.status === 'Ativo').length}</strong>
                 </div>
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__row">
                   <span>Em Trial</span>
                   <strong>{produtos.filter(p => p.status === 'Trial').length}</strong>
                 </div>
@@ -314,12 +314,12 @@ export function Assinaturas() {
             subtexto="Mensalidade SaaS"
             tooltip={
               <>
-                <p className="scg-tooltip__title">COMPOSIÇÃO DO CUSTO</p>
-                <div className="scg-tooltip__row">
+                <p className="cg-tooltip__title">COMPOSIÇÃO DO CUSTO</p>
+                <div className="cg-tooltip__row">
                   <span>SaaS (Ativo/Trial)</span>
                   <strong>R$ {custoSaaSAtivos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
                 </div>
-                <div className="scg-tooltip__row">
+                <div className="cg-tooltip__row">
                   <span>Custo por uso</span>
                   <strong>Variável</strong>
                 </div>
@@ -334,8 +334,8 @@ export function Assinaturas() {
             variante={totalSuspensos > 0 ? 'perigo' : 'padrao'}
             tooltip={
               <>
-                <p className="scg-tooltip__title">ATENÇÃO</p>
-                <div className="scg-tooltip__row">
+                <p className="cg-tooltip__title">ATENÇÃO</p>
+                <div className="cg-tooltip__row">
                   <span>Produtos suspensos</span>
                   <strong>{totalSuspensos}</strong>
                 </div>

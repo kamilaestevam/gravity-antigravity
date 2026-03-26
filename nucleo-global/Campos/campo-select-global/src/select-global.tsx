@@ -6,6 +6,8 @@
  *
  * Dropdown renderizado via ReactDOM.createPortal (position: fixed) para
  * escapar de qualquer stacking context criado pelos containers pai.
+ *
+ * Usa <GeralCampoGlobal> como wrapper unificado (label, hint, erro).
  */
 
 import React, {
@@ -17,6 +19,7 @@ import React, {
   useCallback,
 } from 'react'
 import ReactDOM from 'react-dom'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import type { SelectProps, SelectOpcao } from './tipos.js'
 import './select.css'
 
@@ -142,8 +145,6 @@ export function SelectGlobal({
   const idGerado = useId()
   const id = idExterno ?? idGerado
   const idLista = `${id}-lista`
-  const idErro = `${id}-erro`
-  const idHint = `${id}-hint`
 
   const [aberto, setAberto] = useState(false)
   const [busca, setBusca] = useState('')
@@ -385,8 +386,6 @@ export function SelectGlobal({
 
   const describedby = [
     ariaDescribedby,
-    erro ? idErro : undefined,
-    hint ? idHint : undefined,
   ]
     .filter(Boolean)
     .join(' ')
@@ -443,15 +442,10 @@ export function SelectGlobal({
     document.body
   )
 
-  return (
-    <div className={`sg-wrapper input-group ${erro ? 'sg-wrapper--erro' : ''}`} ref={containerRef}>
-      {label && (
-        <label htmlFor={id} className="sg-label">
-          {label}
-          {obrigatorio && <span className="sg-obrigatorio" aria-hidden="true"> *</span>}
-        </label>
-      )}
+  // ─── Conteúdo interno (campo gatilho + dropdown + hidden inputs) ──────────
 
+  const conteudoInterno = (
+    <div ref={containerRef} className="sg-wrapper-inner">
       {/* Campo gatilho */}
       <div
         id={id}
@@ -509,20 +503,6 @@ export function SelectGlobal({
       {/* Dropdown via portal */}
       {dropdown}
 
-      {/* Hint */}
-      {hint && !erro && (
-        <span id={idHint} className="sg-hint text-sm">
-          {hint}
-        </span>
-      )}
-
-      {/* Erro */}
-      {erro && (
-        <span id={idErro} className="sg-erro text-sm" role="alert">
-          {erro}
-        </span>
-      )}
-
       {/* Input hidden para forms nativos */}
       {name && (
         <>
@@ -537,4 +517,22 @@ export function SelectGlobal({
       )}
     </div>
   )
+
+  // ─── Se tem label/hint/erro, renderiza com GeralCampoGlobal ───────────────
+  // Se não tem, renderiza só o campo (ex: select inline dentro de calendário)
+
+  if (label || hint || erro) {
+    return (
+      <GeralCampoGlobal
+        label={label}
+        obrigatorio={obrigatorio}
+        erro={erro}
+        hint={hint}
+      >
+        {conteudoInterno}
+      </GeralCampoGlobal>
+    )
+  }
+
+  return conteudoInterno
 }

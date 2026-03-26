@@ -1,0 +1,23 @@
+{
+  "comum": {
+    "salvar": "保存",
+    "cancelar": "取消",
+    "excluir": "删除",
+    "confirmar": "确认",
+    "proximo": "下一步",
+    "anterior": "上一步",
+    "pesquisar": "搜索...",
+    "fechar": "关闭",
+    "novo": "新建",
+    "editar": "编辑",
+    "visualizar": "查看",
+    "carregando": "加载中...",
+    "nenhum_resultado": "未找到结果",
+    "erro_inesperado": "发生意外错误"
+  },
+  "acoes": {
+    "clique_aqui": "点击这里",
+    "voltar": "返回",
+    "continuar": "继续"
+  }
+}

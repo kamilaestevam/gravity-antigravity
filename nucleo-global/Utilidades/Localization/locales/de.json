@@ -1,0 +1,23 @@
+{
+  "comum": {
+    "salvar": "Speichern",
+    "cancelar": "Abbrechen",
+    "excluir": "Löschen",
+    "confirmar": "Bestätigen",
+    "proximo": "Weiter",
+    "anterior": "Zurück",
+    "pesquisar": "Suchen...",
+    "fechar": "Schließen",
+    "novo": "Neu",
+    "editar": "Bearbeiten",
+    "visualizar": "Ansehen",
+    "carregando": "Laden...",
+    "nenhum_resultado": "Keine Ergebnisse gefunden",
+    "erro_inesperado": "Ein unerwarteter Fehler ist aufgetreten"
+  },
+  "acoes": {
+    "clique_aqui": "Hier klicken",
+    "voltar": "Zurück",
+    "continuar": "Weiter"
+  }
+}

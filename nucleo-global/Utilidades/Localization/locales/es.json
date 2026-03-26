@@ -1,0 +1,23 @@
+{
+  "comum": {
+    "salvar": "Guardar",
+    "cancelar": "Cancelar",
+    "excluir": "Eliminar",
+    "confirmar": "Confirmar",
+    "proximo": "Siguiente",
+    "anterior": "Anterior",
+    "pesquisar": "Buscar...",
+    "fechar": "Cerrar",
+    "novo": "Nuevo",
+    "editar": "Editar",
+    "visualizar": "Visualizar",
+    "carregando": "Cargando...",
+    "nenhum_resultado": "No se encontraron resultados",
+    "erro_inesperado": "Ocurrió un error inesperado"
+  },
+  "acoes": {
+    "clique_aqui": "Haga clic aquí",
+    "voltar": "Volver",
+    "continuar": "Continuar"
+  }
+}

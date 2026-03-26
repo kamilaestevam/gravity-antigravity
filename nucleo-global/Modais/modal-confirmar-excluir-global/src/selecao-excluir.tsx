@@ -1,6 +1,7 @@
 import React from 'react'
 import { Warning, Trash } from '@phosphor-icons/react'
 import { ModalGlobal } from '@nucleo/modal-global'
+import { useTranslation } from 'react-i18next'
 import { SelecaoExcluirProps } from './tipos'
 
 export function SelecaoExcluirGlobal({
@@ -11,6 +12,8 @@ export function SelecaoExcluirGlobal({
   aoConfirmar,
   aoCancelar
 }: SelecaoExcluirProps) {
+  const { t } = useTranslation()
+
   return (
     <ModalGlobal
       aberto={aberto}
@@ -18,6 +21,7 @@ export function SelecaoExcluirGlobal({
       tamanho="md"
       titulo=""
       cabecalhoPersonalizado={
+        // ... (resto do cabeçalho permanece igual)
         <div style={{ 
           display: 'flex', 
           flexDirection: 'column', 
@@ -131,7 +135,7 @@ export function SelecaoExcluirGlobal({
             }}
             onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            Cancelar
+            {t('comum.cancelar')}
           </button>
           
           {/* Botão Excluir */}
@@ -169,7 +173,7 @@ export function SelecaoExcluirGlobal({
             onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
             <Trash size={16} weight="bold" />
-            Excluir
+            {t('comum.excluir')}
           </button>
         </div>
       )}

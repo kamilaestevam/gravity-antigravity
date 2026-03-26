@@ -4,24 +4,14 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
+import { I18nProvider } from '../../nucleo-global/Utilidades/Localization/provider'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
-/**
- * Layout — wrapper principal da aplicação Gravity.
- *
- * Responsabilidades:
- * - Grade CSS: sidebar + header + conteúdo principal
- * - Aplicar classe de colapso de sidebar ao grid
- * - Renderizar sistema de toasts (ToastContainer)
- * - Aplicar tema (dark/light) via useEffect no mount
- *
- * Nunca contém lógica de negócio ou de produto.
- */
 export function Layout({ children }: LayoutProps) {
-  const { sidebarOpen, currentTheme } = useShellStore()
+  const { sidebarOpen, currentTheme, tooltipsDisabled } = useShellStore()
 
   // Sincroniza tema com body no mount e nas mudanças
   React.useEffect(() => {
@@ -31,31 +21,42 @@ export function Layout({ children }: LayoutProps) {
     }
   }, [currentTheme])
 
+  // Sincroniza estado de tooltips com body
+  React.useEffect(() => {
+    if (tooltipsDisabled) {
+      document.body.classList.add('tooltips-disabled')
+    } else {
+      document.body.classList.remove('tooltips-disabled')
+    }
+  }, [tooltipsDisabled])
+
   return (
-    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
-      <Sidebar />
-      <Header />
-      <main className="shell-main" role="main" aria-label="Conteúdo principal">
-        <Suspense
-          fallback={
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-                color: 'var(--text-muted)',
-                fontSize: '0.875rem',
-              }}
-            >
-              Carregando módulo…
-            </div>
-          }
-        >
-          {children}
-        </Suspense>
-      </main>
-      <ToastContainer />
-    </div>
+    <I18nProvider>
+      <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
+        <Sidebar />
+        <Header />
+        <main className="shell-main" role="main" aria-label="Conteúdo principal">
+          <Suspense
+            fallback={
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                  color: 'var(--text-muted)',
+                  fontSize: '0.875rem',
+                }}
+              >
+                Carregando módulo…
+              </div>
+            }
+          >
+            {children}
+          </Suspense>
+        </main>
+        <ToastContainer />
+      </div>
+    </I18nProvider>
   )
 }

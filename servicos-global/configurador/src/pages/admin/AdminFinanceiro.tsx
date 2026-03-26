@@ -317,7 +317,7 @@ export function AdminFinanceiro() {
   ]
 
   const ACOES_EXPORT: TabelaExportAcao<FaturaGlobal>[] = [
-    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS as any, { nomeArquivo: 'financeiro_global', titulo: 'Relatório Financeiro Global' }) },
+    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS as any, { nomeArquivo: 'financeiro_global', titulo: 'Relatório Financeiro Global' }), tooltipDescricao: 'Gera planilha consolidada com todas as faturas e status' },
   ]
 
   return (

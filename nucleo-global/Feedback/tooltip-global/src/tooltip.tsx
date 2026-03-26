@@ -24,6 +24,9 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
   const ref = useRef<HTMLSpanElement>(null)
 
   const mostra = () => {
+    // Se estiver desabilitado globalmente via body class, não abre.
+    if (document.body.classList.contains('tooltips-disabled')) return
+
     if (ref.current) {
       const r = ref.current.getBoundingClientRect()
       

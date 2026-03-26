@@ -22,6 +22,7 @@ export const useShellStore = create<ShellState>()(
       // ─── Estado inicial ────────────────────────────────────────────────────
       sidebarOpen: true,
       currentTheme: 'dark' as Theme,
+      tooltipsDisabled: false,
       currentUser: DEFAULT_USER,
       notifications: [],
 
@@ -48,6 +49,10 @@ export const useShellStore = create<ShellState>()(
           if (next === 'light') document.body.classList.add('light-theme')
           return { currentTheme: next }
         })
+      },
+      
+      toggleTooltips: () => {
+        set((state) => ({ tooltipsDisabled: !state.tooltipsDisabled }))
       },
 
       // ─── Usuário ──────────────────────────────────────────────────────────
@@ -99,6 +104,7 @@ export const useShellStore = create<ShellState>()(
       partialize: (state) => ({
         sidebarOpen: state.sidebarOpen,
         currentTheme: state.currentTheme,
+        tooltipsDisabled: state.tooltipsDisabled,
       }),
     }
   )

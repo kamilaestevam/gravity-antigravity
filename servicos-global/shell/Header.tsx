@@ -6,6 +6,7 @@ import {
   Moon,
   Bell,
   MagnifyingGlass,
+  Info,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
 
@@ -59,6 +60,8 @@ export function Header() {
     toggleTheme,
     currentTheme,
     notifications,
+    tooltipsDisabled,
+    toggleTooltips,
   } = useShellStore()
 
   const pageLabel = getPageLabel(location.pathname)
@@ -123,6 +126,18 @@ export function Header() {
           onClick={toggleTheme}
         >
           {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        {/* Toggle de tooltips */}
+        <button
+          className="shell-header__icon-btn"
+          aria-label={tooltipsDisabled ? 'Habilitar dicas (tooltips)' : 'Desabilitar dicas (tooltips)'}
+          title={tooltipsDisabled ? 'Habilitar dicas' : 'Desabilitar dicas'}
+          type="button"
+          onClick={toggleTooltips}
+          style={{ color: tooltipsDisabled ? 'var(--text-muted)' : 'var(--accent)' }}
+        >
+          <Info size={18} weight={tooltipsDisabled ? 'regular' : 'fill'} />
         </button>
 
         {/* Notificações */}

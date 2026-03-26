@@ -139,10 +139,17 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     {
       id: 'geral',
       rotulo: 'Dados Gerais',
+      tooltipTitulo: 'IDENTIFICAÇÃO JURÍDICA',
+      tooltipDescricao: 'Dados principais e registro fiscal da organização no cluster.',
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid">
-            <GeralCampoGlobal label="Nome da Organização" obrigatorio>
+            <GeralCampoGlobal 
+              label="Nome da Organização" 
+              obrigatorio
+              tooltipTitulo="NOME COMERCIAL"
+              tooltipDescricao="Razão social ou nome de fantasia que aparecerá nas faturas e contratos."
+            >
               <div className="ws-input-icon-wrap">
                 <Buildings size={16} />
                 <input
@@ -160,7 +167,11 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               </div>
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label="CNPJ">
+            <GeralCampoGlobal 
+              label="CNPJ"
+              tooltipTitulo="REGISTRO FISCAL"
+              tooltipDescricao="Número de identificação da empresa para fins de tributação e compliance."
+            >
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
@@ -173,7 +184,12 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
             </GeralCampoGlobal>
           </div>
 
-          <GeralCampoGlobal label="Subdomínio / Endpoint DNS" obrigatorio>
+          <GeralCampoGlobal 
+            label="Subdomínio / Endpoint DNS" 
+            obrigatorio
+            tooltipTitulo="ENDEREÇO DE ACESSO"
+            tooltipDescricao="Prefixo exclusivo que será usado na URL de acesso à plataforma (ex: empresa.gravity.com.br)."
+          >
             <div className="ws-input-icon-wrap">
               <Globe size={16} />
               <input
@@ -194,6 +210,8 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     {
       id: 'localizacao',
       rotulo: 'Localização & Web',
+      tooltipTitulo: 'GEOGRAFIA & MERCADO',
+      tooltipDescricao: 'Dados de localização física e segmento de atuação da empresa.',
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid em-grid--2">
@@ -255,6 +273,8 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     {
       id: 'plano',
       rotulo: 'Plano & Acesso',
+      tooltipTitulo: 'NÍVEL DE SERVIÇO',
+      tooltipDescricao: 'Definições de contrato, plano inicial e provisionamento de recursos.',
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <GeralCampoGlobal label="Plano Inicial">

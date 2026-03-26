@@ -25,6 +25,7 @@ export interface ShellState {
   // --- UI ---
   sidebarOpen: boolean
   currentTheme: Theme
+  tooltipsDisabled: boolean
 
   // --- Usuário ativo ---
   currentUser: CurrentUser
@@ -37,6 +38,7 @@ export interface ShellState {
   setSidebarOpen: (open: boolean) => void
   setTheme: (theme: Theme) => void
   toggleTheme: () => void
+  toggleTooltips: () => void
   setCurrentUser: (user: CurrentUser) => void
   clearCurrentUser: () => void
 

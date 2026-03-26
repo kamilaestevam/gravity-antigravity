@@ -1,0 +1,23 @@
+{
+  "comum": {
+    "salvar": "Save",
+    "cancelar": "Cancel",
+    "excluir": "Delete",
+    "confirmar": "Confirm",
+    "proximo": "Next",
+    "anterior": "Previous",
+    "pesquisar": "Search...",
+    "fechar": "Close",
+    "novo": "New",
+    "editar": "Edit",
+    "visualizar": "View",
+    "carregando": "Loading...",
+    "nenhum_resultado": "No results found",
+    "erro_inesperado": "An unexpected error occurred"
+  },
+  "acoes": {
+    "clique_aqui": "Click here",
+    "voltar": "Back",
+    "continuar": "Continue"
+  }
+}

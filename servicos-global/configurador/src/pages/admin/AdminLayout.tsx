@@ -19,6 +19,7 @@ import {
   CalendarBlank,
   RocketLaunch,
   Bug,
+  Info,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -39,7 +40,7 @@ const navItems = [
 export function AdminLayout() {
   const navigate = useNavigate()
   const { user } = useUser()
-  const { currentTheme, toggleTheme } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
   const isLight = currentTheme === 'light'
 
   const { signOut } = useClerk()
@@ -55,6 +56,15 @@ export function AdminLayout() {
       document.body.classList.remove('light-theme')
     }
   }, [isLight])
+
+  // Sincroniza desabilitação global de tooltips com o body
+  useEffect(() => {
+    if (tooltipsDisabled) {
+      document.body.classList.add('tooltips-disabled')
+    } else {
+      document.body.classList.remove('tooltips-disabled')
+    }
+  }, [tooltipsDisabled])
 
   // Aplica o tema admin (verde) globalmente enquanto o AdminLayout estiver montado
   useEffect(() => {
@@ -89,6 +99,17 @@ export function AdminLayout() {
               }
             }}
           />
+
+          {/* NOVO: Toggle de tooltips */}
+          <button
+            className="ws-global-btn"
+            onClick={toggleTooltips}
+            title={tooltipsDisabled ? 'Habilitar dicas' : 'Desabilitar dicas'}
+            style={{ color: tooltipsDisabled ? 'var(--ws-muted)' : 'var(--ws-accent)' }}
+            type="button"
+          >
+            <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+          </button>
 
           <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
 

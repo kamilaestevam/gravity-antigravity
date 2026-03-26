@@ -1,0 +1,23 @@
+{
+  "comum": {
+    "salvar": "حفظ",
+    "cancelar": "إلغاء",
+    "excluir": "حذف",
+    "confirmar": "تأكيد",
+    "proximo": "التالي",
+    "anterior": "السابق",
+    "pesquisar": "بحث...",
+    "fechar": "إغلاق",
+    "novo": "جديد",
+    "editar": "تعديل",
+    "visualizar": "عرض",
+    "carregando": "جاري التحميل...",
+    "nenhum_resultado": "لم يتم العثور على نتائج",
+    "erro_inesperado": "حدث خطأ غير متوقع"
+  },
+  "acoes": {
+    "clique_aqui": "انقر هنا",
+    "voltar": "رجوع",
+    "continuar": "استمرار"
+  }
+}

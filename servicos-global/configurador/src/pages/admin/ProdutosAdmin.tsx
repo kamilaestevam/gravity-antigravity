@@ -555,14 +555,24 @@ export function ProdutosAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo="Dados Básicos" tooltip="Identificação e configuração geral do produto" />
 
-                <GeralCampoGlobal label="Nome do Produto" obrigatorio>
+                <GeralCampoGlobal 
+                  label="Nome do Produto" 
+                  obrigatorio
+                  tooltipTitulo="IDENTIFICAÇÃO PRINCIPAL"
+                  tooltipDescricao="Nome comercial que aparecerá no catálogo e no faturamento"
+                >
                   <div className="ws-input-icon-wrap">
                     <ShoppingBagOpen size={16} />
                     <input placeholder="Ex: Gravity Analytics" style={{ width: '100%' }} value={formNome} onChange={e => dirty(() => setFormNome(e.target.value))} />
                   </div>
                 </GeralCampoGlobal>
 
-                <GeralCampoGlobal label="Descrição Curta" obrigatorio>
+                <GeralCampoGlobal 
+                  label="Descrição Curta" 
+                  obrigatorio
+                  tooltipTitulo="RESUMO COMERCIAL"
+                  tooltipDescricao="Breve explicação das funcionalidades para exibição rápida no marketplace"
+                >
                   <div className="ws-input-icon-wrap">
                     <Tag size={16} />
                     <input placeholder="Ex: Dashboards e BI em tempo real" style={{ width: '100%' }} value={formDescricao} onChange={e => dirty(() => setFormDescricao(e.target.value))} />
@@ -570,7 +580,11 @@ export function ProdutosAdmin() {
                 </GeralCampoGlobal>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal label="Data de Lançamento">
+                  <GeralCampoGlobal 
+                    label="Data de Lançamento"
+                    tooltipTitulo="VIGÊNCIA INICIAL"
+                    tooltipDescricao="Define quando o produto estará disponível para comercialização geral"
+                  >
                     <CalendarioCampoGlobal
                       valor={{
                         inicio: formDataLancamento ? new Date(formDataLancamento + 'T00:00:00') : null,
@@ -608,7 +622,11 @@ export function ProdutosAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Wrench size={16} weight="duotone" />} titulo="Setup" />
 
-                <GeralCampoGlobal label="Tem Setup?">
+                <GeralCampoGlobal 
+                  label="Tem Setup?"
+                  tooltipTitulo="ADMISSÃO DO SERVIÇO"
+                  tooltipDescricao="Define se haverá um custo único de ativação ou implantação"
+                >
                   <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
                     <TogBtn val="sim" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label="Sim" />
                     <TogBtn val="nao" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label="Não" />
@@ -617,7 +635,11 @@ export function ProdutosAdmin() {
 
                 {temSetup === 'sim' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal label="Moeda do Setup">
+                    <GeralCampoGlobal 
+                      label="Moeda do Setup"
+                      tooltipTitulo="MOEDA DE TRANSAÇÃO"
+                      tooltipDescricao="Moeda utilizada para o faturamento inicial"
+                    >
                       <SelectGlobal
                         opcoes={MOEDAS_OPCOES}
                         valor={moedaSetup}
@@ -626,7 +648,11 @@ export function ProdutosAdmin() {
                         buscavel
                       />
                     </GeralCampoGlobal>
-                    <GeralCampoGlobal label="Valor do Setup">
+                    <GeralCampoGlobal 
+                      label="Valor do Setup"
+                      tooltipTitulo="INVESTIMENTO INICIAL"
+                      tooltipDescricao="Montante fixo cobrado apenas no primeiro ciclo"
+                    >
                       <div className="ws-input-icon-wrap">
                         <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaSetup)}</span>
                         <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorSetup} onChange={e => dirty(() => setValorSetup(mascaraMoeda(e.target.value)))} />
@@ -646,7 +672,11 @@ export function ProdutosAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Sliders size={16} weight="duotone" />} titulo="Valores do Produto" />
 
-                <GeralCampoGlobal label="Tipo de Cobrança">
+                <GeralCampoGlobal 
+                  label="Tipo de Cobrança"
+                  tooltipTitulo="MÉTRICA DE VALOR"
+                  tooltipDescricao="Especifica a unidade de medida para o cálculo do faturamento"
+                >
                   <SelectGlobal
                     opcoes={TIPOS_COBRANCA_OPCOES}
                     valor={tipoCobranca || null}
@@ -658,7 +688,11 @@ export function ProdutosAdmin() {
                 </GeralCampoGlobal>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal label="Moeda">
+                  <GeralCampoGlobal 
+                    label="Moeda"
+                    tooltipTitulo="MOEDA BASE"
+                    tooltipDescricao="Moeda padrão para exibição e faturamento deste serviço"
+                  >
                     <SelectGlobal
                       opcoes={MOEDAS_OPCOES}
                       valor={moedaProduto}
@@ -667,7 +701,11 @@ export function ProdutosAdmin() {
                       buscavel
                     />
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal label="Franquia Free (Qtd)">
+                  <GeralCampoGlobal 
+                    label="Franquia Free (Qtd)"
+                    tooltipTitulo="VOLUME INCLUÍDO"
+                    tooltipDescricao="Quantidade mínima de uso liberada sem custos extras"
+                  >
                     <div className="ws-input-icon-wrap">
                       <Tag size={16} />
                       <input type="number" placeholder="Ex: 10" style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
@@ -676,19 +714,31 @@ export function ProdutosAdmin() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal label="Valor Unitário">
+                  <GeralCampoGlobal 
+                    label="Valor Unitário"
+                    tooltipTitulo="PREÇO POR UNIDADE"
+                    tooltipDescricao="Custo aplicado cada vez que um item adicional é consumido"
+                  >
                     <div className="ws-input-icon-wrap">
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorUnitario} onChange={e => dirty(() => setValorUnitario(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal label="Valor Mínimo">
+                  <GeralCampoGlobal 
+                    label="Valor Mínimo"
+                    tooltipTitulo="PISO DE COBRANÇA"
+                    tooltipDescricao="Menor valor possível a ser faturado em cada ciclo"
+                  >
                     <div className="ws-input-icon-wrap">
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorMinimo} onChange={e => dirty(() => setValorMinimo(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal label="Valor Total">
+                  <GeralCampoGlobal 
+                    label="Valor Total"
+                    tooltipTitulo="PREÇO DO PACOTE"
+                    tooltipDescricao="Custo fixo do serviço independentemente do volume consumido"
+                  >
                     <div className="ws-input-icon-wrap">
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorTotal} onChange={e => dirty(() => setValorTotal(mascaraMoeda(e.target.value)))} />
@@ -799,7 +849,11 @@ export function ProdutosAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Users size={16} weight="duotone" />} titulo="Usuários" />
 
-                <GeralCampoGlobal label="Quantidade de Usuários">
+                <GeralCampoGlobal 
+                  label="Quantidade de Usuários"
+                  tooltipTitulo="CONTROLE DE ACESSO"
+                  tooltipDescricao="Define se o produto possui limite fixo de usuários ou é ilimitado"
+                >
                   <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
                     <TogBtn val="ilimitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label="Ilimitada" />
                     <TogBtn val="limitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label="Limitada" />
@@ -808,7 +862,11 @@ export function ProdutosAdmin() {
 
                 {limiteUsuarios === 'limitada' && (
                   <>
-                    <GeralCampoGlobal label="Quantidade">
+                    <GeralCampoGlobal 
+                      label="Quantidade"
+                      tooltipTitulo="LIMITE DE ASSENTOS"
+                      tooltipDescricao="Total de usuários permitidos antes da cobrança de excedentes"
+                    >
                       <div className="ws-input-icon-wrap">
                         <Users size={16} />
                         <input type="number" placeholder="Ex: 10" style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
@@ -816,7 +874,11 @@ export function ProdutosAdmin() {
                     </GeralCampoGlobal>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      <GeralCampoGlobal label="Moeda">
+                      <GeralCampoGlobal 
+                        label="Moeda"
+                        tooltipTitulo="MOEDA DO EXCEDENTE"
+                        tooltipDescricao="Moeda aplicada para o faturamento de usuários adicionais"
+                      >
                         <SelectGlobal
                           opcoes={MOEDAS_OPCOES}
                           valor={moedaUsuario}
@@ -825,7 +887,11 @@ export function ProdutosAdmin() {
                           buscavel
                         />
                       </GeralCampoGlobal>
-                      <GeralCampoGlobal label="Valor por Usuário Adicional">
+                      <GeralCampoGlobal 
+                        label="Valor por Usuário Adicional"
+                        tooltipTitulo="CUSTO EXTRA"
+                        tooltipDescricao="Preço unitário por cada novo usuário acima da franquia"
+                      >
                         <div className="ws-input-icon-wrap">
                           <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaUsuario)}</span>
                           <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorUsuarioAdicional} onChange={e => dirty(() => setValorUsuarioAdicional(mascaraMoeda(e.target.value)))} />
@@ -847,13 +913,21 @@ export function ProdutosAdmin() {
                 <SecaoFormularioGlobal icone={<Headset size={16} weight="duotone" />} titulo="Help Desk" />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal label="Total de Horas Mensais">
+                  <GeralCampoGlobal 
+                    label="Total de Horas Mensais"
+                    tooltipTitulo="SUPORTE INCLUÍDO"
+                    tooltipDescricao="Cota de horas de suporte técnico disponíveis por mês"
+                  >
                     <div className="ws-input-icon-wrap">
                       <Clock size={16} />
                       <input type="number" placeholder="Ex: 10" style={{ width: '100%' }} value={totalHoras} onChange={e => dirty(() => setTotalHoras(e.target.value))} />
                     </div>
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal label="Moeda do Adicional por Hora">
+                  <GeralCampoGlobal 
+                    label="Moeda do Adicional por Hora"
+                    tooltipTitulo="MOEDA DE SUPORTE"
+                    tooltipDescricao="Moeda para cobrança de horas técnicas excedentes"
+                  >
                     <SelectGlobal
                       opcoes={MOEDAS_OPCOES}
                       valor={moedaHelpDesk}
@@ -875,7 +949,11 @@ export function ProdutosAdmin() {
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo="Negociação Especial" tooltip="Condição de preço exclusiva para uma organização" />
 
-                <GeralCampoGlobal label="Vincular Organização?">
+                <GeralCampoGlobal 
+                  label="Vincular Organização?"
+                  tooltipTitulo="FOCO COMERCIAL"
+                  tooltipDescricao="Permite definir uma condição de preço exclusiva para um cliente"
+                >
                   <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
                     <TogBtn val="nao" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Não" />
                     <TogBtn val="sim" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Sim" />

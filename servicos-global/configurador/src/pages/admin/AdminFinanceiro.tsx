@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { Receipt, Buildings, DownloadSimple, CalendarBlank, FileXls, ChartLineUp } from '@phosphor-icons/react'
+import { 
+  Receipt, Buildings, DownloadSimple, CalendarBlank, FileXls, ChartLineUp, 
+  Plus, FilePdf, Paperclip, Trash
+} from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
+import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { exportarExcel } from '../../services/exportService'
 
 type FaturaStatus = 'Pago' | 'Pendente' | 'Atrasado'
@@ -13,6 +20,13 @@ type ComposicaoItem = {
   item: string
   valor: string
   tipo?: 'base' | 'adicional' | 'desconto'
+}
+
+type DocumentoFatura = {
+  id: string
+  nome: string
+  tipo: 'Boleto' | 'Nota Fiscal' | 'Relatório' | 'Outros'
+  status: 'Anexado' | 'Pendente'
 }
 
 type FaturaGlobal = {
@@ -25,11 +39,16 @@ type FaturaGlobal = {
   vencimento: string
   status: FaturaStatus
   composicao: ComposicaoItem[]
+  documentos: DocumentoFatura[]
 }
 
 const faturasGlobais: FaturaGlobal[] = [
   {
     id: 'g1', num: '#0412', cliente: 'Importas SA', produto: 'Gravity Journey', competencia: 'Mar/2025', valor: 'R$ 3.247,00', vencimento: '05/04/2025', status: 'Pendente',
+    documentos: [
+      { id: 'd1', nome: 'Boleto_Importas_Mar25.pdf', tipo: 'Boleto', status: 'Anexado' },
+      { id: 'd2', nome: 'Pendente', tipo: 'Nota Fiscal', status: 'Pendente' },
+    ],
     composicao: [
       { item: 'Plano Enterprise', valor: 'R$ 2.499,00', tipo: 'base' },
       { item: 'Journey — 68 jornadas ativas', valor: 'R$ 637,32', tipo: 'adicional' },
@@ -39,6 +58,7 @@ const faturasGlobais: FaturaGlobal[] = [
   },
   {
     id: 'g2', num: '#0411', cliente: 'TechCorp Brasil', produto: 'Gravity Flow', competencia: 'Mar/2025', valor: 'R$ 1.500,00', vencimento: '10/04/2025', status: 'Pendente',
+    documentos: [],
     composicao: [
       { item: 'Plano Professional', valor: 'R$ 999,00', tipo: 'base' },
       { item: 'Flow — 12 automações', valor: 'R$ 501,00', tipo: 'adicional' },
@@ -46,6 +66,10 @@ const faturasGlobais: FaturaGlobal[] = [
   },
   {
     id: 'g3', num: '#0410', cliente: 'Mega Retail', produto: 'Gravity Sales', competencia: 'Fev/2025', valor: 'R$ 4.900,00', vencimento: '05/03/2025', status: 'Pago',
+    documentos: [
+      { id: 'd3', nome: 'Boleto_Mega_Fev.pdf', tipo: 'Boleto', status: 'Anexado' },
+      { id: 'd4', nome: 'NFe_Mega_Fev.pdf', tipo: 'Nota Fiscal', status: 'Anexado' },
+    ],
     composicao: [
       { item: 'Plano Enterprise', valor: 'R$ 2.499,00', tipo: 'base' },
       { item: 'Sales — 320 leads processados', valor: 'R$ 1.920,00', tipo: 'adicional' },
@@ -55,18 +79,24 @@ const faturasGlobais: FaturaGlobal[] = [
   },
   {
     id: 'g4', num: '#0409', cliente: 'Importas SA', produto: 'Plano Enterprise', competencia: 'Fev/2025', valor: 'R$ 2.499,00', vencimento: '05/03/2025', status: 'Pago',
+    documentos: [
+      { id: 'd5', nome: 'Boleto_Importas_Fev.pdf', tipo: 'Boleto', status: 'Anexado' },
+      { id: 'd6', nome: 'NFe_Importas_Fev.pdf', tipo: 'Nota Fiscal', status: 'Anexado' },
+    ],
     composicao: [
       { item: 'Plano Enterprise', valor: 'R$ 2.499,00', tipo: 'base' },
     ]
   },
   {
     id: 'g5', num: '#0408', cliente: 'Logistics Pro', produto: 'Plano Starter', competencia: 'Jan/2025', valor: 'R$ 500,00', vencimento: '05/02/2025', status: 'Atrasado',
+    documentos: [],
     composicao: [
       { item: 'Plano Starter', valor: 'R$ 500,00', tipo: 'base' },
     ]
   },
   {
     id: 'g6', num: '#0407', cliente: 'Alpha Solutions', produto: 'Gravity Analytics', competencia: 'Mar/2025', valor: 'R$ 1.200,00', vencimento: '15/04/2025', status: 'Pendente',
+    documentos: [],
     composicao: [
       { item: 'Plano Professional', valor: 'R$ 999,00', tipo: 'base' },
       { item: 'Analytics — dashboards premium', valor: 'R$ 201,00', tipo: 'adicional' },
@@ -81,14 +111,72 @@ const statusBadge: Record<FaturaStatus, string> = {
 }
 
 export function AdminFinanceiro() {
-  const faturasAbertas = faturasGlobais.filter(f => f.status === 'Pendente' || f.status === 'Atrasado')
-  const inadimplencias = faturasGlobais.filter(f => f.status === 'Atrasado')
+  const [faturasLocal, setFaturasLocal] = useState<FaturaGlobal[]>(faturasGlobais)
+  
+  const faturasAbertas = faturasLocal.filter(f => f.status === 'Pendente' || f.status === 'Atrasado')
+  const inadimplencias = faturasLocal.filter(f => f.status === 'Atrasado')
 
   const totalAberto = faturasAbertas.reduce((acc, f) => acc + parseFloat(f.valor.replace('R$ ', '').replace('.', '').replace(',', '.')), 0)
   const totalInadimplencia = inadimplencias.reduce((acc, f) => acc + parseFloat(f.valor.replace('R$ ', '').replace('.', '').replace(',', '.')), 0)
 
   function handleDownload(tipo: string, num: string) {
-    alert(`Preparando emissão de ${tipo} ${num} — API de emissão em breve.`)
+    alert(`Preparando download de ${tipo} da fatura ${num}.`)
+  }
+
+  // === Estado para Modal de Cadastro
+  const [modalAberto, setModalAberto] = useState(false)
+  const [faturaEditando, setFaturaEditando] = useState<FaturaGlobal | null>(null)
+  const [formData, setFormData] = useState({
+    cliente: '',
+    produto: '',
+    competencia: '',
+    valor: '',
+    vencimento: '',
+    status: 'Pendente' as FaturaStatus
+  })
+  const [docsLocal, setDocsLocal] = useState<DocumentoFatura[]>([])
+
+  function abrirModalNovo() {
+    setFaturaEditando(null)
+    setFormData({ cliente: '', produto: '', competencia: '', valor: '', vencimento: '', status: 'Pendente' })
+    setDocsLocal([])
+    setModalAberto(true)
+  }
+
+  function abrirModalEditar(fatura: FaturaGlobal) {
+    setFaturaEditando(fatura)
+    setFormData({
+      cliente: fatura.cliente,
+      produto: fatura.produto,
+      competencia: fatura.competencia,
+      valor: fatura.valor,
+      vencimento: fatura.vencimento,
+      status: fatura.status
+    })
+    setDocsLocal(fatura.documentos || [])
+    setModalAberto(true)
+  }
+
+  function handleSalvar() {
+    if (faturaEditando) {
+      setFaturasLocal(prev => prev.map(f => f.id === faturaEditando.id ? { 
+        ...f, 
+        ...formData, 
+        documentos: docsLocal 
+      } : f))
+    } else {
+      const nova: FaturaGlobal = {
+        id: `g${Date.now()}`,
+        num: `#${Math.floor(1000 + Math.random() * 9000)}`,
+        ...formData,
+        documentos: docsLocal,
+        composicao: [{ item: 'Lançamento Manual', valor: formData.valor, tipo: 'base' }]
+      }
+      setFaturasLocal(prev => [nova, ...prev])
+    }
+    
+    alert('Fatura salva com sucesso! (Simulação em State Local)')
+    setModalAberto(false)
   }
 
   // === Tooltip de Valor (hover) ──────────────────────────────────────────────
@@ -124,7 +212,7 @@ export function AdminFinanceiro() {
     return () => window.removeEventListener('scroll', handler, true)
   }, [valorTooltipAberto])
 
-  const faturaTooltip = valorTooltipAberto ? faturasGlobais.find(f => f.id === valorTooltipAberto) : null
+  const faturaTooltip = valorTooltipAberto ? faturasLocal.find(f => f.id === valorTooltipAberto) : null
 
   // === Colunas ───────────────────────────────────────────────────────────────
 
@@ -178,6 +266,32 @@ export function AdminFinanceiro() {
       key: 'status', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Payment State', tooltipDescricao: 'Lifecycle event devolvido via webhook do gateway de pagamento.',
       render: (v) => <span className={`ws-badge ${statusBadge[v as FaturaStatus]}`}>{v}</span>
+    },
+    {
+      key: 'id', label: 'Docs', tipo: 'texto', align: 'center',
+      tooltipTitulo: 'Documentos Anexos', tooltipDescricao: 'Indica a quantidade e o status dos documentos carregados para acesso do cliente.',
+      render: (_, item) => {
+        const DocsIcon = ({ tipo, status }: { tipo: string, status: string }) => {
+          const isOk = status === 'Anexado'
+          if (tipo === 'Boleto') return <FilePdf size={14} weight="fill" style={{ color: isOk ? '#fbbf24' : 'rgba(255,255,255,0.05)' }} />
+          if (tipo === 'Nota Fiscal') return <Receipt size={14} weight="fill" style={{ color: isOk ? '#34d399' : 'rgba(255,255,255,0.05)' }} />
+          return <Paperclip size={14} weight="fill" style={{ color: isOk ? '#818cf8' : 'rgba(255,255,255,0.05)' }} />
+        }
+
+        return (
+          <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '80px' }}>
+            {item.documentos.length > 0 ? (
+              item.documentos.map(d => (
+                <span key={d.id} title={`${d.tipo}: ${d.nome}`} style={{ display: 'flex' }}>
+                   <DocsIcon tipo={d.tipo} status={d.status} />
+                </span>
+              ))
+            ) : (
+              <span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.05)', fontWeight: 700 }}>ZERO</span>
+            )}
+          </div>
+        )
+      }
     }
   ]
 
@@ -201,6 +315,14 @@ export function AdminFinanceiro() {
           titulo="Financeiro Global"
           subtitulo="Relatório consolidado por cliente, produto e data com acompanhamento de inadimplências."
           icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
+          acoes={
+            <BotaoGlobal 
+              texto="Lançar Fatura" 
+              icone={<Plus weight="bold" />} 
+              variante="sucesso" 
+              onClick={abrirModalNovo}
+            />
+          }
         />
       }
       stats={
@@ -241,7 +363,7 @@ export function AdminFinanceiro() {
           />
           <StatCardGlobal
             titulo="Performance"
-            valor={<span style={{ fontSize: '1.75rem' }}>{((faturasGlobais.filter(f => f.status === 'Pago').length / (faturasGlobais.length || 1)) * 100).toFixed(0)}%</span>}
+            valor={<span style={{ fontSize: '1.75rem' }}>{((faturasLocal.filter(f => f.status === 'Pago').length / (faturasLocal.length || 1)) * 100).toFixed(0)}%</span>}
             subtexto="Taxa de recebimento"
             variante="sucesso"
             tooltip={
@@ -249,11 +371,11 @@ export function AdminFinanceiro() {
                 <p className="cg-tooltip__title">EFICIÊNCIA</p>
                 <div className="cg-tooltip__row">
                   <span>Recebidas</span>
-                  <strong>{faturasGlobais.filter(x => x.status === 'Pago').length}</strong>
+                  <strong>{faturasLocal.filter(x => x.status === 'Pago').length}</strong>
                 </div>
                 <div className="cg-tooltip__row">
                   <span>Total emitido</span>
-                  <strong>{faturasGlobais.length}</strong>
+                  <strong>{faturasLocal.length}</strong>
                 </div>
               </>
             }
@@ -269,13 +391,17 @@ export function AdminFinanceiro() {
       </p>
       <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
         <TabelaGlobal<FaturaGlobal>
-          dados={faturasGlobais}
+          dados={faturasLocal}
           colunas={COLUNAS}
           acoesExportacao={ACOES_EXPORT}
           acoes={[
             {
-              id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Emitir NF-e (Em breve)',
-              onClick: (f) => handleDownload('NF-e', f.num),
+              id: 'anexar', icone: <Paperclip weight="bold" size={15} />, tooltip: 'Anexar Boleto / NF-e',
+              onClick: (f) => abrirModalEditar(f),
+            },
+            {
+              id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Documentos',
+              onClick: (f) => handleDownload('Pack PDF', f.num),
             }
           ]}
           mensagemVazio="Nenhuma fatura encontrada."
@@ -293,8 +419,163 @@ export function AdminFinanceiro() {
         color: 'var(--ws-muted)',
         lineHeight: 1.6,
       }}>
-        💡 <strong style={{ color: 'var(--ws-text)' }}>Futura API</strong> — Em breve, a integração com a API permitirá a emissão automática de NF-e, envio de boletos direto para os clientes e automação do processo de cobrança.
+        💡 <strong style={{ color: 'var(--ws-text)' }}>Gestão Manual</strong> — Utilize o botão "Lançar Fatura" para registrar cobranças manuais ou o ícone de clipe (<Paperclip size={12} />) para anexar boletos e notas fiscais em faturas existentes.
       </div>
+
+      {/* Modal de Cadastro/Edição de Fatura */}
+      <ModalFormularioAbasGlobal
+        aberto={modalAberto}
+        aoFechar={() => setModalAberto(false)}
+        aoSalvar={handleSalvar}
+        titulo={faturaEditando ? `Editar Fatura ${faturaEditando.num}` : 'Lançar Nova Fatura'}
+        subtitulo="Preencha os dados de faturamento e anexe os documentos necessários."
+        icone={<Receipt weight="duotone" size={24} />}
+        dirty={true}
+        podesSalvar={true}
+        abas={[
+          {
+            id: 'dados',
+            rotulo: 'Dados da Fatura',
+            conteudo: (
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <SecaoFormularioGlobal titulo="Identificação" icone={<Buildings size={16} />} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <GeralCampoGlobal label="Cliente / Organização">
+                    <input type="text" className="ws-input" value={formData.cliente} onChange={e => setFormData({...formData, cliente: e.target.value})} placeholder="Ex: Importas SA" />
+                  </GeralCampoGlobal>
+                  <GeralCampoGlobal label="Produto">
+                    <input type="text" className="ws-input" value={formData.produto} onChange={e => setFormData({...formData, produto: e.target.value})} placeholder="Ex: Gravity Journey" />
+                  </GeralCampoGlobal>
+                </div>
+                
+                <SecaoFormularioGlobal titulo="Valores e Prazos" icone={<CalendarBlank size={16} />} />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                  <GeralCampoGlobal label="Competência">
+                    <input type="text" className="ws-input" value={formData.competencia} onChange={e => setFormData({...formData, competencia: e.target.value})} placeholder="Ex: Abr/2025" />
+                  </GeralCampoGlobal>
+                  <GeralCampoGlobal label="Vencimento">
+                    <input type="date" className="ws-input" value={formData.vencimento} onChange={e => setFormData({...formData, vencimento: e.target.value})} />
+                  </GeralCampoGlobal>
+                  <GeralCampoGlobal label="Valor Total">
+                    <input type="text" className="ws-input" value={formData.valor} onChange={e => setFormData({...formData, valor: e.target.value})} placeholder="R$ 0,00" />
+                  </GeralCampoGlobal>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: 'arquivos',
+            rotulo: 'Documentos (PDF)',
+            conteudo: (
+              <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <SecaoFormularioGlobal titulo="Lista de Documentos" icone={<Paperclip size={16} />} />
+                  <BotaoGlobal 
+                    texto="Adicionar Documento" 
+                    variante="sucesso" 
+                    tamanho="sm" 
+                    icone={<Plus weight="bold" />}
+                    onClick={() => setDocsLocal([...docsLocal, { id: `d${Date.now()}`, nome: 'Pendente', tipo: 'Outros', status: 'Pendente' }])}
+                  />
+                </div>
+                
+                {docsLocal.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {docsLocal.map((doc: DocumentoFatura, idx: number) => (
+                      <div key={doc.id} style={{ 
+                        display: 'grid', gridTemplateColumns: '160px 1fr 44px', gap: '12px', alignItems: 'end', 
+                        background: 'rgba(255,255,255,0.03)', padding: '0.875rem 1rem', borderRadius: '10px', 
+                        border: '1px solid rgba(255,255,255,0.05)' 
+                      }}>
+                        <GeralCampoGlobal label="Tipo">
+                          <SelectGlobal
+                            valor={doc.tipo}
+                            opcoes={[
+                              { valor: 'Boleto', rotulo: 'Boleto Bancário' },
+                              { valor: 'Nota Fiscal', rotulo: 'Nota Fiscal (NF-e)' },
+                              { valor: 'Relatório', rotulo: 'Relatório de Uso' },
+                              { valor: 'Outros', rotulo: 'Outro Documento' },
+                            ]}
+                            aoMudarValor={(v) => {
+                              const newList = [...docsLocal]
+                              newList[idx].tipo = v as any
+                              setDocsLocal(newList)
+                            }}
+                          />
+                        </GeralCampoGlobal>
+
+                        <GeralCampoGlobal label="Arquivo / Status">
+                          <div style={{ 
+                            display: 'flex', alignItems: 'center', gap: '10px', 
+                            padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.03)', 
+                            borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)',
+                            fontSize: '0.8125rem'
+                          }}>
+                            {doc.tipo === 'Boleto' && <FilePdf size={18} weight="duotone" color="#fbbf24" />}
+                            {doc.tipo === 'Nota Fiscal' && <Receipt size={18} weight="duotone" color="#34d399" />}
+                            {doc.tipo !== 'Boleto' && doc.tipo !== 'Nota Fiscal' && <Paperclip size={18} weight="duotone" color="#818cf8" />}
+                            
+                            <span style={{ flex: 1, color: doc.status === 'Anexado' ? 'var(--ws-text)' : 'var(--ws-muted)', fontWeight: 500 }}>
+                              {doc.nome}
+                            </span>
+
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                const newList = [...docsLocal]
+                                newList[idx].status = 'Anexado'
+                                newList[idx].nome = `doc_${doc.tipo.toLowerCase()}_${Date.now()}.pdf`
+                                setDocsLocal(newList)
+                              }}
+                              style={{ 
+                                fontSize: '0.75rem', fontWeight: 700, background: doc.status === 'Anexado' ? 'rgba(52,211,153,0.1)' : 'rgba(129,140,248,0.1)', 
+                                color: doc.status === 'Anexado' ? '#34d399' : '#818cf8', border: 'none', 
+                                padding: '4px 10px', borderRadius: '6px', cursor: 'pointer' 
+                              }}
+                            >
+                              {doc.status === 'Anexado' ? 'Substituir' : 'Anexar PDF'}
+                            </button>
+                          </div>
+                        </GeralCampoGlobal>
+
+                        <button 
+                          type="button" 
+                          onClick={() => setDocsLocal(docsLocal.filter((d: DocumentoFatura) => d.id !== doc.id))}
+                          style={{ 
+                            width: '40px', height: '40px', borderRadius: '8px', 
+                            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', 
+                            color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', 
+                            justifyContent: 'center', transition: 'all 0.15s' 
+                          }}
+                        >
+                          <Trash size={18} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: '2.5rem', border: '2px dashed rgba(255,255,255,0.04)', borderRadius: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.01)' }}>
+                    <div style={{ opacity: 0.4, marginBottom: '0.75rem' }}><Paperclip size={32} weight="duotone" /></div>
+                    <p style={{ margin: 0, color: 'var(--ws-muted)', fontSize: '0.8125rem', fontWeight: 500 }}>Nenhum documento anexado.</p>
+                    <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem' }}>Utilize o botão acima para adicionar boletos, notas ou relatórios.</p>
+                  </div>
+                )}
+
+                <div style={{ 
+                  background: 'rgba(251,191,36,0.05)', 
+                  border: '1px solid rgba(251,191,36,0.15)', 
+                  padding: '0.75rem 1rem', 
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  color: '#fbbf24'
+                }}>
+                  ⚠️ Os arquivos anexados ficarão disponíveis imediatamente para o cliente na área "Financeiro" do workspace dele.
+                </div>
+              </div>
+            )
+          }
+        ]}
+      />
     </PaginaGlobal>
 
     {/* ═══════ POPOVER FIXO: COMPOSIÇÃO DA FATURA (hover, fora da tabela) ═══════ */}

@@ -136,7 +136,12 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   const dirty = !!(
     nome !== (organizacao?.name || '') ||
     subdominio !== (organizacao?.slug || '') ||
-    plano !== (organizacao?.subscriptions?.[0]?.plan || '')
+    plano !== (organizacao?.subscriptions?.[0]?.plan || '') ||
+    cnpj !== '12.345.678/0001-99' ||
+    estado !== 'SP' ||
+    cidade !== 'São Paulo' ||
+    segmento !== 'Logística' ||
+    site !== `https://www.${organizacao?.slug}.com.br`
   )
   const podesSalvar = !!nome.trim() && !!subdominio.trim() && !erroSub
 

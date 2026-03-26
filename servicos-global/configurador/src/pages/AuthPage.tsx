@@ -1,5 +1,6 @@
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LoginGlobal } from '@nucleo/login-global'
+import { Atom, CursorClick, Coins, ShieldCheck } from '@phosphor-icons/react'
 import './auth.css'
 
 export function AuthPage() {
@@ -18,31 +19,49 @@ export function AuthPage() {
 
           {/* Headline */}
           <h1 className="auth-headline">
-            Sua operação,{' '}
+            O marketplace de sua{' '}
             <span className="auth-headline-accent">
-              um lugar só.
+              eficiência operacional.
             </span>
           </h1>
 
           <p className="auth-subheadline">
-            Plataforma SaaS B2B multi-tenant modular. Email, WhatsApp,
-            dashboard e atividades — compartilhados entre todos os seus
-            produtos, sem duplicar dados ou custo.
+            Módulos independentes ou conectados para escalar seu negócio. 
+            Reduza a digitação manual com IA e assuma o controle real dos seus custos.
           </p>
 
           {/* Features */}
           <div className="auth-features">
             {[
-              { title: 'Multi-tenant nativo', desc: 'Cada empresa, dados isolados por design.' },
-              { title: 'Módulos compartilhados', desc: 'WhatsApp, email e dashboard em um só lugar.' },
-              { title: 'IA integrada', desc: 'Gabi analisa sua operação em tempo real.' },
-              { title: 'Segurança enterprise', desc: 'JWT + RLS + isolamento total por tenant.' },
-            ].map(f => (
-              <div key={f.title} className="auth-feature">
-                <div className="auth-feature-dot" />
-                <p className="auth-feature-text">
-                  <strong>{f.title}</strong> — {f.desc}
-                </p>
+              { 
+                icon: <Atom size={20} weight="duotone" className="auth-feature-icon" />, 
+                title: 'Ecossistema Modular', 
+                desc: 'Produtos que operam de forma isolada ou em harmonia, sem perda de dados.' 
+              },
+              { 
+                icon: <CursorClick size={20} weight="duotone" className="auth-feature-icon" />, 
+                title: 'Zero Digitação', 
+                desc: 'A Gabi AI automatiza processos braçais e elimina erros de preenchimento.' 
+              },
+              { 
+                icon: <Coins size={20} weight="duotone" className="auth-feature-icon" />, 
+                title: 'Gestão de Custos', 
+                desc: 'Visibilidade total e controle financeiro integrado a cada módulo do sistema.' 
+              },
+              { 
+                icon: <ShieldCheck size={20} weight="duotone" className="auth-feature-icon" />, 
+                title: 'Padrão Enterprise', 
+                desc: 'Privacidade absoluta com isolamento total por tenant em arquitetura SaaS.' 
+              },
+            ].map((f, i) => (
+              <div key={f.title} className="auth-feature" style={{ '--i': i } as any}>
+                <div className="auth-feature-icon-wrapper">
+                  {f.icon}
+                </div>
+                <div className="auth-feature-content">
+                  <h3 className="auth-feature-title">{f.title}</h3>
+                  <p className="auth-feature-desc">{f.desc}</p>
+                </div>
               </div>
             ))}
           </div>

@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "playground": "set CONFIGURADOR_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/configurador_test && set NODE_ENV=test && cd servicos-global/configurador && npx tsx watch server/index.ts",
+    "seed:playground": "npx tsx PLAYGROUND/seed-playground.ts"
+  },
   "dependencies": {
     "@clerk/localizations": "^4.2.3",
     "@prisma/client": "^5.22.0"

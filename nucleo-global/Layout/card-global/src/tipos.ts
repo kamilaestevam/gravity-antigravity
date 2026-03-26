@@ -42,7 +42,7 @@ export interface CardBasicoProps {
   /** Rótulo principal do card (ex: "TOTAL DE FILHAS") */
   titulo: string
   /** Valor numérico ou string em destaque (ex: 30 ou "2") */
-  valor: string | number
+  valor: ReactNode
   /**
    * Tendência estática simples (sem seletor de período).
    * Use `periodos` para habilitar o seletor interativo.
@@ -71,6 +71,9 @@ export interface CardBasicoProps {
    */
   tooltip?: ReactNode
 }
+
+/** @deprecated Use CardBasicoProps */
+export type StatCardProps = CardBasicoProps
 
 // ── CardGraficoGlobal ──────────────────────────────────────────────────────
 

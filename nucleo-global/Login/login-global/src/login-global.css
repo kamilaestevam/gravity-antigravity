@@ -103,6 +103,54 @@ a[href="https://clerk.com?utm_source=clerk&utm_medium=components"] {
   display: none !important;
 }
 
+.login-global-panel .cl-card {
+  border-top: 1px solid rgba(255, 255, 255, 0.4) !important;
+  backdrop-filter: blur(24px) !important;
+  box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.3s ease !important;
+}
+
+.login-global-panel .cl-socialButtonsBlockButtonBadge {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.8), 0 0 10px rgba(129, 140, 248, 0.6), 0 0 0 1px rgba(255,255,255,0.3) !important;
+}
+
+.login-global-panel .cl-formFieldRow {
+  width: 100% !important;
+}
+
+.login-global-footer {
+  margin-top: 2rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.login-footer-main {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.login-footer-secondary {
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.login-global-footer a {
+  color: #818cf8;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.login-global-footer a:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
 @media (max-width: 900px) {
   .login-global-panel {
     width: 100%;

@@ -411,7 +411,17 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
             {item.nome.charAt(0).toUpperCase()}
           </div>
-          <span style={{ fontWeight: 500 }}>{item.nome}</span>
+          <a 
+            href={`/workspace/workspaces?id=${item.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none'; }}
+            onClick={(ev) => ev.stopPropagation()}
+          >
+            {item.nome}
+          </a>
         </div>
       )
     },

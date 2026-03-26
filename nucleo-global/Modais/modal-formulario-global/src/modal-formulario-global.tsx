@@ -97,7 +97,7 @@ export function ModalFormularioGlobal({
               onClick={aoFechar}
             />
             <BotaoSalvar
-              dirty={podesSalvar}
+              dirty={podesSalvar && dirty}
               rotulo={textoSalvar}
               onClick={aoSalvar}
             />

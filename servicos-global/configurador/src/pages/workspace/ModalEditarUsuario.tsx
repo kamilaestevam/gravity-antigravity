@@ -368,7 +368,22 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
     }
   ], [nome, email, tipo, permissoesAtivas, countPermissoes])
 
-  const dirty = usuario && (nome !== usuario.nome || email !== usuario.email || tipo !== usuario.tipo || permissoesAtivas.length > 0) // rough check
+  const originalPerms = useMemo(() => {
+    if (!usuario) return []
+    if (usuario.tipo === 'Master') {
+      return CATEGORIAS_PERMISSAO.flatMap(c => c.itens.map(i => i.id))
+    }
+    return ['nav_dash', 'vis_basico'] // mocks correlacionados ao useEffect
+  }, [usuario?.id, usuario?.tipo])
+
+  const dirty = usuario && (
+    nome !== usuario.nome || 
+    email !== usuario.email || 
+    tipo !== usuario.tipo || 
+    permissoesAtivas.length !== originalPerms.length ||
+    permissoesAtivas.some(p => !originalPerms.includes(p))
+  )
+
   
   const handleSalvar = () => {
     if (!usuario) return
@@ -389,7 +404,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
       abaAtivaInicial={abaInicial}
       abas={abas}
       dirty={!!dirty}
-      podesSalvar={!!dirty && !!nome && !!email}
+      podesSalvar={!!nome && !!email}
     />
   )
 }

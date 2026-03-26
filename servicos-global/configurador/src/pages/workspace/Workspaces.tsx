@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -77,6 +78,25 @@ export function Workspaces() {
   }, [empresas])
   const [showForm, setShowForm]    = useState(false)
   const [empresaEditando, setEmpresaEditando] = useState<Empresa | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    const idParam = searchParams.get('id')
+    if (idParam && empresas.length > 0) {
+      // Tenta encontrar por ID (removendo prefixos f ou ws_ se necessário)
+      const cleanId = idParam.replace(/^(f|ws_)/, '').split('_')[0]
+      const encontrada = empresas.find(e => e.id === cleanId || e.id === idParam)
+      
+      if (encontrada) {
+        setEmpresaEditando(encontrada)
+        setShowForm(true)
+        // Limpa o param para não reabrir se o usuário fechar
+        const newParams = new URLSearchParams(searchParams)
+        newParams.delete('id')
+        setSearchParams(newParams, { replace: true })
+      }
+    }
+  }, [searchParams, empresas])
 
   const ativas = empresas.filter(e => e.status === 'Ativa').length
   const suspensas = empresas.filter(e => e.status === 'Suspensa').length

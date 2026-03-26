@@ -1,5 +1,5 @@
 import { SignIn, SignUp } from '@clerk/clerk-react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import './login-global.css'
 
 export function LoginGlobal() {
@@ -9,7 +9,7 @@ export function LoginGlobal() {
   const clerkAppearance = {
     variables: {
       colorPrimary: '#6366f1',
-      colorBackground: '#1e293b',
+      colorBackground: '#1a1f2e',
       colorInputBackground: '#0f172a',
       colorInputText: '#f1f5f9',
       colorText: '#f1f5f9',
@@ -21,20 +21,23 @@ export function LoginGlobal() {
     },
     elements: {
       card: {
-        boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 40px -10px rgba(129, 140, 248, 0.1)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        background: '#1e293b',
+        boxShadow: '0 32px 64px -16px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        border: '1px solid rgba(255, 255, 255, 0.18)',
+        background: '#1a1f2e',
+        overflow: 'visible',
       },
       headerTitle: { display: 'none' },
       headerSubtitle: { display: 'none' },
       socialButtonsBlockButton: {
-        border: '1px solid rgba(255,255,255,0.08)',
-        background: '#1e293b',
+        border: '1.5px solid rgba(255,255,255,0.45)',
+        background: '#2d3548',
         color: '#ffffff',
-        transition: 'all 0.2s ease',
+        fontWeight: '600',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          background: '#242f42',
-          borderColor: 'rgba(255,255,255,0.15)',
+          background: '#363f54',
+          borderColor: 'rgba(255,255,255,0.65)',
+          transform: 'translateY(-1px)',
         },
       },
       socialButtonsBlockButtonBadge: {
@@ -48,18 +51,29 @@ export function LoginGlobal() {
         position: 'absolute',
         top: '6px',
         right: '8px',
+        boxShadow: '0 4px 14px rgba(0,0,0,0.8), 0 0 10px rgba(129, 140, 248, 0.5), 0 0 0 1.5px rgba(255,255,255,0.3)',
       },
       formButtonPrimary: {
         background: '#6366f1',
         color: '#ffffff',
         fontWeight: '700',
         borderRadius: '9999px',
-        boxShadow: '0 1px 3px rgba(99, 102, 241, 0.25)',
+        boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+          background: '#4f46e5',
+          boxShadow: '0 6px 20px rgba(99, 102, 241, 0.45)',
+          transform: 'translateY(-1px)',
+        },
       },
-      footerActionLink: { color: '#818cf8', fontWeight: '600' },
+      formFieldLabel: { color: '#94a3b8', fontWeight: '600', marginBottom: '4px' },
+      formFieldRow: { 
+        flexDirection: 'column', 
+        gap: '0.75rem' 
+      },
       footer: { display: 'none' },
-      dividerLine: { background: 'rgba(255,255,255,0.1)' },
-      dividerText: { color: '#64748b' },
+      dividerLine: { background: 'rgba(255,255,255,0.08)' },
+      dividerText: { color: '#94a3b8', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase' },
     },
   }
 
@@ -87,18 +101,18 @@ export function LoginGlobal() {
       )}
 
       <div className="login-global-footer">
-        <p>
+        <p className="login-footer-main">
           {isSignUp ? (
             <>
-              Possui uma conta? <a href="/#/sign-in">Entrar</a>
+              Possui uma conta? <Link to="/sign-in">Entrar</Link>
             </>
           ) : (
             <>
-              Não possui uma conta? <a href="/#/sign-up">Registre-se</a>
+              Não possui uma conta? <Link to="/sign-up">Registre-se</Link>
             </>
           )}
         </p>
-        <p style={{ marginTop: '1.5rem' }}>
+        <p className="login-footer-secondary">
           {isSignUp ? 'Já conhece a plataforma? ' : 'Novo por aqui? '}
           <a href="http://localhost:8002" target="_blank" rel="noreferrer">
             {isSignUp ? 'Saiba mais' : 'Conheça a plataforma'}

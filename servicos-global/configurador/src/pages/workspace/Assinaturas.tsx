@@ -397,16 +397,30 @@ export function Assinaturas() {
                       key: 'status', label: 'Status do Serviço', tipo: 'texto', 
                       render: (v) => {
                         const ativo = v === 'Ativo'
+                        const suspenso = produto.status === 'Suspenso'
                         return (
-                          <span style={{ 
-                            display: 'inline-flex', padding: '0.15rem 0.5rem', borderRadius: '4px', 
-                            fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
-                            background: ativo ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
-                            color: ativo ? '#34d399' : 'var(--ws-muted)',
-                            border: ativo ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.1)'
-                          }}>
-                            {ativo ? 'HABILITADO' : 'BLOQUEADO'}
-                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ 
+                              display: 'inline-flex', padding: '0.15rem 0.5rem', borderRadius: '4px', 
+                              fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
+                              background: ativo ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.05)',
+                              color: ativo ? '#34d399' : 'var(--ws-muted)',
+                              border: ativo ? '1px solid rgba(52,211,153,0.2)' : '1px solid rgba(255,255,255,0.1)'
+                            }}>
+                              {ativo ? 'HABILITADO' : 'BLOQUEADO'}
+                            </span>
+                            {ativo && suspenso && (
+                              <span style={{ 
+                                display: 'inline-flex', padding: '0.15rem 0.5rem', borderRadius: '4px', 
+                                fontSize: '0.625rem', fontWeight: 700, textTransform: 'uppercase',
+                                background: 'rgba(248,113,113,0.1)',
+                                color: '#f87171',
+                                border: '1px solid rgba(248,113,113,0.2)'
+                              }}>
+                                SUSPENSO
+                              </span>
+                            )}
+                          </div>
                         )
                       }
                     },

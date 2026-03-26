@@ -577,12 +577,11 @@ export function Usuarios() {
                           key: 'nome', 
                           label: 'Nome do Workspace',
                           tipo: 'texto', 
-                          render: (v) => {
+                          render: (v, item) => {
                             const nome = v as string;
-                            const subdominio = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
                             return (
                               <a 
-                                href={`http://localhost:8010/workspace/${subdominio}`}
+                                href={`/workspace/workspaces?id=${item.id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}

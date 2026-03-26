@@ -72,8 +72,17 @@ body.light-theme .pg-contexto-row {
 
 /* 3. LAYER: TOOLBAR FIXO (abas, filtros, etc.) */
 .pg-toolbar-wrapper {
+  position: relative;
+  z-index: 30; /* Fica acima da pg-contexto-row se houver sobreposição por transform */
   flex-shrink: 0;
   background: var(--ws-bg-body, #0f172a);
+  
+  /* Full-bleed para alinhar com pg-contexto-row */
+  margin-left: -2rem;
+  margin-right: -2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+
   padding-top: 0;
   padding-bottom: 16px;
 }

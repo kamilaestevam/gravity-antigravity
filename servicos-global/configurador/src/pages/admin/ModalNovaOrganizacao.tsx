@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
-import { SelectGlobal, type SelectOpcao } from '@nucleo/select-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { 
   Buildings, 
   Link, 
@@ -272,7 +272,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
 
           <GeralCampoGlobal 
             label="Acesso Padrão"
-            tooltipTitulo="Espaço de Trabalho Padrão"
+            tooltipTitulo="Workspace Padrão"
             tooltipDescricao="Define qual ambiente será carregado automaticamente ao entrar na plataforma."
           >
             <SelectGlobal

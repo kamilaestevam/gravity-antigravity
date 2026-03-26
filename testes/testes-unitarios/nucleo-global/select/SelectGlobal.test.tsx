@@ -11,7 +11,7 @@ import React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SelectGlobal } from '../../../../nucleo-global/select/src/select-global'
+import { SelectGlobal } from '../../../../nucleo-global/select/src/campo-select-global'
 import type { SelectOpcao, SelectGrupo } from '../../../../nucleo-global/select/src/tipos'
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────

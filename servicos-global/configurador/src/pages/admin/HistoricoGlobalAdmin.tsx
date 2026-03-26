@@ -4,7 +4,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { SelectGlobal } from '@nucleo/select-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 
 type DiffObj = {
   campo: string

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(__NEW_LINE_869702e68f560bf4__ echo:*)",
+      "Read(//c/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/**)"
+    ]
+  }
+}

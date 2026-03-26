@@ -23,6 +23,7 @@ export interface Produto {
   valor: string
   renovacao: string
   workspacesHabilitados: string[]
+  workspacesVinculados?: string[]
 }
 
 const billingColor: Record<BillingType, string> = {
@@ -32,9 +33,9 @@ const billingColor: Record<BillingType, string> = {
 }
 
 export const mockProdutos: Produto[] = [
-  { id: 'dash',     nome: 'Dashboard Global',     status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 299/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo', 'Filial Rio'] },
-  { id: 'ativ',     nome: 'Gestão de Atividades',  status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 199/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo'] },
-  { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 10,99/est', renovacao: 'Variável',  workspacesHabilitados: ['Importes SA', 'Filial Sul'] },
+  { id: 'dash',     nome: 'Dashboard Global',     status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 299/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo', 'Filial Rio'], workspacesVinculados: ['Sede São Paulo', 'Filial Rio', 'Filial Sul', 'Importes SA', 'Logística MG'] },
+  { id: 'ativ',     nome: 'Gestão de Atividades',  status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 199/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo'], workspacesVinculados: ['Sede São Paulo', 'Filial Rio'] },
+  { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 10,99/est', renovacao: 'Variável',  workspacesHabilitados: ['Importes SA', 'Filial Sul'], workspacesVinculados: ['Importes SA', 'Filial Sul', 'Filial Rio'] },
 ]
 
 const upsellProducts = [
@@ -46,8 +47,8 @@ const upsellProducts = [
 export function Assinaturas() {
   const [produtos, setProdutos]         = useState<Produto[]>(mockProdutos)
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null)
-  const [produtoParaSuspender, setProdutoParaSuspender] = useState<Produto | null>(null)
   const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null)
+  const [vinculoParaExcluir, setVinculoParaExcluir] = useState<{produto: Produto, workspaceNome: string} | null>(null)
 
   const totalAtivos = produtos.filter(p => p.status === 'Ativo' || p.status === 'Trial').length
   const totalSuspensos = produtos.filter(p => p.status === 'Suspenso').length
@@ -61,16 +62,10 @@ export function Assinaturas() {
     }, 0)
 
   function handleSuspend(p: Produto) {
-    setProdutoParaSuspender(p)
-  }
-
-  function confirmarSuspensao() {
-    if (!produtoParaSuspender) return
-    setProdutos(prev => prev.map(x => x.id === produtoParaSuspender.id
+    setProdutos(prev => prev.map(x => x.id === p.id
       ? { ...x, status: x.status === 'Suspenso' ? 'Ativo' : 'Suspenso' }
       : x
     ))
-    setProdutoParaSuspender(null)
   }
 
   function handleDelete(p: Produto) {
@@ -81,6 +76,16 @@ export function Assinaturas() {
     if (!produtoParaExcluir) return
     setProdutos(prev => prev.filter(x => x.id !== produtoParaExcluir.id))
     setProdutoParaExcluir(null)
+  }
+
+  function confirmarExclusaoVinculo() {
+    if (!vinculoParaExcluir) return
+    const { produto, workspaceNome } = vinculoParaExcluir
+    const vinculadosAtuais = produto.workspacesVinculados || TODOS_WORKSPACES_MAPP.map(w => w.nome)
+    const novoVinculos = vinculadosAtuais.filter(n => n !== workspaceNome)
+    const novoHabilitados = produto.workspacesHabilitados.filter(n => n !== workspaceNome)
+    setProdutos(prev => prev.map(p => p.id === produto.id ? { ...p, workspacesVinculados: novoVinculos, workspacesHabilitados: novoHabilitados } : p))
+    setVinculoParaExcluir(null)
   }
 
   // ── Colunas da TabelaGlobal ───────────────────────────────────────────────────
@@ -125,12 +130,12 @@ export function Assinaturas() {
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'workspacesHabilitados', label: 'Espaços Habilitados', tipo: 'texto',
+      key: 'workspacesHabilitados', label: 'Workspaces Habilitados', tipo: 'texto',
       tooltipTitulo: 'Distribuição por Workspace',
       tooltipDescricao: 'Resumo das instâncias ativas para este serviço.',
       render: (v) => {
         const list = v as string[]
-        if (!list || list.length === 0) return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>Nenhum espaço habilitado</span>
+        if (!list || list.length === 0) return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>Nenhum workspace habilitado</span>
         
         const show = list.slice(0, 2)
         const rest = list.length - show.length
@@ -355,16 +360,39 @@ export function Assinaturas() {
           renderExpandido={(produto) => (
             <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
               <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                <TreeStructure size={14} /> Auditoria de Consumo por Espaço
+                <TreeStructure size={14} /> Auditoria de Consumo por Workspace
               </div>
               <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
                 <TabelaGlobal<{ nome: string; status: string; id: string }>
-                  dados={TODOS_WORKSPACES_MAPP.map(ws => ({
-                    ...ws,
-                    status: produto.workspacesHabilitados.includes(ws.nome) ? 'Ativo' : 'Inativo'
-                  }))}
+                  dados={TODOS_WORKSPACES_MAPP
+                    .filter(ws => produto.workspacesVinculados ? produto.workspacesVinculados.includes(ws.nome) : true)
+                    .map(ws => ({
+                      ...ws,
+                      status: produto.workspacesHabilitados.includes(ws.nome) ? 'Ativo' : 'Inativo'
+                    }))}
                   colunas={[
-                    { key: 'nome', label: 'Nome do Espaço', tipo: 'texto', render: (v) => <span style={{ fontWeight: 600 }}>{v as string}</span> },
+                    { 
+                      key: 'nome', 
+                      label: 'Nome do Workspace',
+                      tipo: 'texto', 
+                      render: (v) => {
+                        const nome = v as string;
+                        const subdominio = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                        return (
+                          <a 
+                            href={`http://localhost:8010/workspace/${subdominio}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
+                            onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none'; }}
+                            onClick={ev => ev.stopPropagation()}
+                          >
+                            {nome}
+                          </a>
+                        )
+                      }
+                    },
                     { 
                       key: 'status', label: 'Status do Serviço', tipo: 'texto', 
                       render: (v) => {
@@ -388,7 +416,7 @@ export function Assinaturas() {
                         const ativo = produto.workspacesHabilitados.includes(wsItem.nome)
                         return (
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
-                            <TooltipGlobal descricao={ativo ? 'Suspender acesso neste espaço' : 'Reativar acesso neste espaço'}>
+                            <TooltipGlobal descricao={ativo ? 'Suspender acesso neste workspace' : 'Reativar acesso neste workspace'}>
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation()
@@ -410,13 +438,11 @@ export function Assinaturas() {
                               </button>
                             </TooltipGlobal>
 
-                            <TooltipGlobal descricao="Remover vínculo deste espaço">
+                            <TooltipGlobal descricao="Remover vínculo deste workspace">
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  console.log('[DEBUG] CLICK REMOVER VINCULO:', wsItem.nome, 'for product:', produto.nome)
-                                  const novoLote = produto.workspacesHabilitados.filter(n => n !== wsItem.nome)
-                                  setProdutos(prev => prev.map(p => p.id === produto.id ? { ...p, workspacesHabilitados: novoLote } : p))
+                                  setVinculoParaExcluir({ produto, workspaceNome: wsItem.nome })
                                 }}
                                 style={{ 
                                   background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--ws-muted)',
@@ -433,7 +459,7 @@ export function Assinaturas() {
                       }
                     }
                   ]}
-                  mensagemVazio="Nenhum espaço de trabalho cadastrado."
+                  mensagemVazio="Nenhum workspace cadastrado."
                 />
               </div>
             </div>
@@ -517,12 +543,12 @@ export function Assinaturas() {
     />
 
     <ModalExclusao
-      aberto={!!produtoParaSuspender}
-      titulo={produtoParaSuspender?.status === 'Suspenso' ? 'Reativar Produto' : 'Suspender Produto'}
-      descricao={<>Tem certeza de que deseja {produtoParaSuspender?.status === 'Suspenso' ? 'reativar' : 'suspender'} a assinatura de <strong>{produtoParaSuspender?.nome}</strong>?</>}
-      nomeItem={produtoParaSuspender?.status === 'Suspenso' ? 'O acesso será reativado para todos os usuários.' : 'O acesso será bloqueado imediatamente para todos os usuários deste serviço.'}
-      aoConfirmar={confirmarSuspensao}
-      aoCancelar={() => setProdutoParaSuspender(null)}
+      aberto={!!vinculoParaExcluir}
+      titulo="Remover Vínculo do Workspace"
+      descricao={<>Tem certeza de que deseja remover o workspace <strong>{vinculoParaExcluir?.workspaceNome}</strong> desta assinatura?</>}
+      nomeItem="O acesso a este serviço será cortado imediatamente para essa instância de trabalho e a linha será removida da auditoria."
+      aoConfirmar={confirmarExclusaoVinculo}
+      aoCancelar={() => setVinculoParaExcluir(null)}
     />
 
     <ModalEditarAssinatura

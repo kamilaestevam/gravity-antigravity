@@ -14,16 +14,16 @@ import { useUser } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { SelectGlobal } from '@nucleo/select-global'
-import type { SelectOpcao } from '@nucleo/select-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
+import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
-import { ModalSelectGlobal } from '@nucleo/modal-select-global'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
+import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 
 // ── Mock — substituir por contexto real de tenant ──────────────────────────
-const ESPACOS_TRABALHO_MOCK = [
+const WORKSPACES_MOCK = [
   { id: '1', nome: 'Acme Logística',       subdominio: 'acme-log'    },
   { id: '2', nome: 'Acme Importações',     subdominio: 'acme-import' },
   { id: '3', nome: 'Acme Distribuição',    subdominio: 'acme-dist'   },
@@ -80,24 +80,24 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
   ...SEGMENTOS.map(s => ({ valor: s, rotulo: s }))
 ]
 
-// As opções de espaços serão carregadas dinamicamente dentro do componente
+// As opções de workspaces serão carregadas dinamicamente dentro do componente
 
 /** Chave do localStorage vinculada ao usuário */
 function storageKey(userId: string | undefined) {
-  return `gravity:espaco-trabalho-ativo:${userId ?? 'anon'}`
+  return `gravity:workspace-ativo:${userId ?? 'anon'}`
 }
 
 export function Organizacao() {
   const { user } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
 
-  // Carregar os espaços do localStorage em um state
+  // Carregar os workspaces do localStorage em um state
   const [espacosLocais] = useState<any[]>(() => {
     try {
-      const salvo = localStorage.getItem('gravity:espacos-trabalho-dados')
+      const salvo = localStorage.getItem('gravity:workspaces-dados')
       if (salvo) return JSON.parse(salvo)
     } catch (e) {}
-    return ESPACOS_TRABALHO_MOCK
+    return WORKSPACES_MOCK
   })
 
   const OPCOES_ESPACOS: SelectOpcao[] = espacosLocais.map(f => ({
@@ -122,7 +122,7 @@ export function Organizacao() {
   // detecção de alterações para habilitar Salvar / Cancelar
   const { dirty, resetDirty } = useDirty(dadosIniciaisLocal, dados)
 
-  // espaço de trabalho selecionada para acesso operacional
+  // workspace selecionado para acesso operacional
   const [espacoInicial, setFilhaInicial] = useState<string>('')
   const [espacoAtivoId, setFilhaAtivaId] = useState<string>('')
   
@@ -186,7 +186,7 @@ export function Organizacao() {
       setDadosIniciaisLocal(dados)
       resetDirty(dados)
 
-      // Persistir preferência local de espaço de trabalho ativa
+      // Persistir preferência local de workspace ativo
       const chave = storageKey(user?.id)
       if (espacoAtivoId) {
         localStorage.setItem(chave, espacoAtivoId)
@@ -239,7 +239,7 @@ export function Organizacao() {
         <div className="em-identity__hero">
           <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
           <div className="em-identity__text">
-            <TooltipGlobal titulo="Hierarquia de Contas" descricao="Organização é a matriz gerencial, os espaços são as várias empresas operadas dentro dela">
+            <TooltipGlobal titulo="Hierarquia de Contas" descricao="Organização é a matriz gerencial, os workspaces são as várias empresas operadas dentro dela">
               <span className="em-identity__badge" style={{ cursor: 'help' }}>Organização</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
@@ -420,18 +420,18 @@ export function Organizacao() {
         </div>
       </div>
 
-      {/* ── Espaço de Trabalho Padrão ──────────────────────────────────── */}
+      {/* ── Workspace Padrão ──────────────────────────────────── */}
       <ModalSelectGlobal
         icone={<CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />}
         titulo={
-          <TooltipGlobal titulo="Espaço de Trabalho Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
+          <TooltipGlobal titulo="Workspace Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
             <span style={{ cursor: 'help' }}>Acesso Padrão</span>
           </TooltipGlobal>
         }
         descricao="Defina qual ambiente será carregado automaticamente ao entrar na plataforma."
         labelContext={
-          <TooltipGlobal titulo="Ambiente Padrão" descricao="Escolha o espaço de trabalho que será seu ambiente principal ao entrar no sistema">
-            <span>Espaço de Trabalho</span>
+          <TooltipGlobal titulo="Ambiente Padrão" descricao="Escolha o workspace que será seu ambiente principal ao entrar no sistema">
+            <span>Workspace</span>
           </TooltipGlobal>
         }
         selectElement={

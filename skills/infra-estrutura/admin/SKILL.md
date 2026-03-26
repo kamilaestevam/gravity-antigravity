@@ -57,7 +57,7 @@ function requireGravityAdmin(req, res, next) {
 | CNPJ | CNPJ da empresa |
 | STATUS | Ativo / Trial / Suspenso / Churned |
 | PRODUTOS | Badges dos produtos contratados |
-| espaços de trabalho | quantidade de espaços |
+| workspaces | quantidade de workspaces |
 | USUÁRIOS | Total de usuários ativos |
 | PLANO | Básico / Pro / Enterprise |
 | CRIADO EM | Data de cadastro |

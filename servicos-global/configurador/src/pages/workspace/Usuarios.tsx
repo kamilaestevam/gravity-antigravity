@@ -7,8 +7,8 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
-import { SelectGlobal, type SelectOpcao } from '@nucleo/select-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
@@ -413,7 +413,7 @@ export function Usuarios() {
     { header: 'E-mail',  key: 'email' },
     { header: 'Tipo',    key: 'tipo'  },
   ]
-  const OPCOES_EXPORT_FILIAIS = { nomeArquivo: 'acesso-por-espaco-trabalho', titulo: 'Acesso por Espaço de Trabalho' }
+  const OPCOES_EXPORT_FILIAIS = { nomeArquivo: 'acesso-por-workspace', titulo: 'Acesso por Workspace' }
 
   const ACOES_EXPORT_FILIAIS: TabelaExportAcao<TenantUser>[] = [
     { label: 'Exportação Completa', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
@@ -505,7 +505,7 @@ export function Usuarios() {
             }
           />
           <CardGraficoGlobal
-            titulo="Total Espaços de Trabalho"
+            titulo="Total Workspaces"
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
             total={users.length}
             valorPrincipal={usuariosComAcesso}
@@ -522,7 +522,7 @@ export function Usuarios() {
                   <strong>{users.length}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>Total de Espaços</span>
+                  <span>Total de Workspaces</span>
                   <strong>{espacos.length}</strong>
                 </div>
                 <div className="cg-tooltip__divider" />
@@ -565,7 +565,7 @@ export function Usuarios() {
             return (
               <div style={{ padding: '0 1.5rem 1.5rem 1.5rem', background: 'rgba(0,0,0,0.15)' }}>
                 <div style={{ padding: '1.25rem 1rem 0.75rem 1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Espaço de Trabalho
+                  <ShieldCheck size={14} weight="duotone" color="var(--color-primary)" /> Permissões de Acesso por Workspace
                 </div>
                 
                 {vinculados.length > 0 ? (
@@ -573,7 +573,28 @@ export function Usuarios() {
                     <TabelaGlobal<EspacoTrabalho>
                       dados={vinculados}
                       colunas={[
-                        { key: 'nome', label: 'Nome do Espaço', tipo: 'texto', render: (v) => <span style={{ fontWeight: 600 }}>{v as string}</span> },
+                        { 
+                          key: 'nome', 
+                          label: 'Nome do Workspace',
+                          tipo: 'texto', 
+                          render: (v) => {
+                            const nome = v as string;
+                            const subdominio = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                            return (
+                              <a 
+                                href={`http://localhost:8010/workspace/${subdominio}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s', cursor: 'pointer' }}
+                                onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
+                                onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none'; }}
+                                onClick={ev => ev.stopPropagation()}
+                              >
+                                {nome}
+                              </a>
+                            )
+                          }
+                        },
                         { key: 'id', label: 'ID Técnica', tipo: 'texto', render: (v) => <code style={{ fontSize: '0.625rem', opacity: 0.6 }}>{v as string}</code> },
                         { 
                           key: 'id', label: 'Privilégio', tipo: 'texto', 
@@ -584,7 +605,7 @@ export function Usuarios() {
                           )
                         },
                         {
-                          key: 'id', label: 'Status no Espaço', tipo: 'texto', align: 'right',
+                          key: 'id', label: 'Status no Workspace', tipo: 'texto', align: 'right',
                           render: () => (
                              <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700 }}>HABILITADO</span>
                           )
@@ -595,7 +616,7 @@ export function Usuarios() {
                   </div>
                 ) : (
                   <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
-                    O usuário <strong>{usuario.nome}</strong> ainda não possui espacos de trabalho vinculados.
+                    O usuário <strong>{usuario.nome}</strong> ainda não possui workspaces vinculados.
                   </div>
                 )}
               </div>

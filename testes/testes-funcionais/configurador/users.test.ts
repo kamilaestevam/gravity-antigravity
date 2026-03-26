@@ -196,7 +196,7 @@ describe('POST /api/v1/users/invite — convidar usuário', () => {
   })
 })
 
-describe('POST /api/v1/users/:id/memberships — habilitar em espaço de trabalho', () => {
+describe('POST /api/v1/users/:id/memberships — habilitar em workspace', () => {
   const app = buildApp()
 
   beforeEach(() => vi.clearAllMocks())
@@ -237,7 +237,7 @@ describe('POST /api/v1/users/:id/memberships — habilitar em espaço de trabalh
     expect(mockPrisma.userMembership.upsert).not.toHaveBeenCalled()
   })
 
-  it('404 — espaço de trabalho não pertence ao tenant (cross-tenant bloqueado)', async () => {
+  it('404 — workspace não pertence ao tenant (cross-tenant bloqueado)', async () => {
     mockPrisma.user.findFirst.mockResolvedValueOnce({ id: 'user-1', tenant_id: 'tenant-abc' })
     mockPrisma.company.findFirst.mockResolvedValueOnce(null) // empresa de outro tenant
 

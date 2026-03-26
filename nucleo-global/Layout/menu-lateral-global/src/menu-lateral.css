@@ -1,0 +1,275 @@
+/* ── Menu Lateral Global ─────────────────────────────────────────────────── */
+
+@keyframes mlg-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 transparent;
+    opacity: 0.7;
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--mlg-accent-border), 0 0 12px var(--mlg-accent-dim);
+    opacity: 1;
+  }
+}
+
+/* ── Container ── */
+.mlg-sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: linear-gradient(180deg, var(--mlg-accent-dim) 0%, var(--ws-surface, #1e293b) 120px);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 10;
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              min-width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-right: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+}
+
+.mlg-sidebar::-webkit-scrollbar {
+  width: 0px;
+}
+
+.mlg-sidebar.collapsed {
+  width: 72px;
+  min-width: 72px;
+}
+
+/* ── Logo area ── */
+.mlg-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 36px 0.875rem 26px 1.25rem;
+  border-bottom: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+  overflow: hidden;
+  transition: padding 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mlg-sidebar.collapsed .mlg-logo-area {
+  padding: 36px 0 26px 0;
+  justify-content: center;
+}
+
+/* ── Module chip (e.g. CONFIGURADOR) ── */
+.mlg-module-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  background: var(--mlg-accent-dim);
+  border: 1px solid var(--mlg-accent-border);
+  border-radius: 9999px;
+  animation: mlg-glow-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.mlg-module-chip__dot {
+  width: 5px;
+  height: 5px;
+  min-width: 5px;
+  border-radius: 50%;
+}
+
+.mlg-module-chip__label {
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Tenant info block ── */
+.mlg-tenant {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+  background: rgba(0, 0, 0, 0.05);
+  transition: padding 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mlg-sidebar.collapsed .mlg-tenant {
+  padding: 0.75rem 0;
+  justify-content: center;
+}
+
+/* Tooltip trigger wrapping o tenant quando collapsed — precisa ser block para manter layout */
+.mlg-sidebar.collapsed .tg-trigger {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.mlg-tenant-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mlg-tenant-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  min-width: 0;
+}
+
+.mlg-tenant-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mlg-tenant-plan {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Navigation ── */
+.mlg-nav {
+  flex: 1;
+  padding: 26px 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mlg-sidebar.collapsed .mlg-nav {
+  padding: 26px 0.5rem 1rem;
+}
+
+.mlg-nav-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ws-muted, #94a3b8);
+  padding: 0 0.875rem 0.375rem;
+  margin-bottom: 0.125rem;
+}
+
+.mlg-nav-spacer {
+  height: 20px;
+}
+
+.mlg-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 12px 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ws-muted, #94a3b8);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.mlg-nav-item:hover {
+  background: var(--mlg-accent-dim);
+  color: var(--ws-text, #f1f5f9);
+}
+
+.mlg-nav-item.active {
+  background: var(--mlg-accent-dim);
+  color: var(--mlg-accent, #818cf8);
+  font-weight: 600;
+  border-radius: 9999px;
+  box-shadow: inset 3px 0 0 var(--mlg-accent, #818cf8);
+}
+
+.mlg-nav-item.active .mlg-nav-icon {
+  color: var(--mlg-accent, #818cf8);
+}
+
+.mlg-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  min-width: 18px;
+}
+
+.mlg-sidebar.collapsed .mlg-nav-item {
+  padding: 12px 0;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.mlg-sidebar.collapsed .mlg-nav-item.active {
+  box-shadow: inset 3px 0 0 var(--mlg-accent, #818cf8);
+  border-radius: 12px;
+}
+
+/* Tooltip trigger dentro da nav collapsed */
+.mlg-sidebar.collapsed .mlg-nav .tg-trigger {
+  display: block;
+  width: 100%;
+}
+
+/* ── Footer com toggle ── */
+.mlg-footer {
+  padding: 0.75rem;
+  border-top: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mlg-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+  color: var(--ws-muted, #94a3b8);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mlg-toggle-btn:hover {
+  background: var(--mlg-accent-dim);
+  color: var(--mlg-accent, #818cf8);
+  border-color: var(--mlg-accent, #818cf8);
+  transform: scale(1.08);
+}
+
+/* Expanded: botão alinhado à esquerda com label estilo link */
+.mlg-sidebar:not(.collapsed) .mlg-footer {
+  justify-content: flex-start;
+  padding-left: 1rem;
+}
+
+.mlg-sidebar:not(.collapsed) .mlg-toggle-btn {
+  width: auto;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: var(--font, inherit);
+}

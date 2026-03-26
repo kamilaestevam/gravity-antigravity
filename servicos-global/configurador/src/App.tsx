@@ -1,5 +1,5 @@
 import { Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react'
+import { SignedIn, SignedOut, RedirectToSignIn, useAuth } from '@clerk/clerk-react'
 import { AuthPage } from './pages/AuthPage'
 
 export type Page =
@@ -23,7 +23,7 @@ import { Hub } from './pages/Hub'
 import { Store } from './pages/Store'
 import { WorkspaceLayout } from './pages/workspace/WorkspaceLayout'
 import { Organizacao }       from './pages/workspace/Organizacao'
-import { EspacosDeTrabalho }          from './pages/workspace/EspacosDeTrabalho'
+import { Workspaces }                 from './pages/workspace/Workspaces'
 import { Usuarios }          from './pages/workspace/Usuarios'
 import { Assinaturas }       from './pages/workspace/Assinaturas'
 import { Financeiro }        from './pages/workspace/Financeiro'
@@ -40,15 +40,28 @@ function TenantDetailWrapper() {
 
 /** Rota raiz: se logado → /selecionar-workspace, se não → AuthPage */
 function RootRedirect() {
-  return (
-    <>
-      <SignedIn>
-        <Navigate to="/selecionar-workspace" replace />
-      </SignedIn>
-      <SignedOut>
-        <AuthPage />
-      </SignedOut>
-    </>
+  const { isLoaded, isSignedIn } = useAuth()
+
+  // Evita flash de login enquanto o estado não é carregado
+  if (!isLoaded) return null
+
+  return isSignedIn ? (
+    <Navigate to="/selecionar-workspace" replace />
+  ) : (
+    <AuthPage />
+  )
+}
+
+/** Guarda para rotas públicas (Login/Cadastro). Se logado, expulsa para o sistema. */
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth()
+  
+  if (!isLoaded) return null
+
+  return isSignedIn ? (
+    <Navigate to="/selecionar-workspace" replace />
+  ) : (
+    <>{children}</>
   )
 }
 
@@ -75,8 +88,8 @@ export default function App() {
       <Routes>
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />
-        <Route path="/sign-in/*" element={<AuthPage />} />
-        <Route path="/sign-up/*" element={<AuthPage />} />
+        <Route path="/sign-in/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
+        <Route path="/sign-up/*" element={<PublicRoute><AuthPage /></PublicRoute>} />
 
         {/* Onboarding — novos clientes vindos do Marketplace */}
         <Route path="/trial" element={<Onboarding />} />
@@ -106,7 +119,7 @@ export default function App() {
         <Route path="/workspace" element={<ProtectedRoute><WorkspaceLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/workspace/organizacao" replace />} />
           <Route path="organizacao" element={<Organizacao />} />
-          <Route path="espacos-de-trabalho" element={<EspacosDeTrabalho />} />
+          <Route path="workspaces" element={<Workspaces />} />
           <Route path="usuarios"    element={<Usuarios />} />
           <Route path="assinaturas" element={<Assinaturas />} />
           <Route path="financeiro"  element={<Financeiro />} />

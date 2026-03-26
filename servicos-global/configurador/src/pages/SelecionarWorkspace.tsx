@@ -7,7 +7,7 @@ import {
   Plus,
   ShieldCheck,
 } from '@phosphor-icons/react'
-import { WorkspaceSelecaoGlobal, type Empresa } from '@nucleo/workspace-selecao-global'
+import { WorkspaceSelecaoGlobal, type Empresa } from '@nucleo/campo-workspace-selecao-global'
 
 const mockEmpresas: Empresa[] = [
   { id: 'e1', nome: 'Acme Corporation',  cnpj: '12.345.678/0001-90', plano: 'Enterprise',   cor: '#818cf8', iniciais: 'AC' },
@@ -143,7 +143,7 @@ export function SelecionarWorkspace() {
         <button
           id="sw-criar-empresa"
           type="button"
-          onClick={() => navigate('/workspace/espacos-de-trabalho')}
+          onClick={() => navigate('/workspace/workspaces')}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: '0.5rem', width: '100%',

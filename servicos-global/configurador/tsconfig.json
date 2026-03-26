@@ -11,10 +11,16 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "paths": {
-      "@nucleo/botao-global": ["../../nucleo-global/botao-global/src/index.ts"],
-      "@nucleo/tabela-global": ["../../nucleo-global/tabela-global/src/index.ts"],
-      "@nucleo/utils": ["../../nucleo-global/utils/src/index.ts"],
-      "@nucleo/*": ["../../nucleo-global/*/src/index.ts"],
+      "@nucleo/*": [
+        "../../nucleo-global/Botoes/*/src/index.ts",
+        "../../nucleo-global/Campos/*/src/index.ts",
+        "../../nucleo-global/Feedback/*/src/index.ts",
+        "../../nucleo-global/Layout/*/src/index.ts",
+        "../../nucleo-global/Modais/*/src/index.ts",
+        "../../nucleo-global/Tabelas/*/src/index.ts",
+        "../../nucleo-global/Utilidades/*/src/index.ts",
+        "../../nucleo-global/*/src/index.ts"
+      ],
       "@tenant/*": ["../tenant/*"],
       "@produto/*": ["../produto/*"],
       "@gravity/shell": ["../shell/index.ts"]
@@ -23,6 +29,13 @@
   "include": [
     "src/**/*",
     "server/**/*",
+    "../../nucleo-global/Botoes/*/src/**/*",
+    "../../nucleo-global/Campos/*/src/**/*",
+    "../../nucleo-global/Feedback/*/src/**/*",
+    "../../nucleo-global/Layout/*/src/**/*",
+    "../../nucleo-global/Modais/*/src/**/*",
+    "../../nucleo-global/Tabelas/*/src/**/*",
+    "../../nucleo-global/Utilidades/*/src/**/*",
     "../../nucleo-global/*/src/**/*",
     "../tenant/gabi/src/**/*"
   ],

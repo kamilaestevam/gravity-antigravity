@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
-import { LocalizarCampoGlobal } from '@nucleo/localizar-campo-global'
+import { LocalizarCampoGlobal } from '@nucleo/campo-localizar-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
@@ -132,7 +132,7 @@ export function AdminLayout() {
             isAdmin={true}
             isAdminPanel={true}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
-            onNavigateConfigurador={() => navigate('/workspace/espacos-de-trabalho')}
+            onNavigateConfigurador={() => navigate('/workspace/workspaces')}
           />
         </div>
 

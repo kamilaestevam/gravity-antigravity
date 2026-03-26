@@ -6,7 +6,7 @@ import { StatCardGlobal } from '@nucleo/stat-card-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CalendarioCampoGlobal } from '@nucleo/calendario-campo-global'
+import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { DocPortal } from './DocPortal'
 import { mockProdutos } from './Assinaturas'
 

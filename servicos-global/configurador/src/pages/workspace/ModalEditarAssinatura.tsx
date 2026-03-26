@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { Package, CurrencyDollar, CalendarBlank, Tag, TreeStructure, CheckCircle, WarningCircle, Check, MagnifyingGlass, SelectionAll, Eraser, Broom } from '@phosphor-icons/react'
 import { getSimboloMoeda } from '../../utils/formatters'
 import type { Produto } from './Assinaturas'
@@ -126,12 +126,12 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
         },
         {
           id: 'distribuicao',
-          rotulo: 'Distribuição por Espaço',
+          rotulo: 'Distribuição por Workspace',
           conteudo: (
             <div style={{ paddingTop: '0.25rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--ws-text)' }}>
-                  <TreeStructure size={16} weight="duotone" color="var(--color-primary)" /> Ativar nos Espaços
+                  <TreeStructure size={16} weight="duotone" color="var(--color-primary)" /> Ativar nos Workspaces
                 </p>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button 
@@ -150,13 +150,22 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
               </div>
 
               {/* Barra de Busca Local */}
-              <div className="ws-input-icon-wrap" style={{ marginBottom: '1rem', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.1)' }}>
+              <div className="ws-input-icon-wrap" style={{ marginBottom: '1rem', border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.1)', borderRadius: '8px' }}>
                 <MagnifyingGlass size={16} color="var(--ws-muted)" />
                 <input 
                   value={search} 
                   onChange={e => setSearch(e.target.value)} 
-                  placeholder="Pesquisar espaço de trabalho..." 
-                  style={{ width: '100%', fontSize: '0.8125rem' }} 
+                  placeholder="Pesquisar workspace..."
+                  style={{ 
+                    width: '100%', 
+                    fontSize: '0.8125rem',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--ws-text)',
+                    outline: 'none',
+                    paddingTop: '0.5rem',
+                    paddingBottom: '0.5rem'
+                  }} 
                 />
               </div>
 

@@ -3,23 +3,25 @@
 
 import React, { useState, useEffect } from 'react'
 import type { Page } from '../App'
-import { HardDrives, Buildings, TreeStructure, ChartPieSlice, WarningCircle, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, ShieldCheck } from '@phosphor-icons/react'
+import { HardDrives, Buildings, TreeStructure, ChartPieSlice, WarningCircle, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, ShieldCheck, PencilSimple, Trash } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
 
-import { BotaoNovoAdminGlobal } from '../../../../nucleo-global/botao-novo-admin-global/src/index'
+import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrganizacao'
+import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalEditarOrganizacao'
+import { ModalEditarWorkspace } from './workspace/ModalEditarWorkspace'
 import { Tenant as GlobalTenant } from '../types/entidades'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 export type EmpresaStatus = 'Ativa' | 'Suspensa'
 
-// Espelhado com interface Empresa de EspacosDeTrabalho.tsx
+// Espelhado com interface Empresa de Workspaces.tsx
 export interface Workspace {
   id: string
   nome: string
@@ -230,6 +232,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showNovaOrg, setShowNovaOrg] = useState(false)
+  
+  const [orgEditando, setOrgEditando] = useState<Tenant | null>(null)
+  const [workspaceEditando, setWorkspaceEditando] = useState<Workspace | null>(null)
 
   const addNotification = useShellStore((state) => state.addNotification)
 
@@ -273,7 +278,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     
     addNotification({ 
       type: status === 'Suspensa' ? 'warning' : 'success', 
-      message: `Espaço de trabalho ${status === 'Suspensa' ? 'suspenso' : 'reativado'} com sucesso.` 
+      message: `Workspace ${status === 'Suspensa' ? 'suspenso' : 'reativado'} com sucesso.`
     })
   }
 
@@ -292,6 +297,43 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     setTenants(prev => [novo, ...prev])
     setStats(prev => prev ? { ...prev, totalTenants: prev.totalTenants + 1, activeTenants: prev.activeTenants + 1 } : null)
     setShowNovaOrg(false)
+  }
+
+  function handleEditOrg(linha: Tenant) {
+    setOrgEditando(linha)
+  }
+
+  function handleUpdateOrg(dados: Partial<DadosEditarOrg>) {
+    if (!orgEditando) return
+    setTenants(prev => prev.map(t => {
+      if (t.id === orgEditando.id) {
+        return { 
+          ...t, 
+          name: dados.nome || t.name, 
+          slug: dados.subdominio || t.slug,
+          subscriptions: t.subscriptions.length > 0 && dados.plano 
+            ? [{ plan: dados.plano, status: t.subscriptions[0].status }, ...t.subscriptions.slice(1)]
+            : t.subscriptions
+        }
+      }
+      return t
+    }))
+    addNotification({ type: 'success', message: 'Organização atualizada com sucesso.' })
+    setOrgEditando(null)
+  }
+
+  function handleEditWorkspace(linha: Workspace) {
+    setWorkspaceEditando(linha)
+  }
+
+  function handleUpdateWorkspace(dados: Partial<Workspace>) {
+    if (!workspaceEditando) return
+    setTenants(prev => prev.map(t => ({
+      ...t,
+      workspaces: t.workspaces.map(ws => ws.id === workspaceEditando.id ? { ...ws, ...dados } : ws)
+    })))
+    addNotification({ type: 'success', message: 'Workspace atualizado com sucesso.' })
+    setWorkspaceEditando(null)
   }
 
   // ── Colunas PAI ────────────────────────────────────────────────────────────
@@ -321,7 +363,13 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       tooltipTitulo: 'Roteamento DNS (Subdomain CNAME)',
       tooltipDescricao: 'Alias em uso pelo API Gateway Edge para o Tenant Routing.',
       render: (_v: unknown, item: Tenant) => (
-        <a href={`https://${item.slug}.gravity.com.br`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }} onClick={ev => ev.stopPropagation()}>
+        <a 
+          href={`http://localhost:8010/workspace/${item.slug}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }} 
+          onClick={ev => ev.stopPropagation()}
+        >
           <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s', cursor: 'pointer' }}
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
             onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
@@ -374,7 +422,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
   // ── Colunas FILHAS ──────────────────────────────────────────────────────────
   const COLUNAS_FILHAS: TabelaGlobalColuna<Workspace>[] = [
     {
-      key: 'nome', label: 'Nome do Espaço', tipo: 'texto',
+      key: 'nome', label: 'Nome do Workspace', tipo: 'texto',
       render: (_v: unknown, item: Workspace) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
@@ -387,9 +435,20 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     {
       key: 'subdominio', label: 'Subdominio', tipo: 'texto',
       render: (_v: unknown, item: Workspace) => (
-        <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-          {item.subdominio}.gravity.com.br
-        </code>
+        <a 
+          href={`http://localhost:8010/workspace/${item.subdominio}`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          style={{ textDecoration: 'none' }}
+          onClick={ev => ev.stopPropagation()}
+        >
+          <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.15s' }}
+            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+          >
+            {item.subdominio}.gravity.com.br
+          </code>
+        </a>
       )
     },
     {
@@ -447,21 +506,21 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
           {item.status === 'Ativa' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
         </button>
       )
+    },
+    {
+      id: 'edit',
+      icone: <PencilSimple size={15} weight="bold" />,
+      tooltip: 'Editar Organização',
+      onClick: handleEditOrg,
     }
   ]
 
   // ── Ações FILHAS ───────────────────────────────────────────────────────────
   const ACOES_FILHAS: TabelaGlobalAcao<Workspace>[] = [
     {
-      id: 'inspect-ws',
-      icone: <MagnifyingGlass size={13} weight="bold" />,
-      tooltip: 'Ver Espaço de Trabalho',
-      onClick: () => {},
-    },
-    {
       id: 'suspend-ws',
       icone: <PauseCircle size={14} weight="bold" />,
-      tooltip: 'Alternar Status do Espaço',
+      tooltip: 'Alternar Status do Workspace',
       onClick: (item) => updateWorkspaceStatus(item.id, item.status === 'Ativa' ? 'Suspensa' : 'Ativa'),
       renderCustom: (item) => (
         <button
@@ -475,6 +534,12 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         </button>
       )
     },
+    {
+      id: 'edit',
+      icone: <PencilSimple size={14} weight="bold" />,
+      tooltip: 'Editar',
+      onClick: handleEditWorkspace,
+    }
   ]
 
   // ── Exportação ─────────────────────────────────────────────────────────────
@@ -512,7 +577,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
               }
             />
             <CardBasicoGlobal
-              titulo="Total de Espaços de Trabalho"
+              titulo="Total de Workspaces"
               icone={<TreeStructure weight="duotone" size={16} style={{ color: '#34d399' }} />}
               valor={stats.totalWorkspaces}
               tooltip={
@@ -520,7 +585,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
                   <p className="cg-tooltip__title">Ambientes Lógicos</p>
                   <div className="cg-tooltip__row"><span>Total de Workspaces</span> <strong>{stats.totalWorkspaces}</strong></div>
                   <div className="cg-tooltip__divider" />
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Média de {Math.round(stats.totalWorkspaces / (stats.totalTenants || 1) * 10) / 10} espaços por organização.</span>
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', lineHeight: 1.4, display: 'block' }}>Média de {Math.round(stats.totalWorkspaces / (stats.totalTenants || 1) * 10) / 10} workspaces por organização.</span>
                 </>
               }
             />
@@ -537,7 +602,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
               }
             />
             <CardGraficoGlobal
-              titulo="Status dos Espaços"
+              titulo="Status dos Workspaces"
               icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
               total={stats.totalWorkspaces}
               valorPrincipal={stats.activeWorkspaces}
@@ -549,8 +614,8 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
               tooltip={
                 <>
                   <p className="cg-tooltip__title">Saúde Operacional</p>
-                  <div className="cg-tooltip__row"><span>Espaços Ativos</span> <strong style={{ color: '#34d399' }}>{stats.activeWorkspaces}</strong></div>
-                  <div className="cg-tooltip__row"><span>Espaços Suspensos</span> <strong style={{ color: '#fbbf24' }}>{stats.suspendedWorkspaces}</strong></div>
+                  <div className="cg-tooltip__row"><span>Workspaces Ativos</span> <strong style={{ color: '#34d399' }}>{stats.activeWorkspaces}</strong></div>
+                  <div className="cg-tooltip__row"><span>Workspaces Suspensos</span> <strong style={{ color: '#fbbf24' }}>{stats.suspendedWorkspaces}</strong></div>
                   <div className="cg-tooltip__divider" />
                   <div className="cg-tooltip__row"><span>Taxa de Disponibilidade</span> <strong style={{ color: '#34d399' }}>{Math.round(stats.activeWorkspaces / (stats.totalWorkspaces || 1) * 100)}%</strong></div>
                 </>
@@ -585,14 +650,14 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
           renderExpandido={(tenant) => (
             <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
               <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                <TreeStructure size={14} /> Espaços de Trabalho ({tenant.workspaces.length})
+                <TreeStructure size={14} /> Workspaces ({tenant.workspaces.length})
               </div>
               <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
                 <TabelaGlobal<Workspace>
                   dados={tenant.workspaces}
                   colunas={COLUNAS_FILHAS}
                   acoes={ACOES_FILHAS}
-                  mensagemVazio="Nenhum espaço de trabalho cadastrado."
+                  mensagemVazio="Nenhum workspace cadastrado."
                 />
               </div>
             </div>
@@ -604,6 +669,20 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         aberto={showNovaOrg}
         aoFechar={() => setShowNovaOrg(false)}
         aoSalvar={handleSalvarOrg}
+      />
+
+      <ModalEditarOrganizacao
+        aberto={!!orgEditando}
+        organizacao={orgEditando}
+        aoFechar={() => setOrgEditando(null)}
+        aoSalvar={handleUpdateOrg}
+      />
+
+      <ModalEditarWorkspace
+        aberto={!!workspaceEditando}
+        empresa={workspaceEditando as any}
+        aoFechar={() => setWorkspaceEditando(null)}
+        aoSalvar={handleUpdateWorkspace as any}
       />
     </PaginaGlobal>
   )

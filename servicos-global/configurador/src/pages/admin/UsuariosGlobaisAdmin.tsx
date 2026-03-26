@@ -4,7 +4,7 @@ import {
   PauseCircle, PlayCircle, PencilSimple,
   FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck, Crown, Lightning
 } from '@phosphor-icons/react'
-import { SelectGlobal, type SelectOpcao } from '@nucleo/select-global'
+import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -13,7 +13,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
@@ -118,7 +118,7 @@ function OrgBadge({ nome }: { nome: string }) {
 
 const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
   { valor: 'Fornecedor',  rotulo: 'Fornecedor',  descricao: 'Acesso externo restrito para prestadores de serviço', meta: { icone: <Buildings size={16} weight="duotone" color="#fbbf24" /> } },
-  { valor: 'Standard',    rotulo: 'Standard',    descricao: 'Usuário operacional vinculado a espaços específicos', meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> } },
+  { valor: 'Standard',    rotulo: 'Standard',    descricao: 'Usuário operacional vinculado a workspaces específicos', meta: { icone: <User size={16} weight="duotone" color="#94a3b8" /> } },
   { valor: 'Master',      rotulo: 'Master',      descricao: 'Gestor máximo da organização (acesso total no tenant)', meta: { icone: <Crown size={16} weight="duotone" color="#818cf8" /> } },
   { valor: 'Admin',       rotulo: 'Admin',       descricao: 'Administrador da plataforma com permissões específicas', meta: { icone: <ShieldCheck size={16} weight="duotone" color="#06b6d4" /> } },
   { valor: 'Super Admin', rotulo: 'Super Admin', descricao: 'Controle total global da plataforma (todas as orgs)', meta: { icone: <Lightning size={16} weight="duotone" color="#22c55e" /> } },
@@ -229,22 +229,46 @@ export function UsuariosGlobaisAdmin() {
 
   const COLUNAS_FILHAS: TCGColuna<GlobalUserSpace>[] = [
     {
-      key: 'nome', label: 'Espaço de Trabalho',
-      render: (_v, item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
-            {item.nome.charAt(0)}
+      key: 'nome', label: 'Workspace',
+      render: (_v, item) => {
+        const subdominio = item.subdominio;
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
+              {item.nome.charAt(0)}
+            </div>
+            <a 
+              href={`http://localhost:8010/workspace/${subdominio}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontWeight: 500, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none'; }}
+              onClick={ev => ev.stopPropagation()}
+            >
+              {item.nome}
+            </a>
           </div>
-          <span style={{ fontWeight: 500 }}>{item.nome}</span>
-        </div>
-      )
+        )
+      }
     },
     {
       key: 'subdominio', label: 'Subdomínio',
       render: (_v, item) => (
-        <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-          {item.subdominio}.gravity.com.br
-        </code>
+        <a 
+          href={`http://localhost:8010/workspace/${item.subdominio}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: 'none' }}
+          onClick={ev => ev.stopPropagation()}
+        >
+          <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.15s' }}
+            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+          >
+            {item.subdominio}.gravity.com.br
+          </code>
+        </a>
       )
     },
     {

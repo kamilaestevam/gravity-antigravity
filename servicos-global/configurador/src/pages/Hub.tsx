@@ -103,7 +103,7 @@ export function Hub() {
               }}>
                 {[
                   { label: 'Gerenciar Workspace', icon: <Gear weight="duotone" size={15} />,      path: '/workspace' },
-                  { label: 'Espaços de Trabalho',      icon: <Buildings weight="duotone" size={15} />, path: '/workspace/espacos-de-trabalho' },
+                  { label: 'Workspaces',      icon: <Buildings weight="duotone" size={15} />, path: '/workspace/workspaces' },
                   { label: 'Usuários',             icon: <Users weight="duotone" size={15} />,     path: '/workspace/usuarios' },
                 ].map(item => (
                   <button

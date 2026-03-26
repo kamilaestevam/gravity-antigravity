@@ -12,12 +12,12 @@ import {
 import { useUser } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { SelectGlobal } from '@nucleo/select-global'
-import type { SelectOpcao } from '@nucleo/select-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
+import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 
 import '../workspace/workspace.css'
 

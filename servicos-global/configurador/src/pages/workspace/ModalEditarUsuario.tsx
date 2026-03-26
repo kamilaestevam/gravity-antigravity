@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
 import { TabelaCamadasGlobal, type TCGColuna } from '@nucleo/tabela-camadas-global'
 import type { TenantUser } from './Usuarios'
@@ -212,7 +212,7 @@ function AbaEspacos() {
 
   const COLUNAS_FILHAS: TCGColuna<any>[] = [
     {
-      key: 'nome', label: 'Espaço de Trabalho',
+      key: 'nome', label: 'Workspace',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
@@ -235,7 +235,7 @@ function AbaEspacos() {
       render: (v) => <StatusBadge v={v as string} />
     },
     {
-      key: 'perfil', label: 'Perfil no Espaço',
+      key: 'perfil', label: 'Perfil no Workspace',
       render: (v) => (
         <span style={{ color: '#818cf8', fontWeight: 600, fontSize: '0.8125rem' }}>{v as string}</span>
       )
@@ -251,7 +251,7 @@ function AbaEspacos() {
         filhos={item => item.workspaces}
         itemId={item => item.id}
         expandidosPadrao={['org_1', 'org_2']}
-        placeholderBusca="Localizar espaço..."
+        placeholderBusca="Localizar workspace..."
         campoBusca="name"
         itensPorPagina={10}
       />
@@ -374,7 +374,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
     },
     {
       id: 'espacos',
-      rotulo: 'Espaços Vinculados',
+      rotulo: 'Workspaces Vinculados',
       icone: 'buildings',
       conteudo: <AbaEspacos />
     }

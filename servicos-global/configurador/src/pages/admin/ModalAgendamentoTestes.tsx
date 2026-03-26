@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
-import { SelectGlobal } from '@nucleo/select-global'
-import { GeralCampoGlobal } from '@nucleo/geral-campo-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { Clock, Info, EnvelopeSimple, Play, List } from '@phosphor-icons/react'
 import { TabelaGlobal } from '@nucleo/tabela-global'
 

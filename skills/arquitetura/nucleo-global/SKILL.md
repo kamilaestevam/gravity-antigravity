@@ -99,7 +99,7 @@ Componente de diálogo de confirmação padrão (OK/Cancelar, Sim/Não).
 
 ---
 
-### caixa-select-global/
+### caixa-campo-select-global/
 
 Componente de dropdown/select customizado com suporte a busca local e seleção múltipla.
 

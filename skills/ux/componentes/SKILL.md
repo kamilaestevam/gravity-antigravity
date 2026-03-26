@@ -105,7 +105,7 @@ import { ConfirmarGlobal } from '@nucleo/confirmar-global'
 **Quando usar:** todo campo de seleção — substituir selects nativos do HTML.
 
 ```typescript
-import { CaixaSelectGlobal, type SelectConfig } from '@nucleo/caixa-select-global'
+import { CaixaSelectGlobal, type SelectConfig } from '@nucleo/caixa-campo-select-global'
 ```
 
 **Capacidades:** busca interna, múltipla seleção via chips, carregamento assíncrono, validação com Zod.

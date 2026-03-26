@@ -164,15 +164,15 @@ describe('GET /api/v1/tenants/me — dados do tenant autenticado', () => {
   })
 })
 
-describe('GET /api/v1/tenants/companies — listar espaços de trabalho', () => {
+describe('GET /api/v1/tenants/companies — listar workspaces', () => {
   const app = buildApp()
 
   beforeEach(() => vi.clearAllMocks())
 
   it('200 — retorna lista de empresas do tenant', async () => {
     const mockCompanies = [
-      { id: 'company-001', name: 'Espaço SP', tenant_id: 'tenant-teste-001' },
-      { id: 'company-002', name: 'Espaço RJ', tenant_id: 'tenant-teste-001' },
+      { id: 'company-001', name: 'Workspace SP', tenant_id: 'tenant-teste-001' },
+      { id: 'company-002', name: 'Workspace RJ', tenant_id: 'tenant-teste-001' },
     ]
     vi.mocked(tenantService.getCompanies).mockResolvedValueOnce(mockCompanies as never)
 
@@ -194,15 +194,15 @@ describe('GET /api/v1/tenants/companies — listar espaços de trabalho', () => 
   })
 })
 
-describe('POST /api/v1/tenants/companies — criar espaço de trabalho', () => {
+describe('POST /api/v1/tenants/companies — criar workspace', () => {
   const app = buildApp()
 
   beforeEach(() => vi.clearAllMocks())
 
-  it('201 — cria espaço de trabalho com dados válidos', async () => {
+  it('201 — cria workspace com dados válidos', async () => {
     const mockCompany = {
       id: 'company-003',
-      name: 'Nova Espaço',
+      name: 'Novo Workspace',
       tenant_id: 'tenant-teste-001',
       status: 'ACTIVE',
     }
@@ -210,18 +210,18 @@ describe('POST /api/v1/tenants/companies — criar espaço de trabalho', () => {
 
     const response = await request(app)
       .post('/api/v1/tenants/companies')
-      .send({ name: 'Nova Espaço', subdomain: 'nova-filial', cnpj: '12345678000195' })
+      .send({ name: 'Novo Workspace', subdomain: 'nova-filial', cnpj: '12345678000195' })
 
     expect(response.status).toBe(201)
     expect(response.body).toHaveProperty('company')
-    expect(response.body.company.name).toBe('Nova Espaço')
+    expect(response.body.company.name).toBe('Novo Workspace')
     expect(tenantService.createCompany).toHaveBeenCalledWith(
       'tenant-teste-001',
-      expect.objectContaining({ name: 'Nova Espaço' })
+      expect.objectContaining({ name: 'Novo Workspace' })
     )
   })
 
-  it('201 — cria espaço de trabalho apenas com nome (subdomain e cnpj opcionais)', async () => {
+  it('201 — cria workspace apenas com nome (subdomain e cnpj opcionais)', async () => {
     const mockCompany = { id: 'company-004', name: 'Só Nome', tenant_id: 'tenant-teste-001' }
     vi.mocked(tenantService.createCompany).mockResolvedValueOnce(mockCompany as never)
 

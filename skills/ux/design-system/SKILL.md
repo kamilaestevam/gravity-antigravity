@@ -310,7 +310,7 @@ O ícone nunca tem `margin` próprio — o espaçamento é controlado pelo **fle
 > **Regra:** nunca usar `<select>` nativo do HTML. Usar sempre o componente `advanced-select`.
 
 ```typescript
-import { CaixaSelectGlobal } from '@nucleo/caixa-select-global'
+import { CaixaSelectGlobal } from '@nucleo/caixa-campo-select-global'
 ```
 
 ---

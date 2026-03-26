@@ -124,7 +124,7 @@ Responda: *O que esse valor significa para o negócio?*
 Responda: *O que esse valor representa no contexto das linhas da tabela?*
 
 ```
-✅ "Total de usuários com acesso ativo nesta Espaço de trabalho"
+✅ "Total de usuários com acesso ativo neste Workspace"
 ✅ "Indica se a empresa está operando normalmente ou com acesso bloqueado"
 ✅ "Data em que a empresa foi cadastrada no sistema"
 ```
@@ -133,7 +133,7 @@ Responda: *O que esse valor representa no contexto das linhas da tabela?*
 Responda: *O que acontece imediatamente ao clicar? Há consequência?*
 
 ```
-✅ "Todo acesso desta Espaço de trabalho será bloqueado imediatamente"
+✅ "Todo acesso deste Workspace será bloqueado imediatamente"
 ✅ "Define esta empresa como contexto da sua sessão — afeta todos os dados exibidos"
 ✅ "As alterações serão descartadas e o formulário voltará ao estado original"
 ```
@@ -200,17 +200,17 @@ descricao: [frase curta, ativo, sem ponto, sem jargão, max 90 chars]
 | Subdomínio | Endereço exclusivo da sua conta — não pode ser alterado |
 | Cliente desde | Data de ativação da conta na plataforma |
 | Localização | Cidade e estado da sede principal da empresa |
-| Espaço de trabalho ativa | Define qual Espaço de trabalho você está operando agora |
+| Workspace ativa | Define qual Workspace você está operando agora |
 
-### TabelaGlobal — espaços de trabalho
+### TabelaGlobal — workspaces
 
 | Coluna | descricao aprovada |
 |---|---|
-| Espaço | Nome da Espaço de trabalho cadastrada na sua conta |
-| Subdomínio | Endereço exclusivo desta espaço no workspace |
-| Usuários | Total de usuários com acesso habilitado nesta espaço |
-| Status | Indica se a espaço está operando ou com acesso suspenso |
-| Criado em | Data em que a espaço foi cadastrada no sistema |
+| Workspace | Nome do Workspace cadastrado na sua conta |
+| Subdomínio | Endereço exclusivo deste workspace no workspace |
+| Usuários | Total de usuários com acesso habilitado neste workspace |
+| Status | Indica se o workspace está operando ou com acesso suspenso |
+| Criado em | Data em que o workspace foi cadastrado no sistema |
 
 ### TabelaGlobal — Usuários
 
@@ -220,4 +220,4 @@ descricao: [frase curta, ativo, sem ponto, sem jargão, max 90 chars]
 | E-mail | E-mail de acesso utilizado no login da plataforma |
 | Tipo | Define as permissões base: Master, Standard ou Fornecedor |
 | Status | Indica se o usuário pode acessar a plataforma |
-| Empresas vinculadas | espaços de trabalho às quais este usuário tem acesso liberado |
+| Empresas vinculadas | workspaces às quais este usuário tem acesso liberado |

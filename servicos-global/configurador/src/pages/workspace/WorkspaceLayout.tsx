@@ -27,15 +27,16 @@ import {
   Robot,
   Truck,
 } from '@phosphor-icons/react'
-import { LocalizarCampoGlobal } from '@nucleo/localizar-campo-global'
+import { LocalizarCampoGlobal } from '@nucleo/campo-localizar-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
+import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import GabiChat from '@tenant/gabi/src/Gabi'
 import './workspace.css'
 import './gabi.css'
 
 const navItems = [
   { to: '/workspace/organizacao',  label: 'Organização',    icon: <Crown       weight="duotone" size={18} /> },
-  { to: '/workspace/espacos-de-trabalho',     label: 'Espaços de Trabalho', icon: <Buildings   weight="duotone" size={18} /> },
+  { to: '/workspace/workspaces',     label: 'Workspaces', icon: <Buildings   weight="duotone" size={18} /> },
   { to: '/workspace/usuarios',     label: 'Usuários',        icon: <Users       weight="duotone" size={18} /> },
   { to: '/workspace/assinaturas',  label: 'Assinaturas',     icon: <CreditCard  weight="duotone" size={18} /> },
   { to: '/workspace/financeiro',   label: 'Financeiro',      icon: <Receipt     weight="duotone" size={18} /> },
@@ -72,41 +73,14 @@ export function WorkspaceLayout() {
   return (
     <div className="ws-shell">
       {/* ── Sidebar ── */}
-      <aside className="ws-sidebar">
-        {/* Logo + chip inline */}
-        <div className="ws-sidebar__logo">
-          <LogoGlobal iconSize={28} iconColor="#818cf8" />
-          <div className="ws-global-chip">
-            <span className="ws-global-chip__dot" />
-            <span className="ws-global-chip__label">Configurador</span>
-          </div>
-        </div>
-
-        {/* Tenant info block */}
-        <div className="ws-sidebar__tenant">
-          <div className="ws-sidebar__tenant-avatar">{tenantName.charAt(0)}</div>
-          <div className="ws-sidebar__tenant-info">
-            <span className="ws-sidebar__tenant-name">{tenantName}</span>
-            <span className="ws-sidebar__tenant-plan">{tenantPlan}</span>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="ws-sidebar__nav">
-          <p className="ws-sidebar__nav-label">Workspace</p>
-          {navItems.map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => `ws-nav-item${isActive ? ' active' : ''}`}
-            >
-              {item.icon}
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-
-      </aside>
+      <MenuLateralGlobal 
+        tenantName={tenantName}
+        tenantPlan={tenantPlan}
+        navItems={navItems}
+        moduleName="Configurador"
+        moduleColor="#818cf8"
+        defaultCollapsed={false}
+      />
 
       {/* ── Main area ── */}
       <div className="ws-main">

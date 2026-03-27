@@ -6,7 +6,7 @@ Referência visual baseada 100% no código `StatusSalvarGlobal.tsx` + `status-sa
 
 ## 1. Contexto de Uso
 
-Exibição sutil do estado de sincronização com a na nuvem no cabeçalho ou rodapés de ação.
+Exibição sutil do estado de sincronização com a nuvem no cabeçalho ou rodapés de ação.
 - **Estado Idle**: Mensagem "Salvo na nuvem" com opacidade `0.7`.
 
 ![Contexto Real](./real.contexto.png)

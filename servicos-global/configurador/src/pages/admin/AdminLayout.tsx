@@ -34,7 +34,7 @@ const navItems = [
   { to: '/admin/financeiro',   label: 'Financeiro',       icon: <Receipt         weight="duotone" size={18} /> },
   { to: '/admin/historico',    label: 'Histórico Global', icon: <Desktop         weight="duotone" size={18} /> },
   { to: '/admin/deploy',       label: 'Deploy Railway',   icon: <CloudArrowUp    weight="duotone" size={18} /> },
-  { to: '/admin/apis',         label: 'Monitor de APIs',  icon: <Pulse           weight="duotone" size={18} /> },
+  { to: '/admin/apis',         label: 'API Cockpit',      icon: <Pulse           weight="duotone" size={18} /> },
   { to: '/admin/testes',       label: 'Log de Testes',    icon: <Bug             weight="duotone" size={18} /> },
 ]
 
@@ -137,27 +137,23 @@ export function AdminLayout() {
             </button>
           </TooltipGlobal>
 
-          <TooltipGlobal descricao="Visualizar notificações e alertas do sistema">
-            <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
-          </TooltipGlobal>
+          <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
 
-          <TooltipGlobal descricao="Configurações de perfil, preferências de tema e encerramento de sessão">
-            <UsuarioGlobal
-              userName={userName}
-              userEmail={userEmail}
-              userInitials={userInitials}
-              userRole="Admin" 
-              isLight={isLight}
-              onToggleTheme={toggleTheme}
-              onNavigateOrganizacao={() => navigate('/admin/visao-geral')}
-              onNavigateAssinaturas={() => {}}
-              onSignOut={() => signOut()}
-              isAdmin={true}
-              isAdminPanel={true}
-              onNavigateAdmin={() => navigate('/admin/visao-geral')}
-              onNavigateConfigurador={() => navigate('/workspace/workspaces')}
-            />
-          </TooltipGlobal>
+          <UsuarioGlobal
+            userName={userName}
+            userEmail={userEmail}
+            userInitials={userInitials}
+            userRole="Admin" 
+            isLight={isLight}
+            onToggleTheme={toggleTheme}
+            onNavigateOrganizacao={() => navigate('/admin/visao-geral')}
+            onNavigateAssinaturas={() => {}}
+            onSignOut={() => signOut()}
+            isAdmin={true}
+            isAdminPanel={true}
+            onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            onNavigateConfigurador={() => navigate('/workspace/workspaces')}
+          />
         </div>
 
         {/* Page content rendered by child routes */}

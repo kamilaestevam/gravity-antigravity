@@ -458,23 +458,23 @@ export function Financeiro() {
                     <Receipt size={18} weight="duotone" color="var(--color-primary)" /> Detalhamento da Fatura #{fatura.num}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {fatura.itens.map((item, idx) => (
+                    {(fatura.composicao ?? []).map((item, idx) => (
                       <div key={idx} style={{
                         display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '12px', alignItems: 'center',
                         background: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderRadius: '10px',
                         border: '1px solid rgba(255,255,255,0.05)',
                       }}>
                         <div>
-                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Descrição</span>
-                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{item.descricao}</p>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Item</span>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{item.item}</p>
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Quantidade</span>
-                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{item.quantidade}</p>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Tipo</span>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: item.tipo === 'adicional' ? '#818cf8' : 'var(--ws-text)', textTransform: 'capitalize' }}>{item.tipo}</p>
                         </div>
                         <div>
-                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Valor Unitário</span>
-                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: '#818cf8' }}>{getSimboloMoeda(fatura.moeda)} {item.valorUnitario}</p>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Valor</span>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: '#818cf8' }}>{item.valor}</p>
                         </div>
                       </div>
                     ))}
@@ -491,8 +491,6 @@ export function Financeiro() {
                   onClick: (f) => handleDownload('NF-e', f.num),
                 }
               ]}
-              mensagemVazio="Nenhuma fatura encontrada."
-              mensagemSemFiltro="Sem faturas geradas."
             />
           </div>
 

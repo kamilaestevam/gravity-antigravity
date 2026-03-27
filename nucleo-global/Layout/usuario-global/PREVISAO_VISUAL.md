@@ -1,60 +1,35 @@
 # Documentação Visual — UsuarioGlobal
 
-Menu de perfil de usuário do Gravity Design System — pill compactado no cabeçalho com dropdown de ações (perfil, tema, acesso admin, sign-out). Referência fiel baseada em exames reais do DOM no navegador.
-
-## 1. Folha de Especificação Técnica de UX
-Detalhamento de todos os estados do componente: botão compactado padrão e em hover, e a carta flutuante do dropdown com controle de acesso, perfis administrativos e variação visual.
-
-![Folha de Especificação Técnica UX](./real-preview-estados.png)
+Referência visual baseada 100% no código `UsuarioGlobal.tsx` e lógica de privilégios.
 
 ---
 
-## 2. Blueprint: Layout de Composição
-Blueprint técnico do container `ws-global-user` tipo pill com gap de `10px`, medidas exatas para cada fonte e espaçamento no avatar. Anatomia do `ws-profile-dropdown` com largura `280px`.
+## 1. Identidade Integrada
 
-![Especificação de Composição](./real-preview-layout.png)
+Visualização do trigger de usuário no cabeçalho global.
+- **Super Admin**: Destaque visual em **Verde Platinum** (`#22c55e`) para administradores de infraestrutura.
+- **Avatar**: 32px com iniciais.
 
-| Medida Relevante | Verificação Técnica no CSS (Real) |
-| :--- | :--- |
-| **Avatar** | `28×28px` (`width/height: 1.75rem`), `border-radius: 50%`. |
-| **Gap do Trigger** | `10px` gap entre avatar e texto no pill. |
-| **Largura do Dropdown** | `280px` — comporta nome, e-mail e ações completas. |
-| **Offset do Dropdown** | `top: calc(100% + 8px)` — **8px** de flutuação abaixo do trigger. |
-| **Z-Index do Dropdown** | `z-index: 1000` — sobrepõe tabelas e headers. |
-| **Altura do Cabeçalho** | `74px` — alinhado com o `CabecalhoGlobal` e `MenuLateralGlobal`. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## 3. Composição de Ancoragem Global (Contexto)
-Posicionamento dentro da barra de ações globais superior: extremidade direita, `position: absolute; right: 0`.
+## 2. Dropdown de Perfil (UX)
 
-![Composição de Ancoragem Global](./real-preview-contexto.png)
+Anatomia real do menu de preferências:
+- **Hierarquia**: Cabeçalho com e-mail e badge de papel (Ex: Master).
+- **Seções**: Grupos funcionais separados por divisores sutis.
+- **Ações**: Cores semânticas (vermelho para Sair).
 
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Referência Vertical (Y)** | Alinhado no topo (`top: 0`), `height: 74px`. |
-| **Referência Horizontal (X)** | `position: absolute; right: 0` dentro de `ws-global-actions`. |
-| **Z-Index do Dropdown** | `z-index: 1000` — sobrepõe tabelas e headers. |
-| **Flutuação do Dropdown** | `top: calc(100% + 8px)` — 8px de espaço entre trigger e card. |
+![UX Real](./real.ux.png)
 
 ---
 
-## Exemplo de Uso (Código)
+## 3. Especificação Técnica
 
-```tsx
-import { UsuarioGlobal } from '@nucleo/usuario-global'
+Blueprint das medidas do sistema:
+- **Shadow**: `box-shadow: 0 10px 25px` (profundo).
+- **Tipografia**: Nome em 13px, Role em 11px.
+- **Super Admin BG**: `rgba(34, 197, 94, 0.08)`.
 
-<UsuarioGlobal
-  userName="Daniel Martins"
-  userEmail="daniel@gravity.com"
-  userInitials="DM"
-  userRole="Master"
-  isLight={isLightMode}
-  onToggleTheme={() => setLightMode(!isLightMode)}
-  onNavigateOrganizacao={() => navigate('/workspace/dados')}
-  onNavigateAssinaturas={() => navigate('/workspace/planos')}
-  onSignOut={() => auth.signOut()}
-  isAdmin={usuario.possuiCargoAdmin}
-  onNavigateAdmin={() => window.location.assign('/admin/dashboard')}
-/>
-```
+![Técnico Real](./real.tecnico.png)

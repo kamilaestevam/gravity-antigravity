@@ -9,8 +9,8 @@
  *   npx ts-node scripts/seed-staging.ts
  */
 
-import { PrismaClient as ConfiguradorPrisma } from '../configurador/node_modules/@prisma/client'
-import { PrismaClient as TenantPrisma } from '../servicos-global/tenant/node_modules/@prisma/client'
+import { PrismaClient as ConfiguradorPrisma } from '../configurador/generated'
+import { PrismaClient as TenantPrisma } from '../servicos-global/tenant/generated'
 
 const configuradorDb = new ConfiguradorPrisma({
   datasources: { db: { url: process.env.CONFIGURADOR_DATABASE_URL } }

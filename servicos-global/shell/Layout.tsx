@@ -4,8 +4,6 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
-import { I18nProvider } from '@nucleo/Utilidades/localization/provider'
-import i18n, { RTL_LANGUAGES, type SupportedLanguage } from '@nucleo/Utilidades/localization/i18n'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -19,8 +17,7 @@ interface LayoutProps {
  * - Aplicar classe de colapso de sidebar ao grid
  * - Renderizar sistema de toasts (ToastContainer)
  * - Aplicar tema (dark/light) via useEffect no mount
- * - Detectar e persistir idioma do usuário (localStorage) — responsabilidade do Shell
- *   pois o nucleo-global não pode acessar localStorage diretamente.
+ * - Persistir preferência de idioma no html[lang]
  */
 export function Layout({ children }: LayoutProps) {
   const { sidebarOpen, currentTheme, tooltipsDisabled } = useShellStore()
@@ -42,46 +39,39 @@ export function Layout({ children }: LayoutProps) {
     }
   }, [tooltipsDisabled])
 
-  // Detecta e restaura idioma salvo — responsabilidade do Shell, não do nucleo-global
+  // Detecta e persiste idioma salvo pelo usuário
   React.useEffect(() => {
-    const saved = localStorage.getItem('gravity:language') as SupportedLanguage | null
-    const detected = navigator.language.split('-')[0] as SupportedLanguage
+    const saved = localStorage.getItem('gravity:language')
+    const detected = navigator.language.split('-')[0]
     const language = saved ?? detected ?? 'pt'
-
-    i18n.changeLanguage(language)
-
-    const isRtl = (RTL_LANGUAGES as readonly string[]).includes(language)
-    document.documentElement.setAttribute('dir', isRtl ? 'rtl' : 'ltr')
     document.documentElement.setAttribute('lang', language)
   }, [])
 
   return (
-    <I18nProvider>
-      <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
-        <Sidebar />
-        <Header />
-        <main className="shell-main" role="main" aria-label="Conteúdo principal">
-          <Suspense
-            fallback={
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                  color: 'var(--text-muted)',
-                  fontSize: '0.875rem',
-                }}
-              >
-                Carregando módulo…
-              </div>
-            }
-          >
-            {children}
-          </Suspense>
-        </main>
-        <ToastContainer />
-      </div>
-    </I18nProvider>
+    <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
+      <Sidebar />
+      <Header />
+      <main className="shell-main" role="main" aria-label="Conteúdo principal">
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                color: 'var(--text-muted)',
+                fontSize: '0.875rem',
+              }}
+            >
+              Carregando módulo…
+            </div>
+          }
+        >
+          {children}
+        </Suspense>
+      </main>
+      <ToastContainer />
+    </div>
   )
 }

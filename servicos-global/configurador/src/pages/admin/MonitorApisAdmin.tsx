@@ -15,6 +15,7 @@ interface ApiLog {
   id: string
   data: string
   hora: string
+  organizacao: string
   api: string
   metodo: HttpMethod
   endpoint: string
@@ -42,10 +43,10 @@ interface AlertaConfig {
 
 const LOGS_MOCK: ApiLog[] = [
   {
-    id: 'req1', data: '24/03/2026', hora: '21:55:12', api: 'SimulaCusto', metodo: 'POST', endpoint: '/v1/simulacoes', statusCode: 201, status: 'SUCESSO', duracao: '124ms'
+    id: 'req1', data: '24/03/2026', hora: '21:55:12', organizacao: 'Importas SA', api: 'SimulaCusto', metodo: 'POST', endpoint: '/v1/simulacoes', statusCode: 201, status: 'SUCESSO', duracao: '124ms'
   },
   {
-    id: 'req2', data: '24/03/2026', hora: '21:50:05', api: 'Gabi IA Assistant', metodo: 'POST', endpoint: '/v1/chat', statusCode: 500, status: 'ERRO_SERVIDOR', duracao: '2041ms',
+    id: 'req2', data: '24/03/2026', hora: '21:50:05', organizacao: 'LogTech Ltda', api: 'Gabi IA Assistant', metodo: 'POST', endpoint: '/v1/chat', statusCode: 500, status: 'ERRO_SERVIDOR', duracao: '2041ms',
     erroLog: 'Internal Server Error: Failed to fetch from Google Generative AI API. Quota exceeded or API key compromised.',
     aiAnalise: {
       erroResumo: 'Limite de Cota Excedida / Chave Bloqueada no Gemini',
@@ -59,10 +60,10 @@ const LOGS_MOCK: ApiLog[] = [
     }
   },
   {
-    id: 'req3', data: '24/03/2026', hora: '21:45:00', api: 'Dashboard Global', metodo: 'GET', endpoint: '/v1/metricas', statusCode: 200, status: 'SUCESSO', duracao: '45ms'
+    id: 'req3', data: '24/03/2026', hora: '21:45:00', organizacao: 'Frete Express', api: 'Dashboard Global', metodo: 'GET', endpoint: '/v1/metricas', statusCode: 200, status: 'SUCESSO', duracao: '45ms'
   },
   {
-    id: 'req4', data: '24/03/2026', hora: '21:30:10', api: 'Gestão de Atividades', metodo: 'PUT', endpoint: '/v2/tarefas/8812', statusCode: 400, status: 'ERRO_CLIENTE', duracao: '15ms',
+    id: 'req4', data: '24/03/2026', hora: '21:30:10', organizacao: 'Importas SA', api: 'Gestão de Atividades', metodo: 'PUT', endpoint: '/v2/tarefas/8812', statusCode: 400, status: 'ERRO_CLIENTE', duracao: '15ms',
     erroLog: 'Validation Error: "prazo" must be a valid ISO-8601 date string.',
     aiAnalise: {
       erroResumo: 'Validação de Data Falhou no Payload',
@@ -100,6 +101,7 @@ export function MonitorApisAdmin() {
   const colunasLogs: TabelaGlobalColuna<ApiLog>[] = [
     { key: 'data', label: 'DATA', tipo: 'texto', tooltipTitulo: 'Data da Requisição', tooltipDescricao: 'Extraída do payload da requisição no gateway.' },
     { key: 'hora', label: 'HORA', tipo: 'texto', tooltipTitulo: 'Hora do Servidor', tooltipDescricao: 'Timestamp GMT e timezone convertido para local.' },
+    { key: 'organizacao', label: 'ORGANIZAÇÃO', tipo: 'texto', tooltipTitulo: 'Tenant / Organização', tooltipDescricao: 'Organização proprietária da integração que originou a requisição.', render: (v) => <span style={{ fontSize: '0.8125rem', color: '#a78bfa', fontWeight: 600 }}>{v as string}</span> },
     { key: 'api', label: 'API / SERVIÇO', tipo: 'texto', tooltipTitulo: 'Serviço de Destino', tooltipDescricao: 'Módulo do monolito ou microserviço acessado.', render: (v) => <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{v}</span> },
     { 
       key: 'metodo', label: 'MÉTODO', tipo: 'texto', tooltipTitulo: 'Método HTTP', tooltipDescricao: 'Verbo padronizado pela RFC do protocolo HTTP.',
@@ -321,8 +323,8 @@ export function MonitorApisAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Pulse weight="duotone" size={24} />}
-          titulo="Monitor de APIs"
-          subtitulo="Dashboard unificado de requisições, diagnósticos IA e configuração de alertas"
+          titulo="API Cockpit"
+          subtitulo="Central consolidada de requisições, diagnósticos IA e configuração de alertas"
         />
       }
       toolbar={

@@ -1,0 +1,955 @@
+// ============================================================================
+// schema.prisma — GERADO AUTOMATICAMENTE
+// NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
+// Gerado em: 2026-03-27T21:12:53.648Z
+// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario
+// Todos os fragments encontrados.
+// ============================================================================
+
+// servicos-global/tenant/prisma/schema.base.prisma
+// ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
+// Contém apenas datasource e generator.
+// O Coordenador compõe o schema.prisma final via scripts/compose-tenant-schema.ts
+// adicionando todos os fragment.prisma dos serviços de tenant.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("TENANT_DATABASE_URL")
+}
+
+// --- Fragment: atividades ---
+// servicos-global/tenant/atividades/prisma/fragment.prisma
+// AGENTE ATIVIDADES — ONDA 3
+//
+// Fragment Prisma para o serviço de Atividades (CRM).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum EmpresaStatus {
+  ATIVA
+  INATIVA
+  PROSPECTO
+  CLIENTE
+  CHURNED
+}
+
+enum AtividadeStatus {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum AtividadePrioridade {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum AtividadeTipo {
+  TAREFA
+  REUNIAO
+  LIGACAO
+  EMAIL
+  FOLLOW_UP
+  VISITA
+  OUTRO
+}
+
+enum PipelineEtapa {
+  PROSPECCAO
+  QUALIFICACAO
+  PROPOSTA
+  NEGOCIACAO
+  FECHAMENTO
+  POS_VENDA
+}
+
+enum KanbanCardStatus {
+  ABERTO
+  EM_PROGRESSO
+  BLOQUEADO
+  CONCLUIDO
+}
+
+// ---------------------------------------------------------------------------
+// Empresa — cadastro de empresas do CRM
+// ---------------------------------------------------------------------------
+
+model Empresa {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  nome       String
+  cnpj       String?
+  email      String?
+  telefone   String?
+  site       String?
+  segmento   String?
+  status     EmpresaStatus @default(PROSPECTO)
+  observacao String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// Contato — pessoas vinculadas a empresas
+// ---------------------------------------------------------------------------
+
+model Contato {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  empresa_id String?
+  nome       String
+  cargo      String?
+  email      String?
+  telefone   String?
+  whatsapp   String?
+  linkedin   String?
+  observacao String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// Atividade — tarefas e interações de CRM
+// ---------------------------------------------------------------------------
+
+model Atividade {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  titulo      String
+  descricao   String?
+  tipo        AtividadeTipo       @default(TAREFA)
+  status      AtividadeStatus     @default(PENDENTE)
+  prioridade  AtividadePrioridade @default(MEDIA)
+  data_inicio DateTime?
+  data_fim    DateTime?
+  data_venc   DateTime?
+
+  empresa_id  String?
+  contato_id  String?
+  pipeline_id String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// Pipeline — funil de vendas
+// ---------------------------------------------------------------------------
+
+model Pipeline {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  titulo          String
+  etapa           PipelineEtapa @default(PROSPECCAO)
+  valor           Float?
+  empresa_id      String?
+  contato_id      String?
+  probabilidade   Int?
+  data_fechamento DateTime?
+  observacao      String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// KanbanCard — cards para visão kanban de atividades
+// ---------------------------------------------------------------------------
+
+model KanbanCard {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  titulo    String
+  descricao String?
+  status    KanbanCardStatus @default(ABERTO)
+  posicao   Int              @default(0)
+  cor       String?
+  etiquetas String[]
+  data_venc DateTime?
+
+  atividade_id String?
+  empresa_id   String?
+  contato_id   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// --- Fragment: cronometro ---
+// servicos-global/tenant/cronometro/prisma/fragment.prisma
+// AGENTE CRONÔMETRO — ONDA 3 | 2/13
+//
+// Fragment Prisma do serviço de Cronômetro.
+// Não editar schema.prisma diretamente — apenas este fragment.
+// O Coordenador compõe o schema final via scripts/compose-tenant-schema.ts
+
+// ---------------------------------------------------------------------------
+// TimerSession
+// Sessão de tempo registrada (concluída ou manual).
+// ---------------------------------------------------------------------------
+
+model TimerSession {
+  id String @id @default(cuid())
+
+  // Campos de isolamento — obrigatórios
+  tenant_id  String
+  product_id String?
+  user_id    String
+
+  // Relacionamento
+  activity_id String
+
+  // Dados da sessão
+  started_at       DateTime
+  ended_at         DateTime?
+  duration_minutes Int? // null = timer ainda ativo (em progresso)
+  is_manual        Boolean   @default(false)
+
+  // Assunto e vínculo
+  subject      String? // texto livre do assunto
+  linked_type  String? // nf | meeting | process | custom
+  linked_id    String? // ID do item vinculado
+  linked_label String? // label de exibição do item vinculado
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Índices obrigatórios — padrão do projeto
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  // Índice extra para queries de relatório por data
+  @@index([tenant_id, user_id, started_at])
+  // Índice extra para queries por atividade
+  @@index([tenant_id, activity_id])
+}
+
+// ---------------------------------------------------------------------------
+// TimerActive
+// Estado do timer em execução (um por usuário).
+// Removido quando a sessão é finalizada — o histórico fica em TimerSession.
+// ---------------------------------------------------------------------------
+
+model TimerActive {
+  id String @id @default(cuid())
+
+  // Campos de isolamento
+  tenant_id String
+  user_id   String @unique // um timer ativo por usuário
+
+  // Relacionamento
+  activity_id String
+
+  // Estado do timer
+  started_at          DateTime
+  paused_at           DateTime?
+  accumulated_seconds Int       @default(0) // segundos acumulados antes de pausas
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@index([user_id])
+}
+
+// ---------------------------------------------------------------------------
+// RelatorioTempoCache
+// Cache de relatórios de tempo pré-computados para performance.
+// ---------------------------------------------------------------------------
+
+model RelatorioTempoCache {
+  id String @id @default(cuid())
+
+  tenant_id  String
+  user_id    String?
+  product_id String?
+
+  periodo_inicio DateTime
+  periodo_fim    DateTime
+  total_minutos  Int
+  payload        String // JSON serializado com breakdown por atividade
+
+  computed_at DateTime @default(now())
+  expires_at  DateTime
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, periodo_inicio, periodo_fim])
+}
+
+// --- Fragment: email ---
+// servicos-global/tenant/email/prisma/fragment.prisma
+// AGENTE EMAIL — ONDA 3 | 3/13
+//
+// Fragment Prisma para o serviço de Email (envio Resend, templates, histórico).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum EmailStatus {
+  PENDENTE
+  PROCESSANDO
+  ENVIADO
+  FALHOU
+  CANCELADO
+}
+
+enum EmailDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum EmailThreadStatus {
+  ABERTA
+  ARQUIVADA
+  RESOLVIDA
+}
+
+enum EmailSentimentLevel {
+  MUITO_POSITIVO
+  POSITIVO
+  NEUTRO
+  NEGATIVO
+  MUITO_NEGATIVO
+}
+
+enum FilaEmailPrioridade {
+  BAIXA
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+// ---------------------------------------------------------------------------
+// EmailThread — thread de conversa (agrupa mensagens de ida e volta)
+// ---------------------------------------------------------------------------
+
+model EmailThread {
+  id         String  @id @default(uuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  subject         String
+  status          EmailThreadStatus   @default(ABERTA)
+  sentiment       Float               @default(0) // -1 a 1
+  sentiment_label EmailSentimentLevel @default(NEUTRO)
+  mensagens_count Int                 @default(0)
+  ultimo_contato  DateTime?
+  deep_link       String? // ex: /email/thread/{id}
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  mensagens EmailMessage[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// EmailMessage — mensagem individual (inbound ou outbound)
+// ---------------------------------------------------------------------------
+
+model EmailMessage {
+  id         String  @id @default(uuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  thread_id String
+  thread    EmailThread @relation(fields: [thread_id], references: [id])
+
+  resend_id         String?        @unique // ID retornado pelo Resend
+  direction         EmailDirection @default(OUTBOUND)
+  from              String
+  to                String
+  subject           String?
+  body              String         @db.Text
+  body_html         String?        @db.Text
+  dedup_key         String?        @unique // UUID para Reply-To dinâmico
+  parent_message_id String? // UUID do email pai (threading)
+
+  // Análise Gabi
+  gabi_response   String? @db.Text
+  gabi_confidence Float?
+  gabi_action     String? // auto_replied | escalated_to_human | none
+
+  sent_at    DateTime @default(now())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([thread_id])
+  @@index([dedup_key])
+}
+
+// ---------------------------------------------------------------------------
+// EmailEnviado — log de todos os envios realizados (auditoria completa)
+// ---------------------------------------------------------------------------
+
+model EmailEnviado {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  to          String
+  from        String
+  reply_to    String?
+  subject     String
+  template_id String?
+  status      EmailStatus @default(PENDENTE)
+  resend_id   String?     @unique
+  dedup_key   String      @unique // UUID do Reply-To dinâmico
+
+  tentativas     Int       @default(0)
+  max_tentativas Int       @default(5)
+  next_retry_at  DateTime?
+  error_message  String?   @db.Text
+  enviado_at     DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([status])
+  @@index([dedup_key])
+}
+
+// ---------------------------------------------------------------------------
+// Template — templates de email editáveis por tenant
+// ---------------------------------------------------------------------------
+
+model Template {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  nome        String
+  slug        String // ex: boas-vindas, recuperacao-senha
+  assunto     String
+  corpo_html  String   @db.Text
+  corpo_texto String?  @db.Text
+  variaveis   String[] // ex: ["nome", "plano", "url"]
+  ativo       Boolean  @default(true)
+  descricao   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, slug])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// FilaEmail — fila de envio com controle de retry e backoff exponencial
+// ---------------------------------------------------------------------------
+
+model FilaEmail {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  status           EmailStatus         @default(PENDENTE)
+  prioridade       FilaEmailPrioridade @default(NORMAL)
+  payload          String              @db.Text // JSON: { to, subject, body, ... }
+  template_id      String?
+  email_enviado_id String?
+
+  tentativas     Int       @default(0)
+  max_tentativas Int       @default(5)
+  next_retry_at  DateTime?
+  processado_at  DateTime?
+  erro           String?   @db.Text
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([status, next_retry_at])
+  @@index([tenant_id, status])
+}
+
+// --- Fragment: whatsapp ---
+model WhatsAppConversation {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  wa_phone_number        String
+  status                 String    @default("open")
+  contact_id             String?
+  company_id             String?
+  contact_nome           String?
+  company_nome           String?
+  activity_id            String?
+  ai_enabled             Boolean   @default(false)
+  opened_at              DateTime  @default(now())
+  closed_at              DateTime?
+  gabi_temperatura       String?
+  gabi_temperatura_score Int?
+  gabi_resumo            String?
+  gabi_acoes_sugeridas   Json?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, wa_phone_number])
+}
+
+model WhatsAppMessage {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  conversation_id String
+  wa_message_id   String? @unique
+  direction       String
+  content_type    String  @default("text")
+  content         String
+  origin          String  @default("agent")
+  sent_by         String?
+  status          String  @default("sent")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, conversation_id])
+  @@index([wa_message_id])
+}
+
+model WhatsAppUsageLog {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  conversation_id       String?
+  company_id            String?
+  conversation_category String
+  origin                String
+  cost_usd              Decimal
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model WhatsAppAutomation {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  name        String
+  trigger     String
+  conditions  Json?
+  template_id String
+  recipient   String
+  active      Boolean @default(true)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, active])
+}
+
+// --- Fragment: dashboard ---
+// servicos-global/tenant/dashboard/prisma/fragment.prisma
+
+model ConfigDashboard {
+  id             String  @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String?
+  widgets_layout Json? // Layout grid state
+  refresh_rate   Int     @default(300000) // Default 5 min polling
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model MetricaSnapshot {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  metric_name   String
+  value         Float
+  unit          String?
+  snapshot_date DateTime @default(now())
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  // Extra index heavily used for aggregation
+  @@index([tenant_id, metric_name, snapshot_date])
+}
+
+// --- Fragment: relatorios ---
+// servicos-global/tenant/relatorios/prisma/fragment.prisma
+
+model Relatorio {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  nome       String
+  tabelas    Json     @default("[]") // [{"productId":"simulador-comex", "tableId":"simulacoes"}]
+  colunas    Json     @default("[]") // Colunas visíveis
+  filtros    Json     @default("{}") // Filtros salvos
+  join_type  String   @default("left")
+  is_shared  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model ConfigRelatorio {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  relatorio_id String
+  frequencia   String // once | daily | weekly | monthly
+  canais       Json // { email:[], whatsapp:[] }
+  formato      String   @default("csv") // csv | excel | pdf
+  ativo        Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model ExportJob {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  relatorio_id String
+  status       String    @default("PENDING") // PENDING, PROCESSING, DONE, FAILED
+  formato      String    @default("csv")
+  url_arquivo  String?
+  erro         String?
+  started_at   DateTime?
+  completed_at DateTime?
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// --- Fragment: historico-global ---
+model HistoryLog {
+  id         String    @id @default(uuid())
+  tenant_id  String
+  actor_id   String
+  actor_type ActorType
+  action     String
+
+  product_id String?
+  user_id    String?
+
+  // Multiaxial details
+  metadata Json?
+
+  created_at DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, created_at])
+}
+
+enum ActorType {
+  USER
+  SYSTEM
+  GABI_IA
+  ADMIN
+}
+
+// --- Fragment: agendamento ---
+model Agenda {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  nome         String
+  descricao    String?
+  tipo         String // e.g., reuniao, consulta
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  slots  Slot[]
+  config DisponibilidadeConfig?
+
+  @@index([tenant_id])
+}
+
+model Slot {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  agenda_id    String
+  inicio       DateTime
+  fim          DateTime
+  capacidade   Int      @default(1)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  agenda   Agenda    @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
+  reservas Reserva[]
+
+  @@index([tenant_id])
+  @@index([agenda_id])
+}
+
+model Reserva {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  slot_id      String
+  usuario_id   String // ID do usuário ou contato
+  nome         String? // Nome se não tiver usuário cadastrado no sistema
+  email        String? // Email para notificação
+  status       String   @default("confirmado") // confirmado, cancelado, pendente
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  slot Slot @relation(fields: [slot_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([slot_id])
+  @@index([usuario_id])
+}
+
+model DisponibilidadeConfig {
+  id            String   @id @default(uuid())
+  tenant_id     String
+  agenda_id     String   @unique
+  horarioInicio String // Formato "HH:mm" (e.g., "09:00")
+  horarioFim    String // Formato "HH:mm" (e.g., "18:00")
+  duracaoSlot   Int // em minutos
+  intervalo     Int      @default(0) // tempo entre slots em minutos
+  diasSemana    Int[] // [1,2,3,4,5] (1=Segunda, 5=Sexta)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  agenda Agenda @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+}
+
+// --- Fragment: gabi ---
+// servicos-global/tenant/gabi/prisma/fragment.prisma
+// AGENTE GABI — ONDA 3 | 10/13
+//
+// Fragment Prisma para o serviço da Gabi AI (agente autônomo).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// GabiConversation — conversa principal da Gabi com o usuário no tenant
+// ---------------------------------------------------------------------------
+
+model GabiConversation {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  title String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  messages GabiMessage[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// GabiMessage — mensagem individual da conversa
+// ---------------------------------------------------------------------------
+
+model GabiMessage {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  conversation_id String
+  conversation    GabiConversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  role        String // 'user' | 'assistant' | 'system'
+  content     String  @db.Text
+  attachments String? // JSON encodado com links/detalhes de arquivos
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([conversation_id])
+}
+
+// ---------------------------------------------------------------------------
+// GabiUsageLog (SnapshotAuditoria) — auditoria obrigatória de toda execução
+// ---------------------------------------------------------------------------
+
+model GabiUsageLog {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  action_taken          String
+  conversation_snapshot String @db.Text // JSON com contexto da conversa obrigatório
+  actor_type            String @default("gabi") // sempre 'gabi'
+  triggered_by          String // ID do usuário original
+
+  created_at DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+// --- Fragment: preferencias-usuario ---
+// servicos-global/tenant/preferencias-usuario/prisma/fragment.prisma
+// SERVIÇO PREFERÊNCIAS DO USUÁRIO
+//
+// Fragment Prisma para persistência cross-device de preferências de UI.
+// IDs de usuário vêm do Clerk (user.id).
+// Não editar o schema.prisma final — apenas este fragment.
+// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+
+// ---------------------------------------------------------------------------
+// UserPreferences — preferências de UI persitidas por usuário (cross-device)
+// ---------------------------------------------------------------------------
+
+model UserPreferences {
+  id String @id @default(cuid())
+
+  // Identificação — obrigatórios
+  // user_id = Clerk user ID (ex: user_2abc...)
+  user_id   String @unique
+  tenant_id String
+
+  // ── Preferências de UI ──────────────────────────────────────────────────
+  // Visibilidade global das tooltips/dicas
+  tooltips_disabled Boolean @default(false)
+
+  // Tema preferido ('dark' | 'light')
+  theme String @default("dark")
+
+  // Sidebar aberta ou fechada
+  sidebar_open Boolean @default(true)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+}

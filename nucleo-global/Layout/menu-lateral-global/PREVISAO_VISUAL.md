@@ -1,72 +1,35 @@
 # Documentação Visual — MenuLateralGlobal
 
-Componente de navegação primária (sidebar) do Gravity Design System, projetado para alocação no lado esquerdo da aplicação com dois estados: Expandido e Recolhido. Referência fiel baseada em exames reais do DOM no navegador.
-
-## 1. Folha de Especificação Técnica de UX
-Layout de navegação mostrando os estados *Expandido* (240px) e *Recolhido* (72px), incluindo item ativo, hover e toggle button.
-
-![Folha de Especificação Técnica UX](./real-preview-estados.png)
+Referência visual baseada 100% no código `MenuLateralGlobal.tsx` + `menu-lateral.css`.
 
 ---
 
-## 2. Blueprint: Layout de Composição
-Anatomia técnica do componente, incluindo espaçamentos verticais, posicionamento do botão de alternância (toggle) e seções de informação de contexto. Medidas extraídas de `menu-lateral.css`.
+## 1. Estrutura de Navegação
 
-![Especificação de Composição](./real-preview-layout.png)
+Visualização do sidebar em sua largura padrão de 240px integrado ao resto do sistema.
+- **Fidelidade**: Gradiente começando com a cor do módulo (ex: Indigo `#818cf8` com 12% alpha).
+- **Hierarquia**: Logo > Tenant > Navigation.
 
-| Medida Relevante | Verificação Técnica no CSS (Real) |
-| :--- | :--- |
-| **Largura Expandida** | `240px` (`min-width: 240px`) — comporta label + ícone. |
-| **Largura Recolhida** | `72px` (`min-width: 72px`) — apenas ícone centralizado. |
-| **Área do Logo** | Padding `36px 0.875rem 26px 1.25rem`. |
-| **Botão Toggle** | `right: -13px`, `top: 138px` (expandido) / `top: 82px` (recolhido). |
-| **Item Ativo** | `border-radius: 9999px` + `box-shadow` simula borda direita interna de destaque. |
-| **Transição** | `0.3s` CSS transition na largura — expansão/retração suave. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## 3. Composição de Ancoragem Global (Contexto)
-Posicionamento fixo lateral ocupando toda a altura da viewport, servindo como shell de navegação da aplicação.
+## 2. Estados e Toggle (UX)
 
-![Composição de Ancoragem Global](./real-preview-contexto.png)
+Aparência real das interações:
+- **Collapsed View**: Largura reduzida para **72px**.
+- **Item Ativo**: Fundo Indigo suave e a barra de **3px** à esquerda (`inset shadow`).
+- **Toggle**: Botão flutuante de **26px** no limite do sidebar.
 
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Referência Vertical (Y)** | `top: 0`, estendendo-se por `height: 100vh` do viewport. |
-| **Referência Horizontal (X)** | Posição fixa à esquerda do container flex principal. |
-| **Z-Index** | `50` para sobrepor conteúdos rolantes do corpo da página. |
-| **Scroll Oculto** | `::-webkit-scrollbar { width: 0px }` — rolagem invisível. |
+![UX Real](./real.ux.png)
 
 ---
 
-## Anatomia do Componente
+## 3. Especificação Técnica
 
-| Área | Medida / Comportamento |
-| :--- | :--- |
-| **Área do Logo** | Padding `36px 0.875rem 26px 1.25rem`, contém Hexágono + Chip do Módulo. |
-| **Bloco do Tenant** | Avatar Organizacional + Nome + Plano. No recolhido, centraliza o avatar. |
-| **Navegação (Itens)** | Items `border-radius: 9999px`, ícone esquerdo. Ativo usa `--mlg-accent` translúcido. |
-| **Botão Toggle** | `right: -13px`, alternado entre `top: 138px` e `top: 82px`. |
+Blueprint das medidas do CSS:
+- **Largura**: 240px (fixo), 72px (col).
+- **Nav Item**: Padding `12px 0.875rem`, `font-size: 0.875rem`.
+- **Logo Area**: Padding `36px 1.25rem`.
 
----
-
-## Exemplo de Uso (Código)
-
-```tsx
-import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
-import { Buildings, Users } from '@phosphor-icons/react'
-
-const itensDeNavegacao = [
-  { to: '/workspace/organizacao', label: 'Organização', icon: <Buildings size={18} /> },
-  { to: '/workspace/usuarios', label: 'Usuários', icon: <Users size={18} /> }
-]
-
-<MenuLateralGlobal
-  tenantName="Importes SA"
-  tenantPlan="Profissional"
-  navItems={itensDeNavegacao}
-  moduleName="CONFIGURADOR"
-  moduleColor="#818cf8"
-  defaultCollapsed={false}
-/>
-```
+![Técnico Real](./real.tecnico.png)

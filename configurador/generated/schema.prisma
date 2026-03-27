@@ -1,0 +1,365 @@
+// configurador/prisma/schema.prisma
+// GERADO PELO AGENTE 0B — BANCO DE DADOS
+// Este arquivo é gerenciado diretamente pelo Configurador.
+// NÃO usar como base para fragments de tenant.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CONFIGURADOR_DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// ENUMS
+// ---------------------------------------------------------------------------
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  CANCELLED
+  PENDING_SETUP
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+  INCOMPLETE
+}
+
+enum SubscriptionPlan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+// Roles canônicos do sistema — alinhados com skill antigravity-permissoes
+enum UserRole {
+  SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
+  ADMIN // Equipe Gravity — acesso com permissões explícitas
+  MASTER // Cliente — acesso total na organização
+  STANDARD // Cliente — acesso conforme permissões do Master
+  SUPPLIER // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
+}
+
+enum CompanyStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum UserMembershipRole {
+  MASTER // Acesso implícito a todos os workspaces da organização
+  STANDARD // Acesso apenas aos workspaces onde foi habilitado
+  SUPPLIER // Acesso externo — permissões granulares obrigatórias
+}
+
+enum ServiceTokenScope {
+  SERVICE
+  WEBHOOK
+  CRON
+}
+
+// ---------------------------------------------------------------------------
+// TENANT
+// Cada empresa que assina a plataforma Gravity é um Tenant.
+// tenant_id = id do próprio registro (self-referencing por convenção).
+// ---------------------------------------------------------------------------
+
+model Tenant {
+  id                 String       @id @default(cuid())
+  name               String
+  slug               String       @unique
+  status             TenantStatus @default(PENDING_SETUP)
+  clerk_org_id       String?      @unique
+  stripe_customer_id String?      @unique
+
+  // Metadata
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  users            User[]
+  subscriptions    Subscription[]
+  user_permissions UserPermission[]
+  companies        Company[]
+  product_configs  ProductConfig[]
+
+  @@index([status])
+  @@index([slug])
+}
+
+// ---------------------------------------------------------------------------
+// USER
+// Usuário vinculado a um tenant. Autenticado via Clerk.
+// tenant_id é obrigatório — nunca nullable.
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  clerk_user_id String   @unique
+  email         String
+  name          String
+  role          UserRole @default(STANDARD)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant           Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  user_permissions UserPermission[]
+  memberships      UserMembership[]
+
+  // Email único por tenant
+  @@unique([tenant_id, email])
+  // Índices obrigatórios (tenant_id base + compostos)
+  @@index([tenant_id])
+  @@index([tenant_id, created_at])
+  @@index([tenant_id, role])
+}
+
+// ---------------------------------------------------------------------------
+// SUBSCRIPTION
+// Uma assinatura por tenant. Gerenciada via Stripe.
+// tenant_id é obrigatório — nunca nullable.
+// ---------------------------------------------------------------------------
+
+model Subscription {
+  id        String             @id @default(cuid())
+  tenant_id String
+  plan      SubscriptionPlan   @default(STARTER)
+  status    SubscriptionStatus @default(TRIALING)
+
+  stripe_subscription_id String? @unique
+  stripe_price_id        String?
+
+  trial_ends_at        DateTime?
+  current_period_start DateTime?
+  current_period_end   DateTime?
+  cancelled_at         DateTime?
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant Tenant @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, created_at])
+  @@index([tenant_id, status])
+}
+
+// ---------------------------------------------------------------------------
+// USER PERMISSION (Cadeia 2 — Permissões Granulares por Produto)
+// Permissão granular de um usuário em um produto/workspace específico.
+// Ex: permission = 'email:write', 'simulacusto:read'
+// Alinhado com skill antigravity-permissoes.
+// ---------------------------------------------------------------------------
+
+model UserPermission {
+  id         String @id @default(cuid())
+  tenant_id  String
+  company_id String // workspace onde se aplica (obrigatório)
+  user_id    String
+  product_id String // produto ao qual a permissão pertence
+  permission String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
+  granted_by String // clerk_id do Master que concedeu a permissão
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant Tenant @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
+  @@unique([tenant_id, company_id, user_id, product_id, permission])
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, company_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// GRAVITY ADMIN PERMISSION (Cadeia 1 — Permissões de Edição para Admin Gravity)
+// Controla o que um Admin interno da Gravity pode editar.
+// Super Admin não usa esta tabela — tem acesso irrestrito.
+// ---------------------------------------------------------------------------
+
+model GravityAdminPermission {
+  id         String @id @default(cuid())
+  admin_id   String // clerk_id do Admin Gravity
+  resource   String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
+  action     String // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
+  granted_by String // clerk_id do Super Admin que concedeu
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Admin não pode ter permissão duplicada no mesmo recurso+ação
+  @@unique([admin_id, resource, action])
+  // Índices obrigatórios
+  @@index([admin_id])
+  @@index([admin_id, resource])
+}
+
+// ---------------------------------------------------------------------------
+// COMPANY
+// Empresa filha (unidade de negócio) dentro de um tenant.
+// Um tenant pode ter até 50 empresas filhas.
+// ---------------------------------------------------------------------------
+
+model Company {
+  id        String        @id @default(cuid())
+  tenant_id String
+  name      String
+  subdomain String?       @unique
+  cnpj      String?
+  status    CompanyStatus @default(ACTIVE)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant      Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  memberships UserMembership[]
+
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, created_at])
+}
+
+// ---------------------------------------------------------------------------
+// USER MEMBERSHIP
+// Habilitação de um usuário do tenant em uma empresa filha.
+// Define o papel (Master/Standard/Supplier) e o acesso a produtos.
+// ---------------------------------------------------------------------------
+
+model UserMembership {
+  id         String             @id @default(cuid())
+  tenant_id  String
+  user_id    String
+  company_id String
+  role       UserMembershipRole @default(STANDARD)
+  is_active  Boolean            @default(true)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  // Usuário não pode ter duplicata de habilitação na mesma empresa
+  @@unique([tenant_id, user_id, company_id])
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, company_id])
+}
+
+// ---------------------------------------------------------------------------
+// PRODUCT CONFIG
+// Configurações de produto por tenant. Persistência do PRODUCT_CONFIG.
+// product_key identifica o produto (ex: "simulacusto", "nf-importacao")
+// ---------------------------------------------------------------------------
+
+model ProductConfig {
+  id          String  @id @default(cuid())
+  tenant_id   String
+  product_key String
+  config      Json    @default("{}")
+  is_active   Boolean @default(true)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant Tenant @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+
+  // Apenas uma config por produto por tenant
+  @@unique([tenant_id, product_key])
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, product_key])
+  @@index([tenant_id, is_active])
+}
+
+// ---------------------------------------------------------------------------
+// STRIPE EVENT
+// Registro de eventos recebidos do Stripe para garantir idempotência.
+// Evita processar o mesmo webhook duas vezes.
+// ---------------------------------------------------------------------------
+
+model StripeEvent {
+  id           String   @id
+  type         String
+  processed_at DateTime @default(now())
+  payload      Json
+
+  @@index([type])
+  @@index([processed_at])
+}
+
+// ---------------------------------------------------------------------------
+// SUPPLIER TENANT ACCESS
+// Fornecedor cross-tenant — pode prestar serviços para múltiplos tenants.
+// clerk_user_id único no Clerk, múltiplos vínculos aqui.
+// ---------------------------------------------------------------------------
+
+model SupplierTenantAccess {
+  id            String @id @default(cuid())
+  clerk_user_id String
+  tenant_id     String
+  status        String @default("active")
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant
+  @@unique([clerk_user_id, tenant_id])
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([clerk_user_id])
+  @@index([tenant_id, clerk_user_id])
+}
+
+// ---------------------------------------------------------------------------
+// SERVICE TOKEN
+// Machine tokens de longa duração para S2S assíncrono (Fluxo 2 S2S).
+// Emitidos pelo Configurador, consumidos por serviços em jobs/crons.
+// ---------------------------------------------------------------------------
+
+model ServiceToken {
+  id         String            @id @default(cuid())
+  tenant_id  String
+  user_id    String
+  token_hash String            @unique
+  scope      ServiceTokenScope @default(SERVICE)
+  expires_at DateTime?
+  revoked    Boolean           @default(false)
+
+  // Timestamps
+  created_at DateTime @default(now())
+
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@index([token_hash])
+}

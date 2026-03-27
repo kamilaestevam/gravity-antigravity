@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-03-27T14:09:00.368Z
+// Gerado em: 2026-03-27T21:12:53.648Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario
 // Todos os fragments encontrados.
 // ============================================================================
@@ -14,6 +14,7 @@
 
 generator client {
   provider      = "prisma-client-js"
+  output        = "../generated"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 

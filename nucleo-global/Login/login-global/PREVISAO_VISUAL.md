@@ -1,42 +1,35 @@
 # Documentação Visual — LoginGlobal
 
-Referência definitiva do painel de autenticação principal (Padrão Gravity — Indigo/Slate).
-
-## 1. Folha de Especificação Técnica de UX
-Detalhamento de estados visuais, cores e variações do painel de login: Sign-In, Sign-Up, estados dos inputs e botões Clerk.
-
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+Referência visual baseada 100% no código `LoginGlobal.tsx` + `login-global.css` + Integração Clerk.
 
 ---
 
-## 2. Especificação de Composição
-Blueprint técnico do painel com medidas, paddings, hierarquia de seções (Header → Clerk Card → Footer) e breakpoints responsivos.
+## 1. Painel de Acesso (Contexto)
 
-![Especificação de Composição](./preview-layout.png)
+Visualização da tela de autenticação da plataforma.
+- **Estrutura**: Painel lateral ocupando **45%** da largura total.
+- **Fidelidade**: Fundo translúcido com `backdrop-filter: blur(12px)` e borda Indigo de apenas 8% de opacidade.
 
----
-
-## 3. Composição de Ancoragem Global
-Blueprint de posicionamento do painel de login dentro da AuthPage (layout 55/45 split).
-
-![Composição de Ancoragem Global](./preview-contexto.png)
-
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Largura do Painel** | Fixo em **45%** do viewport (flex: 0 0 45%). |
-| **Padding Interno** | **3rem 4rem** (48px × 64px). |
-| **Borda Esquerda** | Separador `1px solid rgba(129, 140, 248, 0.08)`. |
-| **Background** | Glassmorphism: `rgba(30, 41, 59, 0.6)` + `backdrop-filter: blur(12px)`. |
-| **Breakpoint Mobile** | < **900px**: width 100%, padding 2rem 1.5rem, borda superior. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## Exemplo de Uso (Código)
+## 2. Fluxos e Social (UX)
 
-```tsx
-import { LoginGlobal } from '@nucleo/login/login-global'
+Comportamento real dos logins Clerk Custom:
+- **Botões Sociais**: Background `#2d3548`, borda realçada e o badge **FAST** em Violeta (`#7c3aed`) destacando a integração rápida.
+- **Botão Primário**: Estilo pílula (`9999px`) em Indigo `#6366f1` com sombra suave.
+- **Recuperar Senha**: Fluxo customizado com ícones Phosphor e estado de sucesso em Green `#4ade80`.
 
-// Dentro de uma rota com react-router-dom e ClerkProvider
-<Route path="/sign-in/*" element={<LoginGlobal />} />
-<Route path="/sign-up/*" element={<LoginGlobal />} />
-```
+![UX Real](./real.ux.png)
+
+---
+
+## 3. Especificação Técnica
+
+Blueprint das medidas e tokens do sistema:
+- **Card Clerk**: Shadow profundo `0 32px 64px` e borda de vidro (`1px solid rgba(255, 255, 255, 0.18)`).
+- **Tipografia**: Título em **22px** (1.375rem) com peso 800 e spacing de `-0.02em`.
+- **Inputs**: Radius de **8px**, fundo `#0f172a`.
+
+![Técnico Real](./real.tecnico.png)

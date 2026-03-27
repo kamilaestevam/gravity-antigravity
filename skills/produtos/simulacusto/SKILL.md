@@ -5,26 +5,27 @@ description: "Use esta skill sempre que uma tarefa envolver o produto SimulaCust
 
 # SimulaCusto — Produto Gravity
 
+> [!IMPORTANT]
+> **SINGLE SOURCE OF TRUTH (SSOT):** 
+> Todas as tarefas relacionadas ao SimulaCusto DEVEM seguir rigorosamente o PRD (Product Requirements Document) oficial disponível em:
+> **https://docs.google.com/document/d/1xOjYUtixZ0DI0O1Fws78lj2mAg1utTfuoO0667s_AfM/edit?usp=sharing**
+> Os agentes devem ler este documento na íntegra ANTES de qualquer implementação.
+
 ## O Que é Este Produto
 
 Módulo de inteligência fiscal e viabilidade financeira da plataforma Gravity. Permite que importadores e tradings calculem o **custo total de uma operação de importação (Landed Cost)** antes mesmo de fechar o negócio, considerando impostos, taxas, frete e câmbio em tempo real.
 
 ---
 
-## O Que NÃO precisa ser construído no produto
+## Comparativo de Fluxos de Consulta
 
-O SimulaCusto consome os serviços core da plataforma — **não reinvente a roda:**
-
-| Funcionalidade | Skill a Consultar |
-|:---|:---|
-| Login / Multi-tenant | `antigravity-autenticacao-s2s`, `antigravity-tenant-isolation` |
-| Sidebar / Navbar | `antigravity-service-registry` |
-| Tabela de Listagem | `antigravity-componentes` (usar `DataTable` global) |
-| Feedback via WhatsApp | `antigravity-whatsapp` |
-| IA Gabi para análise | `antigravity-gabi` |
-| Logs de Alteração | `antigravity-historico` |
-| Relatórios | `antigravity-relatorios` |
-| Notificações | `antigravity-notificacoes` |
+| Critério | Público (Sem Certificado) | Autenticado (Certificado A1) |
+| :--- | :--- | :--- |
+| **Certificado** | Não obrigatório | Obrigatório |
+| **hCaptcha** | Sim (por requisição) | Não |
+| **Limite** | Por IP + Captcha | Por CPF/CNPJ (~2-3k/dia) |
+| **Automação** | Requer serviço Anti-Captcha | Totalmente automatizável |
+| **Custo Adicional** | Serviço Anti-Captcha | Certificado A1 (~R$ 200/ano) |
 
 ---
 
@@ -38,7 +39,8 @@ O SimulaCusto consome os serviços core da plataforma — **não reinvente a rod
     "siscomex_integration": "active",
     "bacen_auto_update": true,
     "default_icms_mode": "inside_calc",
-    "anti_captcha_provider": "capsolver"
+    "anti_captcha_provider": "capsolver",
+    "token_pool_enabled": true
   },
   "services": [
     "engine-fiscal",
@@ -51,293 +53,82 @@ O SimulaCusto consome os serviços core da plataforma — **não reinvente a rod
 
 ---
 
-## Estrutura de Pastas
+## Endpoints de API (Conforme PRD)
 
-```text
-products/simulacusto/
-├── components/       ← UI específica: Tabela de Taxas, Cards de KPI
-├── services/         ← Engine de cálculo, Integrador Siscomex
-├── hooks/            ← usePtax, useNcmCache
-└── types/            ← Interfaces da Estimativa
+- `POST /ttce/api/ext/simular-calculo-publico` — Simulação padrão (requer `hCaptchaToken`).
+- `GET /ttce/api/ext/ncm/{codigo}` — Detalhes técnicos de um NCM de 8 dígitos.
+- `GET /ttce/api/ext/ncm/busca?q={termo}` — Busca dinâmica de NCMs.
+- `GET /ttce/api/ext/paises` — Lista de países ISO 3166-1 alpha-2.
+- `GET /ttce/api/ext/ufs` — Lista de UFs e alíquotas internas de ICMS.
+
+---
+
+## Estrutura de Payloads
+
+### Request Payload (`POST /simular-calculo-publico`)
+```json
+{
+  "ncm": "8471.30.19",
+  "paisOrigem": "US",
+  "dataFatoGerador": "2026-03-22",
+  "valorAduaneiro": 5925.00,
+  "tipoOperacao": "IMP",
+  "ufDesembaraco": "SP",
+  "cnpjImportador": "00000000000000",
+  "recolhimentoIcms": true,
+  "hCaptchaToken": "TOKEN_RESOLVIDO"
+}
 ```
 
----
-
-## Fluxo — Nova Estimativa de Custo
-
-**4 modos de entrada:**
-
-| Modo | Como funciona |
-|:---|:---|
-| **Manual** | Preenche todos os campos |
-| **Lote** | Sobe um CSV/Excel simplificado |
-| **Smart Read** | Sobe um PDF de Invoice e a Gabi extrai os dados |
-| **API** | Recebe de um ERP externo via `antigravity-api-cockpit` |
-
----
-
-## Campos da Estimativa — 6 Abas
-
-### Aba: Dados da Estimativa
-- Descrição/Referência (ex: "Importação Componentes China")
-- Importador (Selecionar do Tenant)
-- Porto/Aeroporto de Destino
-- Data da Simulação (Default: Hoje)
-
-### Aba: Produto
-- NCM (Autocomplete com cache de alíquotas)
-- Incoterm (FOB, CIF, FCA, etc.)
-- Quantidade total
-- Moeda do produto (USD, EUR, CNY, etc.)
-- Valor total do produto na origem
-
-### Aba: Frete Internacional
-- Moeda do frete internacional
-- Valor do frete internacional
-
-### Aba: Seguro Internacional
-- Moeda do seguro internacional
-- Valor do seguro internacional
-
-### Aba: Taxas na Origem (tabela)
-- Nome da Taxa (Pick-list: Inspeção, Fumigação, Pick-up, Outras)
-- Moeda | Valor
-
-### Aba: Taxas no Destino (tabela)
-- Nome da Taxa (Pick-list: Capatazia, Armazenagem, Despacho, SDA, Outras)
-- Moeda (Default: BRL) | Valor
-- Base de Cálculo (Checkbox: Siscomex/FOB/Outro)
-
-### Aba: ICMS
-- Alíquota ICMS % (Conforme UF de destino)
-- FCP % (Fundo de Combate à Pobreza)
-- Benefício Fiscal (%) [Opcional]
-
----
-
-## Status da Estimativa
-
-| Status | Quando |
-|:---|:---|
-| `rascunho` | Salva automaticamente parcial |
-| `criada` | Cálculo completo realizado |
-| `arquivada` | Não aparece no dashboard principal |
-
-**Numeração:** `EST-[ANO]-[SEQUENCIAL]` (ex: `EST-2024-00042`)
-
----
-
-## Dashboard — Lista + KPIs
-
-**KPIs no topo:**
-- **Total Estimado (Mês):** Soma de todos os Landed Costs em BRL
-- **Economia via Acordos:** Diferença entre II Alíquota Cheia vs II Acordo Comercial
-- **Top NCMs:** Top 3 NCMs mais simulados
-
-**Lista:** `DataTable` da skill `ux/componentes` — colunas: ID, Descrição, NCM, Valor Total (BRL), Status, Ações (Duplicar, Editar, PDF)
+### Response Payload
+```json
+{
+  "sucesso": true,
+  "data": {
+    "tributos": {
+      "ii": { "aliquota": 16.00, "valor": 948.00, "baseCalculo": 5925.00 },
+      "ipi": { "aliquota": 0.00, "valor": 0.00 },
+      "pis": { "aliquota": 2.10, "valor": 124.42 },
+      "cofins": { "aliquota": 9.65, "valor": 571.76 },
+      "icms": { "aliquota": 18.00, "valor": 1448.65, "uf": "SP" }
+    },
+    "totalTributos": 3092.83,
+    "totalImportacao": 9017.83
+  }
+}
+```
 
 ---
 
 ## Engine de Cálculo Fiscal
 
-`products/simulacusto/services/calc-engine.ts` — **a ordem de cálculo importa:**
+A ordem de cálculo deve seguir estritamente a legislação aduaneira brasileira:
 
-```typescript
-// 1. Valor Aduaneiro (BRL)
-const valorAduaneiro = (produto + frete + seguro + taxasOrigem) * ptaxVenda
-
-// 2. II
-const ii = valorAduaneiro * aliquotaII
-
-// 3. IPI
-const ipi = (valorAduaneiro + ii) * aliquotaIPI
-
-// 4. PIS
-const pis = valorAduaneiro * aliquotaPIS
-
-// 5. COFINS
-const cofins = valorAduaneiro * aliquotaCOFINS
-
-// 6. Taxa Siscomex (valor fixo RFB)
-const taxaSiscomex = getTaxaSiscomexFixa()
-
-// 7. ICMS — Cálculo "por dentro" obrigatório se default_icms_mode = 'inside_calc'
-const baseICMS = (valorAduaneiro + ii + ipi + pis + cofins + taxaSiscomex + taxasDestino)
-               / (1 - aliquotaICMSEfetiva)
-const icms = baseICMS * aliquotaICMSEfetiva
-```
-
-### Acordos Comerciais
-Se o NCM possuir acordo comercial (Mercosul, Israel, México), aplica o redutor na alíquota de II **antes** de calcular o IPI.
+1.  **Valor Aduaneiro (V.A.):** `(Produto + Frete + Seguro + Taxas Origem) * PTAX`
+2.  **II:** `V.A. * Alíquota II`
+3.  **IPI:** `(V.A. + II) * Alíquota IPI`
+4.  **PIS:** `V.A. * Alíquota PIS`
+5.  **COFINS:** `V.A. * Alíquota COFINS`
+6.  **Base ICMS (Por Dentro):** `(V.A. + II + IPI + PIS + COFINS + Taxas Destino) / (1 - Alíquota ICMS)`
+7.  **ICMS:** `Base ICMS * Alíquota ICMS`
 
 ---
 
-## Integração — Portal Único SISCOMEX
+## Estratégia Anti-Captcha (Pool de Tokens)
 
-Para buscar alíquotas oficiais de II, IPI, PIS, COFINS por NCM.
-
-**Endpoints:**
-- `GET /api/consultar-ncm?numero=[NCM]`
-- `GET /api/consultar-atributos?ncm=[NCM]`
-
-**Mapeamento de campos:**
-- `codigoSupino` → `aliquota_ii`
-- `aliquotaIPI` → `aliquota_ipi`
-
-### Estratégia Anti-Captcha (Híbrida)
-
-| Modo | Quando usar |
-|:---|:---|
-| **Certificado A1 (primário)** | Tenant sobe PFX via UI → backend assina a requisição, bypassa captcha |
-| **CapSolver (fallback)** | Fluxo público sem certificado |
-
-```typescript
-const solver = new CapSolver(process.env.CAPSOLVER_API_KEY)
-const token = await solver.solve({
-  type: 'HCaptchaTaskProxyLess',
-  websiteURL: 'https://portalunico.siscomex.gov.br/...',
-  websiteKey: process.env.SISCOMEX_HCAPTCHA_SITE_KEY
-})
-```
-
-**Por fase:**
-- **Dev:** Mock de alíquotas (JSON local)
-- **Staging:** CapSolver
-- **Produção:** CapSolver + AntiCaptcha.com (redundância)
+Para mitigar a latência do CapSolver (15-45s), o sistema deve implementar:
+- **Pool de Tokens:** Resolver captchas proativamente em background.
+- **Validade:** Tokens expiram em 120 segundos.
+- **Fallback:** Se o pool estiver vazio, disparar resolução síncrona com loading state na UI.
+- **Circuit Breaker:** Após 3 falhas consecutivas no CapSolver, suspender requisições por 60s.
 
 ---
 
-## Integração — BACEN PTAX
+## Checklist — Requisitos de Negócio
 
-- **Endpoint:** OData BACEN (público, gratuito)
-- **Update:** Uma vez ao dia às 09:00 via cron do `antigravity-notificacoes`
-- **Cache de alíquotas por NCM:** TTL de 24h (alíquotas não mudam com frequência)
-- **Fallback offline:** Tabela local SQLite `tipi_tec_fallback.db` se Portal Único estiver fora
-
----
-
-## Documento de Resultado (.docx)
-
-Botão "Gerar Memória de Cálculo" usa `docx-templates` para preencher um `.docx` com:
-- Logo do Importador
-- Tabela detalhada de todos os impostos
-- Nota de rodapé com a PTAX utilizada
-
----
-
-## Rotas da API
-
-```
-GET  /api/products/simulacusto/estimates         ← Listar estimativas
-POST /api/products/simulacusto/estimates         ← Criar estimativa
-GET  /api/products/simulacusto/calc?ncm=...      ← Cálculo rápido (preview)
-```
-
----
-
-## Schema Prisma (fragment.prisma)
-
-```prisma
-model Estimativa {
-  id               String   @id @default(cuid())
-  tenant_id        String
-  user_id          String
-  numero_sequencial String   @unique           // EST-2024-00042
-  descricao        String
-  ncm              String
-  incoterm         String
-  moeda            String
-  valor_produto    Float
-  valor_frete      Float    @default(0)
-  valor_seguro     Float    @default(0)
-  ptax_utilizado   Float
-  valor_aduaneiro  Float
-  ii               Float
-  ipi              Float
-  pis              Float
-  cofins           Float
-  icms             Float
-  taxa_siscomex    Float
-  landed_cost_brl  Float
-  status           String   @default("rascunho")  // rascunho | criada | arquivada
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-
-  taxas TaxaEstimativa[]
-
-  @@index([tenant_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, ncm])
-}
-
-model TaxaEstimativa {
-  id           String     @id @default(cuid())
-  estimativa_id String
-  tipo         String     // origem | destino
-  nome         String
-  moeda        String
-  valor        Float
-  estimativa   Estimativa @relation(fields: [estimativa_id], references: [id])
-}
-
-model CacheAliquota {
-  ncm          String   @id
-  aliquota_ii  Float
-  aliquota_ipi Float
-  aliquota_pis Float
-  aliquota_cofins Float
-  fonte        String   // siscomex | tipi_fallback
-  updated_at   DateTime @updatedAt
-}
-
-model CacheCambio {
-  moeda        String   @id
-  ptax_venda   Float
-  ptax_compra  Float
-  data_cotacao DateTime
-  updated_at   DateTime @updatedAt
-}
-```
-
----
-
-## Variáveis de Ambiente
-
-```bash
-# Siscomex
-PORTAL_UNICO_CERT_PFX=...          # Base64 do PFX
-PORTAL_UNICO_CERT_SENHA=...        # Senha do certificado
-PORTAL_UNICO_HCAPTCHA_SITE_KEY=... # Site key do hCaptcha do portal
-
-# Anti-Captcha
-CAPSOLVER_API_KEY=CAP-...          # Primário
-ANTICAPTCHA_API_KEY=...            # Fallback
-
-# BACEN (público)
-BACEN_URL=https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata
-
-# Câmbio fallback quando BACEN offline
-CAMBIO_USD_FALLBACK=6.00
-```
-
----
-
-## Checklist — Antes de Entregar
-
-- [ ] `PRODUCT_CONFIG` com todos os serviços declarados?
-- [ ] Dashboard unificado com KPIs + Lista de estimativas?
-- [ ] 4 modos de entrada: manual, lote, Smart Read, API?
-- [ ] Numeração automática EST-[ANO]-[SEQ] por tenant?
-- [ ] Todos os campos das 6 abas implementados?
-- [ ] Status `rascunho` (salvo automaticamente) e `criada`?
-- [ ] Engine de cálculo na ordem correta (A+B+C+D → Valor Aduaneiro)?
-- [ ] ICMS por dentro com suporte a benefício fiscal por UF?
-- [ ] Integração BACEN PTAX com cache de 24h?
-- [ ] Integração Portal Único — certificado A1 como primário?
-- [ ] Anti-captcha CapSolver como fallback para fluxo público?
-- [ ] Cache de alíquotas por NCM com TTL 24h?
-- [ ] Fallback offline com TIPI/TEC quando Portal Único cair?
-- [ ] Circuit breaker após 5 falhas em 60s?
-- [ ] Retry com backoff exponencial (1s → 4s → 16s)?
-- [ ] Exportar estimativa como .docx com breakdown completo?
-- [ ] Fragment.prisma com Estimativa, TaxaEstimativa, CacheAliquota, CacheCambio?
+- [ ] Campo NCM deve aceitar 8 dígitos sem pontuação.
+- [ ] Países devem ser selecionados via busca ISO alpha-2.
+- [ ] Moedas estrangeiras devem ser convertidas à PTAX do dia via API do Banco Central.
+- [ ] Retenção de histórico de simulações com status `rascunho` ou `criada`.
+- [ ] Geração de PDF/DOCX de "Memória de Cálculo" com breakdown tributário completo.
+- [ ] Suporte a Benefícios Fiscais por NCM/Estado (Opcional - Fase 2).

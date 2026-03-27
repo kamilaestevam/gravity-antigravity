@@ -457,6 +457,42 @@ export function AdminFinanceiro() {
               )
             }
           ]}
+          tooltipExpandir="Ver detalhamento completo da composição desta fatura"
+          renderExpandido={(fatura) => (
+            <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+              <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                <Receipt size={18} weight="duotone" color="var(--color-primary)" /> Detalhamento da Fatura {fatura.num} · <span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>{fatura.cliente} · {fatura.competencia}</span>
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {(fatura.composicao ?? []).map((comp, idx) => (
+                  <div key={idx} style={{
+                    display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '12px', alignItems: 'center',
+                    background: comp.tipo === 'desconto' ? 'rgba(52,211,153,0.04)' : 'rgba(255,255,255,0.03)',
+                    padding: '0.75rem 1rem', borderRadius: '10px',
+                    border: `1px solid ${comp.tipo === 'desconto' ? 'rgba(52,211,153,0.15)' : 'rgba(255,255,255,0.05)'}`,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{
+                        width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                        background: comp.tipo === 'base' ? '#818cf8' : comp.tipo === 'desconto' ? '#34d399' : '#fbbf24',
+                      }} />
+                      <span style={{ fontSize: '0.875rem', color: comp.tipo === 'desconto' ? '#34d399' : 'var(--ws-text)', fontWeight: 500 }}>{comp.item}</span>
+                    </div>
+                    <span style={{
+                      fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', padding: '0.125rem 0.5rem',
+                      borderRadius: '9999px', background: comp.tipo === 'base' ? 'rgba(129,140,248,0.08)' : comp.tipo === 'desconto' ? 'rgba(52,211,153,0.08)' : 'rgba(251,191,36,0.08)',
+                      color: comp.tipo === 'base' ? '#818cf8' : comp.tipo === 'desconto' ? '#34d399' : '#fbbf24',
+                    }}>{comp.tipo ?? 'base'}</span>
+                    <strong style={{ fontFamily: 'monospace', fontSize: '0.9375rem', fontWeight: 700, color: comp.tipo === 'desconto' ? '#34d399' : 'var(--ws-text)', textAlign: 'right', minWidth: '120px' }}>{comp.valor}</strong>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ws-muted)' }}>Total da Fatura</span>
+                <strong style={{ fontFamily: 'monospace', fontSize: '1.0625rem', fontWeight: 800, color: 'var(--ws-text)' }}>{fatura.valor}</strong>
+              </div>
+            </div>
+          )}
           mensagemVazio="Nenhuma fatura encontrada."
           mensagemSemFiltro="Sem faturas geradas no período."
           tooltipBusca="Localizar fatura por número, cliente ou produto"

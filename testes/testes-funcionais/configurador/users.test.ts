@@ -286,7 +286,7 @@ describe('PATCH /api/v1/users/:id/role — atualizar role do usuário', () => {
 
     const response = await request(app)
       .patch('/api/v1/users/user-inexistente/role')
-      .send({ role: 'ADMIN' })
+      .send({ role: 'STANDARD' })
 
     expect(response.status).toBe(404)
     expect(response.body.error).toHaveProperty('code', 'NOT_FOUND')

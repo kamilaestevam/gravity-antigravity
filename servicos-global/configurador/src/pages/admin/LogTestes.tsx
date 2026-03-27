@@ -500,12 +500,12 @@ export function LogTestes() {
           colunas={colunas}
           idKey="id"
           renderExpandido={renderExpandido}
-          mensagemVazio="Nenhum log de teste encontrado com esses filtros."
-          mensagemSemFiltro="Não há histórico de testes disponível no momento."
-          tooltipBusca="Localizar testes por módulo, descrição da funcionalidade ou resultado final"
+          mensagemVazio="Nenhum log encontrado."
+          mensagemSemFiltro="Pipeline de testes aguardando execução."
+          tooltipBusca="Localizar teste por nome, módulo ou tipo"
           tooltipExpandir="Ver análise técnica da IA e motivos detalhados de falhas ou sucessos"
         
-        acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Dados')}
+        acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
       />
       </div>
 

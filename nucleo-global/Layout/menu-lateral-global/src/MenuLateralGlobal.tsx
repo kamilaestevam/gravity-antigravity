@@ -91,9 +91,8 @@ export function MenuLateralGlobal({
         {isCollapsed && <div className="mlg-nav-spacer" />}
         
         {navItems.map(item => {
-          const link = (
+          const navLink = (
             <NavLink
-              key={item.to}
               to={item.to}
               className={({ isActive }) => `mlg-nav-item${isActive ? ' active' : ''}`}
             >
@@ -105,12 +104,12 @@ export function MenuLateralGlobal({
           if (isCollapsed) {
             return (
               <TooltipGlobal key={item.to} descricao={item.label}>
-                {link}
+                {navLink}
               </TooltipGlobal>
             )
           }
 
-          return link
+          return <React.Fragment key={item.to}>{navLink}</React.Fragment>
         })}
       </nav>
     </aside>

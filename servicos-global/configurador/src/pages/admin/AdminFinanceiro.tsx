@@ -9,9 +9,11 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
+import { ModalExclusao } from '../workspace/ModalExclusao'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { createPortal } from 'react-dom'
 import { exportarExcel } from '../../services/exportService'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
@@ -139,6 +141,7 @@ export function AdminFinanceiro() {
   })
   const [docsLocal, setDocsLocal] = useState<DocumentoFatura[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [faturaParaExcluir, setFaturaParaExcluir] = useState<FaturaGlobal | null>(null)
   const [docIdEmUpload, setDocIdEmUpload] = useState<string | null>(null)
 
   function abrirModalNovo() {
@@ -182,6 +185,13 @@ export function AdminFinanceiro() {
     
     alert('Fatura salva com sucesso! (Simulação em State Local)')
     setModalAberto(false)
+  }
+
+  function handleConfirmarExclusao() {
+    if (!faturaParaExcluir) return
+    setFaturasLocal(prev => prev.filter(f => f.id !== faturaParaExcluir.id))
+    setFaturaParaExcluir(null)
+    // alert('Fatura excluída com sucesso!')
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -266,14 +276,14 @@ export function AdminFinanceiro() {
       tooltipTitulo: 'Gross Amount', tooltipDescricao: 'Passe o mouse para ver a composição detalhada.',
       render: (v, item) => (
         <span
-          className="valor-tooltip-trigger"
+          className="valor-tooltip-trigger tg-trigger"
           onMouseEnter={(e) => mostrarTooltipValor(item.id, e.currentTarget)}
           onMouseLeave={() => esconderTooltipValor()}
           style={{
             fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem',
             background: valorTooltipAberto === item.id ? 'rgba(129,140,248,0.12)' : 'transparent',
             border: `1px solid ${valorTooltipAberto === item.id ? 'rgba(129,140,248,0.3)' : 'transparent'}`,
-            borderRadius: '6px', padding: '0.25rem 0.5rem', cursor: 'default',
+            borderRadius: '6px', padding: '0.25rem 0.5rem',
             transition: 'all 0.15s', display: 'inline-block',
           }}
         >
@@ -306,9 +316,11 @@ export function AdminFinanceiro() {
           <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap', maxWidth: '80px' }}>
             {item.documentos.length > 0 ? (
               item.documentos.map(d => (
-                <span key={d.id} title={`${d.tipo}: ${d.nome}`} style={{ display: 'flex' }}>
-                   <DocsIcon tipo={d.tipo} status={d.status} />
-                </span>
+                <TooltipGlobal key={d.id} descricao={`${d.tipo}: ${d.nome}`}>
+                  <span style={{ display: 'flex' }}>
+                    <DocsIcon tipo={d.tipo} status={d.status} />
+                  </span>
+                </TooltipGlobal>
               ))
             ) : (
               <span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.05)', fontWeight: 700 }}>ZERO</span>
@@ -426,10 +438,28 @@ export function AdminFinanceiro() {
             {
               id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Documentos',
               onClick: (f) => handleDownload('Pack PDF', f.num),
+            },
+            {
+              id: 'excluir',
+              icone: <Trash size={15} weight="bold" />,
+              tooltip: 'Excluir Fatura',
+              onClick: (f) => setFaturaParaExcluir(f),
+              renderCustom: (f) => (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setFaturaParaExcluir(f) }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+                  onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(239,68,68,0.12)'; ev.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; ev.currentTarget.style.color = '#ef4444' }}
+                  onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+                >
+                  <Trash size={16} weight="bold" />
+                </button>
+              )
             }
           ]}
           mensagemVazio="Nenhuma fatura encontrada."
           mensagemSemFiltro="Sem faturas geradas no período."
+          tooltipBusca="Localizar fatura por número, cliente ou produto"
         />
       </div>
 
@@ -615,6 +645,22 @@ export function AdminFinanceiro() {
             )
           }
         ]}
+      />
+
+      {/* Modal de Exclusão */}
+      <ModalExclusao
+        aberto={!!faturaParaExcluir}
+        titulo="Excluir Fatura"
+        descricao={
+          <>
+            Você está prestes a excluir permanentemente a fatura <strong>{faturaParaExcluir?.num}</strong> do cliente <strong>{faturaParaExcluir?.cliente}</strong>.
+            <br /><br />
+            Esta ação não poderá ser desfeita.
+          </>
+        }
+        nomeItem={`${faturaParaExcluir?.num} — ${faturaParaExcluir?.cliente}`}
+        aoConfirmar={handleConfirmarExclusao}
+        aoCancelar={() => setFaturaParaExcluir(null)}
       />
     </PaginaGlobal>
 

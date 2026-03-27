@@ -419,8 +419,10 @@
 }
 
 .tg-td--checkbox {
-  width: 1px;
-  padding-right: 0.5rem;
+  width: 48px;
+  min-width: 48px;
+  padding: 0.875rem 0 0.875rem 1.25rem;
+  display: table-cell;
 }
 
 .tg-td--acoes {
@@ -618,4 +620,118 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* ─── CAMADAS (Hierarchy Support) ────────────────────────────────────────── */
+
+/* Linha Pai quando expandida por camadas */
+.tg-tr--pai-expandida {
+  background: rgba(129, 140, 248, 0.04);
+  border-bottom: none;
+}
+
+/* Linha Filha */
+.tg-tr-filho {
+  background: rgba(15, 23, 42, 0.35);
+  transition: background 0.2s;
+}
+
+.tg-tr-filho:hover {
+  background: rgba(129, 140, 248, 0.05);
+}
+
+.tg-tr-filho--visivel {
+  animation: tg-fade-slide 0.18s ease forwards;
+}
+
+.tg-tr-filho--visivel .tg-td {
+  border-bottom: 1px solid rgba(129, 140, 248, 0.04);
+  padding-top: 0.6875rem;
+  padding-bottom: 0.6875rem;
+  font-size: 0.85rem;
+}
+
+.tg-tr-filho--ultimo .tg-td {
+  border-bottom: 2px solid rgba(129, 140, 248, 0.1);
+}
+
+@keyframes tg-fade-slide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Células de Expansão/Hierarquia */
+.tg-td--expand,
+.tg-td--filho-expand {
+  width: 48px;
+  min-width: 48px;
+  padding: 0.875rem 0;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Primeira célula de dados da linha filha — borda esquerda de hierarquia */
+.tg-td--filho-first {
+  border-left: 2px solid rgba(129, 140, 248, 0.22) !important;
+}
+
+/* Conector de hierarquia (├, └) */
+.tg-conector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1.1rem;
+  color: var(--tg-accent);
+  opacity: 0.4;
+  line-height: 1;
+  user-select: none;
+  transform: translateY(-1px);
+}
+
+/* Botão Chevron Customizado */
+.tg-chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--tg-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tg-chevron-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.2);
+  color: var(--tg-accent);
+}
+
+.tg-chevron-icon {
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 0;
+}
+
+.tg-chevron-icon--aberto {
+  transform: rotate(90deg);
+}
+
+/* Badge contador de filhos */
+.tg-badge-filhos {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 0.375rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--tg-accent);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  margin-left: 0.5rem;
 }

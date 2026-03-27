@@ -17,6 +17,11 @@
   --ws-sidebar-w: 240px;
 }
 
+/* ── Reset Interativo ─────────────────────────────────────────────────── */
+button, input, select, textarea {
+  font-family: inherit;
+}
+
 /* ── Light theme overrides ─────────────────────────────────── */
 body.light-theme {
   --ws-bg-body: #f8fafc;
@@ -1897,6 +1902,7 @@ input[type="search"]::placeholder {
   margin-bottom: 1.5rem;
   position: relative;
   overflow: hidden;
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
 }
 
 
@@ -1990,6 +1996,7 @@ input[type="search"]::placeholder {
   position: relative;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(251, 191, 36, 0.15);
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
 }
 
 .em-tag::after {

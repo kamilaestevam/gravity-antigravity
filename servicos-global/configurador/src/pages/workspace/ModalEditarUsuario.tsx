@@ -3,7 +3,7 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
-import { TabelaCamadasGlobal, type TCGColuna } from '@nucleo/tabela-camadas-global'
+import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import type { TenantUser } from './Usuarios'
 
 interface ModalEditarUsuarioProps {
@@ -168,9 +168,9 @@ function AbaEspacos() {
     }
   ]
 
-  const COLUNAS_PAI: TCGColuna<any>[] = [
+  const COLUNAS_PAI: TabelaGlobalColuna<any>[] = [
     {
-      key: 'name', label: 'Organização',
+      key: 'name', label: 'Organização', tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#6366f1' }}>
@@ -181,7 +181,7 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'subdominio', label: 'Subdomínio',
+      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
       render: (_v, item) => (
         <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>
           {item.subdominio}.gravity.com.br
@@ -189,18 +189,18 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'status', label: 'Status',
+      key: 'status', label: 'Status', tipo: 'texto',
       render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
     },
     {
-      key: 'plano', label: 'Plano',
+      key: 'plano', label: 'Plano', tipo: 'texto',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>
     }
   ]
 
-  const COLUNAS_FILHAS: TCGColuna<any>[] = [
+  const COLUNAS_FILHAS: TabelaGlobalColuna<any>[] = [
     {
-      key: 'nome', label: 'Workspace',
+      key: 'nome', label: 'Workspace', tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
@@ -211,7 +211,7 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'subdominio', label: 'Subdomínio',
+      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
       render: (_v, item) => (
         <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
           {item.subdominio}.gravity.com.br
@@ -219,11 +219,11 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'status', label: 'Status',
+      key: 'status', label: 'Status', tipo: 'texto',
       render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
     },
     {
-      key: 'perfil', label: 'Perfil no Workspace',
+      key: 'perfil', label: 'Perfil no Workspace', tipo: 'texto',
       render: (v) => (
         <span style={{ color: '#818cf8', fontWeight: 600, fontSize: '0.8125rem' }}>{v as string}</span>
       )
@@ -232,15 +232,13 @@ function AbaEspacos() {
 
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '400px' }}>
-      <TabelaCamadasGlobal
+      <TabelaGlobal
         dados={mockTenants}
         colunas={COLUNAS_PAI}
         colunasFilhas={COLUNAS_FILHAS}
         filhos={item => item.workspaces}
-        itemId={item => item.id}
+        idKey="id"
         expandidosPadrao={['org_1', 'org_2']}
-        placeholderBusca="Localizar workspace..."
-        campoBusca="name"
         itensPorPagina={10}
       />
     </div>

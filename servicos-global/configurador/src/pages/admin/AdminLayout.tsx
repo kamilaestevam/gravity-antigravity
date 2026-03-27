@@ -94,15 +94,17 @@ export function AdminLayout() {
       <div className="ws-main">
         {/* ── Global Actions ── */}
         <div className="ws-global-actions">
-          <LocalizarExpandidoCampoGlobal 
-            onBuscarNavigate={(term) => {
-              const termLower = term.toLowerCase()
-              const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
-              if (target) {
-                navigate(target.to)
-              }
-            }}
-          />
+          <TooltipGlobal descricao="Pesquisar por páginas, ferramentas ou configurações no painel administrativo">
+            <LocalizarExpandidoCampoGlobal 
+              onBuscarNavigate={(term) => {
+                const termLower = term.toLowerCase()
+                const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
+                if (target) {
+                  navigate(target.to)
+                }
+              }}
+            />
+          </TooltipGlobal>
 
           {/* NOVO: Toggle de tooltips */}
           <TooltipGlobal
@@ -135,23 +137,27 @@ export function AdminLayout() {
             </button>
           </TooltipGlobal>
 
-          <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
+          <TooltipGlobal descricao="Visualizar notificações e alertas do sistema">
+            <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
+          </TooltipGlobal>
 
-          <UsuarioGlobal
-            userName={userName}
-            userEmail={userEmail}
-            userInitials={userInitials}
-            userRole="Admin" 
-            isLight={isLight}
-            onToggleTheme={toggleTheme}
-            onNavigateOrganizacao={() => navigate('/admin/visao-geral')}
-            onNavigateAssinaturas={() => {}}
-            onSignOut={() => signOut()}
-            isAdmin={true}
-            isAdminPanel={true}
-            onNavigateAdmin={() => navigate('/admin/visao-geral')}
-            onNavigateConfigurador={() => navigate('/workspace/workspaces')}
-          />
+          <TooltipGlobal descricao="Configurações de perfil, preferências de tema e encerramento de sessão">
+            <UsuarioGlobal
+              userName={userName}
+              userEmail={userEmail}
+              userInitials={userInitials}
+              userRole="Admin" 
+              isLight={isLight}
+              onToggleTheme={toggleTheme}
+              onNavigateOrganizacao={() => navigate('/admin/visao-geral')}
+              onNavigateAssinaturas={() => {}}
+              onSignOut={() => signOut()}
+              isAdmin={true}
+              isAdminPanel={true}
+              onNavigateAdmin={() => navigate('/admin/visao-geral')}
+              onNavigateConfigurador={() => navigate('/workspace/workspaces')}
+            />
+          </TooltipGlobal>
         </div>
 
         {/* Page content rendered by child routes */}

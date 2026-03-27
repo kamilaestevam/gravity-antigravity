@@ -23,7 +23,7 @@ export interface TabelaGlobalColuna<T> {
 export interface TabelaGlobalAcao<T> {
   id: string
   icone: React.ReactNode
-  tooltip: string
+  tooltip: string | ((item: T) => string)
   onClick: (item: T) => void
   disabled?: (item: T) => boolean
   onRenderStyle?: (item: T) => { background?: string; borderColor?: string; color?: string }
@@ -49,6 +49,18 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
   tooltipExpandir?: string | ((item: T) => string)
   tooltipRecolher?: string | ((item: T) => string)
   tooltipBusca?: string
+
+  // ─── Camadas (Hierarquia) ───
+  /** Função que retorna os itens filhos de um registro */
+  filhos?: (item: T) => any[]
+  /** Colunas específicas para os registros filhos */
+  colunasFilhas?: TabelaGlobalColuna<any>[]
+  /** Ações específicas para os registros filhos */
+  acoesFilhas?: TabelaGlobalAcao<any>[]
+  /** IDs que devem iniciar expandidos */
+  expandidosPadrao?: string[]
+  /** Itens por página */
+  itensPorPagina?: number
 }
 
 type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
@@ -306,6 +318,22 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
 }
 const Th = memo(ThInner) as typeof ThInner
 
+// ─── Componentes Internos de Camadas ───
+
+function IconeChevron() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M4 2L8 6L4 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+function renderCelulaCamada<T>(coluna: TabelaGlobalColuna<T>, item: T): React.ReactNode {
+  const valor = (item as any)[coluna.key]
+  if (coluna.render) return coluna.render(valor, item)
+  return <span>{String(valor ?? '—')}</span>
+}
+
 function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.2rem 0.5rem 0.2rem 0.65rem', borderRadius: '9999px', background: 'rgba(199,210,254,0.1)', border: '1px solid rgba(199,210,254,0.25)', color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
@@ -332,8 +360,14 @@ function ExportMenuItem({ label, icon, onClick, tooltip }: { label: string; icon
   return content
 }
 
-export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro, renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca }: TabelaGlobalProps<T>) {
+export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalProps<T>) {
   const { t } = useTranslation()
+  const {
+    dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro,
+    renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca,
+    filhos, colunasFilhas, acoesFilhas, expandidosPadrao = [], itensPorPagina = 10
+  } = props
+
   const defaultMensagemVazio = mensagemVazio ?? t('tabela.sem_resultado')
   const defaultMensagemSemFiltro = mensagemSemFiltro ?? t('tabela.sem_filtro')
   const [busca, setBusca] = useState('')
@@ -348,9 +382,9 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
   
   const [filtros, setFiltros] = useState<Record<string, FiltrosStateVal>>(initialFiltros)
   const [pagina, setPagina] = useState(1)
-  const [porPagina, setPorPagina] = useState(10)
+  const [porPagina, setPorPagina] = useState(itensPorPagina)
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
-  const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
+  const [expandidos, setExpandidos] = useState<Set<string>>(new Set(expandidosPadrao))
 
   const toggleExpandido = useCallback((id: string) => {
     setExpandidos(prev => {
@@ -397,7 +431,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
     })
     if (ordenacao?.coluna === col) setOrdenacao(null)
     setPagina(1)
-  }, [ordenacao])
+  }, [ordenacao, colunas])
 
   const limparTudo = useCallback(() => {
     setBusca('')
@@ -616,7 +650,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
           <tbody>
             {paginado.length === 0 ? (
               <tr>
-                <td colSpan={colunas.length + (acoes?.length ? 2 : 1)} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
+                <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + (renderExpandido ? 1 : 0) + 1} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
                   {chips.length > 0 || busca
                     ? <span>{defaultMensagemVazio} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>{t('tabela.limpar_filtros')}</button></span>
                     : defaultMensagemSemFiltro
@@ -626,79 +660,160 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
             ) : paginado.map((item, i) => {
               const id = String(item[idKey as string])
               const isExpanded = expandidos.has(id)
-              return (
-              <React.Fragment key={id}>
-              <tr
-                className={`tg-tr ${isExpanded ? 'tg-tr--expandida' : ''}`}
-                onClick={renderExpandido ? () => toggleExpandido(id) : undefined}
-                style={{ cursor: renderExpandido ? 'pointer' : 'default', borderBottom: (isExpanded || i < paginado.length - 1) ? '1px solid var(--ws-accent-border)' : 'none', background: selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent', transition: 'background 0.1s, opacity 0.2s, filter 0.2s' }}
-                onMouseEnter={ev => { if (!selecionados.has(id)) ev.currentTarget.style.background = 'rgba(129,140,248,0.03)' }}
-                onMouseLeave={ev => { ev.currentTarget.style.background = selecionados.has(id) ? 'rgba(129,140,248,0.06)' : 'transparent' }}>
-                <td style={{ padding: '0.875rem 1rem', width: 1 }} onClick={ev => ev.stopPropagation()}>
-                  <input type="checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
-                </td>
-                
-                {colunas.map(col => (
-                  <td key={col.key} style={{ padding: '0.875rem 1rem', textAlign: col.align || 'left' }}>
-                    {col.render ? col.render(item[col.key], item) : String(item[col.key] ?? '')}
-                  </td>
-                ))}
+              const filhosItem = filhos ? filhos(item) : []
+              const temFilhos = filhosItem.length > 0
+              const ehUltimoDoPagina = i === paginado.length - 1
 
-                {acoes && acoes.length > 0 && (
-                  <td style={{ padding: '0.875rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                      {acoes.map(acao => {
-                        if (acao.renderCustom) return <React.Fragment key={acao.id}>{acao.renderCustom(item)}</React.Fragment>
-                        const isDis = acao.disabled ? acao.disabled(item) : false
-                        const customStyle = acao.onRenderStyle ? acao.onRenderStyle(item) : {}
-                        return (
-                          <TooltipGlobal key={acao.id} descricao={acao.tooltip}>
-                            <button
-                              type="button"
-                              onClick={() => !isDis && acao.onClick(item)}
-                              disabled={isDis}
-                              style={{ 
-                                display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                                width: 28, height: 28, borderRadius: '50%', background: 'transparent', 
-                                border: '1px solid transparent', color: '#64748b', cursor: isDis ? 'not-allowed' : 'pointer', 
-                                transition: 'all 0.15s', flexShrink: 0, opacity: isDis ? 0.3 : 1
-                              }}
-                              onMouseEnter={ev => { if(!isDis) { ev.currentTarget.style.background = customStyle.background ?? 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = customStyle.borderColor ?? 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = customStyle.color ?? '#818cf8' } }}
-                              onMouseLeave={ev => { if(!isDis) { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' } }}
+              return (
+                <React.Fragment key={id}>
+                  {/* ── Linha Principal (PAI) ── */}
+                  <tr
+                    className={`tg-tr ${isExpanded ? (filhos ? 'tg-tr--pai-expandida' : 'tg-tr--expandida') : ''}`}
+                    onClick={(renderExpandido || temFilhos) ? () => toggleExpandido(id) : undefined}
+                    style={{ 
+                      cursor: (renderExpandido || temFilhos) ? 'pointer' : 'default', 
+                      borderBottom: (isExpanded || !ehUltimoDoPagina) ? '1px solid var(--ws-accent-border)' : 'none', 
+                      background: selecionados.has(id) ? 'var(--tg-bg-selected)' : 'transparent' 
+                    }}
+                  >
+                    <td className="tg-td tg-td--checkbox" onClick={ev => ev.stopPropagation()}>
+                      {filhos ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input type="checkbox" className="tg-checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} />
+                          {temFilhos && (
+                            <TooltipGlobal 
+                              descricao={
+                                isExpanded 
+                                  ? (typeof tooltipRecolher === 'function' ? tooltipRecolher(item) : tooltipRecolher || t('tabela.recolher_detalhes'))
+                                  : (typeof tooltipExpandir === 'function' ? tooltipExpandir(item) : tooltipExpandir || t('tabela.expandir_detalhes'))
+                              }
                             >
-                              {acao.icone}
-                            </button>
-                          </TooltipGlobal>
-                        )
-                      })}
-                    </div>
-                  </td>
-                )}
-                {renderExpandido && (
-                  <td style={{ padding: '0.875rem 1rem', textAlign: 'center', width: 1, color: '#64748b' }}>
-                    <TooltipGlobal 
-                      descricao={
-                        isExpanded 
-                          ? (typeof tooltipRecolher === 'function' ? tooltipRecolher(item) : tooltipRecolher || t('tabela.recolher_detalhes'))
-                          : (typeof tooltipExpandir === 'function' ? tooltipExpandir(item) : tooltipExpandir || t('tabela.expandir_detalhes'))
-                      }
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                        <CaretDown size={14} weight="bold" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
-                      </div>
-                    </TooltipGlobal>
-                  </td>
-                )}
-              </tr>
-              {isExpanded && renderExpandido && (
-                <tr className="tg-tr-expandida-conteudo">
-                  <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + (renderExpandido ? 1 : 0) + 1} style={{ padding: 0, borderBottom: i < paginado.length - 1 ? '1px solid var(--ws-accent-border)' : 'none', background: 'rgba(15,23,42,0.3)', transition: 'opacity 0.2s, filter 0.2s' }}>
-                    {renderExpandido(item)}
-                  </td>
-                </tr>
-              )}
-              </React.Fragment>
-            )})}
+                              <button
+                                type="button"
+                                className="tg-chevron-btn"
+                                onClick={e => { e.stopPropagation(); toggleExpandido(id) }}
+                              >
+                                <span className={`tg-chevron-icon ${isExpanded ? 'tg-chevron-icon--aberto' : ''}`}>
+                                  <IconeChevron />
+                                </span>
+                              </button>
+                            </TooltipGlobal>
+                          )}
+                        </div>
+                      ) : (
+                        <input type="checkbox" className="tg-checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} />
+                      )}
+                    </td>
+                    
+                    {colunas.map((col, cIdx) => (
+                      <td key={col.key} className="tg-td" style={{ textAlign: col.align || 'left' }}>
+                        {cIdx === 0 && temFilhos ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {col.render ? col.render(item[col.key], item) : String(item[col.key] ?? '')}
+                            <span className="tg-badge-filhos">{filhosItem.length}</span>
+                          </div>
+                        ) : (
+                          col.render ? col.render(item[col.key], item) : String(item[col.key] ?? '')
+                        )}
+                      </td>
+                    ))}
+
+                    {acoes && acoes.length > 0 && (
+                      <td className="tg-td tg-td--acoes">
+                        <div className="tg-acoes-grupo">
+                          {acoes.map(acao => {
+                            const tooltipDesc = typeof acao.tooltip === 'function' ? acao.tooltip(item) : acao.tooltip
+                            
+                            if (acao.renderCustom) {
+                              const customNode = acao.renderCustom(item)
+                              return tooltipDesc ? (
+                                <TooltipGlobal key={acao.id} descricao={tooltipDesc}>
+                                  {customNode}
+                                </TooltipGlobal>
+                              ) : <React.Fragment key={acao.id}>{customNode}</React.Fragment>
+                            }
+                            const isDis = acao.disabled ? acao.disabled(item) : false
+                            const customStyle = acao.onRenderStyle ? acao.onRenderStyle(item) : {}
+                            return (
+                              <TooltipGlobal key={acao.id} descricao={tooltipDesc}>
+                                <button
+                                  type="button"
+                                  className="tg-acao-btn"
+                                  onClick={() => !isDis && acao.onClick(item)}
+                                  disabled={isDis}
+                                  style={{ ...customStyle, opacity: isDis ? 0.3 : 1 }}
+                                >
+                                  {acao.icone}
+                                </button>
+                              </TooltipGlobal>
+                            )
+                          })}
+                        </div>
+                      </td>
+                    )}
+                    
+                    {renderExpandido && !filhos && (
+                      <td className="tg-td tg-td--expand">
+                        <TooltipGlobal 
+                          descricao={
+                            isExpanded 
+                              ? (typeof tooltipRecolher === 'function' ? tooltipRecolher(item) : tooltipRecolher || t('tabela.recolher_detalhes'))
+                              : (typeof tooltipExpandir === 'function' ? tooltipExpandir(item) : tooltipExpandir || t('tabela.expandir_detalhes'))
+                          }
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <CaretDown size={14} weight="bold" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', color: '#64748b' }} />
+                          </div>
+                        </TooltipGlobal>
+                      </td>
+                    )}
+                  </tr>
+
+                  {/* ── Linhas de Camadas (FILHAS) ── */}
+                  {isExpanded && temFilhos && colunasFilhas && filhosItem.map((filho, fi) => {
+                    const isUltimoFilho = fi === filhosItem.length - 1
+                    return (
+                      <tr key={(filho as any).id ?? fi} className={`tg-tr-filho tg-tr-filho--visivel ${isUltimoFilho ? 'tg-tr-filho--ultimo' : ''}`}>
+                        <td className="tg-td--filho-expand">
+                          <span className="tg-conector">{isUltimoFilho ? '└' : '├'}</span>
+                        </td>
+                        {colunasFilhas.map((cf, cfIdx) => (
+                          <td key={cf.key} className={`tg-td ${cfIdx === 0 ? 'tg-td--filho-first' : ''}`} style={{ textAlign: cf.align || 'left' }}>
+                            {renderCelulaCamada(cf, filho)}
+                          </td>
+                        ))}
+                        {/* ── Manter o mesmo número de colunas do pai ── */}
+                        {acoesFilhas ? (
+                          <td className="tg-td tg-td--acoes">
+                            <div className="tg-acoes-grupo">
+                              {acoesFilhas.map(af => (
+                                <TooltipGlobal key={af.id} descricao={af.tooltip}>
+                                  <button type="button" className="tg-acao-btn" onClick={() => af.onClick?.(filho)}>
+                                    {af.icone}
+                                  </button>
+                                </TooltipGlobal>
+                              ))}
+                            </div>
+                          </td>
+                        ) : (
+                          acoes && acoes.length > 0 && <td className="tg-td tg-td--acoes" />
+                        )}
+                        {renderExpandido && !filhos && <td className="tg-td" />}
+                      </tr>
+                    )
+                  })}
+
+                  {/* ── Conteúdo Expandido (Modo Legado/Simples) ── */}
+                  {isExpanded && renderExpandido && !filhos && (
+                    <tr className="tg-tr-expandida-conteudo">
+                      <td colSpan={colunas.length + (acoes?.length ? 1 : 0) + 2} style={{ padding: 0 }}>
+                        {renderExpandido(item)}
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              )
+            })}
           </tbody>
         </table>
       </div>

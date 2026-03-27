@@ -176,11 +176,11 @@ export function DeployRailwayAdmin() {
         <TabelaGlobal<DeployLog>
           dados={mockDeploys}
           colunas={COLUNAS}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio="Nenhum deploy encontrado para estes filtros."
           mensagemSemFiltro="Nenhum histórico de deploy registrado ainda."
-        
-        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
-      />
+          tooltipBusca="Localizar deploy pela mensagem (PARA) ou responsável (QUEM)"
+        />
       </div>
     </PaginaGlobal>
   )

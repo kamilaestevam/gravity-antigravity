@@ -642,6 +642,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
           acoes={ACOES}
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio={loading ? 'Interrogando estado do database global...' : 'Nenhuma instância retornou resultados.'}
+          tooltipExpandir="Ver workspaces vinculados à organização"
+          tooltipRecolher="Recolher visualização de workspaces"
+          tooltipBusca="Localizar instância por nome ou subdomínio"
           renderExpandido={(tenant) => (
             <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
               <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>

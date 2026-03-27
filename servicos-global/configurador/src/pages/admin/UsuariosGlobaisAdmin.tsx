@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react'
 import {
   Users, UserCircleCheck, UserCircleMinus,
-  PauseCircle, PlayCircle, PencilSimple,
+  PauseCircle, PlayCircle, PencilSimple, TreeStructure,
   FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck, Crown, Lightning
 } from '@phosphor-icons/react'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { TabelaCamadasGlobal, type TCGColuna, type TCGAcao, type TCGAcaoExport } from '@nucleo/tabela-camadas-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -168,7 +168,7 @@ export function UsuariosGlobaisAdmin() {
   }
 
   // ─── Colunas ────────────────────────────────────────────────────────────────
-  const COLUNAS: TCGColuna<GlobalUser>[] = [
+  const COLUNAS: TabelaGlobalColuna<GlobalUser>[] = [
     {
       key: 'nome', label: 'Usuário', tipo: 'texto',
       tooltipTitulo: 'Nome Completo', tooltipDescricao: 'Nome cadastrado do usuário na plataforma.',
@@ -229,33 +229,30 @@ export function UsuariosGlobaisAdmin() {
     },
   ]
 
-  const COLUNAS_FILHAS: TCGColuna<GlobalUserSpace>[] = [
+  const COLUNAS_FILHAS: TabelaGlobalColuna<GlobalUserSpace>[] = [
     {
-      key: 'nome', label: 'Workspace',
-      render: (_v, item) => {
-        const subdominio = item.subdominio;
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
-              {item.nome.charAt(0)}
-            </div>
-            <a 
-              href={`http://localhost:8010/workspace/${subdominio}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontWeight: 500, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none'; }}
-              onClick={ev => ev.stopPropagation()}
-            >
-              {item.nome}
-            </a>
+      key: 'nome', label: 'Nome do Workspace', tipo: 'texto',
+      render: (_v, item) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
+            {item.nome.charAt(0)}
           </div>
-        )
-      }
+          <a 
+            href={`/workspace/workspaces?id=${item.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: 600, color: 'var(--ws-text)', textDecoration: 'none', transition: 'color 0.15s' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#818cf8'; e.currentTarget.style.textDecoration = 'underline'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--ws-text)'; e.currentTarget.style.textDecoration = 'none' }}
+            onClick={ev => ev.stopPropagation()}
+          >
+            {item.nome}
+          </a>
+        </div>
+      )
     },
     {
-      key: 'subdominio', label: 'Subdomínio',
+      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
       render: (_v, item) => (
         <a 
           href={`http://localhost:8010/workspace/${item.subdominio}`}
@@ -264,9 +261,18 @@ export function UsuariosGlobaisAdmin() {
           style={{ textDecoration: 'none' }}
           onClick={ev => ev.stopPropagation()}
         >
-          <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.15s' }}
-            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.08)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+          <code style={{ 
+            fontSize: '0.75rem', 
+            color: '#a5b4fc', 
+            background: 'rgba(165,180,252,0.05)', 
+            border: '1px solid rgba(165,180,252,0.1)',
+            padding: '0.125rem 0.4rem', 
+            borderRadius: '4px', 
+            cursor: 'pointer', 
+            transition: 'all 0.15s' 
+          }}
+            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.15)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.3)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.05)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.1)' }}
           >
             {item.subdominio}.gravity.com.br
           </code>
@@ -274,22 +280,32 @@ export function UsuariosGlobaisAdmin() {
       )
     },
     {
-      key: 'org_vazia', label: '',
-      render: () => <span />
-    },
-    {
-      key: 'perfil', label: 'Perfil de Acesso',
-      render: (v) => (
-        <span style={{ color: '#8b5cf6', fontWeight: 600, fontSize: '0.8125rem' }}>{v as string}</span>
+      key: 'id' as any, label: 'Status', tipo: 'texto', // Mocando status ativo para visual
+      render: () => (
+        <span style={{
+          display: 'inline-flex', padding: '0.15rem 0.5rem', borderRadius: '4px',
+          fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em',
+          background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.2)'
+        }}>Ativa</span>
       )
     },
     {
-      key: 'status', label: '',
-      render: () => <span />
+      key: 'perfil', label: 'Plano / Perfil', tipo: 'texto',
+      render: (v) => (
+        <span style={{ 
+          fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 600, 
+          padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.03)', 
+          borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)' 
+        }}>{String(v)}</span>
+      )
+    },
+    {
+      key: 'id' as any, label: 'Usuários', align: 'center', tipo: 'texto',
+      render: () => <span style={{ fontWeight: 600, fontSize: '0.8125rem' }}>12</span>
     }
   ]
 
-  const ACOES: TCGAcao<GlobalUser>[] = [
+  const ACOES: TabelaGlobalAcao<GlobalUser>[] = [
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" />,
@@ -333,7 +349,7 @@ export function UsuariosGlobaisAdmin() {
   ]
   const OPCOES_EXPORT = { nomeArquivo: 'usuarios-globais', titulo: 'Usuários Globais da Plataforma' }
 
-  const ACOES_EXPORT: TCGAcaoExport[] = [
+  const ACOES_EXPORT: TabelaExportAcao<GlobalUser>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: () => void exportarExcel(users as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
     { label: 'CSV',           icone: <FileCsv  size={14} weight="bold" />, onClick: () => void exportarCSV(users as any,   COLUNAS_EXPORT, OPCOES_EXPORT) },
     { label: 'TXT',           icone: <FileText size={14} weight="bold" />, onClick: () => void exportarTXT(users as any,   COLUNAS_EXPORT, OPCOES_EXPORT) },
@@ -456,19 +472,31 @@ export function UsuariosGlobaisAdmin() {
 
       {/* ── Tabela global ────────────────────────────────────────────────── */}
       <div style={{ position: 'relative', zIndex: 10 }}>
-        <TabelaCamadasGlobal<GlobalUser, GlobalUserSpace>
-          dados={users}
-          colunas={COLUNAS}
-          colunasFilhas={COLUNAS_FILHAS}
-          filhos={u => u.espacos || []}
-          acoes={ACOES}
-          acoesExportacao={ACOES_EXPORT}
-          mensagemVazio="Nenhum usuário encontrado na busca..."
-          placeholderBusca="Localizar usuário..."
-          campoBusca="nome"
-          itemId={u => u.id}
-          expandidosPadrao={['sa01']}
-        />
+        <TabelaGlobal<GlobalUser>
+           dados={users}
+           colunas={COLUNAS}
+           acoes={ACOES}
+           acoesExportacao={ACOES_EXPORT}
+           mensagemVazio="Nenhum usuário encontrado na busca..."
+           tooltipBusca="Localizar usuário global por nome ou e-mail"
+           tooltipExpandir="Ver espaços de trabalho vinculados a este usuário"
+           tooltipRecolher="Recolher detalhes de espaços de trabalho"
+           idKey="id"
+           renderExpandido={(user) => (
+             <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+               <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                 <TreeStructure size={14} /> Espaços de Trabalho ({user.espacos?.length || 0})
+               </div>
+               <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
+                 <TabelaGlobal<GlobalUserSpace>
+                   dados={user.espacos || []}
+                   colunas={COLUNAS_FILHAS}
+                   mensagemVazio="Este usuário não possui workspaces vinculados."
+                 />
+               </div>
+             </div>
+           )}
+         />
       </div>
 
       {/* ── Modal Edição ─────────────────────────────────────────────────── */}
@@ -476,9 +504,8 @@ export function UsuariosGlobaisAdmin() {
         usuario={usuarioEditando as any}
         abaInicial={abaEditando}
         aoFechar={() => setUsuarioEditando(null)}
-        contextoAdmin={true}
         aoSalvar={(uEditado) => {
-          setUsers(prev => prev.map(u => u.id === uEditado.id ? { ...u, ...uEditado } : u))
+          setUsers(prev => prev.map(u => u.id === uEditado.id ? { ...u, ...uEditado as GlobalUser } : u))
           setUsuarioEditando(null)
         }}
       />

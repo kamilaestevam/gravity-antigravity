@@ -1,47 +1,36 @@
-# Documentação Visual — MensageriaGlobal
+# Documentação Visual — AvisoInternoGlobal
 
-Referência definitiva do painel de mensageria e notificações internas (Padrão Workspace — Roxo).
-
-## 1. Folha de Especificação Técnica de UX
-Detalhamento de estados, cores e anatomia do dropdown de notificações: badge, header, composer, lista e footer.
-
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+Referência visual baseada 100% no código `AvisoInternoGlobal.tsx` + `aviso-interno.css`.
 
 ---
 
-## 2. Especificação de Composição
-Blueprint técnico do popover com medidas, gaps internos, hierarquia de seções e overflow da lista.
+## 1. Popover de Quadro de Avisos
 
-![Especificação de Composição](./preview-layout.png)
+Visualização do dropdown denso de notificações disparado pelo Header.
+- **Dimensões**: Largura fixa de **320px**.
+- **Ancoragem**: Direita superior (Global Actions).
 
----
-
-## 3. Composição de Ancoragem Global
-Blueprint de posicionamento do dropdown em relação ao botão-gatilho (Bell) no Cabeçalho.
-
-![Composição de Ancoragem Global](./preview-contexto.png)
-
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Ponto Base (Y)** | Abaixo do botão-gatilho, a **44px** do topo do ícone Bell. |
-| **Ponto Terminal (X)** | Alinhado à direita (`right: 0`) do contêiner relativo. |
-| **Largura Fixa** | Dropdown sempre **320px** de largura. |
-| **Altura Máxima da Lista** | Área de scroll com `max-height: 260px`. |
-| **Z-Index** | Camada **1000** para sobrepor conteúdo da página. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## Exemplo de Uso (Código)
+## 2. Densidade e Interações (UX)
 
-```tsx
-import { AvisoInternoGlobal } from '@nucleo/mensageria-global'
+Comportamento da lista de mensagens:
+- **Hierarquia**: Avatares de 24px com iniciais. Author em 12px bold.
+- **Mensagem**: Texto em 12px com opacidade `0.65`.
+- **Clamping**: Limite de **4 linhas** por prévia de mensagem antes do corte.
+- **Composer**: Área de criação de avisos com limite de 170 caracteres.
 
-<AvisoInternoGlobal
-  avisos={listaDeAvisos}
-  onBuscar={handleBuscar}
-  onMarcarLido={handleMarcarLido}
-  onMarcarTodosLidos={handleMarcarTodos}
-  onCriarAviso={handleCriarAviso}
-  onFechar={handleFechar}
-/>
-```
+![UX Real](./real.ux.png)
+
+---
+
+## 3. Especificação Técnica
+
+Blueprint das medidas do CSS:
+- **Popover**: `border-radius: 8px`, `box-shadow` profundo.
+- **Tipografia**: Título do header em Uppercase com `0.05em` spacing.
+- **Mensagens**: `line-height: 1.5` para legibilidade em blocos de texto.
+
+![Técnico Real](./real.tecnico.png)

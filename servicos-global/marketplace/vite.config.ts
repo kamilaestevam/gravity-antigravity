@@ -9,6 +9,10 @@ export default defineConfig({
       '@nucleo/logo-global': path.resolve(
         __dirname,
         '../../nucleo-global/logo-global/src/index.ts'
+      ),
+      '@nucleo/tooltip-global': path.resolve(
+        __dirname,
+        '../../nucleo-global/Feedback/tooltip-global/src/index.ts'
       )
     }
   },

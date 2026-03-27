@@ -272,12 +272,15 @@ export function HistoricoGlobalAdmin() {
         <div style={{ position: 'relative' }}>
           <TabelaGlobal<LogHistorico>
             dados={logs}
-          colunas={COLUNAS}
-          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
-          mensagemVazio={loading ? "Carregando registros..." : "Nenhuma alteração encontrada para estes filtros."}
-          mensagemSemFiltro="Nenhuma atividade registrada no histórico global."
-          renderExpandido={(item) => renderDiffTable(item.diff || [])}
-        />
+            colunas={COLUNAS}
+            acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
+            mensagemVazio={loading ? "Carregando registros..." : "Nenhuma alteração encontrada para estes filtros."}
+            mensagemSemFiltro="Nenhuma atividade registrada no histórico global."
+            tooltipBusca="Localizar registro por nome do responsável ou descrição da ação"
+            tooltipExpandir="Ver detalhes técnicos da alteração (diff do estado)"
+            tooltipRecolher="Recolher detalhes técnicos"
+            renderExpandido={(item) => renderDiffTable(item.diff || [])}
+          />
       </div>
       </div>
     </PaginaGlobal>

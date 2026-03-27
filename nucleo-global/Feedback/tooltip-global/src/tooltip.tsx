@@ -55,6 +55,7 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
         onMouseEnter={mostra}
         onMouseLeave={() => setShow(false)}
         className="tg-trigger"
+        data-tg-mute={!descricao}
       >
         {children}
       </span>

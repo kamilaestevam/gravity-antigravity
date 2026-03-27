@@ -1,68 +1,35 @@
-# Documentação Visual — LocalizarExpandidoCampoGlobal
+# Documentação Visual — CampoLocalizarExpandidoGlobal
 
-Barra de busca global com filtragem DOM ao vivo e expansão animada. Referência fiel baseada em exames reais do DOM no navegador.
-
-## 1. Folha de Especificação Técnica de UX
-Estados do componente: recolhido, expandido vazio (⌘K), com busca ativa (X) e filtragem DOM.
-
-![Folha de Especificação Técnica UX](./real-preview-estados.png)
+Referência visual baseada 100% no CSS do `workspace.css` e lógica do `LocalizarExpandidoCampoGlobal.tsx`.
 
 ---
 
-## 2. Blueprint: Layout de Composição
-Anatomia técnica: flexbox horizontal com ícone de lupa, input expansível e ação contextual (⌘K ou XCircle). Verificação milimétrica dos espaçamentos definidos em `localizar.css`.
+## 1. Contexto Global (Shell)
 
-![Especificação de Composição](./real-preview-layout.png)
+Uso típico do campo de busca na barra de ações global do Gravity.
+- **Visual**: Integrado à direita do cabeçalho, com expansão horizontal suave.
+- **Ancoragem**: Mantém o alinhamento com os botões de ação e perfil do usuário.
 
-| Medida Relevante | Verificação Técnica no CSS (Real) |
-| :--- | :--- |
-| **Largura Expandido** | O componente expande até **240px** (`w-60`) para garantir clareza na digitação. |
-| **Gap com Ícones** | **8px** de espaçamento entre ícones adjacentes na barra de ações. |
-| **Altura da Barra** | Altura centralizada de **36px** no cabeçalho do Shell. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## 3. Composição de Ancoragem Global (Contexto)
-Posicionamento no cabeçalho do Shell (Barra de Ações Globais).
+## 2. Estados UX (Dinâmica de Expansão)
 
-![Composição de Ancoragem Global](./real-preview-contexto.png)
+- **Recolhido**: Apenas um botão circular de 36px com ícone de lupa.
+- **Expandido (Vazio)**: Mostra o placeholder e a dica de atalho `⌘K`.
+- **Com Texto**: O atalho é substituído pelo botão de limpar (`XCircle`).
 
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Referência Vertical (Y)** | Centralizado verticalmente no cabeçalho do Shell. |
-| **Referência Horizontal (X)** | Slot de ações globais, à esquerda do avatar do usuário. |
-| **Expansão** | Expande para a esquerda via transição CSS de largura (`transition: width 0.2s`). |
+![UX Real](./real.ux.png)
 
 ---
 
-## Anatomia do Componente
+## 3. Especificação Técnica (Anatomia do Shell)
 
-| Propriedade | Valor / Descrição |
-| :--- | :--- |
-| **Classe CSS** | `ws-global-search` (+ `.expanded` quando aberto) |
-| **Ícone de Busca** | `MagnifyingGlass` (Phosphor), 18px, weight bold |
-| **Placeholder** | `"Localizar no sistema..."` |
-| **Atalho** | Badge `⌘K` exibido quando expandido e vazio |
-| **Botão Limpar** | `XCircle` (Phosphor), 18px, aparece quando há texto |
-| **Filtragem DOM** | Oculta elementos não correspondentes via classe `ws-search-hidden` |
-| **Reset Automático** | Limpa o termo ao trocar de rota (`location.pathname`) |
+Blueprint das medidas do `workspace.css`:
+- **Dimensões**: 36px (col) para 280px (exp).
+- **Radius**: `9999px` (Pill).
+- **Input**: Sem bordas internas, utiliza o `box-shadow` do container no foco.
+- **Lógica**: Filtragem automática de DOM via classe `.ws-search-hidden`.
 
----
-
-## Exemplo de Uso (Código)
-
-```tsx
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
-
-// Modo autônomo (filtra o DOM automaticamente)
-<LocalizarExpandidoCampoGlobal />
-
-// Modo controlado (busca via API)
-<LocalizarExpandidoCampoGlobal
-  value={termoBusca}
-  onChange={setTermoBusca}
-  disableGlobalDOMFilter
-  onBuscarNavigate={(termo) => navigate(`/busca?q=${termo}`)}
-  alwaysExpanded
-/>
-```
+![Técnico Real](./real.tecnico.png)

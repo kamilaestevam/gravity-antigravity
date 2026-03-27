@@ -565,7 +565,8 @@ export function Usuarios() {
           mensagemVazio="Nenhum usuário encontrado na busca."
           mensagemSemFiltro="Nenhum usuário cadastrado na sua conta corporativa."
           tooltipBusca="Localizar usuário por nome, e-mail ou tipo de acesso"
-          tooltipExpandir="Ver permissões de acesso e espaços de trabalho vinculados"
+          tooltipExpandir="Ver workspaces vinculados ao usuário"
+          tooltipRecolher="Recolher detalhes do usuário"
           renderExpandido={(usuario) => {
             const vinculados = usuario.tipo === 'Master' ? espacos : espacosDoUsuario(usuario.id)
             return (

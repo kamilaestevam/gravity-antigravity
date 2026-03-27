@@ -71,7 +71,7 @@
 }
 
 /* Garante que o tg-trigger (span do tooltip) não quebre o layout absoluto */
-.mlg-sidebar > .tg-trigger {
+.mlg-sidebar > .tg-trigger:first-child {
   position: absolute;
   right: 0;
   top: 0;

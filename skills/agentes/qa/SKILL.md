@@ -340,3 +340,182 @@ Após correção, QA deve ser acionado novamente.
 - **Proibido Aprovar Sem Ambiente Real:** Testes de UI/Frontend do React que não utilizem `act()` em atualizações de estado ou que acusem perda de Acessibilidade DOM (ex: não achar \`role="dialog"\`) devem ser ativamente rejeitados por você e devolvidos ao Frontend.
 - **Logs Nativos:** Você não deve confiar apenas no código escrito. Você DEVE ler e raspar o output final do comando Vitest ou arquivo de logs. Qualquer falha sistêmica do Runner do Vite (como erro de compilação de TSConfig) invalida automaticamente toda a suíte.
 - **Integração Ponta a Ponta:** Um componente com Teste Unitário OK, mas Teste de Integração/E2E quebrado, é considerado reprovado.
+
+---
+
+## Auditoria de Interface por Tela — Padrão ULTIMATE Auditor
+
+Este é o padrão obrigatório para todos os planos de testes de interface (Frontend/UX). Cada tela do sistema deve ter **três arquivos de plano**, um por tipo de teste, salvos nas respectivas pastas:
+
+```
+testes/testes-unitarios/plano-de-testes/[nome-da-tela]-unitario.md
+testes/testes-funcionais/plano-de-testes/[nome-da-tela]-funcional.md
+testes/testes-e2e/plano-de-testes/[nome-da-tela]-e2e.md
+```
+
+### Referência Canônica (Teto de Qualidade)
+
+Os três arquivos abaixo são o padrão-ouro. Qualquer novo plano deve ter o mesmo nível de granularidade:
+
+- `testes/testes-unitarios/plano-de-testes/login-unitario.md`
+- `testes/testes-funcionais/plano-de-testes/login-funcional.md`
+- `testes/testes-e2e/plano-de-testes/login-e2e.md`
+
+---
+
+### Template: Plano Unitário (ULTIMATE)
+
+```markdown
+# 📋 Log de Execução: QA Auditor (Unitário - ULTIMATE)
+**Documento Auditado:** `testes-unitarios/[nome-da-tela]-unitario.md`
+
+---
+
+### 🛡️ Metadados do Teste
+- **Nome da Tela:** [Nome da Tela]
+- **Ambiente:** [ ] Teste  | [ ] Produção
+- **Local do Teste:** Lógica de Código & Configuração (Vitest)
+- **Tipo de Teste:** [x] Unitário | [ ] Funcional | [ ] E2E
+- **Data do Teste:** __/__/____
+- **Hora do Teste:** __:__
+
+---
+
+### ✅ Check-list de Analise (Meticulosidade Máxima)
+
+#### 1. Design System & Tokens
+- [ ] **[TELA]-U01**: [Verificar tokens de cor, tipografia, espaçamento conforme o design system]
+- [ ] **[TELA]-U02**: [Verificar border-radius, box-shadow, transições CSS]
+- [ ] **[TELA]-U03**: [Verificar overflow e propriedades de layout]
+
+#### 2. Lógica de Componente & Props
+- [ ] **[TELA]-U04**: [Verificar props obrigatórias e seus valores padrão]
+- [ ] **[TELA]-U05**: [Verificar lógica condicional de renderização]
+- [ ] **[TELA]-U06**: [Verificar URLs de redirecionamento e roteamento]
+
+#### 3. Auditoria de Semântica e Acessibilidade (WCAG)
+- [ ] **[TELA]-U07**: [Tags semânticas corretas (h1, p, nav, etc.)]
+- [ ] **[TELA]-U08**: [Atributos rel="noreferrer" em links externos]
+- [ ] **[TELA]-U09**: [aria-label e roles acessíveis presentes]
+
+#### 4. Clean Code & Performance
+- [ ] **[TELA]-U10**: Não existem console.logs ou comentários de debug?
+- [ ] **[TELA]-U11**: Tipagens TypeScript robustas, sem `any` explícito?
+
+---
+
+### 📊 Resultado Final:
+[ ] **APROVADO** | [ ] **REPROVADO** | [ ] **RESSALVAS**
+```
+
+---
+
+### Template: Plano Funcional (ULTIMATE)
+
+```markdown
+# 📋 Log de Execução: QA Auditor (Funcional - ULTIMATE)
+**Documento Auditado:** `testes-funcionais/[nome-da-tela]-funcional.md`
+
+---
+
+### 🛡️ Metadados do Teste
+- **Nome da Tela:** [Nome da Tela]
+- **Ambiente:** [ ] Teste  | [ ] Produção
+- **Local do Teste:** Componente & Integração (React DOM)
+- **Tipo de Teste:** [ ] Unitário | [x] Funcional | [ ] E2E
+- **Data do Teste:** __/__/____
+- **Hora do Teste:** __:__
+
+---
+
+### ✅ Check-list de Analise (Experiência do Usuário & Interação)
+
+#### 1. Navegação de Estado & Fluxo de Tela
+- [ ] **[TELA]-F01**: [Alternância de estados ocorre sem recarregar a página (Navegação SPA)?]
+- [ ] **[TELA]-F02**: [Textos e títulos mudam dinamicamente conforme o estado?]
+- [ ] **[TELA]-F03**: [Links de alternância mantêm estilos e pesos de fonte corretos?]
+
+#### 2. Interações "Alive & Premium" (Design Ativo)
+- [ ] **[TELA]-F04**: [Efeitos de hover aplicados com suavidade (cubic-bezier)?]
+- [ ] **[TELA]-F05**: [Box-shadow e cores mudam corretamente nos estados de hover/focus?]
+- [ ] **[TELA]-F06**: [Micro-animações e transições estão presentes e funcionando?]
+
+#### 3. Conectividade & Links Externos
+- [ ] **[TELA]-F07**: [Links externos abrem em nova aba com rel="noreferrer"?]
+- [ ] **[TELA]-F08**: [Navegação entre estados não interrompe sessões ou contextos ativos?]
+
+#### 4. Responsividade & Acessibilidade
+- [ ] **[TELA]-F09**: [Em Mobile (375px), layout mantém padding e alinhamento corretos?]
+- [ ] **[TELA]-F10**: [Navegação via teclado (Tab/Enter) funciona em todos os elementos?]
+- [ ] **[TELA]-F11**: [Foco visual (outline/glow) é visível ao navegar via teclado?]
+
+---
+
+### 📊 Resultado Final:
+[ ] **APROVADO** | [ ] **REPROVADO** | [ ] **RESSALVAS**
+```
+
+---
+
+### Template: Plano E2E (ULTIMATE)
+
+```markdown
+# 📋 Log de Execução: QA Auditor (E2E - ULTIMATE)
+**Documento Auditado:** `testes-e2e/[nome-da-tela]-e2e.md`
+
+---
+
+### 🛡️ Metadados do Teste
+- **Nome da Tela:** [Nome da Tela]
+- **Ambiente:** [ ] Teste  | [ ] Produção
+- **Local do Teste:** Navegador (Playwright Engine)
+- **Tipo de Teste:** [ ] Unitário | [ ] Funcional | [x] E2E
+- **Data do Teste:** __/__/____
+- **Hora do Teste:** __:__
+
+---
+
+### ✅ Check-list de Analise (Ponto-a-Ponto)
+
+#### 1. Infra, Performance & Integridade (SLA 4s)
+- [ ] **[TELA]-P01**: A URL de teste fixa está abrindo (Status 200)?
+- [ ] **[TELA]-P02**: O tempo de carregamento está abaixo de 4 segundos?
+- [ ] **[TELA]-P03**: A página está visualmente íntegra (sem quebras de layout)?
+- [ ] **[TELA]-P04**: O design mantém integridade em dispositivos Mobile?
+
+#### 2. Fluxo Principal: [Nome do Fluxo]
+- [ ] **[TELA]-F01**: [O elemento X está presente e visível?]
+- [ ] **[TELA]-F02**: [O elemento X é funcional?]
+- [ ] **[TELA]-F03**: [Com dados válidos, o sistema avançou para a próxima etapa?]
+- [ ] **[TELA]-F04**: [Com dados inválidos, a mensagem de erro foi exibida corretamente?]
+
+#### 3. Fluxo Secundário: [Nome do Fluxo]
+- [ ] **[TELA]-S01**: [Passo 1 — verificação]
+- [ ] **[TELA]-S02**: [Passo 2 — verificação]
+
+#### 4. Navegação & Saídas Adicionais
+- [ ] **[TELA]-N01**: [Links e botões de navegação funcionam corretamente?]
+- [ ] **[TELA]-N02**: [O retorno/cancelamento mantém o usuário no estado correto?]
+
+---
+
+### 📸 Prova Visual (QA E2E):
+*(Anexar print do erro ou do sucesso conforme a imagem de referência no admin)*
+
+---
+
+### 📊 Resultado Final:
+[ ] **APROVADO** (Sem pendências)
+[ ] **REPROVADO** (Erro crítico em um dos fluxos acima)
+[ ] **RESSALVAS** (Funciona, mas com ajustes de UX/Estética necessários)
+```
+
+---
+
+### Regras do Padrão ULTIMATE Auditor
+
+- **Nunca omitir os metadados** — Nome da tela, Ambiente, Tipo, Data e Hora são obrigatórios em todos os planos.
+- **Nunca usar resultado genérico** — O check-list deve ter cada ponto analisado individualmente antes do Resultado Final.
+- **Nível de granularidade mínimo**: cada botão, campo, link e estado de feedback deve ter seu próprio item no check-list.
+- **Prova Visual obrigatória no E2E** — Anexar print de sucesso ou de erro com mensagem de falha.
+- **Os três planos são inseparáveis** — Uma tela só está validada quando Unitário, Funcional e E2E estiverem preenchidos e com Resultado Final declarado.

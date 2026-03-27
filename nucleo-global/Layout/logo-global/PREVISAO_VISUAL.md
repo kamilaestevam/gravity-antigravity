@@ -1,25 +1,32 @@
 # Documentação Visual — LogoGlobal
 
-Componente de marca unificado do Gravity Design System, responsável por manter a consistência do logotipo em todos os módulos e visualizações da plataforma.
+Componente de marca unificado do Gravity Design System, responsável por manter a consistência do logotipo em todos os módulos e visualizações da plataforma. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
 Layout do componente em diferentes estados: logotipo completo, apenas ícone, versão com texto oculto, cores personalizadas e variantes de tamanho.
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 2. Especificação de Composição
+## 2. Blueprint: Layout de Composição
 Anatomia técnica do componente: medidas do ícone, espaçamentos padrão, tipografia personalizada e flexbox flow.
 
-![Especificação de Composição](./preview-layout.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no Código (Real) |
+| :--- | :--- |
+| **Ícone (Marca)** | `Hexagon` (Phosphor, duotone), tamanho padrão `28px`. |
+| **Gap (Ícone → Texto)** | `0.5rem` (~8px) entre o hexágono e a palavra "Gravity". |
+| **Tipografia** | `font-weight: 700`, `letter-spacing: -0.02em` — tracking negativo premium. |
+| **Cor Padrão** | `#818cf8` (indigo) ou herdado via `currentColor`. |
 
 ---
 
-## 3. Composição de Ancoragem Global
+## 3. Composição de Ancoragem Global (Contexto)
 Posicionamento estratégico do componente nos diferentes contextos da aplicação (Sidebar, Auth, Marketplace).
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
@@ -48,7 +55,7 @@ Posicionamento estratégico do componente nos diferentes contextos da aplicaçã
 ```tsx
 import { LogoGlobal } from '@nucleo/logo-global'
 
-// 1. Logo Padrão (Tamanho 28px, Cor herdada/padrão)
+// 1. Logo Padrão (Tamanho 28px, Cor padrão indigo)
 <LogoGlobal />
 
 // 2. Apenas o Ícone (para Sidebar recolhida)

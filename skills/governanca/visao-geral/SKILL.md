@@ -230,6 +230,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Isolamento de tenant, RLS, middleware | `antigravity-tenant-isolation` |
 | Auth entre serviços (`x-internal-key`, JWT) | `antigravity-autenticacao-s2s` |
 | Ações cross-boundary entre serviços | `antigravity-cross-boundary` |
+| Permissões de usuário (roles, granulares, produtos) | `antigravity-permissoes` |
 | Papel do Coordenador, checklists de onda | `antigravity-coordenador` |
 | Papel do Líder, distribuição de tarefas | `antigravity-lider` |
 | Revisão de qualidade pós-entrega | `antigravity-qa` |

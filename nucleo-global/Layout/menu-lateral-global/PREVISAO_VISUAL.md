@@ -1,45 +1,52 @@
 # Documentação Visual — MenuLateralGlobal
 
-Componente de navegação primária (sidebar) do Gravity Design System, projetado para alocação no lado esquerdo da aplicação.
+Componente de navegação primária (sidebar) do Gravity Design System, projetado para alocação no lado esquerdo da aplicação com dois estados: Expandido e Recolhido. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
-Layout de navegação mostrando os estados *Expandido* (240px) e *Recolhido* (72px).
+Layout de navegação mostrando os estados *Expandido* (240px) e *Recolhido* (72px), incluindo item ativo, hover e toggle button.
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
-
----
-
-## 2. Especificação de Composição
-Anatomia técnica do componente, incluindo espaçamentos verticais, posicionamento do botão de alternância (toggle) e seções de informação de contexto.
-
-![Especificação de Composição](./preview-layout.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 3. Composição de Ancoragem Global
-Posicionamento fixo lateral ocupando toda a altura da viewport da aplicação.
+## 2. Blueprint: Layout de Composição
+Anatomia técnica do componente, incluindo espaçamentos verticais, posicionamento do botão de alternância (toggle) e seções de informação de contexto. Medidas extraídas de `menu-lateral.css`.
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Largura Expandida** | `240px` (`min-width: 240px`) — comporta label + ícone. |
+| **Largura Recolhida** | `72px` (`min-width: 72px`) — apenas ícone centralizado. |
+| **Área do Logo** | Padding `36px 0.875rem 26px 1.25rem`. |
+| **Botão Toggle** | `right: -13px`, `top: 138px` (expandido) / `top: 82px` (recolhido). |
+| **Item Ativo** | `border-radius: 9999px` + `box-shadow` simula borda direita interna de destaque. |
+| **Transição** | `0.3s` CSS transition na largura — expansão/retração suave. |
+
+---
+
+## 3. Composição de Ancoragem Global (Contexto)
+Posicionamento fixo lateral ocupando toda a altura da viewport, servindo como shell de navegação da aplicação.
+
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
 | **Referência Vertical (Y)** | `top: 0`, estendendo-se por `height: 100vh` do viewport. |
 | **Referência Horizontal (X)** | Posição fixa à esquerda do container flex principal. |
-| **Largura (Expandido)** | `240px` (min-width: 240px). |
-| **Largura (Recolhido)** | `72px` (min-width: 72px). |
 | **Z-Index** | `50` para sobrepor conteúdos rolantes do corpo da página. |
+| **Scroll Oculto** | `::-webkit-scrollbar { width: 0px }` — rolagem invisível. |
 
 ---
 
 ## Anatomia do Componente
 
-| Área | Medida / Comportamento Técnica |
+| Área | Medida / Comportamento |
 | :--- | :--- |
-| **Área do Logo** | Padding `36px 0.875rem 26px 1.25rem`, contém Hexágono Gravity + Chip do Módulo (ex: "CONFIGURADOR"). |
-| **Bloco do Tenant** | Exibe Avatar Organizacional + Nome + Plano (fundo escurecido). No estado recolhido, centraliza o avatar. |
-| **Navegação (Itens)** | Items `border-radius: 9999px` com ícone esquerdo. Item ativo usa `--mlg-accent` como cor de fundo translúcida e highlight visual (borda direita interna simulada com box-shadow). |
-| **Botão Toggle** | Fixado visualmente entre o Bloco do Tenant e a Navegação (`right: -13px`, `top: 138px / 82px`). Recolhe/expande o menu com animação suave de 0.3s. |
-| **Comportamento Scroll** | Barra de rolagem nativa ocultada (`::-webkit-scrollbar { width: 0px }`), preservando rolagem funcional sem poluição na interface. |
+| **Área do Logo** | Padding `36px 0.875rem 26px 1.25rem`, contém Hexágono + Chip do Módulo. |
+| **Bloco do Tenant** | Avatar Organizacional + Nome + Plano. No recolhido, centraliza o avatar. |
+| **Navegação (Itens)** | Items `border-radius: 9999px`, ícone esquerdo. Ativo usa `--mlg-accent` translúcido. |
+| **Botão Toggle** | `right: -13px`, alternado entre `top: 138px` e `top: 82px`. |
 
 ---
 

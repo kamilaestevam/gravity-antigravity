@@ -1,32 +1,40 @@
 # Documentação Visual — PaginaGlobal
 
-Container base arquitetural do Gravity Design System. Define o grid de topo a base, organizando cabeçalho, métricas, ações e conteúdo para garantir padronização, comportamentos de full-bleed e scroll isolado.
+Container base arquitetural do Gravity Design System. Define o grid de topo a base, organizando cabeçalho, métricas, ações e conteúdo para garantir padronização, comportamentos de full-bleed e scroll isolado. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
-Layout flexível que suporta "lista" (ocupando 100% da largura, típico para Tabelas) e "formulario" (centralizado). A imagem demonstra as principais zonas do componente.
+Layout flexível que suporta `"lista"` (100% da largura, típico para Tabelas) e `"formulario"` (centralizado, típico para formulários de edição).
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
-
----
-
-## 2. Especificação de Composição
-Anatomia técnica de grid baseada em `flex-direction: column`. O componente abstrai comportamentos complexos como altura `100%` da página com scroll seguro.
-
-![Especificação de Composição](./preview-layout.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 3. Composição de Ancoragem Global
-Posicionamento nativo. O `PaginaGlobal` assume e gerencia a área principal da interface excluindo apenas a barra lateral principal e o topo da janela caso seja global. 
+## 2. Blueprint: Layout de Composição
+Anatomia técnica de grid baseada em `flex-direction: column`. O componente abstrai comportamentos complexos como altura `100%` da página com scroll seguro e full-bleed. Medidas extraídas de `pagina.css`.
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Padding Horizontal** | `2rem` (32px) em toda a `ws-content`. |
+| **Padding Top (lista)** | Sem padding top adicional — cabeçalho sticky gerencia o espaço. |
+| **Padding Top (formulário)** | Espaço adicional interno para formulários centralizados. |
+| **Gap Interno** | `16px` entre as zonas de stats, toolbar e conteúdo principal. |
+| **Scroll Isolado** | `min-height: 0` no container principal isola o scroll na área de conteúdo. |
+
+---
+
+## 3. Composição de Ancoragem Global (Contexto)
+Posicionamento nativo — o `PaginaGlobal` ocupa a área principal da interface excluindo apenas a sidebar e o cabeçalho global.
+
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
-| **Referência Vertical (Y)** | Preenche nativamente os `100%` ou até onde as amarras do Layout pai permitirem com flex. |
-| **Referência Horizontal (X)** | Preenche horizontalmente, controlando internamente o alinhamento. |
-| **Overflow & Scroll** | O container restringe sua própria altura (`min-height: 0`) para injetar scroll **apenas** no bloco principal se necessário, não em toda a janela. |
-| **Trick Full-Bleed** | Elementos como o container de stats assumem as margens laterais cancelando o gap do layout global de `2rem`. |
+| **Referência Vertical (Y)** | Preenche `100%` via flex do Layout pai. |
+| **Referência Horizontal (X)** | Preenche horizontalmente, padding `2rem` lateral. |
+| **Overflow & Scroll** | `min-height: 0` → scroll **apenas** no bloco principal, não na janela toda. |
+| **Full-Bleed** | StatCards cancelam o padding via `margin: 0 -2rem` para ocupar 100% visual. |
 
 ---
 
@@ -34,11 +42,11 @@ Posicionamento nativo. O `PaginaGlobal` assume e gerencia a área principal da i
 
 | Propriedade / Slot | Valor / Descrição |
 | :--- | :--- |
-| **`cabecalho`** | Slot para `CabecalhoGlobal`. Fica fixado ou no fluxo base, mas sem scroll injetado. (`flex-shrink: 0`) |
-| **`stats`** e **`acoes`** | Área para blocos informativos menores (stats) e botões globais de criar/exportar. Ambos habitam a `.pg-contexto-row` em row-reverse ao depender ou flex completo. |
-| **`toolbar`** | Faixa persistente e sem height fluida para filtros tabulares ou switches. Fica entre as estatísticas e os children. |
-| **`layout`** | `'lista'` *(Padrão, 100% da largura)* ou `'formulario'` *(Máx 800-1200px tipicamente formatação encurtada e espaçamento com padding-top ajustado internamente)*. |
-| **`children`** | O principal ponto de ancoragem para as páginas. Pode conter dezenas de tabelas ou blocos. |
+| **`cabecalho`** | Slot para `CabecalhoGlobal`. `flex-shrink: 0`, não rola. |
+| **`stats`** e **`acoes`** | Área para cards informativos e botões globais (criar/exportar). |
+| **`toolbar`** | Faixa entre estatísticas e conteúdo — filtros tabulares, switches. |
+| **`layout`** | `'lista'` (100% largura) ou `'formulario'` (max-width centralizado). |
+| **`children`** | Ponto de ancoragem principal — tabelas, formulários, blocos. |
 
 ---
 
@@ -47,7 +55,7 @@ Posicionamento nativo. O `PaginaGlobal` assume e gerencia a área principal da i
 ```tsx
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { BotaoGlobal } from '@nucleo/botoes/botao-global'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { Plus } from '@phosphor-icons/react'
 
 export default function PaginaWorkspaces() {

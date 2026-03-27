@@ -1,32 +1,37 @@
 # Documentação Visual — GeralCampoGlobal
 
-Componente-base (wrapper) que envolve todos os campos de formulário do Gravity Design System.
+Componente-base (wrapper) que envolve todos os campos de formulário do Gravity Design System. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
-Estados do componente: campo padrão, campo obrigatório (*), campo com tooltip de ajuda e campo composto (children).
+Estados do componente: campo padrão, campo obrigatório (*), campo com tooltip de ajuda e campo composto (children). 
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
-
----
-
-## 2. Especificação de Composição
-Anatomia técnica: stack vertical com label no topo e slot de children abaixo.
-
-![Especificação de Composição](./preview-layout.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 3. Composição de Ancoragem Global
-Posicionamento do wrapper dentro de formulários e modais.
+## 2. Blueprint: Layout de Composição
+Anatomia técnica: stack vertical com label no topo e slot de children abaixo. Verificação milimétrica dos espaçamentos definidos em `campo.css`.
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Gap entre Campos** | **16px** (gap-4) de espaçamento vertical garantido entre instâncias consecutivas. |
+| **Padding do Wrapper** | O componente não possui padding interno próprio, herdando a contenção do formulário pai (**24px**). |
+| **Altura do Label** | Fonte pequena com uppercase e `line-height: normal` aproximado de **18px**. |
+
+---
+
+## 3. Composição de Ancoragem Global (Contexto)
+Posicionamento do wrapper dentro de formulários reais na interface Gravity Shell (ex: Painel de Organização).
+
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
-| **Referência Vertical (Y)** | Fluxo vertical natural do formulário (empilhamento). |
-| **Referência Horizontal (X)** | Largura **100%** do container pai. |
-| **Gap entre Campos** | **16px** (gap-4) de espaçamento vertical entre instâncias. |
-| **Padding do Container** | Respeitar o padding do formulário pai: **24px** (p-6). |
+| **Referência Vertical (Y)** | Fluxo vertical natural do formulário (empilhamento de blocos `.ws-field`). |
+| **Referência Horizontal (X)** | Largura **100%** do container pai flexível. |
+| **Margem Interna** | Respeitar o padding do formulário pai: **24px** (p-6). |
 
 ---
 

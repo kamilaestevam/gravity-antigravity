@@ -1,32 +1,39 @@
 # Documentação Visual — SelecaoExcluirGlobal
 
-Modal de confirmação de ações destrutivas (Exclusão) do Gravity Design System.
+Modal de confirmação de ações destrutivas (Exclusão) do Gravity Design System. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
-Layout do modal centralizado: ícone de alerta, título, descrição, card do item afetado e botões de ação.
+Layout do modal centralizado: ícone de alerta, título, descrição, card do item afetado e botões de ação bilaterais.
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
-
----
-
-## 2. Especificação de Composição
-Anatomia técnica do modal de exclusão com medidas, gradientes e dimensões dos botões.
-
-![Especificação de Composição](./preview-layout.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 3. Composição de Ancoragem Global
-Posicionamento de sobreposição central com backdrop escuro.
+## 2. Blueprint: Layout de Composição
+Anatomia técnica do modal de exclusão com medidas, gradientes e dimensões exatas de `.selecao-excluir-container`.
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Ícone de Alerta** | Div redonda de **56px**, anel externo com fundo `rgba(239,68,68,0.15)`. Ícone Trash size `28px`. |
+| **Paddings Internos** | Body generoso com textos grandes para clareza destrutiva. |
+| **Card Destino** | `padding: 0.75rem 1rem`, `border-radius: 8px` e outline sutil vermelho em `rgba(239,68,68,0.2)`. |
+| **Botões Simétricos** | Botões com largura pareada para peso semântico igual na exclusão. |
+| **Botão Danger** | Gradiente linear do vermelho 500 ao 600, ícone `Trash` e focus ring agressivo de outline vermelho escuro. |
+
+---
+
+## 3. Composição de Ancoragem Global (Contexto)
+Posicionamento de sobreposição central ancorado via stack modal e focus-trap global.
+
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
-| **Referência Vertical (Y)** | Centro do viewport do navegador. |
-| **Referência Horizontal (X)** | Centro do viewport do navegador. |
-| **Tamanho** | `md` (herança do ModalGlobal). |
-| **Gatilho** | Ações de exclusão em tabelas, formulários ou cards. |
+| **Referência Vertical (Y)** | Centro do viewport (`align-items: center` do ModalGlobal pai). |
+| **Referência Horizontal (X)** | Centro do viewport (`justify-content: center`). |
+| **Propagação Eventos** | Ação suspende overlays abaixo mas isola eventos (blur background de **4px** no `.mg-overlay`). |
 
 ---
 
@@ -34,25 +41,24 @@ Posicionamento de sobreposição central com backdrop escuro.
 
 | Área | Medida / Valor |
 | :--- | :--- |
-| **Ícone de Alerta** | Círculo de **56px**, gradiente vermelho `rgba(239,68,68,0.15)`, anel externo de 8px |
+| **Ícone de Alerta** | Círculo de **56px**, fundo vermelho translúcido, ícone Trash Bold. |
 | **Título** | `font-size: 1.125rem`, `font-weight: 700`, cor primária |
 | **Descrição** | `font-size: 0.875rem`, cor secundária, `max-width: 480px` |
-| **Card do Item** | `padding: 0.75rem 1rem`, `border-radius: 8px`, borda vermelha `rgba(239,68,68,0.2)` |
-| **Botão Cancelar** | `180px × 38px`, fundo `#f8fafc`, `border-radius: 8px` |
-| **Botão Excluir** | `180px × 38px`, gradiente `#ef4444 → #dc2626`, ícone Trash 16px, borda `#b91c1c` |
-| **Footer** | `padding: 0 2rem 2rem`, `gap: 12px`, alinhamento centralizado |
+| **Card do Item** | `padding: 0.75rem 1rem`, `border-radius: 8px`, borda customizada |
+| **Botão Cancelar** | Fundo neutro ghost, interage com cancelamento. |
+| **Botão Excluir** | Variante `danger` explícita. Opcionalmente passa a `loading` spinner. |
 
 ---
 
 ## Exemplo de Uso (Código)
 
 ```tsx
-import { SelecaoExcluirGlobal } from '@nucleo/campo-selecao-excluir-global'
+import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 
 <SelecaoExcluirGlobal
   aberto={confirmarExclusao}
   titulo="Excluir Espaço de Trabalho?"
-  descricao="Esta ação é irreversível. Todos os dados serão permanentemente removidos."
+  descricao="Esta ação é irreversível."
   nomeItem="Acme Importações"
   aoConfirmar={handleExcluir}
   aoCancelar={() => setConfirmarExclusao(false)}

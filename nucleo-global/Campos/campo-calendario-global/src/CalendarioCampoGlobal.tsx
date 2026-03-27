@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GeralCampoGlobal, type GeralCampoGlobalProps } from '@nucleo/campo-geral-global'
 import { CalendarBlank, CaretLeft, CaretRight, X, CaretDown } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -13,13 +14,10 @@ export interface CalendarioCampoGlobalProps extends Omit<GeralCampoGlobalProps, 
   disabled?: boolean
 }
 
-const MESES = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-]
-const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
-
-const MESES_OPCOES = MESES.map((m, idx) => ({ rotulo: m, valor: idx }))
+// MESES e DIAS_SEMANA são gerados dinamicamente via t() dentro do componente.
+// Constantes auxiliares permanecem para a lógica de opções de select de meses.
+const MESES_INDICES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+const DIAS_SEMANA_KEYS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sab']
 
 function formatarDataBR(d: Date | null): string {
   if (!d) return ''
@@ -27,13 +25,21 @@ function formatarDataBR(d: Date | null): string {
 }
 
 export function CalendarioCampoGlobal({
-  placeholder = 'Selecione um período...',
+  placeholder,
   valor = { inicio: null, fim: null },
   aoMudarValor,
   disabled = false,
   className,
   ...geralProps
 }: CalendarioCampoGlobalProps) {
+  const { t } = useTranslation()
+  const defaultPlaceholder = placeholder ?? t('campo.selecione_periodo')
+
+  const MESES_OPCOES = MESES_INDICES.map((idx) => ({
+    rotulo: t(`calendario.mes_${idx}`),
+    valor: idx,
+  }))
+  const DIAS_SEMANA = DIAS_SEMANA_KEYS.map((k) => t(`calendario.dia_${k}`))
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -225,7 +231,7 @@ export function CalendarioCampoGlobal({
               <div className="sg-acoes">
                 {!disabled ? (
                   <button
-                    title="Limpar"
+                    title={t('campo.limpar')}
                     className="sg-btn-limpar"
                     type="button"
                     onClick={e => {
@@ -234,7 +240,7 @@ export function CalendarioCampoGlobal({
                       setFim(null)
                       aoMudarValor?.({ inicio: null, fim: null })
                     }}
-                    aria-label="Limpar seleção"
+                    aria-label={t('campo.limpar_selecao')}
                     tabIndex={-1}
                   >
                     ✕
@@ -258,7 +264,7 @@ export function CalendarioCampoGlobal({
             </span>
             
             <div className="sg-valor">
-              <span className="sg-placeholder">{placeholder}</span>
+              <span className="sg-placeholder">{defaultPlaceholder}</span>
             </div>
 
             <div className="sg-acoes">
@@ -283,15 +289,15 @@ export function CalendarioCampoGlobal({
           >
             {/* Sidebar Periods */}
             <div className="ws-calendario-sidebar">
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('hoje')}>Hoje</button>
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('ontem')}>Ontem</button>
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('7dias')}>Últimos 7 dias</button>
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('30dias')}>Últimos 30 dias</button>
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteMes')}>Este mês</button>
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('mesPassado')}>Mês passado</button>
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteAno')}>Este ano</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('hoje')}>{t('calendario.hoje')}</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('ontem')}>{t('calendario.ontem')}</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('7dias')}>{t('calendario.ultimos_7')}</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('30dias')}>{t('calendario.ultimos_30')}</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteMes')}>{t('calendario.este_mes')}</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('mesPassado')}>{t('calendario.mes_passado')}</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('esteAno')}>{t('calendario.este_ano')}</button>
               <div style={{ flex: 1 }} />
-              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('todos')} style={{ color: '#f87171' }}>Limpar Período</button>
+              <button className="ws-calendario-preset" onClick={() => aplicarPeriodo('todos')} style={{ color: '#f87171' }}>{t('calendario.limpar_periodo')}</button>
             </div>
 
             {/* Main Calendar Body */}
@@ -376,14 +382,14 @@ export function CalendarioCampoGlobal({
                   tamanho="pequeno"
                   onClick={() => setIsOpen(false)}
                 >
-                  Cancelar
+                  {t('calendario.cancelar')}
                 </BotaoGlobal>
                 <BotaoGlobal 
                   variante="primario" 
                   tamanho="pequeno"
                   onClick={doConfirm}
                 >
-                  Aplicar
+                  {t('calendario.aplicar')}
                 </BotaoGlobal>
               </div>
             </div>

@@ -87,49 +87,38 @@ servicos-global/configurador/
 
 ## Modelo de Usuários e Permissões
 
-### Nível 1 — Usuário no Tenant (organização)
+> **Skill dedicada:** toda a lógica de permissões está documentada em `antigravity-permissoes`. Leia-a antes de implementar qualquer tela de usuários, middleware de autorização ou lógica de acesso.
 
-O usuário é **criado e existe no tenant**. Pertence à organização. Sem vínculo com workspace, o usuário existe mas não acessa nada.
+### As Duas Cadeias
+
+O Gravity opera com dois sistemas complementares:
+
+1. **Cadeia 1 — Roles Globais:** quem o usuário é (`super_admin`, `admin`, `master`, `standard`, `fornecedor`)
+2. **Cadeia 2 — Permissões Granulares:** o que pode fazer dentro de cada produto
+
+### Roles do Sistema (Cadeia 1)
 
 ```text
-Tenant (organização)
-└── Usuários do tenant
-    ├── Daniel Mendes — Master
-    ├── Ana Silva — Standard
-    └── Fornecedor X — Fornecedor
+Gravity (equipe interna)
+├── super_admin  ← acesso total irrestrito
+└── admin        ← visualiza tudo, edita conforme permissões do super_admin
+
+Organização / Tenant (cliente)
+├── master       ← acesso total à organização
+├── standard     ← acesso conforme permissões do master
+└── fornecedor   ← acesso conforme permissões do master (cross-tenant)
 ```
 
-### Nível 2 — Habilitação em workspace
+### Habilitação em Workspace
 
-Para um usuário do tenant trabalhar em um workspace, ele precisa de uma **Habilitação**.
-- 1 Tenant pode ter até 50 filhas
-- O usuário Daniel pode estar habilitado nas filhas A e B, mas não na C
+Para um usuário do tenant trabalhar em um workspace, ele precisa de uma **Habilitação** (`UserMembership`).
+- 1 Tenant pode ter múltiplos workspaces (empresas filhas)
+- Um `standard` habilitado no workspace A **não acessa** o workspace B
+- **Master** tem acesso implícito a todos os workspaces da organização
 
-### Nível 3 — Dois Tipos de Permissão por Habilitação
+### Regra Crítica — Permissões Granulares
 
-Ao habilitar um usuário em uma filha, você define o cargo (role):
-1. **Master:** Pode fazer tudo na filha (inclusive gerir outros usuários)
-2. **Standard:** Só pode operar (conforme as permissões de produto)
-
-Cada habilitação em workspace tem dois níveis:
-- **Permissão de acesso ao produto:** Define quais produtos o usuário pode usar naquele workspace
-- **Permissões granulares dentro do produto:** Define o que o usuário pode fazer dentro de cada produto
-
----
-
-## Tipos de Usuário
-
-| Tipo | Comportamento |
-|:---|:---|
-| **Master** | Acesso total a todos os produtos — permissões granulares não se aplicam |
-| **Standard** | Acesso conforme permissões definidas por workspace e por produto |
-| **Fornecedor** | Tipo especial para acesso externo — permissões granulares obrigatórias |
-
----
-
-## Regra Crítica — Permissões de Produto
-
-As permissões granulares dentro de cada produto **só existem após o produto ser construído**.
+As permissões granulares dentro de cada produto **só existem após o produto as registrar no Configurador**.
 
 ```typescript
 const productPermissions = await getProductPermissions(productId)

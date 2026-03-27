@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
 import ReactDOM from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, CaretDown } from '@phosphor-icons/react'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
@@ -67,6 +68,7 @@ function PopoverFiltro({
   onFiltrarPeriodo: (c: string, p: { inicio: Date | null; fim: Date | null }) => void
   onLimpar: () => void, onFechar: () => void
 }) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   const [buscaLocal, setBuscaLocal] = useState('')
   const [pos, setPos] = useState(() => {
@@ -141,9 +143,9 @@ function PopoverFiltro({
       </div>
 
       <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
-        <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
+        <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>{t('tabela.ordenar')}</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
-          {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [SortDir, string, React.ReactNode][]).map(([dir, rot, ico]) => {
+          {([['asc', t('tabela.crescente'), <ArrowUp key="u" size={12} weight="bold" />], ['desc', t('tabela.decrescente'), <ArrowDown key="d" size={12} weight="bold" />]] as [SortDir, string, React.ReactNode][]).map(([dir, rot, ico]) => {
             const ativo = sortAtivo && ordenacao?.direcao === dir
             return (
               <button key={dir} type="button" onClick={() => { onOrdenar(coluna, dir); onFechar() }} style={pillStyle(ativo)}
@@ -158,13 +160,13 @@ function PopoverFiltro({
 
       {tipo === 'texto' && (
         <div style={{ borderBottom: '1px solid var(--ws-accent-border)' }}>
-          <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
+          <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>{t('tabela.filtrar_por')}</p>
           {valoresDisponiveis.length > 5 && (
             <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
               <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
                 <MagnifyingGlass size={11} weight="bold" />
               </span>
-              <input type="text" placeholder="Buscar…" value={buscaLocal}
+              <input type="text" placeholder={t('tabela.buscar')} value={buscaLocal}
                 onChange={e => setBuscaLocal(e.target.value)}
                 style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
                 onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
@@ -174,7 +176,7 @@ function PopoverFiltro({
           )}
           <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
             {valoresFiltrados.length === 0 ? (
-              <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>Nenhum valor</p>
+              <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>{t('tabela.sem_valor')}</p>
             ) : valoresFiltrados.map(v => {
               const selecionado = valoresSelecionados.has(v)
               return (
@@ -197,12 +199,12 @@ function PopoverFiltro({
 
       {tipo === 'numero' && (
         <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Intervalo</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>{t('tabela.intervalo')}</p>
           <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
             {(['min', 'max'] as const).map((campo, i) => (
               <input key={campo}
                 type="text" inputMode="numeric" pattern="[0-9]*"
-                placeholder={i === 0 ? 'Mín' : 'Máx'}
+                placeholder={i === 0 ? t('tabela.minimo') : t('tabela.maximo')}
                 autoComplete="off"
                 value={minMax[campo]}
                 onChange={e => {
@@ -220,7 +222,7 @@ function PopoverFiltro({
 
       {tipo === 'periodo' && (
         <div style={{ padding: '0.625rem 0.5rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Selecione o Período</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>{t('tabela.selecionar_periodo')}</p>
           <CalendarioCampoGlobal 
             valor={periodo as any}
             aoMudarValor={(v: any) => { onFiltrarPeriodo(coluna, v) }}
@@ -233,7 +235,7 @@ function PopoverFiltro({
           style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', width: '100%', padding: '0.35rem 0.5rem', borderRadius: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '0.8125rem', fontFamily: 'inherit', transition: 'color 0.12s' }}
           onMouseEnter={e => { e.currentTarget.style.color = '#f87171' }}
           onMouseLeave={e => { e.currentTarget.style.color = '#64748b' }}>
-          <X size={12} weight="bold" /> Limpar filtro
+          <X size={12} weight="bold" /> {t('tabela.limpar_filtro')}
         </button>
       </div>
     </div>,
@@ -325,7 +327,10 @@ function ExportMenuItem({ label, icon, onClick, tooltip }: { label: string; icon
   return content
 }
 
-export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio = 'Nenhum resultado.', mensagemSemFiltro = 'Nenhum registro cadastrado.', renderExpandido }: TabelaGlobalProps<T>) {
+export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro, renderExpandido }: TabelaGlobalProps<T>) {
+  const { t } = useTranslation()
+  const defaultMensagemVazio = mensagemVazio ?? t('tabela.sem_resultado')
+  const defaultMensagemSemFiltro = mensagemSemFiltro ?? t('tabela.sem_filtro')
   const [busca, setBusca] = useState('')
   const [ordenacao, setOrdenacao] = useState<{ coluna: string; direcao: SortDir } | null>(null)
   
@@ -503,7 +508,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
             <MagnifyingGlass size={14} weight="bold" />
           </span>
-          <input type="search" placeholder="Localizar" value={busca}
+          <input type="search" placeholder={t('tabela.localizar')} value={busca}
             onChange={e => { setBusca(e.target.value); setPagina(1) }}
             style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
             onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
@@ -515,23 +520,23 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
           {chips.length > 0 && (
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', padding: '0.25rem 0.65rem', borderRadius: '9999px', background: 'rgba(199,210,254,0.1)', border: '1px solid rgba(199,210,254,0.25)', color: '#c7d2fe', fontSize: '0.75rem', fontWeight: 700 }}>
               <Funnel size={11} weight="fill" />
-              {chips.length} filtro{chips.length !== 1 ? 's' : ''} ativo{chips.length !== 1 ? 's' : ''}
+              {t(chips.length === 1 ? 'tabela.filtro_ativo_singular' : 'tabela.filtro_ativo_plural', { count: chips.length })}
             </span>
           )}
           {selecionados.size > 0 && (
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#c7d2fe', padding: '0.25rem 0.75rem', background: 'rgba(199,210,254,0.15)', borderRadius: '9999px' }}>
-              {selecionados.size} selecionado{selecionados.size !== 1 ? 's' : ''}
+              {t(selecionados.size === 1 ? 'tabela.selecionado_singular' : 'tabela.selecionado_plural', { count: selecionados.size })}
             </span>
           )}
           {(acoesExportacao && acoesExportacao.length > 0) && (
             <div style={{ position: 'relative' }}>
-              <TooltipGlobal descricao="Baixe os resultados atuais da tabela">
+            <TooltipGlobal descricao={t('tabela.baixar_resultados')}>
                 <button ref={exportBtnRef} type="button"
                   onClick={() => setExportMenuAberto(v => !v)}
                   style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(129,140,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#818cf8' : 'rgba(129,140,248,0.12)'}`, color: exportMenuAberto ? '#818cf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
                   onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.color = '#818cf8' } }}
                   onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
-                  <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                  <DownloadSimple size={13} weight="bold" /> {t('tabela.exportar')} <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </button>
               </TooltipGlobal>
 
@@ -562,7 +567,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: 'auto', padding: '0.2rem 0.65rem', borderRadius: '9999px', background: 'transparent', border: '1px solid rgba(239,68,68,0.25)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.5)' }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)' }}>
-            <X size={11} weight="bold" /> Limpar
+            <X size={11} weight="bold" /> {t('tabela.limpar')}
           </button>
         </div>
       )}
@@ -589,7 +594,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               ))}
               {acoes && acoes.length > 0 && (
                 <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
-                  Ações
+                  {t('tabela.acoes')}
                 </th>
               )}
               {renderExpandido && (
@@ -602,8 +607,8 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               <tr>
                 <td colSpan={colunas.length + (acoes?.length ? 2 : 1)} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
                   {chips.length > 0 || busca
-                    ? <span>{mensagemVazio} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
-                    : mensagemSemFiltro
+                    ? <span>{defaultMensagemVazio} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>{t('tabela.limpar_filtros')}</button></span>
+                    : defaultMensagemSemFiltro
                   }
                 </td>
               </tr>
@@ -679,7 +684,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid var(--ws-accent-border)', background: 'rgba(129,140,248,0.02)' }}>
         <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
-          {resultado.length === 0 ? 'Nenhum registro' : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} de ${resultado.length}`}
+          {resultado.length === 0 ? t('tabela.nenhum_registro') : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} ${t('tabela.de')} ${resultado.length}`}
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <button type="button" onClick={() => setPagina(1)} disabled={pagSafe === 1} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === 1 ? 0.3 : 1 }}>«</button>
@@ -689,7 +694,7 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
           <button type="button" onClick={() => setPagina(totalPags)} disabled={pagSafe === totalPags} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === totalPags ? 0.3 : 1 }}>»</button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#64748b' }}>
-          por página:
+          {t('tabela.por_pagina')}:
           <select value={porPagina} onChange={e => { setPorPagina(Number(e.target.value)); setPagina(1) }}
             style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
             {[10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}

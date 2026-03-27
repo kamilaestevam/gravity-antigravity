@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 /**
  * Carregamento lazy por módulo.
@@ -42,19 +43,12 @@ function ModulePlaceholder({ name }: { name: string }) {
         🧩
       </div>
       <p style={{ fontSize: '0.875rem' }}>
+        {/* TODO(daniel, 2026-03): substituir pelo módulo real na Onda 3 */}
         Módulo <strong style={{ color: 'var(--text-secondary)' }}>{name}</strong> — Onda 3
       </p>
     </div>
   )
 }
-
-/**
- * Importações lazy dos módulos (serão substituídas pelos entry points reais
- * dos serviços de tenant na Onda 3).
- *
- * Padrão de integração esperado:
- * const DashboardModule = lazy(() => import('@tenant/dashboard/client'))
- */
 
 // Onda 3 — Serviços de tenant (stubs lazy)
 const DashboardModule    = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Dashboard" />    }))
@@ -71,10 +65,11 @@ const GabiModule         = lazy(() => import('@tenant/gabi/src/Gabi'))
 const HelpdeskModule     = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Helpdesk" />     }))
 const ConectorErpModule  = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Conector ERP" />  }))
 
-// Configurador — Onda 2 (stub, substituído quando configurador estiver pronto)
+// Configurador — Onda 2
 const ConfiguradorModule = lazy(() => Promise.resolve({ default: () => <ModulePlaceholder name="Configurações" />}))
 
 function LoadingFallback() {
+  const { t } = useTranslation()
   return (
     <div
       style={{
@@ -86,7 +81,27 @@ function LoadingFallback() {
         fontSize: '0.875rem',
       }}
     >
-      Carregando módulo…
+      {t('shell.carregando_modulo')}
+    </div>
+  )
+}
+
+function NotFoundPage() {
+  const { t } = useTranslation()
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '60vh',
+        gap: '0.75rem',
+        color: 'var(--text-muted)',
+      }}
+    >
+      <p style={{ fontSize: '2rem', fontWeight: 700 }}>404</p>
+      <p style={{ fontSize: '0.875rem' }}>{t('shell.pagina_nao_encontrada')}</p>
     </div>
   )
 }
@@ -121,28 +136,10 @@ export function Navigation() {
 
         {/* Configurador (Onda 2) e Gravity Store */}
         <Route path="/configurador/*" element={<ConfiguradorModule />} />
-        <Route path="/store/*" element={<ConfiguradorModule />} />
+        <Route path="/store/*"        element={<ConfiguradorModule />} />
 
         {/* Fallback 404 */}
-        <Route
-          path="*"
-          element={
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '60vh',
-                gap: '0.75rem',
-                color: 'var(--text-muted)',
-              }}
-            >
-              <p style={{ fontSize: '2rem', fontWeight: 700 }}>404</p>
-              <p style={{ fontSize: '0.875rem' }}>Página não encontrada</p>
-            </div>
-          }
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   )

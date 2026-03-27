@@ -1,32 +1,37 @@
 # Documentação Visual — SelectGlobal
 
-Select customizado (nunca usa `<select>` nativo) com suporte a single/multi select, busca interna, grupos e dropdown via portal.
+Select customizado (nunca usa `<select>` nativo) com suporte a single/multi select, busca interna, grupos e dropdown via portal. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
 Estados do componente: normal, hover, foco/aberto com dropdown, multi-select com chips, erro e desabilitado.
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 2. Especificação de Composição
-Anatomia técnica: wrapper com label, campo-gatilho (flexbox horizontal com ícone, valor/chips e ações) e dropdown portal (busca + lista de opções).
+## 2. Blueprint: Layout de Composição
+Anatomia técnica: wrapper com label, campo-gatilho (flexbox horizontal com ícone, valor/chips e ações) e dropdown portal (busca + lista de opções). Verificação milimétrica dos espaçamentos definidos em `select.css`.
 
-![Especificação de Composição](./preview-layout.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Altura do Trigger** | Altura fixa de **42px** (`h-[42px]`) para alinhar com o GDS (Gravity Design System). |
+| **Chevron Size** | Ícone de seta inline com **14×14px**, rotacionando 180° via `transform: rotate(180deg)`. |
+| **Dropdown Max-Height** | Lista de opções limitada a **260px** com scroll vertical ativado. |
 
 ---
 
-## 3. Composição de Ancoragem Global
-Posicionamento dentro de formulários e modais. Dropdown escapa do stacking context via `ReactDOM.createPortal` com `position: fixed`.
+## 3. Composição de Ancoragem Global (Contexto)
+Posicionamento dentro de formulários reais e modais. O Dropdown escapa do stacking context via `ReactDOM.createPortal`.
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
-| **Referência Vertical (Y)** | Fluxo vertical natural do formulário (empilhamento). |
-| **Referência Horizontal (X)** | Largura **100%** do container pai. |
-| **Gap entre Campos** | **16px** (gap-4) de espaçamento vertical entre instâncias. |
-| **Dropdown Portal** | `position: fixed`, `z-index: 99999`, renderizado em `document.body` via `createPortal`. |
+| **Referência Vertical (Y)** | Fluxo vertical natural do formulário (empilhamento de blocos `.input-group`). |
+| **Referência Horizontal (X)** | Largura **100%** do container pai flexível. |
+| **Z-Index do Dropdown** | `z-index: 99999` (renderizado no `document.body`) para garantir foco visual. |
 
 ---
 

@@ -1,32 +1,39 @@
 # Documentação Visual — ModalFormularioGlobal
 
-Modal padrão de formulário (sem abas) do Gravity Design System.
+Modal padrão de formulário (sem abas) do Gravity Design System. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
 Layout do modal com cabeçalho personalizado, corpo rolável com seções e rodapé tri-zona.
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 2. Especificação de Composição
-Anatomia técnica do modal: padding do cabeçalho, altura padrão, footer bilateral e sub-componente SecaoFormularioGlobal.
+## 2. Blueprint: Layout de Composição
+Anatomia técnica do modal: padding do cabeçalho, altura padrão, footer bilateral e sub-componente SecaoFormularioGlobal. Medidas alinhadas ao padrão UX 10 do sistema.
 
-![Especificação de Composição](./preview-layout.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Tamanho Fixo Horizontal** | `lg` por padrão (representa `720px` no layout geral). |
+| **Altura Fixo Vertical** | Altura padrão `680px` (prop `altura`), força o scroll no `.mg-body`. |
+| **Padding do Header** | `padding: 1.5rem 3.5rem 1rem 1.5rem`, `border-bottom: 1px solid var(--ws-accent-border)`. |
+| **Margem do Corpo** | `margin-bottom: 1.5rem` do cabeçalho. |
+| **Rodapé Bilateral** | Flexbox distribuído (`justify-content: space-between`). Esquerda: Excluir. Direita: Ações neutras/positivas com indicador `StatusSalvarGlobal`. |
 
 ---
 
-## 3. Composição de Ancoragem Global
-Posicionamento de sobreposição central com backdrop escuro.
+## 3. Composição de Ancoragem Global (Contexto)
+Posicionamento de sobreposição central com backdrop escuro herdado de `ModalSemSessoesGlobal`.
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
-| **Referência Vertical (Y)** | Centro do viewport do navegador. |
-| **Referência Horizontal (X)** | Centro do viewport do navegador. |
-| **Tamanho Padrão** | `lg` (configurável: sm, md, lg, xl, full). |
-| **Altura Padrão** | `680px` (configurável via prop `altura`). |
+| **Referência Vertical (Y)** | Centro do viewport flex. |
+| **Referência Horizontal (X)** | Centro do viewport flex. |
+| **Stack Global** | Fica num `z-index` altíssimo e restringe overflow global. |
 
 ---
 
@@ -34,11 +41,9 @@ Posicionamento de sobreposição central com backdrop escuro.
 
 | Área | Medida / Valor |
 | :--- | :--- |
-| **Cabeçalho** | `padding: 1.5rem 3.5rem 1rem 1.5rem`, `border-bottom: 1px solid var(--ws-accent-border)` |
-| **Ícone + Título** | Via `CabecalhoGlobal` embutido (margens neutralizadas) |
-| **Corpo (Body)** | Área rolável com children, `margin-bottom: 1.5rem` do cabeçalho |
-| **Rodapé (Footer)** | Layout bilateral: Excluir (esquerda, opcional) vs Cancelar + Salvar (direita) |
-| **StatusSalvarGlobal** | Indicador de estado dirty/idle entre os controles do rodapé |
+| **Cabeçalho** | Via `CabecalhoGlobal` com margens neutralizadas |
+| **Corpo (Body)** | Área rolável com children |
+| **Rodapé** | Layout bilateral: Excluir vs Cancelar + Status + Salvar |
 
 ---
 
@@ -49,7 +54,6 @@ Posicionamento de sobreposição central com backdrop escuro.
 | **Classe CSS** | `ws-section-title` |
 | **Layout** | Flex horizontal: ícone (cor `var(--ws-accent)`) + título, `gap: 6px` |
 | **Margem Inferior** | `1rem` (configurável via `marginBottom`) |
-| **Tooltip** | Opcional via `TooltipGlobal` sobre o título |
 
 ---
 

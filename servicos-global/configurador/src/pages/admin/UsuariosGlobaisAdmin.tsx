@@ -16,6 +16,7 @@ import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
+import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
 
 // ─── Tipos globais ─────────────────────────────────────────────────────────────
@@ -136,15 +137,16 @@ export function UsuariosGlobaisAdmin() {
   const [fTipo, setFTipo]         = useState<NivelAcesso>('Standard')
   const [fOrg, setFOrg]           = useState(ORGS[0])
 
+  const [usuarioEditando, setUsuarioEditando] = useState<GlobalUser | null>(null)
+  const [usuarioPermissoes, setUsuarioPermissoes] = useState<GlobalUser | null>(null)
+  const [abaEditando, setAbaEditando]         = useState<string>('dados')
+
   // Filtro de opções com base no perfil logado
   const opcoesDisponiveis = useMemo(() => {
     if (perfilLogado === 'Super Admin') return OPCOES_TIPO_ADMIN
     // Admin não pode criar Super Admin
     return OPCOES_TIPO_ADMIN.filter(op => op.valor !== 'Super Admin')
   }, [perfilLogado])
-
-  const [usuarioEditando, setUsuarioEditando] = useState<GlobalUser | null>(null)
-  const [abaEditando, setAbaEditando]         = useState<string>('dados')
 
   function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
@@ -287,13 +289,12 @@ export function UsuariosGlobaisAdmin() {
     }
   ]
 
-  // ─── Ações ──────────────────────────────────────────────────────────────────
   const ACOES: TCGAcao<GlobalUser>[] = [
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" />,
       tooltip: 'Permissões do Usuário',
-      onClick: (u) => { setUsuarioEditando(u); setAbaEditando('permissoes') },
+      onClick: setUsuarioPermissoes,
     },
     {
       id: 'suspend',
@@ -440,13 +441,15 @@ export function UsuariosGlobaisAdmin() {
       }
       toolbar={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', transform: 'translateY(-7px)' }}>
-          <BotaoGlobal
-            variante="primario"
-            onClick={() => setShowForm(true)}
-            icone={<User size={18} />}
-          >
-            Convidar Usuário
-          </BotaoGlobal>
+          <TooltipGlobal titulo="Convidar Usuário" descricao="Iniciar processo de convite para novo usuário na plataforma">
+            <BotaoGlobal
+              variante="primario"
+              onClick={() => setShowForm(true)}
+              icone={<User size={18} />}
+            >
+              Convidar Usuário
+            </BotaoGlobal>
+          </TooltipGlobal>
         </div>
       }
     >
@@ -473,9 +476,20 @@ export function UsuariosGlobaisAdmin() {
         usuario={usuarioEditando as any}
         abaInicial={abaEditando}
         aoFechar={() => setUsuarioEditando(null)}
-        aoSalvar={(uEditado, permissoes) => {
+        contextoAdmin={true}
+        aoSalvar={(uEditado) => {
           setUsers(prev => prev.map(u => u.id === uEditado.id ? { ...u, ...uEditado } : u))
           setUsuarioEditando(null)
+        }}
+      />
+
+      <ModalPermissoesUsuario
+        usuario={usuarioPermissoes as any}
+        contextoAdmin={true}
+        aoFechar={() => setUsuarioPermissoes(null)}
+        aoSalvar={(permissoes) => {
+          // Aqui no admin poderiamos salvar no db do gravity as permissões... 
+          setUsuarioPermissoes(null)
         }}
       />
 
@@ -493,7 +507,12 @@ export function UsuariosGlobaisAdmin() {
         podesSalvar={!!(fNome.trim() && fEmail.trim())}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <GeralCampoGlobal label="NOME COMPLETO" obrigatorio>
+          <GeralCampoGlobal
+            label="NOME COMPLETO"
+            obrigatorio
+            tooltipTitulo="Nome do Usuário"
+            tooltipDescricao="Nome completo do usuário que aparecerá na plataforma e nos relatórios"
+          >
             <div className="ws-input-icon-wrap">
               <User size={16} />
               <input
@@ -505,7 +524,12 @@ export function UsuariosGlobaisAdmin() {
             </div>
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="E-MAIL" obrigatorio>
+          <GeralCampoGlobal
+            label="E-MAIL"
+            obrigatorio
+            tooltipTitulo="E-mail de Acesso"
+            tooltipDescricao="Identidade única de acesso — será usado para envio do convite e login na plataforma"
+          >
             <div className="ws-input-icon-wrap">
               <EnvelopeSimple size={16} />
               <input

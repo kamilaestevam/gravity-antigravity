@@ -1,32 +1,37 @@
 # Documentação Visual — CalendarioCampoGlobal
 
-Seletor de intervalo de datas (Date Range Picker) do Gravity Design System.
+Seletor de intervalo de datas (Date Range Picker) do Gravity Design System. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
 Estados do componente: campo fechado (input compacto) e painel aberto (sidebar + grade + rodapé).
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 2. Especificação de Composição
-Anatomia técnica do painel: sidebar de atalhos (170px), grade 7×6 (células 36×36px), rodapé com botões pill.
+## 2. Blueprint: Layout de Composição
+Anatomia técnica do painel: sidebar de atalhos (170px), grade 7×6 (células 36×36px), rodapé com botões pill. Verificação milimétrica dos espaçamentos definidos em `calendario.css`.
 
-![Especificação de Composição](./preview-layout.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Grid de Células** | Grade 7×6 com células de exatos **36×36px** (`width: 2.25rem`). |
+| **Sidebar Fixed Width** | A coluna de atalhos possui largura estática de **170px** para comportar textos de presets. |
+| **Altura do Rodapé** | Rodapé fixo com **56px** (`h-14`) contendo botões de ação (Aplicar/Cancelar). |
 
 ---
 
-## 3. Composição de Ancoragem Global
-Posicionamento do painel de calendário em relação ao campo e ao formulário.
+## 3. Composição de Ancoragem Global (Contexto)
+Posicionamento do painel de calendário em relação ao campo de input em formulários e modais.
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
-| **Referência Vertical (Y)** | O painel abre **8px** abaixo da borda inferior do input. |
-| **Referência Horizontal (X)** | Alinhado à borda esquerda do input pai. |
-| **Posicionamento** | `position: fixed` com `z-index: 9999` (sobrepõe modais). |
-| **Largura Mínima** | `min-width: 380px` ou a largura do input, o que for maior. |
+| **Referência Vertical (Y)** | O painel abre exatos **8px** abaixo da borda inferior do input pai. |
+| **Referência Horizontal (X)** | Alinhado à borda esquerda do input pai (`left: 0` relativo ao wrapper). |
+| **Z-Index de Sobreposição** | `z-index: 9999` para garantir visibilidade sobre modais e overlays. |
 
 ---
 

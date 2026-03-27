@@ -1,32 +1,37 @@
 # Documentação Visual — LocalizarExpandidoCampoGlobal
 
-Barra de busca global com filtragem DOM ao vivo e expansão animada.
+Barra de busca global com filtragem DOM ao vivo e expansão animada. Referência fiel baseada em exames reais do DOM no navegador.
 
 ## 1. Folha de Especificação Técnica de UX
 Estados do componente: recolhido, expandido vazio (⌘K), com busca ativa (X) e filtragem DOM.
 
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+![Folha de Especificação Técnica UX](./real-preview-estados.png)
 
 ---
 
-## 2. Especificação de Composição
-Anatomia técnica: flexbox horizontal com ícone de lupa, input expansível e ação contextual (⌘K ou XCircle).
+## 2. Blueprint: Layout de Composição
+Anatomia técnica: flexbox horizontal com ícone de lupa, input expansível e ação contextual (⌘K ou XCircle). Verificação milimétrica dos espaçamentos definidos em `localizar.css`.
 
-![Especificação de Composição](./preview-layout.png)
+![Especificação de Composição](./real-preview-layout.png)
+
+| Medida Relevante | Verificação Técnica no CSS (Real) |
+| :--- | :--- |
+| **Largura Expandido** | O componente expande até **240px** (`w-60`) para garantir clareza na digitação. |
+| **Gap com Ícones** | **8px** de espaçamento entre ícones adjacentes na barra de ações. |
+| **Altura da Barra** | Altura centralizada de **36px** no cabeçalho do Shell. |
 
 ---
 
-## 3. Composição de Ancoragem Global
+## 3. Composição de Ancoragem Global (Contexto)
 Posicionamento no cabeçalho do Shell (Barra de Ações Globais).
 
-![Composição de Ancoragem Global](./preview-contexto.png)
+![Composição de Ancoragem Global](./real-preview-contexto.png)
 
 | Regra de Ancoragem | Referência Técnica |
 | :--- | :--- |
 | **Referência Vertical (Y)** | Centralizado verticalmente no cabeçalho do Shell. |
 | **Referência Horizontal (X)** | Slot de ações globais, à esquerda do avatar do usuário. |
-| **Gap com Ícones** | **8px** de espaçamento entre ícones adjacentes na barra. |
-| **Expansão** | Expande para a esquerda via transição CSS de largura. |
+| **Expansão** | Expande para a esquerda via transição CSS de largura (`transition: width 0.2s`). |
 
 ---
 

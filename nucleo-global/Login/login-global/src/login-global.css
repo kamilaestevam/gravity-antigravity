@@ -151,7 +151,7 @@ a[href="https://clerk.com?utm_source=clerk&utm_medium=components"] {
 
 .login-global-footer a:hover {
   color: #a5b4fc;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 
@@ -318,10 +318,12 @@ a[href="https://clerk.com?utm_source=clerk&utm_medium=components"] {
   align-items: center;
   gap: 0.5rem;
   transition: color 0.2s ease;
+  text-decoration: none;
 }
 
 .forgot-back-link:hover {
   color: #f1f5f9;
+  text-decoration: none;
 }
 
 /* Success State */

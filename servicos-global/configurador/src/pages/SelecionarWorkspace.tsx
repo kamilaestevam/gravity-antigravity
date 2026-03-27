@@ -145,35 +145,37 @@ export function SelecionarWorkspace() {
 
         {/* Criar nova empresa */}
         <TooltipGlobal titulo="EXPANDIR OPERAÇÃO" descricao="Registre uma nova organização e provisione um banco de dados isolado">
-          <button
-            id="sw-criar-empresa"
-            type="button"
-            onClick={() => navigate('/workspace/workspaces')}
-            style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              gap: '0.5rem', width: '100%',
-              padding: '0.8125rem',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '12px',
-              color: '#94a3b8', fontSize: '0.875rem', fontWeight: 600,
-              cursor: 'pointer', fontFamily: 'var(--font)',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(129,140,248,0.07)'
-              e.currentTarget.style.borderColor = 'rgba(129,140,248,0.2)'
-              e.currentTarget.style.color = '#818cf8'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-              e.currentTarget.style.color = '#94a3b8'
-            }}
-          >
-            <Plus weight="bold" size={16} />
-            Criar nova empresa
-          </button>
+          <div style={{ width: '100%' }}>
+            <button
+              id="sw-criar-empresa"
+              type="button"
+              onClick={() => navigate('/workspace/workspaces')}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: '0.5rem', width: '100%',
+                padding: '0.8125rem',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px',
+                color: '#94a3b8', fontSize: '0.875rem', fontWeight: 600,
+                cursor: 'pointer', fontFamily: 'var(--font)',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(129,140,248,0.07)'
+                e.currentTarget.style.borderColor = 'rgba(129,140,248,0.2)'
+                e.currentTarget.style.color = '#818cf8'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+                e.currentTarget.style.color = '#94a3b8'
+              }}
+            >
+              <Plus weight="bold" size={16} />
+              Criar nova empresa
+            </button>
+          </div>
         </TooltipGlobal>
 
         {/* Acesso Admin */}

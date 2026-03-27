@@ -6,6 +6,8 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@n
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 type DiffObj = {
   campo: string
@@ -271,7 +273,7 @@ export function HistoricoGlobalAdmin() {
           <TabelaGlobal<LogHistorico>
             dados={logs}
           colunas={COLUNAS}
-          acoesExportacao={acoesExportacao}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio={loading ? "Carregando registros..." : "Nenhuma alteração encontrada para estes filtros."}
           mensagemSemFiltro="Nenhuma atividade registrada no histórico global."
           renderExpandido={(item) => renderDiffTable(item.diff || [])}

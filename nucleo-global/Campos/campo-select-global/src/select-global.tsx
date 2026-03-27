@@ -25,7 +25,7 @@ import './select.css'
 
 // ─── Posição do dropdown (fixed) ──────────────────────────────────────────────
 
-type DropdownPos = { top: number; left: number; width: number; above: boolean }
+type DropdownPos = { top: number; left: number; width: number; above: boolean; maxHeight?: number }
 
 function calcPos(trigger: HTMLElement): DropdownPos {
   const rect = trigger.getBoundingClientRect()
@@ -37,6 +37,7 @@ function calcPos(trigger: HTMLElement): DropdownPos {
     left: rect.left,
     width: rect.width,
     above,
+    maxHeight: above ? Math.min(260, spaceAbove - 16) : Math.min(260, spaceBelow - 16)
   }
 }
 
@@ -402,6 +403,7 @@ export function SelectGlobal({
         bottom: pos.above ? window.innerHeight - pos.top : undefined,
         left: pos.left,
         width: pos.width,
+        maxHeight: pos.maxHeight ? `${pos.maxHeight}px` : undefined,
         zIndex: 99999,
       }}
       onMouseDown={(e) => e.stopPropagation()}

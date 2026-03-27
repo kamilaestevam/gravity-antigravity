@@ -12,6 +12,8 @@ import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 // Documentação central em src/types/niveis-acesso.ts
@@ -557,7 +559,7 @@ export function Usuarios() {
           dados={users}
           colunas={COLUNAS}
           acoes={ACOES}
-          acoesExportacao={ACOES_EXPORT}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio="Nenhum usuário encontrado na busca."
           mensagemSemFiltro="Nenhum usuário cadastrado na sua conta corporativa."
           renderExpandido={(usuario) => {

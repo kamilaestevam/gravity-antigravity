@@ -440,7 +440,7 @@ export function Organizacao() {
             opcoes={OPCOES_ESPACOS}
             valor={espacoAtivoId || null}
             aoMudarValor={v => setFilhaAtivaId(v != null ? String(v) : '')}
-            placeholder="— Selecione uma opção —"
+            placeholder="Selecione..."
             buscavel
           />
         }

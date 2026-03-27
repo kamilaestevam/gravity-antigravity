@@ -5,6 +5,8 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalAgendamentoTestes'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 type TipoTeste = 'E2E' | 'FUNCIONAL' | 'UNITARIO'
 type Resultado = 'APROVADO' | 'REPROVADO' | 'ERRO_CATASTROFICO'
@@ -470,7 +472,9 @@ export function LogTestes() {
           renderExpandido={renderExpandido}
           mensagemVazio="Nenhum log de teste encontrado com esses filtros."
           mensagemSemFiltro="Não há histórico de testes disponível no momento."
-        />
+        
+        acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Dados')}
+      />
       </div>
 
       <ModalAgendamentoTestes 

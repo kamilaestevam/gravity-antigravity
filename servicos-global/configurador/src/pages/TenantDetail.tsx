@@ -13,6 +13,8 @@ import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
+import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
+
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -542,7 +544,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
           <TabelaGlobal<LogAuditoria>
             dados={logs}
             colunas={COLUNAS_AUDIT}
-            acoesExportacao={acoesExport}
+            acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_AUDIT, 'dados_tabela', 'Exportação de Dados')}
             mensagemVazio="Nenhuma atividade registrada para este tenant."
             renderExpandido={(item) => renderDiffTable(item.diff || [])}
           />
@@ -556,7 +558,9 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
             dados={tenant.workspaces}
             colunas={COLUNAS_WS}
             mensagemVazio="Nenhum workspace cadastrado para este tenant."
-          />
+          
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_WS, 'dados_tabela', 'Exportação de Dados')}
+      />
         </div>
       )}
 

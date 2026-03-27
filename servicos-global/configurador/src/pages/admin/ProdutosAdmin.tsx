@@ -15,6 +15,8 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 import { catalogService } from '../../services/catalogService'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 // Dados iniciais agora vêm do catalogService
 
@@ -473,7 +475,9 @@ export function ProdutosAdmin() {
               colunas={COLUNAS_PRODUTOS}
               acoes={ACOES_PRODUTOS}
               mensagemVazio="Nenhum produto cadastrado no catálogo."
-            />
+            
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_PRODUTOS, 'dados_tabela', 'Exportação de Dados')}
+      />
           </div>
         </div>
       )}
@@ -490,7 +494,9 @@ export function ProdutosAdmin() {
               dados={negociacoes}
               colunas={COLUNAS_NEGOCIACOES}
               mensagemVazio="Nenhuma negociação especial registrada."
-            />
+            
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_NEGOCIACOES, 'dados_tabela', 'Exportação de Dados')}
+      />
           </div>
         </div>
       )}

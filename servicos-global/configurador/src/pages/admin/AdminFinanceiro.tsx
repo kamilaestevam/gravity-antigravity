@@ -12,7 +12,10 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { createPortal } from 'react-dom'
 import { exportarExcel } from '../../services/exportService'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 type FaturaStatus = 'Pago' | 'Pendente' | 'Atrasado'
 
@@ -414,7 +417,7 @@ export function AdminFinanceiro() {
         <TabelaGlobal<FaturaGlobal>
           dados={faturasLocal}
           colunas={COLUNAS}
-          acoesExportacao={ACOES_EXPORT}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           acoes={[
             {
               id: 'anexar', icone: <Paperclip weight="bold" size={15} />, tooltip: 'Anexar Boleto / NF-e',
@@ -503,7 +506,7 @@ export function AdminFinanceiro() {
                 </div>
                 
                 {docsLocal.length > 0 ? (
-                  <div style={{ border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'hidden' }}>
+                  <div style={{ border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'visible' }}>
                     <TabelaGlobal<DocumentoFatura>
                       dados={docsLocal}
                       idKey="id"
@@ -616,7 +619,7 @@ export function AdminFinanceiro() {
     </PaginaGlobal>
 
     {/* ═══════ POPOVER FIXO: COMPOSIÇÃO DA FATURA (hover, fora da tabela) ═══════ */}
-    {faturaTooltip && (
+    {faturaTooltip && typeof document !== 'undefined' && createPortal(
       <div
         className="valor-tooltip-popover"
         onMouseEnter={manterTooltipAberto}
@@ -684,7 +687,8 @@ export function AdminFinanceiro() {
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24' }} /> Adicional</span>
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399' }} /> Desconto</span>
         </div>
-      </div>
+      </div>,
+      document.body
     )}
     </>
   )

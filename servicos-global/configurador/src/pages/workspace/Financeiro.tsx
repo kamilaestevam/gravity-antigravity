@@ -17,6 +17,8 @@ import { exportarExcel, type ColunasExport } from '../../services/exportService'
 import { catalogService } from '../../services/catalogService'
 import { ProdutoCatalogo, NegociacaoEspecial } from '../../types/entidades'
 import { getSimboloMoeda } from '../../utils/formatters'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 // ─── Tipos de Fatura (existente) ─────────────────────────────────────────────
 
@@ -443,7 +445,7 @@ export function Financeiro() {
             <TabelaGlobal<Fatura>
               dados={faturas}
               colunas={COLUNAS_FATURAS}
-              acoesExportacao={ACOES_EXPORT_FATURAS}
+              acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FATURAS, 'dados_tabela', 'Exportação de Dados')}
               acoes={[
                 {
                   id: 'boleto', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Boleto',
@@ -510,7 +512,9 @@ export function Financeiro() {
               acoes={ACOES_PRODUTOS}
               mensagemVazio="Nenhum produto disponível no catálogo."
               mensagemSemFiltro="Sem produtos cadastrados."
-            />
+            
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_PRODUTOS, 'dados_tabela', 'Exportação de Dados')}
+      />
           </div>
 
           {/* Legenda */}

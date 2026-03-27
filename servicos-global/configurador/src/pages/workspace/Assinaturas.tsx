@@ -11,6 +11,8 @@ import { ModalEditarAssinatura } from './ModalEditarAssinatura'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { catalogService } from '../../services/catalogService'
 import { getSimboloMoeda } from '../../utils/formatters'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 type ProdutoStatus = 'Ativo' | 'Trial' | 'Suspenso'
 type BillingType = 'SaaS' | 'Uso' | 'Setup'
@@ -354,7 +356,7 @@ export function Assinaturas() {
           dados={produtos}
           colunas={COLUNAS}
           acoes={ACOES}
-          acoesExportacao={ACOES_EXPORT}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio="Nenhum produto encontrado na busca."
           mensagemSemFiltro="Nenhum produto contratado."
           renderExpandido={(produto) => (

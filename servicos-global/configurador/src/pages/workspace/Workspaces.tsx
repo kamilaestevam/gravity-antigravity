@@ -9,6 +9,8 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalEditarWorkspace } from './ModalEditarWorkspace'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 export type EmpresaStatus = 'Ativa' | 'Suspensa'
 
@@ -389,7 +391,7 @@ export function Workspaces() {
           dados={empresas}
           colunas={COLUNAS}
           acoes={ACOES}
-          acoesExportacao={ACOES_EXPORT}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio="Nenhum resultado na busca."
           mensagemSemFiltro="Nenhum workspace cadastrado."
         />

@@ -3,6 +3,8 @@ import { CloudArrowUp, User, GitCommit, CheckCircle, XCircle, Trash } from '@pho
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 type DeployLog = {
   id: string
@@ -176,7 +178,9 @@ export function DeployRailwayAdmin() {
           colunas={COLUNAS}
           mensagemVazio="Nenhum deploy encontrado para estes filtros."
           mensagemSemFiltro="Nenhum histórico de deploy registrado ainda."
-        />
+        
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
+      />
       </div>
     </PaginaGlobal>
   )

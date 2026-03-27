@@ -4,7 +4,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, PauseCircle, PlayCircle, PencilSimple, CaretDown, FileCsv, FileText, FilePdf, FileXls, Code } from '@phosphor-icons/react'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 
-export type UserType = 'Master' | 'Standard' | 'Fornecedor'
+export type UserType = 'Master' | 'Admin' | 'Standard' | 'Fornecedor'
 export type UserStatus = 'Ativo' | 'Inativo'
 
 export interface TenantUser {
@@ -41,6 +41,7 @@ interface TabelaUsuariosProps {
 
 const typeBadge: Record<string, string> = {
   Master:     'ws-badge-accent',
+  Admin:      'ws-badge-info',
   Standard:   'ws-badge-surface',
   Fornecedor: 'ws-badge-warning',
 }
@@ -188,7 +189,7 @@ function PopoverFiltro({
                 {coluna === 'status' ? (
                   <span style={{ padding: '0.1rem 0.45rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
                 ) : coluna === 'tipo' ? (
-                  <span style={{ padding: '0.1rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...((v === 'Master') ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : (v === 'Fornecedor') ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
+                  <span style={{ padding: '0.1rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...((v === 'Master') ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : (v === 'Admin') ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : (v === 'Fornecedor') ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v}</span>
                 ) : (
                   <span style={{ fontSize: '0.8125rem', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
                 )}
@@ -538,9 +539,9 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                     <div style={{
                       width: 32, height: 32, minWidth: 32, borderRadius: '50%',
-                      background: u.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : u.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
+                      background: u.tipo === 'Master' ? 'rgba(129,140,248,0.2)' : u.tipo === 'Admin' ? 'rgba(6,182,212,0.15)' : u.tipo === 'Fornecedor' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.07)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700,
-                      color: u.tipo === 'Master' ? '#818cf8' : u.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
+                      color: u.tipo === 'Master' ? '#818cf8' : u.tipo === 'Admin' ? '#06b6d4' : u.tipo === 'Fornecedor' ? '#fbbf24' : '#94a3b8',
                     }}>
                       {u.nome.split(' ').map(n => n[0]).join('').slice(0, 2)}
                     </div>

@@ -9,6 +9,8 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { DocPortal } from './DocPortal'
 import { mockProdutos } from './Assinaturas'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 type ApiStatus = 'Online' | 'Offline' | 'Degradado'
 
@@ -252,7 +254,9 @@ export function ApiCockpit() {
                 colunas={COLUNAS}
                 mensagemVazio="Nenhum serviço encontrado."
                 mensagemSemFiltro="Nenhum serviço disponível no momento."
-              />
+              
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
+      />
             </div>
           </div>
 
@@ -329,7 +333,9 @@ export function ApiCockpit() {
               colunas={COLUNAS_TOKENS}
               mensagemVazio="Nenhum token encontrado."
               mensagemSemFiltro="Nenhum token criado ainda."
-            />
+            
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_TOKENS, 'dados_tabela', 'Exportação de Dados')}
+      />
           </div>
         </div>
       )}
@@ -348,7 +354,9 @@ export function ApiCockpit() {
               colunas={COLUNAS_WEBHOOKS}
               mensagemVazio="Nenhum webhook encontrado."
               mensagemSemFiltro="Nenhum webhook configurado."
-            />
+            
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_WEBHOOKS, 'dados_tabela', 'Exportação de Dados')}
+      />
           </div>
         </div>
       )}

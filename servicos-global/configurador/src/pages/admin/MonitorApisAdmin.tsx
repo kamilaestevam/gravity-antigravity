@@ -5,6 +5,8 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
 type LogStatus = 'SUCESSO' | 'ERRO_CLIENTE' | 'ERRO_SERVIDOR'
@@ -339,7 +341,9 @@ export function MonitorApisAdmin() {
              renderExpandido={renderExpandido}
              mensagemVazio="Nenhuma requisição na base de logs."
              mensagemSemFiltro="Os logs de API estão vazios."
-           />
+           
+        acoesExportacao={getAcoesExportacaoPadrao(colunasLogs, 'dados_tabela', 'Exportação de Dados')}
+      />
          </div>
       )}
 
@@ -354,7 +358,9 @@ export function MonitorApisAdmin() {
              idKey="id"
              mensagemVazio="Nenhum alerta configurado."
              mensagemSemFiltro="Adicione um alerta para ser notificado de quedas de API."
-           />
+           
+        acoesExportacao={getAcoesExportacaoPadrao(colunasAlertas, 'dados_tabela', 'Exportação de Dados')}
+      />
          </div>
       )}
     </PaginaGlobal>

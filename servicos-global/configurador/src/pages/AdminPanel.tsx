@@ -17,6 +17,8 @@ import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrgani
 import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalEditarOrganizacao'
 import { ModalEditarWorkspace } from './workspace/ModalEditarWorkspace'
 import { Tenant as GlobalTenant } from '../types/entidades'
+import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
+
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -638,7 +640,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
           dados={tenants}
           colunas={COLUNAS}
           acoes={ACOES}
-          acoesExportacao={ACOES_EXPORT}
+          acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio={loading ? 'Interrogando estado do database global...' : 'Nenhuma instância retornou resultados.'}
           renderExpandido={(tenant) => (
             <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
@@ -651,7 +653,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
                   colunas={COLUNAS_FILHAS}
                   acoes={ACOES_FILHAS}
                   mensagemVazio="Nenhum workspace cadastrado."
-                />
+                
+        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FILHAS, 'dados_tabela', 'Exportação de Dados')}
+      />
               </div>
             </div>
           )}

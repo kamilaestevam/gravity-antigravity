@@ -5,6 +5,7 @@
  */
 
 import React, { useEffect, useRef, useState, useId } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { ModalProps, AbaModal } from './tipos.js'
@@ -196,7 +197,7 @@ export function ModalGlobal({
 
   const conteudoAba = abas?.find((a) => a.id === abaAtiva)?.conteudo ?? children
 
-  return (
+  const modalContent = (
     <div
       className="mg-overlay"
       role="presentation"
@@ -286,6 +287,10 @@ export function ModalGlobal({
       </div>
     </div>
   )
+
+  if (typeof document === 'undefined') return null
+
+  return createPortal(modalContent, document.body)
 }
 
 // ─── Modal Provider (renderiza todos do stack) ────────────────────────────────

@@ -9,6 +9,7 @@ import {
   Pencil,
   Briefcase,
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 interface OnboardingPreviewProps {
   open: boolean
@@ -141,29 +142,29 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
 
               <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
                 {ACCENT_COLORS.map(c => (
-                  <button
-                    key={c.value}
-                    onClick={() => { setAccent(c.value); setPreviewAccent(null) }}
-                    onMouseEnter={() => setPreviewAccent(c.value)}
-                    onMouseLeave={() => setPreviewAccent(null)}
-                    aria-label={c.label}
-                    title={c.label}
-                    style={{
-                      width: '2.5rem',
-                      height: '2.5rem',
-                      minWidth: '2.5rem',
-                      flexShrink: 0,
-                      border: 'none',
-                      cursor: 'pointer',
-                      borderRadius: '50%',
-                      background: c.value,
-                      boxShadow: accent === c.value
-                        ? `0 0 0 3px var(--bg-base), 0 0 0 5px ${c.value}`
-                        : 'none',
-                      transform: accent === c.value ? 'scale(1.15)' : 'scale(1)',
-                      transition: 'all 0.15s ease',
-                    }}
-                  />
+                  <TooltipGlobal key={c.value} descricao={c.label}>
+                    <button
+                      onClick={() => { setAccent(c.value); setPreviewAccent(null) }}
+                      onMouseEnter={() => setPreviewAccent(c.value)}
+                      onMouseLeave={() => setPreviewAccent(null)}
+                      aria-label={c.label}
+                      style={{
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        minWidth: '2.5rem',
+                        flexShrink: 0,
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '50%',
+                        background: c.value,
+                        boxShadow: accent === c.value
+                          ? `0 0 0 3px var(--bg-base), 0 0 0 5px ${c.value}`
+                          : 'none',
+                        transform: accent === c.value ? 'scale(1.15)' : 'scale(1)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    />
+                  </TooltipGlobal>
                 ))}
               </div>
 
@@ -206,14 +207,16 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                 </div>
               </div>
 
-              <button
-                className="btn btn-primary"
-                id="onboarding-next-step1"
-                onClick={() => setStep(1)}
-                style={{ background: currentAccent, width: '100%', justifyContent: 'center' }}
-              >
-                Ficou perfeito! Próximo
-              </button>
+              <TooltipGlobal descricao="Avançar para a seleção de perfil">
+                <button
+                  className="btn btn-primary"
+                  id="onboarding-next-step1"
+                  onClick={() => setStep(1)}
+                  style={{ background: currentAccent, width: '100%', justifyContent: 'center' }}
+                >
+                  Ficou perfeito! Próximo
+                </button>
+              </TooltipGlobal>
             </div>
           )}
 
@@ -269,15 +272,17 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                 ))}
               </div>
 
-              <button
-                className="btn btn-primary"
-                id="onboarding-next-step2"
-                onClick={() => setStep(2)}
-                disabled={!profile}
-                style={{ background: currentAccent, width: '100%', justifyContent: 'center' }}
-              >
-                Continuar
-              </button>
+              <TooltipGlobal descricao="Finalizar configuração e visualizar dashboard personalizado">
+                <button
+                  className="btn btn-primary"
+                  id="onboarding-next-step2"
+                  onClick={() => setStep(2)}
+                  disabled={!profile}
+                  style={{ background: currentAccent, width: '100%', justifyContent: 'center' }}
+                >
+                  Continuar
+                </button>
+              </TooltipGlobal>
             </div>
           )}
 
@@ -335,14 +340,16 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                 ))}
               </div>
 
-              <a
-                href={`${import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'}/trial?trial=true&profile=${profile?.toLowerCase()}`}
-                className="btn btn-gradient"
-                id="onboarding-start-trial"
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                Começar Trial Grátis — 14 dias
-              </a>
+              <TooltipGlobal descricao="Iniciar teste gratuito de 14 dias — sem necessidade de cartão">
+                <a
+                  href={`${import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'}/trial?trial=true&profile=${profile?.toLowerCase()}`}
+                  className="btn btn-gradient"
+                  id="onboarding-start-trial"
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  Começar Trial Grátis — 14 dias
+                </a>
+              </TooltipGlobal>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.625rem' }}>
                 Sem cartão. Sem compromisso.
               </p>

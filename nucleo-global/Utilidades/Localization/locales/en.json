@@ -85,7 +85,9 @@
     "localizar": "Search",
     "exportar": "Export",
     "baixar_resultados": "Download current table results",
+    "buscar_tooltip_padrao": "Search for any visible term in the table",
     "acoes": "Actions",
+    "tooltip_acoes": "Quick actions available for this record",
     "selecionar_todos": "Select all",
     "nenhum_registro": "No records",
     "sem_filtro": "No records found.",
@@ -100,7 +102,9 @@
     "minimo": "Min",
     "maximo": "Max",
     "buscar": "Search…",
-    "de": "of"
+    "de": "of",
+    "expandir_detalhes": "Expand to view more details and complementary information",
+    "recolher_detalhes": "Collapse detailed view"
   },
   "campo": {
     "limpar": "Clear",

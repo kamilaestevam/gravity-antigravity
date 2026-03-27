@@ -543,13 +543,15 @@ export function Usuarios() {
       }
       toolbar={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', transform: 'translateY(-7px)' }}>
-          <BotaoGlobal
-            variante="primario"
-            onClick={() => setShowForm(true)}
-            icone={<User size={18} />}
-          >
-            Convidar Usuário
-          </BotaoGlobal>
+          <TooltipGlobal descricao="Enviar convite para um novo colaborador acessar a plataforma">
+            <BotaoGlobal
+              variante="primario"
+              onClick={() => setShowForm(true)}
+              icone={<User size={18} />}
+            >
+              Convidar Usuário
+            </BotaoGlobal>
+          </TooltipGlobal>
         </div>
       }
     >
@@ -562,6 +564,8 @@ export function Usuarios() {
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio="Nenhum usuário encontrado na busca."
           mensagemSemFiltro="Nenhum usuário cadastrado na sua conta corporativa."
+          tooltipBusca="Localizar usuário por nome, e-mail ou tipo de acesso"
+          tooltipExpandir="Ver permissões de acesso e espaços de trabalho vinculados"
           renderExpandido={(usuario) => {
             const vinculados = usuario.tipo === 'Master' ? espacos : espacosDoUsuario(usuario.id)
             return (
@@ -574,6 +578,7 @@ export function Usuarios() {
                   <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden', background: 'var(--ws-surface)' }}>
                     <TabelaGlobal<EspacoTrabalho>
                       dados={vinculados}
+                      tooltipBusca="Filtrar workspaces por nome ou ID comercial"
                       colunas={[
                         { 
                           key: 'nome', 

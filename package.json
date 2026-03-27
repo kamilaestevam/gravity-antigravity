@@ -1,7 +1,12 @@
 {
   "scripts": {
     "playground": "set CONFIGURADOR_DATABASE_URL=postgresql://postgres:postgres@localhost:5432/configurador_test && set NODE_ENV=test && cd servicos-global/configurador && npx tsx watch server/index.ts",
-    "seed:playground": "npx tsx PLAYGROUND/seed-playground.ts"
+    "seed:playground": "npx tsx PLAYGROUND/seed-playground.ts",
+    "db:compose": "npx ts-node scripts/compose-tenant-schema.ts",
+    "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/tenant/prisma/schema.prisma",
+    "db:migrate:deploy": "npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/tenant/prisma/schema.prisma",
+    "db:seed:staging": "npx ts-node scripts/seed-staging.ts",
+    "db:apply-rls": "railway run psql $TENANT_DATABASE_URL -f scripts/apply-rls.sql"
   },
   "dependencies": {
     "@clerk/localizations": "^4.2.3",

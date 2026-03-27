@@ -6,19 +6,21 @@ import { prisma } from '../lib/prisma.js'
 interface CheckPermissionInput {
   tenantId: string
   userId: string
+  productId?: string
+  companyId?: string
   resource: string
-  action: 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
+  action: string
 }
 
 export const permissionsService = {
   /**
    * Verifica se o usuário tem permissão para uma ação em um recurso
-   * Usuários com role OWNER têm acesso irrestrito
+   * Master e Admins Gravity têm acesso total (Cadeia 1)
    */
   async checkPermission(input: CheckPermissionInput): Promise<boolean> {
-    const { tenantId, userId, resource, action } = input
+    const { tenantId, userId, resource, action, companyId, productId } = input
 
-    // Owner e Admin têm acesso total
+    // Busca usuário e sua role global
     const user = await prisma.user.findFirst({
       where: { id: userId, tenant_id: tenantId },
       select: { role: true },
@@ -26,15 +28,25 @@ export const permissionsService = {
 
     if (!user) return false
 
-    if (user.role === 'OWNER' || user.role === 'ADMIN') return true
+    // 1. Cadeia 1 — Roles Globais (Acesso total)
+    if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' || user.role === 'MASTER') {
+      return true
+    }
 
-    // Verifica permissão granular
-    const permission = await prisma.permission.findFirst({
+    // 2. Cadeia 2 — Permissão Granular (STANDARD e SUPPLIER)
+    // Se não houver companyId ou productId, não podemos verificar granularidade
+    if (!companyId || !productId) return false
+
+    // O código da permissão é composto por resource:action (ex: email:write)
+    const permissionKey = `${resource}:${action.toLowerCase()}`
+
+    const permission = await prisma.userPermission.findFirst({
       where: {
         tenant_id: tenantId,
+        company_id: companyId,
         user_id: userId,
-        resource,
-        action,
+        product_id: productId,
+        permission: permissionKey,
       },
     })
 
@@ -42,33 +54,55 @@ export const permissionsService = {
   },
 
   /**
-   * Lista todas as permissões de um usuário no tenant
+   * Lista todas as permissões de um usuário no tenant/workspace
    */
-  async getUserPermissions(tenantId: string, userId: string) {
-    return prisma.permission.findMany({
-      where: { tenant_id: tenantId, user_id: userId },
-      select: { resource: true, action: true, created_at: true },
+  async getUserPermissions(tenantId: string, userId: string, companyId?: string) {
+    return prisma.userPermission.findMany({
+      where: {
+        tenant_id: tenantId,
+        user_id: userId,
+        ...(companyId && { company_id: companyId }),
+      },
+      select: {
+        company_id: true,
+        product_id: true,
+        permission: true,
+        created_at: true,
+      },
     })
   },
 
   /**
-   * Define permissões de um usuário (upsert em lote)
+   * Define permissões de um usuário (UPSERT)
    */
   async setPermissions(
     tenantId: string,
+    companyId: string,
     userId: string,
-    permissions: Array<{ resource: string; action: string }>
+    productId: string,
+    permissions: string[], // ex: ['email:read', 'email:write']
+    grantedBy: string
   ) {
-    // Remove permissões existentes e reinsere
     await prisma.$transaction([
-      prisma.permission.deleteMany({ where: { tenant_id: tenantId, user_id: userId } }),
+      // Limpa permissões antigas do produto neste workspace
+      prisma.userPermission.deleteMany({
+        where: {
+          tenant_id: tenantId,
+          company_id: companyId,
+          user_id: userId,
+          product_id: productId,
+        },
+      }),
+      // Insere novas
       ...permissions.map((p) =>
-        prisma.permission.create({
+        prisma.userPermission.create({
           data: {
             tenant_id: tenantId,
+            company_id: companyId,
             user_id: userId,
-            resource: p.resource,
-            action: p.action as 'READ' | 'WRITE' | 'DELETE' | 'MANAGE',
+            product_id: productId,
+            permission: p,
+            granted_by: grantedBy,
           },
         })
       ),

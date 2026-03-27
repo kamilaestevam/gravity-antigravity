@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, EnvelopeSimple, ArrowRight, CheckCircle } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useExitIntent } from '../../hooks/useExitIntent'
 
 export function ExitIntentDrawer() {
@@ -118,10 +119,12 @@ export function ExitIntentDrawer() {
                   </div>
                 </div>
 
-                <button type="submit" className="btn btn-gradient" id="exit-intent-submit" style={{ width: '100%', justifyContent: 'center' }}>
-                  Salvar e Continuar Depois
-                  <ArrowRight size={16} weight="bold" />
-                </button>
+                <TooltipGlobal descricao="Enviar link de acesso para o seu e-mail e continuar de onde parou">
+                  <button type="submit" className="btn btn-gradient" id="exit-intent-submit" style={{ width: '100%', justifyContent: 'center' }}>
+                    Salvar e Continuar Depois
+                    <ArrowRight size={16} weight="bold" />
+                  </button>
+                </TooltipGlobal>
               </form>
 
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.875rem' }}>

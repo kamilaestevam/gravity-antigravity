@@ -5,6 +5,7 @@ import {
   Wrench, Sliders, Headset, Clock, Handshake, Infinity,
   Eye, Buildings
 } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/card-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -307,16 +308,17 @@ export function Financeiro() {
       tooltip: 'Ver Detalhes do Produto',
       onClick: (item) => setProdutoVisualizando(item),
       renderCustom: (item) => (
-        <button
-          type="button"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setProdutoVisualizando(item) }}
-          title="Ver detalhes"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
-          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-        >
-          <Eye size={16} weight="bold" />
-        </button>
+        <TooltipGlobal descricao="Ver detalhes">
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setProdutoVisualizando(item) }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+            onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+          >
+            <Eye size={16} weight="bold" />
+          </button>
+        </TooltipGlobal>
       )
     }
   ]
@@ -446,6 +448,39 @@ export function Financeiro() {
               dados={faturas}
               colunas={COLUNAS_FATURAS}
               acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FATURAS, 'dados_tabela', 'Exportação de Dados')}
+              mensagemVazio="Nenhuma fatura encontrada."
+              mensagemSemFiltro="Você não possui histórico de faturas."
+              tooltipBusca="Localizar faturas por número, competência ou descrição dos serviços"
+              tooltipExpandir="Ver detalhamento completo da composição desta fatura"
+              renderExpandido={(fatura) => (
+                <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                  <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                    <Receipt size={18} weight="duotone" color="var(--color-primary)" /> Detalhamento da Fatura #{fatura.num}
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {fatura.itens.map((item, idx) => (
+                      <div key={idx} style={{
+                        display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '12px', alignItems: 'center',
+                        background: 'rgba(255,255,255,0.03)', padding: '0.75rem 1rem', borderRadius: '10px',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                      }}>
+                        <div>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Descrição</span>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{item.descricao}</p>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Quantidade</span>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--ws-text)' }}>{item.quantidade}</p>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.04em' }}>Valor Unitário</span>
+                          <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 700, color: '#818cf8' }}>{getSimboloMoeda(fatura.moeda)} {item.valorUnitario}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               acoes={[
                 {
                   id: 'boleto', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Boleto',
@@ -512,9 +547,9 @@ export function Financeiro() {
               acoes={ACOES_PRODUTOS}
               mensagemVazio="Nenhum produto disponível no catálogo."
               mensagemSemFiltro="Sem produtos cadastrados."
-            
-        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_PRODUTOS, 'dados_tabela', 'Exportação de Dados')}
-      />
+              acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_PRODUTOS, 'dados_tabela', 'Exportação de Dados')}
+              tooltipBusca="Localizar produtos por nome, modalidade de cobrança ou status"
+            />
           </div>
 
           {/* Legenda */}

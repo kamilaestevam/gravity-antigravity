@@ -75,8 +75,8 @@ describe('GET /api/v1/users — listar usuários do tenant', () => {
 
   it('200 — retorna apenas usuários do tenant autenticado', async () => {
     const mockUsers = [
-      { id: 'user-1', name: 'Ana', email: 'ana@emp.com', role: 'OWNER', created_at: new Date(), memberships: [] },
-      { id: 'user-2', name: 'Bruno', email: 'bruno@emp.com', role: 'MEMBER', created_at: new Date(), memberships: [] },
+      { id: 'user-1', name: 'Ana', email: 'ana@emp.com', role: 'MASTER', created_at: new Date(), memberships: [] },
+      { id: 'user-2', name: 'Bruno', email: 'bruno@emp.com', role: 'STANDARD', created_at: new Date(), memberships: [] },
     ]
     mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers)
 
@@ -125,12 +125,12 @@ describe('POST /api/v1/users/invite — convidar usuário', () => {
     mockPrisma.user.create.mockResolvedValueOnce({
       id: 'user-novo',
       email: 'novo@empresa.com',
-      role: 'MEMBER',
+      role: 'STANDARD',
     })
 
     const response = await request(app)
       .post('/api/v1/users/invite')
-      .send({ email: 'novo@empresa.com', name: 'Novo Usuário', role: 'MEMBER' })
+      .send({ email: 'novo@empresa.com', name: 'Novo Usuário', role: 'STANDARD' })
 
     expect(response.status).toBe(201)
     expect(response.body.message).toContain('sucesso')
@@ -178,21 +178,21 @@ describe('POST /api/v1/users/invite — convidar usuário', () => {
     expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
   })
 
-  it('convidar com role VIEWER — aceito', async () => {
+  it('convidar com role SUPPLIER — aceito', async () => {
     mockPrisma.user.findFirst.mockResolvedValueOnce(null)
     mockClerkClient.invitations.createInvitation.mockResolvedValueOnce({ id: 'inv-002' })
     mockPrisma.user.create.mockResolvedValueOnce({
-      id: 'user-viewer',
-      email: 'viewer@empresa.com',
-      role: 'VIEWER',
+      id: 'user-supplier',
+      email: 'supplier@empresa.com',
+      role: 'SUPPLIER',
     })
 
     const response = await request(app)
       .post('/api/v1/users/invite')
-      .send({ email: 'viewer@empresa.com', name: 'Viewer', role: 'VIEWER' })
+      .send({ email: 'supplier@empresa.com', name: 'Supplier', role: 'SUPPLIER' })
 
     expect(response.status).toBe(201)
-    expect(response.body.user.role).toBe('VIEWER')
+    expect(response.body.user.role).toBe('SUPPLIER')
   })
 })
 
@@ -270,15 +270,15 @@ describe('PATCH /api/v1/users/:id/role — atualizar role do usuário', () => {
     mockPrisma.user.update.mockResolvedValueOnce({
       id: 'user-1',
       email: 'ana@empresa.com',
-      role: 'ADMIN',
+      role: 'STANDARD',
     })
 
     const response = await request(app)
       .patch('/api/v1/users/user-1/role')
-      .send({ role: 'ADMIN' })
+      .send({ role: 'STANDARD' })
 
     expect(response.status).toBe(200)
-    expect(response.body.user.role).toBe('ADMIN')
+    expect(response.body.user.role).toBe('STANDARD')
   })
 
   it('404 — usuário não encontrado no tenant (cross-tenant bloqueado)', async () => {

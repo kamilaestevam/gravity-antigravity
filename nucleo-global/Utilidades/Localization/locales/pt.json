@@ -85,7 +85,9 @@
     "localizar": "Localizar",
     "exportar": "Exportar",
     "baixar_resultados": "Baixe os resultados atuais da tabela",
+    "buscar_tooltip_padrao": "Pesquise por qualquer termo visível na tabela",
     "acoes": "Ações",
+    "tooltip_acoes": "Comandos rápidos disponíveis para este registro",
     "selecionar_todos": "Selecionar todos",
     "nenhum_registro": "Nenhum registro",
     "sem_filtro": "Nenhum registro cadastrado.",
@@ -100,7 +102,9 @@
     "minimo": "Mín",
     "maximo": "Máx",
     "buscar": "Buscar…",
-    "de": "de"
+    "de": "de",
+    "expandir_detalhes": "Expandir para visualizar mais detalhes e informações complementares",
+    "recolher_detalhes": "Recolher visualização detalhada"
   },
   "campo": {
     "limpar": "Limpar",

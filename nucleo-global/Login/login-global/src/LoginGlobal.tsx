@@ -2,6 +2,7 @@ import { SignIn, SignUp } from '@clerk/clerk-react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { Envelope, ArrowLeft, CheckCircle, WarningCircle, CircleNotch } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './login-global.css'
 
 export function LoginGlobal() {
@@ -210,13 +211,15 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
           </div>
         )}
 
-        <button 
-          type="submit" 
-          className={`forgot-button ${status === 'loading' ? 'loading' : ''}`}
-          disabled={status === 'loading'}
-        >
-          {status === 'loading' ? <CircleNotch size={20} className="spin" /> : 'Enviar instruções'}
-        </button>
+        <TooltipGlobal descricao="Enviar um link de redefinição para o e-mail informado abaixo">
+          <button 
+            type="submit" 
+            className={`forgot-button ${status === 'loading' ? 'loading' : ''}`}
+            disabled={status === 'loading'}
+          >
+            {status === 'loading' ? <CircleNotch size={20} className="spin" /> : 'Enviar instruções'}
+          </button>
+        </TooltipGlobal>
       </form>
 
       <Link 

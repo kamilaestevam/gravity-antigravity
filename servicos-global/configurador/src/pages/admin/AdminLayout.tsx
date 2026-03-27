@@ -2,7 +2,8 @@ import React, { useEffect } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
-import { ToastContainer, useShellStore } from '@gravity/shell'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { ToastContainer, useShellStore, useUserPreferences } from '@gravity/shell'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
@@ -41,6 +42,9 @@ export function AdminLayout() {
   const navigate = useNavigate()
   const { user } = useUser()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+
+  // Sincroniza preferências de UI com o backend (cross-device)
+  useUserPreferences({ userId: user?.id, tenantId: 'gravity-hq' })
   const isLight = currentTheme === 'light'
 
   const { signOut } = useClerk()
@@ -101,15 +105,35 @@ export function AdminLayout() {
           />
 
           {/* NOVO: Toggle de tooltips */}
-          <button
-            className="ws-global-btn"
-            onClick={toggleTooltips}
-            title={tooltipsDisabled ? 'Habilitar dicas' : 'Desabilitar dicas'}
-            style={{ color: tooltipsDisabled ? 'var(--ws-muted)' : 'var(--ws-accent)' }}
-            type="button"
+          <TooltipGlobal
+            titulo="Dicas e Explicações"
+            descricao={
+              <span style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Info size={14} weight="fill" style={{ color: '#10b981', flexShrink: 0 }} />
+                  <span><strong style={{ color: '#f1f5f9' }}>Habilitadas</strong> — dicas aparecem ao passar o mouse</span>
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Info size={14} weight="regular" style={{ color: '#64748b', flexShrink: 0 }} />
+                  <span><strong style={{ color: '#f1f5f9' }}>Desabilitadas</strong> — nenhuma dica é exibida</span>
+                </span>
+                <span style={{ marginTop: '0.15rem', color: '#64748b', fontSize: '0.7rem' }}>
+                  Agora: <strong style={{ color: tooltipsDisabled ? '#f87171' : '#34d399' }}>
+                    {tooltipsDisabled ? 'desabilitadas' : 'habilitadas'}
+                  </strong>
+                </span>
+              </span>
+            }
           >
-            <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
-          </button>
+            <button
+              className="ws-global-btn"
+              onClick={toggleTooltips}
+              style={{ color: tooltipsDisabled ? 'var(--ws-muted)' : '#10b981' }}
+              type="button"
+            >
+              <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+            </button>
+          </TooltipGlobal>
 
           <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
 

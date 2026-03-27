@@ -542,6 +542,7 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
           )}
           {/* Botão Exportar + dropdown */}
           <div style={{ position: 'relative' }}>
+          <TooltipGlobal descricao="Baixar os dados da tabela em diferentes formatos">
             <button ref={exportBtnRef} type="button"
               onClick={() => setExportMenuAberto(v => !v)}
               style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(129,140,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#818cf8' : 'rgba(129,140,248,0.12)'}`, color: exportMenuAberto ? '#818cf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
@@ -549,6 +550,7 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
               onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
               <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
+          </TooltipGlobal>
 
             {exportMenuAberto && (
               <div ref={exportMenuRef}
@@ -629,7 +631,9 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
                 {...thProps}
               />
               <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
-                Ações
+                <TooltipGlobal titulo="Comandos" descricao="Ações rápidas disponíveis para este registro">
+                  <span>Ações</span>
+                </TooltipGlobal>
               </th>
             </tr>
           </thead>
@@ -660,21 +664,22 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
                   </div>
                 </td>
                 <td style={{ padding: '0.875rem 1rem' }}>
-                  <a
-                    href={`https://${e.subdominio}.gravity.com.br`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`Abrir ${e.subdominio}.gravity.com.br`}
-                    onClick={ev => ev.stopPropagation()}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
-                  >
-                    <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
-                      onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-                      onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+                  <TooltipGlobal descricao={`Abrir ${e.subdominio}.gravity.com.br`}>
+                    <a
+                      href={`https://${e.subdominio}.gravity.com.br`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={ev => ev.stopPropagation()}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }}
                     >
-                      {e.subdominio}.gravity.com.br
-                    </code>
-                  </a>
+                      <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
+                        onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+                        onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+                      >
+                        {e.subdominio}.gravity.com.br
+                      </code>
+                    </a>
+                  </TooltipGlobal>
                 </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'center', fontWeight: 600 }}>{e.usuarios}</td>
                 <td style={{ padding: '0.875rem 1rem' }}>
@@ -686,39 +691,42 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                     {/* Suspender / Reativar */}
-                    <button
-                      type="button"
-                      title={e.status === 'Ativa' ? 'Suspender' : 'Reativar'}
-                      onClick={() => onSuspender(e)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = e.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = e.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = e.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
-                      onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-                    >
-                      {e.status === 'Ativa'
-                        ? <PauseCircle size={16} weight="bold" />
-                        : <PlayCircle size={16} weight="bold" />}
-                    </button>
+                    <TooltipGlobal descricao={e.status === 'Ativa' ? 'Suspender' : 'Reativar'}>
+                      <button
+                        type="button"
+                        onClick={() => onSuspender(e)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+                        onMouseEnter={ev => { ev.currentTarget.style.background = e.status === 'Ativa' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = e.status === 'Ativa' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = e.status === 'Ativa' ? '#fbbf24' : '#34d399' }}
+                        onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+                      >
+                        {e.status === 'Ativa'
+                          ? <PauseCircle size={16} weight="bold" />
+                          : <PlayCircle size={16} weight="bold" />}
+                      </button>
+                    </TooltipGlobal>
                     {/* Editar */}
-                    <button
-                      type="button"
-                      title="Editar"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
-                      onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-                    >
-                      <PencilSimple size={15} weight="bold" />
-                    </button>
+                    <TooltipGlobal descricao="Editar">
+                      <button
+                        type="button"
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+                        onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
+                        onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+                      >
+                        <PencilSimple size={15} weight="bold" />
+                      </button>
+                    </TooltipGlobal>
                     {/* Excluir */}
-                    <button
-                      type="button"
-                      title="Excluir"
-                      onClick={() => onExcluir(e)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(248,113,113,0.12)'; ev.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)'; ev.currentTarget.style.color = '#f87171' }}
-                      onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-                    >
-                      <Trash size={15} weight="bold" />
-                    </button>
+                    <TooltipGlobal descricao="Excluir">
+                      <button
+                        type="button"
+                        onClick={() => onExcluir(e)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+                        onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(248,113,113,0.12)'; ev.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)'; ev.currentTarget.style.color = '#f87171' }}
+                        onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+                      >
+                        <Trash size={15} weight="bold" />
+                      </button>
+                    </TooltipGlobal>
                   </div>
                 </td>
               </tr>

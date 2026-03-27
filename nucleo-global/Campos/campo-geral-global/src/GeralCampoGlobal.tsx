@@ -31,7 +31,7 @@ export function GeralCampoGlobal({
         <label className="cg-label">
           {tooltipTitulo && tooltipDescricao ? (
             <TooltipGlobal titulo={tooltipTitulo} descricao={tooltipDescricao}>
-              <span style={{ cursor: 'help' }}>{compLabel}</span>
+              <span>{compLabel}</span>
             </TooltipGlobal>
           ) : (
             <span>{compLabel}</span>

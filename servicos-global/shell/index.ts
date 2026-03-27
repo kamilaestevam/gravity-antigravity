@@ -17,6 +17,9 @@ export { ToastContainer }  from './ToastContainer'
 
 // Store e tipos
 export { useShellStore }   from './store'
+
+// Hooks
+export { useUserPreferences } from './hooks/useUserPreferences'
 export type {
   ShellState,
   CurrentUser,

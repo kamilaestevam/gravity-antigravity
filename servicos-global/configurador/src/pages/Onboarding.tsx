@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useUser, SignIn, useAuth } from '@clerk/clerk-react'
 import { useSearchParams } from 'react-router-dom'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 export function Onboarding() {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -125,21 +126,24 @@ export function Onboarding() {
           />
         </div>
 
-        <button 
-          type="submit" 
-          disabled={loading || !companyName}
-          style={{ 
-            marginTop: 16,
-            background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))', 
-            color: 'white', 
-            padding: '16px 32px', borderRadius: 12, border: 'none', 
-            fontSize: 18, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1,
-            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
-          }}
-        >
-          {loading ? 'Preparando os Motores...' : 'Ir para o Pagamento'}
-        </button>
+        <TooltipGlobal descricao="Prosseguir para a etapa de faturamento e configuração do seu workspace">
+          <button 
+            type="submit" 
+            disabled={loading || !companyName}
+            style={{ 
+              marginTop: 16,
+              background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary-hover))', 
+              color: 'white', 
+              padding: '16px 32px', borderRadius: 12, border: 'none', 
+              fontSize: 18, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+              width: '100%'
+            }}
+          >
+            {loading ? 'Preparando os Motores...' : 'Ir para o Pagamento'}
+          </button>
+        </TooltipGlobal>
       </form>
     </div>
   )

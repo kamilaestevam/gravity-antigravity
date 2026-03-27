@@ -240,12 +240,12 @@ export function Organizacao() {
           <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
           <div className="em-identity__text">
             <TooltipGlobal titulo="Hierarquia de Contas" descricao="Organização é a matriz gerencial, os workspaces são as várias empresas operadas dentro dela">
-              <span className="em-identity__badge" style={{ cursor: 'help' }}>Organização</span>
+              <span className="em-identity__badge">Organização</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
               <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso e funcionalidades do seu sistema">
-                <span className="em-tag" style={{ cursor: 'help' }}>{dados.plano}</span>
+                <span className="em-tag">{dados.plano}</span>
               </TooltipGlobal>
               <span className="em-identity__sep">·</span>
               {dados.subdominio}.gravity.com.br
@@ -258,7 +258,7 @@ export function Organizacao() {
       <div className="em-section ws-fade-up ws-fade-up-d1">
         <p className="ws-section-title" style={{ width: 'max-content' }}>
           <TooltipGlobal titulo="Dados Básicos" descricao="Informações principais da sua empresa usadas em toda a plataforma">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Buildings weight="duotone" size={14} color="var(--ws-accent)" />
               Dados Básicos
             </span>
@@ -365,7 +365,7 @@ export function Organizacao() {
       <div className="em-section ws-fade-up ws-fade-up-d2">
         <p className="ws-section-title" style={{ width: 'max-content' }}>
           <TooltipGlobal titulo="Plano Contratado" descricao="Resumo das configurações de cobrança e limites do seu plano atual">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Package weight="duotone" size={14} color="var(--ws-accent)" />
               Plano Contratado
             </span>
@@ -376,7 +376,7 @@ export function Organizacao() {
             <div className="em-plan-icon"><Package weight="duotone" size={22} /></div>
             <div>
               <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso e funcionalidades do seu sistema">
-                <div style={{ cursor: 'help' }}>
+                <div>
                   <p className="em-plan-label">Plano atual</p>
                   <p className="em-plan-name">{dados.plano}</p>
                 </div>
@@ -425,7 +425,7 @@ export function Organizacao() {
         icone={<CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />}
         titulo={
           <TooltipGlobal titulo="Workspace Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
-            <span style={{ cursor: 'help' }}>Acesso Padrão</span>
+            <span>Acesso Padrão</span>
           </TooltipGlobal>
         }
         descricao="Defina qual ambiente será carregado automaticamente ao entrar na plataforma."

@@ -187,20 +187,21 @@ export function Assinaturas() {
       tooltip: 'Suspender / Reativar',
       onClick: handleSuspend,
       renderCustom: (item) => (
-        <button
-          type="button"
-          title={item.status === 'Suspenso' ? 'Reativar' : 'Suspender'}
-          onClick={() => handleSuspend(item)}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-          onMouseEnter={ev => {
-            ev.currentTarget.style.background = item.status === 'Suspenso' ? 'rgba(52,211,153,0.12)' : 'rgba(251,191,36,0.12)'
-            ev.currentTarget.style.borderColor = item.status === 'Suspenso' ? 'rgba(52,211,153,0.3)' : 'rgba(251,191,36,0.3)'
-            ev.currentTarget.style.color = item.status === 'Suspenso' ? '#34d399' : '#fbbf24'
-          }}
-          onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-        >
-          {item.status === 'Suspenso' ? <PlayCircle size={16} weight="bold" /> : <PauseCircle size={16} weight="bold" />}
-        </button>
+        <TooltipGlobal descricao={item.status === 'Suspenso' ? 'Reativar' : 'Suspender'}>
+          <button
+            type="button"
+            onClick={() => handleSuspend(item)}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+            onMouseEnter={ev => {
+              ev.currentTarget.style.background = item.status === 'Suspenso' ? 'rgba(52,211,153,0.12)' : 'rgba(251,191,36,0.12)'
+              ev.currentTarget.style.borderColor = item.status === 'Suspenso' ? 'rgba(52,211,153,0.3)' : 'rgba(251,191,36,0.3)'
+              ev.currentTarget.style.color = item.status === 'Suspenso' ? '#34d399' : '#fbbf24'
+            }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+          >
+            {item.status === 'Suspenso' ? <PlayCircle size={16} weight="bold" /> : <PauseCircle size={16} weight="bold" />}
+          </button>
+        </TooltipGlobal>
       )
     },
     {
@@ -359,6 +360,8 @@ export function Assinaturas() {
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio="Nenhum produto encontrado na busca."
           mensagemSemFiltro="Nenhum produto contratado."
+          tooltipBusca="Localizar assinatura por nome do produto ou status operacional"
+          tooltipExpandir="Ver auditoria de consumo e workspaces vinculados a este produto"
           renderExpandido={(produto) => (
             <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
               <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -372,6 +375,7 @@ export function Assinaturas() {
                       ...ws,
                       status: produto.workspacesHabilitados.includes(ws.nome) ? 'Ativo' : 'Inativo'
                     }))}
+                  tooltipBusca="Filtrar workspaces habilitados nesta assinatura"
                   colunas={[
                     { 
                       key: 'nome', 
@@ -541,7 +545,9 @@ export function Assinaturas() {
 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{p.temSetup ? 'Requer Setup' : 'Ativação Instantânea'}</span>
-              <BotaoGlobal variante="primario" tamanho="pequeno">Assinar</BotaoGlobal>
+              <TooltipGlobal descricao="Iniciar processo de contratação e ativação do produto">
+                <BotaoGlobal variante="primario" tamanho="pequeno">Assinar</BotaoGlobal>
+              </TooltipGlobal>
             </div>
           </div>
         ))}

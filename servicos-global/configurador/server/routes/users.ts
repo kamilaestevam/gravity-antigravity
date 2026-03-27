@@ -22,7 +22,7 @@ usersRouter.use(requireAuth)
 const InviteUserSchema = z.object({
   email: z.string().email(),
   name: z.string().min(1),
-  role: z.enum(['OWNER', 'ADMIN', 'MEMBER', 'VIEWER']).default('MEMBER'),
+  role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
 })
 
 const MembershipSchema = z.object({
@@ -183,7 +183,7 @@ usersRouter.post('/:id/memberships', async (req, res, next) => {
 usersRouter.patch('/:id/role', async (req, res, next) => {
   try {
     const RoleSchema = z.object({
-      role: z.enum(['OWNER', 'ADMIN', 'MEMBER', 'VIEWER']),
+      role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
     })
     const parsed = RoleSchema.safeParse(req.body)
     if (!parsed.success) {

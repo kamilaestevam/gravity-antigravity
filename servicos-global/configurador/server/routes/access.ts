@@ -19,9 +19,11 @@ accessRouter.use(requireInternalKey)
 const CheckAccessSchema = z.object({
   tenantId: z.string(),
   userId: z.string(),
+  productId: z.string().optional(),
+  companyId: z.string().optional(),
   productKey: z.string(),
   resource: z.string().optional(),
-  action: z.enum(['READ', 'WRITE', 'DELETE', 'MANAGE']).optional(),
+  action: z.string().optional(),
 })
 
 const ProductPermissionsSchema = z.object({
@@ -46,7 +48,7 @@ accessRouter.get('/check-access', async (req, res, next) => {
       )
     }
 
-    const { tenantId, userId, productKey, resource, action } = parsed.data
+    const { tenantId, userId, productId, companyId, productKey, resource, action } = parsed.data
 
     // 1. Verifica se o tenant está ativo
     const tenant = await prisma.tenant.findUnique({
@@ -66,12 +68,14 @@ accessRouter.get('/check-access', async (req, res, next) => {
     }
 
     // 3. Verifica permissão granular (se solicitado)
-    if (resource && action) {
+    if (productId && resource && action) {
       const hasPermission = await permissionsService.checkPermission({
         tenantId,
         userId,
+        productId,
+        companyId,
         resource,
-        action,
+        action: action || '',
       })
       if (!hasPermission) {
         res.json({ allowed: false, reason: 'PERMISSION_DENIED' })

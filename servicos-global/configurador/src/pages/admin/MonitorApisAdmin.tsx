@@ -186,8 +186,12 @@ export function MonitorApisAdmin() {
     },
     { key: 'id', label: 'AÇÕES', tipo: 'texto', render: () => (
        <div style={{ display: 'flex', gap: '0.5rem' }}>
-         <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Wrench size={13} />}>Editar</BotaoGlobal>
-         <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Trash size={13} color="#ef4444" />} style={{ color: '#ef4444' }}>Excluir</BotaoGlobal>
+         <TooltipGlobal descricao="Editar configuração de alerta">
+            <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Wrench size={13} />}>Editar</BotaoGlobal>
+         </TooltipGlobal>
+         <TooltipGlobal descricao="Excluir alerta permanentemente">
+            <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Trash size={13} color="#ef4444" />} style={{ color: '#ef4444' }}>Excluir</BotaoGlobal>
+         </TooltipGlobal>
        </div>
     ) }
   ]

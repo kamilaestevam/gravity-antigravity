@@ -439,6 +439,7 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
             </span>
           )}
           <div style={{ position: 'relative' }}>
+          <TooltipGlobal descricao="Baixar os dados da tabela em diferentes formatos">
             <button ref={exportBtnRef} type="button"
               onClick={() => setExportMenuAberto(v => !v)}
               style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(129,140,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#818cf8' : 'rgba(129,140,248,0.12)'}`, color: exportMenuAberto ? '#818cf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
@@ -446,6 +447,7 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
               onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
               <DownloadSimple size={13} weight="bold" /> Exportar <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
+          </TooltipGlobal>
 
             {exportMenuAberto && (
               <div ref={exportMenuRef}
@@ -513,7 +515,9 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
                 {...thProps}
               />
               <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
-                Ações
+                <TooltipGlobal titulo="Comandos" descricao="Ações rápidas disponíveis para este usuário">
+                  <span>Ações</span>
+                </TooltipGlobal>
               </th>
             </tr>
           </thead>
@@ -563,27 +567,29 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
                 </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <button
-                      type="button"
-                      title={u.status === 'Ativo' ? 'Desativar' : 'Reativar'}
-                      onClick={() => onDeactivate(u.id)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = u.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = u.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = u.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
-                      onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-                    >
-                      {u.status === 'Ativo'
-                        ? <PauseCircle size={16} weight="bold" />
-                        : <PlayCircle size={16} weight="bold" />}
-                    </button>
-                    <button
-                      type="button"
-                      title="Editar"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-                      onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
-                      onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-                    >
-                      <PencilSimple size={15} weight="bold" />
-                    </button>
+                    <TooltipGlobal descricao={u.status === 'Ativo' ? 'Desativar' : 'Reativar'}>
+                      <button
+                        type="button"
+                        onClick={() => onDeactivate(u.id)}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+                        onMouseEnter={ev => { ev.currentTarget.style.background = u.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = u.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = u.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
+                        onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+                      >
+                        {u.status === 'Ativo'
+                          ? <PauseCircle size={16} weight="bold" />
+                          : <PlayCircle size={16} weight="bold" />}
+                      </button>
+                    </TooltipGlobal>
+                    <TooltipGlobal descricao="Editar">
+                      <button
+                        type="button"
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+                        onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(129,140,248,0.12)'; ev.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; ev.currentTarget.style.color = '#818cf8' }}
+                        onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+                      >
+                        <PencilSimple size={15} weight="bold" />
+                      </button>
+                    </TooltipGlobal>
                   </div>
                 </td>
               </tr>

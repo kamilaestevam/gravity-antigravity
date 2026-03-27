@@ -377,13 +377,15 @@ export function Workspaces() {
         </>
       }
       acoes={
-        <BotaoGlobal
-          variante={showForm && !empresaEditando ? 'fantasma' : 'primario'}
-          icone={showForm && !empresaEditando ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
-          onClick={() => { setEmpresaEditando(null); setShowForm(true); }}
-        >
-          {showForm && !empresaEditando ? 'Cancelar' : 'Novo Workspace'}
-        </BotaoGlobal>
+        <TooltipGlobal descricao={showForm && !empresaEditando ? "Cancelar criação" : "Cadastrar um novo workspace na organização"}>
+          <BotaoGlobal
+            variante={showForm && !empresaEditando ? 'fantasma' : 'primario'}
+            icone={showForm && !empresaEditando ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
+            onClick={() => { setEmpresaEditando(null); setShowForm(true); }}
+          >
+            {showForm && !empresaEditando ? 'Cancelar' : 'Novo Workspace'}
+          </BotaoGlobal>
+        </TooltipGlobal>
       }
     >
       <div style={{ position: 'relative', zIndex: 10 }}>
@@ -394,6 +396,7 @@ export function Workspaces() {
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio="Nenhum resultado na busca."
           mensagemSemFiltro="Nenhum workspace cadastrado."
+          tooltipBusca="Localizar workspace por nome ou subdomínio"
         />
       </div>
     </PaginaGlobal>

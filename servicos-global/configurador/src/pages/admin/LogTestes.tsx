@@ -6,6 +6,7 @@ import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalAgendamentoTestes'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 
 type TipoTeste = 'E2E' | 'FUNCIONAL' | 'UNITARIO'
@@ -182,14 +183,23 @@ export function LogTestes() {
       setLoadingCode(null)
     }, 1500)
   }
-
   const colunas: TabelaGlobalColuna<LogTeste>[] = [
-    { key: 'data', label: 'DATA', tipo: 'texto' },
-    { key: 'hora', label: 'HORA', tipo: 'texto' },
+    { 
+      key: 'data', label: 'DATA', tipo: 'texto',
+      tooltipTitulo: 'Data de Execução',
+      tooltipDescricao: 'Data em que a bateria de testes foi disparada pelo runner.'
+    },
+    { 
+      key: 'hora', label: 'HORA', tipo: 'texto',
+      tooltipTitulo: 'Horário de Início',
+      tooltipDescricao: 'Horário exato do início da execução desta suíte de testes.'
+    },
     { 
       key: 'tipo', 
       label: 'TIPO', 
       tipo: 'texto',
+      tooltipTitulo: 'Categoria do Teste',
+      tooltipDescricao: 'Define se o teste é Unitário, E2E (End-to-End) ou Funcional.',
       render: (v: TipoTeste) => (
         <span style={{
           display: 'inline-flex', padding: '0.15rem 0.6rem', borderRadius: '4px',
@@ -202,12 +212,23 @@ export function LogTestes() {
         </span>
       )
     },
-    { key: 'modulo', label: 'MÓDULO', tipo: 'texto' },
-    { key: 'teste', label: 'O QUE FOI TESTADO', tipo: 'texto', render: (v) => <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{v}</span> },
+    { 
+      key: 'modulo', label: 'MÓDULO', tipo: 'texto',
+      tooltipTitulo: 'Módulo Alvo',
+      tooltipDescricao: 'Identifica qual microsserviço ou área do sistema está sendo validada.'
+    },
+    { 
+      key: 'teste', label: 'O QUE FOI TESTADO', tipo: 'texto', 
+      tooltipTitulo: 'Contexto do Teste',
+      tooltipDescricao: 'Descrição da funcionalidade específica ou fluxo de usuário testado.',
+      render: (v) => <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{v}</span> 
+    },
     { 
       key: 'resultado', 
       label: 'RESULTADO', 
       tipo: 'texto',
+      tooltipTitulo: 'Status da Execução',
+      tooltipDescricao: 'Indica se todas as asserções do teste passaram (APROVADO) ou se houve falha (REPROVADO).',
       render: (v: Resultado) => {
         const pass = v === 'APROVADO'
         return (
@@ -224,7 +245,12 @@ export function LogTestes() {
         )
       }
     },
-    { key: 'duracao', label: 'DURAÇÃO', tipo: 'texto', render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span> },
+    { 
+      key: 'duracao', label: 'DURAÇÃO', tipo: 'texto', 
+      tooltipTitulo: 'Tempo de Resposta',
+      tooltipDescricao: 'Duração total do processamento do teste, incluindo setup e teardown.',
+      render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span> 
+    },
   ]
 
   const renderExpandido = (item: LogTeste) => {
@@ -406,36 +432,40 @@ export function LogTestes() {
               }
             `}
           </style>
-          <button
-             type="button"
-             onClick={() => setModalAgendamentoAberto(true)}
-             style={{ 
-               display: 'flex', alignItems: 'center', gap: '0.5rem', 
-               padding: '0.5rem 1rem', borderRadius: '8px', 
-               background: agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)', 
-               border: `1px solid ${agendamentoAtivo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
-               color: agendamentoAtivo ? '#10b981' : '#e2e8f0', 
-               fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
-               animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none'
-             }}
-             onMouseEnter={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.1)'}
-             onMouseLeave={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)'}
-          >
-            <Clock size={16} weight={agendamentoAtivo ? "fill" : "bold"} style={{ color: agendamentoAtivo ? '#10b981' : 'inherit' }} />
-            Agendamento ativo
-          </button>
-          <button
-             style={{ 
-               display: 'flex', alignItems: 'center', gap: '0.5rem', 
-               padding: '0.5rem 1rem', borderRadius: '8px', 
-               background: 'var(--cl-primary, #10b981)', border: 'none', color: '#fff', 
-               fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'filter 0.15s' 
-             }}
-             onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
-             onMouseLeave={e => e.currentTarget.style.filter = 'none'}
-          >
-            <PlayCircle size={16} weight="bold" /> Rodar Todos os Testes
-          </button>
+          <TooltipGlobal descricao="Gerenciar e configurar horários de execução automática dos testes">
+            <button
+               type="button"
+               onClick={() => setModalAgendamentoAberto(true)}
+               style={{ 
+                 display: 'flex', alignItems: 'center', gap: '0.5rem', 
+                 padding: '0.5rem 1rem', borderRadius: '8px', 
+                 background: agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)', 
+                 border: `1px solid ${agendamentoAtivo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
+                 color: agendamentoAtivo ? '#10b981' : '#e2e8f0', 
+                 fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                 animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none'
+               }}
+               onMouseEnter={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.1)'}
+               onMouseLeave={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)'}
+            >
+              <Clock size={16} weight={agendamentoAtivo ? "fill" : "bold"} style={{ color: agendamentoAtivo ? '#10b981' : 'inherit' }} />
+              Agendamento ativo
+            </button>
+          </TooltipGlobal>
+          <TooltipGlobal descricao="Disparar manualmente a execução de toda a suíte de testes em todos os módulos">
+            <button
+               style={{ 
+                 display: 'flex', alignItems: 'center', gap: '0.5rem', 
+                 padding: '0.5rem 1rem', borderRadius: '8px', 
+                 background: 'var(--cl-primary, #10b981)', border: 'none', color: '#fff', 
+                 fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'filter 0.15s' 
+               }}
+               onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
+               onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+            >
+              <PlayCircle size={16} weight="bold" /> Rodar Todos os Testes
+            </button>
+          </TooltipGlobal>
         </div>
       }
       stats={
@@ -472,6 +502,8 @@ export function LogTestes() {
           renderExpandido={renderExpandido}
           mensagemVazio="Nenhum log de teste encontrado com esses filtros."
           mensagemSemFiltro="Não há histórico de testes disponível no momento."
+          tooltipBusca="Localizar testes por módulo, descrição da funcionalidade ou resultado final"
+          tooltipExpandir="Ver análise técnica da IA e motivos detalhados de falhas ou sucessos"
         
         acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Dados')}
       />

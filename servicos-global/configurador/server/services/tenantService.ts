@@ -56,7 +56,7 @@ export const tenantService = {
           clerk_user_id: clerkUserId,
           email: owner.email,
           name: owner.name,
-          role: 'OWNER',
+          role: 'MASTER',
         },
       })
 

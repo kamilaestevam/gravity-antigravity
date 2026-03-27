@@ -4,6 +4,7 @@
 // NÃO altera nem depende de tabela-global.
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './tabela-camadas.css'
 import type { TabelaCamadasGlobalProps, TCGColuna, TCGAcao } from './tipos.js'
 
@@ -94,15 +95,15 @@ function AcoesLinha<T>({ acoes, item }: { acoes: TCGAcao<T>[]; item: T }) {
       {acoes.map((acao) => {
         if (acao.renderCustom) return <React.Fragment key={acao.id}>{acao.renderCustom(item)}</React.Fragment>
         return (
-          <button
-            key={acao.id}
-            type="button"
-            className="tcg-acao-btn"
-            title={acao.tooltip}
-            onClick={(e) => { e.stopPropagation(); acao.onClick?.(item) }}
-          >
-            {acao.icone}
-          </button>
+          <TooltipGlobal key={acao.id} descricao={acao.tooltip}>
+            <button
+              type="button"
+              className="tcg-acao-btn"
+              onClick={(e) => { e.stopPropagation(); acao.onClick?.(item) }}
+            >
+              {acao.icone}
+            </button>
+          </TooltipGlobal>
         )
       })}
     </div>
@@ -230,10 +231,11 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                   <span className="tcg-th-inner">
                     {col.label}
                     {col.tooltipTitulo && (
-                      <span
-                        title={`${col.tooltipTitulo}${col.tooltipDescricao ? '\n\n' + col.tooltipDescricao : ''}`}
-                        style={{ cursor: 'help', opacity: 0.4, fontSize: '0.625rem' }}
-                      >▾</span>
+                      <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>
+                        <span
+                          style={{ opacity: 0.4, fontSize: '0.625rem' }}
+                        >▾</span>
+                      </TooltipGlobal>
                     )}
                   </span>
                 </th>

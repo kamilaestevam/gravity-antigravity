@@ -46,6 +46,9 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
   mensagemVazio?: string
   mensagemSemFiltro?: string
   renderExpandido?: (item: T) => React.ReactNode
+  tooltipExpandir?: string | ((item: T) => string)
+  tooltipRecolher?: string | ((item: T) => string)
+  tooltipBusca?: string
 }
 
 type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
@@ -162,17 +165,19 @@ function PopoverFiltro({
         <div style={{ borderBottom: '1px solid var(--ws-accent-border)' }}>
           <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>{t('tabela.filtrar_por')}</p>
           {valoresDisponiveis.length > 5 && (
-            <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
-              <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
-                <MagnifyingGlass size={11} weight="bold" />
-              </span>
-              <input type="text" placeholder={t('tabela.buscar')} value={buscaLocal}
-                onChange={e => setBuscaLocal(e.target.value)}
-                style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
-                onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
-                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.15)' }}
-              />
-            </div>
+              <TooltipGlobal descricao={t('tabela.buscar_tooltip_filtro')}>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ position: 'absolute', left: '0.45rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
+                    <MagnifyingGlass size={11} weight="bold" />
+                  </span>
+                  <input type="text" placeholder={t('tabela.buscar')} value={buscaLocal}
+                    onChange={e => setBuscaLocal(e.target.value)}
+                    style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
+                    onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
+                    onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.15)' }}
+                  />
+                </div>
+              </TooltipGlobal>
           )}
           <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
             {valoresFiltrados.length === 0 ? (
@@ -327,7 +332,7 @@ function ExportMenuItem({ label, icon, onClick, tooltip }: { label: string; icon
   return content
 }
 
-export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro, renderExpandido }: TabelaGlobalProps<T>) {
+export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro, renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca }: TabelaGlobalProps<T>) {
   const { t } = useTranslation()
   const defaultMensagemVazio = mensagemVazio ?? t('tabela.sem_resultado')
   const defaultMensagemSemFiltro = mensagemSemFiltro ?? t('tabela.sem_filtro')
@@ -505,15 +510,19 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
     <div className={`tg-container ${expandidos.size > 0 ? 'tg-container--focado' : ''}`} style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid var(--ws-accent-border)' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-          <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
-            <MagnifyingGlass size={14} weight="bold" />
-          </span>
-          <input type="search" placeholder={t('tabela.localizar')} value={busca}
-            onChange={e => { setBusca(e.target.value); setPagina(1) }}
-            style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
-            onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.18)'; e.currentTarget.style.boxShadow = 'none' }}
-          />
+          <TooltipGlobal descricao={tooltipBusca || t('tabela.buscar_tooltip_padrao')}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
+                <MagnifyingGlass size={14} weight="bold" />
+              </span>
+              <input type="search" placeholder={t('tabela.localizar')} value={busca}
+                onChange={e => { setBusca(e.target.value); setPagina(1) }}
+                style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+                onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.18)'; e.currentTarget.style.boxShadow = 'none' }}
+              />
+            </div>
+          </TooltipGlobal>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
@@ -594,7 +603,9 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
               ))}
               {acoes && acoes.length > 0 && (
                 <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
-                  {t('tabela.acoes')}
+                  <TooltipGlobal titulo={t('tabela.acoes')} descricao={t('tabela.tooltip_acoes')}>
+                    <span>{t('tabela.acoes')}</span>
+                  </TooltipGlobal>
                 </th>
               )}
               {renderExpandido && (
@@ -665,7 +676,17 @@ export function TabelaGlobal<T extends Record<string, any>>({ dados, colunas, ac
                 )}
                 {renderExpandido && (
                   <td style={{ padding: '0.875rem 1rem', textAlign: 'center', width: 1, color: '#64748b' }}>
-                    <CaretDown size={14} weight="bold" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
+                    <TooltipGlobal 
+                      descricao={
+                        isExpanded 
+                          ? (typeof tooltipRecolher === 'function' ? tooltipRecolher(item) : tooltipRecolher || t('tabela.recolher_detalhes'))
+                          : (typeof tooltipExpandir === 'function' ? tooltipExpandir(item) : tooltipExpandir || t('tabela.expandir_detalhes'))
+                      }
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                        <CaretDown size={14} weight="bold" style={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
+                      </div>
+                    </TooltipGlobal>
                   </td>
                 )}
               </tr>

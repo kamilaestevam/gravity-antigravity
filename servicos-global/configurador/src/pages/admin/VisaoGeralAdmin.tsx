@@ -174,13 +174,21 @@ export function VisaoGeralAdmin() {
           </TooltipGlobal>
         </p>
         <div className="em-grid">
-          <GeralCampoGlobal label="Nome da Empresa" obrigatorio>
+          <GeralCampoGlobal 
+            label="Nome da Empresa" obrigatorio
+            tooltipTitulo="Identidade da Organização"
+            tooltipDescricao="Nome oficial da organização que detém o controle master da plataforma Gravity."
+          >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <Buildings size={16} />
               <input value={dados.nome} onChange={e => set('nome', e.target.value)} />
             </div>
           </GeralCampoGlobal>
-          <GeralCampoGlobal label="CNPJ">
+          <GeralCampoGlobal 
+            label="CNPJ"
+            tooltipTitulo="Registro Fiscal"
+            tooltipDescricao="Cadastro Nacional da Pessoa Jurídica da empresa proprietária do Núcleo Central."
+          >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <IdentificationCard size={16} />
               <input value={dados.cnpj} onChange={e => set('cnpj', e.target.value)} />
@@ -188,7 +196,11 @@ export function VisaoGeralAdmin() {
           </GeralCampoGlobal>
         </div>
         <div className="em-grid em-grid--4">
-          <GeralCampoGlobal label="Estado">
+          <GeralCampoGlobal 
+            label="Estado"
+            tooltipTitulo="Localização Estadual"
+            tooltipDescricao="Unidade federativa onde a sede da organização está registrada para fins fiscais."
+          >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={OPCOES_ESTADOS}
@@ -197,7 +209,11 @@ export function VisaoGeralAdmin() {
               buscavel
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal label="Cidade">
+          <GeralCampoGlobal 
+            label="Cidade"
+            tooltipTitulo="Sede Municipal"
+            tooltipDescricao="Cidade onde a instância master está fisicamente baseada ou legalmente sediada."
+          >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={cidades}
@@ -207,7 +223,11 @@ export function VisaoGeralAdmin() {
               buscavel desabilitado={!dados.estado} carregando={carregandoCidades}
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal label="Segmento">
+          <GeralCampoGlobal 
+            label="Segmento"
+            tooltipTitulo="Vertical de Negócio"
+            tooltipDescricao="Ramo de atuação principal da organização para personalização de temas e recursos."
+          >
             <SelectGlobal
               iconeEsquerda={<Package size={16} />}
               opcoes={OPCOES_SEGMENTOS}
@@ -216,7 +236,11 @@ export function VisaoGeralAdmin() {
               buscavel
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal label="Site">
+          <GeralCampoGlobal 
+            label="Site"
+            tooltipTitulo="Página Oficial"
+            tooltipDescricao="Endereço da página institucional da organização proprietária do núcleo."
+          >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <Globe size={16} />
               <input value={dados.site} onChange={e => set('site', e.target.value)} />
@@ -235,27 +259,37 @@ export function VisaoGeralAdmin() {
         </p>
         <div className="em-plan-row">
           <div className="em-plan-info">
-            <div className="em-plan-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}><Package weight="duotone" size={22} /></div>
-            <div>
-              <p className="em-plan-label">Instância atual</p>
-              <p className="em-plan-name">{dados.plano}</p>
-            </div>
+            <TooltipGlobal descricao="O Núcleo Central é o ambiente master de gestão de todos os recursos da rede.">
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div className="em-plan-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}><Package weight="duotone" size={22} /></div>
+                <div>
+                  <p className="em-plan-label">Instância atual</p>
+                  <p className="em-plan-name">{dados.plano}</p>
+                </div>
+              </div>
+            </TooltipGlobal>
           </div>
           <div className="em-plan-meta">
             <div className="em-plan-meta-item">
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Globe size={14} weight="duotone" /> <span>{dados.subdominio}.gravity.com.br</span>
-              </span>
+              <TooltipGlobal descricao="URL base para acesso aos serviços administrativos globais">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
+                  <Globe size={14} weight="duotone" /> <span>{dados.subdominio}.gravity.com.br</span>
+                </span>
+              </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                <CalendarBlank size={14} weight="duotone" /> <span>Operando desde {dados.criadaEm}</span>
-              </span>
+              <TooltipGlobal descricao="Data histórica de ativação desta infraestrutura master">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
+                  <CalendarBlank size={14} weight="duotone" /> <span>Operando desde {dados.criadaEm}</span>
+                </span>
+              </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                <MapPin size={14} weight="duotone" /> <span>{dados.cidade}, {dados.estado}</span>
-              </span>
+              <TooltipGlobal descricao="Região e cidade onde o registro master está localizado">
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
+                  <MapPin size={14} weight="duotone" /> <span>{dados.cidade}, {dados.estado}</span>
+                </span>
+              </TooltipGlobal>
             </div>
           </div>
         </div>

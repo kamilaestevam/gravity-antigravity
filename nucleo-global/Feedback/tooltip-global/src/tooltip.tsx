@@ -70,7 +70,7 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
           }}
         >
           {titulo && <p className="tg-titulo">{titulo}</p>}
-          <p className="tg-descricao">{descricao}</p>
+          <div className="tg-descricao">{descricao}</div>
         </div>,
         document.body
       )}

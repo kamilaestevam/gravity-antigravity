@@ -66,6 +66,14 @@ export default defineConfig({
     //     changeOrigin: true,
     //   },
     // },
+    proxy: {
+      // Serviço de preferências de usuário (cross-device)
+      '/api/tenant/preferencias': {
+        target: 'http://localhost:8014',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/tenant\/preferencias/, '/api/v1/preferencias'),
+      },
+    },
   },
 })
 

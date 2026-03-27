@@ -38,18 +38,13 @@ enum SubscriptionPlan {
   ENTERPRISE
 }
 
+// Roles canônicos do sistema — alinhados com skill antigravity-permissoes
 enum UserRole {
-  OWNER
-  ADMIN
-  MEMBER
-  VIEWER
-}
-
-enum PermissionAction {
-  READ
-  WRITE
-  DELETE
-  MANAGE
+  SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
+  ADMIN       // Equipe Gravity — acesso com permissões explícitas
+  MASTER      // Cliente — acesso total na organização
+  STANDARD    // Cliente — acesso conforme permissões do Master
+  SUPPLIER    // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
 enum CompanyStatus {
@@ -58,9 +53,9 @@ enum CompanyStatus {
 }
 
 enum UserMembershipRole {
-  MASTER
-  STANDARD
-  SUPPLIER
+  MASTER    // Acesso implícito a todos os workspaces da organização
+  STANDARD  // Acesso apenas aos workspaces onde foi habilitado
+  SUPPLIER  // Acesso externo — permissões granulares obrigatórias
 }
 
 enum ServiceTokenScope {
@@ -88,11 +83,11 @@ model Tenant {
   updated_at DateTime @updatedAt
 
   // Relações
-  users          User[]
-  subscriptions  Subscription[]
-  permissions    Permission[]
-  companies      Company[]
-  product_configs ProductConfig[]
+  users            User[]
+  subscriptions    Subscription[]
+  user_permissions UserPermission[]
+  companies        Company[]
+  product_configs  ProductConfig[]
 
   @@index([status])
   @@index([slug])
@@ -110,16 +105,16 @@ model User {
   clerk_user_id String  @unique
   email        String
   name         String
-  role         UserRole @default(MEMBER)
+  role         UserRole @default(STANDARD)
 
   // Timestamps
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant      Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  permissions Permission[]
-  memberships UserMembership[]
+  tenant           Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  user_permissions UserPermission[]
+  memberships      UserMembership[]
 
   // Índices obrigatórios (tenant_id base + compostos)
   @@index([tenant_id])
@@ -164,17 +159,20 @@ model Subscription {
 }
 
 // ---------------------------------------------------------------------------
-// PERMISSION
-// Controle granular de acesso por tenant + usuário + recurso.
-// tenant_id é obrigatório — nunca nullable.
+// USER PERMISSION (Cadeia 2 — Permissões Granulares por Produto)
+// Permissão granular de um usuário em um produto/workspace específico.
+// Ex: permission = 'email:write', 'simulacusto:read'
+// Alinhado com skill antigravity-permissoes.
 // ---------------------------------------------------------------------------
 
-model Permission {
-  id        String           @id @default(cuid())
-  tenant_id String
-  user_id   String
-  resource  String           // ex: "atividades", "relatorios", "simulacusto"
-  action    PermissionAction
+model UserPermission {
+  id         String @id @default(cuid())
+  tenant_id  String
+  company_id String   // workspace onde se aplica (obrigatório)
+  user_id    String
+  product_id String   // produto ao qual a permissão pertence
+  permission String   // ex: 'email:write', 'simulacusto:read', 'atividades:read'
+  granted_by String   // clerk_id do Master que concedeu a permissão
 
   // Timestamps
   created_at DateTime @default(now())
@@ -186,11 +184,36 @@ model Permission {
 
   // Índices obrigatórios
   @@index([tenant_id])
-  @@index([tenant_id, created_at])
   @@index([tenant_id, user_id])
+  @@index([tenant_id, company_id, user_id])
 
-  // Um usuário não pode ter duplicata de permissão no mesmo recurso+ação
-  @@unique([tenant_id, user_id, resource, action])
+  // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
+  @@unique([tenant_id, company_id, user_id, product_id, permission])
+}
+
+// ---------------------------------------------------------------------------
+// GRAVITY ADMIN PERMISSION (Cadeia 1 — Permissões de Edição para Admin Gravity)
+// Controla o que um Admin interno da Gravity pode editar.
+// Super Admin não usa esta tabela — tem acesso irrestrito.
+// ---------------------------------------------------------------------------
+
+model GravityAdminPermission {
+  id         String @id @default(cuid())
+  admin_id   String // clerk_id do Admin Gravity
+  resource   String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
+  action     String // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
+  granted_by String // clerk_id do Super Admin que concedeu
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Índices obrigatórios
+  @@index([admin_id])
+  @@index([admin_id, resource])
+
+  // Admin não pode ter permissão duplicada no mesmo recurso+ação
+  @@unique([admin_id, resource, action])
 }
 
 // ---------------------------------------------------------------------------

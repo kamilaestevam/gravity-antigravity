@@ -14,6 +14,8 @@ export interface BotaoSalvarProps {
   onClick?: () => void
   /** Tipo do botão HTML */
   type?: 'button' | 'submit'
+  /** Tooltip informativa UX 10 */
+  tooltipDescricao?: string | React.ReactNode
 }
 
 export interface BotaoCancelarProps {
@@ -25,6 +27,8 @@ export interface BotaoCancelarProps {
   onClick?: () => void
   /** Tipo do botão HTML */
   type?: 'button' | 'reset'
+  /** Tooltip informativa UX 10 */
+  tooltipDescricao?: string | React.ReactNode
 }
 
 export interface BotoesSalvarGlobalProps {

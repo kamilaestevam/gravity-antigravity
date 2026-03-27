@@ -49,6 +49,7 @@ const TENANT_SERVICES: string[] = [
   'historico-global',
   'agendamento',
   'gabi',
+  'preferencias-usuario',
 ]
 
 // ---------------------------------------------------------------------------

@@ -19,6 +19,7 @@
 import React from 'react'
 import { FloppyDisk, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { BotoesSalvarGlobalProps, BotaoSalvarProps, BotaoCancelarProps } from './tipos.js'
 import './botoes-salvar.css'
 
@@ -26,21 +27,23 @@ import './botoes-salvar.css'
 
 export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>(
   function BotaoSalvar(
-    { dirty = false, carregando = false, rotulo = 'Salvar', onClick, type = 'button' },
+    { dirty = false, carregando = false, rotulo = 'Salvar', onClick, type = 'button', tooltipDescricao },
     ref,
   ) {
     return (
       <div className={dirty && !carregando ? 'bs-btn-pulse' : ''} style={{ display: 'inline-flex' }}>
-        <BotaoGlobal
-          ref={ref}
-          variante="primario"
-          type={type}
-          disabled={!dirty || carregando}
-          onClick={onClick}
-          icone={<FloppyDisk size={14} weight="bold" />}
-        >
-          {carregando ? 'Salvando…' : rotulo}
-        </BotaoGlobal>
+        <TooltipGlobal descricao={tooltipDescricao || 'Salvar alterações pendentes'}>
+          <BotaoGlobal
+            ref={ref}
+            variante="primario"
+            type={type}
+            disabled={!dirty || carregando}
+            onClick={onClick}
+            icone={<FloppyDisk size={14} weight="bold" />}
+          >
+            {carregando ? 'Salvando…' : rotulo}
+          </BotaoGlobal>
+        </TooltipGlobal>
       </div>
     )
   },
@@ -50,20 +53,22 @@ export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>
 
 export const BotaoCancelar = React.forwardRef<HTMLButtonElement, BotaoCancelarProps>(
   function BotaoCancelar(
-    { dirty = false, rotulo = 'Cancelar', onClick, type = 'button' },
+    { dirty = false, rotulo = 'Cancelar', onClick, type = 'button', tooltipDescricao },
     ref,
   ) {
     return (
-      <BotaoGlobal
-        ref={ref}
-        variante="fantasma"
-        type={type}
-        disabled={!dirty}
-        onClick={onClick}
-        icone={<X size={14} weight="bold" />}
-      >
-        {rotulo}
-      </BotaoGlobal>
+      <TooltipGlobal descricao={tooltipDescricao || 'Descartar alterações e reverter para o estado original'}>
+        <BotaoGlobal
+          ref={ref}
+          variante="fantasma"
+          type={type}
+          disabled={!dirty}
+          onClick={onClick}
+          icone={<X size={14} weight="bold" />}
+        >
+          {rotulo}
+        </BotaoGlobal>
+      </TooltipGlobal>
     )
   },
 )

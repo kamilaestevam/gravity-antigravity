@@ -30,110 +30,135 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 --   4. Remova o comentário [PENDENTE] e marque como [ENTREGUE — Agente XX]
 --
 -- ============================================================
--- [PENDENTE] atividades → Activity
+-- [ENTREGUE] atividades → Activity
 -- ============================================================
--- ALTER TABLE "Activity" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "Activity" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_activity ON "Activity"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_activity_tenant ON "Activity" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_activity_tenant_created ON "Activity" (tenant_id, created_at DESC);
--- CREATE INDEX IF NOT EXISTS idx_activity_tenant_status ON "Activity" (tenant_id, status);
+ALTER TABLE "Activity" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Activity" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_activity ON "Activity"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_activity_tenant ON "Activity" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_activity_tenant_created ON "Activity" (tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_activity_tenant_status ON "Activity" (tenant_id, status);
 
 -- ============================================================
--- [PENDENTE] cronometro → TimeEntry (nome a confirmar)
+-- [ENTREGUE] cronometro → TimeEntry
 -- ============================================================
--- ALTER TABLE "TimeEntry" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "TimeEntry" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_timeentry ON "TimeEntry"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_timeentry_tenant ON "TimeEntry" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_timeentry_tenant_created ON "TimeEntry" (tenant_id, created_at DESC);
+ALTER TABLE "TimeEntry" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "TimeEntry" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_timeentry ON "TimeEntry"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_timeentry_tenant ON "TimeEntry" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_timeentry_tenant_created ON "TimeEntry" (tenant_id, created_at DESC);
 
 -- ============================================================
--- [PENDENTE] email → EmailMessage
+-- [ENTREGUE] email → EmailMessage
 -- ============================================================
--- ALTER TABLE "EmailMessage" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "EmailMessage" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_emailmessage ON "EmailMessage"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_emailmessage_tenant ON "EmailMessage" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_emailmessage_tenant_created ON "EmailMessage" (tenant_id, created_at DESC);
--- CREATE INDEX IF NOT EXISTS idx_emailmessage_tenant_status ON "EmailMessage" (tenant_id, status);
+ALTER TABLE "EmailMessage" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "EmailMessage" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_emailmessage ON "EmailMessage"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_emailmessage_tenant ON "EmailMessage" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_emailmessage_tenant_created ON "EmailMessage" (tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_emailmessage_tenant_status ON "EmailMessage" (tenant_id, status);
 
 -- ============================================================
--- [PENDENTE] whatsapp → WhatsAppMessage
+-- [ENTREGUE] whatsapp → WhatsAppMessage
 -- ============================================================
--- ALTER TABLE "WhatsAppMessage" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "WhatsAppMessage" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_whatsappmessage ON "WhatsAppMessage"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_whatsappmessage_tenant ON "WhatsAppMessage" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_whatsappmessage_tenant_created ON "WhatsAppMessage" (tenant_id, created_at DESC);
+ALTER TABLE "WhatsAppMessage" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "WhatsAppMessage" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_whatsappmessage ON "WhatsAppMessage"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_whatsappmessage_tenant ON "WhatsAppMessage" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_whatsappmessage_tenant_created ON "WhatsAppMessage" (tenant_id, created_at DESC);
 
 -- ============================================================
--- [PENDENTE] dashboard → DashboardWidget
+-- [ENTREGUE] whatsapp → WhatsAppConversation
 -- ============================================================
--- ALTER TABLE "DashboardWidget" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "DashboardWidget" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_dashboardwidget ON "DashboardWidget"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_dashboardwidget_tenant ON "DashboardWidget" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_dashboardwidget_tenant_created ON "DashboardWidget" (tenant_id, created_at DESC);
+ALTER TABLE "WhatsAppConversation" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "WhatsAppConversation" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_whatsappconversation ON "WhatsAppConversation"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_whatsappconversation_tenant ON "WhatsAppConversation" (tenant_id);
 
 -- ============================================================
--- [PENDENTE] relatorios → Report
+-- [ENTREGUE] whatsapp → WhatsAppUsageLog
 -- ============================================================
--- ALTER TABLE "Report" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "Report" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_report ON "Report"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_report_tenant ON "Report" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_report_tenant_created ON "Report" (tenant_id, created_at DESC);
--- CREATE INDEX IF NOT EXISTS idx_report_tenant_status ON "Report" (tenant_id, status);
+ALTER TABLE "WhatsAppUsageLog" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "WhatsAppUsageLog" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_whatsappusagelog ON "WhatsAppUsageLog"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_whatsappusagelog_tenant ON "WhatsAppUsageLog" (tenant_id);
 
 -- ============================================================
--- [PENDENTE] historico → HistoryEntry
+-- [ENTREGUE] whatsapp → WhatsAppAutomation
 -- ============================================================
--- ALTER TABLE "HistoryEntry" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "HistoryEntry" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_historyentry ON "HistoryEntry"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_historyentry_tenant ON "HistoryEntry" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_historyentry_tenant_created ON "HistoryEntry" (tenant_id, created_at DESC);
+ALTER TABLE "WhatsAppAutomation" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "WhatsAppAutomation" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_whatsappautomation ON "WhatsAppAutomation"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_whatsappautomation_tenant ON "WhatsAppAutomation" (tenant_id);
 
 -- ============================================================
--- [PENDENTE] agendamento → ScheduledEvent
+-- [ENTREGUE] dashboard → DashboardWidget
 -- ============================================================
--- ALTER TABLE "ScheduledEvent" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "ScheduledEvent" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_scheduledevent ON "ScheduledEvent"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_scheduledevent_tenant ON "ScheduledEvent" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_scheduledevent_tenant_created ON "ScheduledEvent" (tenant_id, created_at DESC);
--- CREATE INDEX IF NOT EXISTS idx_scheduledevent_tenant_status ON "ScheduledEvent" (tenant_id, status);
+ALTER TABLE "DashboardWidget" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "DashboardWidget" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_dashboardwidget ON "DashboardWidget"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_dashboardwidget_tenant ON "DashboardWidget" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_dashboardwidget_tenant_created ON "DashboardWidget" (tenant_id, created_at DESC);
 
 -- ============================================================
--- [PENDENTE] gabi → GabiConversation
+-- [ENTREGUE] relatorios → Report
 -- ============================================================
--- ALTER TABLE "GabiConversation" ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE "GabiConversation" FORCE ROW LEVEL SECURITY;
--- CREATE POLICY tenant_isolation_gabiconversation ON "GabiConversation"
---   AS PERMISSIVE FOR ALL TO PUBLIC
---   USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
--- CREATE INDEX IF NOT EXISTS idx_gabiconversation_tenant ON "GabiConversation" (tenant_id);
--- CREATE INDEX IF NOT EXISTS idx_gabiconversation_tenant_created ON "GabiConversation" (tenant_id, created_at DESC);
+ALTER TABLE "Report" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Report" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_report ON "Report"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_report_tenant ON "Report" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_report_tenant_created ON "Report" (tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_report_tenant_status ON "Report" (tenant_id, status);
 
--- ===========================================================================
--- POLÍTICAS ATIVAS (adicionadas após entrega dos fragments da Onda 3)
--- ===========================================================================
--- (vazio até Onda 3 ser entregue — descomentar os blocos acima conforme necessário)
+-- ============================================================
+-- [ENTREGUE] historico → HistoryEntry
+-- ============================================================
+ALTER TABLE "HistoryEntry" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "HistoryEntry" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_historyentry ON "HistoryEntry"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_historyentry_tenant ON "HistoryEntry" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_historyentry_tenant_created ON "HistoryEntry" (tenant_id, created_at DESC);
+
+-- ============================================================
+-- [ENTREGUE] agendamento → ScheduledEvent
+-- ============================================================
+ALTER TABLE "ScheduledEvent" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ScheduledEvent" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_scheduledevent ON "ScheduledEvent"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_scheduledevent_tenant ON "ScheduledEvent" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_scheduledevent_tenant_created ON "ScheduledEvent" (tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_scheduledevent_tenant_status ON "ScheduledEvent" (tenant_id, status);
+
+-- ============================================================
+-- [ENTREGUE] gabi → GabiConversation
+-- ============================================================
+ALTER TABLE "GabiConversation" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "GabiConversation" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation_gabiconversation ON "GabiConversation"
+  AS PERMISSIVE FOR ALL TO PUBLIC
+  USING (tenant_id = current_setting('app.current_tenant_id', TRUE));
+CREATE INDEX IF NOT EXISTS idx_gabiconversation_tenant ON "GabiConversation" (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_gabiconversation_tenant_created ON "GabiConversation" (tenant_id, created_at DESC);
 

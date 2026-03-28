@@ -8,14 +8,22 @@ export async function processWebhookPayload(value: any) {
   const messages = value.messages
   const contacts = value.contacts || []
 
-  // Meta usa o phone_number_id para identificar o business
-  // No mundo real, mapearíamos o phone_number_id para um tenant_id. 
-  // Numa abordagem simples, consideramos um phone setado no env.
-  // Assumiremos que existe pelo menos 1 tenant testando.
-  
-  // Como é single-tenant config ou mapeamento no db, buscar o tenant:
-  const firstTenant = await prisma.$queryRaw<{id:string}[]>`SELECT id FROM "ConfiguradorTenant" LIMIT 1`.catch(()=>[{id: 'demo-tenant'}])
-  const tenant_id = firstTenant?.[0]?.id || 'demo-tenant'
+  // Resolver tenant_id a partir do phone_number_id da Meta.
+  // Cada deploy/serviço WhatsApp é configurado para um tenant específico via env.
+  // O WHATSAPP_PHONE_NUMBER_ID identifica o business e o WHATSAPP_TENANT_ID mapeia ao tenant.
+  const phone_number_id = metadata?.phone_number_id
+  const expected_phone_id = process.env.WHATSAPP_PHONE_NUMBER_ID
+
+  if (!phone_number_id || !expected_phone_id || phone_number_id !== expected_phone_id) {
+    console.error('[WEBHOOK] phone_number_id não reconhecido:', phone_number_id)
+    return
+  }
+
+  const tenant_id = process.env.WHATSAPP_TENANT_ID
+  if (!tenant_id) {
+    console.error('[WEBHOOK] WHATSAPP_TENANT_ID não configurado')
+    return
+  }
 
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i]

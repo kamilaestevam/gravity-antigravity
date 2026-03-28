@@ -3,11 +3,11 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
 import { AgendamentoService } from '../../src/services/AgendamentoService.js'
+import { withTenantIsolation } from '../../../middleware/withTenantIsolation.js'
 
 export const reservaRouter = Router()
 
 const reservaSchema = z.object({
-  tenant_id: z.string().uuid(),
   slot_id: z.string().uuid(),
   usuario_id: z.string().min(1),
   nome: z.string().optional(),
@@ -17,13 +17,14 @@ const reservaSchema = z.object({
 reservaRouter.post('/', async (req, res, next) => {
   try {
     const data = reservaSchema.parse(req.body)
+    const db = withTenantIsolation(prisma, req.auth.tenantId)
 
-    const slot = await prisma.slot.findUnique({
+    const slot = await db.slot.findFirst({
       where: { id: data.slot_id },
       include: { reservas: true }
     })
 
-    if (!slot || slot.tenant_id !== data.tenant_id) {
+    if (!slot) {
       throw new AppError('Slot não encontrado', 404)
     }
 
@@ -31,7 +32,7 @@ reservaRouter.post('/', async (req, res, next) => {
       throw new AppError('Slot já está em sua capacidade máxima', 400)
     }
 
-    const reserva = await prisma.reserva.create({
+    const reserva = await db.reserva.create({
       data: {
         ...data,
         status: 'confirmado',
@@ -45,7 +46,6 @@ reservaRouter.post('/', async (req, res, next) => {
       }
     })
 
-    // Enviar notificação de confirmação via serviço
     const service = new AgendamentoService()
     await service.notificarReserva(reserva)
 
@@ -55,11 +55,22 @@ reservaRouter.post('/', async (req, res, next) => {
   }
 })
 
-reservaRouter.get('/:tenant_id', async (req, res, next) => {
+reservaRouter.get('/', async (req, res, next) => {
   try {
-    const { tenant_id } = req.params
-    const reservas = await prisma.reserva.findMany({
-      where: { tenant_id },
+    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const reservas = await db.reserva.findMany({ include: { slot: true } })
+    res.json(reservas)
+  } catch (error) {
+    next(error)
+  }
+})
+
+reservaRouter.get('/usuario/:usuario_id', async (req, res, next) => {
+  try {
+    const { usuario_id } = req.params
+    const db = withTenantIsolation(prisma, req.auth.tenantId)
+    const reservas = await db.reserva.findMany({
+      where: { usuario_id },
       include: { slot: true }
     })
     res.json(reservas)
@@ -68,30 +79,18 @@ reservaRouter.get('/:tenant_id', async (req, res, next) => {
   }
 })
 
-reservaRouter.get('/:tenant_id/usuario/:usuario_id', async (req, res, next) => {
+reservaRouter.patch('/:id/status', async (req, res, next) => {
   try {
-    const { tenant_id, usuario_id } = req.params
-    const reservas = await prisma.reserva.findMany({
-      where: { tenant_id, usuario_id },
-      include: { slot: true }
-    })
-    res.json(reservas)
-  } catch (error) {
-    next(error)
-  }
-})
-
-reservaRouter.patch('/:tenant_id/:id/status', async (req, res, next) => {
-  try {
-    const { tenant_id, id } = req.params
+    const { id } = req.params
     const { status } = z.object({ status: z.enum(['confirmado', 'cancelado', 'pendente']) }).parse(req.body)
-    
-    const existing = await prisma.reserva.findUnique({ where: { id } })
-    if (!existing || existing.tenant_id !== tenant_id) {
+    const db = withTenantIsolation(prisma, req.auth.tenantId)
+
+    const existing = await db.reserva.findFirst({ where: { id } })
+    if (!existing) {
       throw new AppError('Reserva não encontrada', 404)
     }
 
-    const reserva = await prisma.reserva.update({
+    const reserva = await db.reserva.update({
       where: { id },
       data: { status },
     })
@@ -101,15 +100,17 @@ reservaRouter.patch('/:tenant_id/:id/status', async (req, res, next) => {
   }
 })
 
-reservaRouter.delete('/:tenant_id/:id', async (req, res, next) => {
+reservaRouter.delete('/:id', async (req, res, next) => {
   try {
-    const { tenant_id, id } = req.params
-    const existing = await prisma.reserva.findUnique({ where: { id } })
-    if (!existing || existing.tenant_id !== tenant_id) {
+    const { id } = req.params
+    const db = withTenantIsolation(prisma, req.auth.tenantId)
+
+    const existing = await db.reserva.findFirst({ where: { id } })
+    if (!existing) {
       throw new AppError('Reserva não encontrada', 404)
     }
-    // Ao deletar, a reserva é removida e o slot é liberado
-    await prisma.reserva.delete({ where: { id } })
+
+    await db.reserva.delete({ where: { id } })
     res.status(204).send()
   } catch (error) {
     next(error)

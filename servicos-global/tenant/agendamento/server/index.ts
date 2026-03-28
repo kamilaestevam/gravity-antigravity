@@ -1,5 +1,16 @@
 import 'dotenv/config'
 import express from 'express'
+
+declare global {
+  namespace Express {
+    interface Request {
+      auth: {
+        tenantId: string
+        userId: string
+      }
+    }
+  }
+}
 import crypto from 'node:crypto'
 import { errorHandler } from './lib/errors.js'
 import { agendaRouter } from './routes/agenda.js'
@@ -16,6 +27,29 @@ app.use(express.urlencoded({ extended: false }))
 app.use((req, _res, next) => {
   const correlationId = (req.headers['x-correlation-id'] as string) ?? crypto.randomUUID()
   req.headers['x-correlation-id'] = correlationId
+  next()
+})
+
+// ---------------------------------------------------------------------------
+// Auth — injeta req.auth a partir do header x-tenant-id / x-user-id
+// Em produção o gateway valida o JWT e propaga como headers internos.
+// ---------------------------------------------------------------------------
+
+app.use((req, res, next) => {
+  // Health check não precisa de autenticação
+  if (req.path === '/health') return next()
+
+  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const userId = req.headers['x-user-id'] as string | undefined
+
+  if (!tenantId) {
+    res.status(401).json({
+      error: { code: 'UNAUTHORIZED', message: 'x-tenant-id obrigatório' },
+    })
+    return
+  }
+
+  req.auth = { tenantId, userId: userId ?? '' }
   next()
 })
 

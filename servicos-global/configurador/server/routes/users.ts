@@ -198,7 +198,7 @@ usersRouter.patch('/:id/role', async (req, res, next) => {
     }
 
     const updated = await prisma.user.update({
-      where: { id: req.params.id },
+      where: { id: req.params.id, tenant_id: req.auth.tenantId },
       data: { role: parsed.data.role },
       select: { id: true, email: true, role: true },
     })

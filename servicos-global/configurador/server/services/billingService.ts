@@ -81,7 +81,12 @@ export const billingService = {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const { tenantId, planKey } = session.metadata ?? {}
-        if (!tenantId || !planKey) break
+        if (!tenantId || !planKey) {
+          console.error(
+            `[billing] checkout.session.completed missing metadata — tenantId: ${tenantId ?? 'MISSING'}, planKey: ${planKey ?? 'MISSING'}, sessionId: ${session.id}`
+          )
+          break
+        }
 
         // Atualiza assinatura e status do tenant
         await prisma.$transaction([

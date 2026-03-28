@@ -8,19 +8,18 @@ const router = Router();
 const prisma = new PrismaClient();
 
 const getKpisSchema = z.object({
-  tenant_id: z.string().min(1, 'tenant_id is required'),
   product_id: z.string().optional(),
 });
 
 const getConfigSchema = z.object({
-  tenant_id: z.string().min(1, 'tenant_id is required'),
   product_id: z.string().optional(),
   user_id: z.string().optional()
 });
 
 router.get('/kpis', async (req, res, next) => {
   try {
-    const { tenant_id, product_id } = getKpisSchema.parse(req.query);
+    const { product_id } = getKpisSchema.parse(req.query);
+    const tenant_id = req.auth.tenantId;
 
     // Try cache first
     const cached = getCachedKpis(tenant_id, product_id);
@@ -35,9 +34,9 @@ router.get('/kpis', async (req, res, next) => {
     }
 
     // Fetch latest for each metric in the tenant context
-    // In a real scenario we might compute sums or averages. 
+    // In a real scenario we might compute sums or averages.
     // Here we will fetch the latest snapshot date per metric.
-    
+
     // Using prisma group by or straight findMany
     const snapshots = await prisma.metricaSnapshot.findMany({
       where: whereClause,
@@ -74,7 +73,8 @@ router.get('/kpis', async (req, res, next) => {
 
 router.get('/config', async (req, res, next) => {
   try {
-    const { tenant_id, product_id, user_id } = getConfigSchema.parse(req.query);
+    const { product_id, user_id } = getConfigSchema.parse(req.query);
+    const tenant_id = req.auth.tenantId;
 
     const whereClause: any = { tenant_id };
     if (product_id) whereClause.product_id = product_id;

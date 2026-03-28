@@ -114,27 +114,10 @@ const STEPS = [
 
 /* ─── XML highlight helper ─────────────────────────────────────── */
 function HighlightedXML({ xml }: { xml: string }) {
-  const highlighted = xml
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    // Tags
-    .replace(/(&lt;\/?)([\w:]+)(&gt;)/g, '<span class="cw-xml-tag">$1$2$3</span>')
-    .replace(/(&lt;)([\w:]+)(\s)/g, '<span class="cw-xml-tag">$1$2</span>$3')
-    .replace(/(\/)(&gt;)/g, '<span class="cw-xml-tag">$1$2</span>')
-    // Attributes
-    .replace(/([\w:]+)(=)(")/g, '<span class="cw-xml-attr">$1</span>$2<span class="cw-xml-val">$3</span>')
-    .replace(/(")(\s|&gt;)/g, '<span class="cw-xml-val">$1</span>$2')
-    // Values between tags
-    .replace(/(&gt;)([^&<\n]+)(&lt;)/g, '$1<span class="cw-xml-content">$2</span>$3')
-    // Comments
-    .replace(/(&lt;!--.*?--&gt;)/g, '<span class="cw-xml-comment">$1</span>')
-
   return (
-    <pre
-      className="cw-xml-viewer"
-      dangerouslySetInnerHTML={{ __html: highlighted }}
-    />
+    <pre className="cw-xml-viewer">
+      <code>{xml}</code>
+    </pre>
   )
 }
 
@@ -151,7 +134,7 @@ export function ConectorCargoWise() {
 
   // Step 0 state
   const [env, setEnv] = useState<'production' | 'uat'>('uat')
-  const [serverUrl, setServerUrl] = useState('https://uat.cargowise.com/eAdaptor')
+  const [serverUrl, setServerUrl] = useState(import.meta.env.VITE_CARGOWISE_URL ?? 'https://uat.cargowise.com/eAdaptor')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [enterpriseCode, setEnterpriseCode] = useState('')

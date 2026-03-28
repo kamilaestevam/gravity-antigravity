@@ -1,51 +1,16 @@
-import { Router } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from './errorHandler'
 import { handleWebhookInbound } from './services/webhook'
 import { sseStreamHandlers } from './services/sse'
-// import { requireInternalKey } from '@tenant/middleware/internal-auth'
 
 const router = Router()
 
-// --- OUTBOUND ROUTES (Internal) ---
-// Estas rotas geralmente seriam protegidas pelo middleware `requireInternalKey` no index.ts
-// Mas como já protegemos antes de montar ou aqui? 
-// No index.ts: app.use('/api/v1/whatsapp', whatsappRoutes)
-// Assumiremos q a proteção da rota de envio será feita com isolation.
-
-const sendSchema = z.object({
-  tenant_id: z.string(),
-  phone_number: z.string(),
-  text: z.string().min(1),
-  product_id: z.string().optional(),
-  user_id: z.string().optional()
-})
-
-router.post('/send', async (req, res, next) => {
-  try {
-    const data = sendSchema.parse(req.body)
-    
-    // Na arquitetura Gravity real, tenant_id vem do req.tenant após o middleware withTenantIsolation
-    // Validando isolamento: se req.tenant !== data.tenant_id, throw
-    const tenant = (req as any).tenant || data.tenant_id
-    if (tenant !== data.tenant_id) {
-       throw new AppError('Tenant mismatch', 403, 'FORBIDDEN')
-    }
-
-    // TODO: chamar service sendTextMessage()
-    // const message = await sendTextMessage(tenant, data.phone_number, data.text, data.user_id, data.product_id)
-
-    res.json({ success: true /*, message */ })
-  } catch (err) {
-    next(err)
-  }
-})
-
 // --- INBOUND WEBHOOK (Meta Cloud API) ---
-// Endpoint público, não passa por requireInternalKey nem withTenantIsolation nativamente
+// Endpoints públicos — Meta chama estes diretamente, sem autenticação interna.
 
 // Verificação (GET) exigida pela Meta na configuração
-router.get('/webhook', (req, res) => {
+router.get('/webhook', (req: Request, res: Response) => {
   const mode = req.query['hub.mode']
   const token = req.query['hub.verify_token']
   const challenge = req.query['hub.challenge']
@@ -58,8 +23,8 @@ router.get('/webhook', (req, res) => {
   }
 })
 
-// Recebimento (POST) 
-router.post('/webhook', (req, res) => {
+// Recebimento (POST)
+router.post('/webhook', (req: Request, res: Response) => {
   // A Meta Cloud API envia os headers 'x-hub-signature-256'
   const signature = req.headers['x-hub-signature-256'] as string
   const rawBody = (req as any).rawBody || JSON.stringify(req.body) // depende de como o bodyparser foi injetado raw
@@ -69,12 +34,44 @@ router.post('/webhook', (req, res) => {
   handleWebhookInbound(req.body, rawBody, signature, res)
 })
 
+// --- Auth middleware para rotas internas (send, stream) ---
+// Requer x-tenant-id do gateway; rejeita se ausente.
+const requireTenantAuth = (req: Request, res: Response, next: NextFunction) => {
+  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  if (!tenantId) {
+    return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'x-tenant-id obrigatório' } })
+  }
+  ;(req as any).tenant = tenantId
+  ;(req as any).auth = { tenantId, userId: (req.headers['x-user-id'] as string) ?? '' }
+  next()
+}
 
-// --- SSE STREAMING (Frontend) ---
-router.get('/stream', (req, res) => {
+// --- OUTBOUND ROUTES (Internal, autenticadas) ---
+
+const sendSchema = z.object({
+  phone_number: z.string(),
+  text: z.string().min(1),
+  product_id: z.string().optional(),
+  user_id: z.string().optional()
+})
+
+router.post('/send', requireTenantAuth, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data = sendSchema.parse(req.body)
+    const tenant = (req as any).tenant
+
+    // TODO: chamar service sendTextMessage()
+    // const message = await sendTextMessage(tenant, data.phone_number, data.text, data.user_id, data.product_id)
+
+    res.json({ success: true /*, message */ })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// --- SSE STREAMING (Frontend, autenticada) ---
+router.get('/stream', requireTenantAuth, (req: Request, res: Response) => {
   const tenant = (req as any).tenant
-  if (!tenant) return res.status(401).send('Unauthorized')
-    
   sseStreamHandlers.addClient(tenant, req, res)
 })
 

@@ -259,21 +259,23 @@ timersRouter.post(
       }
 
       // Cria ou recria o timer ativo para esta atividade
-      // Upsert via deleteMany + create para garantir unicidade por user_id
-      if (existingActive) {
-        // Se havia timer ativo em outra atividade, removemos e criamos novo
-        await prisma.timerActive.deleteMany({ where: { user_id: userId, tenant_id: tenantId } })
-      }
+      // Upsert via deleteMany + create em transação para garantir unicidade por user_id
+      const newActive = await prisma.$transaction(async (tx) => {
+        if (existingActive) {
+          // Se havia timer ativo em outra atividade, removemos e criamos novo
+          await tx.timerActive.deleteMany({ where: { user_id: userId, tenant_id: tenantId } })
+        }
 
-      const newActive = await prisma.timerActive.create({
-        data: {
-          tenant_id: tenantId,
-          user_id: userId,
-          activity_id: parsed.data.activity_id,
-          started_at: now,
-          paused_at: null,
-          accumulated_seconds: 0,
-        },
+        return tx.timerActive.create({
+          data: {
+            tenant_id: tenantId,
+            user_id: userId,
+            activity_id: parsed.data.activity_id,
+            started_at: now,
+            paused_at: null,
+            accumulated_seconds: 0,
+          },
+        })
       })
 
       emitTimerEvent(tenantId, userId, 'timer:started', {
@@ -364,8 +366,8 @@ timersRouter.post(
       )
 
       // Descarta sessões com menos de 1 minuto (exceto manuais)
-      await prisma.timerActive.deleteMany({
-        where: { id: active.id, tenant_id: tenantId },
+      await db.timerActive.deleteMany({
+        where: { id: active.id },
       })
 
       const durationMinutes = secondsToMinutes(totalSeconds)
@@ -384,9 +386,8 @@ timersRouter.post(
       }
 
       // Cria a sessão salva
-      const session = await prisma.timerSession.create({
+      const session = await db.timerSession.create({
         data: {
-          tenant_id: tenantId,
           user_id: userId,
           activity_id: parsed.data.activity_id,
           product_id: (req.body as { product_id?: string }).product_id ?? null,
@@ -432,9 +433,9 @@ timersRouter.post(
       const startedDate = started_at ? new Date(started_at) : new Date()
       const endedDate = new Date(startedDate.getTime() + duration_minutes * 60 * 1000)
 
-      const session = await prisma.timerSession.create({
+      const db = withTenantIsolation(prisma, tenantId)
+      const session = await db.timerSession.create({
         data: {
-          tenant_id: tenantId,
           user_id: userId,
           activity_id: paramParsed.data.activity_id,
           product_id: product_id ?? null,

@@ -99,13 +99,23 @@ webhookRouter.post(
       const key = extractDedupKeyFromAddress(addr)
       if (key) {
         parentDedupKey = key
-        // Buscar o EmailEnviado para obter o tenant_id
-        const parent = await prisma.emailEnviado.findFirst({
+        // Buscar o EmailEnviado para obter o tenant_id.
+        // DESIGN NOTE: This is an inbound webhook called by Resend, so the tenant
+        // is unknown at request time. We resolve it by looking up the dedup_key
+        // from the Reply-To address, which links back to an outbound email we sent.
+        // If no match is found, we reject the email (see below).
+        const parents = await prisma.emailEnviado.findMany({
           where: { dedup_key: key },
           select: { tenant_id: true, id: true },
         })
-        if (parent) {
-          tenantId = parent.tenant_id
+        if (parents.length > 1) {
+          console.warn(
+            `[WEBHOOK] Multiple emailEnviado records match dedup_key=${key} — ` +
+            `tenant_ids: ${parents.map(p => p.tenant_id).join(', ')}. Using first match.`
+          )
+        }
+        if (parents.length > 0) {
+          tenantId = parents[0].tenant_id
         }
         break
       }

@@ -20,25 +20,39 @@ interface Message {
   timestamp: string;
 }
 
-/** Basic markdown parser to render list, bold, italic, code for mock */
-const renderMessageObj = (content: string) => {
-  let parsed = content;
-  // bold
-  parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // italic
-  parsed = parsed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  // code
-  parsed = parsed.replace(/`(.*?)`/g, '<code>$1</code>');
-  // Headers (just h3 for simplicity)
-  parsed = parsed.replace(/^### (.*$)/gim, '<div class="header">$1</div>');
-  // List items
-  parsed = parsed.replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>');
-  // Clean up adjacent ul's
-  parsed = parsed.replace(/<\/ul>\n<ul>/g, '\n');
-  // Newlines
-  parsed = parsed.replace(/\n/g, '<br />');
+/** Escape HTML entities to prevent XSS */
+const escapeHtml = (str: string) =>
+  str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-  return { __html: parsed };
+/** Safe markdown-like renderer — returns React elements instead of raw HTML */
+const renderMessageContent = (content: string): React.ReactNode => {
+  const escaped = escapeHtml(content);
+  const lines = escaped.split('\n');
+
+  return lines.map((line, i) => {
+    // Apply inline formatting on the escaped text
+    let formatted = line;
+    // bold
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // italic
+    formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // code
+    formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
+
+    // Headers
+    const headerMatch = formatted.match(/^### (.*)$/);
+    if (headerMatch) {
+      return <div key={i} className="header">{headerMatch[1]}</div>;
+    }
+
+    // List items
+    const listMatch = formatted.match(/^\* (.*)$/);
+    if (listMatch) {
+      return <ul key={i}><li>{listMatch[1]}</li></ul>;
+    }
+
+    return <span key={i}>{formatted}{i < lines.length - 1 && <br />}</span>;
+  });
 };
 
 export default function GabiChat({ onClose }: { onClose?: () => void }) {
@@ -204,10 +218,9 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
                 <div className={`gabi-avatar-small ${msg.role === 'user' ? 'primary' : ''}`}>
                   {msg.role === 'assistant' ? <Sparkle size={18} color="#9ca3af" /> : 'D'}
                 </div>
-                <div 
-                  className="gabi-message-bubble gabi-markdown" 
-                  dangerouslySetInnerHTML={renderMessageObj(msg.content)} 
-                />
+                <div className="gabi-message-bubble gabi-markdown">
+                  {renderMessageContent(msg.content)}
+                </div>
               </div>
               <div className="gabi-timestamp">{msg.timestamp}</div>
             </div>

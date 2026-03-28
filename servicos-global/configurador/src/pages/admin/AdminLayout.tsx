@@ -94,8 +94,7 @@ export function AdminLayout() {
       <div className="ws-main">
         {/* ── Global Actions ── */}
         <div className="ws-global-actions">
-          <TooltipGlobal descricao="Pesquisar por páginas, ferramentas ou configurações no painel administrativo">
-            <LocalizarExpandidoCampoGlobal 
+          <LocalizarExpandidoCampoGlobal 
               onBuscarNavigate={(term) => {
                 const termLower = term.toLowerCase()
                 const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
@@ -104,7 +103,6 @@ export function AdminLayout() {
                 }
               }}
             />
-          </TooltipGlobal>
 
           {/* NOVO: Toggle de tooltips */}
           <TooltipGlobal

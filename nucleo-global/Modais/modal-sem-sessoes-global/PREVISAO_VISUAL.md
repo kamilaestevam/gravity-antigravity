@@ -1,69 +1,35 @@
 # Documentação Visual — ModalSemSessoesGlobal
 
-Variante simplificada do `ModalGlobal` — **sem suporte a abas/sessões**. Estrutura: Header → Body → Footer. Ideal para confirmações, alertas e formulários simples. Serve como base para `ModalFormularioGlobal`. Referência fiel baseada em exames reais do DOM no navegador.
-
-## 1. Folha de Especificação Técnica de UX
-Configurações do componente: básico (título + body + footer), com footer customizado, e mobile bottom-sheet.
-
-![Folha de Especificação Técnica UX](./real-preview-estados.png)
+Referência visual baseada 100% no código `modal-overlay.tsx` + `modal.css` do pacote `modal-sem-sessoes-global`.
 
 ---
 
-## 2. Blueprint: Layout de Composição
-Anatomia técnica: overlay fixed → dialog flex-column com **3 zonas apenas** (header → body → footer). Sem slot de abas — diferença do `ModalGlobal`.
+## 1. Modal Sem Abas (Contexto)
 
-![Especificação de Composição](./real-preview-layout.png)
+Versão simplificada do `ModalGlobal` — sem sistema de navegação por abas.
+- **CSS Compartilhado**: Usa o mesmo `modal.css`, mesmas escalas de tamanho (`sm/md/lg/xl`).
+- **Diferencial**: Sem o componente `NavegacaoAbas` — header conecta diretamente ao body.
 
-| Medida Relevante | Verificação Técnica no CSS (Real) |
-| :--- | :--- |
-| **Body Padding Explícito** | `padding: 0 1.5rem 1.5rem 1.5rem` (esta é a diferença principal em relação ao ModalGlobal que tem padding neutro para tabelas bleed). |
-| **Header Fixo** | `h2` de título + botão de fechar (2rem × 2rem). |
-| **Layout 3-zonas** | Garante que nunca haverá uma quarta faixa (como as *tabs*). |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## 3. Composição de Ancoragem Global (Contexto)
-Ancoragem viewport global (idêntica ao `ModalGlobal`).
+## 2. Diferença vs ModalGlobal (UX)
 
-![Composição de Ancoragem Global](./real-preview-contexto.png)
+Arquitetura de uso:
+- **ModalGlobal**: Header → Abas → Body → Footer.
+- **ModalSemSessoesGlobal**: Header → Body → Footer (mais direto).
+- `ModalFormularioGlobal` usa este modal internamente.
 
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Referência Vertical (Y)** | Centro do viewport do navegador (`align-items: center`). |
-| **Z-Index** | `z-index: 1000` na classe `.mg-overlay`. |
-
----
-
-## Diferença vs ModalGlobal
-
-| Recurso | ModalGlobal | ModalSemSessoesGlobal |
-| :--- | :---: | :---: |
-| Header (título + subtítulo) | ✅ | ✅ |
-| Body (children) | ✅ | ✅ |
-| Footer (botões) | ✅ | ✅ |
-| Abas (underline/pill) | ✅ | ❌ |
-| Body padding explícito | ❌ | ✅ (`0 1.5rem 1.5rem`) |
+![UX Real](./real.ux.png)
 
 ---
 
-## Exemplo de Uso (Código)
+## 3. Especificação Técnica
 
-```tsx
-import { ModalSemSessoesGlobal, useModalLocal } from '@nucleo/modal-sem-sessoes-global'
+Blueprint das medidas (idênticas ao ModalGlobal):
+- **Overlay**: `rgba(0,0,0,0.65)`, `backdrop-filter: blur(4px)`.
+- **Animação**: `mg-slide-up` — `translateY(12px) → 0` em `0.2s`.
+- **Botão Fechar**: `position: absolute`, `top: 1.25rem`, `right: 1.25rem`.
 
-const { aberto, abrir, fechar } = useModalLocal()
-
-<ModalSemSessoesGlobal
-  aberto={aberto}
-  aoFechar={fechar}
-  titulo="Confirmar Exclusão"
-  subtitulo="Esta ação não pode ser desfeita."
-  tamanho="sm"
-  botoes={[
-    { rotulo: 'Cancelar', variante: 'ghost', ao_clicar: fechar },
-    { rotulo: 'Excluir', variante: 'danger', ao_clicar: handleExcluir },
-  ]}
->
-  <p>Deseja realmente excluir o registro selecionado?</p>
-</ModalSemSessoesGlobal>
-```
+![Técnico Real](./real.tecnico.png)

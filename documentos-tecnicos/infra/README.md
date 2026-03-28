@@ -1,30 +1,27 @@
-# Infraestrutura e DevOps — Gravity Platform 🏗️
+# Portal de Documentação Gravity Platform 🏛️
 
-Manuais e guias de deploy, escalabilidade e observabilidade.
-
----
-
-## 🚀 Fluxo de Deploy
-O Gravity utiliza um pipeline de CI/CD automatizado com o GitHub Actions, filtrado por aprovação manual para o ambiente de produção.
-
-1.  **Commit em `main`**: Dispara o build e testes automatizados.
-2.  **Deploy Staging (T26)**: Aplica migrations e atualiza o ambiente de teste no Railway.
-3.  **Gate de Paridade**: O GitHub Actions compara o schema de Staging com o de Produção.
-4.  **Aprovação Manual**: Requer aprovação do Líder Técnico no GitHub.
-5.  **Deploy Produção (P26)**: Finaliza o promote para o ambiente live.
+Bem-vindo à documentação centralizada da plataforma Gravity. Este portal serve como a **Fonte Única de Verdade (SSOT)** para engenharia, infraestrutura e produto.
 
 ---
 
-## 📈 Escalabilidade (Target: 50.000 reqs)
-Para atingir o SLA de performance (200ms) sob carga:
+## 📂 Navegação Técnica
 
-1.  **Connection Pooling**: Ativado via **PgBouncer** no Railway para evitar exaustão de conexões.
-2.  **Horizontal Scaling**: Todos os microserviços são `stateless`, permitindo escalar réplicas no Railway conforme a carga (CPU/RAM).
-3.  **Read Replicas**: Estrutura preparada para leitura em réplicas do PostgreSQL se necessário.
+| Módulo | Descrição | Status |
+|:---|:---|:---:|
+| [**APIs**](api/README.md) | Contrato de endpoints Cockpit vs Configurador | ✅ |
+| [**Banco de Dados**](banco-de-dados/README.md) | Topologia, Isolamento de Tenant e Segurança RLS | ✅ |
+| [**Infraestrutura**](infra/README.md) | Resolução de GAPs, Pipeline CI/CD e Railway | ✅ |
+| [**Componentes (UI Kit)**](componentes/README.md) | Guia visual e PREVISÃO_VISUAL de componentes | ✅ |
 
 ---
 
-## 🛠️ Observabilidade
-- **Sentry**: Captura de erros em tempo real.
-- **Health Checks**: `/health` monitorado via UptimeRobot.
-- **Railway Logs**: Monitoramento centralizado de processos.
+## 🚀 Padrões de Engenharia
+- **Isolamento:** Híbrido (App Middleware + DB RLS).
+- **Paridade:** Env Teste (T26) e Prod (P26) espelhados via CI Gate.
+- **Microserviços:** Orquestração via pasta `servicos-global`.
+- **UI Kit:** Baseado no `nucleo-global` com design system proprietário.
+
+---
+
+**Última Auditoria:** Março 2026
+**Responsável Técnico:** Antigravity AI

@@ -1,66 +1,34 @@
 # Documentação Visual — SelecaoExcluirGlobal
 
-Modal de confirmação de ações destrutivas (Exclusão) do Gravity Design System. Referência fiel baseada em exames reais do DOM no navegador.
-
-## 1. Folha de Especificação Técnica de UX
-Layout do modal centralizado: ícone de alerta, título, descrição, card do item afetado e botões de ação bilaterais.
-
-![Folha de Especificação Técnica UX](./real-preview-estados.png)
+Referência visual baseada 100% no código `selecao-excluir.tsx`.
 
 ---
 
-## 2. Blueprint: Layout de Composição
-Anatomia técnica do modal de exclusão com medidas, gradientes e dimensões exatas de `.selecao-excluir-container`.
+## 1. Modal Destrutivo (Contexto)
 
-![Especificação de Composição](./real-preview-layout.png)
+Confirmação visual de exclusão com hierarquia clara e prevenção de erros.
+- **Ícone**: Círculo de 56px com gradiente vermelho e ícone `Warning` (28px duotone) em #ef4444.
+- **Layout**: Totalmente centralizado (coluna flexível).
 
-| Medida Relevante | Verificação Técnica no CSS (Real) |
-| :--- | :--- |
-| **Ícone de Alerta** | Div redonda de **56px**, anel externo com fundo `rgba(239,68,68,0.15)`. Ícone Trash size `28px`. |
-| **Paddings Internos** | Body generoso com textos grandes para clareza destrutiva. |
-| **Card Destino** | `padding: 0.75rem 1rem`, `border-radius: 8px` e outline sutil vermelho em `rgba(239,68,68,0.2)`. |
-| **Botões Simétricos** | Botões com largura pareada para peso semântico igual na exclusão. |
-| **Botão Danger** | Gradiente linear do vermelho 500 ao 600, ícone `Trash` e focus ring agressivo de outline vermelho escuro. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## 3. Composição de Ancoragem Global (Contexto)
-Posicionamento de sobreposição central ancorado via stack modal e focus-trap global.
+## 2. Estados e Interação (UX)
 
-![Composição de Ancoragem Global](./real-preview-contexto.png)
+Comportamento real dos botões de ação:
+- **Botão Excluir**: Gradiente `#ef4444 → #dc2626`, eleva `-1px` no hover. Ícone `Trash`.
+- **Botão Cancelar**: Fundo branco `#f8fafc`, escurece para `#e2e8f0` no hover.
+- **nomeItem**: Caixa vermelha translúcida com radius 8px quando definido.
 
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Referência Vertical (Y)** | Centro do viewport (`align-items: center` do ModalGlobal pai). |
-| **Referência Horizontal (X)** | Centro do viewport (`justify-content: center`). |
-| **Propagação Eventos** | Ação suspende overlays abaixo mas isola eventos (blur background de **4px** no `.mg-overlay`). |
+![UX Real](./real.ux.png)
 
 ---
 
-## Anatomia do Componente
+## 3. Especificação Técnica
 
-| Área | Medida / Valor |
-| :--- | :--- |
-| **Ícone de Alerta** | Círculo de **56px**, fundo vermelho translúcido, ícone Trash Bold. |
-| **Título** | `font-size: 1.125rem`, `font-weight: 700`, cor primária |
-| **Descrição** | `font-size: 0.875rem`, cor secundária, `max-width: 480px` |
-| **Card do Item** | `padding: 0.75rem 1rem`, `border-radius: 8px`, borda customizada |
-| **Botão Cancelar** | Fundo neutro ghost, interage com cancelamento. |
-| **Botão Excluir** | Variante `danger` explícita. Opcionalmente passa a `loading` spinner. |
+Blueprint das medidas exatas:
+- **Ícone**: `56×56px`, `border-radius: 50%`, glass highlight (`inset 0 1px 0 rgba(255,255,255,0.15)`).
+- **Botões Footer**: `width: 180px`, `height: 38px`, `radius: 8px`, centralizados.
 
----
-
-## Exemplo de Uso (Código)
-
-```tsx
-import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
-
-<SelecaoExcluirGlobal
-  aberto={confirmarExclusao}
-  titulo="Excluir Espaço de Trabalho?"
-  descricao="Esta ação é irreversível."
-  nomeItem="Acme Importações"
-  aoConfirmar={handleExcluir}
-  aoCancelar={() => setConfirmarExclusao(false)}
-/>
-```
+![Técnico Real](./real.tecnico.png)

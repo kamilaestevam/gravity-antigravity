@@ -1,80 +1,33 @@
 # Documentação Visual — ModalFormularioGlobal
 
-Modal padrão de formulário (sem abas) do Gravity Design System. Referência fiel baseada em exames reais do DOM no navegador.
-
-## 1. Folha de Especificação Técnica de UX
-Layout do modal com cabeçalho personalizado, corpo rolável com seções e rodapé tri-zona.
-
-![Folha de Especificação Técnica UX](./real-preview-estados.png)
+Referência visual baseada 100% no código `modal-formulario-global.tsx`.
 
 ---
 
-## 2. Blueprint: Layout de Composição
-Anatomia técnica do modal: padding do cabeçalho, altura padrão, footer bilateral e sub-componente SecaoFormularioGlobal. Medidas alinhadas ao padrão UX 10 do sistema.
+## 1. Formulário Simples (Contexto)
 
-![Especificação de Composição](./real-preview-layout.png)
+Modal de edição sem abas. Usa `ModalSemSessoesGlobal` internamente.
+- **Header**: `CabecalhoGlobal` com margens zeradas via `!important` (adaptado para dentro do modal).
+- **Padding**: `1.5rem` topo e lados, `3.5rem` à direita (espaço para o botão fechar).
 
-| Medida Relevante | Verificação Técnica no CSS (Real) |
-| :--- | :--- |
-| **Tamanho Fixo Horizontal** | `lg` por padrão (representa `720px` no layout geral). |
-| **Altura Fixo Vertical** | Altura padrão `680px` (prop `altura`), força o scroll no `.mg-body`. |
-| **Padding do Header** | `padding: 1.5rem 3.5rem 1rem 1.5rem`, `border-bottom: 1px solid var(--ws-accent-border)`. |
-| **Margem do Corpo** | `margin-bottom: 1.5rem` do cabeçalho. |
-| **Rodapé Bilateral** | Flexbox distribuído (`justify-content: space-between`). Esquerda: Excluir. Direita: Ações neutras/positivas com indicador `StatusSalvarGlobal`. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## 3. Composição de Ancoragem Global (Contexto)
-Posicionamento de sobreposição central com backdrop escuro herdado de `ModalSemSessoesGlobal`.
+## 2. Footer e Exclusão (UX)
 
-![Composição de Ancoragem Global](./real-preview-contexto.png)
+Duas configurações possíveis do footer:
+- **Com `aoExcluir`**: Botão destrutivo à esquerda + botões padrão à direita.
+- **Sem `aoExcluir`**: Div vazio à esquerda (espaço preservado), botões à direita.
 
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Referência Vertical (Y)** | Centro do viewport flex. |
-| **Referência Horizontal (X)** | Centro do viewport flex. |
-| **Stack Global** | Fica num `z-index` altíssimo e restringe overflow global. |
+![UX Real](./real.ux.png)
 
 ---
 
-## Anatomia do Componente
+## 3. Especificação Técnica
 
-| Área | Medida / Valor |
-| :--- | :--- |
-| **Cabeçalho** | Via `CabecalhoGlobal` com margens neutralizadas |
-| **Corpo (Body)** | Área rolável com children |
-| **Rodapé** | Layout bilateral: Excluir vs Cancelar + Status + Salvar |
+Blueprint:
+- **Override de CSS**: `.cg-header { margin: 0 !important; position: static !important; }`.
+- **Botão Excluir**: `.mg-btn-danger` + `.mg-btn-danger-fix` para uniformidade de altura.
 
----
-
-## Sub-componente: SecaoFormularioGlobal
-
-| Propriedade | Valor |
-| :--- | :--- |
-| **Classe CSS** | `ws-section-title` |
-| **Layout** | Flex horizontal: ícone (cor `var(--ws-accent)`) + título, `gap: 6px` |
-| **Margem Inferior** | `1rem` (configurável via `marginBottom`) |
-
----
-
-## Exemplo de Uso (Código)
-
-```tsx
-import { ModalFormularioGlobal, SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
-import { Buildings, Globe } from '@phosphor-icons/react'
-
-<ModalFormularioGlobal
-  aberto={editarAberto}
-  aoFechar={() => setEditarAberto(false)}
-  aoSalvar={handleSalvar}
-  aoExcluir={handleExcluir}
-  icone={<Buildings size={20} />}
-  titulo="Acme Importações"
-  subtitulo="Edite as informações e configurações"
-  dirty={formDirty}
-  podesSalvar={formValido}
->
-  <SecaoFormularioGlobal icone={<Globe size={14} />} titulo="ACESSO E WEB" />
-  {/* Campos do formulário... */}
-</ModalFormularioGlobal>
-```
+![Técnico Real](./real.tecnico.png)

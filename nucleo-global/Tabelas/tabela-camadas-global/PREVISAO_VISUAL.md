@@ -1,77 +1,35 @@
-# Documentação Visual — TabelaCamadasGlobal
+# Documentação Visual — TabelaCamadasGlobal (v2)
 
-Tabela hierárquica (Tree Table) com linhas pai/filho expansíveis do Gravity Design System.
-
-## 1. Folha de Especificação Técnica de UX
-Layout completo: toolbar com busca e exportação, linhas pai expansíveis, linhas filhas com conectores de árvore, paginação e skeleton.
-
-![Folha de Especificação Técnica de UX](./preview-estados.png)
+Referência visual baseada 100% no código `TabelaCamadasGlobal.tsx` + `tabela-camadas.css`.
 
 ---
 
-## 2. Especificação de Composição
-Anatomia técnica: container, toolbar bilateral, thead/tbody compartilhado, chevron de expansão, conectores de hierarquia e paginação tri-zona.
+## 1. Hierarquia Real (Contexto)
 
-![Especificação de Composição](./preview-layout.png)
+Estrutura de árvore para gestão de dados aninhados.
+- **Layout**: Toolbar limpa seguindo o padrão da TabelaGlobal.
+- **Camadas**: Identação visual com conectores monospace e fundo `rgba(10, 18, 36, 0.55)` para linhas filhas.
 
----
-
-## 3. Composição de Ancoragem Global
-Posicionamento na área de conteúdo principal do painel administrativo.
-
-![Composição de Ancoragem Global](./preview-contexto.png)
-
-| Regra de Ancoragem | Referência Técnica |
-| :--- | :--- |
-| **Referência Vertical (Y)** | **16px** abaixo dos StatCards ou do cabeçalho de seção. |
-| **Referência Horizontal (X)** | Largura **100%** da área útil do painel. |
-| **Padding Lateral** | **24px** (p-6) do container pai. |
-| **Contexto** | Área de conteúdo principal do Admin ou Workspace. |
+![Contexto Real](./real.contexto.png)
 
 ---
 
-## Anatomia do Componente
+## 2. Navegação e Estados (UX)
 
-| Área | Medida / Valor |
-| :--- | :--- |
-| **Container** | Classe `tcg-container` |
-| **Toolbar** | Busca à esquerda (`tcg-busca-wrapper`) + Exportar à direita (`tcg-export-wrapper`) |
-| **Chevron** | Botão 24px, ícone SVG 12×12, rotação 90° quando aberto |
-| **Badge de Filhos** | Contador circular ao lado da primeira coluna pai |
-| **Conectores** | Caracteres `├` e `└` para indicar hierarquia visual |
-| **Linha Pai** | Classe `tcg-tr-pai`, clicável para expandir |
-| **Linha Filha** | Classe `tcg-tr-filho`, animação com delay progressivo (`fi * 20ms`) |
-| **Paginação** | Tri-zona: info (esquerda) + controles «‹ 1/N ›» (centro) + "Por página" (direita) |
-| **Skeleton** | 6 linhas com shimmer animado durante carregamento |
+Interações de árvore e menus:
+- **Chevron**: Rotação suave de 90 graus no estado aberto.
+- **Exportar**: Dropdown de exportação com opções Excel/CSV/PDF listadas verticalmente.
+- **Padrão**: Botões de ação em círculo (50% radius) de 28px.
+
+![UX Real](./real.ux.png)
 
 ---
 
-## Exemplo de Uso (Código)
+## 3. Especificação Técnica
 
-```tsx
-import { TabelaCamadasGlobal } from '@nucleo/tabela-camadas-global'
-import type { TCGColuna } from '@nucleo/tabela-camadas-global'
+Blueprint da hierarquia:
+- **Conectores**: `├──` e `└──` em fonte monospace.
+- **Borda Esquerda**: `border-left: 2px solid rgba(129, 140, 248, 0.22)` nas células filhas.
+- **Animação**: Entrada das linhas filhas via `tcg-fade-slide` (0.18s).
 
-const colunasPai: TCGColuna<Org>[] = [
-  { key: 'nome', label: 'Organização' },
-  { key: 'status', label: 'Status', render: (v) => <Badge>{v}</Badge> },
-  { key: 'criadoEm', label: 'Criado em' },
-]
-
-const colunasFilhas: TCGColuna<Workspace>[] = [
-  { key: 'nome', label: 'Workspace' },
-  { key: 'usuarios', label: 'Usuários', align: 'center' },
-  { key: 'status', label: 'Status' },
-]
-
-<TabelaCamadasGlobal
-  dados={organizacoes}
-  colunas={colunasPai}
-  colunasFilhas={colunasFilhas}
-  filhos={(org) => org.workspaces}
-  acoes={[{ id: 'edit', icone: <Pencil />, onClick: handleEdit }]}
-  acoesFilhas={[{ id: 'view', icone: <Eye />, onClick: handleView }]}
-  placeholderBusca="Buscar organização..."
-  itensPorPagina={10}
-/>
-```
+![Técnico Real](./real.tecnico.png)

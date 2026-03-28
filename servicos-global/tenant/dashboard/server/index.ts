@@ -5,6 +5,26 @@ import { AppError } from './lib/errors';
 const app = express();
 app.use(express.json());
 
+// ---------------------------------------------------------------------------
+// Auth — injeta req.auth a partir do header x-tenant-id / x-user-id
+// Em produção o gateway valida o JWT e propaga como headers internos.
+// ---------------------------------------------------------------------------
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const tenantId = req.headers['x-tenant-id'] as string | undefined;
+  const userId = req.headers['x-user-id'] as string | undefined;
+
+  if (!tenantId) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'x-tenant-id header is required',
+    });
+  }
+
+  req.auth = { tenantId, userId: userId ?? '' };
+  next();
+});
+
 // Main router setup
 app.use('/api/v1/dashboard', routes);
 
@@ -12,15 +32,13 @@ app.use('/api/v1/dashboard', routes);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
-      status: 'error',
-      message: err.message,
+      error: { code: err.code ?? 'APP_ERROR', message: err.message },
     });
   }
 
   console.error(err);
   return res.status(500).json({
-    status: 'error',
-    message: 'Internal server error',
+    error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
   });
 });
 

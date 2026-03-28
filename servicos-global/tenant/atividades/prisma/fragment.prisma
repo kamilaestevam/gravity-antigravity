@@ -76,6 +76,11 @@ model Empresa {
   status     EmpresaStatus @default(PROSPECTO)
   observacao String?
 
+  contatos     Contato[]
+  atividades   Atividade[]
+  pipelines    Pipeline[]
+  kanbanCards  KanbanCard[]
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -95,6 +100,7 @@ model Contato {
   user_id    String?
 
   empresa_id String?
+  empresa    Empresa? @relation(fields: [empresa_id], references: [id])
   nome       String
   cargo      String?
   email      String?
@@ -102,6 +108,10 @@ model Contato {
   whatsapp   String?
   linkedin   String?
   observacao String?
+
+  atividades  Atividade[]
+  pipelines   Pipeline[]
+  kanbanCards KanbanCard[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -131,8 +141,13 @@ model Atividade {
   data_venc   DateTime?
 
   empresa_id  String?
+  empresa     Empresa?  @relation(fields: [empresa_id], references: [id])
   contato_id  String?
+  contato     Contato?  @relation(fields: [contato_id], references: [id])
   pipeline_id String?
+  pipeline    Pipeline? @relation(fields: [pipeline_id], references: [id])
+
+  kanbanCards KanbanCard[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -156,10 +171,14 @@ model Pipeline {
   etapa       PipelineEtapa @default(PROSPECCAO)
   valor       Float?
   empresa_id  String?
+  empresa     Empresa?  @relation(fields: [empresa_id], references: [id])
   contato_id  String?
+  contato     Contato?  @relation(fields: [contato_id], references: [id])
   probabilidade Int?
   data_fechamento DateTime?
   observacao  String?
+
+  atividades Atividade[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -188,8 +207,11 @@ model KanbanCard {
   data_venc   DateTime?
 
   atividade_id String?
+  atividade    Atividade? @relation(fields: [atividade_id], references: [id])
   empresa_id   String?
+  empresa      Empresa?   @relation(fields: [empresa_id], references: [id])
   contato_id   String?
+  contato      Contato?   @relation(fields: [contato_id], references: [id])
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

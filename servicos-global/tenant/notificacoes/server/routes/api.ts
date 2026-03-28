@@ -1,14 +1,23 @@
-import { Router } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../lib/errors'
 
 export const apiRoutes = Router()
 
-// In a real scenario, this would be a shared middleware
-const checkAuth = (req: any, res: any, next: any) => {
-  req.tenant_id = req.headers['x-tenant-id'] || 'default-tenant'
-  req.user_id = req.headers['x-user-id'] || 'default-user'
+const checkAuth = (req: Request, res: Response, next: NextFunction) => {
+  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const userId = req.headers['x-user-id'] as string | undefined
+
+  if (!tenantId) {
+    return res.status(401).json({ status: 'error', message: 'x-tenant-id header is required' })
+  }
+  if (!userId) {
+    return res.status(401).json({ status: 'error', message: 'x-user-id header is required' })
+  }
+
+  ;(req as any).tenant_id = tenantId
+  ;(req as any).user_id = userId
   next()
 }
 

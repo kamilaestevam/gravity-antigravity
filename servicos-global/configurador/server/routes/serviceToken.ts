@@ -11,8 +11,6 @@ import { AppError } from '../lib/appError.js'
 
 export const serviceTokenRouter = Router()
 
-serviceTokenRouter.use(requireInternalKey)
-
 const ServiceTokenSchema = z.object({
   tenantId: z.string(),
   userId: z.string(),
@@ -26,7 +24,7 @@ const ServiceTokenSchema = z.object({
  * Retorna o token em texto puro — apenas uma vez.
  * O sistema armazena apenas o hash.
  */
-serviceTokenRouter.post('/service-token', async (req, res, next) => {
+serviceTokenRouter.post('/service-token', requireInternalKey, async (req, res, next) => {
   try {
     const parsed = ServiceTokenSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -72,7 +70,7 @@ serviceTokenRouter.post('/service-token', async (req, res, next) => {
  * POST /api/internal/service-token/verify
  * Verifica se um service token é válido (chamado pelos serviços de tenant)
  */
-serviceTokenRouter.post('/service-token/verify', async (req, res, next) => {
+serviceTokenRouter.post('/service-token/verify', requireInternalKey, async (req, res, next) => {
   try {
     const { token } = z.object({ token: z.string() }).parse(req.body)
 

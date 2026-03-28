@@ -22,9 +22,32 @@ app.use(express.json())
 app.use(correlationMiddleware)
 
 // ---------------------------------------------------------------------------
-// Rotas
+// Health check — sem autenticação
 // ---------------------------------------------------------------------------
 app.use(healthRouter)
+
+// ---------------------------------------------------------------------------
+// Auth — injeta req.auth a partir do header x-tenant-id / x-user-id
+// Em produção o gateway valida o JWT e propaga como headers internos.
+// ---------------------------------------------------------------------------
+app.use((req, res, next) => {
+  const tenantId = req.headers['x-tenant-id'] as string | undefined
+  const userId = req.headers['x-user-id'] as string | undefined
+
+  if (!tenantId) {
+    res.status(401).json({
+      error: { code: 'UNAUTHORIZED', message: 'x-tenant-id obrigatório' },
+    })
+    return
+  }
+
+  ;(req as any).auth = { tenantId, userId: userId ?? '' }
+  next()
+})
+
+// ---------------------------------------------------------------------------
+// Rotas de negócio (protegidas)
+// ---------------------------------------------------------------------------
 app.use(conexoesRouter)
 app.use(sincronizacaoRouter)
 app.use(mapeamentosRouter)

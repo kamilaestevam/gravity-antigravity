@@ -17,6 +17,7 @@ export default defineConfig({
       '@nucleo/campo-geral-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-geral-global/src/index.ts'),
       '@nucleo/campo-localizar-expandido-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-localizar-expandido-global/src/index.ts'),
       '@nucleo/campo-select-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-select-global/src/index.ts'),
+      '@nucleo/switch-global': path.resolve(__dirname, '../../nucleo-global/Campos/switch-global/src/index.ts'),
       '@nucleo/modal-confirmar-excluir-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'),
       '@nucleo/modal-workspace-inicial-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-workspace-inicial-global/src/index.ts'),
       // ── Feedback ──

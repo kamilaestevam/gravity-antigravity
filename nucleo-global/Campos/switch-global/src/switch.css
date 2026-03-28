@@ -1,0 +1,63 @@
+.sg-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+}
+
+.sg-container--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sg-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ws-text, #f1f5f9);
+  cursor: pointer;
+}
+
+.sg-root {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  border: none;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.sg-root:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sg-root--checked {
+  background: #818cf8; /* Marca da Gravity */
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.3);
+}
+
+.sg-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.sg-thumb--checked {
+  transform: translateX(14px);
+}
+
+/* Foco */
+.sg-root:focus-visible {
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.5);
+}

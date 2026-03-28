@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { CaretDown, ShieldCheck, Gear, Buildings, CreditCard, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import './usuario-global.css'
 
 export interface UsuarioGlobalProps {
   userName: string

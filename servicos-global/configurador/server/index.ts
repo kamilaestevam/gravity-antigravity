@@ -4,6 +4,7 @@
 
 import 'dotenv/config'
 import express from 'express'
+import cors from 'cors'
 import { correlationMiddleware } from './middleware/correlationId.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { authRouter } from './routes/auth.js'
@@ -13,6 +14,7 @@ import { plansRouter } from './routes/plans.js'
 import { billingRouter } from './routes/billing.js'
 import { accessRouter } from './routes/access.js'
 import { adminRouter } from './routes/admin.js'
+import { productsRouter } from './routes/products.js'
 import { serviceTokenRouter } from './routes/serviceToken.js'
 import { prisma } from './lib/prisma.js'
 
@@ -25,6 +27,10 @@ const PORT = Number(process.env.PORT ?? 8005)
 app.use('/api/v1/billing/webhook', express.raw({ type: 'application/json' }))
 
 app.use(express.json())
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:8003',
+  credentials: true
+}))
 app.use(correlationMiddleware)
 
 // ─── Health check ───────────────────────────────────────────────────────────
@@ -51,9 +57,10 @@ app.get('/health', async (_req, res) => {
 
 app.use('/api/v1/webhooks', authRouter)
 app.use('/api/v1/tenants', tenantsRouter)
-app.use('/api/v1/users', usersRouter)
-app.use('/api/v1/plans', plansRouter)
 app.use('/api/v1/billing', billingRouter)
+app.use('/api/v1/admin', adminRouter)
+app.use('/api/v1/products', productsRouter)
+app.use('/api/v1/service-tokens', serviceTokenRouter)
 
 // ─── Rotas internas (x-internal-key obrigatória) ────────────────────────────
 

@@ -1,0 +1,66 @@
+name: Gravity DevSecOps | RLS Tier 1 Isolation Gate
+
+on: 
+  push:
+    branches: [ "main", "staging" ]
+  pull_request:
+    branches: [ "main", "staging" ]
+
+jobs:
+  rls-tests:
+    name: 🔴 Ofensiva de Isolamento RLS (Alpha vs Beta)
+    runs-on: ubuntu-latest
+    
+    # Sobe um Banco PostgreSQL Fantasma isolado para a action
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: gravity_test_db
+          POSTGRES_USER: gravity_user
+          POSTGRES_PASSWORD: gravity_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: ⬇️ Checkout Git
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node.js (Ambiente da Aplicação)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: ⚙️ NPM Install (Dependências Reais)
+        run: npm ci
+
+      - name: 🗄️ Inicialização Estrutural do DB Falso (Prisma Push/Geração)
+        env:
+          CONFIGURADOR_DATABASE_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
+          DIRECT_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
+        run: |
+          # 1. Empurra o schema para o banco levantado nos services
+          # (Deve estar executando dentro de ./configurador/prisma ou relativo)
+          npx prisma db push --schema=./configurador/prisma/schema.prisma --accept-data-loss
+          
+          # 2. Injeta manualmente o Bypass ou Políticas RLS vitais (Se existirem externalizadas)
+          # Psql está disponível via container
+          # psql -h localhost -U gravity_user -d gravity_test_db -f scripts/apply-rls.sql
+
+      - name: "⚔️ Action Gate: Executar Suíte de Ataques RLS (Vitest)"
+        env:
+          CONFIGURADOR_DATABASE_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
+          # Força variável de CI para Vitest não "assistir" testes e fechar ao acabar
+          CI: true 
+        run: |
+          npx vitest run testes/security/ --bail 1
+          
+          # Se o step 'vitest run' retornar um Exit Code não 0, 
+          # Essa action falha Imediatamente.
+          # O botão de 'Merge to Main' no Github permanecerá cinza.

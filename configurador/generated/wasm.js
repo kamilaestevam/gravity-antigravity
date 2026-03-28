@@ -213,6 +213,16 @@ exports.Prisma.ProductConfigScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.CompanyProductScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  company_id: 'company_id',
+  product_key: 'product_key',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.StripeEventScalarFieldEnum = {
   id: 'id',
   type: 'type',
@@ -229,15 +239,27 @@ exports.Prisma.SupplierTenantAccessScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ServiceTokenScalarFieldEnum = {
+exports.Prisma.GlobalProductScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
-  user_id: 'user_id',
-  token_hash: 'token_hash',
-  scope: 'scope',
-  expires_at: 'expires_at',
-  revoked: 'revoked',
-  created_at: 'created_at'
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  status: 'status',
+  type_billing: 'type_billing',
+  setup_price: 'setup_price',
+  unit_price: 'unit_price',
+  min_price: 'min_price',
+  total_price: 'total_price',
+  currency: 'currency',
+  limit_users: 'limit_users',
+  base_users: 'base_users',
+  help_desk_hours: 'help_desk_hours',
+  backend_module: 'backend_module',
+  target_audience: 'target_audience',
+  features: 'features',
+  pricing_tiers: 'pricing_tiers',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -246,6 +268,11 @@ exports.Prisma.SortOrder = {
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -304,12 +331,6 @@ exports.UserMembershipRole = exports.$Enums.UserMembershipRole = {
   SUPPLIER: 'SUPPLIER'
 };
 
-exports.ServiceTokenScope = exports.$Enums.ServiceTokenScope = {
-  SERVICE: 'SERVICE',
-  WEBHOOK: 'WEBHOOK',
-  CRON: 'CRON'
-};
-
 exports.Prisma.ModelName = {
   Tenant: 'Tenant',
   User: 'User',
@@ -319,9 +340,10 @@ exports.Prisma.ModelName = {
   Company: 'Company',
   UserMembership: 'UserMembership',
   ProductConfig: 'ProductConfig',
+  CompanyProduct: 'CompanyProduct',
   StripeEvent: 'StripeEvent',
   SupplierTenantAccess: 'SupplierTenantAccess',
-  ServiceToken: 'ServiceToken'
+  GlobalProduct: 'GlobalProduct'
 };
 
 /**

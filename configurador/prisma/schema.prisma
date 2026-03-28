@@ -42,10 +42,10 @@ enum SubscriptionPlan {
 // Roles canônicos do sistema — alinhados com skill antigravity-permissoes
 enum UserRole {
   SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
-  ADMIN       // Equipe Gravity — acesso com permissões explícitas
-  MASTER      // Cliente — acesso total na organização
-  STANDARD    // Cliente — acesso conforme permissões do Master
-  SUPPLIER    // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
+  ADMIN // Equipe Gravity — acesso com permissões explícitas
+  MASTER // Cliente — acesso total na organização
+  STANDARD // Cliente — acesso conforme permissões do Master
+  SUPPLIER // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
 enum CompanyStatus {
@@ -54,9 +54,9 @@ enum CompanyStatus {
 }
 
 enum UserMembershipRole {
-  MASTER    // Acesso implícito a todos os workspaces da organização
-  STANDARD  // Acesso apenas aos workspaces onde foi habilitado
-  SUPPLIER  // Acesso externo — permissões granulares obrigatórias
+  MASTER // Acesso implícito a todos os workspaces da organização
+  STANDARD // Acesso apenas aos workspaces onde foi habilitado
+  SUPPLIER // Acesso externo — permissões granulares obrigatórias
 }
 
 enum ServiceTokenScope {
@@ -72,12 +72,12 @@ enum ServiceTokenScope {
 // ---------------------------------------------------------------------------
 
 model Tenant {
-  id         String       @id @default(cuid())
-  name       String
-  slug       String       @unique
-  status     TenantStatus @default(PENDING_SETUP)
-  clerk_org_id String?    @unique
-  stripe_customer_id String? @unique
+  id                 String       @id @default(cuid())
+  name               String
+  slug               String       @unique
+  status             TenantStatus @default(PENDING_SETUP)
+  clerk_org_id       String?      @unique
+  stripe_customer_id String?      @unique
 
   // Metadata
   created_at DateTime @default(now())
@@ -89,6 +89,7 @@ model Tenant {
   user_permissions UserPermission[]
   companies        Company[]
   product_configs  ProductConfig[]
+  CompanyProduct   CompanyProduct[]
 
   @@index([status])
   @@index([slug])
@@ -101,12 +102,12 @@ model Tenant {
 // ---------------------------------------------------------------------------
 
 model User {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  clerk_user_id String  @unique
-  email        String
-  name         String
-  role         UserRole @default(STANDARD)
+  id            String   @id @default(cuid())
+  tenant_id     String
+  clerk_user_id String   @unique
+  email         String
+  name          String
+  role          UserRole @default(STANDARD)
 
   // Timestamps
   created_at DateTime @default(now())
@@ -117,13 +118,12 @@ model User {
   user_permissions UserPermission[]
   memberships      UserMembership[]
 
+  // Email único por tenant
+  @@unique([tenant_id, email])
   // Índices obrigatórios (tenant_id base + compostos)
   @@index([tenant_id])
   @@index([tenant_id, created_at])
   @@index([tenant_id, role])
-
-  // Email único por tenant
-  @@unique([tenant_id, email])
 }
 
 // ---------------------------------------------------------------------------
@@ -133,15 +133,15 @@ model User {
 // ---------------------------------------------------------------------------
 
 model Subscription {
-  id         String             @id @default(cuid())
-  tenant_id  String
-  plan       SubscriptionPlan   @default(STARTER)
-  status     SubscriptionStatus @default(TRIALING)
+  id        String             @id @default(cuid())
+  tenant_id String
+  plan      SubscriptionPlan   @default(STARTER)
+  status    SubscriptionStatus @default(TRIALING)
 
   stripe_subscription_id String? @unique
   stripe_price_id        String?
 
-  trial_ends_at    DateTime?
+  trial_ends_at        DateTime?
   current_period_start DateTime?
   current_period_end   DateTime?
   cancelled_at         DateTime?
@@ -169,11 +169,11 @@ model Subscription {
 model UserPermission {
   id         String @id @default(cuid())
   tenant_id  String
-  company_id String   // workspace onde se aplica (obrigatório)
+  company_id String // workspace onde se aplica (obrigatório)
   user_id    String
-  product_id String   // produto ao qual a permissão pertence
-  permission String   // ex: 'email:write', 'simulacusto:read', 'atividades:read'
-  granted_by String   // clerk_id do Master que concedeu a permissão
+  product_id String // produto ao qual a permissão pertence
+  permission String // ex: 'email:write', 'simulacusto:read', 'atividades:read'
+  granted_by String // clerk_id do Master que concedeu a permissão
 
   // Timestamps
   created_at DateTime @default(now())
@@ -183,13 +183,12 @@ model UserPermission {
   tenant Tenant @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
+  @@unique([tenant_id, company_id, user_id, product_id, permission])
   // Índices obrigatórios
   @@index([tenant_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, company_id, user_id])
-
-  // Um usuário não pode ter permissão duplicada no mesmo produto/workspace
-  @@unique([tenant_id, company_id, user_id, product_id, permission])
 }
 
 // ---------------------------------------------------------------------------
@@ -209,12 +208,11 @@ model GravityAdminPermission {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  // Admin não pode ter permissão duplicada no mesmo recurso+ação
+  @@unique([admin_id, resource, action])
   // Índices obrigatórios
   @@index([admin_id])
   @@index([admin_id, resource])
-
-  // Admin não pode ter permissão duplicada no mesmo recurso+ação
-  @@unique([admin_id, resource, action])
 }
 
 // ---------------------------------------------------------------------------
@@ -236,8 +234,9 @@ model Company {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant      Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  memberships UserMembership[]
+  tenant           Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  memberships      UserMembership[]
+  company_products CompanyProduct[]
 
   // Índices obrigatórios
   @@index([tenant_id])
@@ -252,12 +251,12 @@ model Company {
 // ---------------------------------------------------------------------------
 
 model UserMembership {
-  id         String              @id @default(cuid())
+  id         String             @id @default(cuid())
   tenant_id  String
   user_id    String
   company_id String
-  role       UserMembershipRole  @default(STANDARD)
-  is_active  Boolean             @default(true)
+  role       UserMembershipRole @default(STANDARD)
+  is_active  Boolean            @default(true)
 
   // Timestamps
   created_at DateTime @default(now())
@@ -267,13 +266,12 @@ model UserMembership {
   user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
   company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
+  // Usuário não pode ter duplicata de habilitação na mesma empresa
+  @@unique([tenant_id, user_id, company_id])
   // Índices obrigatórios
   @@index([tenant_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, company_id])
-
-  // Usuário não pode ter duplicata de habilitação na mesma empresa
-  @@unique([tenant_id, user_id, company_id])
 }
 
 // ---------------------------------------------------------------------------
@@ -296,13 +294,40 @@ model ProductConfig {
   // Relações
   tenant Tenant @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
 
+  // Apenas uma config por produto por tenant
+  @@unique([tenant_id, product_key])
   // Índices obrigatórios
   @@index([tenant_id])
   @@index([tenant_id, product_key])
   @@index([tenant_id, is_active])
+}
 
-  // Apenas uma config por produto por tenant
-  @@unique([tenant_id, product_key])
+// ---------------------------------------------------------------------------
+// COMPANY PRODUCT (Cadeia 1.5 — Ativação por Workspace)
+// Habilita um produto que o Tenant já possui para um Workspace específico.
+// ---------------------------------------------------------------------------
+
+model CompanyProduct {
+  id          String  @id @default(cuid())
+  tenant_id   String
+  company_id  String
+  product_key String // ex: "simulacusto", "gestao-atividades"
+  is_active   Boolean @default(true)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant  Tenant  @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  // Apenas uma ativação por produto por workspace
+  @@unique([company_id, product_key])
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([company_id, is_active])
 }
 
 // ---------------------------------------------------------------------------
@@ -312,10 +337,10 @@ model ProductConfig {
 // ---------------------------------------------------------------------------
 
 model StripeEvent {
-  id             String   @id
-  type           String
-  processed_at   DateTime @default(now())
-  payload        Json
+  id           String   @id
+  type         String
+  processed_at DateTime @default(now())
+  payload      Json
 
   @@index([type])
   @@index([processed_at])
@@ -328,44 +353,52 @@ model StripeEvent {
 // ---------------------------------------------------------------------------
 
 model SupplierTenantAccess {
-  id             String @id @default(cuid())
-  clerk_user_id  String
-  tenant_id      String
-  status         String @default("active")
+  id            String @id @default(cuid())
+  clerk_user_id String
+  tenant_id     String
+  status        String @default("active")
 
   // Timestamps
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant
+  @@unique([clerk_user_id, tenant_id])
   // Índices obrigatórios
   @@index([tenant_id])
   @@index([clerk_user_id])
   @@index([tenant_id, clerk_user_id])
-
-  // Unique: um clerk_user_id não pode ter dois acessos ao mesmo tenant
-  @@unique([clerk_user_id, tenant_id])
 }
 
 // ---------------------------------------------------------------------------
-// SERVICE TOKEN
-// Machine tokens de longa duração para S2S assíncrono (Fluxo 2 S2S).
-// Emitidos pelo Configurador, consumidos por serviços em jobs/crons.
+// GLOBAL PRODUCT
+// Catálogo oficial de produtos da plataforma Gravity.
 // ---------------------------------------------------------------------------
 
-model ServiceToken {
-  id          String           @id @default(cuid())
-  tenant_id   String
-  user_id     String
-  token_hash  String           @unique
-  scope       ServiceTokenScope @default(SERVICE)
-  expires_at  DateTime?
-  revoked     Boolean          @default(false)
+model GlobalProduct {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String?
+  status          String   @default("Ativo") // Ativo, Em Breve, Legado, Suspenso
+  type_billing    String?  // Mensalidade, Por Processo, etc.
+  setup_price     Decimal? @default(0)
+  unit_price      Decimal? @default(0)
+  min_price       Decimal? @default(0)
+  total_price     Decimal? @default(0)
+  currency        String   @default("BRL")
+  limit_users     String   @default("limitada")
+  base_users      Int      @default(0)
+  help_desk_hours Int      @default(0)
+  backend_module  String?  // Identificador para ativação técnica (ex: "simula-custo")
+  target_audience String?
+  features        Json?    @default("[]")
+  pricing_tiers   Json?    @default("[]")
 
   // Timestamps
-  created_at DateTime @default(now())
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([token_hash])
+  @@index([status])
+  @@index([slug])
 }

@@ -12,6 +12,7 @@ export interface NavigationItem {
   label: string
   icon: string
   source: 'product' | 'tenant'
+  children?: NavigationItem[]
 }
 
 export const PRODUCT_CONFIG = {
@@ -28,6 +29,8 @@ export const PRODUCT_CONFIG = {
     'historico',
     'notificacoes',
     'gabi',
+    'email',
+    'whatsapp',
   ] as const,
 
   // Serviços de produto (rodam dentro deste servidor, dados em simulacusto-db)
@@ -40,14 +43,21 @@ export const PRODUCT_CONFIG = {
 
   // Navegação: telas do produto + serviços de tenant
   navigation: [
-    // Telas exclusivas do produto
+    { 
+      id: 'minhas-atividades-group', 
+      label: 'Minhas atividades', 
+      icon: 'check-circle', 
+      source: 'tenant',
+      children: [
+        { id: 'dashboard',    label: 'Dashboard',          icon: 'bar-chart',      source: 'product' },
+        { id: 'atividades',   label: 'Minhas Atividades',  icon: 'check-circle',   source: 'tenant'  },
+        { id: 'email',        label: 'E-mails',            icon: 'envelope',       source: 'tenant'  },
+        { id: 'whatsapp',     label: 'Whatsapp',           icon: 'chat-circle',    source: 'tenant'  },
+      ]
+    },
     { id: 'estimativas',   label: 'Estimativas',       icon: 'calculator',     source: 'product' },
-    { id: 'importar',      label: 'Importar em Massa', icon: 'upload',         source: 'product' },
-    // Serviços de tenant acessados via shell
-    { id: 'atividades',   label: 'Atividades',         icon: 'check-circle',   source: 'tenant'  },
-    { id: 'dashboard',    label: 'Dashboard',          icon: 'bar-chart',      source: 'tenant'  },
-    { id: 'relatorios',   label: 'Relatórios',         icon: 'file-text',      source: 'tenant'  },
-    { id: 'historico',    label: 'Histórico',          icon: 'clock',          source: 'tenant'  },
+    { id: 'relatorios',   label: 'Relatórios',         icon: 'file-text',      source: 'product'  },
+    { id: 'historico',    label: 'Histórico de Alterações', icon: 'clock',     source: 'tenant'  },
     { id: 'gabi',         label: 'Gabi IA',            icon: 'sparkle',        source: 'tenant'  },
   ] satisfies NavigationItem[],
 
@@ -59,3 +69,4 @@ export const PRODUCT_CONFIG = {
     token_pool_enabled: true,
   }
 } as const
+

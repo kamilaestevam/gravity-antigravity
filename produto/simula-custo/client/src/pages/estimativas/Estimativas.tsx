@@ -1,15 +1,17 @@
 /**
  * Estimativas.tsx — Tela Principal do SimulaCusto
  * Skill: antigravity-simulacusto
- * PRD: https://docs.google.com/document/d/1xOjYUtixZ0DI0O1Fws78lj2mAg1utTfuoO0667s_AfM
  *
  * Formulário de entrada + resultado do cálculo fiscal (Landed Cost).
- * Design: Premium Dark Mode conforme UX 10 Gravity.
+ * Usa PaginaGlobal + CabecalhoGlobal do nucleo-global.
  */
 
 import React, { useState } from 'react'
-import { postSimulacao, getUfs, getPaises } from '../../shared/api'
-import type { SimulacaoInput, ResultadoFiscal, UfItem, PaisItem } from '../../shared/types'
+import { Calculator } from '@phosphor-icons/react'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { postSimulacao } from '../../shared/api'
+import type { SimulacaoInput, ResultadoFiscal } from '../../shared/types'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -68,16 +70,20 @@ export default function Estimativas() {
   }
 
   return (
-    <div className="sc-page">
-      <div className="sc-header">
-        <h1 className="sc-title">Simulador de Custo de Importação</h1>
-        <p className="sc-subtitle">Calcule o Landed Cost completo antes de fechar o negócio</p>
-      </div>
-
+    <PaginaGlobal
+      layout="lista"
+      cabecalho={
+        <CabecalhoGlobal
+          titulo="Simulador de Custo"
+          subtitulo="Calcule o Landed Cost completo antes de fechar o negócio"
+          icone={<Calculator weight="duotone" size={22} />}
+        />
+      }
+    >
       <div className="sc-layout">
         {/* ─── Formulário ─────────────────────────────────── */}
         <form className="sc-form" onSubmit={handleSubmit}>
-          <div className="sc-section-title">Produto & Operação</div>
+          <div className="sc-section-title">Produto &amp; Operação</div>
 
           <div className="sc-row">
             <div className="sc-field">
@@ -223,7 +229,7 @@ export default function Estimativas() {
                 <span>{brl(resultado.vAduaneiroBRL)}</span>
               </div>
               <div className="sc-bk-sep" />
-              {Object.entries(resultado.tributos).map(([key, t]) => (
+              {Object.entries(resultado.tributos).map(([key, t]: [string, any]) => (
                 <div key={key} className="sc-bk-row sc-bk-row--tributo">
                   <span>{key.toUpperCase()} <em>{pct(t.aliquota)}</em></span>
                   <span>{brl(t.valor)}</span>
@@ -240,42 +246,38 @@ export default function Estimativas() {
       </div>
 
       <style>{`
-        .sc-page { padding: 2rem; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-primary, #f1f5f9); }
-        .sc-header { margin-bottom: 2rem; }
-        .sc-title { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.25rem; }
-        .sc-subtitle { font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; }
-        .sc-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
+        .sc-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; padding: 1.5rem 0; }
         @media (max-width: 1024px) { .sc-layout { grid-template-columns: 1fr; } }
-        .sc-form { background: var(--surface-elevated, #1e2433); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-subtle, #334155); }
-        .sc-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted, #94a3b8); margin: 1.25rem 0 0.75rem; }
+        .sc-form { background: var(--ws-surface, #1e293b); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); }
+        .sc-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ws-muted, #94a3b8); margin: 1.25rem 0 0.75rem; }
         .sc-section-title:first-child { margin-top: 0; }
         .sc-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
         .sc-row--4 { grid-template-columns: repeat(4, 1fr); }
         .sc-row--2 { grid-template-columns: repeat(2, 1fr); }
-        .sc-field label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--text-secondary, #cbd5e1); margin-bottom: 0.4rem; }
-        .sc-field input, .sc-field select { width: 100%; background: var(--surface-base, #141929); border: 1px solid var(--border-subtle, #334155); border-radius: 8px; padding: 0.6rem 0.75rem; color: var(--text-primary, #f1f5f9); font-size: 0.875rem; font-family: inherit; outline: none; box-sizing: border-box; transition: border-color 0.15s; }
-        .sc-field input:focus, .sc-field select:focus { border-color: var(--accent-primary, #6366f1); }
+        .sc-field label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--ws-muted, #94a3b8); margin-bottom: 0.4rem; }
+        .sc-field input, .sc-field select { width: 100%; background: var(--ws-bg-body, #0f172a); border: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); border-radius: 8px; padding: 0.6rem 0.75rem; color: var(--ws-text, #f1f5f9); font-size: 0.875rem; font-family: inherit; outline: none; box-sizing: border-box; transition: border-color 0.15s; }
+        .sc-field input:focus, .sc-field select:focus { border-color: var(--ws-accent, #818cf8); box-shadow: 0 0 0 2px rgba(129,140,248,0.15); }
         .sc-input-group { display: flex; gap: 0.5rem; }
         .sc-input-group input { flex: 1; }
         .sc-input-group select { width: 80px; flex-shrink: 0; }
         .sc-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 0.75rem; font-size: 0.875rem; color: #f87171; margin-top: 1rem; }
-        .sc-btn-simular { width: 100%; margin-top: 1.5rem; padding: 0.875rem; background: var(--accent-primary, #6366f1); color: #fff; border: none; border-radius: 10px; font-size: 0.9375rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+        .sc-btn-simular { width: 100%; margin-top: 1.5rem; padding: 0.875rem; background: var(--ws-accent, #818cf8); color: #fff; border: none; border-radius: 10px; font-size: 0.9375rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
         .sc-btn-simular:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
         .sc-btn-simular:disabled { opacity: 0.5; cursor: not-allowed; }
-        .sc-result { background: var(--surface-elevated, #1e2433); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-subtle, #334155); height: fit-content; }
+        .sc-result { background: var(--ws-surface, #1e293b); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); height: fit-content; }
         .sc-result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
-        .sc-result-badge { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(99,102,241,0.15); color: var(--accent-primary, #6366f1); padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(99,102,241,0.3); }
-        .sc-ptax { font-size: 0.75rem; color: var(--text-muted, #94a3b8); }
-        .sc-landed-cost { text-align: center; padding: 1.25rem 0; border-bottom: 1px solid var(--border-subtle, #334155); margin-bottom: 1.25rem; }
-        .sc-lc-label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--text-muted, #94a3b8); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
-        .sc-lc-value { font-size: 2rem; font-weight: 800; color: var(--accent-success, #10b981); }
+        .sc-result-badge { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(129,140,248,0.15); color: var(--ws-accent, #818cf8); padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(129,140,248,0.3); }
+        .sc-ptax { font-size: 0.75rem; color: var(--ws-muted, #94a3b8); }
+        .sc-landed-cost { text-align: center; padding: 1.25rem 0; border-bottom: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); margin-bottom: 1.25rem; }
+        .sc-lc-label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--ws-muted, #94a3b8); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+        .sc-lc-value { font-size: 2rem; font-weight: 800; color: #10b981; }
         .sc-breakdown { display: flex; flex-direction: column; gap: 0.5rem; }
-        .sc-bk-row { display: flex; justify-content: space-between; font-size: 0.875rem; }
-        .sc-bk-row--tributo { color: var(--text-secondary, #cbd5e1); }
-        .sc-bk-row--tributo em { font-style: normal; font-size: 0.75rem; color: var(--text-muted, #94a3b8); margin-left: 0.25rem; }
-        .sc-bk-row--total { font-weight: 700; color: var(--text-primary, #f1f5f9); }
-        .sc-bk-sep { height: 1px; background: var(--border-subtle, #334155); margin: 0.5rem 0; }
+        .sc-bk-row { display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--ws-text, #f1f5f9); }
+        .sc-bk-row--tributo { color: var(--ws-muted, #94a3b8); }
+        .sc-bk-row--tributo em { font-style: normal; font-size: 0.75rem; color: var(--ws-muted, #64748b); margin-left: 0.25rem; }
+        .sc-bk-row--total { font-weight: 700; color: var(--ws-text, #f1f5f9); }
+        .sc-bk-sep { height: 1px; background: var(--ws-accent-border, rgba(129,140,248,0.20)); margin: 0.5rem 0; }
       `}</style>
-    </div>
+    </PaginaGlobal>
   )
 }

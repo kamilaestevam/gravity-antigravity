@@ -390,6 +390,7 @@ export function Workspaces() {
     >
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<Empresa>
+          id="workspace-list"
           dados={empresas}
           colunas={COLUNAS}
           acoes={ACOES}

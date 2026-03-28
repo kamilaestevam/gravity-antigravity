@@ -174,6 +174,7 @@ export function DeployRailwayAdmin() {
     >
       <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10, marginTop: '32px' }}>
         <TabelaGlobal<DeployLog>
+          id="admin-deploys"
           dados={mockDeploys}
           colunas={COLUNAS}
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}

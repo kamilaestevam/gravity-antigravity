@@ -496,6 +496,7 @@ export function LogTestes() {
     >
       <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10, marginTop: '32px' }}>
         <TabelaGlobal
+          id="admin-test-logs"
           dados={dados}
           colunas={colunas}
           idKey="id"

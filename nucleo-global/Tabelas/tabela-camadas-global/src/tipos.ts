@@ -23,6 +23,10 @@ export interface TCGColuna<T = any> {
   tooltipDescricao?: string
   /** Renderizador customizado de célula */
   render?: (valor: any, item: T) => ReactNode
+  /** Ocultar coluna por padrão */
+  oculta?: boolean
+  /** Coluna não pode ser escondida pelo usuário */
+  naoOcultavel?: boolean
 }
 
 // ─── Ação de linha ─────────────────────────────────────────────────────────────
@@ -75,4 +79,6 @@ export interface TabelaCamadasGlobalProps<T = any, C = any> {
   itemId?: (item: T) => string
   /** Itens por página */
   itensPorPagina?: number
+  /** ID único para persistência de colunas (localStorage) */
+  id?: string
 }

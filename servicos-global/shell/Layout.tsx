@@ -2,11 +2,18 @@ import React, { Suspense } from 'react'
 import './shell.css'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
+import { ContextualSidebar } from './ContextualSidebar'
+import { useLocation } from 'react-router-dom'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
 
 interface LayoutProps {
   children: React.ReactNode
+  navItems?: { to: string; label: string; icon: React.ReactNode }[]
+  moduleName?: string
+  moduleColor?: string
+  tenantName?: string
+  tenantPlan?: string
 }
 
 /**
@@ -19,8 +26,19 @@ interface LayoutProps {
  * - Aplicar tema (dark/light) via useEffect no mount
  * - Persistir preferência de idioma no html[lang]
  */
-export function Layout({ children }: LayoutProps) {
-  const { sidebarOpen, currentTheme, tooltipsDisabled } = useShellStore()
+export function Layout({ 
+  children,
+  navItems,
+  moduleName,
+  moduleColor,
+  tenantName,
+  tenantPlan
+}: LayoutProps) {
+  const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser } = useShellStore()
+  const location = useLocation()
+  
+  // Detecção Mágica de "Merculo/Deep Work"
+  const isProcessoRoute = location.pathname.startsWith('/processo/')
 
   // Sincroniza tema com body no mount e nas mudanças
   React.useEffect(() => {
@@ -49,7 +67,20 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
-      <Sidebar />
+      {isProcessoRoute ? (
+        <ContextualSidebar
+          tenantName={tenantName ?? currentUser.tenantName ?? 'Organização'}
+          tenantPlan={tenantPlan ?? 'Plano Profissional'}
+        />
+      ) : (
+        <Sidebar 
+          navItems={navItems}
+          moduleName={moduleName}
+          moduleColor={moduleColor}
+          tenantName={tenantName ?? currentUser.tenantName ?? 'Organização'}
+          tenantPlan={tenantPlan ?? 'Plano Profissional'}
+        />
+      )}
       <Header />
       <main className="shell-main" role="main" aria-label="Conteúdo principal">
         <Suspense

@@ -271,6 +271,7 @@ export function HistoricoGlobalAdmin() {
 
         <div style={{ position: 'relative' }}>
           <TabelaGlobal<LogHistorico>
+            id="admin-historico-global"
             dados={logs}
             colunas={COLUNAS}
             acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}

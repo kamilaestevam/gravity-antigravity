@@ -473,6 +473,7 @@ export function UsuariosGlobaisAdmin() {
       {/* ── Tabela global ────────────────────────────────────────────────── */}
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<GlobalUser>
+           id="admin-global-users"
            dados={users}
            colunas={COLUNAS}
            acoes={ACOES}

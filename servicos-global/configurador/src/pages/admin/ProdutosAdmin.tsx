@@ -12,6 +12,7 @@ import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { useAuth } from '@clerk/clerk-react'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 import { catalogService } from '../../services/catalogService'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
@@ -102,41 +103,48 @@ function mascaraMoeda(valor: string): string {
 }
 
 export function ProdutosAdmin() {
+  const { getToken } = useAuth()
   const { logEvent } = useHistoricoLogger()
   const [produtos, setProdutos] = React.useState<ProdutoCatalogo[]>([])
   const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
+  const [loading, setLoading] = React.useState(true)
 
-  const carregarDados = React.useCallback(() => {
-    let prods = catalogService.getProdutos()
-    // Silent Migration: se encontrar o preço antigo ou portfólio legado, reseta
-    const simula = prods.find(p => p.id === 'p1')
-    if (simula && simula.precoUnitario.valor === '10,90') {
-      catalogService.resetParaIniciais()
-      prods = catalogService.getProdutos()
+  const carregarDados = React.useCallback(async () => {
+    setLoading(true)
+    try {
+      const prods = await catalogService.getProdutos()
+      setProdutos(prods)
+      setNegociacoes(catalogService.getNegociacoes())
+    } catch (err) {
+      console.error('Erro ao carregar dados reais:', err)
+    } finally {
+      setLoading(false)
     }
-    setProdutos(prods)
-    setNegociacoes(catalogService.getNegociacoes())
   }, [])
 
   React.useEffect(() => {
     carregarDados()
   }, [carregarDados])
 
-  const toggleProdutoStatus = (id: string) => {
+  const toggleProdutoStatus = async (id: string) => {
     const produto = produtos.find(p => p.id === id)
     if (!produto) return
 
     const novoStatus: StatusGlobal = produto.status === 'Ativo' ? 'Suspenso' : 'Ativo'
     
-    catalogService.toggleProdutoStatus(id)
-    carregarDados()
+    try {
+      await catalogService.toggleProdutoStatus(id, novoStatus, getToken)
+      await carregarDados()
 
-    logEvent({
-      acao: 'ALTERAÇÃO',
-      entidade: 'Produtos (Catálogo)',
-      oQueFoiFeito: `Alteração do Status do produto ${produto.nome}`,
-      diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }]
-    })
+      logEvent({
+        acao: 'ALTERAÇÃO',
+        entidade: 'Produtos (Catálogo)',
+        oQueFoiFeito: `Alteração do Status do produto ${produto.nome}`,
+        diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }]
+      })
+    } catch (err) {
+      alert('Erro ao atualizar status: ' + (err instanceof Error ? err.message : 'Desconhecido'))
+    }
   }
 
   const [tab, setTab] = useState<'catalogo' | 'negociacoes'>('catalogo')
@@ -468,6 +476,7 @@ export function ProdutosAdmin() {
           </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<ProdutoCatalogo>
+              id="admin-products-catalog"
               dados={produtos}
               colunas={COLUNAS_PRODUTOS}
               acoes={ACOES_PRODUTOS}
@@ -488,6 +497,7 @@ export function ProdutosAdmin() {
           </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<NegociacaoEspecial>
+              id="admin-products-negotiations"
               dados={negociacoes}
               colunas={COLUNAS_NEGOCIACOES}
               mensagemVazio="Nenhuma negociação especial registrada."
@@ -501,7 +511,7 @@ export function ProdutosAdmin() {
       <ModalFormularioAbasGlobal
         aberto={modalAberto}
         aoFechar={handleFecharModal}
-        aoSalvar={() => {
+        aoSalvar={async () => {
           const prodId = produtoEditando?.id ?? `p${Date.now()}`
           
           const novoProduto: ProdutoCatalogo = {
@@ -517,7 +527,7 @@ export function ProdutosAdmin() {
             precoUnitario: { valor: valorUnitario, moeda: moedaProduto },
             precoMinimo: { valor: valorMinimo, moeda: moedaProduto },
             precoTotal: valorTotal ? { valor: valorTotal, moeda: moedaProduto } : undefined,
-            limiteUsuarios,
+            limiteUsuarios: limiteUsuarios,
             qtdUsuariosBase: Number(qtdUsuarios) || undefined,
             precoUsuarioAdicional: valorUsuarioAdicional ? { valor: valorUsuarioAdicional, moeda: moedaUsuario } : undefined,
             horasHelpDesk: Number(totalHoras) || 0,
@@ -525,22 +535,18 @@ export function ProdutosAdmin() {
             faixasPreco: faixas.length > 0 ? faixas : undefined
           }
 
-          catalogService.saveProduto(novoProduto)
-
-          if (vincularOrg === 'sim' && orgSelecionada) {
-            catalogService.saveNegociacao({
-              id: `n${Date.now()}`,
-              produtoId: prodId,
-              tenantId: 't_unknown',
-              tenantNome: orgSelecionada,
-              acordo: 'Negociação personalizada via catálogo',
-              ilimitada: vigenciaIlimitada === 'sim',
-              fim: vigenciaPeriodo.fim?.toISOString().split('T')[0]
-            })
+          try {
+            await catalogService.saveProduto(novoProduto, getToken)
+            
+            if (vincularOrg === 'sim' && orgSelecionada) {
+              // Em breve integrar com a nova tabela de negociações no banco
+            }
+            
+            await carregarDados()
+            handleFecharModal()
+          } catch (err) {
+            alert('Erro ao persistir no Railway: ' + (err instanceof Error ? err.message : 'Desconhecido'))
           }
-          
-          carregarDados()
-          handleFecharModal()
         }}
         icone={<ShoppingBagOpen weight="duotone" size={24} />}
         titulo={produtoEditando ? `Editar: ${produtoEditando.nome}` : 'Novo Produto'}
@@ -1022,17 +1028,20 @@ export function ProdutosAdmin() {
 
     <ModalExclusao
       aberto={!!produtoParaExcluir}
+      aoCancelar={() => setProdutoParaExcluir(null)}
+      aoConfirmar={async () => {
+        if (!produtoParaExcluir) return
+        try {
+          await catalogService.deleteProduto(produtoParaExcluir.id, getToken)
+          await carregarDados()
+          setProdutoParaExcluir(null)
+        } catch (err) {
+          alert('Erro ao excluir: ' + (err instanceof Error ? err.message : 'Desconhecido'))
+        }
+      }}
       titulo="Excluir Produto do Catálogo"
       descricao={<>Tem certeza de que deseja remover <strong>{produtoParaExcluir?.nome}</strong> do catálogo de produtos?</>}
       nomeItem="Esta ação é irreversível. Todos os vínculos com organizações e negociações especiais serão removidos."
-      aoConfirmar={() => {
-        if (produtoParaExcluir) {
-          catalogService.deleteProduto(produtoParaExcluir.id)
-          carregarDados()
-          setProdutoParaExcluir(null)
-        }
-      }}
-      aoCancelar={() => setProdutoParaExcluir(null)}
     />
     </>
   )

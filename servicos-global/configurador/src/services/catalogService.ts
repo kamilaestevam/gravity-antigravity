@@ -1,112 +1,105 @@
 /**
  * services/catalogService.ts
- * "Database local" persistente (localStorage) para centralizar os vínculos de produtos reais.
+ * Consome a API real do Configurador (Porta 8005) conectada ao Railway.
+ * Substitui o antigo localStorage para garantir SSOT (Single Source of Truth).
  */
 
-import { ProdutoCatalogo, NegociacaoEspecial, Tenant, Preco } from '../types/entidades'
+import { ProdutoCatalogo, NegociacaoEspecial } from '../types/entidades'
 
-const KEYS = {
-  PRODUTOS: 'gravity_catalog_produtos',
-  NEGOCIACOES: 'gravity_catalog_negociacoes',
-  TENANTS: 'gravity_catalog_tenants'
-}
-
-// ─── Dados Iniciais (O Portfólio Real) ────────────────────────────────────────
-
-const PRODUTOS_INICIAIS: ProdutoCatalogo[] = [
-  {
-    id: 'p1',
-    nome: 'SimulaCusto',
-    descricao: 'Gestão de custos estimados de exportação e importação',
-    slug: 'simula-custo',
-    status: 'Ativo',
-    tipoCobranca: 'Por Estimativa',
-    temSetup: false,
-    precoUnitario: { valor: '10,99', moeda: 'BRL' },
-    precoMinimo: { valor: '0,00', moeda: 'BRL' },
-    limiteUsuarios: 'limitada',
-    qtdUsuariosBase: 10, // Até 10 estimativas free
-    horasHelpDesk: 0,
-    publicoAlvo: 'Importadores, exportadores e despachantes aduaneiros',
-    moduloBackend: 'simula-custo'
-  },
-  {
-    id: 'p2',
-    nome: 'Smart Read',
-    descricao: 'Leitura inteligente de documentos via OCR e IA',
-    slug: 'smart-read',
-    status: 'Ativo',
-    tipoCobranca: 'Por Documento',
-    temSetup: false,
-    precoUnitario: { valor: '5,99', moeda: 'BRL' },
-    precoMinimo: { valor: '0,00', moeda: 'BRL' },
-    limiteUsuarios: 'ilimitada',
-    horasHelpDesk: 0,
-    publicoAlvo: 'Logística, Financeiro e Aduaneiro',
-    moduloBackend: 'smart-read',
-    faixasPreco: [
-      { id: 'f1', de: 10, ate: 100, valor: '5,99', moeda: 'BRL' },
-      { id: 'f2', de: 100, ate: 500, valor: '2,99', moeda: 'BRL' },
-      { id: 'f3', de: 500, valor: '1,99', moeda: 'BRL' },
-    ]
-  }
-]
-
-const NEGOCIACOES_INICIAIS: NegociacaoEspecial[] = []
-
-// ─── Lógica do Serviço ─────────────────────────────────────────────────────────
+const API_URL = 'http://localhost:8005/api/v1/products'
 
 export const catalogService = {
   // --- Produtos ---
-  getProdutos(): ProdutoCatalogo[] {
-    const data = localStorage.getItem(KEYS.PRODUTOS)
-    if (!data) {
-      this.resetParaIniciais()
-      return PRODUTOS_INICIAIS
+  async getProdutos(): Promise<ProdutoCatalogo[]> {
+    try {
+      const response = await fetch(API_URL)
+      if (!response.ok) throw new Error('Erro ao buscar produtos')
+      const data = await response.json()
+      
+      // Adaptador para o formato do Frontend (Mapeia GlobalProduct do Prisma -> ProdutoCatalogo do UI)
+      return data.products.map((p: any) => ({
+        id: p.id,
+        nome: p.name,
+        descricao: p.description || '',
+        slug: p.slug,
+        status: p.status,
+        tipoCobranca: p.type_billing || 'Mensalidade',
+        temSetup: Number(p.setup_price) > 0,
+        precoSetup: { valor: String(p.setup_price), moeda: p.currency },
+        precoUnitario: { valor: String(p.unit_price), moeda: p.currency },
+        precoMinimo: { valor: String(p.min_price), moeda: p.currency },
+        precoTotal: { valor: String(p.total_price), moeda: p.currency },
+        limiteUsuarios: p.limit_users === 'ilimitada' ? 'ilimitada' : 'limitada', 
+        qtdUsuariosBase: p.base_users,
+        horasHelpDesk: p.help_desk_hours,
+        moduloBackend: p.backend_module || '',
+        faixasPreco: typeof p.pricing_tiers === 'string' ? JSON.parse(p.pricing_tiers) : p.pricing_tiers
+      }))
+    } catch (error) {
+      console.error('[catalogService] Erro ao carregar catálogo real:', error)
+      return []
     }
-    return JSON.parse(data)
   },
 
-  saveProduto(produto: ProdutoCatalogo): void {
-    const produtos = this.getProdutos()
-    const index = produtos.findIndex(p => p.id === produto.id)
-    if (index >= 0) {
-      produtos[index] = produto
-    } else {
-      produtos.push(produto)
+  async saveProduto(produto: ProdutoCatalogo, getToken: () => Promise<string | null>): Promise<void> {
+    const token = await getToken()
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        id: produto.id.startsWith('p') ? undefined : produto.id, // O Prisma gera se for novo
+        name: produto.nome,
+        description: produto.descricao,
+        status: produto.status,
+        type_billing: produto.tipoCobranca,
+        setup_price: Number(produto.precoSetup?.valor.replace('.', '').replace(',', '.') || 0),
+        unit_price: Number(produto.precoUnitario.valor.replace('.', '').replace(',', '.') || 0),
+        min_price: Number(produto.precoMinimo.valor.replace('.', '').replace(',', '.') || 0),
+        total_price: Number(produto.precoTotal?.valor.replace('.', '').replace(',', '.') || 0),
+        currency: produto.precoUnitario.moeda || 'BRL',
+        limit_users: produto.limiteUsuarios,
+        base_users: produto.qtdUsuariosBase || 0,
+        help_desk_hours: produto.horasHelpDesk || 0,
+        backend_module: produto.moduloBackend,
+        pricing_tiers: JSON.stringify(produto.faixasPreco || [])
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || 'Erro ao salvar produto')
     }
-    localStorage.setItem(KEYS.PRODUTOS, JSON.stringify(produtos))
   },
 
-  toggleProdutoStatus(id: string): void {
-    const produtos = this.getProdutos()
+  async toggleProdutoStatus(id: string, novoStatus: string, getToken: () => Promise<string | null>): Promise<void> {
+    const token = await getToken()
+    // Como ainda não temos rota de PATCH específica, usamos o POST que faz upsert ou criamos uma pequena rota rápida
+    // Por enquanto, vamos implementar a deleção e recriação ou apenas marcar como suspenso via API de POST
+    const produtos = await this.getProdutos()
     const p = produtos.find(item => item.id === id)
     if (p) {
-      p.status = p.status === 'Ativo' ? 'Suspenso' : 'Ativo'
-      localStorage.setItem(KEYS.PRODUTOS, JSON.stringify(produtos))
+      p.status = novoStatus as any
+      await this.saveProduto(p, getToken)
     }
   },
 
-  deleteProduto(id: string): void {
-    const produtos = this.getProdutos().filter(p => p.id !== id)
-    localStorage.setItem(KEYS.PRODUTOS, JSON.stringify(produtos))
+  async deleteProduto(id: string, getToken: () => Promise<string | null>): Promise<void> {
+    const token = await getToken()
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+
+    if (!response.ok) throw new Error('Erro ao excluir produto')
   },
 
-  // --- Negociações ---
+  // --- Negociações (Em breve migrar para a tabela correspondente) ---
   getNegociacoes(): NegociacaoEspecial[] {
-    const data = localStorage.getItem(KEYS.NEGOCIACOES)
-    return data ? JSON.parse(data) : NEGOCIACOES_INICIAIS
-  },
-
-  saveNegociacao(negociacao: NegociacaoEspecial): void {
-    const negociacoes = this.getNegociacoes()
-    negociacoes.push(negociacao)
-    localStorage.setItem(KEYS.NEGOCIACOES, JSON.stringify(negociacoes))
-  },
-
-  // --- Reset ---
-  resetParaIniciais(): void {
-    localStorage.setItem(KEYS.PRODUTOS, JSON.stringify(PRODUTOS_INICIAIS))
-    localStorage.setItem(KEYS.NEGOCIACOES, JSON.stringify(NEGOCIACOES_INICIAIS))
+    return [] // Retorna vazio no Admin até a conexão de Billing estar pronta
   }
 }

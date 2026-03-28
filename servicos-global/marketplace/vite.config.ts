@@ -19,6 +19,11 @@ export default defineConfig({
   server: {
     port: 8002,
     host: true,
+    fs: {
+      allow: [
+        path.resolve(__dirname, '../..'),
+      ],
+    },
   },
   build: {
     outDir: 'dist',

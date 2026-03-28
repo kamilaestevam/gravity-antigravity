@@ -542,6 +542,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
       {tab === 'auditoria' && (
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
           <TabelaGlobal<LogAuditoria>
+            id={`admin-tenant-audit-${tenant.id}`}
             dados={logs}
             colunas={COLUNAS_AUDIT}
             acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_AUDIT, 'dados_tabela', 'Exportação de Dados')}
@@ -555,6 +556,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
       {tab === 'workspaces' && (
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
           <TabelaGlobal<Workspace>
+            id={`admin-tenant-workspaces-${tenant.id}`}
             dados={tenant.workspaces}
             colunas={COLUNAS_WS}
             mensagemVazio="Nenhum workspace cadastrado para este tenant."

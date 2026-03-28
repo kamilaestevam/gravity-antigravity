@@ -54,6 +54,11 @@ export type UserMembership = $Result.DefaultSelection<Prisma.$UserMembershipPayl
  */
 export type ProductConfig = $Result.DefaultSelection<Prisma.$ProductConfigPayload>
 /**
+ * Model CompanyProduct
+ * 
+ */
+export type CompanyProduct = $Result.DefaultSelection<Prisma.$CompanyProductPayload>
+/**
  * Model StripeEvent
  * 
  */
@@ -64,10 +69,10 @@ export type StripeEvent = $Result.DefaultSelection<Prisma.$StripeEventPayload>
  */
 export type SupplierTenantAccess = $Result.DefaultSelection<Prisma.$SupplierTenantAccessPayload>
 /**
- * Model ServiceToken
+ * Model GlobalProduct
  * 
  */
-export type ServiceToken = $Result.DefaultSelection<Prisma.$ServiceTokenPayload>
+export type GlobalProduct = $Result.DefaultSelection<Prisma.$GlobalProductPayload>
 
 /**
  * Enums
@@ -130,15 +135,6 @@ export const UserMembershipRole: {
 
 export type UserMembershipRole = (typeof UserMembershipRole)[keyof typeof UserMembershipRole]
 
-
-export const ServiceTokenScope: {
-  SERVICE: 'SERVICE',
-  WEBHOOK: 'WEBHOOK',
-  CRON: 'CRON'
-};
-
-export type ServiceTokenScope = (typeof ServiceTokenScope)[keyof typeof ServiceTokenScope]
-
 }
 
 export type TenantStatus = $Enums.TenantStatus
@@ -164,10 +160,6 @@ export const CompanyStatus: typeof $Enums.CompanyStatus
 export type UserMembershipRole = $Enums.UserMembershipRole
 
 export const UserMembershipRole: typeof $Enums.UserMembershipRole
-
-export type ServiceTokenScope = $Enums.ServiceTokenScope
-
-export const ServiceTokenScope: typeof $Enums.ServiceTokenScope
 
 /**
  * ##  Prisma Client ʲˢ
@@ -373,6 +365,16 @@ export class PrismaClient<
   get productConfig(): Prisma.ProductConfigDelegate<ExtArgs>;
 
   /**
+   * `prisma.companyProduct`: Exposes CRUD operations for the **CompanyProduct** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyProducts
+    * const companyProducts = await prisma.companyProduct.findMany()
+    * ```
+    */
+  get companyProduct(): Prisma.CompanyProductDelegate<ExtArgs>;
+
+  /**
    * `prisma.stripeEvent`: Exposes CRUD operations for the **StripeEvent** model.
     * Example usage:
     * ```ts
@@ -393,14 +395,14 @@ export class PrismaClient<
   get supplierTenantAccess(): Prisma.SupplierTenantAccessDelegate<ExtArgs>;
 
   /**
-   * `prisma.serviceToken`: Exposes CRUD operations for the **ServiceToken** model.
+   * `prisma.globalProduct`: Exposes CRUD operations for the **GlobalProduct** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ServiceTokens
-    * const serviceTokens = await prisma.serviceToken.findMany()
+    * // Fetch zero or more GlobalProducts
+    * const globalProducts = await prisma.globalProduct.findMany()
     * ```
     */
-  get serviceToken(): Prisma.ServiceTokenDelegate<ExtArgs>;
+  get globalProduct(): Prisma.GlobalProductDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -850,9 +852,10 @@ export namespace Prisma {
     Company: 'Company',
     UserMembership: 'UserMembership',
     ProductConfig: 'ProductConfig',
+    CompanyProduct: 'CompanyProduct',
     StripeEvent: 'StripeEvent',
     SupplierTenantAccess: 'SupplierTenantAccess',
-    ServiceToken: 'ServiceToken'
+    GlobalProduct: 'GlobalProduct'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -868,7 +871,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "stripeEvent" | "supplierTenantAccess" | "serviceToken"
+      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "companyProduct" | "stripeEvent" | "supplierTenantAccess" | "globalProduct"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1432,6 +1435,76 @@ export namespace Prisma {
           }
         }
       }
+      CompanyProduct: {
+        payload: Prisma.$CompanyProductPayload<ExtArgs>
+        fields: Prisma.CompanyProductFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyProductFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyProductFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyProductFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyProductFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyProductFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyProductCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyProductCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CompanyProductCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>[]
+          }
+          delete: {
+            args: Prisma.CompanyProductDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>
+          }
+          update: {
+            args: Prisma.CompanyProductUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyProductDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyProductUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CompanyProductUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyProductPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyProductAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyProduct>
+          }
+          groupBy: {
+            args: Prisma.CompanyProductGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyProductGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CompanyProductCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyProductCountAggregateOutputType> | number
+          }
+        }
+      }
       StripeEvent: {
         payload: Prisma.$StripeEventPayload<ExtArgs>
         fields: Prisma.StripeEventFieldRefs
@@ -1572,73 +1645,73 @@ export namespace Prisma {
           }
         }
       }
-      ServiceToken: {
-        payload: Prisma.$ServiceTokenPayload<ExtArgs>
-        fields: Prisma.ServiceTokenFieldRefs
+      GlobalProduct: {
+        payload: Prisma.$GlobalProductPayload<ExtArgs>
+        fields: Prisma.GlobalProductFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ServiceTokenFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload> | null
+            args: Prisma.GlobalProductFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ServiceTokenFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>
+            args: Prisma.GlobalProductFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
           }
           findFirst: {
-            args: Prisma.ServiceTokenFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload> | null
+            args: Prisma.GlobalProductFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ServiceTokenFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>
+            args: Prisma.GlobalProductFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
           }
           findMany: {
-            args: Prisma.ServiceTokenFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>[]
+            args: Prisma.GlobalProductFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>[]
           }
           create: {
-            args: Prisma.ServiceTokenCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>
+            args: Prisma.GlobalProductCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
           }
           createMany: {
-            args: Prisma.ServiceTokenCreateManyArgs<ExtArgs>
+            args: Prisma.GlobalProductCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ServiceTokenCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>[]
+            args: Prisma.GlobalProductCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>[]
           }
           delete: {
-            args: Prisma.ServiceTokenDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>
+            args: Prisma.GlobalProductDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
           }
           update: {
-            args: Prisma.ServiceTokenUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>
+            args: Prisma.GlobalProductUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
           }
           deleteMany: {
-            args: Prisma.ServiceTokenDeleteManyArgs<ExtArgs>
+            args: Prisma.GlobalProductDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ServiceTokenUpdateManyArgs<ExtArgs>
+            args: Prisma.GlobalProductUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ServiceTokenUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ServiceTokenPayload>
+            args: Prisma.GlobalProductUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
           }
           aggregate: {
-            args: Prisma.ServiceTokenAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateServiceToken>
+            args: Prisma.GlobalProductAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGlobalProduct>
           }
           groupBy: {
-            args: Prisma.ServiceTokenGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ServiceTokenGroupByOutputType>[]
+            args: Prisma.GlobalProductGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GlobalProductGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ServiceTokenCountArgs<ExtArgs>
-            result: $Utils.Optional<ServiceTokenCountAggregateOutputType> | number
+            args: Prisma.GlobalProductCountArgs<ExtArgs>
+            result: $Utils.Optional<GlobalProductCountAggregateOutputType> | number
           }
         }
       }
@@ -1808,6 +1881,7 @@ export namespace Prisma {
     user_permissions: number
     companies: number
     product_configs: number
+    CompanyProduct: number
   }
 
   export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1816,6 +1890,7 @@ export namespace Prisma {
     user_permissions?: boolean | TenantCountOutputTypeCountUser_permissionsArgs
     companies?: boolean | TenantCountOutputTypeCountCompaniesArgs
     product_configs?: boolean | TenantCountOutputTypeCountProduct_configsArgs
+    CompanyProduct?: boolean | TenantCountOutputTypeCountCompanyProductArgs
   }
 
   // Custom InputTypes
@@ -1862,6 +1937,13 @@ export namespace Prisma {
    */
   export type TenantCountOutputTypeCountProduct_configsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductConfigWhereInput
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountCompanyProductArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyProductWhereInput
   }
 
 
@@ -1911,10 +1993,12 @@ export namespace Prisma {
 
   export type CompanyCountOutputType = {
     memberships: number
+    company_products: number
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     memberships?: boolean | CompanyCountOutputTypeCountMembershipsArgs
+    company_products?: boolean | CompanyCountOutputTypeCountCompany_productsArgs
   }
 
   // Custom InputTypes
@@ -1933,6 +2017,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserMembershipWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountCompany_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyProductWhereInput
   }
 
 
@@ -2133,6 +2224,7 @@ export namespace Prisma {
     user_permissions?: boolean | Tenant$user_permissionsArgs<ExtArgs>
     companies?: boolean | Tenant$companiesArgs<ExtArgs>
     product_configs?: boolean | Tenant$product_configsArgs<ExtArgs>
+    CompanyProduct?: boolean | Tenant$CompanyProductArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -2164,6 +2256,7 @@ export namespace Prisma {
     user_permissions?: boolean | Tenant$user_permissionsArgs<ExtArgs>
     companies?: boolean | Tenant$companiesArgs<ExtArgs>
     product_configs?: boolean | Tenant$product_configsArgs<ExtArgs>
+    CompanyProduct?: boolean | Tenant$CompanyProductArgs<ExtArgs>
     _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2176,6 +2269,7 @@ export namespace Prisma {
       user_permissions: Prisma.$UserPermissionPayload<ExtArgs>[]
       companies: Prisma.$CompanyPayload<ExtArgs>[]
       product_configs: Prisma.$ProductConfigPayload<ExtArgs>[]
+      CompanyProduct: Prisma.$CompanyProductPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2555,6 +2649,7 @@ export namespace Prisma {
     user_permissions<T extends Tenant$user_permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$user_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany"> | Null>
     companies<T extends Tenant$companiesArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$companiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findMany"> | Null>
     product_configs<T extends Tenant$product_configsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$product_configsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "findMany"> | Null>
+    CompanyProduct<T extends Tenant$CompanyProductArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$CompanyProductArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3003,6 +3098,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProductConfigScalarFieldEnum | ProductConfigScalarFieldEnum[]
+  }
+
+  /**
+   * Tenant.CompanyProduct
+   */
+  export type Tenant$CompanyProductArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    where?: CompanyProductWhereInput
+    orderBy?: CompanyProductOrderByWithRelationInput | CompanyProductOrderByWithRelationInput[]
+    cursor?: CompanyProductWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyProductScalarFieldEnum | CompanyProductScalarFieldEnum[]
   }
 
   /**
@@ -7135,6 +7250,7 @@ export namespace Prisma {
     updated_at?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     memberships?: boolean | Company$membershipsArgs<ExtArgs>
+    company_products?: boolean | Company$company_productsArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -7164,6 +7280,7 @@ export namespace Prisma {
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     memberships?: boolean | Company$membershipsArgs<ExtArgs>
+    company_products?: boolean | Company$company_productsArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7175,6 +7292,7 @@ export namespace Prisma {
     objects: {
       tenant: Prisma.$TenantPayload<ExtArgs>
       memberships: Prisma.$UserMembershipPayload<ExtArgs>[]
+      company_products: Prisma.$CompanyProductPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7551,6 +7669,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     memberships<T extends Company$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Company$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserMembershipPayload<ExtArgs>, T, "findMany"> | Null>
+    company_products<T extends Company$company_productsArgs<ExtArgs> = {}>(args?: Subset<T, Company$company_productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7923,6 +8042,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: UserMembershipScalarFieldEnum | UserMembershipScalarFieldEnum[]
+  }
+
+  /**
+   * Company.company_products
+   */
+  export type Company$company_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    where?: CompanyProductWhereInput
+    orderBy?: CompanyProductOrderByWithRelationInput | CompanyProductOrderByWithRelationInput[]
+    cursor?: CompanyProductWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyProductScalarFieldEnum | CompanyProductScalarFieldEnum[]
   }
 
   /**
@@ -9869,6 +10008,969 @@ export namespace Prisma {
 
 
   /**
+   * Model CompanyProduct
+   */
+
+  export type AggregateCompanyProduct = {
+    _count: CompanyProductCountAggregateOutputType | null
+    _min: CompanyProductMinAggregateOutputType | null
+    _max: CompanyProductMaxAggregateOutputType | null
+  }
+
+  export type CompanyProductMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    company_id: string | null
+    product_key: string | null
+    is_active: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type CompanyProductMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    company_id: string | null
+    product_key: string | null
+    is_active: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type CompanyProductCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    company_id: number
+    product_key: number
+    is_active: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type CompanyProductMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    company_id?: true
+    product_key?: true
+    is_active?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type CompanyProductMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    company_id?: true
+    product_key?: true
+    is_active?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type CompanyProductCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    company_id?: true
+    product_key?: true
+    is_active?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type CompanyProductAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyProduct to aggregate.
+     */
+    where?: CompanyProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyProducts to fetch.
+     */
+    orderBy?: CompanyProductOrderByWithRelationInput | CompanyProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyProducts
+    **/
+    _count?: true | CompanyProductCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyProductMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyProductMaxAggregateInputType
+  }
+
+  export type GetCompanyProductAggregateType<T extends CompanyProductAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyProduct]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyProduct[P]>
+      : GetScalarType<T[P], AggregateCompanyProduct[P]>
+  }
+
+
+
+
+  export type CompanyProductGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyProductWhereInput
+    orderBy?: CompanyProductOrderByWithAggregationInput | CompanyProductOrderByWithAggregationInput[]
+    by: CompanyProductScalarFieldEnum[] | CompanyProductScalarFieldEnum
+    having?: CompanyProductScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyProductCountAggregateInputType | true
+    _min?: CompanyProductMinAggregateInputType
+    _max?: CompanyProductMaxAggregateInputType
+  }
+
+  export type CompanyProductGroupByOutputType = {
+    id: string
+    tenant_id: string
+    company_id: string
+    product_key: string
+    is_active: boolean
+    created_at: Date
+    updated_at: Date
+    _count: CompanyProductCountAggregateOutputType | null
+    _min: CompanyProductMinAggregateOutputType | null
+    _max: CompanyProductMaxAggregateOutputType | null
+  }
+
+  type GetCompanyProductGroupByPayload<T extends CompanyProductGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyProductGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyProductGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyProductGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyProductGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyProductSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    company_id?: boolean
+    product_key?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyProduct"]>
+
+  export type CompanyProductSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    company_id?: boolean
+    product_key?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyProduct"]>
+
+  export type CompanyProductSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    company_id?: boolean
+    product_key?: boolean
+    is_active?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type CompanyProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+  export type CompanyProductIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    company?: boolean | CompanyDefaultArgs<ExtArgs>
+  }
+
+  export type $CompanyProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyProduct"
+    objects: {
+      tenant: Prisma.$TenantPayload<ExtArgs>
+      company: Prisma.$CompanyPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      company_id: string
+      product_key: string
+      is_active: boolean
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["companyProduct"]>
+    composites: {}
+  }
+
+  type CompanyProductGetPayload<S extends boolean | null | undefined | CompanyProductDefaultArgs> = $Result.GetResult<Prisma.$CompanyProductPayload, S>
+
+  type CompanyProductCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CompanyProductFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CompanyProductCountAggregateInputType | true
+    }
+
+  export interface CompanyProductDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyProduct'], meta: { name: 'CompanyProduct' } }
+    /**
+     * Find zero or one CompanyProduct that matches the filter.
+     * @param {CompanyProductFindUniqueArgs} args - Arguments to find a CompanyProduct
+     * @example
+     * // Get one CompanyProduct
+     * const companyProduct = await prisma.companyProduct.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyProductFindUniqueArgs>(args: SelectSubset<T, CompanyProductFindUniqueArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CompanyProduct that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CompanyProductFindUniqueOrThrowArgs} args - Arguments to find a CompanyProduct
+     * @example
+     * // Get one CompanyProduct
+     * const companyProduct = await prisma.companyProduct.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyProductFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyProductFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CompanyProduct that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyProductFindFirstArgs} args - Arguments to find a CompanyProduct
+     * @example
+     * // Get one CompanyProduct
+     * const companyProduct = await prisma.companyProduct.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyProductFindFirstArgs>(args?: SelectSubset<T, CompanyProductFindFirstArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CompanyProduct that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyProductFindFirstOrThrowArgs} args - Arguments to find a CompanyProduct
+     * @example
+     * // Get one CompanyProduct
+     * const companyProduct = await prisma.companyProduct.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyProductFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyProductFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CompanyProducts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyProductFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyProducts
+     * const companyProducts = await prisma.companyProduct.findMany()
+     * 
+     * // Get first 10 CompanyProducts
+     * const companyProducts = await prisma.companyProduct.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyProductWithIdOnly = await prisma.companyProduct.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyProductFindManyArgs>(args?: SelectSubset<T, CompanyProductFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CompanyProduct.
+     * @param {CompanyProductCreateArgs} args - Arguments to create a CompanyProduct.
+     * @example
+     * // Create one CompanyProduct
+     * const CompanyProduct = await prisma.companyProduct.create({
+     *   data: {
+     *     // ... data to create a CompanyProduct
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyProductCreateArgs>(args: SelectSubset<T, CompanyProductCreateArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CompanyProducts.
+     * @param {CompanyProductCreateManyArgs} args - Arguments to create many CompanyProducts.
+     * @example
+     * // Create many CompanyProducts
+     * const companyProduct = await prisma.companyProduct.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyProductCreateManyArgs>(args?: SelectSubset<T, CompanyProductCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CompanyProducts and returns the data saved in the database.
+     * @param {CompanyProductCreateManyAndReturnArgs} args - Arguments to create many CompanyProducts.
+     * @example
+     * // Create many CompanyProducts
+     * const companyProduct = await prisma.companyProduct.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CompanyProducts and only return the `id`
+     * const companyProductWithIdOnly = await prisma.companyProduct.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CompanyProductCreateManyAndReturnArgs>(args?: SelectSubset<T, CompanyProductCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CompanyProduct.
+     * @param {CompanyProductDeleteArgs} args - Arguments to delete one CompanyProduct.
+     * @example
+     * // Delete one CompanyProduct
+     * const CompanyProduct = await prisma.companyProduct.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyProduct
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyProductDeleteArgs>(args: SelectSubset<T, CompanyProductDeleteArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CompanyProduct.
+     * @param {CompanyProductUpdateArgs} args - Arguments to update one CompanyProduct.
+     * @example
+     * // Update one CompanyProduct
+     * const companyProduct = await prisma.companyProduct.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyProductUpdateArgs>(args: SelectSubset<T, CompanyProductUpdateArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CompanyProducts.
+     * @param {CompanyProductDeleteManyArgs} args - Arguments to filter CompanyProducts to delete.
+     * @example
+     * // Delete a few CompanyProducts
+     * const { count } = await prisma.companyProduct.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyProductDeleteManyArgs>(args?: SelectSubset<T, CompanyProductDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyProducts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyProductUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyProducts
+     * const companyProduct = await prisma.companyProduct.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyProductUpdateManyArgs>(args: SelectSubset<T, CompanyProductUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CompanyProduct.
+     * @param {CompanyProductUpsertArgs} args - Arguments to update or create a CompanyProduct.
+     * @example
+     * // Update or create a CompanyProduct
+     * const companyProduct = await prisma.companyProduct.upsert({
+     *   create: {
+     *     // ... data to create a CompanyProduct
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyProduct we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyProductUpsertArgs>(args: SelectSubset<T, CompanyProductUpsertArgs<ExtArgs>>): Prisma__CompanyProductClient<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CompanyProducts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyProductCountArgs} args - Arguments to filter CompanyProducts to count.
+     * @example
+     * // Count the number of CompanyProducts
+     * const count = await prisma.companyProduct.count({
+     *   where: {
+     *     // ... the filter for the CompanyProducts we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyProductCountArgs>(
+      args?: Subset<T, CompanyProductCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyProductCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyProduct.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyProductAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyProductAggregateArgs>(args: Subset<T, CompanyProductAggregateArgs>): Prisma.PrismaPromise<GetCompanyProductAggregateType<T>>
+
+    /**
+     * Group by CompanyProduct.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyProductGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyProductGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyProductGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyProductGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyProductGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyProductGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyProduct model
+   */
+  readonly fields: CompanyProductFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyProduct.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyProductClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    company<T extends CompanyDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyDefaultArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyProduct model
+   */ 
+  interface CompanyProductFieldRefs {
+    readonly id: FieldRef<"CompanyProduct", 'String'>
+    readonly tenant_id: FieldRef<"CompanyProduct", 'String'>
+    readonly company_id: FieldRef<"CompanyProduct", 'String'>
+    readonly product_key: FieldRef<"CompanyProduct", 'String'>
+    readonly is_active: FieldRef<"CompanyProduct", 'Boolean'>
+    readonly created_at: FieldRef<"CompanyProduct", 'DateTime'>
+    readonly updated_at: FieldRef<"CompanyProduct", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyProduct findUnique
+   */
+  export type CompanyProductFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyProduct to fetch.
+     */
+    where: CompanyProductWhereUniqueInput
+  }
+
+  /**
+   * CompanyProduct findUniqueOrThrow
+   */
+  export type CompanyProductFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyProduct to fetch.
+     */
+    where: CompanyProductWhereUniqueInput
+  }
+
+  /**
+   * CompanyProduct findFirst
+   */
+  export type CompanyProductFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyProduct to fetch.
+     */
+    where?: CompanyProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyProducts to fetch.
+     */
+    orderBy?: CompanyProductOrderByWithRelationInput | CompanyProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyProducts.
+     */
+    cursor?: CompanyProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyProducts.
+     */
+    distinct?: CompanyProductScalarFieldEnum | CompanyProductScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyProduct findFirstOrThrow
+   */
+  export type CompanyProductFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyProduct to fetch.
+     */
+    where?: CompanyProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyProducts to fetch.
+     */
+    orderBy?: CompanyProductOrderByWithRelationInput | CompanyProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyProducts.
+     */
+    cursor?: CompanyProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyProducts.
+     */
+    distinct?: CompanyProductScalarFieldEnum | CompanyProductScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyProduct findMany
+   */
+  export type CompanyProductFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyProducts to fetch.
+     */
+    where?: CompanyProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyProducts to fetch.
+     */
+    orderBy?: CompanyProductOrderByWithRelationInput | CompanyProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyProducts.
+     */
+    cursor?: CompanyProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyProducts.
+     */
+    skip?: number
+    distinct?: CompanyProductScalarFieldEnum | CompanyProductScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyProduct create
+   */
+  export type CompanyProductCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyProduct.
+     */
+    data: XOR<CompanyProductCreateInput, CompanyProductUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyProduct createMany
+   */
+  export type CompanyProductCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyProducts.
+     */
+    data: CompanyProductCreateManyInput | CompanyProductCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyProduct createManyAndReturn
+   */
+  export type CompanyProductCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CompanyProducts.
+     */
+    data: CompanyProductCreateManyInput | CompanyProductCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CompanyProduct update
+   */
+  export type CompanyProductUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyProduct.
+     */
+    data: XOR<CompanyProductUpdateInput, CompanyProductUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyProduct to update.
+     */
+    where: CompanyProductWhereUniqueInput
+  }
+
+  /**
+   * CompanyProduct updateMany
+   */
+  export type CompanyProductUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyProducts.
+     */
+    data: XOR<CompanyProductUpdateManyMutationInput, CompanyProductUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyProducts to update
+     */
+    where?: CompanyProductWhereInput
+  }
+
+  /**
+   * CompanyProduct upsert
+   */
+  export type CompanyProductUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyProduct to update in case it exists.
+     */
+    where: CompanyProductWhereUniqueInput
+    /**
+     * In case the CompanyProduct found by the `where` argument doesn't exist, create a new CompanyProduct with this data.
+     */
+    create: XOR<CompanyProductCreateInput, CompanyProductUncheckedCreateInput>
+    /**
+     * In case the CompanyProduct was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyProductUpdateInput, CompanyProductUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyProduct delete
+   */
+  export type CompanyProductDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+    /**
+     * Filter which CompanyProduct to delete.
+     */
+    where: CompanyProductWhereUniqueInput
+  }
+
+  /**
+   * CompanyProduct deleteMany
+   */
+  export type CompanyProductDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyProducts to delete
+     */
+    where?: CompanyProductWhereInput
+  }
+
+  /**
+   * CompanyProduct without action
+   */
+  export type CompanyProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyProduct
+     */
+    select?: CompanyProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyProductInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model StripeEvent
    */
 
@@ -11621,360 +12723,538 @@ export namespace Prisma {
 
 
   /**
-   * Model ServiceToken
+   * Model GlobalProduct
    */
 
-  export type AggregateServiceToken = {
-    _count: ServiceTokenCountAggregateOutputType | null
-    _min: ServiceTokenMinAggregateOutputType | null
-    _max: ServiceTokenMaxAggregateOutputType | null
+  export type AggregateGlobalProduct = {
+    _count: GlobalProductCountAggregateOutputType | null
+    _avg: GlobalProductAvgAggregateOutputType | null
+    _sum: GlobalProductSumAggregateOutputType | null
+    _min: GlobalProductMinAggregateOutputType | null
+    _max: GlobalProductMaxAggregateOutputType | null
   }
 
-  export type ServiceTokenMinAggregateOutputType = {
+  export type GlobalProductAvgAggregateOutputType = {
+    setup_price: Decimal | null
+    unit_price: Decimal | null
+    min_price: Decimal | null
+    total_price: Decimal | null
+    base_users: number | null
+    help_desk_hours: number | null
+  }
+
+  export type GlobalProductSumAggregateOutputType = {
+    setup_price: Decimal | null
+    unit_price: Decimal | null
+    min_price: Decimal | null
+    total_price: Decimal | null
+    base_users: number | null
+    help_desk_hours: number | null
+  }
+
+  export type GlobalProductMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    token_hash: string | null
-    scope: $Enums.ServiceTokenScope | null
-    expires_at: Date | null
-    revoked: boolean | null
+    name: string | null
+    slug: string | null
+    description: string | null
+    status: string | null
+    type_billing: string | null
+    setup_price: Decimal | null
+    unit_price: Decimal | null
+    min_price: Decimal | null
+    total_price: Decimal | null
+    currency: string | null
+    limit_users: string | null
+    base_users: number | null
+    help_desk_hours: number | null
+    backend_module: string | null
+    target_audience: string | null
     created_at: Date | null
+    updated_at: Date | null
   }
 
-  export type ServiceTokenMaxAggregateOutputType = {
+  export type GlobalProductMaxAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    token_hash: string | null
-    scope: $Enums.ServiceTokenScope | null
-    expires_at: Date | null
-    revoked: boolean | null
+    name: string | null
+    slug: string | null
+    description: string | null
+    status: string | null
+    type_billing: string | null
+    setup_price: Decimal | null
+    unit_price: Decimal | null
+    min_price: Decimal | null
+    total_price: Decimal | null
+    currency: string | null
+    limit_users: string | null
+    base_users: number | null
+    help_desk_hours: number | null
+    backend_module: string | null
+    target_audience: string | null
     created_at: Date | null
+    updated_at: Date | null
   }
 
-  export type ServiceTokenCountAggregateOutputType = {
+  export type GlobalProductCountAggregateOutputType = {
     id: number
-    tenant_id: number
-    user_id: number
-    token_hash: number
-    scope: number
-    expires_at: number
-    revoked: number
+    name: number
+    slug: number
+    description: number
+    status: number
+    type_billing: number
+    setup_price: number
+    unit_price: number
+    min_price: number
+    total_price: number
+    currency: number
+    limit_users: number
+    base_users: number
+    help_desk_hours: number
+    backend_module: number
+    target_audience: number
+    features: number
+    pricing_tiers: number
     created_at: number
+    updated_at: number
     _all: number
   }
 
 
-  export type ServiceTokenMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    token_hash?: true
-    scope?: true
-    expires_at?: true
-    revoked?: true
-    created_at?: true
+  export type GlobalProductAvgAggregateInputType = {
+    setup_price?: true
+    unit_price?: true
+    min_price?: true
+    total_price?: true
+    base_users?: true
+    help_desk_hours?: true
   }
 
-  export type ServiceTokenMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    token_hash?: true
-    scope?: true
-    expires_at?: true
-    revoked?: true
-    created_at?: true
+  export type GlobalProductSumAggregateInputType = {
+    setup_price?: true
+    unit_price?: true
+    min_price?: true
+    total_price?: true
+    base_users?: true
+    help_desk_hours?: true
   }
 
-  export type ServiceTokenCountAggregateInputType = {
+  export type GlobalProductMinAggregateInputType = {
     id?: true
-    tenant_id?: true
-    user_id?: true
-    token_hash?: true
-    scope?: true
-    expires_at?: true
-    revoked?: true
+    name?: true
+    slug?: true
+    description?: true
+    status?: true
+    type_billing?: true
+    setup_price?: true
+    unit_price?: true
+    min_price?: true
+    total_price?: true
+    currency?: true
+    limit_users?: true
+    base_users?: true
+    help_desk_hours?: true
+    backend_module?: true
+    target_audience?: true
     created_at?: true
+    updated_at?: true
+  }
+
+  export type GlobalProductMaxAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    description?: true
+    status?: true
+    type_billing?: true
+    setup_price?: true
+    unit_price?: true
+    min_price?: true
+    total_price?: true
+    currency?: true
+    limit_users?: true
+    base_users?: true
+    help_desk_hours?: true
+    backend_module?: true
+    target_audience?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type GlobalProductCountAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    description?: true
+    status?: true
+    type_billing?: true
+    setup_price?: true
+    unit_price?: true
+    min_price?: true
+    total_price?: true
+    currency?: true
+    limit_users?: true
+    base_users?: true
+    help_desk_hours?: true
+    backend_module?: true
+    target_audience?: true
+    features?: true
+    pricing_tiers?: true
+    created_at?: true
+    updated_at?: true
     _all?: true
   }
 
-  export type ServiceTokenAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ServiceToken to aggregate.
+     * Filter which GlobalProduct to aggregate.
      */
-    where?: ServiceTokenWhereInput
+    where?: GlobalProductWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ServiceTokens to fetch.
+     * Determine the order of GlobalProducts to fetch.
      */
-    orderBy?: ServiceTokenOrderByWithRelationInput | ServiceTokenOrderByWithRelationInput[]
+    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ServiceTokenWhereUniqueInput
+    cursor?: GlobalProductWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ServiceTokens from the position of the cursor.
+     * Take `±n` GlobalProducts from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ServiceTokens.
+     * Skip the first `n` GlobalProducts.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ServiceTokens
+     * Count returned GlobalProducts
     **/
-    _count?: true | ServiceTokenCountAggregateInputType
+    _count?: true | GlobalProductCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GlobalProductAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GlobalProductSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ServiceTokenMinAggregateInputType
+    _min?: GlobalProductMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ServiceTokenMaxAggregateInputType
+    _max?: GlobalProductMaxAggregateInputType
   }
 
-  export type GetServiceTokenAggregateType<T extends ServiceTokenAggregateArgs> = {
-        [P in keyof T & keyof AggregateServiceToken]: P extends '_count' | 'count'
+  export type GetGlobalProductAggregateType<T extends GlobalProductAggregateArgs> = {
+        [P in keyof T & keyof AggregateGlobalProduct]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateServiceToken[P]>
-      : GetScalarType<T[P], AggregateServiceToken[P]>
+        : GetScalarType<T[P], AggregateGlobalProduct[P]>
+      : GetScalarType<T[P], AggregateGlobalProduct[P]>
   }
 
 
 
 
-  export type ServiceTokenGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ServiceTokenWhereInput
-    orderBy?: ServiceTokenOrderByWithAggregationInput | ServiceTokenOrderByWithAggregationInput[]
-    by: ServiceTokenScalarFieldEnum[] | ServiceTokenScalarFieldEnum
-    having?: ServiceTokenScalarWhereWithAggregatesInput
+  export type GlobalProductGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GlobalProductWhereInput
+    orderBy?: GlobalProductOrderByWithAggregationInput | GlobalProductOrderByWithAggregationInput[]
+    by: GlobalProductScalarFieldEnum[] | GlobalProductScalarFieldEnum
+    having?: GlobalProductScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ServiceTokenCountAggregateInputType | true
-    _min?: ServiceTokenMinAggregateInputType
-    _max?: ServiceTokenMaxAggregateInputType
+    _count?: GlobalProductCountAggregateInputType | true
+    _avg?: GlobalProductAvgAggregateInputType
+    _sum?: GlobalProductSumAggregateInputType
+    _min?: GlobalProductMinAggregateInputType
+    _max?: GlobalProductMaxAggregateInputType
   }
 
-  export type ServiceTokenGroupByOutputType = {
+  export type GlobalProductGroupByOutputType = {
     id: string
-    tenant_id: string
-    user_id: string
-    token_hash: string
-    scope: $Enums.ServiceTokenScope
-    expires_at: Date | null
-    revoked: boolean
+    name: string
+    slug: string
+    description: string | null
+    status: string
+    type_billing: string | null
+    setup_price: Decimal | null
+    unit_price: Decimal | null
+    min_price: Decimal | null
+    total_price: Decimal | null
+    currency: string
+    limit_users: string
+    base_users: number
+    help_desk_hours: number
+    backend_module: string | null
+    target_audience: string | null
+    features: JsonValue | null
+    pricing_tiers: JsonValue | null
     created_at: Date
-    _count: ServiceTokenCountAggregateOutputType | null
-    _min: ServiceTokenMinAggregateOutputType | null
-    _max: ServiceTokenMaxAggregateOutputType | null
+    updated_at: Date
+    _count: GlobalProductCountAggregateOutputType | null
+    _avg: GlobalProductAvgAggregateOutputType | null
+    _sum: GlobalProductSumAggregateOutputType | null
+    _min: GlobalProductMinAggregateOutputType | null
+    _max: GlobalProductMaxAggregateOutputType | null
   }
 
-  type GetServiceTokenGroupByPayload<T extends ServiceTokenGroupByArgs> = Prisma.PrismaPromise<
+  type GetGlobalProductGroupByPayload<T extends GlobalProductGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ServiceTokenGroupByOutputType, T['by']> &
+      PickEnumerable<GlobalProductGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ServiceTokenGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof GlobalProductGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ServiceTokenGroupByOutputType[P]>
-            : GetScalarType<T[P], ServiceTokenGroupByOutputType[P]>
+              : GetScalarType<T[P], GlobalProductGroupByOutputType[P]>
+            : GetScalarType<T[P], GlobalProductGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ServiceTokenSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type GlobalProductSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    token_hash?: boolean
-    scope?: boolean
-    expires_at?: boolean
-    revoked?: boolean
+    name?: boolean
+    slug?: boolean
+    description?: boolean
+    status?: boolean
+    type_billing?: boolean
+    setup_price?: boolean
+    unit_price?: boolean
+    min_price?: boolean
+    total_price?: boolean
+    currency?: boolean
+    limit_users?: boolean
+    base_users?: boolean
+    help_desk_hours?: boolean
+    backend_module?: boolean
+    target_audience?: boolean
+    features?: boolean
+    pricing_tiers?: boolean
     created_at?: boolean
-  }, ExtArgs["result"]["serviceToken"]>
+    updated_at?: boolean
+  }, ExtArgs["result"]["globalProduct"]>
 
-  export type ServiceTokenSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type GlobalProductSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    token_hash?: boolean
-    scope?: boolean
-    expires_at?: boolean
-    revoked?: boolean
+    name?: boolean
+    slug?: boolean
+    description?: boolean
+    status?: boolean
+    type_billing?: boolean
+    setup_price?: boolean
+    unit_price?: boolean
+    min_price?: boolean
+    total_price?: boolean
+    currency?: boolean
+    limit_users?: boolean
+    base_users?: boolean
+    help_desk_hours?: boolean
+    backend_module?: boolean
+    target_audience?: boolean
+    features?: boolean
+    pricing_tiers?: boolean
     created_at?: boolean
-  }, ExtArgs["result"]["serviceToken"]>
+    updated_at?: boolean
+  }, ExtArgs["result"]["globalProduct"]>
 
-  export type ServiceTokenSelectScalar = {
+  export type GlobalProductSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    token_hash?: boolean
-    scope?: boolean
-    expires_at?: boolean
-    revoked?: boolean
+    name?: boolean
+    slug?: boolean
+    description?: boolean
+    status?: boolean
+    type_billing?: boolean
+    setup_price?: boolean
+    unit_price?: boolean
+    min_price?: boolean
+    total_price?: boolean
+    currency?: boolean
+    limit_users?: boolean
+    base_users?: boolean
+    help_desk_hours?: boolean
+    backend_module?: boolean
+    target_audience?: boolean
+    features?: boolean
+    pricing_tiers?: boolean
     created_at?: boolean
+    updated_at?: boolean
   }
 
 
-  export type $ServiceTokenPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ServiceToken"
+  export type $GlobalProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GlobalProduct"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
-      user_id: string
-      token_hash: string
-      scope: $Enums.ServiceTokenScope
-      expires_at: Date | null
-      revoked: boolean
+      name: string
+      slug: string
+      description: string | null
+      status: string
+      type_billing: string | null
+      setup_price: Prisma.Decimal | null
+      unit_price: Prisma.Decimal | null
+      min_price: Prisma.Decimal | null
+      total_price: Prisma.Decimal | null
+      currency: string
+      limit_users: string
+      base_users: number
+      help_desk_hours: number
+      backend_module: string | null
+      target_audience: string | null
+      features: Prisma.JsonValue | null
+      pricing_tiers: Prisma.JsonValue | null
       created_at: Date
-    }, ExtArgs["result"]["serviceToken"]>
+      updated_at: Date
+    }, ExtArgs["result"]["globalProduct"]>
     composites: {}
   }
 
-  type ServiceTokenGetPayload<S extends boolean | null | undefined | ServiceTokenDefaultArgs> = $Result.GetResult<Prisma.$ServiceTokenPayload, S>
+  type GlobalProductGetPayload<S extends boolean | null | undefined | GlobalProductDefaultArgs> = $Result.GetResult<Prisma.$GlobalProductPayload, S>
 
-  type ServiceTokenCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ServiceTokenFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ServiceTokenCountAggregateInputType | true
+  type GlobalProductCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GlobalProductFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GlobalProductCountAggregateInputType | true
     }
 
-  export interface ServiceTokenDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ServiceToken'], meta: { name: 'ServiceToken' } }
+  export interface GlobalProductDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GlobalProduct'], meta: { name: 'GlobalProduct' } }
     /**
-     * Find zero or one ServiceToken that matches the filter.
-     * @param {ServiceTokenFindUniqueArgs} args - Arguments to find a ServiceToken
+     * Find zero or one GlobalProduct that matches the filter.
+     * @param {GlobalProductFindUniqueArgs} args - Arguments to find a GlobalProduct
      * @example
-     * // Get one ServiceToken
-     * const serviceToken = await prisma.serviceToken.findUnique({
+     * // Get one GlobalProduct
+     * const globalProduct = await prisma.globalProduct.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ServiceTokenFindUniqueArgs>(args: SelectSubset<T, ServiceTokenFindUniqueArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends GlobalProductFindUniqueArgs>(args: SelectSubset<T, GlobalProductFindUniqueArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ServiceToken that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one GlobalProduct that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ServiceTokenFindUniqueOrThrowArgs} args - Arguments to find a ServiceToken
+     * @param {GlobalProductFindUniqueOrThrowArgs} args - Arguments to find a GlobalProduct
      * @example
-     * // Get one ServiceToken
-     * const serviceToken = await prisma.serviceToken.findUniqueOrThrow({
+     * // Get one GlobalProduct
+     * const globalProduct = await prisma.globalProduct.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ServiceTokenFindUniqueOrThrowArgs>(args: SelectSubset<T, ServiceTokenFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends GlobalProductFindUniqueOrThrowArgs>(args: SelectSubset<T, GlobalProductFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first ServiceToken that matches the filter.
+     * Find the first GlobalProduct that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServiceTokenFindFirstArgs} args - Arguments to find a ServiceToken
+     * @param {GlobalProductFindFirstArgs} args - Arguments to find a GlobalProduct
      * @example
-     * // Get one ServiceToken
-     * const serviceToken = await prisma.serviceToken.findFirst({
+     * // Get one GlobalProduct
+     * const globalProduct = await prisma.globalProduct.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ServiceTokenFindFirstArgs>(args?: SelectSubset<T, ServiceTokenFindFirstArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends GlobalProductFindFirstArgs>(args?: SelectSubset<T, GlobalProductFindFirstArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first ServiceToken that matches the filter or
+     * Find the first GlobalProduct that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServiceTokenFindFirstOrThrowArgs} args - Arguments to find a ServiceToken
+     * @param {GlobalProductFindFirstOrThrowArgs} args - Arguments to find a GlobalProduct
      * @example
-     * // Get one ServiceToken
-     * const serviceToken = await prisma.serviceToken.findFirstOrThrow({
+     * // Get one GlobalProduct
+     * const globalProduct = await prisma.globalProduct.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ServiceTokenFindFirstOrThrowArgs>(args?: SelectSubset<T, ServiceTokenFindFirstOrThrowArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends GlobalProductFindFirstOrThrowArgs>(args?: SelectSubset<T, GlobalProductFindFirstOrThrowArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more ServiceTokens that matches the filter.
+     * Find zero or more GlobalProducts that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServiceTokenFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {GlobalProductFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ServiceTokens
-     * const serviceTokens = await prisma.serviceToken.findMany()
+     * // Get all GlobalProducts
+     * const globalProducts = await prisma.globalProduct.findMany()
      * 
-     * // Get first 10 ServiceTokens
-     * const serviceTokens = await prisma.serviceToken.findMany({ take: 10 })
+     * // Get first 10 GlobalProducts
+     * const globalProducts = await prisma.globalProduct.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const serviceTokenWithIdOnly = await prisma.serviceToken.findMany({ select: { id: true } })
+     * const globalProductWithIdOnly = await prisma.globalProduct.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ServiceTokenFindManyArgs>(args?: SelectSubset<T, ServiceTokenFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends GlobalProductFindManyArgs>(args?: SelectSubset<T, GlobalProductFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a ServiceToken.
-     * @param {ServiceTokenCreateArgs} args - Arguments to create a ServiceToken.
+     * Create a GlobalProduct.
+     * @param {GlobalProductCreateArgs} args - Arguments to create a GlobalProduct.
      * @example
-     * // Create one ServiceToken
-     * const ServiceToken = await prisma.serviceToken.create({
+     * // Create one GlobalProduct
+     * const GlobalProduct = await prisma.globalProduct.create({
      *   data: {
-     *     // ... data to create a ServiceToken
+     *     // ... data to create a GlobalProduct
      *   }
      * })
      * 
      */
-    create<T extends ServiceTokenCreateArgs>(args: SelectSubset<T, ServiceTokenCreateArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends GlobalProductCreateArgs>(args: SelectSubset<T, GlobalProductCreateArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many ServiceTokens.
-     * @param {ServiceTokenCreateManyArgs} args - Arguments to create many ServiceTokens.
+     * Create many GlobalProducts.
+     * @param {GlobalProductCreateManyArgs} args - Arguments to create many GlobalProducts.
      * @example
-     * // Create many ServiceTokens
-     * const serviceToken = await prisma.serviceToken.createMany({
+     * // Create many GlobalProducts
+     * const globalProduct = await prisma.globalProduct.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ServiceTokenCreateManyArgs>(args?: SelectSubset<T, ServiceTokenCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends GlobalProductCreateManyArgs>(args?: SelectSubset<T, GlobalProductCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ServiceTokens and returns the data saved in the database.
-     * @param {ServiceTokenCreateManyAndReturnArgs} args - Arguments to create many ServiceTokens.
+     * Create many GlobalProducts and returns the data saved in the database.
+     * @param {GlobalProductCreateManyAndReturnArgs} args - Arguments to create many GlobalProducts.
      * @example
-     * // Create many ServiceTokens
-     * const serviceToken = await prisma.serviceToken.createManyAndReturn({
+     * // Create many GlobalProducts
+     * const globalProduct = await prisma.globalProduct.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ServiceTokens and only return the `id`
-     * const serviceTokenWithIdOnly = await prisma.serviceToken.createManyAndReturn({ 
+     * // Create many GlobalProducts and only return the `id`
+     * const globalProductWithIdOnly = await prisma.globalProduct.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -11984,28 +13264,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ServiceTokenCreateManyAndReturnArgs>(args?: SelectSubset<T, ServiceTokenCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends GlobalProductCreateManyAndReturnArgs>(args?: SelectSubset<T, GlobalProductCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a ServiceToken.
-     * @param {ServiceTokenDeleteArgs} args - Arguments to delete one ServiceToken.
+     * Delete a GlobalProduct.
+     * @param {GlobalProductDeleteArgs} args - Arguments to delete one GlobalProduct.
      * @example
-     * // Delete one ServiceToken
-     * const ServiceToken = await prisma.serviceToken.delete({
+     * // Delete one GlobalProduct
+     * const GlobalProduct = await prisma.globalProduct.delete({
      *   where: {
-     *     // ... filter to delete one ServiceToken
+     *     // ... filter to delete one GlobalProduct
      *   }
      * })
      * 
      */
-    delete<T extends ServiceTokenDeleteArgs>(args: SelectSubset<T, ServiceTokenDeleteArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends GlobalProductDeleteArgs>(args: SelectSubset<T, GlobalProductDeleteArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one ServiceToken.
-     * @param {ServiceTokenUpdateArgs} args - Arguments to update one ServiceToken.
+     * Update one GlobalProduct.
+     * @param {GlobalProductUpdateArgs} args - Arguments to update one GlobalProduct.
      * @example
-     * // Update one ServiceToken
-     * const serviceToken = await prisma.serviceToken.update({
+     * // Update one GlobalProduct
+     * const globalProduct = await prisma.globalProduct.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -12015,30 +13295,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ServiceTokenUpdateArgs>(args: SelectSubset<T, ServiceTokenUpdateArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends GlobalProductUpdateArgs>(args: SelectSubset<T, GlobalProductUpdateArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more ServiceTokens.
-     * @param {ServiceTokenDeleteManyArgs} args - Arguments to filter ServiceTokens to delete.
+     * Delete zero or more GlobalProducts.
+     * @param {GlobalProductDeleteManyArgs} args - Arguments to filter GlobalProducts to delete.
      * @example
-     * // Delete a few ServiceTokens
-     * const { count } = await prisma.serviceToken.deleteMany({
+     * // Delete a few GlobalProducts
+     * const { count } = await prisma.globalProduct.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ServiceTokenDeleteManyArgs>(args?: SelectSubset<T, ServiceTokenDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends GlobalProductDeleteManyArgs>(args?: SelectSubset<T, GlobalProductDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ServiceTokens.
+     * Update zero or more GlobalProducts.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServiceTokenUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {GlobalProductUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ServiceTokens
-     * const serviceToken = await prisma.serviceToken.updateMany({
+     * // Update many GlobalProducts
+     * const globalProduct = await prisma.globalProduct.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -12048,56 +13328,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ServiceTokenUpdateManyArgs>(args: SelectSubset<T, ServiceTokenUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends GlobalProductUpdateManyArgs>(args: SelectSubset<T, GlobalProductUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one ServiceToken.
-     * @param {ServiceTokenUpsertArgs} args - Arguments to update or create a ServiceToken.
+     * Create or update one GlobalProduct.
+     * @param {GlobalProductUpsertArgs} args - Arguments to update or create a GlobalProduct.
      * @example
-     * // Update or create a ServiceToken
-     * const serviceToken = await prisma.serviceToken.upsert({
+     * // Update or create a GlobalProduct
+     * const globalProduct = await prisma.globalProduct.upsert({
      *   create: {
-     *     // ... data to create a ServiceToken
+     *     // ... data to create a GlobalProduct
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ServiceToken we want to update
+     *     // ... the filter for the GlobalProduct we want to update
      *   }
      * })
      */
-    upsert<T extends ServiceTokenUpsertArgs>(args: SelectSubset<T, ServiceTokenUpsertArgs<ExtArgs>>): Prisma__ServiceTokenClient<$Result.GetResult<Prisma.$ServiceTokenPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends GlobalProductUpsertArgs>(args: SelectSubset<T, GlobalProductUpsertArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of ServiceTokens.
+     * Count the number of GlobalProducts.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServiceTokenCountArgs} args - Arguments to filter ServiceTokens to count.
+     * @param {GlobalProductCountArgs} args - Arguments to filter GlobalProducts to count.
      * @example
-     * // Count the number of ServiceTokens
-     * const count = await prisma.serviceToken.count({
+     * // Count the number of GlobalProducts
+     * const count = await prisma.globalProduct.count({
      *   where: {
-     *     // ... the filter for the ServiceTokens we want to count
+     *     // ... the filter for the GlobalProducts we want to count
      *   }
      * })
     **/
-    count<T extends ServiceTokenCountArgs>(
-      args?: Subset<T, ServiceTokenCountArgs>,
+    count<T extends GlobalProductCountArgs>(
+      args?: Subset<T, GlobalProductCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ServiceTokenCountAggregateOutputType>
+          : GetScalarType<T['select'], GlobalProductCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ServiceToken.
+     * Allows you to perform aggregations operations on a GlobalProduct.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServiceTokenAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {GlobalProductAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -12117,13 +13397,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ServiceTokenAggregateArgs>(args: Subset<T, ServiceTokenAggregateArgs>): Prisma.PrismaPromise<GetServiceTokenAggregateType<T>>
+    aggregate<T extends GlobalProductAggregateArgs>(args: Subset<T, GlobalProductAggregateArgs>): Prisma.PrismaPromise<GetGlobalProductAggregateType<T>>
 
     /**
-     * Group by ServiceToken.
+     * Group by GlobalProduct.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ServiceTokenGroupByArgs} args - Group by arguments.
+     * @param {GlobalProductGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -12138,14 +13418,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ServiceTokenGroupByArgs,
+      T extends GlobalProductGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ServiceTokenGroupByArgs['orderBy'] }
-        : { orderBy?: ServiceTokenGroupByArgs['orderBy'] },
+        ? { orderBy: GlobalProductGroupByArgs['orderBy'] }
+        : { orderBy?: GlobalProductGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -12194,20 +13474,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ServiceTokenGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServiceTokenGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, GlobalProductGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGlobalProductGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ServiceToken model
+   * Fields of the GlobalProduct model
    */
-  readonly fields: ServiceTokenFieldRefs;
+  readonly fields: GlobalProductFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ServiceToken.
+   * The delegate class that acts as a "Promise-like" for GlobalProduct.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ServiceTokenClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__GlobalProductClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -12235,302 +13515,314 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ServiceToken model
+   * Fields of the GlobalProduct model
    */ 
-  interface ServiceTokenFieldRefs {
-    readonly id: FieldRef<"ServiceToken", 'String'>
-    readonly tenant_id: FieldRef<"ServiceToken", 'String'>
-    readonly user_id: FieldRef<"ServiceToken", 'String'>
-    readonly token_hash: FieldRef<"ServiceToken", 'String'>
-    readonly scope: FieldRef<"ServiceToken", 'ServiceTokenScope'>
-    readonly expires_at: FieldRef<"ServiceToken", 'DateTime'>
-    readonly revoked: FieldRef<"ServiceToken", 'Boolean'>
-    readonly created_at: FieldRef<"ServiceToken", 'DateTime'>
+  interface GlobalProductFieldRefs {
+    readonly id: FieldRef<"GlobalProduct", 'String'>
+    readonly name: FieldRef<"GlobalProduct", 'String'>
+    readonly slug: FieldRef<"GlobalProduct", 'String'>
+    readonly description: FieldRef<"GlobalProduct", 'String'>
+    readonly status: FieldRef<"GlobalProduct", 'String'>
+    readonly type_billing: FieldRef<"GlobalProduct", 'String'>
+    readonly setup_price: FieldRef<"GlobalProduct", 'Decimal'>
+    readonly unit_price: FieldRef<"GlobalProduct", 'Decimal'>
+    readonly min_price: FieldRef<"GlobalProduct", 'Decimal'>
+    readonly total_price: FieldRef<"GlobalProduct", 'Decimal'>
+    readonly currency: FieldRef<"GlobalProduct", 'String'>
+    readonly limit_users: FieldRef<"GlobalProduct", 'String'>
+    readonly base_users: FieldRef<"GlobalProduct", 'Int'>
+    readonly help_desk_hours: FieldRef<"GlobalProduct", 'Int'>
+    readonly backend_module: FieldRef<"GlobalProduct", 'String'>
+    readonly target_audience: FieldRef<"GlobalProduct", 'String'>
+    readonly features: FieldRef<"GlobalProduct", 'Json'>
+    readonly pricing_tiers: FieldRef<"GlobalProduct", 'Json'>
+    readonly created_at: FieldRef<"GlobalProduct", 'DateTime'>
+    readonly updated_at: FieldRef<"GlobalProduct", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ServiceToken findUnique
+   * GlobalProduct findUnique
    */
-  export type ServiceTokenFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * Filter, which ServiceToken to fetch.
+     * Filter, which GlobalProduct to fetch.
      */
-    where: ServiceTokenWhereUniqueInput
+    where: GlobalProductWhereUniqueInput
   }
 
   /**
-   * ServiceToken findUniqueOrThrow
+   * GlobalProduct findUniqueOrThrow
    */
-  export type ServiceTokenFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * Filter, which ServiceToken to fetch.
+     * Filter, which GlobalProduct to fetch.
      */
-    where: ServiceTokenWhereUniqueInput
+    where: GlobalProductWhereUniqueInput
   }
 
   /**
-   * ServiceToken findFirst
+   * GlobalProduct findFirst
    */
-  export type ServiceTokenFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * Filter, which ServiceToken to fetch.
+     * Filter, which GlobalProduct to fetch.
      */
-    where?: ServiceTokenWhereInput
+    where?: GlobalProductWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ServiceTokens to fetch.
+     * Determine the order of GlobalProducts to fetch.
      */
-    orderBy?: ServiceTokenOrderByWithRelationInput | ServiceTokenOrderByWithRelationInput[]
+    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ServiceTokens.
+     * Sets the position for searching for GlobalProducts.
      */
-    cursor?: ServiceTokenWhereUniqueInput
+    cursor?: GlobalProductWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ServiceTokens from the position of the cursor.
+     * Take `±n` GlobalProducts from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ServiceTokens.
+     * Skip the first `n` GlobalProducts.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ServiceTokens.
+     * Filter by unique combinations of GlobalProducts.
      */
-    distinct?: ServiceTokenScalarFieldEnum | ServiceTokenScalarFieldEnum[]
+    distinct?: GlobalProductScalarFieldEnum | GlobalProductScalarFieldEnum[]
   }
 
   /**
-   * ServiceToken findFirstOrThrow
+   * GlobalProduct findFirstOrThrow
    */
-  export type ServiceTokenFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * Filter, which ServiceToken to fetch.
+     * Filter, which GlobalProduct to fetch.
      */
-    where?: ServiceTokenWhereInput
+    where?: GlobalProductWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ServiceTokens to fetch.
+     * Determine the order of GlobalProducts to fetch.
      */
-    orderBy?: ServiceTokenOrderByWithRelationInput | ServiceTokenOrderByWithRelationInput[]
+    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ServiceTokens.
+     * Sets the position for searching for GlobalProducts.
      */
-    cursor?: ServiceTokenWhereUniqueInput
+    cursor?: GlobalProductWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ServiceTokens from the position of the cursor.
+     * Take `±n` GlobalProducts from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ServiceTokens.
+     * Skip the first `n` GlobalProducts.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ServiceTokens.
+     * Filter by unique combinations of GlobalProducts.
      */
-    distinct?: ServiceTokenScalarFieldEnum | ServiceTokenScalarFieldEnum[]
+    distinct?: GlobalProductScalarFieldEnum | GlobalProductScalarFieldEnum[]
   }
 
   /**
-   * ServiceToken findMany
+   * GlobalProduct findMany
    */
-  export type ServiceTokenFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * Filter, which ServiceTokens to fetch.
+     * Filter, which GlobalProducts to fetch.
      */
-    where?: ServiceTokenWhereInput
+    where?: GlobalProductWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ServiceTokens to fetch.
+     * Determine the order of GlobalProducts to fetch.
      */
-    orderBy?: ServiceTokenOrderByWithRelationInput | ServiceTokenOrderByWithRelationInput[]
+    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ServiceTokens.
+     * Sets the position for listing GlobalProducts.
      */
-    cursor?: ServiceTokenWhereUniqueInput
+    cursor?: GlobalProductWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ServiceTokens from the position of the cursor.
+     * Take `±n` GlobalProducts from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ServiceTokens.
+     * Skip the first `n` GlobalProducts.
      */
     skip?: number
-    distinct?: ServiceTokenScalarFieldEnum | ServiceTokenScalarFieldEnum[]
+    distinct?: GlobalProductScalarFieldEnum | GlobalProductScalarFieldEnum[]
   }
 
   /**
-   * ServiceToken create
+   * GlobalProduct create
    */
-  export type ServiceTokenCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * The data needed to create a ServiceToken.
+     * The data needed to create a GlobalProduct.
      */
-    data: XOR<ServiceTokenCreateInput, ServiceTokenUncheckedCreateInput>
+    data: XOR<GlobalProductCreateInput, GlobalProductUncheckedCreateInput>
   }
 
   /**
-   * ServiceToken createMany
+   * GlobalProduct createMany
    */
-  export type ServiceTokenCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ServiceTokens.
+     * The data used to create many GlobalProducts.
      */
-    data: ServiceTokenCreateManyInput | ServiceTokenCreateManyInput[]
+    data: GlobalProductCreateManyInput | GlobalProductCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ServiceToken createManyAndReturn
+   * GlobalProduct createManyAndReturn
    */
-  export type ServiceTokenCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelectCreateManyAndReturn<ExtArgs> | null
+    select?: GlobalProductSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many ServiceTokens.
+     * The data used to create many GlobalProducts.
      */
-    data: ServiceTokenCreateManyInput | ServiceTokenCreateManyInput[]
+    data: GlobalProductCreateManyInput | GlobalProductCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ServiceToken update
+   * GlobalProduct update
    */
-  export type ServiceTokenUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * The data needed to update a ServiceToken.
+     * The data needed to update a GlobalProduct.
      */
-    data: XOR<ServiceTokenUpdateInput, ServiceTokenUncheckedUpdateInput>
+    data: XOR<GlobalProductUpdateInput, GlobalProductUncheckedUpdateInput>
     /**
-     * Choose, which ServiceToken to update.
+     * Choose, which GlobalProduct to update.
      */
-    where: ServiceTokenWhereUniqueInput
+    where: GlobalProductWhereUniqueInput
   }
 
   /**
-   * ServiceToken updateMany
+   * GlobalProduct updateMany
    */
-  export type ServiceTokenUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ServiceTokens.
+     * The data used to update GlobalProducts.
      */
-    data: XOR<ServiceTokenUpdateManyMutationInput, ServiceTokenUncheckedUpdateManyInput>
+    data: XOR<GlobalProductUpdateManyMutationInput, GlobalProductUncheckedUpdateManyInput>
     /**
-     * Filter which ServiceTokens to update
+     * Filter which GlobalProducts to update
      */
-    where?: ServiceTokenWhereInput
+    where?: GlobalProductWhereInput
   }
 
   /**
-   * ServiceToken upsert
+   * GlobalProduct upsert
    */
-  export type ServiceTokenUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * The filter to search for the ServiceToken to update in case it exists.
+     * The filter to search for the GlobalProduct to update in case it exists.
      */
-    where: ServiceTokenWhereUniqueInput
+    where: GlobalProductWhereUniqueInput
     /**
-     * In case the ServiceToken found by the `where` argument doesn't exist, create a new ServiceToken with this data.
+     * In case the GlobalProduct found by the `where` argument doesn't exist, create a new GlobalProduct with this data.
      */
-    create: XOR<ServiceTokenCreateInput, ServiceTokenUncheckedCreateInput>
+    create: XOR<GlobalProductCreateInput, GlobalProductUncheckedCreateInput>
     /**
-     * In case the ServiceToken was found with the provided `where` argument, update it with this data.
+     * In case the GlobalProduct was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ServiceTokenUpdateInput, ServiceTokenUncheckedUpdateInput>
+    update: XOR<GlobalProductUpdateInput, GlobalProductUncheckedUpdateInput>
   }
 
   /**
-   * ServiceToken delete
+   * GlobalProduct delete
    */
-  export type ServiceTokenDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
     /**
-     * Filter which ServiceToken to delete.
+     * Filter which GlobalProduct to delete.
      */
-    where: ServiceTokenWhereUniqueInput
+    where: GlobalProductWhereUniqueInput
   }
 
   /**
-   * ServiceToken deleteMany
+   * GlobalProduct deleteMany
    */
-  export type ServiceTokenDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ServiceTokens to delete
+     * Filter which GlobalProducts to delete
      */
-    where?: ServiceTokenWhereInput
+    where?: GlobalProductWhereInput
   }
 
   /**
-   * ServiceToken without action
+   * GlobalProduct without action
    */
-  export type ServiceTokenDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type GlobalProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ServiceToken
+     * Select specific fields to fetch from the GlobalProduct
      */
-    select?: ServiceTokenSelect<ExtArgs> | null
+    select?: GlobalProductSelect<ExtArgs> | null
   }
 
 
@@ -12663,6 +13955,19 @@ export namespace Prisma {
   export type ProductConfigScalarFieldEnum = (typeof ProductConfigScalarFieldEnum)[keyof typeof ProductConfigScalarFieldEnum]
 
 
+  export const CompanyProductScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    company_id: 'company_id',
+    product_key: 'product_key',
+    is_active: 'is_active',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type CompanyProductScalarFieldEnum = (typeof CompanyProductScalarFieldEnum)[keyof typeof CompanyProductScalarFieldEnum]
+
+
   export const StripeEventScalarFieldEnum: {
     id: 'id',
     type: 'type',
@@ -12685,18 +13990,30 @@ export namespace Prisma {
   export type SupplierTenantAccessScalarFieldEnum = (typeof SupplierTenantAccessScalarFieldEnum)[keyof typeof SupplierTenantAccessScalarFieldEnum]
 
 
-  export const ServiceTokenScalarFieldEnum: {
+  export const GlobalProductScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
-    user_id: 'user_id',
-    token_hash: 'token_hash',
-    scope: 'scope',
-    expires_at: 'expires_at',
-    revoked: 'revoked',
-    created_at: 'created_at'
+    name: 'name',
+    slug: 'slug',
+    description: 'description',
+    status: 'status',
+    type_billing: 'type_billing',
+    setup_price: 'setup_price',
+    unit_price: 'unit_price',
+    min_price: 'min_price',
+    total_price: 'total_price',
+    currency: 'currency',
+    limit_users: 'limit_users',
+    base_users: 'base_users',
+    help_desk_hours: 'help_desk_hours',
+    backend_module: 'backend_module',
+    target_audience: 'target_audience',
+    features: 'features',
+    pricing_tiers: 'pricing_tiers',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
   };
 
-  export type ServiceTokenScalarFieldEnum = (typeof ServiceTokenScalarFieldEnum)[keyof typeof ServiceTokenScalarFieldEnum]
+  export type GlobalProductScalarFieldEnum = (typeof GlobalProductScalarFieldEnum)[keyof typeof GlobalProductScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -12712,6 +14029,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -12871,16 +14196,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'ServiceTokenScope'
+   * Reference to a field of type 'Decimal'
    */
-  export type EnumServiceTokenScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceTokenScope'>
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
     
 
 
   /**
-   * Reference to a field of type 'ServiceTokenScope[]'
+   * Reference to a field of type 'Decimal[]'
    */
-  export type ListEnumServiceTokenScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceTokenScope[]'>
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -12895,6 +14220,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -12918,6 +14257,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionListRelationFilter
     companies?: CompanyListRelationFilter
     product_configs?: ProductConfigListRelationFilter
+    CompanyProduct?: CompanyProductListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
@@ -12934,6 +14274,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionOrderByRelationAggregateInput
     companies?: CompanyOrderByRelationAggregateInput
     product_configs?: ProductConfigOrderByRelationAggregateInput
+    CompanyProduct?: CompanyProductOrderByRelationAggregateInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -12953,6 +14294,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionListRelationFilter
     companies?: CompanyListRelationFilter
     product_configs?: ProductConfigListRelationFilter
+    CompanyProduct?: CompanyProductListRelationFilter
   }, "id" | "slug" | "clerk_org_id" | "stripe_customer_id">
 
   export type TenantOrderByWithAggregationInput = {
@@ -13306,6 +14648,7 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"Company"> | Date | string
     tenant?: XOR<TenantRelationFilter, TenantWhereInput>
     memberships?: UserMembershipListRelationFilter
+    company_products?: CompanyProductListRelationFilter
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -13319,6 +14662,7 @@ export namespace Prisma {
     updated_at?: SortOrder
     tenant?: TenantOrderByWithRelationInput
     memberships?: UserMembershipOrderByRelationAggregateInput
+    company_products?: CompanyProductOrderByRelationAggregateInput
   }
 
   export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -13335,6 +14679,7 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"Company"> | Date | string
     tenant?: XOR<TenantRelationFilter, TenantWhereInput>
     memberships?: UserMembershipListRelationFilter
+    company_products?: CompanyProductListRelationFilter
   }, "id" | "subdomain">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -13505,6 +14850,75 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"ProductConfig"> | Date | string
   }
 
+  export type CompanyProductWhereInput = {
+    AND?: CompanyProductWhereInput | CompanyProductWhereInput[]
+    OR?: CompanyProductWhereInput[]
+    NOT?: CompanyProductWhereInput | CompanyProductWhereInput[]
+    id?: StringFilter<"CompanyProduct"> | string
+    tenant_id?: StringFilter<"CompanyProduct"> | string
+    company_id?: StringFilter<"CompanyProduct"> | string
+    product_key?: StringFilter<"CompanyProduct"> | string
+    is_active?: BoolFilter<"CompanyProduct"> | boolean
+    created_at?: DateTimeFilter<"CompanyProduct"> | Date | string
+    updated_at?: DateTimeFilter<"CompanyProduct"> | Date | string
+    tenant?: XOR<TenantRelationFilter, TenantWhereInput>
+    company?: XOR<CompanyRelationFilter, CompanyWhereInput>
+  }
+
+  export type CompanyProductOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    product_key?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    tenant?: TenantOrderByWithRelationInput
+    company?: CompanyOrderByWithRelationInput
+  }
+
+  export type CompanyProductWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    company_id_product_key?: CompanyProductCompany_idProduct_keyCompoundUniqueInput
+    AND?: CompanyProductWhereInput | CompanyProductWhereInput[]
+    OR?: CompanyProductWhereInput[]
+    NOT?: CompanyProductWhereInput | CompanyProductWhereInput[]
+    tenant_id?: StringFilter<"CompanyProduct"> | string
+    company_id?: StringFilter<"CompanyProduct"> | string
+    product_key?: StringFilter<"CompanyProduct"> | string
+    is_active?: BoolFilter<"CompanyProduct"> | boolean
+    created_at?: DateTimeFilter<"CompanyProduct"> | Date | string
+    updated_at?: DateTimeFilter<"CompanyProduct"> | Date | string
+    tenant?: XOR<TenantRelationFilter, TenantWhereInput>
+    company?: XOR<CompanyRelationFilter, CompanyWhereInput>
+  }, "id" | "company_id_product_key">
+
+  export type CompanyProductOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    product_key?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: CompanyProductCountOrderByAggregateInput
+    _max?: CompanyProductMaxOrderByAggregateInput
+    _min?: CompanyProductMinOrderByAggregateInput
+  }
+
+  export type CompanyProductScalarWhereWithAggregatesInput = {
+    AND?: CompanyProductScalarWhereWithAggregatesInput | CompanyProductScalarWhereWithAggregatesInput[]
+    OR?: CompanyProductScalarWhereWithAggregatesInput[]
+    NOT?: CompanyProductScalarWhereWithAggregatesInput | CompanyProductScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyProduct"> | string
+    tenant_id?: StringWithAggregatesFilter<"CompanyProduct"> | string
+    company_id?: StringWithAggregatesFilter<"CompanyProduct"> | string
+    product_key?: StringWithAggregatesFilter<"CompanyProduct"> | string
+    is_active?: BoolWithAggregatesFilter<"CompanyProduct"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"CompanyProduct"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"CompanyProduct"> | Date | string
+  }
+
   export type StripeEventWhereInput = {
     AND?: StripeEventWhereInput | StripeEventWhereInput[]
     OR?: StripeEventWhereInput[]
@@ -13610,71 +15024,133 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"SupplierTenantAccess"> | Date | string
   }
 
-  export type ServiceTokenWhereInput = {
-    AND?: ServiceTokenWhereInput | ServiceTokenWhereInput[]
-    OR?: ServiceTokenWhereInput[]
-    NOT?: ServiceTokenWhereInput | ServiceTokenWhereInput[]
-    id?: StringFilter<"ServiceToken"> | string
-    tenant_id?: StringFilter<"ServiceToken"> | string
-    user_id?: StringFilter<"ServiceToken"> | string
-    token_hash?: StringFilter<"ServiceToken"> | string
-    scope?: EnumServiceTokenScopeFilter<"ServiceToken"> | $Enums.ServiceTokenScope
-    expires_at?: DateTimeNullableFilter<"ServiceToken"> | Date | string | null
-    revoked?: BoolFilter<"ServiceToken"> | boolean
-    created_at?: DateTimeFilter<"ServiceToken"> | Date | string
+  export type GlobalProductWhereInput = {
+    AND?: GlobalProductWhereInput | GlobalProductWhereInput[]
+    OR?: GlobalProductWhereInput[]
+    NOT?: GlobalProductWhereInput | GlobalProductWhereInput[]
+    id?: StringFilter<"GlobalProduct"> | string
+    name?: StringFilter<"GlobalProduct"> | string
+    slug?: StringFilter<"GlobalProduct"> | string
+    description?: StringNullableFilter<"GlobalProduct"> | string | null
+    status?: StringFilter<"GlobalProduct"> | string
+    type_billing?: StringNullableFilter<"GlobalProduct"> | string | null
+    setup_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    unit_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    min_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    total_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFilter<"GlobalProduct"> | string
+    limit_users?: StringFilter<"GlobalProduct"> | string
+    base_users?: IntFilter<"GlobalProduct"> | number
+    help_desk_hours?: IntFilter<"GlobalProduct"> | number
+    backend_module?: StringNullableFilter<"GlobalProduct"> | string | null
+    target_audience?: StringNullableFilter<"GlobalProduct"> | string | null
+    features?: JsonNullableFilter<"GlobalProduct">
+    pricing_tiers?: JsonNullableFilter<"GlobalProduct">
+    created_at?: DateTimeFilter<"GlobalProduct"> | Date | string
+    updated_at?: DateTimeFilter<"GlobalProduct"> | Date | string
   }
 
-  export type ServiceTokenOrderByWithRelationInput = {
+  export type GlobalProductOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    token_hash?: SortOrder
-    scope?: SortOrder
-    expires_at?: SortOrderInput | SortOrder
-    revoked?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrderInput | SortOrder
+    status?: SortOrder
+    type_billing?: SortOrderInput | SortOrder
+    setup_price?: SortOrderInput | SortOrder
+    unit_price?: SortOrderInput | SortOrder
+    min_price?: SortOrderInput | SortOrder
+    total_price?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    limit_users?: SortOrder
+    base_users?: SortOrder
+    help_desk_hours?: SortOrder
+    backend_module?: SortOrderInput | SortOrder
+    target_audience?: SortOrderInput | SortOrder
+    features?: SortOrderInput | SortOrder
+    pricing_tiers?: SortOrderInput | SortOrder
     created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
-  export type ServiceTokenWhereUniqueInput = Prisma.AtLeast<{
+  export type GlobalProductWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    token_hash?: string
-    AND?: ServiceTokenWhereInput | ServiceTokenWhereInput[]
-    OR?: ServiceTokenWhereInput[]
-    NOT?: ServiceTokenWhereInput | ServiceTokenWhereInput[]
-    tenant_id?: StringFilter<"ServiceToken"> | string
-    user_id?: StringFilter<"ServiceToken"> | string
-    scope?: EnumServiceTokenScopeFilter<"ServiceToken"> | $Enums.ServiceTokenScope
-    expires_at?: DateTimeNullableFilter<"ServiceToken"> | Date | string | null
-    revoked?: BoolFilter<"ServiceToken"> | boolean
-    created_at?: DateTimeFilter<"ServiceToken"> | Date | string
-  }, "id" | "token_hash">
+    slug?: string
+    AND?: GlobalProductWhereInput | GlobalProductWhereInput[]
+    OR?: GlobalProductWhereInput[]
+    NOT?: GlobalProductWhereInput | GlobalProductWhereInput[]
+    name?: StringFilter<"GlobalProduct"> | string
+    description?: StringNullableFilter<"GlobalProduct"> | string | null
+    status?: StringFilter<"GlobalProduct"> | string
+    type_billing?: StringNullableFilter<"GlobalProduct"> | string | null
+    setup_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    unit_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    min_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    total_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFilter<"GlobalProduct"> | string
+    limit_users?: StringFilter<"GlobalProduct"> | string
+    base_users?: IntFilter<"GlobalProduct"> | number
+    help_desk_hours?: IntFilter<"GlobalProduct"> | number
+    backend_module?: StringNullableFilter<"GlobalProduct"> | string | null
+    target_audience?: StringNullableFilter<"GlobalProduct"> | string | null
+    features?: JsonNullableFilter<"GlobalProduct">
+    pricing_tiers?: JsonNullableFilter<"GlobalProduct">
+    created_at?: DateTimeFilter<"GlobalProduct"> | Date | string
+    updated_at?: DateTimeFilter<"GlobalProduct"> | Date | string
+  }, "id" | "slug">
 
-  export type ServiceTokenOrderByWithAggregationInput = {
+  export type GlobalProductOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    token_hash?: SortOrder
-    scope?: SortOrder
-    expires_at?: SortOrderInput | SortOrder
-    revoked?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrderInput | SortOrder
+    status?: SortOrder
+    type_billing?: SortOrderInput | SortOrder
+    setup_price?: SortOrderInput | SortOrder
+    unit_price?: SortOrderInput | SortOrder
+    min_price?: SortOrderInput | SortOrder
+    total_price?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    limit_users?: SortOrder
+    base_users?: SortOrder
+    help_desk_hours?: SortOrder
+    backend_module?: SortOrderInput | SortOrder
+    target_audience?: SortOrderInput | SortOrder
+    features?: SortOrderInput | SortOrder
+    pricing_tiers?: SortOrderInput | SortOrder
     created_at?: SortOrder
-    _count?: ServiceTokenCountOrderByAggregateInput
-    _max?: ServiceTokenMaxOrderByAggregateInput
-    _min?: ServiceTokenMinOrderByAggregateInput
+    updated_at?: SortOrder
+    _count?: GlobalProductCountOrderByAggregateInput
+    _avg?: GlobalProductAvgOrderByAggregateInput
+    _max?: GlobalProductMaxOrderByAggregateInput
+    _min?: GlobalProductMinOrderByAggregateInput
+    _sum?: GlobalProductSumOrderByAggregateInput
   }
 
-  export type ServiceTokenScalarWhereWithAggregatesInput = {
-    AND?: ServiceTokenScalarWhereWithAggregatesInput | ServiceTokenScalarWhereWithAggregatesInput[]
-    OR?: ServiceTokenScalarWhereWithAggregatesInput[]
-    NOT?: ServiceTokenScalarWhereWithAggregatesInput | ServiceTokenScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ServiceToken"> | string
-    tenant_id?: StringWithAggregatesFilter<"ServiceToken"> | string
-    user_id?: StringWithAggregatesFilter<"ServiceToken"> | string
-    token_hash?: StringWithAggregatesFilter<"ServiceToken"> | string
-    scope?: EnumServiceTokenScopeWithAggregatesFilter<"ServiceToken"> | $Enums.ServiceTokenScope
-    expires_at?: DateTimeNullableWithAggregatesFilter<"ServiceToken"> | Date | string | null
-    revoked?: BoolWithAggregatesFilter<"ServiceToken"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"ServiceToken"> | Date | string
+  export type GlobalProductScalarWhereWithAggregatesInput = {
+    AND?: GlobalProductScalarWhereWithAggregatesInput | GlobalProductScalarWhereWithAggregatesInput[]
+    OR?: GlobalProductScalarWhereWithAggregatesInput[]
+    NOT?: GlobalProductScalarWhereWithAggregatesInput | GlobalProductScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GlobalProduct"> | string
+    name?: StringWithAggregatesFilter<"GlobalProduct"> | string
+    slug?: StringWithAggregatesFilter<"GlobalProduct"> | string
+    description?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
+    status?: StringWithAggregatesFilter<"GlobalProduct"> | string
+    type_billing?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
+    setup_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    unit_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    min_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    total_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
+    currency?: StringWithAggregatesFilter<"GlobalProduct"> | string
+    limit_users?: StringWithAggregatesFilter<"GlobalProduct"> | string
+    base_users?: IntWithAggregatesFilter<"GlobalProduct"> | number
+    help_desk_hours?: IntWithAggregatesFilter<"GlobalProduct"> | number
+    backend_module?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
+    target_audience?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
+    features?: JsonNullableWithAggregatesFilter<"GlobalProduct">
+    pricing_tiers?: JsonNullableWithAggregatesFilter<"GlobalProduct">
+    created_at?: DateTimeWithAggregatesFilter<"GlobalProduct"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"GlobalProduct"> | Date | string
   }
 
   export type TenantCreateInput = {
@@ -13691,6 +15167,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionCreateNestedManyWithoutTenantInput
     companies?: CompanyCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
@@ -13707,6 +15184,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutTenantInput
     companies?: CompanyUncheckedCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
@@ -13723,6 +15201,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUpdateManyWithoutTenantNestedInput
     companies?: CompanyUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
@@ -13739,6 +15218,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutTenantNestedInput
     companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
@@ -14124,6 +15604,7 @@ export namespace Prisma {
     updated_at?: Date | string
     tenant: TenantCreateNestedOneWithoutCompaniesInput
     memberships?: UserMembershipCreateNestedManyWithoutCompanyInput
+    company_products?: CompanyProductCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -14136,6 +15617,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UserMembershipUncheckedCreateNestedManyWithoutCompanyInput
+    company_products?: CompanyProductUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUpdateInput = {
@@ -14148,6 +15630,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCompaniesNestedInput
     memberships?: UserMembershipUpdateManyWithoutCompanyNestedInput
+    company_products?: CompanyProductUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -14160,6 +15643,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput
+    company_products?: CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateManyInput = {
@@ -14338,6 +15822,74 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CompanyProductCreateInput = {
+    id?: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    tenant: TenantCreateNestedOneWithoutCompanyProductInput
+    company: CompanyCreateNestedOneWithoutCompany_productsInput
+  }
+
+  export type CompanyProductUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    company_id: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type CompanyProductUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutCompanyProductNestedInput
+    company?: CompanyUpdateOneRequiredWithoutCompany_productsNestedInput
+  }
+
+  export type CompanyProductUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    company_id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyProductCreateManyInput = {
+    id?: string
+    tenant_id: string
+    company_id: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type CompanyProductUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyProductUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    company_id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StripeEventCreateInput = {
     id: string
     type: string
@@ -14450,81 +16002,165 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServiceTokenCreateInput = {
+  export type GlobalProductCreateInput = {
     id?: string
-    tenant_id: string
-    user_id: string
-    token_hash: string
-    scope?: $Enums.ServiceTokenScope
-    expires_at?: Date | string | null
-    revoked?: boolean
+    name: string
+    slug: string
+    description?: string | null
+    status?: string
+    type_billing?: string | null
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    unit_price?: Decimal | DecimalJsLike | number | string | null
+    min_price?: Decimal | DecimalJsLike | number | string | null
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    limit_users?: string
+    base_users?: number
+    help_desk_hours?: number
+    backend_module?: string | null
+    target_audience?: string | null
+    features?: NullableJsonNullValueInput | InputJsonValue
+    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
+    updated_at?: Date | string
   }
 
-  export type ServiceTokenUncheckedCreateInput = {
+  export type GlobalProductUncheckedCreateInput = {
     id?: string
-    tenant_id: string
-    user_id: string
-    token_hash: string
-    scope?: $Enums.ServiceTokenScope
-    expires_at?: Date | string | null
-    revoked?: boolean
+    name: string
+    slug: string
+    description?: string | null
+    status?: string
+    type_billing?: string | null
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    unit_price?: Decimal | DecimalJsLike | number | string | null
+    min_price?: Decimal | DecimalJsLike | number | string | null
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    limit_users?: string
+    base_users?: number
+    help_desk_hours?: number
+    backend_module?: string | null
+    target_audience?: string | null
+    features?: NullableJsonNullValueInput | InputJsonValue
+    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
+    updated_at?: Date | string
   }
 
-  export type ServiceTokenUpdateInput = {
+  export type GlobalProductUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    token_hash?: StringFieldUpdateOperationsInput | string
-    scope?: EnumServiceTokenScopeFieldUpdateOperationsInput | $Enums.ServiceTokenScope
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    revoked?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    limit_users?: StringFieldUpdateOperationsInput | string
+    base_users?: IntFieldUpdateOperationsInput | number
+    help_desk_hours?: IntFieldUpdateOperationsInput | number
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    features?: NullableJsonNullValueInput | InputJsonValue
+    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServiceTokenUncheckedUpdateInput = {
+  export type GlobalProductUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    token_hash?: StringFieldUpdateOperationsInput | string
-    scope?: EnumServiceTokenScopeFieldUpdateOperationsInput | $Enums.ServiceTokenScope
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    revoked?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    limit_users?: StringFieldUpdateOperationsInput | string
+    base_users?: IntFieldUpdateOperationsInput | number
+    help_desk_hours?: IntFieldUpdateOperationsInput | number
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    features?: NullableJsonNullValueInput | InputJsonValue
+    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServiceTokenCreateManyInput = {
+  export type GlobalProductCreateManyInput = {
     id?: string
-    tenant_id: string
-    user_id: string
-    token_hash: string
-    scope?: $Enums.ServiceTokenScope
-    expires_at?: Date | string | null
-    revoked?: boolean
+    name: string
+    slug: string
+    description?: string | null
+    status?: string
+    type_billing?: string | null
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    unit_price?: Decimal | DecimalJsLike | number | string | null
+    min_price?: Decimal | DecimalJsLike | number | string | null
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    limit_users?: string
+    base_users?: number
+    help_desk_hours?: number
+    backend_module?: string | null
+    target_audience?: string | null
+    features?: NullableJsonNullValueInput | InputJsonValue
+    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
+    updated_at?: Date | string
   }
 
-  export type ServiceTokenUpdateManyMutationInput = {
+  export type GlobalProductUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    token_hash?: StringFieldUpdateOperationsInput | string
-    scope?: EnumServiceTokenScopeFieldUpdateOperationsInput | $Enums.ServiceTokenScope
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    revoked?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    limit_users?: StringFieldUpdateOperationsInput | string
+    base_users?: IntFieldUpdateOperationsInput | number
+    help_desk_hours?: IntFieldUpdateOperationsInput | number
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    features?: NullableJsonNullValueInput | InputJsonValue
+    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ServiceTokenUncheckedUpdateManyInput = {
+  export type GlobalProductUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    token_hash?: StringFieldUpdateOperationsInput | string
-    scope?: EnumServiceTokenScopeFieldUpdateOperationsInput | $Enums.ServiceTokenScope
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    revoked?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    limit_users?: StringFieldUpdateOperationsInput | string
+    base_users?: IntFieldUpdateOperationsInput | number
+    help_desk_hours?: IntFieldUpdateOperationsInput | number
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    features?: NullableJsonNullValueInput | InputJsonValue
+    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -14605,6 +16241,12 @@ export namespace Prisma {
     none?: ProductConfigWhereInput
   }
 
+  export type CompanyProductListRelationFilter = {
+    every?: CompanyProductWhereInput
+    some?: CompanyProductWhereInput
+    none?: CompanyProductWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -14627,6 +16269,10 @@ export namespace Prisma {
   }
 
   export type ProductConfigOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CompanyProductOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -15186,6 +16832,41 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type CompanyProductCompany_idProduct_keyCompoundUniqueInput = {
+    company_id: string
+    product_key: string
+  }
+
+  export type CompanyProductCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    product_key?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type CompanyProductMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    product_key?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type CompanyProductMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    product_key?: SortOrder
+    is_active?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
   export type StripeEventCountOrderByAggregateInput = {
     id?: SortOrder
     type?: SortOrder
@@ -15237,54 +16918,188 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumServiceTokenScopeFilter<$PrismaModel = never> = {
-    equals?: $Enums.ServiceTokenScope | EnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    in?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    not?: NestedEnumServiceTokenScopeFilter<$PrismaModel> | $Enums.ServiceTokenScope
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
-  export type ServiceTokenCountOrderByAggregateInput = {
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+  export type JsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type GlobalProductCountOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    token_hash?: SortOrder
-    scope?: SortOrder
-    expires_at?: SortOrder
-    revoked?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    type_billing?: SortOrder
+    setup_price?: SortOrder
+    unit_price?: SortOrder
+    min_price?: SortOrder
+    total_price?: SortOrder
+    currency?: SortOrder
+    limit_users?: SortOrder
+    base_users?: SortOrder
+    help_desk_hours?: SortOrder
+    backend_module?: SortOrder
+    target_audience?: SortOrder
+    features?: SortOrder
+    pricing_tiers?: SortOrder
     created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
-  export type ServiceTokenMaxOrderByAggregateInput = {
+  export type GlobalProductAvgOrderByAggregateInput = {
+    setup_price?: SortOrder
+    unit_price?: SortOrder
+    min_price?: SortOrder
+    total_price?: SortOrder
+    base_users?: SortOrder
+    help_desk_hours?: SortOrder
+  }
+
+  export type GlobalProductMaxOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    token_hash?: SortOrder
-    scope?: SortOrder
-    expires_at?: SortOrder
-    revoked?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    type_billing?: SortOrder
+    setup_price?: SortOrder
+    unit_price?: SortOrder
+    min_price?: SortOrder
+    total_price?: SortOrder
+    currency?: SortOrder
+    limit_users?: SortOrder
+    base_users?: SortOrder
+    help_desk_hours?: SortOrder
+    backend_module?: SortOrder
+    target_audience?: SortOrder
     created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
-  export type ServiceTokenMinOrderByAggregateInput = {
+  export type GlobalProductMinOrderByAggregateInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    token_hash?: SortOrder
-    scope?: SortOrder
-    expires_at?: SortOrder
-    revoked?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    type_billing?: SortOrder
+    setup_price?: SortOrder
+    unit_price?: SortOrder
+    min_price?: SortOrder
+    total_price?: SortOrder
+    currency?: SortOrder
+    limit_users?: SortOrder
+    base_users?: SortOrder
+    help_desk_hours?: SortOrder
+    backend_module?: SortOrder
+    target_audience?: SortOrder
     created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
-  export type EnumServiceTokenScopeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ServiceTokenScope | EnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    in?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    not?: NestedEnumServiceTokenScopeWithAggregatesFilter<$PrismaModel> | $Enums.ServiceTokenScope
+  export type GlobalProductSumOrderByAggregateInput = {
+    setup_price?: SortOrder
+    unit_price?: SortOrder
+    min_price?: SortOrder
+    total_price?: SortOrder
+    base_users?: SortOrder
+    help_desk_hours?: SortOrder
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumServiceTokenScopeFilter<$PrismaModel>
-    _max?: NestedEnumServiceTokenScopeFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type UserCreateNestedManyWithoutTenantInput = {
@@ -15322,6 +17137,13 @@ export namespace Prisma {
     connect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
   }
 
+  export type CompanyProductCreateNestedManyWithoutTenantInput = {
+    create?: XOR<CompanyProductCreateWithoutTenantInput, CompanyProductUncheckedCreateWithoutTenantInput> | CompanyProductCreateWithoutTenantInput[] | CompanyProductUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutTenantInput | CompanyProductCreateOrConnectWithoutTenantInput[]
+    createMany?: CompanyProductCreateManyTenantInputEnvelope
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutTenantInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -15355,6 +17177,13 @@ export namespace Prisma {
     connectOrCreate?: ProductConfigCreateOrConnectWithoutTenantInput | ProductConfigCreateOrConnectWithoutTenantInput[]
     createMany?: ProductConfigCreateManyTenantInputEnvelope
     connect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
+  }
+
+  export type CompanyProductUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<CompanyProductCreateWithoutTenantInput, CompanyProductUncheckedCreateWithoutTenantInput> | CompanyProductCreateWithoutTenantInput[] | CompanyProductUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutTenantInput | CompanyProductCreateOrConnectWithoutTenantInput[]
+    createMany?: CompanyProductCreateManyTenantInputEnvelope
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -15443,6 +17272,20 @@ export namespace Prisma {
     deleteMany?: ProductConfigScalarWhereInput | ProductConfigScalarWhereInput[]
   }
 
+  export type CompanyProductUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<CompanyProductCreateWithoutTenantInput, CompanyProductUncheckedCreateWithoutTenantInput> | CompanyProductCreateWithoutTenantInput[] | CompanyProductUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutTenantInput | CompanyProductCreateOrConnectWithoutTenantInput[]
+    upsert?: CompanyProductUpsertWithWhereUniqueWithoutTenantInput | CompanyProductUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: CompanyProductCreateManyTenantInputEnvelope
+    set?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    disconnect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    delete?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    update?: CompanyProductUpdateWithWhereUniqueWithoutTenantInput | CompanyProductUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: CompanyProductUpdateManyWithWhereWithoutTenantInput | CompanyProductUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutTenantNestedInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -15511,6 +17354,20 @@ export namespace Prisma {
     update?: ProductConfigUpdateWithWhereUniqueWithoutTenantInput | ProductConfigUpdateWithWhereUniqueWithoutTenantInput[]
     updateMany?: ProductConfigUpdateManyWithWhereWithoutTenantInput | ProductConfigUpdateManyWithWhereWithoutTenantInput[]
     deleteMany?: ProductConfigScalarWhereInput | ProductConfigScalarWhereInput[]
+  }
+
+  export type CompanyProductUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<CompanyProductCreateWithoutTenantInput, CompanyProductUncheckedCreateWithoutTenantInput> | CompanyProductCreateWithoutTenantInput[] | CompanyProductUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutTenantInput | CompanyProductCreateOrConnectWithoutTenantInput[]
+    upsert?: CompanyProductUpsertWithWhereUniqueWithoutTenantInput | CompanyProductUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: CompanyProductCreateManyTenantInputEnvelope
+    set?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    disconnect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    delete?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    update?: CompanyProductUpdateWithWhereUniqueWithoutTenantInput | CompanyProductUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: CompanyProductUpdateManyWithWhereWithoutTenantInput | CompanyProductUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
   }
 
   export type TenantCreateNestedOneWithoutUsersInput = {
@@ -15682,11 +17539,25 @@ export namespace Prisma {
     connect?: UserMembershipWhereUniqueInput | UserMembershipWhereUniqueInput[]
   }
 
+  export type CompanyProductCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<CompanyProductCreateWithoutCompanyInput, CompanyProductUncheckedCreateWithoutCompanyInput> | CompanyProductCreateWithoutCompanyInput[] | CompanyProductUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutCompanyInput | CompanyProductCreateOrConnectWithoutCompanyInput[]
+    createMany?: CompanyProductCreateManyCompanyInputEnvelope
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+  }
+
   export type UserMembershipUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserMembershipCreateWithoutCompanyInput, UserMembershipUncheckedCreateWithoutCompanyInput> | UserMembershipCreateWithoutCompanyInput[] | UserMembershipUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserMembershipCreateOrConnectWithoutCompanyInput | UserMembershipCreateOrConnectWithoutCompanyInput[]
     createMany?: UserMembershipCreateManyCompanyInputEnvelope
     connect?: UserMembershipWhereUniqueInput | UserMembershipWhereUniqueInput[]
+  }
+
+  export type CompanyProductUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<CompanyProductCreateWithoutCompanyInput, CompanyProductUncheckedCreateWithoutCompanyInput> | CompanyProductCreateWithoutCompanyInput[] | CompanyProductUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutCompanyInput | CompanyProductCreateOrConnectWithoutCompanyInput[]
+    createMany?: CompanyProductCreateManyCompanyInputEnvelope
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
   }
 
   export type EnumCompanyStatusFieldUpdateOperationsInput = {
@@ -15715,6 +17586,20 @@ export namespace Prisma {
     deleteMany?: UserMembershipScalarWhereInput | UserMembershipScalarWhereInput[]
   }
 
+  export type CompanyProductUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<CompanyProductCreateWithoutCompanyInput, CompanyProductUncheckedCreateWithoutCompanyInput> | CompanyProductCreateWithoutCompanyInput[] | CompanyProductUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutCompanyInput | CompanyProductCreateOrConnectWithoutCompanyInput[]
+    upsert?: CompanyProductUpsertWithWhereUniqueWithoutCompanyInput | CompanyProductUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: CompanyProductCreateManyCompanyInputEnvelope
+    set?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    disconnect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    delete?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    update?: CompanyProductUpdateWithWhereUniqueWithoutCompanyInput | CompanyProductUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: CompanyProductUpdateManyWithWhereWithoutCompanyInput | CompanyProductUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
+  }
+
   export type UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<UserMembershipCreateWithoutCompanyInput, UserMembershipUncheckedCreateWithoutCompanyInput> | UserMembershipCreateWithoutCompanyInput[] | UserMembershipUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserMembershipCreateOrConnectWithoutCompanyInput | UserMembershipCreateOrConnectWithoutCompanyInput[]
@@ -15727,6 +17612,20 @@ export namespace Prisma {
     update?: UserMembershipUpdateWithWhereUniqueWithoutCompanyInput | UserMembershipUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: UserMembershipUpdateManyWithWhereWithoutCompanyInput | UserMembershipUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: UserMembershipScalarWhereInput | UserMembershipScalarWhereInput[]
+  }
+
+  export type CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<CompanyProductCreateWithoutCompanyInput, CompanyProductUncheckedCreateWithoutCompanyInput> | CompanyProductCreateWithoutCompanyInput[] | CompanyProductUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: CompanyProductCreateOrConnectWithoutCompanyInput | CompanyProductCreateOrConnectWithoutCompanyInput[]
+    upsert?: CompanyProductUpsertWithWhereUniqueWithoutCompanyInput | CompanyProductUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: CompanyProductCreateManyCompanyInputEnvelope
+    set?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    disconnect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    delete?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+    update?: CompanyProductUpdateWithWhereUniqueWithoutCompanyInput | CompanyProductUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: CompanyProductUpdateManyWithWhereWithoutCompanyInput | CompanyProductUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutMembershipsInput = {
@@ -15779,8 +17678,48 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutProduct_configsInput, TenantUpdateWithoutProduct_configsInput>, TenantUncheckedUpdateWithoutProduct_configsInput>
   }
 
-  export type EnumServiceTokenScopeFieldUpdateOperationsInput = {
-    set?: $Enums.ServiceTokenScope
+  export type TenantCreateNestedOneWithoutCompanyProductInput = {
+    create?: XOR<TenantCreateWithoutCompanyProductInput, TenantUncheckedCreateWithoutCompanyProductInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutCompanyProductInput
+    connect?: TenantWhereUniqueInput
+  }
+
+  export type CompanyCreateNestedOneWithoutCompany_productsInput = {
+    create?: XOR<CompanyCreateWithoutCompany_productsInput, CompanyUncheckedCreateWithoutCompany_productsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutCompany_productsInput
+    connect?: CompanyWhereUniqueInput
+  }
+
+  export type TenantUpdateOneRequiredWithoutCompanyProductNestedInput = {
+    create?: XOR<TenantCreateWithoutCompanyProductInput, TenantUncheckedCreateWithoutCompanyProductInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutCompanyProductInput
+    upsert?: TenantUpsertWithoutCompanyProductInput
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutCompanyProductInput, TenantUpdateWithoutCompanyProductInput>, TenantUncheckedUpdateWithoutCompanyProductInput>
+  }
+
+  export type CompanyUpdateOneRequiredWithoutCompany_productsNestedInput = {
+    create?: XOR<CompanyCreateWithoutCompany_productsInput, CompanyUncheckedCreateWithoutCompany_productsInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutCompany_productsInput
+    upsert?: CompanyUpsertWithoutCompany_productsInput
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutCompany_productsInput, CompanyUpdateWithoutCompany_productsInput>, CompanyUncheckedUpdateWithoutCompany_productsInput>
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -16054,21 +17993,80 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedEnumServiceTokenScopeFilter<$PrismaModel = never> = {
-    equals?: $Enums.ServiceTokenScope | EnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    in?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    not?: NestedEnumServiceTokenScopeFilter<$PrismaModel> | $Enums.ServiceTokenScope
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
-  export type NestedEnumServiceTokenScopeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ServiceTokenScope | EnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    in?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ServiceTokenScope[] | ListEnumServiceTokenScopeFieldRefInput<$PrismaModel>
-    not?: NestedEnumServiceTokenScopeWithAggregatesFilter<$PrismaModel> | $Enums.ServiceTokenScope
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumServiceTokenScopeFilter<$PrismaModel>
-    _max?: NestedEnumServiceTokenScopeFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type UserCreateWithoutTenantInput = {
@@ -16184,6 +18182,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UserMembershipCreateNestedManyWithoutCompanyInput
+    company_products?: CompanyProductCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutTenantInput = {
@@ -16195,6 +18194,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UserMembershipUncheckedCreateNestedManyWithoutCompanyInput
+    company_products?: CompanyProductUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutTenantInput = {
@@ -16232,6 +18232,34 @@ export namespace Prisma {
 
   export type ProductConfigCreateManyTenantInputEnvelope = {
     data: ProductConfigCreateManyTenantInput | ProductConfigCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyProductCreateWithoutTenantInput = {
+    id?: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    company: CompanyCreateNestedOneWithoutCompany_productsInput
+  }
+
+  export type CompanyProductUncheckedCreateWithoutTenantInput = {
+    id?: string
+    company_id: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type CompanyProductCreateOrConnectWithoutTenantInput = {
+    where: CompanyProductWhereUniqueInput
+    create: XOR<CompanyProductCreateWithoutTenantInput, CompanyProductUncheckedCreateWithoutTenantInput>
+  }
+
+  export type CompanyProductCreateManyTenantInputEnvelope = {
+    data: CompanyProductCreateManyTenantInput | CompanyProductCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -16389,6 +18417,35 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"ProductConfig"> | Date | string
   }
 
+  export type CompanyProductUpsertWithWhereUniqueWithoutTenantInput = {
+    where: CompanyProductWhereUniqueInput
+    update: XOR<CompanyProductUpdateWithoutTenantInput, CompanyProductUncheckedUpdateWithoutTenantInput>
+    create: XOR<CompanyProductCreateWithoutTenantInput, CompanyProductUncheckedCreateWithoutTenantInput>
+  }
+
+  export type CompanyProductUpdateWithWhereUniqueWithoutTenantInput = {
+    where: CompanyProductWhereUniqueInput
+    data: XOR<CompanyProductUpdateWithoutTenantInput, CompanyProductUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type CompanyProductUpdateManyWithWhereWithoutTenantInput = {
+    where: CompanyProductScalarWhereInput
+    data: XOR<CompanyProductUpdateManyMutationInput, CompanyProductUncheckedUpdateManyWithoutTenantInput>
+  }
+
+  export type CompanyProductScalarWhereInput = {
+    AND?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
+    OR?: CompanyProductScalarWhereInput[]
+    NOT?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
+    id?: StringFilter<"CompanyProduct"> | string
+    tenant_id?: StringFilter<"CompanyProduct"> | string
+    company_id?: StringFilter<"CompanyProduct"> | string
+    product_key?: StringFilter<"CompanyProduct"> | string
+    is_active?: BoolFilter<"CompanyProduct"> | boolean
+    created_at?: DateTimeFilter<"CompanyProduct"> | Date | string
+    updated_at?: DateTimeFilter<"CompanyProduct"> | Date | string
+  }
+
   export type TenantCreateWithoutUsersInput = {
     id?: string
     name: string
@@ -16402,6 +18459,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionCreateNestedManyWithoutTenantInput
     companies?: CompanyCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutUsersInput = {
@@ -16417,6 +18475,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutTenantInput
     companies?: CompanyUncheckedCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutUsersInput = {
@@ -16510,6 +18569,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUpdateManyWithoutTenantNestedInput
     companies?: CompanyUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -16525,6 +18585,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutTenantNestedInput
     companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserPermissionUpsertWithWhereUniqueWithoutUserInput = {
@@ -16586,6 +18647,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionCreateNestedManyWithoutTenantInput
     companies?: CompanyCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutSubscriptionsInput = {
@@ -16601,6 +18663,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutTenantInput
     companies?: CompanyUncheckedCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutSubscriptionsInput = {
@@ -16632,6 +18695,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUpdateManyWithoutTenantNestedInput
     companies?: CompanyUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutSubscriptionsInput = {
@@ -16647,6 +18711,7 @@ export namespace Prisma {
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutTenantNestedInput
     companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateWithoutUser_permissionsInput = {
@@ -16662,6 +18727,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutTenantInput
     companies?: CompanyCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutUser_permissionsInput = {
@@ -16677,6 +18743,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutTenantInput
     companies?: CompanyUncheckedCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutUser_permissionsInput = {
@@ -16737,6 +18804,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutTenantNestedInput
     companies?: CompanyUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutUser_permissionsInput = {
@@ -16752,6 +18820,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutTenantNestedInput
     companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserUpsertWithoutUser_permissionsInput = {
@@ -16802,6 +18871,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutTenantInput
     user_permissions?: UserPermissionCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutCompaniesInput = {
@@ -16817,6 +18887,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutTenantInput
     product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutCompaniesInput = {
@@ -16854,6 +18925,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CompanyProductCreateWithoutCompanyInput = {
+    id?: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    tenant: TenantCreateNestedOneWithoutCompanyProductInput
+  }
+
+  export type CompanyProductUncheckedCreateWithoutCompanyInput = {
+    id?: string
+    tenant_id: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type CompanyProductCreateOrConnectWithoutCompanyInput = {
+    where: CompanyProductWhereUniqueInput
+    create: XOR<CompanyProductCreateWithoutCompanyInput, CompanyProductUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type CompanyProductCreateManyCompanyInputEnvelope = {
+    data: CompanyProductCreateManyCompanyInput | CompanyProductCreateManyCompanyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenantUpsertWithoutCompaniesInput = {
     update: XOR<TenantUpdateWithoutCompaniesInput, TenantUncheckedUpdateWithoutCompaniesInput>
     create: XOR<TenantCreateWithoutCompaniesInput, TenantUncheckedCreateWithoutCompaniesInput>
@@ -16878,6 +18977,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutTenantNestedInput
     user_permissions?: UserPermissionUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutCompaniesInput = {
@@ -16893,6 +18993,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserMembershipUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -16909,6 +19010,22 @@ export namespace Prisma {
   export type UserMembershipUpdateManyWithWhereWithoutCompanyInput = {
     where: UserMembershipScalarWhereInput
     data: XOR<UserMembershipUpdateManyMutationInput, UserMembershipUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type CompanyProductUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: CompanyProductWhereUniqueInput
+    update: XOR<CompanyProductUpdateWithoutCompanyInput, CompanyProductUncheckedUpdateWithoutCompanyInput>
+    create: XOR<CompanyProductCreateWithoutCompanyInput, CompanyProductUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type CompanyProductUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: CompanyProductWhereUniqueInput
+    data: XOR<CompanyProductUpdateWithoutCompanyInput, CompanyProductUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type CompanyProductUpdateManyWithWhereWithoutCompanyInput = {
+    where: CompanyProductScalarWhereInput
+    data: XOR<CompanyProductUpdateManyMutationInput, CompanyProductUncheckedUpdateManyWithoutCompanyInput>
   }
 
   export type UserCreateWithoutMembershipsInput = {
@@ -16949,6 +19066,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: TenantCreateNestedOneWithoutCompaniesInput
+    company_products?: CompanyProductCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutMembershipsInput = {
@@ -16960,6 +19078,7 @@ export namespace Prisma {
     status?: $Enums.CompanyStatus
     created_at?: Date | string
     updated_at?: Date | string
+    company_products?: CompanyProductUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutMembershipsInput = {
@@ -17022,6 +19141,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCompaniesNestedInput
+    company_products?: CompanyProductUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutMembershipsInput = {
@@ -17033,6 +19153,7 @@ export namespace Prisma {
     status?: EnumCompanyStatusFieldUpdateOperationsInput | $Enums.CompanyStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company_products?: CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type TenantCreateWithoutProduct_configsInput = {
@@ -17048,6 +19169,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionCreateNestedManyWithoutTenantInput
     user_permissions?: UserPermissionCreateNestedManyWithoutTenantInput
     companies?: CompanyCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutProduct_configsInput = {
@@ -17063,6 +19185,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutTenantInput
     companies?: CompanyUncheckedCreateNestedManyWithoutTenantInput
+    CompanyProduct?: CompanyProductUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutProduct_configsInput = {
@@ -17094,6 +19217,7 @@ export namespace Prisma {
     subscriptions?: SubscriptionUpdateManyWithoutTenantNestedInput
     user_permissions?: UserPermissionUpdateManyWithoutTenantNestedInput
     companies?: CompanyUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutProduct_configsInput = {
@@ -17109,6 +19233,151 @@ export namespace Prisma {
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutTenantNestedInput
     companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
+    CompanyProduct?: CompanyProductUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantCreateWithoutCompanyProductInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: $Enums.TenantStatus
+    clerk_org_id?: string | null
+    stripe_customer_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    users?: UserCreateNestedManyWithoutTenantInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutTenantInput
+    user_permissions?: UserPermissionCreateNestedManyWithoutTenantInput
+    companies?: CompanyCreateNestedManyWithoutTenantInput
+    product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutCompanyProductInput = {
+    id?: string
+    name: string
+    slug: string
+    status?: $Enums.TenantStatus
+    clerk_org_id?: string | null
+    stripe_customer_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutTenantInput
+    companies?: CompanyUncheckedCreateNestedManyWithoutTenantInput
+    product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+  }
+
+  export type TenantCreateOrConnectWithoutCompanyProductInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutCompanyProductInput, TenantUncheckedCreateWithoutCompanyProductInput>
+  }
+
+  export type CompanyCreateWithoutCompany_productsInput = {
+    id?: string
+    name: string
+    subdomain?: string | null
+    cnpj?: string | null
+    status?: $Enums.CompanyStatus
+    created_at?: Date | string
+    updated_at?: Date | string
+    tenant: TenantCreateNestedOneWithoutCompaniesInput
+    memberships?: UserMembershipCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutCompany_productsInput = {
+    id?: string
+    tenant_id: string
+    name: string
+    subdomain?: string | null
+    cnpj?: string | null
+    status?: $Enums.CompanyStatus
+    created_at?: Date | string
+    updated_at?: Date | string
+    memberships?: UserMembershipUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutCompany_productsInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutCompany_productsInput, CompanyUncheckedCreateWithoutCompany_productsInput>
+  }
+
+  export type TenantUpsertWithoutCompanyProductInput = {
+    update: XOR<TenantUpdateWithoutCompanyProductInput, TenantUncheckedUpdateWithoutCompanyProductInput>
+    create: XOR<TenantCreateWithoutCompanyProductInput, TenantUncheckedCreateWithoutCompanyProductInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutCompanyProductInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutCompanyProductInput, TenantUncheckedUpdateWithoutCompanyProductInput>
+  }
+
+  export type TenantUpdateWithoutCompanyProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutTenantNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutTenantNestedInput
+    user_permissions?: UserPermissionUpdateManyWithoutTenantNestedInput
+    companies?: CompanyUpdateManyWithoutTenantNestedInput
+    product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutCompanyProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+    clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
+    stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions?: UserPermissionUncheckedUpdateManyWithoutTenantNestedInput
+    companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type CompanyUpsertWithoutCompany_productsInput = {
+    update: XOR<CompanyUpdateWithoutCompany_productsInput, CompanyUncheckedUpdateWithoutCompany_productsInput>
+    create: XOR<CompanyCreateWithoutCompany_productsInput, CompanyUncheckedCreateWithoutCompany_productsInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutCompany_productsInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutCompany_productsInput, CompanyUncheckedUpdateWithoutCompany_productsInput>
+  }
+
+  export type CompanyUpdateWithoutCompany_productsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCompanyStatusFieldUpdateOperationsInput | $Enums.CompanyStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutCompaniesNestedInput
+    memberships?: UserMembershipUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutCompany_productsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCompanyStatusFieldUpdateOperationsInput | $Enums.CompanyStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserCreateManyTenantInput = {
@@ -17160,6 +19429,15 @@ export namespace Prisma {
     id?: string
     product_key: string
     config?: JsonNullValueInput | InputJsonValue
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type CompanyProductCreateManyTenantInput = {
+    id?: string
+    company_id: string
+    product_key: string
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -17283,6 +19561,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUpdateManyWithoutCompanyNestedInput
+    company_products?: CompanyProductUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutTenantInput = {
@@ -17294,6 +19573,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput
+    company_products?: CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateManyWithoutTenantInput = {
@@ -17328,6 +19608,33 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
     config?: JsonNullValueInput | InputJsonValue
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyProductUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    company?: CompanyUpdateOneRequiredWithoutCompany_productsNestedInput
+  }
+
+  export type CompanyProductUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    company_id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyProductUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    company_id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17427,6 +19734,15 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
+  export type CompanyProductCreateManyCompanyInput = {
+    id?: string
+    tenant_id: string
+    product_key: string
+    is_active?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
   export type UserMembershipUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -17452,6 +19768,33 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
     role?: EnumUserMembershipRoleFieldUpdateOperationsInput | $Enums.UserMembershipRole
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyProductUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutCompanyProductNestedInput
+  }
+
+  export type CompanyProductUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyProductUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_key?: StringFieldUpdateOperationsInput | string
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17507,6 +19850,10 @@ export namespace Prisma {
      */
     export type ProductConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProductConfigDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use CompanyProductDefaultArgs instead
+     */
+    export type CompanyProductArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CompanyProductDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use StripeEventDefaultArgs instead
      */
     export type StripeEventArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StripeEventDefaultArgs<ExtArgs>
@@ -17515,9 +19862,9 @@ export namespace Prisma {
      */
     export type SupplierTenantAccessArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SupplierTenantAccessDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ServiceTokenDefaultArgs instead
+     * @deprecated Use GlobalProductDefaultArgs instead
      */
-    export type ServiceTokenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ServiceTokenDefaultArgs<ExtArgs>
+    export type GlobalProductArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GlobalProductDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

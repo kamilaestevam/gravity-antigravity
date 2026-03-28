@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
   House,
@@ -14,143 +14,74 @@ import {
   Plugs,
   Star,
   Gear,
-  CaretDoubleLeft,
-  CaretDoubleRight,
+  Package,
+  Calculator,
+  Anchor,
+  FileArchive,
+  CaretDown,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
-import { LogoGlobal } from '@nucleo/logo-global'
+import { MenuLateralGlobal, NavItem } from '@nucleo/menu-lateral-global'
+
+interface SidebarProps {
+  navItems?: NavItem[]
+  moduleName?: string
+  moduleColor?: string
+  tenantName: string
+  tenantPlan: string
+}
 
 /**
- * Sidebar — menu lateral com navegação por produto/serviço.
- *
- * - Colapsa para 72px quando sidebarOpen = false (apenas ícones)
- * - Usa NavLink do react-router-dom para classe .active automática
- * - Labels traduzidos via useTranslation — nunca strings hardcoded
- * - Nunca contém lógica de produto
+ * Sidebar — menu lateral modernizado usando MenuLateralGlobal do núcleo.
  */
-export function Sidebar() {
+export function Sidebar({ 
+  navItems: customNavItems, 
+  moduleName = 'SimulaCusto', 
+  moduleColor = '#818cf8',
+  tenantName,
+  tenantPlan 
+}: SidebarProps) {
   const { sidebarOpen, toggleSidebar } = useShellStore()
   const { t } = useTranslation()
-  const location = useLocation()
 
-  // Seções e itens definidos com chaves de tradução — sem strings hardcoded
-  const NAV_SECTIONS = [
+  // Mock de Permissões: Numa etapa futura, leremos "company_products" do contexto global.
+  const hasPedidos = false;
+  const hasDuimp = false;
+  const hasTracking = false;
+
+  // Se o produto não proveu itens customizados, usamos o padrão da plataforma
+  const defaultNavItems: NavItem[] = [
+    { to: '/dashboard',   label: t('shell.menu.dashboard', 'Dashboard'),   icon: <House weight="duotone" size={20} /> },
+    { to: '/atividades',   label: t('shell.menu.atividades', 'Minhas Atividades'), icon: <BookOpen weight="duotone" size={20} /> },
+    { to: '/email',        label: t('shell.menu.email', 'E-mails'),       icon: <Envelope weight="duotone" size={20} /> },
+    { to: '/whatsapp',     label: t('shell.menu.whatsapp', 'WhatsApp'),    icon: <ChatCircle weight="duotone" size={20} /> },
     {
-      labelKey: 'shell.secao.principal',
-      items: [
-        { to: '/dashboard',   icon: <House weight="duotone" size={20} />,    labelKey: 'shell.menu.dashboard' },
-        { to: '/relatorios',  icon: <ChartBar weight="duotone" size={20} />, labelKey: 'shell.menu.relatorios' },
-      ],
+      label: 'Produtos Gravity',
+      icon: <Star weight="duotone" size={20} />,
+      children: [
+        { to: '/simulacusto', label: 'SimulaCusto', icon: <Calculator weight="duotone" size={18} /> },
+        { to: '/pedidos', label: 'Pedidos de Compra', icon: <Package weight="duotone" size={18} />, disabled: !hasPedidos },
+        { to: '/duimp', label: 'Exportador DUIMP', icon: <FileArchive weight="duotone" size={18} />, disabled: !hasDuimp },
+        { to: '/tracking', label: 'Tracking de Carga', icon: <Anchor weight="duotone" size={18} />, disabled: !hasTracking }
+      ]
     },
-    {
-      labelKey: 'shell.secao.comunicacao',
-      items: [
-        { to: '/email',        icon: <Envelope weight="duotone" size={20} />,   labelKey: 'shell.menu.email' },
-        { to: '/whatsapp',     icon: <ChatCircle weight="duotone" size={20} />, labelKey: 'shell.menu.whatsapp' },
-        { to: '/notificacoes', icon: <Bell weight="duotone" size={20} />,       labelKey: 'shell.menu.notificacoes' },
-      ],
-    },
-    {
-      labelKey: 'shell.secao.operacional',
-      items: [
-        { to: '/atividades', icon: <BookOpen weight="duotone" size={20} />,  labelKey: 'shell.menu.atividades' },
-        { to: '/cronometro', icon: <Clock weight="duotone" size={20} />,     labelKey: 'shell.menu.cronometro' },
-        { to: '/historico',  icon: <FileText weight="duotone" size={20} />,  labelKey: 'shell.menu.historico' },
-      ],
-    },
-    {
-      labelKey: 'shell.secao.servicos',
-      items: [
-        { to: '/gabi',        icon: <Star weight="duotone" size={20} />,   labelKey: 'shell.menu.gabi' },
-        { to: '/helpdesk',    icon: <Headset weight="duotone" size={20} />, labelKey: 'shell.menu.helpdesk' },
-        { to: '/conector-erp', icon: <Plugs weight="duotone" size={20} />, labelKey: 'shell.menu.conector_erp' },
-      ],
-    },
-    {
-      labelKey: 'shell.secao.sistema',
-      items: [
-        { to: '/store',       icon: <Star weight="duotone" size={20} />, labelKey: 'shell.menu.gravity_store' },
-        { to: '/configurador', icon: <Gear weight="duotone" size={20} />, labelKey: 'shell.menu.configuracoes' },
-      ],
-    },
+    { to: '/notificacoes', label: t('shell.menu.notificacoes', 'Notificações'), icon: <Bell weight="duotone" size={20} /> },
+    { to: '/historico',    label: t('shell.menu.historico', 'Histórico'), icon: <FileText weight="duotone" size={20} /> },
+    { to: '/conector-erp', label: t('shell.menu.conector_erp', 'Conector ERP'), icon: <Plugs weight="duotone" size={20} /> },
+    { to: '/configurador', label: t('shell.menu.configuracoes', 'Configurações'), icon: <Gear weight="duotone" size={20} /> },
   ]
 
+  const navItems = customNavItems || defaultNavItems
+
   return (
-    <aside
-      className="shell-sidebar"
-      aria-label={t('shell.menu_navegacao')}
-      role="navigation"
-    >
-      {/* Logo / marca */}
-      <div className="shell-sidebar__logo">
-        <LogoGlobal iconOnly={!sidebarOpen} iconSize={24} />
-        <button
-          className="shell-sidebar__collapse-btn"
-          onClick={toggleSidebar}
-          aria-label={sidebarOpen ? t('shell.recolher_menu') : t('shell.expandir_menu')}
-          title={sidebarOpen ? t('shell.recolher_menu') : t('shell.expandir_menu')}
-        >
-          {sidebarOpen ? (
-            <CaretDoubleLeft size={12} weight="bold" />
-          ) : (
-            <CaretDoubleRight size={12} weight="bold" />
-          )}
-        </button>
-      </div>
-
-      {/* Itens de navegação */}
-      <nav className="shell-sidebar__nav" aria-label={t('shell.modulos_sistema')}>
-        {NAV_SECTIONS.map((section) => (
-          <React.Fragment key={section.labelKey}>
-            <span
-              className="shell-sidebar__section-label"
-              aria-hidden={!sidebarOpen}
-            >
-              {t(section.labelKey)}
-            </span>
-
-            {section.items.map((item) => {
-              const isActive =
-                location.pathname === item.to ||
-                location.pathname.startsWith(item.to + '/')
-              const label = t(item.labelKey)
-
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={`shell-sidebar__nav-item${isActive ? ' active' : ''}`}
-                  title={!sidebarOpen ? label : undefined}
-                  aria-label={!sidebarOpen ? label : undefined}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="shell-sidebar__nav-icon" aria-hidden="true">
-                    {item.icon}
-                  </span>
-                  <span className="shell-sidebar__nav-label">{label}</span>
-                </NavLink>
-              )
-            })}
-          </React.Fragment>
-        ))}
-      </nav>
-
-      {/* Footer da sidebar */}
-      <div className="shell-sidebar__footer">
-        <NavLink
-          to="/configurador"
-          className={`shell-sidebar__nav-item${
-            location.pathname.startsWith('/configurador') ? ' active' : ''
-          }`}
-          title={!sidebarOpen ? t('shell.menu.configuracoes') : undefined}
-          aria-label={!sidebarOpen ? t('shell.menu.configuracoes') : undefined}
-        >
-          <span className="shell-sidebar__nav-icon" aria-hidden="true">
-            <Gear weight="duotone" size={20} />
-          </span>
-          <span className="shell-sidebar__nav-label">{t('shell.menu.configuracoes')}</span>
-        </NavLink>
-      </div>
-    </aside>
+    <MenuLateralGlobal
+      tenantName={tenantName}
+      tenantPlan={tenantPlan}
+      navItems={navItems}
+      moduleName={moduleName}
+      moduleColor={moduleColor}
+      isCollapsed={!sidebarOpen}
+      onToggleCollapse={toggleSidebar}
+    />
   )
 }

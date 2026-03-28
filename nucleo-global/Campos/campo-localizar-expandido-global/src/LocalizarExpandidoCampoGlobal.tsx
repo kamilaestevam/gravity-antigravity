@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { MagnifyingGlass, XCircle } from '@phosphor-icons/react'
 import { useLocation } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 export interface LocalizarExpandidoCampoGlobalProps {
@@ -25,8 +24,7 @@ export function LocalizarExpandidoCampoGlobal({
   className = '',
   style
 }: LocalizarExpandidoCampoGlobalProps) {
-  const { t } = useTranslation()
-  const defaultPlaceholder = placeholder ?? t('campo.localizar_sistema')
+  const defaultPlaceholder = placeholder ?? 'Localizar no sistema...'
   const [isSearchExpanded, setIsSearchExpanded] = useState(false)
   const [internalSearchTerm, setInternalSearchTerm] = useState('')
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -84,7 +82,7 @@ export function LocalizarExpandidoCampoGlobal({
 
   return (
     <div className={`ws-global-search ${isSearchExpanded || alwaysExpanded ? 'expanded' : ''} ${className}`} style={style}>
-      <TooltipGlobal titulo={t('campo.localizar_tela')} descricao={t('campo.localizar_tela_desc')}>
+      <TooltipGlobal titulo="Localizar na Tela" descricao="Filtre rapidamente dados e registros visíveis na página atual">
         <button className="ws-global-btn" onClick={handleSearchClick} type="button">
           <MagnifyingGlass weight="bold" size={18} />
         </button>

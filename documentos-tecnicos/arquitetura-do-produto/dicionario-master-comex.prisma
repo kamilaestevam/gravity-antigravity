@@ -1,0 +1,833 @@
+// fragment_full.prisma — Gerado automaticamente a partir da planilha de campos
+// COMPONENT: servicos-global/tenant/processos-core
+// Total de campos: 471 (Processo) | 99 (Pedido) | 165 (Item)
+
+// ============================================
+// 1. PROCESSO LOGÍSTICO
+// ============================================
+model Processo {
+  id              String   @id // (O Chassi / Robôs) PK. Ex: proc_id_0000001/26
+  tenant_id       String   // (O Workspace/Filial)
+  company_id      String   // (A Organização Matriz)
+
+
+  // --- DADOS DO PROCESSO ---
+  status_do_processo                                           String?  // Status do processo
+  referencia_interna                                           String?  // Referência interna
+  referencia_dati                                              String?  // Referência DATI
+  importacao_exportacao                                        String?  // Importação/Exportação
+  responsavel_pelo_processo                                    String?  // Responsável pelo processo
+  responsavel_pela_rotina                                      String?  // Responsável pela rotina
+  observacoes                                                  String?  // Observações
+  setor_responsavel_pelo_processo                              String?  // Setor responsável pelo processo
+  vendedor_responsavel_pelo_processo                           String?  // Vendedor responsável pelo processo
+  id_do_importador                                             String?  // ID do importador
+  cnpj_do_importador                                           String?  // CNPJ do importador
+  nome_do_importador                                           String?  // Nome do importador
+  status_do_cnpj_do_importador                                 String?  // Status do CNPJ do importador
+  endereco_do_importador                                       String?  // Endereço do importador
+  numero_do_importador                                         String?  // Número do importador
+  pais_do_importador                                           String?  // País do importador
+  estado_do_importador                                         String?  // Estado do importador
+  cidade_do_importador                                         String?  // Cidade do importador
+  bairro_do_importador                                         String?  // Bairro do importador
+  cep_do_importador                                            String?  // CEP do importador
+  nome_do_contato_do_importador                                String?  // Nome do contato do importador
+  e_mail_do_contato_do_importador                              String?  // E-mail do contato do importador
+  whatsapp_contato_do_importador                               String?  // Whatsapp contato do importador
+  cargo_do_contato_do_importador                               String?  // Cargo do contato do importador
+  departamento_do_contato_do_importador                        String?  // Departamento do contato do importador
+  nome_da_empresa_de_logistica_internacional                   String?  // Nome da empresa de logística internacional
+  tipo_de_fornecedor                                           String?  // Tipo de fornecedor
+  nome_do_contato_do_agente_de_carga                           String?  // Nome do contato do agente de carga
+  e_mail_do_contato_do_agente_de_carga                         String?  // E-mail do contato do agente de carga
+  nome_do_contato_do_armador                                   String?  // Nome do contato do armador
+  e_mail_do_contato_do_armador                                 String?  // E-mail do contato do armador
+  nome_do_contato_da_cia_aerea                                 String?  // Nome do contato da cia aérea
+  e_mail_do_contato_da_cia_aerea                               String?  // E-mail do contato da cia aérea
+  nome_do_contato_da_transportadora_rodoviaria_internacional   String?  // Nome do contato da transportadora rodoviária internacional
+  e_mail_do_contato_da_transportadora_rodoviaria_internacional String?  // E-mail do contato da transportadora rodoviária internacional
+  nome_do_contato_da_empresa_de_courier                        String?  // Nome do contato da empresa de courier
+  e_mail_do_contato_da_empresa_de_courier                      String?  // E-mail do contato da empresa de courier
+  modal                                                        String?  // Modal
+  porto_de_origem                                              String?  // Porto de origem
+  aeroporto_de_origem                                          String?  // Aeroporto de origem
+  local_de_origem_rodoviario_internacional                     String?  // Local de origem - Rodoviário internacional
+  porto_de_destino                                             String?  // Porto de destino
+  aeroporto_de_destino                                         String?  // Aeroporto de destino
+  local_de_destino_rodoviario_internacional                    String?  // Local de destino - Rodoviário internacional
+  local_de_destino_courier                                     String?  // Local de destino - Courier
+  numero_da_proposta_proposta_frete_internacional              String?  // Número da proposta - Proposta frete internacional
+  referencia_interna_proposta_frete_internacional              String?  // Referência interna - Proposta frete internacional
+  modal_proposta_frete_internacional                           String?  // Modal - Proposta frete internacional
+  fcl_lcl_proposta_frete_internacional                         String?  // FCL / LCL - Proposta frete internacional
+  tipo_de_container_proposta_frete_internacional               String?  // Tipo de container - Proposta frete internacional
+  local_de_origem_proposta_frete_internacional                 String?  // Local de origem - Proposta frete internacional
+  local_de_destino_proposta_frete_internacional                String?  // Local de destino - Proposta frete internacional
+  transit_time_previsto_proposta_frete_internacional           String?  // Transit time previsto - Proposta frete internacional
+  havera_transbordo_proposta_frete_internacional               String?  // Haverá transbordo? - Proposta frete internacional
+  havera_escala_proposta_frete_internacional                   String?  // Haverá escala? - Proposta frete internacional
+  quantidade_de_transbordo_proposta_frete_internacional        String?  // Quantidade de transbordo? - Proposta frete internacional
+  quantidade_de_escala_proposta_frete_internacional            String?  // Quantidade de escala? - Proposta frete internacional
+  tempo_estimado_de_transbordo_proposta_frete_internacional    String?  // Tempo estimado de transbordo - Proposta frete internacional
+  tempo_estimado_de_escala_proposta_frete_internacional        String?  // Tempo estimado de escala - Proposta frete internacional
+  nome_do_armador_proposta_frete_internacional                 String?  // Nome do armador - Proposta frete internacional
+  nome_da_cia_aerea_proposta_frete_internacional               String?  // Nome da cia aérea - Proposta frete internacional
+  nome_transportadora_rodoviaria_internacional_proposta_frete_internacional String?  // Nome transportadora rodoviária internacional - Proposta frete internacional
+  nome_da_empresa_de_courier_proposta_frete_internacional      String?  // Nome da empresa de courier - Proposta frete internacional
+  ncm_proposta_frete_internacional                             String?  // NCM - Proposta frete internacional
+  descricao_resumida_do_produto_proposta_frete_internacional   String?  // Descrição resumida do produto - Proposta frete internacional
+  validade_proposta_frete_internacional                        DateTime?  // Validade - Proposta frete internacional
+  carga_perigosa_proposta_frete_internacional                  String?  // Carga perigosa? - Proposta frete internacional
+  tipo_de_carga_perigosa_proposta_frete_internacional          String?  // Tipo de carga perigosa - Proposta frete internacional
+  descricao_do_frete_basico_valor_do_frete_internacional       String?  // Descrição do frete básico - Valor do frete internacional
+  moeda_do_frete_basico_valor_do_frete_internacional           String?  // Moeda do frete básico - Valor do frete internacional
+  valor_do_frete_basico_valor_do_frete_internacional           String?  // Valor do frete básico - Valor do frete internacional
+  tipo_de_cobranca_valor_do_frete_internacional                String?  // Tipo de cobrança - Valor do frete internacional
+  faixa_de_peso_inicial_da_taxa_valor_do_frete_internacional   String?  // Faixa de peso inicial da taxa - Valor do frete internacional
+  faixa_de_peso_final_da_taxa_valor_do_frete_internacional     String?  // Faixa de peso final da taxa - Valor do frete internacional
+  valor_minimo_valor_do_frete_internacional                    String?  // Valor mínimo - Valor do frete internacional
+  collect_prepaid_valor_do_frete_internacional                 String?  // Collect / Prepaid - Valor do frete internacional
+  incluir_na_estimativa_de_custo_valor_do_frete_internacional  String?  // Incluir na estimativa de custo - Valor do frete internacional
+  descricao_da_taxa_na_origem_valor_do_frete_internacional     String?  // Descrição da taxa na origem - Valor do frete internacional
+  moeda_da_taxa_na_origem_valor_do_frete_internacional         String?  // Moeda da taxa na origem - Valor do frete internacional
+  valor_da_taxa_na_origem_valor_do_frete_internacional         String?  // Valor da taxa na origem - Valor do frete internacional
+  tipo_de_cobranca_da_taxa_na_origem_valor_do_frete_internacional String?  // Tipo de cobrança da taxa na origem - Valor do frete internacional
+  faixa_de_peso_inicial_da_taxa_na_origem_valor_do_frete_internacional String?  // Faixa de peso inicial da taxa na origem - Valor do frete internacional
+  faixa_de_peso_final_da_taxa_na_origem_valor_do_frete_internacional String?  // Faixa de peso final da taxa na origem - Valor do frete internacional
+  valor_minimo_da_taxa_na_origem_valor_do_frete_internacional  String?  // Valor mínimo da taxa na origem - Valor do frete internacional
+  collect_prepaid_taxa_na_origem_valor_do_frete_internacional  String?  // Collect / Prepaid taxa na origem - Valor do frete internacional
+  incluir_na_estimativa_de_custo_taxa_na_origem_valor_frete_internacional String?  // Incluir na estimativa de custo taxa na origem - Valor frete internacional
+  descricao_da_taxa_no_destino_valor_do_frete_internacional    String?  // Descrição da taxa no destino - Valor do frete internacional
+  moeda_da_taxa_no_destino_valor_do_frete_internacional        String?  // Moeda da taxa no destino - Valor do frete internacional
+  valor_da_taxa_no_destino_valor_do_frete_internacional        String?  // Valor da taxa no destino - Valor do frete internacional
+  tipo_de_cobranca_da_taxa_no_destino_valor_do_frete_internacional String?  // Tipo de cobrança da taxa no destino - Valor do frete internacional
+  faixa_de_peso_inicial_da_taxa_no_destino_valor_do_frete_internacional String?  // Faixa de peso inicial da taxa no destino - Valor do frete internacional
+  faixa_de_peso_final_da_taxa_no_destino_valor_do_frete_internacional String?  // Faixa de peso final da taxa no destino - Valor do frete internacional
+  valor_minimo_da_taxa_no_destino_valor_do_frete_internacional String?  // Valor mínimo da taxa no destino - Valor do frete internacional
+  collect_prepaid_taxa_no_destino_valor_do_frete_internacional String?  // Collect / Prepaid taxa no destino - Valor do frete internacional
+  incluir_na_estimativa_de_custo_taxa_no_destino_valor_frete_internacional String?  // Incluir na estimativa de custo taxa no destino - Valor frete internacional
+  prazo_de_pagamento_proposta_frete_internacional              String?  // Prazo de pagamento - Proposta frete internacional
+  base_do_prazo_do_frete_e_taxas_proposta_frete_internacional  String?  // Base do prazo do frete e taxas - Proposta frete internacional
+  free_time_demurrage_valor_do_frete_internacional             String?  // Free time demurrage - Valor do frete internacional
+  moeda_do_demurrage_valor_do_frete_internacional              String?  // Moeda do demurrage - Valor do frete internacional
+  valor_da_diaria_do_demurrage_valor_do_frete_internacionalcional String?  // Valor da diária do demurrage - Valor do frete internacionalcional
+  tipo_de_container                                            String?  // Tipo de container
+  numero_do_container                                          String?  // Número do container
+  lacre_do_container                                           String?  // Lacre do container
+  peso_bruto_total_do_container                                String?  // Peso bruto total do container
+  peso_liquido_total_do_container                              String?  // Peso líquido total do container
+  cubagem_total_do_container                                   String?  // Cubagem total do container
+  tara_do_container                                            String?  // Tara do container
+  quantidade_de_containers_do_processo                         String?  // Quantidade de containers do processo
+  despachante_aduaneiro_do_processo                            String?  // Despachante aduaneiro do processo
+  nome_do_contato_do_despachante_aduaneiro                     String?  // Nome do contato do despachante aduaneiro
+  e_mail_do_contato_do_despachante_aduaneiro                   String?  // E-mail do contato do despachante aduaneiro
+  numero_da_proposta_proposta_despacho_aduaneiro               String?  // Número da proposta - Proposta despacho aduaneiro
+  referencia_interna_proposta_despacho_aduaneiro               String?  // Referência interna - Proposta despacho aduaneiro
+  local_de_destino_proposta_despacho_aduaneiro                 String?  // Local de destino - Proposta despacho aduaneiro
+  unidade_de_despacho_proposta_despacho_aduaneiro              String?  // Unidade de despacho - Proposta despacho aduaneiro
+  modal_proposta_despacho_aduaneiro                            String?  // Modal - Proposta despacho aduaneiro
+  validade_proposta_despacho_aduaneiro                         String?  // Validade - Proposta despacho aduaneiro
+  prazo_de_pagamento_proposta_despacho_aduaneiro               String?  // Prazo de pagamento  - Proposta despacho aduaneiro
+  base_do_prazo_proposta_despacho_aduaneiro                    String?  // Base do prazo - Proposta despacho aduaneiro
+  descricao_valor_do_servico_de_despacho_aduaneiro             String?  // Descrição - Valor do serviço de despacho aduaneiro
+  moeda_valor_do_servico_de_despacho_aduaneiro                 String?  // Moeda - Valor do serviço de despacho aduaneiro
+  valor_valor_do_servico_de_despacho_aduaneiro                 String?  // Valor - Valor do serviço de despacho aduaneiro
+  collect_prepaid_valor_do_servico_de_despacho_aduaneiro       String?  // Collect / Prepaid - Valor do serviço de despacho aduaneiro
+  incluir_na_estimativa_de_custo_valor_do_servico_de_despacho_aduaneiro String?  // Incluir na estimativa de custo - Valor do serviço de despacho aduaneiro
+  descricao_da_taxa_valor_do_servico_de_despacho_aduaneiro     String?  // Descrição da taxa - Valor do serviço de despacho aduaneiro
+  moeda_da_taxa_valor_do_servico_de_despacho_aduaneiro         String?  // Moeda da taxa - Valor do serviço de despacho aduaneiro
+  valor_da_taxa_valor_do_servico_de_despacho_aduaneiro         String?  // Valor da taxa - Valor do serviço de despacho aduaneiro
+  tipo_de_cobranca_da_taxa_valor_do_servico_de_despacho_aduaneiro String?  // Tipo de cobrança da taxa - Valor do serviço de despacho aduaneiro
+  valor_minimo_da_taxa_valor_do_servico_de_despacho_aduaneiro  String?  // Valor mínimo da taxa - Valor do serviço de despacho aduaneiro
+  collect_prepaid_da_taxa_valor_do_servico_de_despacho_aduaneiro String?  // Collect / Prepaid da taxa - Valor do serviço de despacho aduaneiro
+  incluir_na_estimativa_a_taxa_valor_do_servico_de_despacho_aduaneiro String?  // Incluir na estimativa a taxa - Valor do serviço de despacho aduaneiro
+  armazem_alfandegado_do_processo                              String?  // Armazém alfandegado do processo
+  nome_do_contato_do_do_armazem_alfandegado                    String?  // Nome do contato do do armazém alfandegado
+  e_mail_do_contato_do_armazem_alfandegado                     String?  // E-mail do contato do armazém alfandegado
+  numero_da_proposta_proposta_armazenagem_alfandegada          String?  // Número da proposta - Proposta armazenagem alfandegada
+  referencia_interna_proposta_armazenagem_alfandegada          String?  // Referência interna - Proposta armazenagem alfandegada
+  modal_proposta_armazenagem_alfandegada                       String?  // Modal - Proposta armazenagem alfandegada
+  validade_proposta_armazenagem_alfandegada                    String?  // Validade - Proposta armazenagem alfandegada
+  prazo_de_pagamento_proposta_armazenagem_alfandegada          String?  // Prazo de pagamento - Proposta armazenagem alfandegada
+  base_do_prazo_de_pagamento_proposta_de_armazenagem_alfandegada String?  // Base do prazo de pagamento - Proposta de armazenagem alfandegada
+  descricao_valor_de_armazenagem_alfandegada                   String?  // Descrição - Valor de armazenagem alfandegada
+  moeda_valor_de_armazenagem_alfandegada                       String?  // Moeda - Valor de armazenagem alfandegada
+  aliquota_valor_de_armazenagem_alfandegada                    String?  // Alíquota - Valor de armazenagem alfandegada
+  tipo_de_cobranca_valor_de_armazenagem_alfandegada            String?  // Tipo de cobrança - Valor de armazenagem alfandegada
+  periodo_valor_de_armazenagem_alfandegada                     String?  // Período - Valor de armazenagem alfandegada
+  valor_valor_de_armazenagem_alfandegada                       String?  // Valor - Valor de armazenagem alfandegada
+  valor_minimo_valor_de_armazenagem_alfandegada                String?  // Valor mínimo - Valor de armazenagem alfandegada
+  collect_prepaid_valor_de_armazenagem_alfandegada             String?  // Collect / Prepaid - Valor de armazenagem alfandegada
+  incluir_na_estimativa_de_custo_valor_de_armazenagem_alfandegada String?  // Incluir na estimativa de custo - Valor de armazenagem alfandegada
+  descricao_da_taxa_valor_de_armazenagem_alfandegada           String?  // Descrição da taxa - Valor de armazenagem alfandegada
+  moeda_da_taxa_valor_de_armazenagem_alfandegada               String?  // Moeda da taxa - Valor de armazenagem alfandegada
+  valor_da_taxa_valor_de_armazenagem_alfandegada               String?  // Valor da taxa - Valor de armazenagem alfandegada
+  tipo_de_cobranca_da_taxa_valor_de_armazenagem_alfandegada    String?  // Tipo de cobrança da taxa - Valor de armazenagem alfandegada
+  faixa_de_peso_inicial_da_taxa_valor_de_armazenagem_alfandegada String?  // Faixa de peso inicial da taxa - Valor de armazenagem alfandegada
+  faixa_de_peso_final_da_taxa_valor_de_armazenagem_alfandegada String?  // Faixa de peso final da taxa - Valor de armazenagem alfandegada
+  valor_minimo_da_taxa_valor_de_armazenagem_alfandegada        String?  // Valor mínimo da taxa - Valor de armazenagem alfandegada
+  collect_prepaid_da_taxa_valor_de_armazenagem_alfandegada     String?  // Collect / Prepaid da taxa - Valor de armazenagem alfandegada
+  incluir_na_estimativa_a_taxa_valor_de_armazenagem_alfandegada String?  // Incluir na estimativa a taxa - Valor de armazenagem alfandegada
+  login_de_acesso_ao_armazem_alfandegado                       String?  // Login de acesso ao armazém alfandegado
+  senha_de_acesso_ao_armazem_alfandegado                       String?  // Senha de acesso ao armazém alfandegado
+  transportadora_rodoviaria_nacional_do_processo               String?  // Transportadora rodoviária nacional do processo
+  nome_do_contato_da_transportadora_rodoviaria_nacional        String?  // Nome do contato da transportadora rodoviária nacional
+  e_mail_do_contato_da_transportadora_rodoviaria_nacional      String?  // E-mail do contato da transportadora rodoviária nacional
+  numero_da_proposta_proposta_transporte_rodoviario_nacional   String?  // Número da proposta - Proposta transporte rodoviário nacional
+  referencia_interna_proposta_transporte_rodoviario_nacional   String?  // Referência interna - Proposta transporte rodoviário nacional
+  base_para_local_de_origem_proposta_transporte_rodoviario_nacional String?  // Base para local de origem  - Proposta transporte rodoviário nacional
+  local_de_origem_proposta_transporte_rodoviario_nacional      String?  // Local de origem - Proposta transporte rodoviário nacional
+  base_para_local_de_destino_proposta_transporte_rodoviario_nacional String?  // Base para local de destino  - Proposta transporte rodoviário nacional
+  local_de_destino_proposta_transporte_rodoviario_nacional     String?  // Local de destino - Proposta transporte rodoviário nacional
+  modal_proposta_transporte_rodoviario_nacional                String?  // Modal - Proposta transporte rodoviário nacional
+  validade_proposta_transporte_rodoviario_nacional             String?  // Validade - Proposta transporte rodoviário nacional
+  prazo_de_pagamento_proposta_transporte_rodoviario_nacional   String?  // Prazo de pagamento  - Proposta transporte rodoviário nacional
+  base_do_prazo_de_pagamento_proposta_transporte_rodoviario_nacional String?  // Base do prazo de pagamento - Proposta transporte rodoviário nacional
+  descricao_valor_de_transporte_rodoviario_nacional            String?  // Descrição - Valor de transporte rodoviário nacional
+  moeda_valor_de_transporte_rodoviario_nacional                String?  // Moeda - Valor de transporte rodoviário nacional
+  valor_valor_de_transporte_rodoviario_nacional                String?  // Valor - Valor de transporte rodoviário nacional
+  tipo_de_cobranca_valor_de_transporte_rodoviario_nacional     String?  // Tipo de cobrança - Valor de transporte rodoviário nacional
+  valor_minimo_valor_de_transporte_rodoviario_nacional         String?  // Valor mínimo - Valor de transporte rodoviário nacional
+  margem_valor_de_transporte_rodoviario_nacional               String?  // Margem - Valor de transporte rodoviário nacional
+  faixa_de_peso_inicial_valor_transporte_rodoviario_nacional   String?  // Faixa de peso inicial - Valor transporte rodoviário nacional
+  faixa_de_peso_final_valor_transporte_rodoviario_nacional     String?  // Faixa de peso final - Valor transporte rodoviário nacional
+  collect_prepaid_valor_de_transporte_rodoviario_nacional      String?  // Collect / Prepaid - Valor de transporte rodoviário nacional
+  incluir_na_estimativa_de_custo_valor_de_transporte_rodoviario_nacional String?  // Incluir na estimativa de custo - Valor de transporte rodoviário nacional
+  descricao_da_taxa_valor_de_transporte_rodoviario_nacional    String?  // Descrição da taxa - Valor de transporte rodoviário nacional
+  moeda_da_taxa_valor_de_transporte_rodoviario_nacional        String?  // Moeda da taxa - Valor de transporte rodoviário nacional
+  valor_da_taxa_valor_de_transporte_rodoviario_nacional        String?  // Valor da taxa - Valor de transporte rodoviário nacional
+  tipo_de_cobranca_da_taxa_valor_de_transporte_rodoviario_nacional String?  // Tipo de cobrança da taxa - Valor de transporte rodoviário nacional
+  faixa_de_peso_inicial_da_taxa_valor_de_transporte_rodoviario_nacional String?  // Faixa de peso inicial da taxa - Valor de transporte rodoviário nacional
+  faixa_de_peso_final_da_taxa_valor_de_transporte_rodoviario_nacional String?  // Faixa de peso final da taxa - Valor de transporte rodoviário nacional
+  valor_minimo_da_taxa_valor_de_transporte_rodoviario_nacional String?  // Valor mínimo da taxa - Valor de transporte rodoviário nacional
+  collect_prepaid_da_taxa_valor_de_transporte_rodoviario_nacional String?  // Collect / Prepaid da taxa - Valor de transporte rodoviário nacional
+  incluir_na_estimativa_a_taxa_valor_de_transporte_rodoviario_nacional String?  // Incluir na estimativa a taxa - Valor de transporte rodoviário nacional
+  seguradora_internacional_do_processo                         String?  // Seguradora internacional do processo
+  nome_do_contato_da_seguradora_internacional                  String?  // Nome do contato da seguradora internacional
+  e_mail_do_contato_da_seguradora_internacional                String?  // E-mail do contato da seguradora internacional
+  numero_da_proposta_proposta_seguro_internacional             String?  // Número da proposta - Proposta seguro internacional
+  referencia_interna_proposta_seguro_internacional             String?  // Referência interna - Proposta seguro internacional
+  modal_proposta_seguro_internacional                          String?  // Modal - Proposta seguro internacional
+  validade_proposta_seguro_internacional                       String?  // Validade - Proposta seguro internacional
+  prazo_de_pagamento_proposta_seguro_internacional             String?  // Prazo de pagamento - Proposta seguro internacional
+  base_do_prazo_de_pagamento_proposta_seguro_internacional     String?  // Base do prazo de pagamento - Proposta seguro internacional
+  descricao_valor_de_seguro_internacional                      String?  // Descrição - Valor de seguro internacional
+  moeda_valor_de_seguro_internacional                          String?  // Moeda - Valor de seguro internacional
+  aliquota_valor_de_seguro_internacional                       String?  // Alíquota - Valor de seguro internacional
+  nome_da_base_de_calculo_valor_do_seguro_internacional        String?  // Nome da base de cálculo - Valor do seguro internacional
+  valor_minimo_valor_do_seguro_internacional                   String?  // Valor mínimo - Valor do seguro internacional
+  collect_prepaid_valor_do_seguro_internacional                String?  // Collect / Prepaid - Valor do seguro internacional
+  incluir_na_estimativa_de_custo_valor_do_seguro_internacional String?  // Incluir na estimativa de custo - Valor do seguro internacional
+  descricao_da_taxa_valor_do_seguro_internacional              String?  // Descrição da taxa - Valor do seguro internacional
+  moeda_da_taxa_valor_do_seguro_internacional                  String?  // Moeda da taxa - Valor do seguro internacional
+  valor_da_taxa_valor_do_seguro_internacional                  String?  // Valor da taxa - Valor do seguro internacional
+  tipo_de_cobranca_da_taxa_valor_do_seguro_internacional       String?  // Tipo de cobrança da taxa - Valor do seguro internacional
+  valor_minimo_da_taxa_valor_do_seguro_internacional           String?  // Valor mínimo da taxa - Valor do seguro internacional
+  collect_prepaid_da_taxa_valor_do_seguro_internacional        String?  // Collect / Prepaid da taxa - Valor do seguro internacional
+  incluir_na_estimativa_a_taxa_valor_do_seguro_internacional   String?  // Incluir na estimativa a taxa - Valor do seguro internacional
+  numero_do_packing_list                                       String?  // Número do packing list
+  anexo_do_packing_list                                        String?  // Anexo do packing list
+  numero_do_mbl                                                String?  // Número do MBL
+  anexo_do_mbl                                                 String?  // Anexo do MBL
+  numero_do_hbl                                                String?  // Número do HBL
+  anexo_do_hbl                                                 String?  // Anexo do HBL
+  numero_do_mawb                                               String?  // Número do MAWB
+  anexo_do_mawb                                                String?  // Anexo do MAWB
+  numero_do_hawb                                               String?  // Número do HAWB
+  anexo_do_hawb                                                String?  // Anexo do HAWB
+  numero_do_crt                                                String?  // Número do CRT
+  anexo_do_crt                                                 String?  // Anexo do CRT
+  numero_da_duimp                                              String?  // Número da DUIMP
+  anexo_da_duimp                                               String?  // Anexo da DUIMP
+  numero_da_da_nfe                                             String?  // Número da da NFE
+  anexo_da_nfe                                                 String?  // Anexo da NFE
+  numero_da_guia_do_icms                                       String?  // Número da guia do ICMS
+  anexo_da_guia_do_icms                                        String?  // Anexo da guia do ICMS
+  quantidade_de_volumes_total_do_embarque                      String?  // Quantidade de volumes total do embarque
+  unidade_comercializada_do_embarque                           String?  // Unidade comercializada do embarque
+  peso_liquido_total_do_embarque                               String?  // Peso líquido total do embarque
+  peso_bruto_total_do_embarque                                 String?  // Peso bruto total do embarque
+  cubagem_total_do_embarque                                    String?  // Cubagem total do embarque
+  valor_total_do_processo_embarque_na_moeda_base               String?  // Valor total do processo/embarque na moeda base
+  moeda_s_do_processo_embarque                                 String?  // Moeda(s) do processo/embarque
+
+  // --- DUIMP ---
+  tipo_de_importador_duimp                                     String?  // Tipo de importador - DUIMP
+  cnpj_do_importador_duimp                                     String?  // CNPJ do importador - DUIMP
+  nome_do_importador_duimp                                     String?  // Nome do importador - DUIMP
+  informacoes_complementares_duimp                             String?  // Informações complementares - DUIMP
+  unidade_de_despacho_duimp                                    String?  // Unidade de despacho - DUIMP
+  situacao_especial_de_despacho_duimp                          String?  // Situação especial de despacho - DUIMP
+  motivo_da_situacao_especial_de_despacho_duimp                String?  // Motivo da situação especial de despacho - DUIMP
+  tipo_de_identificacao_de_carga_duimp                         String?  // Tipo de identificação de carga - DUIMP
+  numero_de_identificacao_de_carga_duimp                       String?  // Número de identificação de carga - DUIMP
+  tipo_de_conhecimento_duimp                                   String?  // Tipo de conhecimento - DUIMP
+  data_de_emissao_do_conhecimento_de_carga_duimp               String?  // Data de emissão do conhecimento de carga  - DUIMP
+  via_de_transporte_duimp                                      String?  // Via de transporte  - DUIMP
+  pais_de_procedencia_duimp                                    String?  // País de procedência  - DUIMP
+  local_de_embarque_duimp                                      String?  // Local de embarque  - DUIMP
+  bandeira_de_embarcacao_duimp                                 String?  // Bandeira de embarcação  - DUIMP
+  peso_bruto_kg_do_embarque_duimp                              String?  // Peso bruto (kg) do embarque  - DUIMP
+  peso_liquido_kg_do_embarque_duimp                            String?  // Peso líquido (kg) do embarque  - DUIMP
+  data_e_hora_da_chegada_duimp                                 String?  // Data e hora da chegada  - DUIMP
+  unidade_de_entrada_descarga_duimp                            String?  // Unidade de entrada/descarga  - DUIMP
+  unidade_de_destino_final_do_conhecimento_de_carga_duimp      String?  // Unidade de destino final do conhecimento de carga  - DUIMP
+  recinto_de_destino_final_do_conhecimento_de_carga_duimp      String?  // Recinto de destino final do conhecimento de carga  - DUIMP
+  detalhes_da_carga_duimp                                      String?  // Detalhes da carga - DUIMP
+  moeda_do_frete_internacional_duimp                           String?  // Moeda do frete internacional  - DUIMP
+  valor_total_do_frete_internacional_na_moeda_negociada_duimp  String?  // Valor total do frete internacional na moeda negociada  - DUIMP
+  valor_total_do_frete_internacional_brl_duimp                 String?  // Valor total do frete internacional (BRL)  - DUIMP
+  valor_total_do_frete_internacional_usd_duimp                 String?  // Valor total do frete internacional (USD)  - DUIMP
+  afrmm_tum_devido_r_duimp                                     String?  // AFRMM/TUM devido (R$) - DUIMP
+  afrmm_tum_pago_r_duimp                                       String?  // AFRMM/TUM pago (R$) - DUIMP
+  afrmm_tum_quitado_exonerado_duimp                            String?  // AFRMM/TUM quitado/exonerado - DUIMP
+  local_de_pagamento_dos_componentes_do_frete_internacional_duimp String?  // Local de pagamento dos componentes do frete internacional  - DUIMP
+  descricao_dos_componentes_do_frete_internacional_duimp       String?  // Descrição dos componentes do frete internacional  - DUIMP
+  moeda_dos_componentes_do_frete_internacional_e_taxas_duimp   String?  // Moeda dos componentes do frete internacional e taxas  - DUIMP
+  valor_dos_componentes_do_frete_internacional_na_moeda_duimp  String?  // Valor dos componentes do frete internacional na moeda  - DUIMP
+  item_carga_da_embalagem_duimp                                String?  // Item carga da embalagem  - DUIMP
+  tipo_de_embalagem_duimp                                      String?  // Tipo de embalagem  - DUIMP
+  quantidade_de_embalagem_duimp                                String?  // Quantidade de embalagem  - DUIMP
+  peso_bruto_kgs_da_embalagem_duimp                            String?  // Peso bruto (kgs) da embalagem  - DUIMP
+  mercadoria_perigosa_embalagem_duimp                          String?  // Mercadoria perigosa embalagem  - DUIMP
+  classe_de_perigo_embalagem_duimp                             String?  // Classe de perigo embalagem  - DUIMP
+  caracteristica_embalagem_de_madeira_duimp                    String?  // Característica embalagem de madeira  - DUIMP
+  moeda_do_seguro_internacional_duimp                          String?  // Moeda do seguro internacional - DUIMP
+  valor_total_na_moeda_negociada_do_seguro_internacional_duimp String?  // Valor total na moeda negociada do seguro internacional - DUIMP
+  valor_total_do_seguro_internacional_usd_duimp                String?  // Valor total do seguro internacional (USD) - DUIMP
+  valor_total_do_seguro_internacional_r_duimp                  String?  // Valor total do seguro internacional (R$) - DUIMP
+  tipo_de_documento_instrutivo_de_despacho_duimp               String?  // Tipo de documento instrutivo de despacho - DUIMP
+  campos_conforme_tipo_de_documentos_duimp                     String?  // Campos conforme tipo de documentos - DUIMP
+  palavras_chave_de_documentos_duimp                           String?  // Palavras chave de documentos - DUIMP
+  tipo_de_processo_dossie_duimp                                String?  // Tipo de processo / dossiê - DUIMP
+  numero_do_processo_dossie_duimp                              String?  // Número do processo / dossiê - DUIMP
+
+  // --- DADOS DO PROCESSO ---
+  data_de_abertura_do_processo                                 DateTime?  // Data de abertura do processo
+  data_prevista_dos_pedidos_todos_prontos                      DateTime?  // Data prevista dos pedidos (todos) prontos
+  data_confirmada_dos_pedidos_todos_prontos                    DateTime?  // Data confirmada dos pedidos (todos) prontos
+  data_meta_dos_pedidos_todos_prontos                          DateTime?  // Data meta dos pedidos (todos) prontos
+  data_prevista_de_inspecao_dos_pedidos_todos                  DateTime?  // Data prevista de inspeção dos pedidos (todos)
+  data_confirmada_de_inspecao_dos_pedidos_todos                DateTime?  // Data confirmada de inspeção dos pedidos (todos)
+  data_meta_de_inspecao_dos_pedidos_todos                      DateTime?  // Data meta de inspeção dos pedidos (todos)
+  data_prevista_de_coleta_dos_pedidos_todos                    DateTime?  // Data prevista de coleta dos pedidos (todos)
+  data_confirmada_de_coleta_dos_pedidos_todos                  DateTime?  // Data confirmada de coleta dos pedidos (todos)
+  data_meta_de_coleta_dos_pedidos_todos                        DateTime?  // Data meta de coleta dos pedidos (todos)
+  data_prevista_do_pedido_de_booking                           DateTime?  // Data prevista do pedido de booking
+  data_confirmada_do_pedido_de_booking                         DateTime?  // Data confirmada do pedido de booking
+  data_meta_do_pedido_de_booking                               DateTime?  // Data meta do pedido de booking
+  data_prevista_do_recebimento_do_booking                      DateTime?  // Data prevista do recebimento do booking
+  data_confirmada_do_recebimento_do_booking                    DateTime?  // Data confirmada do recebimento do booking
+  data_meta_do_recebimento_do_booking                          DateTime?  // Data meta do recebimento do booking
+  data_prevista_da_coleta_na_origem_do_embarque                DateTime?  // Data prevista da coleta na origem do embarque
+  data_confirmada_da_coleta_na_origem_do_embarque              DateTime?  // Data confirmada da coleta na origem do embarque
+  data_meta_da_coleta_na_origem_do_embarque                    DateTime?  // Data meta da coleta na origem do embarque
+  data_prevista_de_entrega_no_terminal_na_origem_do_embarque   DateTime?  // Data prevista de entrega no terminal na origem do embarque
+  data_confirmada_de_entrega_no_terminal_na_origem_do_embarque DateTime?  // Data confirmada de entrega no terminal na origem do embarque
+  data_meta_de_entrega_no_terminal_na_origem_do_embarque       DateTime?  // Data meta de entrega no terminal na origem do embarque
+  etd                                                          DateTime?  // ETD
+  data_confirmada_do_embarque_na_origem                        DateTime?  // Data confirmada do embarque na origem
+  data_meta_do_embarque_na_origem                              DateTime?  // Data meta do embarque na origem
+  data_prevista_do_transbordo                                  DateTime?  // Data prevista do transbordo
+  data_confirmada_do_transbordo                                DateTime?  // Data confirmada do transbordo
+  data_meta_do_transbordo                                      DateTime?  // Data meta do transbordo
+  eta                                                          DateTime?  // ETA
+  data_confirmada_de_chegada_no_destino                        DateTime?  // Data confirmada de chegada no destino
+  data_meta_de_chegada_no_destino                              DateTime?  // Data meta de chegada no destino
+  data_prevista_da_presenca_de_carga                           DateTime?  // Data prevista da presença de carga
+  data_confirmada_da_presenca_de_carga                         DateTime?  // Data confirmada da presença de carga
+  data_meta_da_presenca_de_carga                               DateTime?  // Data meta da presença de carga
+  data_confirmada_da_emissao_do_rascunho_da_duimp              DateTime?  // Data confirmada da emissão do rascunho da DUIMP
+  data_prevista_de_conferencia_do_rascunho_da_duimp            DateTime?  // Data prevista de conferência do rascunho da DUIMP
+  data_confirmada_de_conferencia_do_rascunho_da_duimp          DateTime?  // Data confirmada de conferência do rascunho da DUIMP
+  data_meta_da_conferencia_do_rascunho_da_duimp                DateTime?  // Data meta da conferência do rascunho da DUIMP
+  data_prevista_de_aprovacao_do_rascunho_da_duimp              DateTime?  // Data prevista de aprovação do rascunho da DUIMP
+  data_confirmada_de_aprovacao_do_rascunho_da_duimp            DateTime?  // Data confirmada de aprovação do rascunho da DUIMP
+  data_meta_da_aprovacao_do_rascunho_da_duimp                  DateTime?  // Data meta da aprovação do rascunho da DUIMP
+  data_prevista_do_registro_da_duimp                           DateTime?  // Data prevista do registro da DUIMP
+  data_confirmada_do_registro_da_duimp                         DateTime?  // Data confirmada do registro da DUIMP
+  data_meta_do_registro_da_duimp                               DateTime?  // Data meta do registro da DUIMP
+  data_prevista_do_canal_da_duimp                              DateTime?  // Data prevista do canal da DUIMP
+  data_confirmada_do_canal_da_duimp                            DateTime?  // Data confirmada do canal da DUIMP
+  data_meta_do_canal_da_duimp                                  DateTime?  // Data meta do canal da DUIMP
+  data_prevista_de_liberacao_da_duimp                          DateTime?  // Data prevista de liberação da DUIMP
+  data_confirmada_de_liberacao_da_duimp                        DateTime?  // Data confirmada de liberação da DUIMP
+  data_meta_de_liberacao_da_duimp                              DateTime?  // Data meta de liberação da DUIMP
+  data_confirmada_da_exigencia_da_duimp                        DateTime?  // Data confirmada da exigência da DUIMP
+  data_prevista_da_emissao_do_rascunho_da_nfe_de_entrada       DateTime?  // Data prevista da emissão do rascunho da NFE de entrada
+  data_confirmada_da_emissao_do_rascunho_da_nfe_de_entrada     DateTime?  // Data confirmada da emissão do rascunho da NFE de entrada
+  data_meta_da_emissao_do_rascunho_da_nfe_de_entrada           DateTime?  // Data meta da emissão do rascunho da NFE de entrada
+  data_prevista_de_aprovacao_da_nfe                            DateTime?  // Data prevista de aprovação da NFE
+  data_confirmada_de_aprovacao_da_nfe                          DateTime?  // Data confirmada de aprovação da NFE
+  data_meta_de_aprovacao_da_nfe                                DateTime?  // Data meta de aprovação da NFE
+  data_prevista_de_envio_da_nfe_de_entrada_para_conferencia    DateTime?  // Data prevista de envio da NFE de entrada para conferência
+  data_confirmada_de_envio_da_nfe_de_entrada_para_conferencia  DateTime?  // Data confirmada de envio da NFE de entrada para conferência
+  data_meta_de_envio_da_nfe_de_entrada_para_conferencia        DateTime?  // Data meta de envio da NFE de entrada para conferência
+  data_da_nfe                                                  DateTime?  // Data da NFE
+  data_prevista_da_emissao_da_guia_do_icms                     DateTime?  // Data prevista da emissão da guia do ICMS
+  data_confirmada_da_emissao_da_guia_do_icms                   DateTime?  // Data confirmada da emissão da guia do ICMS
+  data_meta_da_emissao_da_guia_do_icms                         DateTime?  // Data meta da emissão da guia do ICMS
+  data_da_guia_do_icms                                         DateTime?  // Data da guia do ICMS
+  data_prevista_da_inspecao_mapa                               DateTime?  // Data prevista da inspeção MAPA
+  data_confirmada_da_inspecao_mapa                             DateTime?  // Data confirmada da inspeção MAPA
+  data_meta_da_inspecao_mapa                                   DateTime?  // Data meta da inspeção MAPA
+  data_confirmada_da_vistoria_do_seguro_internacional          DateTime?  // Data confirmada da vistoria do seguro internacional
+  data_prevista_de_coleta_no_armazem_alfandegado               DateTime?  // Data prevista de coleta no armazém alfandegado
+  data_confirmada_de_coleta_no_armazem_alfandegado             DateTime?  // Data confirmada de coleta no armazém alfandegado
+  data_meta_de_coleta_no_armazem_alfandegado                   DateTime?  // Data meta de coleta no armazém alfandegado
+  data_prevista_da_remocao_no_destino                          DateTime?  // Data prevista da remoção no destino
+  data_confirmada_da_remocao_no_destino                        DateTime?  // Data confirmada da remoção no destino
+  data_meta_da_remocao_no_destino                              DateTime?  // Data meta da remoção no destino
+  data_prevista_de_entrega_no_importador                       DateTime?  // Data prevista de entrega no importador
+  data_confirmada_de_entrega_no_importador                     DateTime?  // Data confirmada de entrega no importador
+  data_meta_de_entrega_no_importador                           DateTime?  // Data meta de entrega no importador
+  data_prevista_da_devolucao_do_container                      DateTime?  // Data prevista da devolução do container
+  data_confirmada_da_devolucao_do_container                    DateTime?  // Data confirmada da devolução do container
+  data_meta_da_devolucao_do_container                          DateTime?  // Data meta da devolução do container
+  data_de_vencimento_do_free_time_demurrage                    DateTime?  // Data de vencimento do free time demurrage
+  data_prevista_de_recebimento_draft_do_packing_list           DateTime?  // Data prevista de recebimento - Draft do packing list
+  data_confirmada_de_recebimento_draft_do_packing_list         DateTime?  // Data confirmada de recebimento - Draft do packing list
+  data_meta_de_recebimento_draft_do_packing_list               DateTime?  // Data meta de recebimento - Draft do packing list
+  data_prevista_de_aprovacao_draft_do_packing_list             DateTime?  // Data prevista de aprovação - Draft do packing list
+  data_confirmada_de_aprovacao_draft_do_packing_list           DateTime?  // Data confirmada de aprovação - Draft do packing list
+  data_meta_de_aprovacao_draft_do_packing_list                 DateTime?  // Data meta de aprovação - Draft do packing list
+  data_prevista_do_envio_original_do_packing_list              DateTime?  // Data prevista do envio - Original do packing list
+  data_confirmada_do_envio_original_do_packing_list            DateTime?  // Data confirmada do envio - Original do packing list
+  data_meta_do_envio_original_do_packing_list                  DateTime?  // Data meta do envio - Original do packing list
+  data_prevista_de_recebimento_original_do_packing_list        DateTime?  // Data prevista de recebimento - Original do packing list
+  data_confirmada_de_recebimento_original_do_packing_list      DateTime?  // Data confirmada de recebimento - Original do packing list
+  data_meta_de_recebimento_original_do_packing_list            DateTime?  // Data meta de recebimento - Original do packing list
+  data_do_packing_list                                         DateTime?  // Data do packing list
+  data_prevista_de_recebimento_draft_do_mbl                    DateTime?  // Data prevista de recebimento - Draft do MBL
+  data_confirmada_de_recebimento_draft_do_mbl                  DateTime?  // Data confirmada de recebimento - Draft do MBL
+  data_meta_de_recebimento_draft_do_mbl                        DateTime?  // Data meta de recebimento - Draft do MBL
+  data_prevista_de_aprovacao_draft_do_mbl                      DateTime?  // Data prevista de aprovação - Draft do MBL
+  data_confirmada_de_aprovacao_draft_do_mbl                    DateTime?  // Data confirmada de aprovação - Draft do MBL
+  data_meta_de_aprovacao_draft_do_mbl                          DateTime?  // Data meta de aprovação - Draft do MBL
+  data_prevista_do_envio_original_do_mbl                       DateTime?  // Data prevista do envio - Original do MBL
+  data_confirmada_do_envio_original_do_mbl                     DateTime?  // Data confirmada do envio - Original do MBL
+  data_meta_do_envio_original_do_mbl                           DateTime?  // Data meta do envio - Original do MBL
+  data_prevista_de_recebimento_original_do_mbl                 DateTime?  // Data prevista de recebimento - Original do MBL
+  data_confirmada_de_recebimento_original_do_mbl               DateTime?  // Data confirmada de recebimento - Original do MBL
+  data_meta_de_recebimento_original_do_mbl                     DateTime?  // Data meta de recebimento - Original do MBL
+  data_de_autorizacao_do_telex_release                         DateTime?  // Data de autorização do telex release
+  data_do_mbl                                                  DateTime?  // Data do MBL
+  data_prevista_de_recebimento_draft_do_hbl                    DateTime?  // Data prevista de recebimento - Draft do HBL
+  data_confirmada_de_recebimento_draft_do_hbl                  DateTime?  // Data confirmada de recebimento - Draft do HBL
+  data_meta_de_recebimento_draft_do_hbl                        DateTime?  // Data meta de recebimento - Draft do HBL
+  data_prevista_de_aprovacao_draft_do_hbl                      DateTime?  // Data prevista de aprovação - Draft do HBL
+  data_confirmada_de_aprovacao_draft_do_hbl                    DateTime?  // Data confirmada de aprovação - Draft do HBL
+  data_meta_de_aprovacao_draft_do_hbl                          DateTime?  // Data meta de aprovação - Draft do HBL
+  data_prevista_do_envio_original_do_hbl                       DateTime?  // Data prevista do envio - Original do HBL
+  data_confirmada_do_envio_original_do_hbl                     DateTime?  // Data confirmada do envio - Original do HBL
+  data_meta_do_envio_original_do_hbl                           DateTime?  // Data meta do envio - Original do HBL
+  data_prevista_de_recebimento_original_do_hbl                 DateTime?  // Data prevista de recebimento - Original do HBL
+  data_confirmada_de_recebimento_original_do_hbl               DateTime?  // Data confirmada de recebimento - Original do HBL
+  data_meta_de_recebimento_original_do_hbl                     DateTime?  // Data meta de recebimento - Original do HBL
+  data_de_autorizacao_do_telex_release_1                       DateTime?  // Data de autorização do telex release
+  data_do_hbl                                                  DateTime?  // Data do HBL
+  data_prevista_de_recebimento_draft_do_mawb                   DateTime?  // Data prevista de recebimento - Draft do MAWB
+  data_confirmada_de_recebimento_draft_do_mawb                 DateTime?  // Data confirmada de recebimento - Draft do MAWB
+  data_meta_de_recebimento_draft_do_mawb                       DateTime?  // Data meta de recebimento - Draft do MAWB
+  data_prevista_de_aprovacao_draft_do_mawb                     DateTime?  // Data prevista de aprovação - Draft do MAWB
+  data_confirmada_de_aprovacao_draft_do_mawb                   DateTime?  // Data confirmada de aprovação - Draft do MAWB
+  data_meta_de_aprovacao_draft_do_mawb                         DateTime?  // Data meta de aprovação - Draft do MAWB
+  data_prevista_do_envio_original_do_mawb                      DateTime?  // Data prevista do envio - Original do MAWB
+  data_confirmada_do_envio_original_do_mawb                    DateTime?  // Data confirmada do envio - Original do MAWB
+  data_meta_do_envio_original_do_mawb                          DateTime?  // Data meta do envio - Original do MAWB
+  data_prevista_de_recebimento_original_do_mawb                DateTime?  // Data prevista de recebimento - Original do MAWB
+  data_confirmada_de_recebimento_original_do_mawb              DateTime?  // Data confirmada de recebimento - Original do MAWB
+  data_meta_de_recebimento_original_do_mawb                    DateTime?  // Data meta de recebimento - Original do MAWB
+  data_do_mawb                                                 DateTime?  // Data do MAWB
+  data_prevista_de_recebimento_draft_do_hawb                   DateTime?  // Data prevista de recebimento - Draft do HAWB
+  data_confirmada_de_recebimento_draft_do_hawb                 DateTime?  // Data confirmada de recebimento - Draft do HAWB
+  data_meta_de_recebimento_draft_do_hawb                       DateTime?  // Data meta de recebimento - Draft do HAWB
+  data_prevista_de_aprovacao_draft_do_hawb                     DateTime?  // Data prevista de aprovação - Draft do HAWB
+  data_confirmada_de_aprovacao_draft_do_hawb                   DateTime?  // Data confirmada de aprovação - Draft do HAWB
+  data_meta_de_aprovacao_draft_do_hawb                         DateTime?  // Data meta de aprovação - Draft do HAWB
+  data_prevista_do_envio_original_do_hawb                      DateTime?  // Data prevista do envio - Original do HAWB
+  data_confirmada_do_envio_original_do_hawb                    DateTime?  // Data confirmada do envio - Original do HAWB
+  data_meta_do_envio_original_do_hawb                          DateTime?  // Data meta do envio - Original do HAWB
+  data_prevista_de_recebimento_original_do_hawb                DateTime?  // Data prevista de recebimento - Original do HAWB
+  data_confirmada_de_recebimento_original_do_hawb              DateTime?  // Data confirmada de recebimento - Original do HAWB
+  data_meta_de_recebimento_original_do_hawb                    DateTime?  // Data meta de recebimento - Original do HAWB
+  data_do_hawb                                                 DateTime?  // Data do HAWB
+  data_prevista_de_recebimento_draft_do_crt                    DateTime?  // Data prevista de recebimento - Draft do CRT
+  data_confirmada_de_recebimento_draft_do_crt                  DateTime?  // Data confirmada de recebimento - Draft do CRT
+  data_meta_de_recebimento_draft_do_crt                        DateTime?  // Data meta de recebimento - Draft do CRT
+  data_prevista_de_aprovacao_draft_do_crt                      DateTime?  // Data prevista de aprovação - Draft do CRT
+  data_confirmada_de_aprovacao_draft_do_crt                    DateTime?  // Data confirmada de aprovação - Draft do CRT
+  data_meta_de_aprovacao_draft_do_crt                          DateTime?  // Data meta de aprovação - Draft do CRT
+  data_prevista_do_envio_original_do_crt                       DateTime?  // Data prevista do envio - Original do CRT
+  data_confirmada_do_envio_original_do_crt                     DateTime?  // Data confirmada do envio - Original do CRT
+  data_meta_do_envio_original_do_crt                           DateTime?  // Data meta do envio - Original do CRT
+  data_prevista_de_recebimento_original_do_crt                 DateTime?  // Data prevista de recebimento - Original do CRT
+  data_confirmada_de_recebimento_original_do_crt               DateTime?  // Data confirmada de recebimento - Original do CRT
+  data_meta_de_recebimento_original_do_crt                     DateTime?  // Data meta de recebimento - Original do CRT
+  data_do_crt                                                  DateTime?  // Data do CRT
+  valor_total_do_cambio                                        String?  // Valor total do câmbio
+  moeda_do_cambio                                              String?  // Moeda do câmbio
+  data_do_vencimento_do_cambio                                 String?  // Data do vencimento do câmbio
+  base_do_vencimento_do_cambio                                 String?  // Base do vencimento  do câmbio
+  prazo_do_cambio_dias_do_cambio                               String?  // Prazo do câmbio (dias) do câmbio
+  total_paga_do_cambio                                         String?  // % total paga do câmbio
+  total_restante_do_cambio                                     String?  // % total restante do câmbio
+  valor_total_pago_do_cambio                                   String?  // Valor total pago do câmbio
+  valor_total_restante_do_cambio                               String?  // Valor total restante do câmbio
+  valor_total_da_parcela_de_cambio                             String?  // Valor total da parcela de câmbio
+  moeda_da_parcela_do_cambio                                   String?  // Moeda da parcela do câmbio
+  base_do_vencimento_da_parcelas_do_cambio                     String?  // Base do vencimento da parcelas do câmbio
+  data_do_vencimento_da_parcela_do_cambio                      String?  // Data do vencimento da parcela do câmbio
+  quantidade_total_de_parcelas_do_cambio                       String?  // Quantidade total de parcelas do câmbio
+  valor_total_pago_das_parcelas_do_cambio                      String?  // Valor total pago das parcelas do câmbio
+  valor_total_restante_das_parcelas_do_cambio                  String?  // Valor total restante das parcelas do câmbio
+  total_paga_de_parcelas_do_cambio                             String?  // % total paga de parcelas do câmbio
+  total_restante_de_parcelas_do_cambio                         String?  // % total restante de parcelas do câmbio
+  quantidade_total_de_parcelas_pagas_do_cambio                 String?  // Quantidade total de parcelas pagas do câmbio
+  quantidade_total_de_parcelas_restantes_do_cambio             String?  // Quantidade total de parcelas restantes do câmbio
+
+  // Relacionamentos
+  faturas            ProcessoFatura[]
+  containers         ProcessoContainer[]
+  itens_processo     ProcessoItem[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
+  @@map("processos_logisticos")
+}
+
+// ============================================
+// 2. PEDIDO COMERCIAL
+// ============================================
+model Pedido {
+  id              String   @id // (O Chassi / Robôs) PK. Ex: pedi_id_0000001/26
+  tenant_id       String
+  company_id      String
+  processo_id     String?  // Vínculo ao Processo
+
+
+  // --- DADOS BÁSICOS DO PEDIDO ---
+  status_do_pedido                                             String?  // Status do pedido
+  numero_do_pedido                                             String?  // Número do pedido
+  anexo_do_pedido                                              String?  // Anexo do pedido
+
+  // --- EXPORTADOR, FABRICANTE E OPERADOR ESTRANGEIRO ---
+  id_do_exportador                                             String?  // ID do exportador
+  nome_do_exportador                                           String?  // Nome do exportador
+  endereco_do_exportador                                       String?  // Endereço do exportador
+  pais_do_exportador                                           String?  // País do exportador
+  estado_ou_provincia_do_exportador                            String?  // Estado ou província do exportador
+  cidade_do_exportador                                         String?  // Cidade do exportador
+  zip_code_do_exportador                                       String?  // Zip Code do exportador
+  exportador_ou_fabricante                                     String?  // Exportador ou fabricante?
+  relacao_entre_exportador_e_fabricante                        String?  // Relação entre exportador e fabricante
+  id_do_fabricante                                             String?  // ID do fabricante
+  nome_do_fabricante                                           String?  // Nome do fabricante
+  endereco_do_fabricante                                       String?  // Endereço do fabricante
+  pais_do_fabricante                                           String?  // País do fabricante
+  estado_ou_provincia_do_fabricante                            String?  // Estado ou província do fabricante
+  cidade_do_fabricante                                         String?  // Cidade do fabricante
+  zip_code_do_fabricante                                       String?  // Zip Code do fabricante
+  exportador_ou_fabricante_1                                   String?  // Exportador ou fabricante?
+  relacao_entre_exportador_e_fabricante_1                      String?  // Relação entre exportador e fabricante
+  cnpj_raiz_empresa_responsavel_catalogo_de_produto            String?  // CNPJ raiz empresa responsável - Catálogo de produto
+  codigo_do_operador_estrangeiro_ope                           String?  // Código do operador estrangeiro - OPE
+  situacao_do_operador_estrangeiro_ope                         String?  // Situação do operador estrangeiro - OPE
+  versao_do_operador_estrangeiro_ope                           String?  // Versão do operador estrangeiro - OPE
+  endereco_do_operador_estrangeiro_ope                         String?  // Endereço do operador estrangeiro - OPE
+  pais_do_operador_estrangeiro_ope                             String?  // País do operador estrangeiro - OPE
+  nome_do_operador_estrangeiro_ope                             String?  // Nome do operador estrangeiro - OPE
+  estado_do_operador_estrangeiro_ope                           String?  // Estado do operador estrangeiro - OPE
+  cidade_do_operador_estrangeiro_ope                           String?  // Cidade do operador estrangeiro - OPE
+  zip_code_do_operador_estrangeiro_ope                         String?  // Zip code do operador estrangeiro - OPE
+  numero_de_identificacao_tin_ope                              String?  // Número de identificação TIN - OPE
+  e_mail_do_operador_estrangeiro_ope                           String?  // E-mail do operador estrangeiro - OPE
+  nome_do_contato_do_exportador                                String?  // Nome do contato do exportador
+  e_mail_do_contato_do_exportador                              String?  // E-mail do contato do exportador
+  whatsapp_contato_do_exportador                               String?  // Whatsapp contato do exportador
+  cargo_do_contato_do_exportador                               String?  // Cargo do contato do exportador
+  departamento_do_contato_do_exportador                        String?  // Departamento do contato do exportador
+
+  // --- INCOTERM DO PEDIDO ---
+  incoterm                                                     String?  // Incoterm
+
+  // --- DOCUMENTOS DO PEDIDO ---
+  numero_do_pedido_1                                           String?  // Número do Pedido
+  anexo_do_pedido_1                                            String?  // Anexo do Pedido
+  numero_da_proforma_invoice                                   String?  // Número da proforma invoice
+  anexo_da_proforma_invoice                                    String?  // Anexo da proforma invoice
+  numero_da_invoice                                            String?  // Número da invoice
+  anexo_da_invoice                                             String?  // Anexo da invoice
+
+  // --- QUANTIDADE E VOLUMES DO PEDIDO ---
+  quantidade_de_volumes_total_do_pedido                        String?  // Quantidade de volumes total do pedido
+  unidade_comercializada_do_pedido                             String?  // Unidade comercializada do pedido
+  peso_liquido_total_do_pedido                                 String?  // Peso líquido total do pedido
+  peso_bruto_total_do_pedido                                   String?  // Peso bruto total do pedido
+  cubagem_total_do_pedido                                      String?  // Cubagem total do pedido
+
+  // --- VALOR DO PEDIDO ---
+  valor_total_do_pedido                                        String?  // Valor total do pedido
+  moeda_do_pedido                                              String?  // Moeda do pedido
+
+  // --- PARTNUMBER E REFERÊNCIA INTERNA ---
+  partnumber_do_produto                                        String?  // Partnumber do produto
+  referencia_interna_do_produto_catalogo_de_produtos           String?  // Referência interna do produto - Catálogo de produtos
+
+  // --- DATAS DO PEDIDO ---
+  data_de_abertura_do_pedido                                   DateTime?  // Data de abertura do pedido
+  data_prevista_do_pedido_pronto                               DateTime?  // Data prevista do pedido pronto
+  data_confirmada_do_pedido_pronto                             DateTime?  // Data confirmada do pedido pronto
+  data_meta_do_pedido_pronto                                   DateTime?  // Data meta do pedido pronto
+  data_prevista_de_inspecao_do_pedido                          DateTime?  // Data prevista de inspeção do pedido
+  data_confirmada_de_inspecao_dos_pedido                       DateTime?  // Data confirmada de inspeção dos pedido
+  data_meta_de_inspecao_do_pedido                              DateTime?  // Data meta de inspeção do pedido
+  data_prevista_de_coleta_do_pedido                            DateTime?  // Data prevista de coleta do pedido
+  data_confirmada_de_coleta_do_pedido                          DateTime?  // Data confirmada de coleta do pedido
+  data_meta_de_coleta_do_pedido                                DateTime?  // Data meta de coleta do pedido
+  data_consolidacao_do_pedido                                  DateTime?  // Data consolidação do pedido
+  data_transferencia_de_saldo_do_pedido                        DateTime?  // Data transferência de saldo do pedido
+
+  // --- DOCUMENTOS DO PEDIDO ---
+  data_prevista_de_recebimento_draft_do_pedido                 DateTime?  // Data prevista de recebimento - Draft do pedido
+  data_confirmada_de_recebimento_draft_do_pedido               DateTime?  // Data confirmada de recebimento - Draft do pedido
+  data_meta_de_recebimento_draft_do_pedido                     DateTime?  // Data meta de recebimento - Draft do pedido
+  data_prevista_de_aprovacao_draft_do_pedido                   DateTime?  // Data prevista de aprovação - Draft do pedido
+  data_confirmada_de_aprovacao_draft_do_pedido                 DateTime?  // Data confirmada de aprovação - Draft do pedido
+  data_meta_de_aprovacao_draft_do_pedido                       DateTime?  // Data meta de aprovação - Draft do pedido
+  data_do_documento_pedido                                     DateTime?  // Data do documento Pedido
+  data_prevista_de_recebimento_draft_da_proforma_invoice       DateTime?  // Data prevista de recebimento - Draft da proforma invoice
+  data_confirmada_de_recebimento_draft_da_proforma_invoice     DateTime?  // Data confirmada de recebimento - Draft da proforma invoice
+  data_meta_de_recebimento_draft_da_proforma_invoice           DateTime?  // Data meta de recebimento - Draft da proforma invoice
+  data_prevista_de_aprovacao_draft_da_proforma_invoice         DateTime?  // Data prevista de aprovação - Draft da proforma invoice
+  data_confirmada_de_aprovacao_draft_da_proforma_invoice       DateTime?  // Data confirmada de aprovação - Draft da proforma invoice
+  data_meta_de_aprovacao_draft_da_proforma_invoice             DateTime?  // Data meta de aprovação - Draft da proforma invoice
+  data_prevista_de_envio_original_da_proforma_invoice          DateTime?  // Data prevista de envio - Original da proforma invoice
+  data_confirmada_de_envio_original_da_proforma_invoice        DateTime?  // Data confirmada de envio - Original da proforma invoice
+  data_meta_de_envio_original_da_proforma_invoice              DateTime?  // Data meta de envio - Original da proforma invoice
+  data_prevista_de_recebimento_original_da_proforma_invoice    DateTime?  // Data prevista de recebimento - Original da proforma invoice
+  data_confirmada_de_recebimento_original_da_proforma_invoice  DateTime?  // Data confirmada de recebimento - Original da proforma invoice
+  data_meta_de_recebimento_original_da_proforma_invoice        DateTime?  // Data meta de recebimento - Original da proforma invoice
+  data_da_proforma_invoice                                     DateTime?  // Data da proforma invoice
+  data_prevista_de_recebimento_draft_da_invoice                DateTime?  // Data prevista de recebimento - Draft da invoice
+  data_confirmada_de_recebimento_draft_da_invoice              DateTime?  // Data confirmada de recebimento - Draft da invoice
+  data_meta_de_recebimento_draft_da_invoice                    DateTime?  // Data meta de recebimento - Draft da invoice
+  data_prevista_de_aprovacao_draft_da_invoice                  DateTime?  // Data prevista de aprovação - Draft da invoice
+  data_confirmada_de_aprovacao_draft_da_invoice                DateTime?  // Data confirmada de aprovação - Draft da invoice
+  data_meta_de_aprovacao_draft_da_invoice                      DateTime?  // Data meta de aprovação - Draft da invoice
+  data_prevista_de_envio_original_da_invoice                   DateTime?  // Data prevista de envio - Original da invoice
+  data_confirmada_de_envio_original_invoice                    DateTime?  // Data confirmada de envio - Original invoice
+  data_meta_de_envio_original_da_invoice                       DateTime?  // Data meta de envio - Original da invoice
+  data_prevista_de_recebimento_original_da_invoice             DateTime?  // Data prevista de recebimento - Original da invoice
+  data_confirmada_de_recebimento_original_da_invoice           DateTime?  // Data confirmada de recebimento - Original da invoice
+  data_meta_de_recebimento_original_da_invoice                 DateTime?  // Data meta de recebimento - Original da invoice
+  data_da_invoice                                              DateTime?  // Data da invoice
+
+  itens           PedidoItem[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id, company_id])
+  @@map("pedidos_comerciais")
+}
+
+// ============================================
+// 3. ITEM DO PROCESSO (PRODUTO)
+// ============================================
+model ProcessoItem {
+  id              String   @id // (O Chassi / Robôs) PK. Ex: prit_id_00001/26
+  tenant_id       String
+  company_id      String
+  processo_id     String
+  pedido_item_id  String?  // O Elo Dourado com o Comercial
+
+
+  // --- PRODUTO ---
+  descricao_resumida_do_produto                                String?  // Descrição resumida do produto
+  descricao_completa_do_produto                                String?  // Descrição completa do produto
+  product_description                                          String?  // Product description
+  descripcion_del_producto                                     String?  // Descripción del producto
+  descricao_espelho_da_nota_fiscal                             String?  // Descrição espelho da nota fiscal
+  ncm                                                          String?  // NCM
+  texto_da_posicao_da_ncm                                      String?  // Texto da posição da NCM
+  atributos_catalogo_de_produtos                               String?  // Atributos - Catálogo de produtos
+  moeda_do_produto                                             String?  // Moeda do produto
+  valor_unitario_do_produto                                    String?  // Valor unitário do produto
+  casas_decimais_o_valor_unitario_do_produto                   String?  // Casas decimais o valor unitário do produto
+  quantidade_do_produto                                        String?  // Quantidade do produto
+  quantidade_na_unidade_estatistica                            String?  // Quantidade na unidade estatística
+  casas_decimais_na_unidade_estatistica                        String?  // Casas decimais na unidade estatística
+  unidade_estatistica                                          String?  // Unidade estatística
+  quantidade_na_unidade_comercializada                         String?  // Quantidade na unidade comercializada
+  casas_decimais_na_unidade_comercializada                     String?  // Casas decimais na unidade comercializada
+  unidade_comercializada                                       String?  // Unidade comercializada
+  peso_liquido_unitario_kg                                     String?  // Peso líquido unitário (kg)
+  casas_decimais_do_peso_liquido_unitario_kg                   String?  // Casas decimais do peso líquido unitário (kg)
+  peso_bruto_unitario_kg                                       String?  // Peso bruto unitário (kg)
+  casas_decimais_do_peso_bruto_unitario_kg                     String?  // Casas decimais do peso bruto unitário (kg)
+  cubagem_unitaria_m                                           String?  // Cubagem unitária (m³)
+  tipo_de_embalagem_do_produto                                 String?  // Tipo de embalagem do produto
+  numero_da_lpco                                               String?  // Número da LPCO
+  anexo_da_lpco                                                String?  // Anexo da LPCO
+  numero_do_certificado_de_origem                              String?  // Número do certificado de origem
+  data_do_certificado_de_origem                                String?  // Data do certificado de origem
+  campo_especial                                               String?  // Campo especial
+  grupo_do_produto                                             String?  // Grupo do produto
+  subrupo_do_produto                                           String?  // Subrupo do produto
+
+  // --- DUIMP ---
+  tipo_de_operacao_duimp                                       String?  // Tipo de operação - DUIMP
+  descricao_resumida_do_produto_duimp                          String?  // Descrição resumida do produto - DUIMP
+  versao_do_produto_catalogo_de_produto_duimp                  String?  // Versão do produto - Catálogo de produto - DUIMP
+  ncm_duimp                                                    String?  // NCM - DUIMP
+  atributos_duimp                                              String?  // Atributos - DUIMP
+  codigo_do_operador_estrangeiro_ope_duimp                     String?  // Código do operador estrangeiro - OPE - DUIMP
+  versao_do_operador_estrangeiro_ope_duimp                     String?  // Versão do operador estrangeiro - OPE - DUIMP
+  nome_do_operador_estrangeiro_ope_duimp                       String?  // Nome do operador estrangeiro - OPE - DUIMP
+  endereco_do_operador_estrangeiro_ope_duimp                   String?  // Endereço do operador estrangeiro - OPE - DUIMP
+  pais_do_operador_estrangeiro_ope_duimp                       String?  // País do operador estrangeiro - OPE - DUIMP
+  codigo_do_operador_estrangeiro_ope_duimp_1                   String?  // Código do operador estrangeiro - OPE - DUIMP
+  versao_do_operador_estrangeiro_ope_duimp_1                   String?  // Versão do operador estrangeiro - OPE - DUIMP
+  nome_do_operador_estrangeiro_ope_duimp_1                     String?  // Nome do operador estrangeiro - OPE - DUIMP
+  endereco_do_operador_estrangeiro_ope_duimp_1                 String?  // Endereço do operador estrangeiro - OPE - DUIMP
+  pais_do_fabricante_ou_operador_estrangeiro_ope_duimp         String?  // País do fabricante ou operador estrangeiro - OPE - DUIMP
+  relacao_entre_exportador_e_fabricante_duimp                  String?  // Relação entre exportador e fabricante - DUIMP
+  vinculacao_de_preco_entre_comprador_e_vendedor_duimp         String?  // Vinculação de preço entre comprador e vendedor - DUIMP
+  aplicacao_da_mercadoria_duimp                                String?  // Aplicação da mercadoria - DUIMP
+  condicao_da_mercadoria_duimp                                 String?  // Condição da mercadoria - DUIMP
+  quantidade_na_unidade_estatistica_duimp                      String?  // Quantidade na unidade estatística - DUIMP
+  unidade_estatistica_duimp                                    String?  // Unidade estatística - DUIMP
+  quantidade_na_unidade_comercializada_duimp                   String?  // Quantidade na unidade comercializada - DUIMP
+  unidade_comercializada_duimp                                 String?  // Unidade comercializada - DUIMP
+  peso_liquido_unitario_kg_duimp                               String?  // Peso líquido unitário (kg) - DUIMP
+  moeda_do_produto_duimp                                       String?  // Moeda do produto - DUIMP
+  valor_unitario_do_produto_duimp                              String?  // Valor unitário do produto - DUIMP
+  valor_total_do_produto_na_condicao_de_venda_duimp            String?  // Valor total do produto na condição de venda - DUIMP
+  descricao_completa_do_produto_duimp                          String?  // Descrição completa do produto - DUIMP
+  descricao_complementar_da_mercadoria_duimp                   String?  // Descrição complementar da mercadoria - DUIMP
+  tipo_de_declaracao_vinculada_duimp                           String?  // Tipo de declaração vinculada - DUIMP
+  numero_da_declaracao_vinculada_duimp                         String?  // Número da declaração vinculada - DUIMP
+  item_da_declaracao_vinculada_duimp                           String?  // Item da declaração vinculada - DUIMP
+  adicao_da_declaracao_vinculada_duimp                         String?  // Adição da declaração vinculada - DUIMP
+  metodo_de_valoracao_duimp                                    String?  // Método de valoração - DUIMP
+  incoterm_ou_condicao_de_venda_duimp                          String?  // Incoterm ou Condição de venda - DUIMP
+  valor_total_na_condicao_de_venda_duimp                       String?  // Valor total na condição de venda - DUIMP
+  valor_na_condicao_de_venda_r_duimp                           String?  // Valor na condição de venda (R$) - DUIMP
+  valor_do_frete_internacional_r_duimp                         String?  // Valor do frete internacional (R$) - DUIMP
+  valor_do_seguro_internacional_r_duimp                        String?  // Valor do seguro internacional (R$) - DUIMP
+  complemento_da_condicao_de_venda_duimp                       String?  // Complemento da condição de venda - DUIMP
+  tipo_acrescimo_ou_deducao_duimp                              String?  // Tipo acréscimo ou dedução - DUIMP
+  denominacao_do_acrescimo_duimp                               String?  // Denominação do acréscimo - DUIMP
+  denominacao_da_deducao_duimp                                 String?  // Denominação da dedução - DUIMP
+  moeda_do_acrescimo_ou_deducao_duimp                          String?  // Moeda do acréscimo ou dedução - DUIMP
+  valor_na_moeda_do_acrescimo_ou_deducao_duimp                 String?  // Valor na moeda do acréscimo ou dedução - DUIMP
+  valor_na_moeda_do_acrescimo_ou_deducao_r_duimp               String?  // Valor na moeda do acréscimo ou dedução (R$)  - DUIMP
+  tipo_de_cobertura_cambial_duimp                              String?  // Tipo de cobertura cambial - DUIMP
+  instituicao_financiadora_duimp                               String?  // Instituição financiadora - DUIMP
+  valor_cobertura_cambial_duimp                                String?  // Valor cobertura cambial - DUIMP
+  numero_do_rof_bacen_duimp                                    String?  // Número do ROF/BACEN - DUIMP
+  motivo_sem_cobertura_cambial_duimp                           String?  // Motivo sem cobertura cambial - DUIMP
+  valor_no_local_de_embarque_r_duimp                           String?  // Valor no local de embarque (R$) - DUIMP
+  valor_aduaneiro_r_duimp                                      String?  // Valor aduaneiro (R$) - DUIMP
+  fundamento_legal_duimp                                       String?  // Fundamento legal - DUIMP
+  tributo_do_fundamento_legal_duimp                            String?  // Tributo do Fundamento legal - DUIMP
+  regime_de_tributacao_do_fundamento_legal_duimp               String?  // Regime de tributação do Fundamento legal - DUIMP
+  fundamento_do_fundamento_legal_duimp                         String?  // Fundamento do  Fundamento legal - DUIMP
+  campos_de_preenchimento_duimp                                String?  // Campos de preenchimento - DUIMP
+  fundamento_legal_normal_ii_duimp                             String?  // Fundamento legal normal - II -DUIMP
+  base_de_calculo_r_ii_duimp                                   String?  // Base de cálculo (R$) - II -DUIMP
+  tipo_de_aliquota_ii_duimp                                    String?  // Tipo de alíquota - II -DUIMP
+  percentual_ii_duimp                                          String?  // Percentual (%): - II -DUIMP
+  valor_calculado_r_ii_duimp                                   String?  // Valor calculado (R$) - II -DUIMP
+  valor_devido_r_ii_duimp                                      String?  // Valor devido (R$) - II -DUIMP
+  valor_suspenso_r_ii_duimp                                    String?  // Valor suspenso (R$) - II -DUIMP
+  valor_a_recolher_r_ii_duimp                                  String?  // Valor a recolher (R$) - II -DUIMP
+  fundamento_legal_normal_ipi_duimp                            String?  // Fundamento legal normal - IPI - DUIMP
+  base_de_calculo_r_ipi_duimp                                  String?  // Base de cálculo (R$) - IPI - DUIMP
+  tipo_de_aliquota_ipi_duimp                                   String?  // Tipo de alíquota - IPI - DUIMP
+  percentual_ipi_duimp                                         String?  // Percentual (%): - IPI - DUIMP
+  valor_calculado_r_ipi_duimp                                  String?  // Valor calculado (R$) - IPI - DUIMP
+  valor_devido_r_ipi_duimp                                     String?  // Valor devido (R$) - IPI - DUIMP
+  valor_suspenso_r_ipi_duimp                                   String?  // Valor suspenso (R$) - IPI - DUIMP
+  valor_a_recolher_r_ipi_duimp                                 String?  // Valor a recolher (R$) - IPI - DUIMP
+  fundamento_legal_normal_pis_duimp                            String?  // Fundamento legal normal - PIS - DUIMP
+  base_de_calculo_r_pis_duimp                                  String?  // Base de cálculo (R$) - PIS - DUIMP
+  tipo_de_aliquota_pis_duimp                                   String?  // Tipo de alíquota - PIS - DUIMP
+  percentual_pis_duimp                                         String?  // Percentual (%): - PIS - DUIMP
+  valor_calculado_r_pis_duimp                                  String?  // Valor calculado (R$) - PIS - DUIMP
+  valor_devido_r_pis_duimp                                     String?  // Valor devido (R$) - PIS - DUIMP
+  valor_suspenso_r_pis_duimp                                   String?  // Valor suspenso (R$) - PIS - DUIMP
+  valor_a_recolher_r_pis_duimp                                 String?  // Valor a recolher (R$) - PIS - DUIMP
+  fundamento_legal_normal_cofins_duimp                         String?  // Fundamento legal normal - COFINS - DUIMP
+  base_de_calculo_r_cofins_duimp                               String?  // Base de cálculo (R$) - COFINS - DUIMP
+  tipo_de_aliquota_cofins_duimp                                String?  // Tipo de alíquota - COFINS - DUIMP
+  percentual_cofins_duimp                                      String?  // Percentual (%): - COFINS - DUIMP
+  valor_calculado_r_cofins_duimp                               String?  // Valor calculado (R$) - COFINS - DUIMP
+  valor_devido_r_cofins_duimp                                  String?  // Valor devido (R$) - COFINS - DUIMP
+  valor_suspenso_r_cofins_duimp                                String?  // Valor suspenso (R$) - COFINS - DUIMP
+  valor_a_recolher_r_cofins_duimp                              String?  // Valor a recolher (R$) - COFINS - DUIMP
+  existe_tratamento_tratamento_administrativo_duimp            String?  // Existe tratamento tratamento administrativo?  - DUIMP
+  ultima_analise_tratamento_administrativo_duimp               String?  // Última análise - Tratamento administrativo - DUIMP
+  item_com_tratamento_administrativo_duimp                     String?  // Item com tratamento administrativo - DUIMP
+  tipo_de_tratamento_administrativo_duimp                      String?  // Tipo de tratamento administrativo - DUIMP
+  descricao_de_tratamento_administrativo_duimp                 String?  // Descrição de tratamento administrativo - DUIMP
+  orgao_do_tratamento_administrativo_duimp                     String?  // Órgão do tratamento administrativo - DUIMP
+  numero_da_lpco_do_tratamento_administrativo_duimp            String?  // Número da LPCO do tratamento administrativo - DUIMP
+  observacoes_do_tratamento_administrativo_duimp               String?  // Observações do tratamento administrativo - DUIMP
+  banco_para_debito_em_conta_duimp                             String?  // Banco para débito em conta - DUIMP
+  agencia_para_debito_em_conta_duimp                           String?  // Agência para débito em conta - DUIMP
+  conta_corrente_para_debito_em_conta_duimp                    String?  // Conta corrente para débito em conta - DUIMP
+
+  // --- PRODUTO/ITEM ---
+  data_de_inclusao_do_produto_item                             DateTime?  // Data de inclusão do produto/item
+  data_de_transferencia_do_produto_item                        DateTime?  // Data de transferência do produto/item
+  data_de_cosolidacao_do_produto_item                          DateTime?  // Data de cosolidação do produto/item
+  data_prevista_de_conferencia_do_rascunho_da_lpco             DateTime?  // Data prevista de conferência do rascunho da LPCO
+  data_confirmada_de_conferencia_do_rascunho_da_lpco           DateTime?  // Data confirmada de conferência do rascunho da LPCO
+  data_meta_de_conferencia_do_rascunho_da_lpco                 DateTime?  // Data meta de conferência do rascunho da LPCO
+  data_prevista_de_aprovacao_do_rascunho_da_lpco               DateTime?  // Data prevista de aprovação do rascunho da LPCO
+  data_confirmada_de_aprovacao_do_rascunho_da_lpco             DateTime?  // Data confirmada de aprovação do rascunho da LPCO
+  data_meta_de_aprovacao_do_rascunho_da_lpco                   DateTime?  // Data meta de aprovação do rascunho da LPCO
+  data_prevista_do_registro_da_lpco                            DateTime?  // Data prevista do registro da LPCO
+  data_confirmada_do_registro_da_lpco                          DateTime?  // Data confirmada do registro da LPCO
+  data_meta_do_registro_da_lpco                                DateTime?  // Data meta do registro da LPCO
+  data_prevista_do_resultado_da_analise_da_lpco                DateTime?  // Data prevista do resultado da análise da LPCO
+  data_confirmada_do_resultado_da_analise_da_lpco              DateTime?  // Data confirmada do resultado da análise da LPCO
+  data_meta_do_resultado_da_analise_da_lpco                    DateTime?  // Data meta do resultado da análise da LPCO
+  data_prevista_do_deferimento_da_lpco                         DateTime?  // Data prevista do deferimento da LPCO
+  data_confirmada_do_deferimento_da_lpco                       DateTime?  // Data confirmada do deferimento da LPCO
+  data_meta_do_deferimento_da_lpco                             DateTime?  // Data meta do deferimento da LPCO
+  data_confirmada_do_indeferimento_da_lpco                     DateTime?  // Data confirmada do indeferimento da LPCO
+  data_confirmada_da_exigencia_da_lpco                         DateTime?  // Data confirmada da exigência da LPCO
+  data_prevista_de_recebimento_draft_do_certificado_de_origem  DateTime?  // Data prevista de recebimento - Draft do certificado de origem
+  data_confirmada_de_recebimento_draft_do_certificado_de_origem DateTime?  // Data confirmada de recebimento - Draft do certificado de origem
+  data_meta_de_recebimento_draft_do_certificado_de_origem      DateTime?  // Data meta de recebimento - Draft do certificado de origem
+  data_prevista_de_aprovacao_draft_do_certificado_de_origem    DateTime?  // Data prevista de aprovação - Draft do certificado de origem
+  data_confirmada_de_aprovacao_draft_do_certificado_de_origem  DateTime?  // Data confirmada de aprovação - Draft do certificado de origem
+  data_meta_de_aprovacao_draft_do_certificado_de_origem        DateTime?  // Data meta de aprovação - Draft do certificado de origem
+  data_prevista_de_envio_original_do_certificado_de_origem     DateTime?  // Data prevista de envio - Original do certificado de origem
+  data_confirmada_de_envio_original_do_certificado_de_origem   DateTime?  // Data confirmada de envio - Original do certificado de origem
+  data_meta_de_envio_original_do_certificado_de_origem         DateTime?  // Data meta de envio - Original do certificado de origem
+  data_prevista_de_recebimento_original_do_certificado_de_origem DateTime?  // Data prevista de recebimento - Original do certificado de origem
+  data_confirmada_de_recebimento_original_do_certificado_de_origem DateTime?  // Data confirmada de recebimento - Original do certificado de origem
+  data_meta_de_recebimento_original_do_certificado_de_origem   DateTime?  // Data meta de recebimento - Original do certificado de origem
+  data_do_certificado_de_origem_1                              DateTime?  // Data do certificado de origem
+
+  processo        Processo @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  pedido_item     PedidoItem? @relation(fields: [pedido_item_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id, company_id])
+  @@index([processo_id])
+  @@index([pedido_item_id])
+  @@map("processo_itens")
+}

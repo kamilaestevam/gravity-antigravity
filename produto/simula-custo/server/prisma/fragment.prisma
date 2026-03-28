@@ -4,10 +4,12 @@
 // Skill: antigravity-tenant-isolation, antigravity-schema-composition
 
 model Estimativa {
-  id          String   @id @default(cuid())
-  tenant_id   String   // OBRIGATÓRIO — nunca nullable
-  product_id  String?  // "simula-custo" — permite queries isoladas por produto
-  user_id     String   // clerk_id do usuário que criou a estimativa
+  id              String   @id // Formato padrão Gravity: esti_id_000000001/26 (NÃO usar cuid)
+  tenant_id       String   // OBRIGATÓRIO — Nunca nullable
+  company_id      String   // OBRIGATÓRIO (Workspace) — Isola os dados (Prevenção Zero-Trust)
+  product_id      String?  // Ex: "simula-custo"
+  user_id         String   // clerk_id do criador
+  processo_id     String?  // Quando a estimativa é "Efetivada", ela se atrela ao Processo Real.
 
   // Dados da Operação
   ncm              String
@@ -51,14 +53,18 @@ model Estimativa {
 
   // Índices obrigatórios (skill: antigravity-tenant-isolation)
   @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@index([processo_id])
   @@map("estimativas_trade")
 }
 
 model TaxaEstimativa {
-  id            String     @id @default(cuid())
+  id            String     @id // Ex: txes_id_.../26
   tenant_id     String     // OBRIGATÓRIO
+  company_id    String     // OBRIGATÓRIO
   estimativa_id String
   tipo          String     // "origem" | "destino"
   nome          String
@@ -68,6 +74,8 @@ model TaxaEstimativa {
   estimativa    Estimativa @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
   @@index([tenant_id, estimativa_id])
   @@map("taxas_estimativa_trade")
 }

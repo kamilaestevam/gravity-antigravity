@@ -1,0 +1,1 @@
+export { MenuLateralGlobal } from './MenuLateralGlobal';

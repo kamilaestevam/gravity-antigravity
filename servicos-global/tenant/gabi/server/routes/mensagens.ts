@@ -3,6 +3,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import prisma from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
+import { withTenantIsolation } from '../../../middleware/withTenantIsolation.js'
 
 export const mensagensRouter = Router()
 
@@ -10,13 +11,14 @@ mensagensRouter.get('/api/v1/gabi/conversas/:id/mensagens', async (req, res, nex
   try {
     const { tenantId } = req.auth
     const { id: conversationId } = req.params
+    const db = withTenantIsolation(prisma, tenantId)
 
-    const conversa = await prisma.gabiConversation.findUnique({ where: { id: conversationId } })
-    if (!conversa || conversa.tenant_id !== tenantId) {
+    const conversa = await db.gabiConversation.findFirst({ where: { id: conversationId } })
+    if (!conversa) {
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagens = await prisma.gabiMessage.findMany({
+    const mensagens = await db.gabiMessage.findMany({
       where: { conversation_id: conversationId },
       orderBy: { created_at: 'asc' }
     })
@@ -37,15 +39,15 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id/mensagens', async (req, res, ne
     const { tenantId, userId } = req.auth
     const { id: conversationId } = req.params
     const { role, content } = createMensagemSchema.parse(req.body)
+    const db = withTenantIsolation(prisma, tenantId)
 
-    const conversa = await prisma.gabiConversation.findUnique({ where: { id: conversationId } })
-    if (!conversa || conversa.tenant_id !== tenantId) {
+    const conversa = await db.gabiConversation.findFirst({ where: { id: conversationId } })
+    if (!conversa) {
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagem = await prisma.gabiMessage.create({
+    const mensagem = await db.gabiMessage.create({
       data: {
-        tenant_id: tenantId,
         user_id: userId,
         conversation_id: conversationId,
         role,
@@ -54,7 +56,7 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id/mensagens', async (req, res, ne
     })
 
     // Atualiza o updated_at da conversa
-    await prisma.gabiConversation.update({
+    await db.gabiConversation.update({
       where: { id: conversationId },
       data: { updated_at: new Date() }
     })

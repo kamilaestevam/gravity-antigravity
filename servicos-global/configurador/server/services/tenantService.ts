@@ -26,22 +26,22 @@ export const tenantService = {
   async createTenant(input: CreateTenantInput) {
     const { name, slug, clerkUserId, owner } = input
 
-    // Verifica se slug já existe
-    const existingSlug = await prisma.tenant.findUnique({ where: { slug } })
-    if (existingSlug) {
-      throw new AppError('Este slug já está em uso', 409, 'CONFLICT')
-    }
-
-    // Verifica se o clerk_user_id já tem tenant
-    const existingUser = await prisma.user.findFirst({
-      where: { clerk_user_id: clerkUserId },
-    })
-    if (existingUser) {
-      throw new AppError('Usuário já possui um tenant', 409, 'CONFLICT')
-    }
-
-    // Cria tenant + owner em transação
+    // Wrap all checks + creation in a serializable transaction to prevent race conditions
     const tenant = await prisma.$transaction(async (tx: typeof prisma) => {
+      // Verifica se slug já existe
+      const existingSlug = await tx.tenant.findUnique({ where: { slug } })
+      if (existingSlug) {
+        throw new AppError('Este slug já está em uso', 409, 'CONFLICT')
+      }
+
+      // Verifica se o clerk_user_id já tem tenant
+      const existingUser = await tx.user.findFirst({
+        where: { clerk_user_id: clerkUserId },
+      })
+      if (existingUser) {
+        throw new AppError('Usuário já possui um tenant', 409, 'CONFLICT')
+      }
+
       const newTenant = await tx.tenant.create({
         data: {
           name,
@@ -61,12 +61,13 @@ export const tenantService = {
       })
 
       // Cria assinatura em trial
+      const TRIAL_DAYS = Number(process.env.TRIAL_DAYS ?? 14)
       await tx.subscription.create({
         data: {
           tenant_id: newTenant.id,
           plan: 'STARTER',
           status: 'TRIALING',
-          trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 dias
+          trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
         },
       })
 

@@ -6,7 +6,7 @@
 
 import { ProdutoCatalogo, NegociacaoEspecial } from '../types/entidades'
 
-const API_URL = 'http://localhost:8005/api/v1/products'
+const API_URL = '/api/v1/products'
 
 export const catalogService = {
   // --- Produtos ---

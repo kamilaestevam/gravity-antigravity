@@ -15,7 +15,7 @@
         "../../nucleo-global/Utilidades/*/src/index.ts",
         "../../nucleo-global/*/src/index.ts"
       ],
-      "@tenant/*": ["../../tenant/*"]
+      "@tenant/*": ["../tenant/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

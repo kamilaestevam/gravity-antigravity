@@ -15,6 +15,8 @@ import { billingRouter } from './routes/billing.js'
 import { accessRouter } from './routes/access.js'
 import { adminRouter } from './routes/admin.js'
 import { productsRouter } from './routes/products.js'
+import { tenantProductsRouter } from './routes/tenantProducts.js'
+import { companyProductsRouter } from './routes/companyProducts.js'
 import { serviceTokenRouter } from './routes/serviceToken.js'
 import { prisma } from './lib/prisma.js'
 
@@ -60,6 +62,8 @@ app.use('/api/v1/tenants', tenantsRouter)
 app.use('/api/v1/billing', billingRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/products', productsRouter)
+app.use('/api/v1/tenants/products', tenantProductsRouter)
+app.use('/api/v1/companies/:companyId/products', companyProductsRouter)
 app.use('/api/v1/service-tokens', serviceTokenRouter)
 
 // ─── Rotas internas (x-internal-key obrigatória) ────────────────────────────

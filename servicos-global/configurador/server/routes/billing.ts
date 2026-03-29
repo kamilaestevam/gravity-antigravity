@@ -77,25 +77,25 @@ billingRouter.post('/webhook', async (req, res, next) => {
     }
 
     // Verifica idempotência — evita processar o mesmo evento duas vezes
-    const alreadyProcessed = await prisma.stripeEvent.findUnique({
+    // Usa upsert para evitar race condition entre findUnique e create
+    const idempotencyResult = await prisma.stripeEvent.upsert({
       where: { id: event.id },
+      create: {
+        id: event.id,
+        type: event.type,
+        payload: event.data as object,
+      },
+      update: {}, // noop — já existe
     })
-    if (alreadyProcessed) {
+
+    // Se o registro já existia (created_at anterior a esta requisição), é duplicata
+    if (idempotencyResult.created_at < new Date(Date.now() - 1000)) {
       res.json({ received: true, cached: true })
       return
     }
 
     // Processa o evento
     await billingService.handleStripeEvent(event)
-
-    // Registra como processado
-    await prisma.stripeEvent.create({
-      data: {
-        id: event.id,
-        type: event.type,
-        payload: event.data as object,
-      },
-    })
 
     res.json({ received: true })
   } catch (err) {

@@ -6,7 +6,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom'],
+    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next'],
     alias: {
       // ── Botoes ──
       '@nucleo/botao-global': path.resolve(__dirname, '../../nucleo-global/Botoes/botao-global/src/index.ts'),
@@ -56,25 +56,24 @@ export default defineConfig({
         __dirname,
         '../shell/index.ts'
       ),
+      // ── Aliases dos Produtos (para lazy-load dentro do Configurador) ──
+      '@shell': path.resolve(__dirname, '../shell'),
+      '@tenant': path.resolve(__dirname, '../tenant'),
+      '@produto': path.resolve(__dirname, '../../produto'),
     },
   },
   server: {
-    port: 8003,
-    // proxy desabilitado temporariamente (backend não está rodando, causa ENOBUFS)
-    // proxy: {
-    //   '/api': {
-    //     target: 'http://localhost:8005',
-    //     changeOrigin: true,
-    //   },
-    // },
-    // proxy: {
-    //   // Serviço de preferências de usuário (cross-device)
-    //   '/api/tenant/preferencias': {
-    //     target: 'http://localhost:8014',
-    //     changeOrigin: true,
-    //     rewrite: (path) => path.replace(/^\/api\/tenant\/preferencias/, '/api/v1/preferencias'),
-    //   },
-    // },
+    port: 8000,
+    fs: {
+      allow: ['../..'],
+    },
+    proxy: {
+      // Configurador API
+      '/api': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
+    },
   },
 })
 

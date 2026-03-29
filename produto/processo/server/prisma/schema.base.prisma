@@ -1,0 +1,16 @@
+// schema.base.prisma — Processo
+// Composto via scripts/compose-schema.js -> gera schema.prisma final
+// Skill: antigravity-criar-produto (Passo 8)
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos especificos do Processo sao definidos em fragment.prisma
+// e compostos automaticamente pelo script compose-schema.js

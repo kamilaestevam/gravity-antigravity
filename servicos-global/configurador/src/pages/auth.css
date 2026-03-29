@@ -4,8 +4,6 @@
    Accent: Sky 400 (#818cf8) | BG: #0b0f1a
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
 :root {
   --accent: #818cf8;
   --accent-glow: rgba(129, 140, 248, 0.4);

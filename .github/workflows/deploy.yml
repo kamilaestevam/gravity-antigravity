@@ -46,7 +46,7 @@ jobs:
       - run: npm install
 
       - name: Compor schema do Tenant DB
-        run: npx ts-node scripts/compose-tenant-schema.ts
+        run: npx ts-node scripts/compose-tenant-schema.ts --strict
 
       - name: Validar schema do Configurador
         run: npx prisma validate --schema=configurador/prisma/schema.prisma
@@ -67,6 +67,14 @@ jobs:
       TENANT_DATABASE_URL: ${{ secrets.STAGING_TENANT_DATABASE_URL }}
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
     steps:
+      - name: Validar secrets obrigatórios (Staging)
+        run: |
+          missing=""
+          if [ -z "${{ secrets.STAGING_CONFIGURADOR_DATABASE_URL }}" ]; then missing="$missing STAGING_CONFIGURADOR_DATABASE_URL"; fi
+          if [ -z "${{ secrets.STAGING_TENANT_DATABASE_URL }}" ]; then missing="$missing STAGING_TENANT_DATABASE_URL"; fi
+          if [ -z "${{ secrets.RAILWAY_TOKEN_STAGING }}" ]; then missing="$missing RAILWAY_TOKEN_STAGING"; fi
+          if [ -z "${{ secrets.CLERK_SECRET_KEY }}" ]; then missing="$missing CLERK_SECRET_KEY"; fi
+          if [ -n "$missing" ]; then echo "Missing required secrets:$missing"; exit 1; fi
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -103,7 +111,6 @@ jobs:
         run: |
           sleep 30
           curl -f https://configurador-staging.up.railway.app/health || exit 1
-        continue-on-error: true
 
   # ─────────────────────────────────────────────
   # JOB 4 — GATE DE PARIDADE T26000001 → P26000001
@@ -186,6 +193,14 @@ jobs:
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PRODUCTION }}
     steps:
+      - name: Validar secrets obrigatórios (Produção)
+        run: |
+          missing=""
+          if [ -z "${{ secrets.PROD_CONFIGURADOR_DATABASE_URL }}" ]; then missing="$missing PROD_CONFIGURADOR_DATABASE_URL"; fi
+          if [ -z "${{ secrets.PROD_TENANT_DATABASE_URL }}" ]; then missing="$missing PROD_TENANT_DATABASE_URL"; fi
+          if [ -z "${{ secrets.RAILWAY_TOKEN_PRODUCTION }}" ]; then missing="$missing RAILWAY_TOKEN_PRODUCTION"; fi
+          if [ -z "${{ secrets.CLERK_SECRET_KEY }}" ]; then missing="$missing CLERK_SECRET_KEY"; fi
+          if [ -n "$missing" ]; then echo "Missing required secrets:$missing"; exit 1; fi
       - uses: actions/checkout@v4
 
       - name: Aplicar migrations — Configurador DB (Produção)
@@ -206,7 +221,6 @@ jobs:
         run: |
           sleep 30
           curl -f https://configurador.up.railway.app/health || exit 1
-        continue-on-error: true
 
       - name: "✅ Deploy de Produção concluído (P26000001)"
         run: echo "Deploy em produção finalizado com sucesso."

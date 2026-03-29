@@ -2,6 +2,7 @@
 // Gestão do Catálogo Global de Produtos da Gravity
 // GET    /api/v1/products     — Listar todos os produtos reais
 // POST   /api/v1/products     — Cadastrar novo produto
+// PUT    /api/v1/products/:id — Editar produto existente
 // DELETE /api/v1/products/:id — Remover do catálogo
 
 import { Router } from 'express'
@@ -65,6 +66,33 @@ productsRouter.post('/', requireAuth, requireGravityAdmin, async (req, res, next
     })
 
     res.status(201).json({ product })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PUT /api/v1/products/:id
+ * Atualiza um produto existente no catálogo (Apenas Admins)
+ */
+productsRouter.put('/:id', requireAuth, requireGravityAdmin, async (req, res, next) => {
+  try {
+    const parsed = ProductSchema.partial().safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError('Dados inválidos para o produto', 400, 'VALIDATION_ERROR')
+    }
+
+    const data: Record<string, unknown> = { ...parsed.data }
+    if (parsed.data.name) {
+      data.slug = parsed.data.name.toLowerCase().replace(/\s+/g, '-')
+    }
+
+    const product = await prisma.globalProduct.update({
+      where: { id: req.params.id },
+      data,
+    })
+
+    res.json({ product })
   } catch (err) {
     next(err)
   }

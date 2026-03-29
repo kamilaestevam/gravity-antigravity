@@ -4,6 +4,7 @@
 
 import { Router } from 'express'
 import { z } from 'zod'
+import { Webhook } from 'svix'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
 
@@ -27,10 +28,35 @@ const ClerkUserEventSchema = z.object({
 /**
  * POST /api/v1/webhooks/clerk
  * Recebe eventos do Clerk (user.created, user.updated, user.deleted)
- * Validação de assinatura via svix deve ser implementada em produção
+ * Assinatura verificada via svix antes de processar qualquer evento
  */
 authRouter.post('/clerk', async (req, res, next) => {
   try {
+    // Verify webhook signature using svix
+    const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
+    if (!webhookSecret) {
+      throw new AppError('CLERK_WEBHOOK_SECRET não configurada', 500, 'CONFIG_ERROR')
+    }
+
+    const svixId = req.headers['svix-id'] as string | undefined
+    const svixTimestamp = req.headers['svix-timestamp'] as string | undefined
+    const svixSignature = req.headers['svix-signature'] as string | undefined
+
+    if (!svixId || !svixTimestamp || !svixSignature) {
+      throw new AppError('Cabeçalhos de assinatura svix ausentes', 401, 'UNAUTHORIZED')
+    }
+
+    const wh = new Webhook(webhookSecret)
+    try {
+      wh.verify(JSON.stringify(req.body), {
+        'svix-id': svixId,
+        'svix-timestamp': svixTimestamp,
+        'svix-signature': svixSignature,
+      })
+    } catch {
+      throw new AppError('Assinatura do webhook inválida', 401, 'UNAUTHORIZED')
+    }
+
     const parsed = ClerkUserEventSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError('Payload do webhook inválido', 400, 'VALIDATION_ERROR')

@@ -1,0 +1,1 @@
+export { SeletorVisualizacao } from './SeletorVisualizacao';

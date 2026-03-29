@@ -30,7 +30,7 @@ export function SelecionarWorkspace() {
     async function carregarEmpresas() {
       try {
         const token = await getToken()
-        const response = await fetch('http://localhost:8005/api/v1/tenants/companies', {
+        const response = await fetch('/api/v1/tenants/companies', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -62,8 +62,10 @@ export function SelecionarWorkspace() {
 
   function handleSelect(empresa: Empresa) {
     setSelecionando(empresa.id)
-    // Simula carregamento breve antes de entrar no workspace
-    setTimeout(() => navigate('/workspace'), 600)
+    // Salva o workspace selecionado no sessionStorage para uso no Hub e produtos
+    sessionStorage.setItem('gravity_company_id', empresa.id)
+    sessionStorage.setItem('gravity_company_name', empresa.nome)
+    setTimeout(() => navigate('/hub'), 600)
   }
 
   function handleVoltar() {

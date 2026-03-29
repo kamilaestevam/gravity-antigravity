@@ -36,9 +36,14 @@ relatoriosRouter.get('/api/v1/relatorios/saved', authMiddleware, async (req: Req
       where.product_id = String(product_id);
     }
 
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 100));
+
     const relatorios = await prisma.relatorio.findMany({
       where,
       orderBy: { created_at: 'desc' },
+      take: limit,
+      skip: (page - 1) * limit,
     });
 
     res.json({ data: relatorios });

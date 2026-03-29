@@ -207,48 +207,53 @@ export default function DashboardSimulaCusto() {
         }
       />
 
-      <div className="db-custom-card db-card-alerta">
-        <div className="db-custom-card-header">
-          <WarningCircle weight="fill" size={16} color="#fbbf24" />
-          <span>ALERTAS DE CÂMBIO</span>
-        </div>
-        <div className="db-custom-card-body">
-          <p>A taxa PTAX do USD subiu <strong>1.4%</strong> hoje. Revise rascunhos.</p>
-          <div className="db-custom-card-time">
-            <Clock weight="bold" size={10} /> há 45 min
-          </div>
-        </div>
-      </div>
+      <CardBasicoGlobal
+        titulo="Base CIF Total (USD)"
+        icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+        valor={usdFmt(kpis?.totalCifUsd ?? null)}
+        variante="aviso"
+        periodos={[
+          { periodo: '30d', rotulo: '30 dias', valor: '+6%',  direcao: 'up',   descricao: 'vs mês anterior'      },
+          { periodo: '6m',  rotulo: '6 meses', valor: '+14%', direcao: 'up',   descricao: 'vs semestre anterior' },
+        ] as PeriodoTendencia[]}
+        tooltip={
+          <>
+            <p className="cg-tooltip__title">Custo, Seguro e Frete (CIF)</p>
+            <div className="cg-tooltip__row">
+              <span>Total USD</span>
+              <strong>{usdFmt(kpis?.totalCifUsd ?? null)}</strong>
+            </div>
+            <div className="cg-tooltip__divider" />
+            <p style={{ fontSize: '0.7rem', color: 'var(--ws-muted)' }}>Cálculo baseado no valor FOB + Seguros + Fretes internacionais de todas as simulações finalizadas.</p>
+          </>
+        }
+      />
 
       <CardGraficoGlobal
-        titulo="Componente de Custo"
+        titulo="Viabilidade Fiscal"
         icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
-        total={100}
-        valorPrincipal={60}
-        corGauge="#818cf8"
+        total={totalSimulacoes}
+        valorPrincipal={kpis?.viavel ?? 0}
+        corGauge="#34d399"
         legenda={[
-          { label: 'Produto',  valor: 60, cor: '#818cf8' },
-          { label: 'Impostos', valor: 25, cor: '#10b981' },
-          { label: 'Taxas',    valor: 15, cor: '#fbbf24' },
+          { label: 'Viável',   valor: kpis?.viavel ?? 0,   cor: 'green'  },
+          { label: 'Atenção',  valor: kpis?.atencao ?? 0,  cor: 'yellow' },
+          { label: 'Inviável', valor: kpis?.inviavel ?? 0, cor: 'red'    },
         ]}
         tooltip={
           <>
             <div className="cg-tooltip__row">
-              <span>Produto</span>
-              <strong>60%</strong>
+              <span>Projetos viáveis</span>
+              <strong style={{ color: '#34d399' }}>{kpis?.viavel ?? 0}</strong>
             </div>
             <div className="cg-tooltip__row">
-              <span>Impostos</span>
-              <strong>25%</strong>
-            </div>
-            <div className="cg-tooltip__row">
-              <span>Taxas</span>
-              <strong>15%</strong>
+              <span>Atenção / Risco</span>
+              <strong style={{ color: '#fbbf24' }}>{kpis?.atencao ?? 0}</strong>
             </div>
             <div className="cg-tooltip__divider" />
             <div className="cg-tooltip__row">
-              <span>Referência</span>
-              <strong>{mediaLanded}</strong>
+              <span>Taxa de sucesso</span>
+              <strong>{totalSimulacoes > 0 ? Math.round(((kpis?.viavel ?? 0) / totalSimulacoes) * 100) : 0}%</strong>
             </div>
           </>
         }

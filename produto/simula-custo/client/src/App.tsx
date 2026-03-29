@@ -84,7 +84,7 @@ export function App() {
   // Função recursiva para mapear itens de navegação
   const mapNavigation = (items: any[]): any[] => {
     return items.map(item => ({
-      to: item.children ? undefined : (item.source === 'product' ? `/${item.id}` : `/${item.id}`),
+      to: item.children ? undefined : item.id,
       label: item.label,
       icon: iconMap[item.icon] || <CheckCircle weight="duotone" size={20} />,
       children: item.children ? mapNavigation(item.children) : undefined
@@ -102,23 +102,23 @@ export function App() {
     >
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/estimativas" element={<Estimativas />} />
-          <Route path="/relatorios" element={<Relatorios />} />
-          
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="estimativas" element={<Estimativas />} />
+          <Route path="relatorios" element={<Relatorios />} />
+
           {/* Serviços de tenant globais (Meu Espaço) */}
-          <Route path="/meu-espaco" element={<GlobalDashboard />} />
-          <Route path="/meu-espaco/atividades" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Atividades (Tenant)</div>} />
-          <Route path="/meu-espaco/email" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de E-mails (Tenant)</div>} />
-          <Route path="/meu-espaco/whatsapp" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Whatsapp (Tenant)</div>} />
-          <Route path="/historico" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Histórico (Tenant)</div>} />
-          
+          <Route path="meu-espaco" element={<GlobalDashboard />} />
+          <Route path="meu-espaco/atividades" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Atividades (Tenant)</div>} />
+          <Route path="meu-espaco/email" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de E-mails (Tenant)</div>} />
+          <Route path="meu-espaco/whatsapp" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Whatsapp (Tenant)</div>} />
+          <Route path="historico" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Histórico (Tenant)</div>} />
+
           {/* Rota para Teste de Inversão de Contexto */}
-          <Route path="/processo/:id/*" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}><h1>Dentro do Processo (Deep Work)</h1><p>O Menu Lateral sumiu e você está isolado aqui.</p></div>} />
-          
+          <Route path="processo/:id/*" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}><h1>Dentro do Processo (Deep Work)</h1><p>O Menu Lateral sumiu e você está isolado aqui.</p></div>} />
+
           {/* Serviços de tenant são renderizados pelo Shell automaticamente via PRODUCT_CONFIG se configurado no roteador global */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </Suspense>
     </Layout>
@@ -128,3 +128,4 @@ export function App() {
 
 // Exporta o config para uso pelo Shell
 export { PRODUCT_CONFIG }
+export default App

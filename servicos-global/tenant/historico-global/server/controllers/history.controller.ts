@@ -8,8 +8,7 @@ const prisma = new PrismaClient()
 // POST /logs
 export async function ingestLog(req: Request, res: Response, next: NextFunction) {
   try {
-    // Tenta pegar tenant_id de várias fontes (header, auth middleware, ou query para dev)
-    const tenant_id = req.headers['x-tenant-id'] as string || (req as any).auth?.tenantId || (req as any).tenant_id || 'importes-sa'
+    const tenant_id = req.headers['x-tenant-id'] as string || (req as any).auth?.tenantId
     if (!tenant_id) {
       throw AppError.unauthorized('Tenant ID is required for ingestion')
     }
@@ -49,8 +48,10 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
 // GET /logs
 export async function listLogs(req: Request, res: Response, next: NextFunction) {
   try {
-    // Assuming withTenantIsolation populates req.auth.tenantId or req.tenant_id
-    const rawTenantId = (req as any).tenantId || (req as any).tenant_id || req.headers['x-tenant-id'] || (req as any).auth?.tenantId
+    const rawTenantId = req.headers['x-tenant-id'] as string || (req as any).auth?.tenantId
+    if (!rawTenantId) {
+      throw AppError.unauthorized('Tenant ID is required')
+    }
     
     const queryValidate = ListHistoryQuerySchema.safeParse({
       ...req.query,
@@ -109,7 +110,7 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
 // GET /logs/:id
 export async function getLogById(req: Request, res: Response, next: NextFunction) {
   try {
-    const rawTenantId = (req as any).tenantId || (req as any).tenant_id || req.headers['x-tenant-id'] || (req as any).auth?.tenantId
+    const rawTenantId = req.headers['x-tenant-id'] as string || (req as any).auth?.tenantId
     if (!rawTenantId) {
       throw AppError.unauthorized('Tenant ID is required')
     }

@@ -89,6 +89,7 @@ model Tenant {
   user_permissions UserPermission[]
   companies        Company[]
   product_configs  ProductConfig[]
+  CompanyProduct   CompanyProduct[]
 
   @@index([status])
   @@index([slug])
@@ -233,8 +234,9 @@ model Company {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant      Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  memberships UserMembership[]
+  tenant           Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  memberships      UserMembership[]
+  company_products CompanyProduct[]
 
   // Índices obrigatórios
   @@index([tenant_id])
@@ -301,6 +303,34 @@ model ProductConfig {
 }
 
 // ---------------------------------------------------------------------------
+// COMPANY PRODUCT (Cadeia 1.5 — Ativação por Workspace)
+// Habilita um produto que o Tenant já possui para um Workspace específico.
+// ---------------------------------------------------------------------------
+
+model CompanyProduct {
+  id          String  @id @default(cuid())
+  tenant_id   String
+  company_id  String
+  product_key String // ex: "simulacusto", "gestao-atividades"
+  is_active   Boolean @default(true)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant  Tenant  @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  // Apenas uma ativação por produto por workspace
+  @@unique([company_id, product_key])
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([company_id, is_active])
+}
+
+// ---------------------------------------------------------------------------
 // STRIPE EVENT
 // Registro de eventos recebidos do Stripe para garantir idempotência.
 // Evita processar o mesmo webhook duas vezes.
@@ -341,25 +371,34 @@ model SupplierTenantAccess {
 }
 
 // ---------------------------------------------------------------------------
-// SERVICE TOKEN
-// Machine tokens de longa duração para S2S assíncrono (Fluxo 2 S2S).
-// Emitidos pelo Configurador, consumidos por serviços em jobs/crons.
+// GLOBAL PRODUCT
+// Catálogo oficial de produtos da plataforma Gravity.
 // ---------------------------------------------------------------------------
 
-model ServiceToken {
-  id         String            @id @default(cuid())
-  tenant_id  String
-  user_id    String
-  token_hash String            @unique
-  scope      ServiceTokenScope @default(SERVICE)
-  expires_at DateTime?
-  revoked    Boolean           @default(false)
+model GlobalProduct {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  description     String?
+  status          String   @default("Ativo") // Ativo, Em Breve, Legado, Suspenso
+  type_billing    String? // Mensalidade, Por Processo, etc.
+  setup_price     Decimal? @default(0)
+  unit_price      Decimal? @default(0)
+  min_price       Decimal? @default(0)
+  total_price     Decimal? @default(0)
+  currency        String   @default("BRL")
+  limit_users     String   @default("limitada")
+  base_users      Int      @default(0)
+  help_desk_hours Int      @default(0)
+  backend_module  String? // Identificador para ativação técnica (ex: "simula-custo")
+  target_audience String?
+  features        Json?    @default("[]")
+  pricing_tiers   Json?    @default("[]")
 
   // Timestamps
   created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([token_hash])
+  @@index([status])
+  @@index([slug])
 }

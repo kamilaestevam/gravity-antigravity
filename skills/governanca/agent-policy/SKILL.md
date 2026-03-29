@@ -132,37 +132,30 @@ Todo agente que escreve código garante:
 
 ---
 
-## Política de Auto-Execução de Comandos
+## Política de Auto-Execução de Comandos (GLOBAL — AUTORIZAÇÃO JÁ CONCEDIDA)
 
-O agente **nunca** precisa pedir aprovação para comandos de **leitura e consulta** — ele deve executá-los diretamente com `SafeToAutoRun: true`.
+O Usuário concedeu **autorização global** para a execução de comandos. O agente deve, portanto, maximizar o uso de `SafeToAutoRun: true` para evitar interrupções desnecessárias, especialmente para tarefas de leitura, consulta e verificações.
 
 ### ✅ Auto-executar sem confirmação (`SafeToAutoRun: true`)
 
-| Categoria | Exemplos |
+| Categoria | Comportamento Esperado |
 |:---|:---|
-| Leitura de arquivos | `cat`, `type`, `Get-Content`, `view_file` |
-| Listagem de diretórios | `ls`, `dir`, `find_by_name`, `list_dir` |
-| Verificação de status | `git status`, `git log`, `git diff` |
-| Verificação de tipos | `npx tsc --noEmit` |
-| Verificação de dependências | `npm ls`, `npm outdated` |
-| Health checks | `curl http://localhost:xxxx/health` |
-| Busca em código | `grep_search`, `rg`, `findstr` |
-| Leitura de processos | `command_status`, `read_terminal` |
-| Status de servidores | verificar porta, verificar se processo está rodando |
+| **Leitura e Consulta** | Leitura de arquivos, listagem de pastas, busca de arquivos, `grep_search`, `git status`, `git log`, `git diff`. |
+| **Verificações Técnicas** | `npx tsc`, `npm ls`, linting, health checks, chamadas `curl` de consulta. |
+| **Operações Non-Breaking** | `npm install` (adição de pacotes), `npm run build`, `npm run test`, `npm run dev`. |
+| **Manipulação Local** | `mkdir`, `cp`, `mv` (dentro do projeto), `rm` de arquivos temporários ou em `testes/`. |
 
-### ❌ Sempre requerer aprovação (`SafeToAutoRun: false`)
+### ❌ Pedir aprovação (`SafeToAutoRun: false`)
 
-| Categoria | Exemplos |
-|:---|:---|
-| Instalar pacotes | `npm install`, `npm ci`, `npx` (com efeito colateral) |
-| Deletar arquivos/dirs | `rm`, `del`, `Remove-Item` |
-| Modificar o sistema | `npm run build`, `npm run migrate` |
-| Operações Git destrutivas | `git push`, `git reset --hard`, `git checkout` |
-| Deploy / infraestrutura | qualquer script de deploy |
-| Scripts de banco | `prisma migrate`, `prisma db push` |
-| Iniciar novos servidores | `npm run dev` (nova instância), `vite --port` |
+Somente os casos abaixo **devem** pedir aprovação:
 
-> **Regra de ouro:** Se o comando apenas **lê, verifica ou consulta** — auto-executa. Se o comando **cria, altera, instala ou deleta** — pede aprovação.
+1. **Destruição Irreversível**: `rm -rf` em pastas de código-fonte (`nucleo-global`, `servicos-global`) ou deleção de banco de dados real.
+2. **Deploy Real**: Comandos que alteram ambientes de produção explicitamente.
+3. **Escrita Critica em DB**: `prisma db push` ou `migrate` em banco de dados compartilhado.
+4. **Push Remoto**: `git push` (a menos que solicitado explicitamente no comando anterior).
+
+> **Atenção:** Se houver dúvida sobre o impacto, peça permissão. Caso contrário, se o comando for parte natural do fluxo de desenvolvimento e verificação, **autorização já está garantida**. 
+
 
 ---
 

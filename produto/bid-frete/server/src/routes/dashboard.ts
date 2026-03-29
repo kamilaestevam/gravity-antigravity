@@ -10,8 +10,8 @@ import { savingsEngine } from '../services/savingsEngine.js'
 
 const router = Router()
 
-// GET / — KPIs gerais
-router.get('/', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// GET / e GET /kpis — KPIs gerais
+async function handleKpis(req: Request & { prisma?: any }, res: Response, next: NextFunction) {
   try {
     const { company_id, data_inicio, data_fim } = req.query as any
 
@@ -101,7 +101,10 @@ router.get('/', async (req: Request & { prisma?: any }, res: Response, next: Nex
   } catch (err) {
     next(err)
   }
-})
+}
+
+router.get('/', handleKpis)
+router.get('/kpis', handleKpis)
 
 // GET /calendario — Alertas do calendario
 router.get('/calendario', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {

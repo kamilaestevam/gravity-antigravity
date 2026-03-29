@@ -3,6 +3,7 @@ import { Layout } from './components/layout/Layout'
 import { Home } from './pages/Home'
 import { Produtos } from './pages/Produtos'
 import { SimuladorComex } from './pages/produto/SimuladorComex'
+import { ProdutoDetalhe } from './pages/produto/ProdutoDetalhe'
 import { Precos } from './pages/Precos'
 import { Trial } from './pages/Trial'
 import { Checkout } from './pages/Checkout'
@@ -26,6 +27,7 @@ export function App() {
           <Route path="/" element={<Home />} />
           <Route path="/produtos" element={<Produtos />} />
           <Route path="/produtos/simulador-comex" element={<SimuladorComex />} />
+          <Route path="/produtos/:id" element={<ProdutoDetalhe />} />
           <Route path="/precos" element={<Precos />} />
           <Route path="/trial" element={<Trial />} />
           <Route path="/checkout" element={<Checkout />} />

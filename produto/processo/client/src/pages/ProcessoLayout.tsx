@@ -216,7 +216,7 @@ export default function ProcessoLayout() {
               <BotaoGlobal
                 variante="fantasma"
                 icone={<ArrowLeft weight="duotone" size={16} />}
-                onClick={() => navigate('/')}
+                onClick={() => navigate(-1)}
                 className="proc-back-btn"
               >
                 Voltar para Processos

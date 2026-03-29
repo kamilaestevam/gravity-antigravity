@@ -6,10 +6,10 @@
  * PUT    /:id                  Atualizar fornecedor
  * PATCH  /:id/status           Ativar/Inativar/Bloquear
  * DELETE /:id                  Excluir fornecedor
- * POST   /:id/tabela-preco     Adicionar rota na tabela de precos
- * GET    /:id/tabela-preco     Listar tabela de precos
- * PUT    /:id/tabela-preco/:tp Atualizar item da tabela
- * DELETE /:id/tabela-preco/:tp Excluir item da tabela
+ * POST   /:id/tabela           Adicionar rota na tabela de precos
+ * GET    /:id/tabela           Listar tabela de precos
+ * PUT    /:id/tabela/:tp       Atualizar item da tabela
+ * DELETE /:id/tabela/:tp       Excluir item da tabela
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -186,8 +186,8 @@ router.delete('/:id', async (req: Request & { prisma?: any }, res: Response, nex
 
 // ─── TABELA DE PRECOS ──────────────────────────────────────────────────────────
 
-// POST /:id/tabela-preco
-router.post('/:id/tabela-preco', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// POST /:id/tabela
+router.post('/:id/tabela', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
   try {
     const parsed = TabelaPrecoSchema.safeParse(req.body)
     if (!parsed.success) throw new AppError('Dados invalidos', 400, 'VALIDATION_ERROR')
@@ -211,8 +211,8 @@ router.post('/:id/tabela-preco', async (req: Request & { prisma?: any }, res: Re
   }
 })
 
-// GET /:id/tabela-preco
-router.get('/:id/tabela-preco', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// GET /:id/tabela
+router.get('/:id/tabela', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
   try {
     const tabelas = await req.prisma.tabelaPreco.findMany({
       where: { fornecedor_id: req.params.id },
@@ -224,8 +224,8 @@ router.get('/:id/tabela-preco', async (req: Request & { prisma?: any }, res: Res
   }
 })
 
-// PUT /:id/tabela-preco/:tpId
-router.put('/:id/tabela-preco/:tpId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// PUT /:id/tabela/:tpId
+router.put('/:id/tabela/:tpId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
   try {
     const tabela = await req.prisma.tabelaPreco.update({
       where: { id: req.params.tpId },
@@ -237,8 +237,8 @@ router.put('/:id/tabela-preco/:tpId', async (req: Request & { prisma?: any }, re
   }
 })
 
-// DELETE /:id/tabela-preco/:tpId
-router.delete('/:id/tabela-preco/:tpId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// DELETE /:id/tabela/:tpId
+router.delete('/:id/tabela/:tpId', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
   try {
     await req.prisma.tabelaPreco.delete({ where: { id: req.params.tpId } })
     res.json({ deleted: true })

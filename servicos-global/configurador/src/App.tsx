@@ -19,6 +19,8 @@ import { MonitorApisAdmin } from './pages/admin/MonitorApisAdmin'
 import { UsuariosGlobaisAdmin } from './pages/admin/UsuariosGlobaisAdmin'
 import { TenantDetail } from './pages/TenantDetail'
 import { Onboarding } from './pages/Onboarding'
+import { Contato } from './pages/Contato'
+import { Waitlist } from './pages/Waitlist'
 import { Hub } from './pages/Hub'
 import { Store } from './pages/Store'
 import { WorkspaceLayout } from './pages/workspace/WorkspaceLayout'
@@ -94,6 +96,8 @@ export default function App() {
 
         {/* Onboarding — novos clientes vindos do Marketplace */}
         <Route path="/trial" element={<Onboarding />} />
+        <Route path="/contato" element={<Contato />} />
+        <Route path="/waitlist" element={<Waitlist />} />
 
         {/* Área autenticada */}
         {/* /hub → redireciona para /selecionar-workspace */}
@@ -127,6 +131,16 @@ export default function App() {
           <Route path="api-cockpit" element={<ApiCockpit />} />
           <Route path="conector-cargowise" element={<ConectorCargoWise />} />
         </Route>
+
+        {/* 404 — rota nao encontrada */}
+        <Route path="*" element={
+          <div style={{ textAlign: 'center', padding: '6rem 1.5rem' }}>
+            <p style={{ fontSize: '5rem', fontWeight: 800, color: 'var(--bg-elevated)', lineHeight: 1 }}>404</p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '1rem 0 0.5rem', color: 'var(--text-primary)' }}>Pagina nao encontrada</h1>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>A pagina que voce procura nao existe ou foi movida.</p>
+            <a href="/" style={{ color: 'var(--accent)' }}>Voltar ao inicio</a>
+          </div>
+        } />
       </Routes>
     </div>
   )

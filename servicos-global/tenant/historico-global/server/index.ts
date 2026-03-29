@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import helmet from 'helmet'
 import cors from 'cors'
 import { historicoRouter } from './routes.js'
 import { errorHandler } from './lib/errors.js'
@@ -7,6 +8,7 @@ import { errorHandler } from './lib/errors.js'
 const app = express()
 const PORT = Number(process.env.PORT ?? 8012)
 
+app.use(helmet())
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))

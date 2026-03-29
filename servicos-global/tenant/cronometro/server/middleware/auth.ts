@@ -3,6 +3,7 @@
 // O tenant_id SEMPRE vem do token JWT — nunca do body.
 
 import { Request, Response, NextFunction } from 'express'
+import { timingSafeEqual } from 'crypto'
 import { AppError } from '../lib/errors.js'
 
 // ---------------------------------------------------------------------------
@@ -32,13 +33,12 @@ declare global {
 
 export function requireAuth(req: Request, _res: Response, next: NextFunction) {
   // Em produção, o gateway Clerk injeta estes headers após validar o JWT
-  const tenantId =
-    req.headers['x-tenant-id'] as string |
-    req.headers['x-clerk-org-id'] as string
+  // Normalizar: headers podem ser string[] se duplicados
+  const rawTenantId = req.headers['x-tenant-id'] || req.headers['x-clerk-org-id']
+  const tenantId = Array.isArray(rawTenantId) ? rawTenantId[0] : rawTenantId
 
-  const userId =
-    req.headers['x-user-id'] as string |
-    req.headers['x-clerk-user-id'] as string
+  const rawUserId = req.headers['x-user-id'] || req.headers['x-clerk-user-id']
+  const userId = Array.isArray(rawUserId) ? rawUserId[0] : rawUserId
 
   if (!tenantId || !userId) {
     return next(
@@ -65,10 +65,18 @@ export function requireInternalKey(
   _res: Response,
   next: NextFunction
 ) {
-  const key = req.headers['x-internal-key']
+  const rawKey = req.headers['x-internal-key']
+  const key = Array.isArray(rawKey) ? rawKey[0] : rawKey
+  const expected = process.env.INTERNAL_API_KEY
 
-  if (!key || key !== process.env.INTERNAL_API_KEY) {
-    return next(AppError.unauthorized('Chave interna inválida.'))
+  if (!key || !expected) {
+    return next(AppError.unauthorized('Chave interna ausente ou nao configurada.'))
+  }
+
+  const bufA = Buffer.from(key, 'utf8')
+  const bufB = Buffer.from(expected, 'utf8')
+  if (bufA.length !== bufB.length || !timingSafeEqual(bufA, bufB)) {
+    return next(AppError.unauthorized('Chave interna invalida.'))
   }
 
   return next()

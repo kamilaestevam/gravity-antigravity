@@ -3,8 +3,19 @@
 // Porta: 8005 | Banco: configurador-db | Auth: Clerk | Billing: Stripe
 
 import 'dotenv/config'
+
+// Fail-fast: validar env vars criticas antes de qualquer import
+const requiredEnvVars = ['CONFIGURADOR_DATABASE_URL', 'CLERK_SECRET_KEY', 'INTERNAL_SERVICE_KEY'] as const
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`[Configurador] Variavel de ambiente obrigatoria ausente: ${envVar}`)
+  }
+}
+
 import express from 'express'
+import helmet from 'helmet'
 import { correlationMiddleware } from './middleware/correlationId.js'
+import { rateLimitPresets } from '../../tenant/middleware/rateLimiter.js'
 import { errorHandler } from './middleware/errorHandler.js'
 import { authRouter } from './routes/auth.js'
 import { tenantsRouter } from './routes/tenants.js'
@@ -23,6 +34,23 @@ export const app = express()
 const PORT = Number(process.env.PORT ?? 8005)
 
 // ─── Middlewares globais ────────────────────────────────────────────────────
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.clerk.accounts.dev", "https://js.stripe.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://*.clerk.com", "https://img.clerk.com"],
+      connectSrc: ["'self'", "https://*.clerk.accounts.dev", "https://api.stripe.com", "ws://localhost:*"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://*.clerk.accounts.dev"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}))
 
 // O webhook do Stripe precisa do body raw — registrar ANTES do json()
 app.use('/api/v1/billing/webhook', express.raw({ type: 'application/json' }))
@@ -49,6 +77,12 @@ app.get('/health', async (_req, res) => {
     timestamp: new Date().toISOString(),
   })
 })
+
+// ─── Rate Limiting (endpoints publicos e webhooks) ─────────────────────────
+app.use('/api/v1/webhooks', rateLimitPresets.webhook())
+app.use('/api/v1/billing/webhook', rateLimitPresets.webhook())
+app.use('/api/v1/plans', rateLimitPresets.public())
+app.use('/api/catalog', rateLimitPresets.public())
 
 // ─── Rotas públicas / protegidas por Clerk ──────────────────────────────────
 

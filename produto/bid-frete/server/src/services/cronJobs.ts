@@ -5,28 +5,42 @@
  * 2. Alertar sobre cotações próximas ao vencimento
  * 3. Detectar fornecedores sem resposta
  * 4. Recalcular ratings globais
+ *
+ * SEGURANÇA: Cron jobs operam cross-tenant por natureza (varrem todos os tenants).
+ * Cada operação de escrita inclui tenant_id explícito no WHERE para evitar
+ * que um bug altere dados de tenant incorreto. Leituras selecionam tenant_id
+ * para rastreabilidade e notificações por tenant.
  */
 
 import { PrismaClient } from '@prisma/client'
+import { withTenantIsolation } from '../middleware/tenantIsolation.js'
 import { atividadesIntegration, notificacoesIntegration } from './tenantIntegrations.js'
 
-const prisma = new PrismaClient()
+// Prisma global — usado APENAS para leituras cross-tenant nos cron jobs.
+// Escrita SEMPRE via withTenantIsolation ou com tenant_id explícito no WHERE.
+const cronPrisma = new PrismaClient()
 
 /**
  * Job 1: Expirar cotações que passaram da data limite
+ * Segurança: update inclui tenant_id no WHERE para impedir cross-tenant write
  */
 async function expirarCotacoesVencidas() {
   const agora = new Date()
 
-  const cotacoesVencidas = await prisma.cotacao.findMany({
+  // Leitura cross-tenant: buscar todas as cotações vencidas (necessário para cron)
+  const cotacoesVencidas = await cronPrisma.cotacao.findMany({
     where: {
       status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta: { lt: agora },
     } as any,
+    select: { id: true, numero: true, tenant_id: true, user_id: true },
   } as any)
 
   for (const cotacao of cotacoesVencidas as any[]) {
-    await prisma.cotacao.update({
+    // Escrita isolada por tenant
+    const tenantDb = withTenantIsolation(cronPrisma, cotacao.tenant_id)
+
+    await tenantDb.cotacao.update({
       where: { id: cotacao.id },
       data: { status: 'EXPIRADA' } as any,
     } as any)
@@ -37,8 +51,8 @@ async function expirarCotacoesVencidas() {
       cotacao_id: cotacao.id,
     })
 
-    // Expirar BidRequests pendentes
-    await prisma.bidRequest.updateMany({
+    // Expirar BidRequests pendentes — isolado por tenant
+    await tenantDb.bidRequest.updateMany({
       where: {
         cotacao_id: cotacao.id,
         status: { in: ['PENDENTE', 'ENVIADO', 'VISUALIZADO'] },
@@ -54,16 +68,18 @@ async function expirarCotacoesVencidas() {
 
 /**
  * Job 2: Alertar sobre cotações que vencem em 24h
+ * Segurança: leitura cross-tenant com select mínimo, notificação por tenant
  */
 async function alertarProximoVencimento() {
   const agora = new Date()
   const em24h = new Date(agora.getTime() + 24 * 60 * 60 * 1000)
 
-  const cotacoesVencendo = await prisma.cotacao.findMany({
+  const cotacoesVencendo = await cronPrisma.cotacao.findMany({
     where: {
       status: { in: ['ENVIADA_FORNECEDORES', 'EM_COTACAO'] },
       data_limite_resposta: { gte: agora, lte: em24h },
     } as any,
+    select: { id: true, numero: true, tenant_id: true, user_id: true, data_limite_resposta: true },
   } as any)
 
   for (const cotacao of cotacoesVencendo as any[]) {
@@ -80,11 +96,12 @@ async function alertarProximoVencimento() {
 
 /**
  * Job 3: Detectar fornecedores sem resposta (cotações com >48h sem retorno)
+ * Segurança: leitura cross-tenant com select mínimo, atividade criada por tenant
  */
 async function detectarSemResposta() {
   const ha48h = new Date(Date.now() - 48 * 60 * 60 * 1000)
 
-  const requestsSemResposta = await prisma.bidRequest.findMany({
+  const requestsSemResposta = await cronPrisma.bidRequest.findMany({
     where: {
       status: 'ENVIADO',
       enviado_em: { lt: ha48h },
@@ -96,7 +113,6 @@ async function detectarSemResposta() {
   } as any)
 
   for (const req of requestsSemResposta as any[]) {
-    // Criar atividade para lembrar o fornecedor
     atividadesIntegration.criarAtividade(req.cotacao.tenant_id, {
       titulo: `Lembrar fornecedor ${req.fornecedor.nome}`,
       descricao: `O fornecedor ${req.fornecedor.nome} (${req.fornecedor.email}) não respondeu a cotação ${req.cotacao.numero} em 48h.`,

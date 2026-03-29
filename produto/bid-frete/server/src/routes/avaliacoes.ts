@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { ratingEngine } from '../services/ratingEngine.js'
 import { AppError } from '../lib/errors.js'
 import { historicoIntegration } from '../services/tenantIntegrations.js'
+import { prisma as basePrisma } from '../middleware/tenantIsolation.js'
 
 const router = Router()
 
@@ -53,7 +54,9 @@ router.post('/', async (req: Request & { prisma?: any }, res: Response, next: Ne
     })
 
     if (fornecedor) {
-      await ratingEngine.recalcular(req.prisma, fornecedor.email)
+      // ratingEngine precisa de acesso cross-tenant para calcular ratings globais
+      // Usar basePrisma (sem filtro de tenant) em vez de req.prisma (filtrado)
+      await ratingEngine.recalcular(basePrisma, fornecedor.email)
 
       // Historico
       const tenantId = (req as any).tenantId

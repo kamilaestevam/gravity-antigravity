@@ -21,6 +21,7 @@ import {
   RocketLaunch,
   Bug,
   Info,
+  ShieldCheck,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -35,6 +36,7 @@ const navItems = [
   { to: '/admin/historico',    label: 'Histórico Global', icon: <Desktop         weight="duotone" size={18} /> },
   { to: '/admin/deploy',       label: 'Deploy Railway',   icon: <CloudArrowUp    weight="duotone" size={18} /> },
   { to: '/admin/apis',         label: 'API Cockpit',      icon: <Pulse           weight="duotone" size={18} /> },
+  { to: '/admin/seguranca',    label: 'Seguranca',        icon: <ShieldCheck     weight="duotone" size={18} /> },
   { to: '/admin/testes',       label: 'Log de Testes',    icon: <Bug             weight="duotone" size={18} /> },
 ]
 

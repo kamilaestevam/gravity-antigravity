@@ -1,5 +1,15 @@
 import 'dotenv/config'
+
+// Fail-fast: validar env vars criticas
+const requiredEnvVars = ['INTERNAL_SERVICE_KEY', 'ENCRYPTION_KEY'] as const
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    throw new Error(`[API-Cockpit] Variavel de ambiente obrigatoria ausente: ${envVar}`)
+  }
+}
+
 import express from 'express'
+import helmet from 'helmet'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
@@ -8,10 +18,13 @@ import { tokensRouter } from './routes/tokens'
 import { webhooksRouter } from './routes/webhooks'
 import { erpRouter } from './routes/erp'
 import { docsRouter } from './routes/docs'
+import { requireInternalKey } from './middleware/requireInternalKey'
+import { rateLimitPresets } from '../../../middleware/rateLimiter'
 
 const app = express()
 const prisma = new PrismaClient()
 
+app.use(helmet())
 app.use(cors())
 app.use(express.json())
 
@@ -20,11 +33,14 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', service: 'api-cockpit', version: '1.0.0' })
 })
 
+// Rate Limiting
+app.use(rateLimitPresets.internal())
+
 // Routes
 app.use('/api/v1/cockpit/tokens', tokensRouter)
 app.use('/api/v1/cockpit/webhooks', webhooksRouter)
 app.use('/api/v1/erp', erpRouter)
-app.use('/api/v1/cockpit/docs', docsRouter)
+app.use('/api/v1/cockpit/docs', requireInternalKey, docsRouter)
 
 // Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

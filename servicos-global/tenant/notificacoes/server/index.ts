@@ -1,4 +1,5 @@
 import express from 'express'
+import helmet from 'helmet'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { apiRoutes } from './routes/api'
@@ -9,7 +10,13 @@ import { initCron } from './cron'
 
 dotenv.config()
 
+// Fail-fast: validar env vars criticas
+if (!process.env.TENANT_DATABASE_URL) {
+  throw new Error('[Notificacoes] Variavel de ambiente obrigatoria ausente: TENANT_DATABASE_URL')
+}
+
 const app = express()
+app.use(helmet())
 app.use(cors())
 app.use(express.json())
 

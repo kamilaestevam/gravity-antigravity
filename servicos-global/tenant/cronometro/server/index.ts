@@ -4,6 +4,7 @@
 
 import 'dotenv/config'
 import express from 'express'
+import helmet from 'helmet'
 import { timersRouter } from './routes/timers.js'
 import { errorHandler } from './lib/errors.js'
 
@@ -18,6 +19,7 @@ const PORT = Number(process.env.PORT ?? 8007)
 // Middlewares globais
 // ---------------------------------------------------------------------------
 
+app.use(helmet())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 

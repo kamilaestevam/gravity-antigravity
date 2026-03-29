@@ -33,6 +33,7 @@ import { ApiCockpit }        from './pages/workspace/ApiCockpit'
 import { ConectorCargoWise } from './pages/workspace/ConectorCargoWise'
 import { SelecionarWorkspace } from './pages/SelecionarWorkspace'
 import { DeployRailwayAdmin } from './pages/admin/DeployRailwayAdmin'
+import { SegurancaAdmin } from './pages/admin/SegurancaAdmin'
 
 function TenantDetailWrapper() {
   const { id } = useParams()
@@ -116,6 +117,7 @@ export default function App() {
           <Route path="deploy" element={<DeployRailwayAdmin />} />
           <Route path="testes" element={<LogTestes />} />
           <Route path="apis" element={<MonitorApisAdmin />} />
+          <Route path="seguranca" element={<SegurancaAdmin />} />
           <Route path="tenants" element={<AdminPanel navigate={adminNavigate} />} />
           <Route path="tenant/:id" element={<TenantDetailWrapper />} />
         </Route>

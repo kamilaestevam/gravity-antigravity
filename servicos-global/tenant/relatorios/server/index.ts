@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import helmet from 'helmet';
 import { correlationMiddleware } from './middleware/correlation.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { healthRouter } from './routes/health.js';
@@ -9,6 +10,7 @@ import { relatoriosRouter } from './routes/relatorios.js';
 const app = express();
 const PORT = Number(process.env.PORT ?? 8011);
 
+app.use(helmet());
 app.use(express.json());
 app.use(correlationMiddleware);
 

@@ -6,6 +6,7 @@
  */
 
 import express, { Request, Response, NextFunction } from 'express'
+import helmet from 'helmet'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { simulateRouter } from './routes/simulate.js'
@@ -20,6 +21,23 @@ const __dirname = dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT ?? 8020
+
+// ─── 0. Security Headers ──────────────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "ws://localhost:*"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}))
 
 // ─── 1. Body Parser ────────────────────────────────────────────────────────────
 app.use(express.json())

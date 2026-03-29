@@ -1,86 +1,89 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
   ShieldCheck, ShieldWarning, ShieldSlash,
-  Lock, LockOpen, Eye, Warning, CheckCircle,
-  ArrowsClockwise, UserCircle, Database,
-  Globe, Key, Webhook, Bug, Timer,
-  Funnel,
+  Lock, Eye, Warning, Key, Timer,
+  ArrowsClockwise,
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { StatCardGlobal } from '@nucleo/card-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
 
-// ─── Tipos ────────────────────────────────────────────────────────────────
+// ─── Tipos (espelhados do backend) ────────────────────────────────────────
 
 type Severidade = 'CRITICAL' | 'WARNING' | 'INFO'
 type EventStatus = 'BLOCKED' | 'ALLOWED' | 'DETECTED'
-type CamadaStatus = 'OK' | 'DEGRADED' | 'DOWN'
+type ServiceStatus = 'OK' | 'DEGRADED' | 'DOWN' | 'UNKNOWN'
 
 interface SecurityEvent {
   id: string
-  timestamp: string
-  tipo: string
-  severidade: Severidade
+  tenant_id: string
+  actor_id: string
+  actor_type: string
+  action: string
+  severity: Severidade
   status: EventStatus
-  tenant: string
-  actor: string
-  descricao: string
-  ip: string
-  correlationId: string
+  description: string | null
+  ip: string | null
+  endpoint: string | null
+  correlation_id: string | null
+  created_at: string
 }
 
-interface CamadaSeguranca {
-  nome: string
-  status: CamadaStatus
-  ultimoCheck: string
-  detalhes: string
+interface Stats {
+  totalEvents: number
+  criticalCount: number
+  warningCount: number
+  blockedCount: number
+}
+
+interface ServiceHealthEntry {
+  service: string
+  status: ServiceStatus
+  latency_ms: number
+  error?: string
+}
+
+interface HealthResponse {
+  overall: ServiceStatus
+  services: ServiceHealthEntry[]
+  summary: { ok: number; degraded: number; down: number; total: number }
 }
 
 interface RateLimitEntry {
-  tenant: string
-  ip: string
+  id: string
+  key: string
+  tenant_id: string | null
+  ip: string | null
   endpoint: string
   count: number
-  limit: number
+  limit_max: number
   blocked: boolean
-  lastHit: string
+  created_at: string
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────
+interface SecretEntry {
+  name: string
+  configured: boolean
+  prefix: string
+}
 
-const CAMADAS_MOCK: CamadaSeguranca[] = [
-  { nome: 'Rede (SSL/Railway)', status: 'OK', ultimoCheck: 'agora', detalhes: 'SSL ativo em todas as conexoes' },
-  { nome: 'Autenticacao (Clerk JWT)', status: 'OK', ultimoCheck: '2s atras', detalhes: '0 falhas de auth nos ultimos 5min' },
-  { nome: 'Autorizacao (RBAC)', status: 'OK', ultimoCheck: '5s atras', detalhes: '5 papeis, 47 permissoes granulares ativas' },
-  { nome: 'Isolamento (Prisma + RLS)', status: 'OK', ultimoCheck: '1s atras', detalhes: '0 tentativas cross-tenant detectadas' },
-  { nome: 'Auditoria (HistoryLog)', status: 'OK', ultimoCheck: '3s atras', detalhes: '1.247 eventos registrados hoje' },
-  { nome: 'Rate Limiting', status: 'OK', ultimoCheck: '1s atras', detalhes: '0 IPs bloqueados atualmente' },
-  { nome: 'Security Headers (Helmet)', status: 'OK', ultimoCheck: 'boot', detalhes: '17/17 servicos com helmet ativo' },
-]
+// ─── API helper ───────────────────────────────────────────────────────────
 
-const EVENTS_MOCK: SecurityEvent[] = [
-  { id: 'e1', timestamp: '2026-03-29 14:32:15', tipo: 'AUTH_FAILURE', severidade: 'WARNING', status: 'BLOCKED', tenant: 'tenant-abc', actor: 'anonymous', descricao: 'JWT expirado - tentativa de acesso a /api/v1/tenants', ip: '189.45.12.8', correlationId: 'corr-001' },
-  { id: 'e2', timestamp: '2026-03-29 14:30:02', tipo: 'RATE_LIMIT_HIT', severidade: 'WARNING', status: 'BLOCKED', tenant: 'tenant-xyz', actor: 'user-456', descricao: 'Rate limit 30/min atingido em /api/v1/master-data', ip: '201.33.44.55', correlationId: 'corr-002' },
-  { id: 'e3', timestamp: '2026-03-29 14:28:44', tipo: 'CROSS_TENANT_ATTEMPT', severidade: 'CRITICAL', status: 'BLOCKED', tenant: 'tenant-abc', actor: 'user-789', descricao: 'Tentativa de acessar recurso do tenant-xyz via ID direto', ip: '189.45.12.8', correlationId: 'corr-003' },
-  { id: 'e4', timestamp: '2026-03-29 14:25:11', tipo: 'PERMISSION_GRANTED', severidade: 'INFO', status: 'ALLOWED', tenant: 'tenant-abc', actor: 'admin-001', descricao: 'Permissao email:write concedida ao usuario user-123', ip: '10.0.0.1', correlationId: 'corr-004' },
-  { id: 'e5', timestamp: '2026-03-29 14:22:33', tipo: 'ROLE_CHANGED', severidade: 'CRITICAL', status: 'ALLOWED', tenant: 'tenant-abc', actor: 'master-001', descricao: 'Role de user-456 alterado de STANDARD para ADMIN', ip: '10.0.0.2', correlationId: 'corr-005' },
-  { id: 'e6', timestamp: '2026-03-29 14:20:00', tipo: 'WEBHOOK_SIGNATURE_FAILURE', severidade: 'CRITICAL', status: 'BLOCKED', tenant: 'system', actor: 'webhook', descricao: 'Assinatura Svix invalida em webhook Clerk - possivel replay attack', ip: '52.18.93.1', correlationId: 'corr-006' },
-  { id: 'e7', timestamp: '2026-03-29 14:18:45', tipo: 'CREDENTIAL_CREATED', severidade: 'INFO', status: 'ALLOWED', tenant: 'tenant-xyz', actor: 'admin-002', descricao: 'Nova API key criada: gv_live_sk_***...a3f2 (scope: READ)', ip: '10.0.0.3', correlationId: 'corr-007' },
-  { id: 'e8', timestamp: '2026-03-29 14:15:22', tipo: 'ADMIN_ACCESS', severidade: 'INFO', status: 'ALLOWED', tenant: 'gravity-hq', actor: 'gravity-admin', descricao: 'Admin acessou dados do tenant-abc via painel', ip: '10.0.0.1', correlationId: 'corr-008' },
-  { id: 'e9', timestamp: '2026-03-29 14:10:01', tipo: 'DATA_DELETED', severidade: 'CRITICAL', status: 'ALLOWED', tenant: 'tenant-xyz', actor: 'admin-002', descricao: 'LGPD: Dados do usuario user-old excluidos (3 tabelas, 47 registros)', ip: '10.0.0.3', correlationId: 'corr-009' },
-  { id: 'e10', timestamp: '2026-03-29 14:05:55', tipo: 'AUTH_FAILURE', severidade: 'WARNING', status: 'BLOCKED', tenant: 'system', actor: 'anonymous', descricao: 'x-internal-key invalida em chamada S2S para /api/v1/cockpit/tokens', ip: '172.16.0.5', correlationId: 'corr-010' },
-]
+const API_BASE = '/api/admin/security'
 
-const RATE_LIMIT_MOCK: RateLimitEntry[] = [
-  { tenant: 'tenant-xyz', ip: '201.33.44.55', endpoint: '/api/v1/master-data', count: 31, limit: 30, blocked: true, lastHit: '14:30:02' },
-  { tenant: 'tenant-abc', ip: '189.45.12.8', endpoint: '/api/v1/plans', count: 22, limit: 30, blocked: false, lastHit: '14:29:50' },
-  { tenant: 'anonymous', ip: '52.18.93.1', endpoint: '/api/v1/webhooks', count: 88, limit: 100, blocked: false, lastHit: '14:28:11' },
-]
+async function fetchJSON<T>(path: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, { credentials: 'include' })
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
 
-// ─── Helpers ──────────────────────────────────────────────────────────────
+// ─── Helpers visuais ──────────────────────────────────────────────────────
 
 function getSeveridadeStyle(sev: Severidade) {
   switch (sev) {
@@ -98,84 +101,132 @@ function getStatusStyle(status: EventStatus) {
   }
 }
 
-function getCamadaStatusStyle(status: CamadaStatus) {
-  switch (status) {
-    case 'OK': return { color: '#34d399' }
-    case 'DEGRADED': return { color: '#fbbf24' }
-    case 'DOWN': return { color: '#f87171' }
-  }
-}
-
-function getCamadaIcon(status: CamadaStatus) {
+function getCamadaIcon(status: ServiceStatus) {
   switch (status) {
     case 'OK': return <ShieldCheck weight="fill" size={20} style={{ color: '#34d399' }} />
     case 'DEGRADED': return <ShieldWarning weight="fill" size={20} style={{ color: '#fbbf24' }} />
     case 'DOWN': return <ShieldSlash weight="fill" size={20} style={{ color: '#f87171' }} />
+    default: return <ShieldWarning weight="regular" size={20} style={{ color: '#64748b' }} />
+  }
+}
+
+function statusColor(status: ServiceStatus) {
+  switch (status) {
+    case 'OK': return '#34d399'
+    case 'DEGRADED': return '#fbbf24'
+    case 'DOWN': return '#f87171'
+    default: return '#64748b'
   }
 }
 
 // ─── Componente Principal ─────────────────────────────────────────────────
 
+const POLL_INTERVAL = 15_000 // 15 segundos
+
 export function SegurancaAdmin() {
+  const [abaAtiva, setAbaAtiva] = useState<'health' | 'events' | 'ratelimit' | 'secrets'>('health')
   const [filtroSeveridade, setFiltroSeveridade] = useState<string>('TODOS')
-  const [filtroTipo, setFiltroTipo] = useState<string>('TODOS')
-  const [abaAtiva, setAbaAtiva] = useState<'overview' | 'events' | 'ratelimit' | 'secrets'>('overview')
+  const [filtroAction, setFiltroAction] = useState<string>('TODOS')
+  const [lastUpdate, setLastUpdate] = useState<string>('')
+  const [loading, setLoading] = useState(true)
 
-  // Contadores para stat cards
-  const criticalCount = EVENTS_MOCK.filter(e => e.severidade === 'CRITICAL').length
-  const warningCount = EVENTS_MOCK.filter(e => e.severidade === 'WARNING').length
-  const blockedCount = EVENTS_MOCK.filter(e => e.status === 'BLOCKED').length
-  const allOk = CAMADAS_MOCK.every(c => c.status === 'OK')
+  // Dados do backend
+  const [stats, setStats] = useState<Stats>({ totalEvents: 0, criticalCount: 0, warningCount: 0, blockedCount: 0 })
+  const [events, setEvents] = useState<SecurityEvent[]>([])
+  const [health, setHealth] = useState<HealthResponse | null>(null)
+  const [rateMetrics, setRateMetrics] = useState<RateLimitEntry[]>([])
+  const [secrets, setSecrets] = useState<SecretEntry[]>([])
 
-  // Eventos filtrados
-  const eventsFiltrados = EVENTS_MOCK.filter(e => {
-    if (filtroSeveridade !== 'TODOS' && e.severidade !== filtroSeveridade) return false
-    if (filtroTipo !== 'TODOS' && e.tipo !== filtroTipo) return false
-    return true
-  })
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Colunas da tabela de eventos
+  const loadData = useCallback(async () => {
+    const [statsRes, eventsRes, healthRes, rateRes, secretsRes] = await Promise.all([
+      fetchJSON<any>('/stats'),
+      fetchJSON<any>(`/events?limit=50&${filtroSeveridade !== 'TODOS' ? `severity=${filtroSeveridade}` : ''}${filtroAction !== 'TODOS' ? `&action=${filtroAction}` : ''}`),
+      fetchJSON<HealthResponse>('/health'),
+      fetchJSON<any>('/ratelimit'),
+      fetchJSON<any>('/secrets'),
+    ])
+
+    if (statsRes) setStats(statsRes)
+    if (eventsRes) setEvents(eventsRes.events || [])
+    if (healthRes) setHealth(healthRes)
+    if (rateRes) setRateMetrics(rateRes.metrics || [])
+    if (secretsRes) setSecrets(secretsRes.secrets || [])
+
+    setLastUpdate(new Date().toLocaleTimeString('pt-BR'))
+    setLoading(false)
+  }, [filtroSeveridade, filtroAction])
+
+  // Polling
+  useEffect(() => {
+    loadData()
+    intervalRef.current = setInterval(loadData, POLL_INTERVAL)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [loadData])
+
+  // Tipos unicos para filtro
+  const actionsUnicos = ['TODOS', ...new Set(events.map(e => e.action))]
+
+  // ─── Colunas ──────────────────────────────────────────────────────────
+
   const colunasEventos: TabelaGlobalColuna<SecurityEvent>[] = [
-    { key: 'timestamp', label: 'Horario', width: '140px' },
     {
-      key: 'severidade', label: 'Severidade', width: '100px',
+      key: 'created_at', label: 'Horario', width: '140px',
+      render: (row) => new Date(row.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit' }),
+    },
+    {
+      key: 'severity', label: 'Severidade', width: '100px',
       render: (row) => (
-        <span style={{
-          ...getSeveridadeStyle(row.severidade),
-          padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600,
-        }}>
-          {row.severidade}
+        <span style={{ ...getSeveridadeStyle(row.severity), padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
+          {row.severity}
         </span>
       ),
     },
     {
       key: 'status', label: 'Status', width: '90px',
       render: (row) => (
-        <span style={{
-          ...getStatusStyle(row.status),
-          padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600,
-        }}>
+        <span style={{ ...getStatusStyle(row.status), padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
           {row.status}
         </span>
       ),
     },
-    { key: 'tipo', label: 'Tipo', width: '200px' },
-    { key: 'tenant', label: 'Tenant', width: '120px' },
-    { key: 'actor', label: 'Ator', width: '110px' },
-    { key: 'descricao', label: 'Descricao' },
+    { key: 'action', label: 'Tipo', width: '200px' },
+    { key: 'tenant_id', label: 'Tenant', width: '120px' },
+    { key: 'actor_id', label: 'Ator', width: '110px' },
+    { key: 'description', label: 'Descricao', render: (row) => <span title={row.description || ''}>{(row.description || '').slice(0, 80)}</span> },
     { key: 'ip', label: 'IP', width: '120px' },
   ]
 
-  // Colunas da tabela de rate limiting
+  const colunasHealth: TabelaGlobalColuna<ServiceHealthEntry>[] = [
+    {
+      key: 'service', label: 'Servico', width: '180px',
+      render: (row) => (
+        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {getCamadaIcon(row.status)} {row.service}
+        </span>
+      ),
+    },
+    {
+      key: 'status', label: 'Status', width: '100px',
+      render: (row) => <span style={{ color: statusColor(row.status), fontWeight: 700 }}>{row.status}</span>,
+    },
+    {
+      key: 'latency_ms', label: 'Latencia', width: '100px',
+      render: (row) => <span style={{ color: row.latency_ms > 2000 ? '#fbbf24' : '#34d399' }}>{row.latency_ms}ms</span>,
+    },
+    { key: 'error', label: 'Erro', render: (row) => row.error || '-' },
+  ]
+
   const colunasRateLimit: TabelaGlobalColuna<RateLimitEntry>[] = [
-    { key: 'tenant', label: 'Tenant', width: '140px' },
-    { key: 'ip', label: 'IP', width: '130px' },
+    { key: 'tenant_id', label: 'Tenant', width: '140px', render: (row) => row.tenant_id || 'anonymous' },
+    { key: 'ip', label: 'IP', width: '130px', render: (row) => row.ip || '-' },
     { key: 'endpoint', label: 'Endpoint' },
     {
       key: 'count', label: 'Requests', width: '100px',
       render: (row) => (
-        <span style={{ color: row.count >= row.limit ? '#f87171' : '#34d399', fontWeight: 600 }}>
-          {row.count}/{row.limit}
+        <span style={{ color: row.blocked ? '#f87171' : '#34d399', fontWeight: 600 }}>
+          {row.count}/{row.limit_max}
         </span>
       ),
     },
@@ -185,17 +236,18 @@ export function SegurancaAdmin() {
         ? <span style={{ color: '#f87171', fontWeight: 600 }}>SIM</span>
         : <span style={{ color: '#64748b' }}>Nao</span>,
     },
-    { key: 'lastHit', label: 'Ultimo Hit', width: '100px' },
   ]
 
-  // Tipos unicos para filtro
-  const tiposUnicos = ['TODOS', ...new Set(EVENTS_MOCK.map(e => e.tipo))]
+  const overallOk = health?.overall === 'OK'
 
   return (
     <PaginaGlobal>
       <CabecalhoGlobal
         titulo="Seguranca"
-        subtitulo="Monitoramento em tempo real — sem pontos cegos"
+        subtitulo={
+          loading ? 'Carregando...' :
+          `Monitoramento em tempo real — atualizado ${lastUpdate} (a cada ${POLL_INTERVAL / 1000}s)`
+        }
         icone={<ShieldCheck weight="duotone" size={24} />}
       />
 
@@ -203,25 +255,25 @@ export function SegurancaAdmin() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         <StatCardGlobal
           titulo="Status Geral"
-          valor={allOk ? 'PROTEGIDO' : 'ATENCAO'}
-          icone={allOk ? <ShieldCheck weight="fill" size={22} /> : <ShieldWarning weight="fill" size={22} />}
-          cor={allOk ? '#10b981' : '#f59e0b'}
+          valor={loading ? '...' : (overallOk ? 'PROTEGIDO' : health?.overall || 'VERIFICANDO')}
+          icone={overallOk ? <ShieldCheck weight="fill" size={22} /> : <ShieldWarning weight="fill" size={22} />}
+          cor={overallOk ? '#10b981' : '#f59e0b'}
         />
         <StatCardGlobal
-          titulo="Eventos Criticos"
-          valor={String(criticalCount)}
+          titulo="Criticos (24h)"
+          valor={String(stats.criticalCount)}
           icone={<Warning weight="fill" size={22} />}
-          cor={criticalCount > 0 ? '#ef4444' : '#10b981'}
+          cor={stats.criticalCount > 0 ? '#ef4444' : '#10b981'}
         />
         <StatCardGlobal
-          titulo="Alertas"
-          valor={String(warningCount)}
+          titulo="Alertas (24h)"
+          valor={String(stats.warningCount)}
           icone={<ShieldWarning weight="fill" size={22} />}
-          cor={warningCount > 0 ? '#f59e0b' : '#10b981'}
+          cor={stats.warningCount > 0 ? '#f59e0b' : '#10b981'}
         />
         <StatCardGlobal
-          titulo="Bloqueados Hoje"
-          valor={String(blockedCount)}
+          titulo="Bloqueados (24h)"
+          valor={String(stats.blockedCount)}
           icone={<Lock weight="fill" size={22} />}
           cor="#6366f1"
         />
@@ -230,7 +282,7 @@ export function SegurancaAdmin() {
       {/* ── Abas ── */}
       <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--ws-border, #334155)' }}>
         {[
-          { key: 'overview' as const, label: 'Camadas de Defesa', icon: <ShieldCheck size={16} /> },
+          { key: 'health' as const, label: 'Servicos & Health', icon: <ShieldCheck size={16} /> },
           { key: 'events' as const, label: 'Eventos de Seguranca', icon: <Eye size={16} /> },
           { key: 'ratelimit' as const, label: 'Rate Limiting', icon: <Timer size={16} /> },
           { key: 'secrets' as const, label: 'Secrets & Rotacao', icon: <Key size={16} /> },
@@ -251,45 +303,45 @@ export function SegurancaAdmin() {
             {tab.icon} {tab.label}
           </button>
         ))}
+
+        {/* Botao refresh manual */}
+        <button
+          onClick={() => { setLoading(true); loadData() }}
+          style={{
+            marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.3rem',
+            padding: '0.4rem 0.8rem', border: 'none', cursor: 'pointer',
+            background: 'transparent', color: 'var(--ws-muted, #94a3b8)',
+            fontSize: '0.78rem',
+          }}
+        >
+          <ArrowsClockwise size={14} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />
+          Atualizar
+        </button>
       </div>
 
-      {/* ── Aba: Camadas de Defesa ── */}
-      {abaAtiva === 'overview' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {CAMADAS_MOCK.map((camada, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '1rem',
-                padding: '1rem 1.25rem',
-                background: 'var(--ws-surface, #1e293b)',
-                borderRadius: '8px',
-                border: '1px solid var(--ws-border, #334155)',
-              }}
-            >
-              {getCamadaIcon(camada.status)}
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--ws-text, #f1f5f9)' }}>
-                  Camada {idx + 1} — {camada.nome}
-                </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px' }}>
-                  {camada.detalhes}
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ ...getCamadaStatusStyle(camada.status), fontWeight: 700, fontSize: '0.85rem' }}>
-                  {camada.status}
-                </div>
-                <div style={{ fontSize: '0.7rem', color: 'var(--ws-muted, #64748b)', marginTop: '2px' }}>
-                  {camada.ultimoCheck}
-                </div>
-              </div>
+      {/* ── Aba: Servicos & Health ── */}
+      {abaAtiva === 'health' && (
+        health ? (
+          <>
+            <div style={{
+              padding: '0.75rem 1rem', marginBottom: '1rem',
+              background: 'var(--ws-surface, #1e293b)', borderRadius: '8px',
+              border: '1px solid var(--ws-border, #334155)',
+              fontSize: '0.82rem', color: 'var(--ws-muted, #94a3b8)',
+            }}>
+              <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>Resumo:</strong>{' '}
+              {health.summary.ok} OK, {health.summary.degraded} degradados, {health.summary.down} offline de {health.summary.total} servicos
             </div>
-          ))}
-        </div>
+            <TabelaGlobal dados={health.services} colunas={colunasHealth} keyField="service" mensagemVazio="Nenhum servico encontrado" />
+          </>
+        ) : (
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
+            {loading ? 'Verificando servicos...' : 'Nao foi possivel carregar o health check. Verifique se o backend esta rodando.'}
+          </div>
+        )
       )}
 
-      {/* ── Aba: Eventos de Seguranca ── */}
+      {/* ── Aba: Eventos ── */}
       {abaAtiva === 'events' && (
         <>
           <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
@@ -306,16 +358,16 @@ export function SegurancaAdmin() {
             />
             <SelectGlobal
               label="Tipo"
-              value={filtroTipo}
-              onChange={(e) => setFiltroTipo(e.target.value)}
-              options={tiposUnicos.map(t => ({ value: t, label: t.replace(/_/g, ' ') }))}
+              value={filtroAction}
+              onChange={(e) => setFiltroAction(e.target.value)}
+              options={actionsUnicos.map(t => ({ value: t, label: t.replace(/_/g, ' ') }))}
             />
           </div>
           <TabelaGlobal
-            dados={eventsFiltrados}
+            dados={events}
             colunas={colunasEventos}
             keyField="id"
-            mensagemVazio="Nenhum evento de seguranca registrado"
+            mensagemVazio={loading ? 'Carregando eventos...' : 'Nenhum evento de seguranca registrado nas ultimas 24h'}
           />
         </>
       )}
@@ -331,12 +383,18 @@ export function SegurancaAdmin() {
           }}>
             <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>Presets ativos:</strong>{' '}
             Publico (30/min) | Auth (10/min) | Webhook (100/min) | Interno (200/min)
+            <br />
+            <span style={{ fontSize: '0.75rem' }}>
+              Bloqueados na ultima hora: <strong style={{ color: rateMetrics.filter(m => m.blocked).length > 0 ? '#f87171' : '#34d399' }}>
+                {rateMetrics.filter(m => m.blocked).length}
+              </strong>
+            </span>
           </div>
           <TabelaGlobal
-            dados={RATE_LIMIT_MOCK}
+            dados={rateMetrics}
             colunas={colunasRateLimit}
-            keyField="ip"
-            mensagemVazio="Nenhum rate limit ativo"
+            keyField="id"
+            mensagemVazio={loading ? 'Carregando...' : 'Nenhum rate limit ativo na ultima hora'}
           />
         </>
       )}
@@ -344,13 +402,12 @@ export function SegurancaAdmin() {
       {/* ── Aba: Secrets & Rotacao ── */}
       {abaAtiva === 'secrets' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {[
-            { nome: 'INTERNAL_SERVICE_KEY', ultimaRotacao: '2026-01-15', proximaRotacao: '2026-04-15', status: 'OK' as const, dias: 17 },
-            { nome: 'CLERK_SECRET_KEY', ultimaRotacao: '2026-02-01', proximaRotacao: '2026-05-01', status: 'OK' as const, dias: 33 },
-            { nome: 'STRIPE_SECRET_KEY', ultimaRotacao: '2025-12-01', proximaRotacao: '2026-03-01', status: 'VENCIDA' as const, dias: -28 },
-            { nome: 'ENCRYPTION_KEY (AES)', ultimaRotacao: '2026-03-01', proximaRotacao: '2026-06-01', status: 'OK' as const, dias: 64 },
-            { nome: 'WHATSAPP_APP_SECRET', ultimaRotacao: '2026-02-15', proximaRotacao: '2026-05-15', status: 'OK' as const, dias: 47 },
-          ].map((secret, idx) => (
+          {secrets.length === 0 && !loading && (
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
+              Nao foi possivel carregar status dos secrets.
+            </div>
+          )}
+          {secrets.map((secret, idx) => (
             <div
               key={idx}
               style={{
@@ -358,24 +415,24 @@ export function SegurancaAdmin() {
                 padding: '1rem 1.25rem',
                 background: 'var(--ws-surface, #1e293b)',
                 borderRadius: '8px',
-                border: `1px solid ${secret.status === 'VENCIDA' ? '#7f1d1d' : 'var(--ws-border, #334155)'}`,
+                border: `1px solid ${!secret.configured ? '#7f1d1d' : 'var(--ws-border, #334155)'}`,
               }}
             >
-              <Key weight="duotone" size={20} style={{ color: secret.status === 'VENCIDA' ? '#f87171' : '#10b981' }} />
+              <Key weight="duotone" size={20} style={{ color: secret.configured ? '#10b981' : '#f87171' }} />
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--ws-text, #f1f5f9)' }}>
-                  {secret.nome}
+                  {secret.name}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px' }}>
-                  Ultima rotacao: {secret.ultimaRotacao} | Proxima: {secret.proximaRotacao}
+                  Prefixo: <code>{secret.prefix}</code>
                 </div>
               </div>
               <div style={{
                 padding: '3px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600,
-                background: secret.status === 'VENCIDA' ? '#7f1d1d' : '#14532d',
-                color: secret.status === 'VENCIDA' ? '#fca5a5' : '#86efac',
+                background: secret.configured ? '#14532d' : '#7f1d1d',
+                color: secret.configured ? '#86efac' : '#fca5a5',
               }}>
-                {secret.status === 'VENCIDA' ? `VENCIDA (${Math.abs(secret.dias)}d)` : `OK (${secret.dias}d)`}
+                {secret.configured ? 'CONFIGURADA' : 'AUSENTE'}
               </div>
             </div>
           ))}
@@ -390,6 +447,9 @@ export function SegurancaAdmin() {
           </div>
         </div>
       )}
+
+      {/* CSS para animacao do spinner */}
+      <style>{`@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
     </PaginaGlobal>
   )
 }

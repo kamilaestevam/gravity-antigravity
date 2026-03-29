@@ -124,6 +124,22 @@ Antes de qualquer tarefa, o agente DEVE:
 | API Design | `skills/gestao/api-design/SKILL.md` | Convenções REST, versionamento, paginação |
 | Onboarding Produto | `skills/gestao/onboarding-produto/SKILL.md` | Wizard de primeiro uso, dados demo, tutorial |
 
+### Dream Team de Produtos (11 skills — criação de novos produtos)
+
+| Skill | Caminho | Quando Consultar |
+|-------|---------|-----------------|
+| Projeto Gravity | `skills/dream-team-produtos/00-projeto-gravity.md` | Regras do ecossistema, design system, tenant isolation |
+| PM | `skills/dream-team-produtos/01-agente-pm.md` | PRD, entrevistas, MVP, checkpoints |
+| SME | `skills/dream-team-produtos/02-agente-sme.md` | Regras de negócio, legislação, armadilhas |
+| Data Analyst | `skills/dream-team-produtos/03-agente-data-analyst.md` | TAM/SAM/SOM, benchmarks, pricing |
+| Pesquisador | `skills/dream-team-produtos/04-agente-pesquisador.md` | Concorrentes, tendências, gaps |
+| UX Researcher | `skills/dream-team-produtos/05-agente-ux-researcher.md` | Personas, jornadas, fricções, testes |
+| Business Analyst | `skills/dream-team-produtos/06-agente-business-analyst.md` | Casos de uso, critérios de aceite, integrações |
+| Designer | `skills/dream-team-produtos/07-agente-designer.md` | Fluxos, wireframes, telas Solid Slate |
+| Tech Lead | `skills/dream-team-produtos/08-agente-tech-lead.md` | Viabilidade, arquitetura, estimativas |
+| Fluxo Completo | `skills/dream-team-produtos/09-time-fluxo-completo.md` | Workflow dos 8 agentes, 3 checkpoints |
+| Entregáveis/Handoff | `skills/dream-team-produtos/10-entregaveis-handoff.md` | Pacote de handoff para tecnologia |
+
 ---
 
 ## Regras Universais (Resumo do agent-policy)
@@ -229,7 +245,8 @@ gravity/
 
 Use `/comando` para ativar papéis e fluxos específicos:
 
-- `/dream-team-tecnologia` — **Carregar o time completo (57 skills, 11 papéis)**
+- `/dream-team-tecnologia` — **Carregar o time de tecnologia (57 skills, 11 papéis)**
+- `/dream-team-produtos` — **Carregar o time de produtos (11 skills, 8 agentes)**
 - `/lider` — Ativar modo Líder (análise + distribuição)
 - `/coordenar` — Ativar modo Coordenador (schema + contratos + ondas)
 - `/qa` — Ativar modo QA (revisão completa pós-entrega)

@@ -6,7 +6,7 @@ import { type Page, type APIRequestContext, expect } from '@playwright/test'
 
 export const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:5181'
 export const API_URL = process.env.E2E_API_URL ?? BASE_URL
-export const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? 'test-internal-key'
+export const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? 'gravity-dev-internal-key-2026'
 export const TENANT_ID = 'tenant-teste'
 export const USER_ID = 'user-teste'
 

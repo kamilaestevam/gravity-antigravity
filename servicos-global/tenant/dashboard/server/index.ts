@@ -1,8 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
+import helmet from 'helmet';
 import routes from './routes';
 import { AppError } from './lib/errors';
 
 const app = express();
+app.use(helmet());
 app.use(express.json());
 
 // ---------------------------------------------------------------------------

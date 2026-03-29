@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
-import { ToastContainer, useShellStore, useUserPreferences } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
   Crown,
@@ -49,6 +49,8 @@ export function WorkspaceLayout() {
   const { user } = useUser()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
 
+  // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
+  useSyncClerkToShell()
   // Sincroniza preferências de UI com o backend (cross-device)
   useUserPreferences({ userId: user?.id, tenantId: user?.organizationMemberships?.[0]?.organization?.id ?? 'importes-sa' })
   const isLight = currentTheme === 'light'

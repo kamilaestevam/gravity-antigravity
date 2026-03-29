@@ -1,11 +1,11 @@
 // vite.config.ts — produto/simula-custo/client
-// Skill: antigravity-criar-produto (Passo 3)
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const monorepoRoot = path.resolve(__dirname, '../../..')
 
 // Raiz do nucleo-global
 const nucleo = (subpath: string) =>
@@ -15,6 +15,7 @@ export default defineConfig({
   plugins: [react()],
 
   resolve: {
+    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom'],
     alias: {
       // ── Botoes ──
       '@nucleo/botao-global':                     nucleo('Botoes/botao-global/src/index.ts'),
@@ -53,22 +54,36 @@ export default defineConfig({
       // ── Utilidades ──
       '@nucleo/utils':                             nucleo('Utilidades/utils/src/index.ts'),
       // ── Shell / serviços ──
-      '@shell':   path.resolve(__dirname, '../../../servicos-global/shell'),
-      '@tenant':  path.resolve(__dirname, '../../../servicos-global/tenant'),
-      '@produto': path.resolve(__dirname, '../../../servicos-global/produto'),
-    }
+      '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
+      '@shell':   path.resolve(monorepoRoot, 'servicos-global/shell'),
+      '@tenant/gabi': path.resolve(monorepoRoot, 'servicos-global/tenant/gabi'),
+      '@tenant':  path.resolve(monorepoRoot, 'servicos-global/tenant'),
+      '@produto': path.resolve(monorepoRoot, 'servicos-global/produto'),
+    },
+  },
+
+  // Garante que o Vite encontre deps no parent node_modules (workspace hoisting)
+  optimizeDeps: {
+    include: [
+      'zustand',
+      'zustand/middleware',
+      'react-i18next',
+      'i18next',
+      '@phosphor-icons/react',
+      '@clerk/clerk-react',
+    ],
   },
 
   server: {
-    port: 8001,
+    port: 5180,
     fs: {
-      allow: ['../../..']
+      allow: [monorepoRoot],
     },
     proxy: {
       '/api': {
         target: 'http://localhost:8020',
         changeOrigin: true,
-      }
-    }
-  }
+      },
+    },
+  },
 })

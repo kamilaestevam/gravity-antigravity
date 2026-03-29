@@ -6,17 +6,22 @@
  * O PRODUCT_CONFIG define quais menus aparecem e quais serviços de tenant são acessados.
  */
 
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from '@shell'
+import { useShellStore } from '@gravity/shell'
 import { PRODUCT_CONFIG } from './shared/config'
+import { setApiContext } from './shared/api'
 
-  // Lazy loading das telas do produto
+// Lazy loading das telas do produto
+const EstimativasDashboard = lazy(() => import('./pages/estimativas/EstimativasDashboard'))
+const ImportarMassa = lazy(() => import('./pages/importar/ImportarMassa'))
+
+// Direct imports for debugging
 import DashboardSimulaCusto from './pages/dashboard/DashboardSimulaCusto'
 import EstimativasPage from './pages/estimativas/Estimativas'
 import RelatoriosPage from './pages/relatorios/Relatorios'
 
-// Keep lazy for others if needed, but for now let's simplify for debugging
 const Dashboard = DashboardSimulaCusto
 const Estimativas = EstimativasPage
 const Relatorios = RelatoriosPage
@@ -38,22 +43,30 @@ const LoadingFallback = () => (
   </div>
 )
 
-import { 
-  Calculator, 
-  Upload, 
-  ChartBar, 
-  CheckCircle, 
-  FileText, 
-  Clock, 
+import {
+  Calculator,
+  Upload,
+  ChartBar,
+  CheckCircle,
+  FileText,
+  Clock,
   Sparkle,
   Envelope,
   ChatCircle
 } from '@phosphor-icons/react'
 
-import { useShellStore } from '@shell'
-
-export function App() {
+export default function App() {
   const { currentUser, setCurrentUser } = useShellStore()
+
+  // Injeta contexto do tenant na camada de API do produto
+  useEffect(() => {
+    if (currentUser.tenantId) {
+      setApiContext({
+        tenantId: currentUser.tenantId,
+        userId: currentUser.id,
+      })
+    }
+  }, [currentUser.tenantId, currentUser.id])
 
   // Initialize mock user for demonstration
   React.useEffect(() => {
@@ -104,7 +117,10 @@ export function App() {
         <Routes>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="estimativas" element={<Estimativas />} />
+          <Route path="estimativas" element={<EstimativasDashboard />} />
+          <Route path="estimativas/nova" element={<Estimativas />} />
+          <Route path="estimativas/:id" element={<Estimativas />} />
+          <Route path="importar" element={<ImportarMassa />} />
           <Route path="relatorios" element={<Relatorios />} />
 
           {/* Serviços de tenant globais (Meu Espaço) */}
@@ -117,7 +133,7 @@ export function App() {
           {/* Rota para Teste de Inversão de Contexto */}
           <Route path="processo/:id/*" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}><h1>Dentro do Processo (Deep Work)</h1><p>O Menu Lateral sumiu e você está isolado aqui.</p></div>} />
 
-          {/* Serviços de tenant são renderizados pelo Shell automaticamente via PRODUCT_CONFIG se configurado no roteador global */}
+          {/* Serviços de tenant são renderizados pelo Shell automaticamente via PRODUCT_CONFIG */}
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Routes>
       </Suspense>
@@ -128,4 +144,3 @@ export function App() {
 
 // Exporta o config para uso pelo Shell
 export { PRODUCT_CONFIG }
-export default App

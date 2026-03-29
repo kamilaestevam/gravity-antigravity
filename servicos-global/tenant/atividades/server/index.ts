@@ -4,6 +4,7 @@
 // NOTA: Nunca hardcode a porta — use apenas process.env.
 
 import express from 'express'
+import helmet from 'helmet'
 import { correlationMiddleware } from './middleware/correlation.js'
 import { errorHandler } from './middleware/error-handler.js'
 import { prisma } from './lib/prisma.js'
@@ -16,7 +17,13 @@ import { kanbanRouter } from './routes/kanban.js'
 const app = express()
 
 // ---------------------------------------------------------------------------
-// 1. Parse de body
+// 1. Security Headers
+// ---------------------------------------------------------------------------
+
+app.use(helmet())
+
+// ---------------------------------------------------------------------------
+// 2. Parse de body
 // ---------------------------------------------------------------------------
 
 app.use(express.json())

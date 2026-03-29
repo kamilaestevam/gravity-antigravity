@@ -1,248 +1,742 @@
 /**
- * DetalheFornecedor.tsx — Detalhe do fornecedor
- * Info, tabela de precos, avaliacoes, rating global
+ * DetalheFornecedor.tsx — Detalhe do Fornecedor (T5)
+ * Skill: antigravity-design-system, antigravity-componentes
+ *
+ * Tabs: Info, Tabela de Precos, Avaliacoes
+ * Rating summary cards + star displays
  */
 
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { fornecedoresApi, avaliacoesApi } from '../shared/api.js'
-import type { Fornecedor, TabelaPreco, RatingFornecedor } from '../shared/types.js'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import {
+  Buildings,
+  ArrowLeft,
+  Star,
+  ChartBar,
+  Percent,
+  Timer,
+  FileText,
+  Globe,
+  Phone,
+  EnvelopeSimple,
+  WhatsappLogo,
+  CheckCircle,
+  XCircle,
+  Flag,
+  MapPin,
+  IdentificationCard,
+} from '@phosphor-icons/react'
+
+import { getFornecedor, getTabelaPrecos, getAvaliacoes } from '../shared/api'
+import type {
+  Fornecedor,
+  TabelaPreco,
+  Avaliacao,
+  TipoFornecedor,
+  StatusFornecedor,
+  ModalFrete,
+  ModalidadeCarga,
+} from '../shared/types'
+import {
+  TIPO_FORNECEDOR_LABELS,
+  STATUS_FORNECEDOR_LABELS,
+  MODAL_LABELS,
+  MODALIDADE_LABELS,
+} from '../shared/types'
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+const dataBR = (iso: string) =>
+  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+const moeda = (val: number, currency: string) =>
+  `${currency} ${new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)}`
+
+// ─── Status/Tipo badge colors ───────────────────────────────────────────────
+
+const STATUS_FORNECEDOR_COLORS: Record<StatusFornecedor, { bg: string; color: string }> = {
+  ATIVO:              { bg: 'rgba(34,197,94,0.15)',   color: 'var(--success, #22c55e)' },
+  INATIVO:            { bg: 'rgba(100,116,139,0.15)', color: 'var(--text-muted, #64748b)' },
+  PENDENTE_APROVACAO: { bg: 'rgba(245,158,11,0.15)',  color: 'var(--warning, #f59e0b)' },
+  BLOQUEADO:          { bg: 'rgba(239,68,68,0.15)',   color: 'var(--danger, #ef4444)' },
+}
+
+const TIPO_FORNECEDOR_COLORS: Record<TipoFornecedor, { bg: string; color: string }> = {
+  AGENTE_CARGA:   { bg: 'rgba(34,197,94,0.15)',  color: 'var(--success, #22c55e)' },
+  ARMADOR:        { bg: 'rgba(99,102,241,0.15)',  color: 'var(--accent, #6366f1)' },
+  CIA_AEREA:      { bg: 'rgba(245,158,11,0.15)',  color: 'var(--warning, #f59e0b)' },
+  TRANSPORTADORA: { bg: 'rgba(239,68,68,0.15)',   color: 'var(--danger, #ef4444)' },
+}
+
+// ─── Stars renderer ─────────────────────────────────────────────────────────
+
+function Stars({ rating, size = 14 }: { rating: number | null; size?: number }) {
+  if (rating == null) return <span style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.75rem' }}>—</span>
+  const full = Math.round(rating)
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '1px' }}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <Star
+          key={i}
+          weight={i <= full ? 'fill' : 'regular'}
+          size={size}
+          style={{ color: i <= full ? 'var(--warning, #f59e0b)' : 'var(--text-muted, #64748b)' }}
+        />
+      ))}
+    </span>
+  )
+}
+
+// ─── Badge inline ───────────────────────────────────────────────────────────
+
+function Badge({ label, bg, color }: { label: string; bg: string; color: string }) {
+  return (
+    <span style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '0.2rem 0.6rem',
+      borderRadius: 'var(--radius-pill, 9999px)',
+      fontSize: '0.75rem',
+      fontWeight: 600,
+      background: bg,
+      color,
+    }}>
+      {label}
+    </span>
+  )
+}
+
+// ─── Tab type ───────────────────────────────────────────────────────────────
+
+type TabKey = 'info' | 'precos' | 'avaliacoes'
+
+// ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function DetalheFornecedor() {
-  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { id } = useParams()
   const [fornecedor, setFornecedor] = useState<Fornecedor | null>(null)
   const [tabela, setTabela] = useState<TabelaPreco[]>([])
-  const [rating, setRating] = useState<RatingFornecedor | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'info' | 'tabela' | 'avaliacoes'>('info')
+  const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [tab, setTab] = useState<TabKey>('info')
 
-  useEffect(() => {
+  const carregar = useCallback(async () => {
     if (!id) return
-    setLoading(true)
-    Promise.all([
-      fornecedoresApi.detalhe(id),
-      fornecedoresApi.listarTabela(id),
-      avaliacoesApi.ratingFornecedor(id).catch(() => null),
-    ]).then(([fornRes, tabRes, ratingRes]) => {
-      setFornecedor(fornRes.fornecedor || fornRes)
-      setTabela(tabRes.tabela || tabRes || [])
-      if (ratingRes) setRating(ratingRes.rating || ratingRes)
-    }).catch(err => {
-      setError(err.message || 'Erro ao carregar fornecedor')
-    }).finally(() => setLoading(false))
+    setCarregando(true)
+    try {
+      const [forn, precos, avs] = await Promise.all([
+        getFornecedor(id),
+        getTabelaPrecos(id),
+        getAvaliacoes(id),
+      ])
+      setFornecedor(forn)
+      setTabela(precos)
+      setAvaliacoes(avs)
+    } catch {
+      // loading state
+    } finally {
+      setCarregando(false)
+    }
   }, [id])
 
-  if (loading) return <div className="p-8">Carregando fornecedor...</div>
-  if (error) return <div className="p-8 text-red-600">{error}</div>
-  if (!fornecedor) return <div className="p-8 text-gray-500">Fornecedor nao encontrado</div>
+  useEffect(() => { carregar() }, [carregar])
+
+  // ─── Tabela de Precos columns ─────────────────────────────────────────
+
+  const colunasPrecos: TabelaGlobalColuna<TabelaPreco>[] = [
+    {
+      key: 'origem_nome',
+      label: 'Origem → Destino',
+      tipo: 'texto',
+      largura: 240,
+      render: (_val: string, item: TabelaPreco) => (
+        <span style={{ fontSize: '0.8125rem', color: 'var(--text-primary, #f1f5f9)' }}>
+          {item.origem_nome} <span style={{ color: 'var(--text-muted)' }}>→</span> {item.destino_nome}
+        </span>
+      ),
+    },
+    {
+      key: 'modal',
+      label: 'Modal',
+      tipo: 'texto',
+      largura: 100,
+      render: (val: ModalFrete) => MODAL_LABELS[val] ?? val,
+    },
+    {
+      key: 'modalidade',
+      label: 'Modalidade',
+      tipo: 'texto',
+      largura: 100,
+      render: (val: ModalidadeCarga) => MODALIDADE_LABELS[val] ?? val,
+    },
+    {
+      key: 'moeda',
+      label: 'Moeda',
+      tipo: 'texto',
+      largura: 70,
+    },
+    {
+      key: 'valor_frete',
+      label: 'Frete',
+      tipo: 'numero',
+      largura: 110,
+      align: 'right',
+      render: (val: number, item: TabelaPreco) => (
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>
+          {moeda(val, item.moeda)}
+        </span>
+      ),
+    },
+    {
+      key: 'taxas_origem',
+      label: 'Taxas',
+      tipo: 'numero',
+      largura: 110,
+      align: 'right',
+      render: (_val: number, item: TabelaPreco) => (
+        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
+          {moeda(item.taxas_origem + item.taxas_destino, item.moeda)}
+        </span>
+      ),
+    },
+    {
+      key: 'transit_time_dias',
+      label: 'Transit Time',
+      tipo: 'numero',
+      largura: 100,
+      align: 'right',
+      render: (val: number) => (
+        <span style={{ fontSize: '0.8125rem' }}>{val} dias</span>
+      ),
+    },
+    {
+      key: 'validade_fim',
+      label: 'Validade',
+      tipo: 'periodo',
+      largura: 110,
+      render: (val: string) => dataBR(val),
+    },
+  ]
+
+  // ─── Info fields ──────────────────────────────────────────────────────
+
+  function InfoField({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
+    return (
+      <div className="bf-det-field">
+        <div className="bf-det-field-icon">{icon}</div>
+        <div className="bf-det-field-content">
+          <span className="bf-det-field-label">{label}</span>
+          <span className="bf-det-field-value">{value ?? '—'}</span>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────
+
+  const TABS: { key: TabKey; label: string; count?: number }[] = [
+    { key: 'info', label: 'Informacoes' },
+    { key: 'precos', label: 'Tabela de Precos', count: tabela.length },
+    { key: 'avaliacoes', label: 'Avaliacoes', count: avaliacoes.length },
+  ]
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <button onClick={() => navigate('/fornecedores')} className="text-sm text-blue-600 hover:underline mb-1 block">
-            Voltar para fornecedores
-          </button>
-          <h1 className="text-2xl font-bold">{fornecedor.nome}</h1>
-          {fornecedor.nome_fantasia && (
-            <p className="text-sm text-gray-500">{fornecedor.nome_fantasia}</p>
-          )}
+    <PaginaGlobal
+      className="bf-detalhe-forn"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Buildings weight="duotone" size={22} />}
+          titulo={fornecedor?.nome ?? 'Carregando...'}
+          subtitulo={fornecedor?.nome_fantasia ?? undefined}
+          acoes={
+            <button
+              className="btn btn-secondary"
+              onClick={() => navigate('/fornecedores')}
+            >
+              <ArrowLeft weight="bold" size={14} /> Voltar
+            </button>
+          }
+        />
+      }
+    >
+      {carregando && !fornecedor ? (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          height: '40vh', color: 'var(--text-muted, #64748b)', fontSize: '0.875rem',
+        }}>
+          Carregando fornecedor...
         </div>
-        <span className={`px-3 py-1 rounded text-sm font-medium ${
-          fornecedor.status === 'ATIVO' ? 'bg-green-100 text-green-700' :
-          fornecedor.status === 'BLOQUEADO' ? 'bg-red-100 text-red-700' :
-          'bg-gray-100 text-gray-600'
-        }`}>
-          {fornecedor.status}
-        </span>
-      </div>
-
-      {/* Rating Summary */}
-      {rating && (
-        <div className="grid grid-cols-5 gap-4">
-          <div className="bg-white rounded-lg border p-4 text-center">
-            <p className="text-sm text-gray-500">Rating Global</p>
-            <p className="text-3xl font-bold text-yellow-500">{rating.rating_global.toFixed(1)}</p>
-            <p className="text-xs text-gray-400">{rating.total_avaliacoes} avaliacao(oes)</p>
-          </div>
-          <div className="bg-white rounded-lg border p-4 text-center">
-            <p className="text-sm text-gray-500">Taxa de Resposta</p>
-            <p className="text-2xl font-bold">{(rating.taxa_resposta * 100).toFixed(0)}%</p>
-          </div>
-          <div className="bg-white rounded-lg border p-4 text-center">
-            <p className="text-sm text-gray-500">Taxa de Aprovacao</p>
-            <p className="text-2xl font-bold">{(rating.taxa_aprovacao * 100).toFixed(0)}%</p>
-          </div>
-          <div className="bg-white rounded-lg border p-4 text-center">
-            <p className="text-sm text-gray-500">Tempo Medio Resposta</p>
-            <p className="text-2xl font-bold">{rating.tempo_medio_resposta_horas.toFixed(0)}h</p>
-          </div>
-          <div className="bg-white rounded-lg border p-4 text-center">
-            <p className="text-sm text-gray-500">Cotacoes Recebidas</p>
-            <p className="text-2xl font-bold">{rating.total_cotacoes_recebidas}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex gap-1 border-b">
-        {([
-          { key: 'info', label: 'Informacoes' },
-          { key: 'tabela', label: `Tabela de Precos (${tabela.length})` },
-          { key: 'avaliacoes', label: 'Avaliacoes' },
-        ] as const).map(t => (
-          <button
-            key={t.key}
-            onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2 text-sm border-b-2 -mb-px ${
-              activeTab === t.key ? 'border-blue-600 text-blue-700 font-medium' : 'border-transparent text-gray-500'
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab: Info */}
-      {activeTab === 'info' && (
-        <div className="bg-white rounded-lg border p-4">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-gray-500">Tipo</p>
-              <p className="font-medium">{fornecedor.tipo}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">CNPJ</p>
-              <p className="font-medium">{fornecedor.cnpj || '-'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Email</p>
-              <p className="font-medium">{fornecedor.email}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Telefone</p>
-              <p className="font-medium">{fornecedor.telefone || '-'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">WhatsApp</p>
-              <p className="font-medium">{fornecedor.whatsapp || '-'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Website</p>
-              <p className="font-medium">{fornecedor.website || '-'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Pais / Cidade</p>
-              <p className="font-medium">{[fornecedor.cidade, fornecedor.pais].filter(Boolean).join(', ') || '-'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Cadastrado em</p>
-              <p className="font-medium">{new Date(fornecedor.created_at).toLocaleDateString('pt-BR')}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Aceita Cotacao Aberta</p>
-              <p className="font-medium">{fornecedor.aceita_cotacao_aberta ? 'Sim' : 'Nao'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Cotacao Automatica</p>
-              <p className="font-medium">{fornecedor.cotacao_automatica ? 'Sim' : 'Nao'}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab: Tabela de Precos */}
-      {activeTab === 'tabela' && (
-        <div className="bg-white rounded-lg border">
-          {tabela.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">Nenhuma tabela de preco cadastrada.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="p-3 text-left">Origem</th>
-                    <th className="p-3 text-left">Destino</th>
-                    <th className="p-3 text-left">Modal</th>
-                    <th className="p-3 text-right">Frete</th>
-                    <th className="p-3 text-right">Taxas Origem</th>
-                    <th className="p-3 text-right">Taxas Destino</th>
-                    <th className="p-3 text-right">Total</th>
-                    <th className="p-3 text-center">Transit</th>
-                    <th className="p-3 text-center">Validade</th>
-                    <th className="p-3 text-center">Ativa</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tabela.map(t => (
-                    <tr key={t.id} className="border-b">
-                      <td className="p-3">{t.origem_nome} ({t.origem_codigo})</td>
-                      <td className="p-3">{t.destino_nome} ({t.destino_codigo})</td>
-                      <td className="p-3">{t.modal} / {t.modalidade}</td>
-                      <td className="p-3 text-right">{t.moeda} {t.valor_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td className="p-3 text-right">{t.taxas_origem.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td className="p-3 text-right">{t.taxas_destino.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td className="p-3 text-right font-semibold">{t.moeda} {t.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td className="p-3 text-center">{t.transit_time_dias}d</td>
-                      <td className="p-3 text-center text-xs">
-                        {new Date(t.validade_inicio).toLocaleDateString('pt-BR')} - {new Date(t.validade_fim).toLocaleDateString('pt-BR')}
-                      </td>
-                      <td className="p-3 text-center">
-                        <span className={`px-2 py-0.5 rounded text-xs ${t.ativa ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                          {t.ativa ? 'Sim' : 'Nao'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Tab: Avaliacoes */}
-      {activeTab === 'avaliacoes' && rating && (
-        <div className="bg-white rounded-lg border p-4 space-y-4">
-          <h3 className="text-lg font-semibold">Detalhamento de Rating</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { label: 'Frete / Preco', value: rating.media_frete },
-              { label: 'Atendimento', value: rating.media_atendimento },
-              { label: 'Tempo de Resposta', value: rating.media_resposta },
-              { label: 'Confiabilidade', value: rating.media_confiabilidade },
-            ].map(item => (
-              <div key={item.label} className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 w-40">{item.label}</span>
-                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-yellow-400 rounded-full h-2"
-                    style={{ width: `${(item.value / 5) * 100}%` }}
-                  />
-                </div>
-                <span className="text-sm font-medium w-8 text-right">{item.value.toFixed(1)}</span>
+      ) : fornecedor ? (
+        <>
+          {/* ════════ Rating Summary Cards ════════ */}
+          <div className="bf-det-metrics">
+            <div className="bf-det-metric">
+              <div className="bf-det-metric-icon"><Star weight="duotone" size={18} style={{ color: 'var(--warning, #f59e0b)' }} /></div>
+              <div className="bf-det-metric-label">Rating Global</div>
+              <div className="bf-det-metric-value">
+                {fornecedor.rating_global != null ? fornecedor.rating_global.toFixed(1) : '—'}
               </div>
-            ))}
+              <Stars rating={fornecedor.rating_global} size={16} />
+            </div>
+            <div className="bf-det-metric">
+              <div className="bf-det-metric-icon"><Percent weight="duotone" size={18} style={{ color: 'var(--accent, #6366f1)' }} /></div>
+              <div className="bf-det-metric-label">Taxa Resposta</div>
+              <div className="bf-det-metric-value">
+                {fornecedor.taxa_resposta != null ? `${fornecedor.taxa_resposta.toFixed(0)}%` : '—'}
+              </div>
+            </div>
+            <div className="bf-det-metric">
+              <div className="bf-det-metric-icon"><ChartBar weight="duotone" size={18} style={{ color: 'var(--success, #22c55e)' }} /></div>
+              <div className="bf-det-metric-label">Taxa Aprovacao</div>
+              <div className="bf-det-metric-value">
+                {fornecedor.taxa_aprovacao != null ? `${fornecedor.taxa_aprovacao.toFixed(0)}%` : '—'}
+              </div>
+            </div>
+            <div className="bf-det-metric">
+              <div className="bf-det-metric-icon"><Timer weight="duotone" size={18} style={{ color: 'var(--warning, #f59e0b)' }} /></div>
+              <div className="bf-det-metric-label">Tempo Medio Resposta</div>
+              <div className="bf-det-metric-value">
+                {fornecedor.tempo_medio_resposta != null ? `${fornecedor.tempo_medio_resposta}h` : '—'}
+              </div>
+            </div>
+            <div className="bf-det-metric">
+              <div className="bf-det-metric-icon"><FileText weight="duotone" size={18} style={{ color: 'var(--text-secondary, #94a3b8)' }} /></div>
+              <div className="bf-det-metric-label">Total Cotacoes</div>
+              <div className="bf-det-metric-value">{fornecedor.total_cotacoes}</div>
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t">
-            <div className="text-center">
-              <p className="text-gray-500 text-sm">Respondidas</p>
-              <p className="text-xl font-bold">{rating.total_cotacoes_respondidas}</p>
+
+          {/* ════════ Tabs ════════ */}
+          <div className="bf-det-tabs-section">
+            <div className="bf-det-tabs">
+              {TABS.map(t => (
+                <button
+                  key={t.key}
+                  className={`bf-det-tab ${tab === t.key ? 'bf-det-tab--ativo' : ''}`}
+                  onClick={() => setTab(t.key)}
+                >
+                  {t.label}
+                  {t.count != null && (
+                    <span className="bf-det-tab-count">{t.count}</span>
+                  )}
+                </button>
+              ))}
             </div>
-            <div className="text-center">
-              <p className="text-gray-500 text-sm">Aprovadas</p>
-              <p className="text-xl font-bold text-green-600">{rating.total_cotacoes_aprovadas}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-gray-500 text-sm">Total de Avaliacoes</p>
-              <p className="text-xl font-bold">{rating.total_avaliacoes}</p>
-            </div>
+
+            {/* ── Tab: Info ── */}
+            {tab === 'info' && (
+              <div className="bf-det-info-grid">
+                <InfoField
+                  icon={<Buildings weight="duotone" size={16} />}
+                  label="Tipo"
+                  value={
+                    <Badge
+                      label={TIPO_FORNECEDOR_LABELS[fornecedor.tipo]}
+                      bg={TIPO_FORNECEDOR_COLORS[fornecedor.tipo].bg}
+                      color={TIPO_FORNECEDOR_COLORS[fornecedor.tipo].color}
+                    />
+                  }
+                />
+                <InfoField
+                  icon={<IdentificationCard weight="duotone" size={16} />}
+                  label="CNPJ"
+                  value={fornecedor.cnpj ?? '—'}
+                />
+                <InfoField
+                  icon={<EnvelopeSimple weight="duotone" size={16} />}
+                  label="Email"
+                  value={fornecedor.email}
+                />
+                <InfoField
+                  icon={<Phone weight="duotone" size={16} />}
+                  label="Telefone"
+                  value={fornecedor.telefone ?? '—'}
+                />
+                <InfoField
+                  icon={<WhatsappLogo weight="duotone" size={16} />}
+                  label="WhatsApp"
+                  value={fornecedor.whatsapp ?? '—'}
+                />
+                <InfoField
+                  icon={<Globe weight="duotone" size={16} />}
+                  label="Website"
+                  value={fornecedor.website ? (
+                    <a
+                      href={fornecedor.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--accent, #6366f1)', textDecoration: 'none' }}
+                    >
+                      {fornecedor.website}
+                    </a>
+                  ) : '—'}
+                />
+                <InfoField
+                  icon={<Flag weight="duotone" size={16} />}
+                  label="Pais"
+                  value={fornecedor.pais ?? '—'}
+                />
+                <InfoField
+                  icon={<MapPin weight="duotone" size={16} />}
+                  label="Cidade"
+                  value={fornecedor.cidade ?? '—'}
+                />
+                <InfoField
+                  icon={fornecedor.status === 'ATIVO'
+                    ? <CheckCircle weight="duotone" size={16} />
+                    : <XCircle weight="duotone" size={16} />
+                  }
+                  label="Status"
+                  value={
+                    <Badge
+                      label={STATUS_FORNECEDOR_LABELS[fornecedor.status]}
+                      bg={STATUS_FORNECEDOR_COLORS[fornecedor.status].bg}
+                      color={STATUS_FORNECEDOR_COLORS[fornecedor.status].color}
+                    />
+                  }
+                />
+                <InfoField
+                  icon={<CheckCircle weight="duotone" size={16} />}
+                  label="Aceita cotacao aberta"
+                  value={fornecedor.aceita_cotacao_aberta ? 'Sim' : 'Nao'}
+                />
+                <InfoField
+                  icon={<Timer weight="duotone" size={16} />}
+                  label="Resposta automatica"
+                  value={fornecedor.resposta_automatica ? 'Sim' : 'Nao'}
+                />
+                <InfoField
+                  icon={<FileText weight="duotone" size={16} />}
+                  label="Cadastrado em"
+                  value={dataBR(fornecedor.created_at)}
+                />
+              </div>
+            )}
+
+            {/* ── Tab: Tabela de Precos ── */}
+            {tab === 'precos' && (
+              <div className="bf-det-precos">
+                <TabelaGlobal
+                  dados={tabela}
+                  colunas={colunasPrecos}
+                  idKey="id"
+                  carregando={false}
+                  mensagemVazio="Nenhuma tabela de precos cadastrada"
+                  tooltipBusca="Buscar por origem ou destino"
+                />
+              </div>
+            )}
+
+            {/* ── Tab: Avaliacoes ── */}
+            {tab === 'avaliacoes' && (
+              <div className="bf-det-avaliacoes">
+                {avaliacoes.length === 0 ? (
+                  <div className="bf-det-avaliacao-empty">
+                    <Star weight="duotone" size={32} style={{ opacity: 0.3, color: 'var(--text-muted)' }} />
+                    <span>Nenhuma avaliacao registrada</span>
+                  </div>
+                ) : (
+                  avaliacoes.map(av => (
+                    <div key={av.id} className="bf-det-avaliacao-card">
+                      <div className="bf-det-avaliacao-header">
+                        <Stars rating={av.nota_global} size={16} />
+                        <span className="bf-det-avaliacao-nota">{av.nota_global.toFixed(1)}</span>
+                        <span className="bf-det-avaliacao-data">{dataBR(av.created_at)}</span>
+                      </div>
+                      <div className="bf-det-avaliacao-cats">
+                        <div className="bf-det-avaliacao-cat">
+                          <span className="bf-det-avaliacao-cat-label">Frete</span>
+                          <Stars rating={av.nota_frete} size={12} />
+                        </div>
+                        <div className="bf-det-avaliacao-cat">
+                          <span className="bf-det-avaliacao-cat-label">Atendimento</span>
+                          <Stars rating={av.nota_atendimento} size={12} />
+                        </div>
+                        <div className="bf-det-avaliacao-cat">
+                          <span className="bf-det-avaliacao-cat-label">Prazo</span>
+                          <Stars rating={av.nota_prazo} size={12} />
+                        </div>
+                        <div className="bf-det-avaliacao-cat">
+                          <span className="bf-det-avaliacao-cat-label">Confiabilidade</span>
+                          <Stars rating={av.nota_confiabilidade} size={12} />
+                        </div>
+                      </div>
+                      {av.comentario && (
+                        <div className="bf-det-avaliacao-comentario">
+                          {av.comentario}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </div>
+        </>
+      ) : (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          height: '40vh', color: 'var(--text-muted, #64748b)', fontSize: '0.875rem',
+        }}>
+          Fornecedor nao encontrado
         </div>
       )}
-    </div>
+
+      <style>{`
+        .bf-detalhe-forn { padding: 0; }
+
+        /* ── Metrics row ── */
+        .bf-det-metrics {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+        }
+        @media (max-width: 900px) {
+          .bf-det-metrics { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 600px) {
+          .bf-det-metrics { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .bf-det-metric {
+          background: var(--bg-surface, #334155);
+          border-radius: var(--radius-lg, 12px);
+          padding: 1rem 1.25rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.3rem;
+          align-items: center;
+          text-align: center;
+        }
+
+        .bf-det-metric-icon {
+          margin-bottom: 0.15rem;
+        }
+
+        .bf-det-metric-label {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-muted, #64748b);
+        }
+
+        .bf-det-metric-value {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--text-primary, #f1f5f9);
+          font-family: 'DM Mono', monospace;
+        }
+
+        /* ── Tabs section ── */
+        .bf-det-tabs-section {
+          background: var(--bg-surface, #334155);
+          border-radius: var(--radius-lg, 12px);
+          overflow: hidden;
+        }
+
+        .bf-det-tabs {
+          display: flex;
+          gap: 0.25rem;
+          padding: 0.75rem 1.25rem 0;
+          border-bottom: 1px solid var(--bg-elevated, #475569);
+        }
+
+        .bf-det-tab {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 0.875rem;
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: var(--text-secondary, #94a3b8);
+          background: none;
+          border: none;
+          border-bottom: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.15s;
+          font-family: inherit;
+          white-space: nowrap;
+        }
+        .bf-det-tab:hover { color: var(--text-primary, #f1f5f9); }
+        .bf-det-tab--ativo {
+          color: var(--accent, #6366f1);
+          border-bottom-color: var(--accent, #6366f1);
+        }
+
+        .bf-det-tab-count {
+          font-size: 0.6875rem;
+          font-weight: 700;
+          background: var(--bg-elevated, #475569);
+          color: var(--text-secondary, #94a3b8);
+          padding: 0.1rem 0.45rem;
+          border-radius: var(--radius-pill, 9999px);
+          min-width: 1.25rem;
+          text-align: center;
+        }
+        .bf-det-tab--ativo .bf-det-tab-count {
+          background: rgba(99,102,241,0.2);
+          color: var(--accent, #6366f1);
+        }
+
+        /* ── Info grid ── */
+        .bf-det-info-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0;
+          padding: 0;
+        }
+        @media (max-width: 700px) {
+          .bf-det-info-grid { grid-template-columns: 1fr; }
+        }
+
+        .bf-det-field {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+          padding: 1rem 1.25rem;
+          border-bottom: 1px solid var(--bg-elevated, #475569);
+        }
+
+        .bf-det-field-icon {
+          color: var(--text-muted, #64748b);
+          flex-shrink: 0;
+          margin-top: 0.1rem;
+        }
+
+        .bf-det-field-content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+          min-width: 0;
+        }
+
+        .bf-det-field-label {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-muted, #64748b);
+        }
+
+        .bf-det-field-value {
+          font-size: 0.875rem;
+          color: var(--text-primary, #f1f5f9);
+          word-break: break-word;
+        }
+
+        /* ── Precos tab ── */
+        .bf-det-precos {
+          overflow: hidden;
+        }
+
+        /* ── Avaliacoes tab ── */
+        .bf-det-avaliacoes {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          padding: 1rem 1.25rem;
+        }
+
+        .bf-det-avaliacao-empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 3rem 0;
+          color: var(--text-muted, #64748b);
+          font-size: 0.875rem;
+        }
+
+        .bf-det-avaliacao-card {
+          background: var(--bg-base, #1e293b);
+          border-radius: var(--radius-md, 8px);
+          padding: 1rem;
+          border: 1px solid var(--bg-elevated, #475569);
+        }
+
+        .bf-det-avaliacao-header {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .bf-det-avaliacao-nota {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--text-primary, #f1f5f9);
+          font-family: 'DM Mono', monospace;
+        }
+
+        .bf-det-avaliacao-data {
+          margin-left: auto;
+          font-size: 0.75rem;
+          color: var(--text-muted, #64748b);
+        }
+
+        .bf-det-avaliacao-cats {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+        }
+        @media (max-width: 700px) {
+          .bf-det-avaliacao-cats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .bf-det-avaliacao-cat {
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+        }
+
+        .bf-det-avaliacao-cat-label {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--text-muted, #64748b);
+        }
+
+        .bf-det-avaliacao-comentario {
+          font-size: 0.8125rem;
+          color: var(--text-secondary, #94a3b8);
+          line-height: 1.5;
+          padding-top: 0.75rem;
+          border-top: 1px solid var(--bg-elevated, #475569);
+          font-style: italic;
+        }
+
+        /* ── Botoes ── */
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1.25rem;
+          border-radius: var(--radius-pill, 9999px);
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          border: none;
+          font-family: inherit;
+        }
+        .btn-secondary {
+          background: var(--bg-surface, #334155);
+          color: var(--text-secondary, #94a3b8);
+          border: 1px solid var(--bg-elevated, #475569);
+        }
+        .btn-secondary:hover {
+          background: var(--bg-elevated, #475569);
+          color: var(--text-primary, #f1f5f9);
+        }
+      `}</style>
+    </PaginaGlobal>
   )
 }

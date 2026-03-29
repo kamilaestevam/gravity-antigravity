@@ -23,6 +23,9 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
           return query(args)
         },
         async findUnique({ args, query }: any) {
+          // Segurança: injetar tenant_id no where para impedir acesso cross-tenant
+          // via ID direto. Mesmo padrão do middleware global withTenantIsolation.
+          args.where = { ...args.where, tenant_id: tenantId }
           return query(args)
         },
         async create({ args, query }: any) {

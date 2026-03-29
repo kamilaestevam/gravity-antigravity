@@ -62,8 +62,11 @@ export default defineConfig({
       '@produto': path.resolve(__dirname, '../../produto'),
     },
   },
+  optimizeDeps: {
+    include: ['react-i18next', 'i18next', 'zustand', '@clerk/clerk-react', '@phosphor-icons/react'],
+  },
   server: {
-    port: 8000,
+    port: 5000,
     fs: {
       allow: ['../..'],
     },

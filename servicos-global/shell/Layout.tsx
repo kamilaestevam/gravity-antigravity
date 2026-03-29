@@ -6,6 +6,7 @@ import { ContextualSidebar } from './ContextualSidebar'
 import { useLocation } from 'react-router-dom'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
+import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -39,6 +40,9 @@ export function Layout({
   
   // Detecção Mágica de "Merculo/Deep Work"
   const isProcessoRoute = location.pathname.startsWith('/processo/')
+
+  // Carrega produtos permitidos para o tenant ao montar
+  useLoadAllowedProducts()
 
   // Sincroniza tema com body no mount e nas mudanças
   React.useEffect(() => {

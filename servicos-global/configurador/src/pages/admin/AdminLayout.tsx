@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { ToastContainer, useShellStore, useUserPreferences } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
@@ -21,6 +21,7 @@ import {
   RocketLaunch,
   Bug,
   Info,
+  ShieldCheck,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -35,6 +36,7 @@ const navItems = [
   { to: '/admin/historico',    label: 'Histórico Global', icon: <Desktop         weight="duotone" size={18} /> },
   { to: '/admin/deploy',       label: 'Deploy Railway',   icon: <CloudArrowUp    weight="duotone" size={18} /> },
   { to: '/admin/apis',         label: 'API Cockpit',      icon: <Pulse           weight="duotone" size={18} /> },
+  { to: '/admin/seguranca',    label: 'Seguranca',        icon: <ShieldCheck     weight="duotone" size={18} /> },
   { to: '/admin/testes',       label: 'Log de Testes',    icon: <Bug             weight="duotone" size={18} /> },
 ]
 
@@ -43,6 +45,8 @@ export function AdminLayout() {
   const { user } = useUser()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
 
+  // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
+  useSyncClerkToShell()
   // Sincroniza preferências de UI com o backend (cross-device)
   useUserPreferences({ userId: user?.id, tenantId: 'gravity-hq' })
   const isLight = currentTheme === 'light'

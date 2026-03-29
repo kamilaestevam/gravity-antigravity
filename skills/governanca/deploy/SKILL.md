@@ -283,6 +283,73 @@ Se um serviço em produção estiver fora do ar:
 
 ---
 
+## Auto-Scaling Rules (Dream Team)
+
+### Railway — Configuração por serviço
+
+| Serviço | Min | Max | CPU trigger | RAM trigger |
+|:---|:---|:---|:---|:---|
+| configurador | 1 | 3 | 70% | 80% |
+| tenant-services | 1 | 5 | 70% | 80% |
+| produtos | 1 | 3 | 70% | 80% |
+| marketplace | 0 | 2 | 60% | 70% |
+
+### Alertas de Custo
+
+| Threshold | Ação |
+|:---|:---|
+| 70% do budget | Alerta informativo (email) |
+| 80% do budget | Alerta de atenção (Slack) |
+| 90% do budget | Alerta crítico (Slack + Daniel) |
+| 95% do budget | Scaling horizontal BLOQUEADO |
+
+### Scale-to-Zero
+
+Apenas **marketplace** pode ir a zero instâncias. Serviços com banco ativo **nunca** vão a zero.
+
+> Para detalhes completos, ver skill `antigravity-auto-scaling`.
+
+---
+
+## Fluxo Staging → Production com Aprovação Manual (Dream Team)
+
+```
+feature branch → PR → CI (lint + test:unit + test:functional + test:contracts)
+  → merge main → deploy automático em staging
+  → testes E2E rodam em staging
+  → aprovação manual (environment: production no GitHub)
+  → promote para production
+  → monitorar por 30 min
+```
+
+**Regras de aprovação:**
+- QA valida em staging
+- Líder Técnico aprova o deploy
+- Nenhum deploy em sexta-feira após 16h (exceto P0)
+
+---
+
+## Backup Antes de Migration Destrutiva (Dream Team)
+
+**OBRIGATÓRIO** — antes de qualquer migration que remove ou altera colunas:
+
+```bash
+# 1. Backup manual
+railway run pg_dump $DATABASE_URL > backup_pre_migration_$(date +%Y%m%d).sql
+
+# 2. Upload para storage externo
+aws s3 cp backup_pre_migration_*.sql s3://gravity-backups/pre-migration/
+
+# 3. Verificar tamanho (sanity check)
+ls -lh backup_pre_migration_*.sql
+```
+
+Sem backup confirmado → migration **NÃO** pode ser executada.
+
+> Para estratégia completa de backup, ver skill `antigravity-backup-disaster-recovery`.
+
+---
+
 ## Checklist de Deploy
 
 ### Antes de qualquer deploy em produção
@@ -292,9 +359,13 @@ Se um serviço em produção estiver fora do ar:
 - [ ] Migration (se houver) foi testada em staging?
 - [ ] Backup manual feito (se migration destrutiva)?
 - [ ] Plano de rollback documentado?
+- [ ] Auto-scaling configurado para o serviço?
+- [ ] Alertas de custo ativos?
+- [ ] Aprovação manual do Líder Técnico obtida?
 
 ### Após deploy em produção
 - [ ] Health check do serviço deployado está ok?
 - [ ] Sentry não reportou novos erros críticos?
 - [ ] UptimeRobot confirma serviço ativo?
 - [ ] Fluxo principal do serviço validado manualmente?
+- [ ] Latência p95 dentro do budget (≤ 200ms)?

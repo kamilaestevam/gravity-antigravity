@@ -1,6 +1,6 @@
 ---
 name: antigravity-autenticacao-s2s
-description: "Use esta skill sempre que uma tarefa envolver comunicação service-to-service (S2S) — produto chamando serviço de tenant, serviço de tenant chamando Configurador, ou qualquer requisição entre serviços. Define os dois fluxos de autenticação (JWT Síncrono e Machine Token Assíncrono), quando usar cada um, como propagar o x-internal-key, a ordem dos middlewares e idempotência. Todo agente consulta esta skill antes de escrever qualquer chamada entre serviços."
+description: "Use esta skill sempre que uma tarefa envolver comunicação service-to-service (S2S) — produto chamando serviço de tenant, serviço de tenant chamando Configurador, ou qualquer requisição entre serviços. Define os dois fluxos de autenticação (JWT Síncrono e Machine Token Assíncrono), quando usar cada um, como propagar o x-internal-key, validação JWT independente, proxy de tenant, a ordem dos middlewares e idempotência. Todo agente consulta esta skill antes de escrever qualquer chamada entre serviços."
 ---
 
 # Gravity — Autenticação S2S (Service-to-Service)
@@ -180,6 +180,74 @@ async function processAction(idempotencyKey: string, payload: unknown) {
 
 ---
 
+## Validação JWT Independente — Cada Serviço Valida (Dream Team)
+
+**Regra inviolável:** o servidor de tenant NUNCA confia no produto cegamente. Ele valida o JWT de forma independente.
+
+```typescript
+// Em CADA serviço — configurador, tenant-services, produtos
+import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
+
+// O serviço valida o JWT por conta própria
+app.use(ClerkExpressRequireAuth())
+
+// Não basta o produto dizer "o usuário é X" — o serviço confirma
+```
+
+Isso significa que mesmo se um produto for comprometido, ele não pode se passar por um usuário arbitrário nos serviços de tenant.
+
+---
+
+## Proxy de Tenant — Padrão para Produtos (Dream Team)
+
+Todo produto que consome serviços de tenant usa um proxy que encapsula autenticação e retry:
+
+```typescript
+// servicos-global/tenant/proxy/index.ts
+import { PRODUCT_CONFIG } from './config'
+
+export function createTenantProxy(config: {
+  baseUrl: string
+  services: string[]
+}) {
+  const router = Router()
+
+  for (const service of config.services) {
+    router.use(`/${service}`, async (req, res) => {
+      try {
+        const response = await fetch(`${config.baseUrl}/api/v1/${service}${req.path}`, {
+          method: req.method,
+          headers: {
+            'Authorization': req.headers.authorization!,
+            'x-internal-key': process.env.INTERNAL_SERVICE_KEY!,
+            'x-correlation-id': req.correlationId,
+            'Content-Type': 'application/json',
+          },
+          body: ['POST', 'PUT', 'PATCH'].includes(req.method)
+            ? JSON.stringify(req.body) : undefined,
+        })
+        const data = await response.json()
+        res.status(response.status).json(data)
+      } catch (err) {
+        res.status(503).json({
+          error: { code: 'TENANT_SERVICE_UNAVAILABLE', message: 'Serviço temporariamente indisponível' }
+        })
+      }
+    })
+  }
+
+  return router
+}
+
+// No servidor do produto:
+app.use('/api/tenant', createTenantProxy({
+  baseUrl: process.env.TENANT_SERVICES_URL!,
+  services: PRODUCT_CONFIG.tenantServices,
+}))
+```
+
+---
+
 ## Checklist — Antes de Qualquer Chamada S2S
 
 - [ ] A chamada é síncrona (UI ativa)? → usar Fluxo 1 (JWT do usuário)
@@ -187,3 +255,5 @@ async function processAction(idempotencyKey: string, payload: unknown) {
 - [ ] O `x-internal-key` está sendo enviado em toda chamada interna?
 - [ ] O `x-correlation-id` está sendo propagado?
 - [ ] Se for retry/job, tem `X-Idempotency-Key` para evitar duplicação?
+- [ ] O serviço receptor valida o JWT independentemente?
+- [ ] O proxy de tenant está configurado no servidor do produto?

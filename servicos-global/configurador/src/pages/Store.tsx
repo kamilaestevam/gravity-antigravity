@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
   Package,
   CheckCircle,
   RocketLaunch,
+  LockSimple,
+  Calculator,
+  FileMagnifyingGlass,
   SpinnerGap,
   ArrowRight,
   ShoppingBagOpen,
@@ -12,6 +15,7 @@ import {
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { publicCatalogApi, type ProductApi } from '../services/apiClient'
 
 const API_URL = '/api/v1'
 
@@ -26,6 +30,76 @@ interface CatalogProduct {
   currency: string
   backend_module: string | null
 }
+
+// Mapa de ícones por slug para renderização dinâmica
+const ICON_MAP: Record<string, React.ReactNode> = {
+  'simula-custo': <Calculator weight="duotone" size={28} color="var(--color-primary)" />,
+  'smart-read': <FileMagnifyingGlass weight="duotone" size={28} color="var(--color-warning)" />,
+  'bid-frete': <Package weight="duotone" size={28} color="var(--color-success)" />,
+  'dashboard': <ChartBar weight="duotone" size={28} color="var(--color-primary)" />,
+  'whatsapp': <ChatCircleText weight="duotone" size={28} color="var(--color-success)" />,
+  'conector-erp': <Plugs weight="duotone" size={28} color="var(--color-primary)" />,
+  'gabi': <Sparkle weight="duotone" size={28} color="var(--color-warning)" />,
+  'helpdesk': <Headset weight="duotone" size={28} color="var(--color-text-muted)" />,
+}
+
+// Mapa de categorias por slug
+const CATEGORY_MAP: Record<string, string> = {
+  'simula-custo': 'Comércio Exterior',
+  'smart-read': 'Inteligência Documental',
+  'bid-frete': 'Logística',
+  'dashboard': 'Analytics',
+  'whatsapp': 'Atendimento',
+  'conector-erp': 'Integração',
+  'gabi': 'Machine Learning',
+  'helpdesk': 'Atendimento',
+}
+
+const BILLING_TYPE_LABELS: Record<string, string> = {
+  MONTHLY: '/mês',
+  PER_PROCESS: '/processo',
+  PER_DOCUMENT: '/documento',
+  PER_ESTIMATE: '/estimativa',
+  PER_DI_DUIMP: '/DI',
+  PER_DUE: '/DUE',
+  PER_PRODUCT: '/produto',
+  PER_FLOW: '/fluxo',
+  PER_LPCO: '/LPCO',
+}
+
+function formatPrice(value: string, currency: string): string {
+  const num = parseFloat(value)
+  if (isNaN(num)) return `${currency} 0,00`
+  const symbol = currency === 'BRL' ? 'R$' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency
+  return `${symbol} ${num.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
+}
+
+interface StoreProduct {
+  id: string
+  name: string
+  slug: string
+  category: string
+  icon: React.ReactNode
+  price: string
+  period: string
+  desc: string
+  status: 'owned' | 'trial' | 'available'
+}
+
+function apiToStoreProduct(p: ProductApi): StoreProduct {
+  return {
+    id: p.slug,
+    name: p.name,
+    slug: p.slug,
+    category: CATEGORY_MAP[p.slug] ?? 'Produto',
+    icon: ICON_MAP[p.slug] ?? <Package weight="duotone" size={28} color="var(--color-primary)" />,
+    price: formatPrice(p.unit_price, p.unit_currency),
+    period: BILLING_TYPE_LABELS[p.billing_type] ?? '/mês',
+    desc: p.description,
+    status: 'available',
+  }
+}
+
 
 interface SubscribedProduct {
   product_key: string

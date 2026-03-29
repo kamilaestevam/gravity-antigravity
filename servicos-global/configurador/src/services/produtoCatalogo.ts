@@ -329,6 +329,145 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
       },
     ],
   },
+
+  // ── BID Frete Internacional ─────────────────────────────────────────────────
+  {
+    id: 'bid-frete',
+    nome: 'BID Frete Internacional',
+    descricao: 'Licitação inteligente de fretes internacionais. Solicite, compare e aprove cotações de múltiplos fornecedores.',
+    baseUrl: 'https://api.gravity.com.br/bid-frete/v1',
+    versao: 'v1',
+    cor: '#34d399',
+    endpoints: [
+      {
+        method: 'POST',
+        path: '/cotacoes',
+        titulo: 'Criar Cotação',
+        descricao: 'Cria um novo pedido de cotação de frete internacional.',
+        requestBody: `{
+  "tipo_operacao": "IMPORTACAO",
+  "modal": "MARITIMO",
+  "modalidade": "FCL",
+  "origem_codigo": "CNSHA",
+  "origem_nome": "Shanghai",
+  "origem_pais": "China",
+  "destino_codigo": "BRSSZ",
+  "destino_nome": "Santos",
+  "destino_pais": "Brasil",
+  "descricao_mercadoria": "Auto Parts",
+  "incoterm": "FOB",
+  "quantidade": 2,
+  "tipo_container": "20DRY"
+}`,
+        responseBody: `{
+  "cotacao": {
+    "id": "cot_abc123",
+    "numero": "BID-20260328-0001",
+    "status": "RASCUNHO"
+  }
+}`,
+      },
+      {
+        method: 'GET',
+        path: '/cotacoes',
+        titulo: 'Listar Cotações',
+        descricao: 'Lista cotações do tenant com filtros e paginação.',
+        params: [
+          { nome: 'status', tipo: 'string', descricao: 'Filtrar por status (RASCUNHO, EM_COTACAO, APROVADA, etc.)', obrigatorio: false },
+          { nome: 'modal', tipo: 'string', descricao: 'Filtrar por modal (MARITIMO, AEREO, RODOVIARIO)', obrigatorio: false },
+          { nome: 'page', tipo: 'number', descricao: 'Página (default: 1)', obrigatorio: false },
+          { nome: 'limit', tipo: 'number', descricao: 'Itens por página (default: 20)', obrigatorio: false },
+        ],
+        responseBody: `{
+  "cotacoes": [...],
+  "pagination": { "page": 1, "limit": 20, "total": 50, "pages": 3 }
+}`,
+      },
+      {
+        method: 'POST',
+        path: '/bids/disparar',
+        titulo: 'Disparar BIDs',
+        descricao: 'Dispara solicitações de cotação para fornecedores via email e/ou WhatsApp.',
+        requestBody: `{
+  "cotacao_id": "cot_abc123",
+  "fornecedor_ids": ["f1", "f2", "f3"],
+  "canais": ["EMAIL", "WHATSAPP"]
+}`,
+        responseBody: `{
+  "disparos": 6,
+  "results": [...]
+}`,
+      },
+      {
+        method: 'GET',
+        path: '/comparativo/:cotacaoId',
+        titulo: 'Ranking Comparativo',
+        descricao: 'Ranqueia as respostas dos fornecedores por preço, transit time e avaliação.',
+        params: [
+          { nome: 'cotacaoId', tipo: 'string', descricao: 'ID da cotação', obrigatorio: true },
+        ],
+        responseBody: `{
+  "ranking": [
+    {
+      "fornecedor_nome": "Asia Shipping",
+      "valor_total": 2500,
+      "transit_time_dias": 30,
+      "ranking_preco": 1,
+      "tags": ["MELHOR_PRECO"]
+    }
+  ],
+  "saving": { "vs_target": 2500, "percentual": 50 }
+}`,
+      },
+      {
+        method: 'POST',
+        path: '/comparativo/:cotacaoId/aprovar',
+        titulo: 'Aprovar Cotação',
+        descricao: 'Aprova uma cotação selecionando o fornecedor vencedor (2 cliques).',
+        requestBody: `{
+  "response_id": "resp_xyz789"
+}`,
+        responseBody: `{
+  "approved": true,
+  "saving_percentual": 40
+}`,
+      },
+      {
+        method: 'POST',
+        path: '/fornecedores',
+        titulo: 'Cadastrar Fornecedor',
+        descricao: 'Cadastra um novo fornecedor (agente de carga, armador, cia aérea).',
+        requestBody: `{
+  "nome": "Asia Shipping",
+  "tipo": "AGENTE_CARGA",
+  "email": "contato@asiashipping.com",
+  "whatsapp": "+5511999999999"
+}`,
+        responseBody: `{
+  "fornecedor": {
+    "id": "f_abc123",
+    "nome": "Asia Shipping",
+    "status": "ATIVO"
+  }
+}`,
+      },
+      {
+        method: 'GET',
+        path: '/dashboard',
+        titulo: 'Dashboard KPIs',
+        descricao: 'Retorna KPIs do BID Frete: cotações em andamento, savings, funil de status.',
+        responseBody: `{
+  "cotacoes_andamento": 20,
+  "cotacoes_passadas": 369,
+  "valor_andamento_usd": 32555,
+  "savings": {
+    "media_saving_percentual": 14.3,
+    "total_valor_aprovado": 1332555
+  }
+}`,
+      },
+    ],
+  },
 ]
 
 /** Busca um produto pelo ID no catálogo */

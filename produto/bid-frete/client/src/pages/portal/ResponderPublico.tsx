@@ -1,247 +1,570 @@
 /**
- * ResponderPublico.tsx — Formulario publico para fornecedor responder via token (sem login)
- * Usa useParams para :token e portalPublicApi
+ * ResponderPublico.tsx — Formulario Publico de Resposta (sem login)
+ * Standalone full-screen, token validation, same form as ResponderCotacao
  */
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
-import { portalPublicApi } from '../../shared/api.js'
-import type { Cotacao } from '../../shared/types.js'
+import {
+  Truck,
+  CheckCircle,
+  WarningCircle,
+  CurrencyDollar,
+  Anchor,
+  AirplaneTilt,
+  Van,
+  MapPin,
+  Package,
+} from '@phosphor-icons/react'
 
-interface RespostaForm {
+import { getPublicCotacao, responderPublico } from '../../shared/api'
+import type { BidResponse, ModalFrete } from '../../shared/types'
+import { MODAL_LABELS } from '../../shared/types'
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+interface CotacaoPublica {
+  numero: string
+  origem_nome: string
+  destino_nome: string
+  modal: ModalFrete
+  incoterm: string
+  descricao_mercadoria: string
+  quantidade: number
+  peso_kg: number | null
+  fornecedor_nome: string
+}
+
+interface FormState {
   moeda: string
-  valor_frete: number
-  taxas_origem: number
-  taxas_destino: number
-  transit_time_dias: number
-  free_time_dias: number | undefined
-  validade_cotacao: string
-  transbordos: number
+  valor_frete: string
+  taxas_origem: string
+  taxas_destino: string
+  transit_time_dias: string
+  free_time_dias: string
+  validade: string
+  transbordos: string
   escalas: string
   observacoes: string
 }
 
-const EMPTY_FORM: RespostaForm = {
-  moeda: 'USD',
-  valor_frete: 0,
-  taxas_origem: 0,
-  taxas_destino: 0,
-  transit_time_dias: 0,
-  free_time_dias: undefined,
-  validade_cotacao: '',
-  transbordos: 0,
-  escalas: '',
-  observacoes: '',
+type PageState = 'loading' | 'invalid' | 'form' | 'success'
+
+const MOEDAS = ['USD', 'EUR', 'BRL', 'CNY', 'GBP']
+
+const MODAL_ICONS: Record<ModalFrete, React.ReactNode> = {
+  MARITIMO: <Anchor weight="duotone" size={18} />,
+  AEREO: <AirplaneTilt weight="duotone" size={18} />,
+  RODOVIARIO: <Van weight="duotone" size={18} />,
 }
 
-export default function ResponderPublico() {
-  const { token } = useParams<{ token: string }>()
-  const [cotacao, setCotacao] = useState<Cotacao | null>(null)
-  const [form, setForm] = useState<RespostaForm>(EMPTY_FORM)
-  const [loading, setLoading] = useState(true)
-  const [enviando, setEnviando] = useState(false)
-  const [error, setError] = useState('')
-  const [sucesso, setSucesso] = useState(false)
-  const [tokenInvalido, setTokenInvalido] = useState(false)
+// ─── Component ──────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    if (!token) return
-    portalPublicApi.verCotacao(token)
-      .then(res => setCotacao(res.cotacao || res))
-      .catch(() => setTokenInvalido(true))
-      .finally(() => setLoading(false))
+export default function ResponderPublico() {
+  const { token } = useParams()
+
+  const [pageState, setPageState] = useState<PageState>('loading')
+  const [cotacao, setCotacao] = useState<CotacaoPublica | null>(null)
+  const [enviando, setEnviando] = useState(false)
+  const [erro, setErro] = useState('')
+
+  const [form, setForm] = useState<FormState>({
+    moeda: 'USD',
+    valor_frete: '',
+    taxas_origem: '',
+    taxas_destino: '',
+    transit_time_dias: '',
+    free_time_dias: '',
+    validade: '',
+    transbordos: '0',
+    escalas: '',
+    observacoes: '',
+  })
+
+  const carregar = useCallback(async () => {
+    if (!token) {
+      setPageState('invalid')
+      return
+    }
+    try {
+      const data = await getPublicCotacao(token)
+      if (!data || Object.keys(data).length === 0) {
+        setPageState('invalid')
+        return
+      }
+      setCotacao(data as unknown as CotacaoPublica)
+      setPageState('form')
+    } catch {
+      setPageState('invalid')
+    }
   }, [token])
 
-  const update = (fields: Partial<RespostaForm>) => setForm(prev => ({ ...prev, ...fields }))
-  const valorTotal = form.valor_frete + form.taxas_origem + form.taxas_destino
+  useEffect(() => { carregar() }, [carregar])
 
-  async function enviar() {
+  const total = useMemo(() => {
+    const frete = parseFloat(form.valor_frete) || 0
+    const orig = parseFloat(form.taxas_origem) || 0
+    const dest = parseFloat(form.taxas_destino) || 0
+    return frete + orig + dest
+  }, [form.valor_frete, form.taxas_origem, form.taxas_destino])
+
+  const fmtTotal = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(total)
+
+  function handleChange(field: keyof FormState, value: string) {
+    setForm(prev => ({ ...prev, [field]: value }))
+    setErro('')
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
     if (!token) return
-    if (form.valor_frete <= 0) {
-      setError('Valor do frete deve ser maior que zero')
+
+    if (!form.valor_frete || !form.transit_time_dias || !form.validade) {
+      setErro('Preencha os campos obrigatorios: Valor Frete, Transit Time e Validade')
       return
     }
-    if (!form.validade_cotacao) {
-      setError('Validade da cotacao e obrigatoria')
-      return
-    }
+
     setEnviando(true)
-    setError('')
+    setErro('')
     try {
-      await portalPublicApi.responder(token, {
-        ...form,
-        valor_total: valorTotal,
-      })
-      setSucesso(true)
-    } catch (err: any) {
-      setError(err.message || 'Erro ao enviar resposta')
+      const payload: Partial<BidResponse> = {
+        moeda: form.moeda,
+        valor_frete: parseFloat(form.valor_frete),
+        taxas_origem: parseFloat(form.taxas_origem) || 0,
+        taxas_destino: parseFloat(form.taxas_destino) || 0,
+        valor_total: total,
+        transit_time_dias: parseInt(form.transit_time_dias, 10),
+        free_time_dias: form.free_time_dias ? parseInt(form.free_time_dias, 10) : null,
+        validade: form.validade,
+        transbordos: parseInt(form.transbordos, 10) || 0,
+        escalas: form.escalas || null,
+        observacoes: form.observacoes || null,
+      }
+      await responderPublico(token, payload)
+      setPageState('success')
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : 'Erro ao enviar resposta')
     } finally {
       setEnviando(false)
     }
   }
 
-  if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-500">Carregando cotacao...</p>
-    </div>
-  )
+  // ─── Render States ──────────────────────────────────────────────────────
 
-  if (tokenInvalido) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow-lg p-8 text-center max-w-md">
-        <h2 className="text-xl font-bold text-red-600 mb-2">Link invalido ou expirado</h2>
-        <p className="text-sm text-gray-500">
-          Este link de cotacao nao e valido ou ja expirou. Entre em contato com o comprador para obter um novo link.
-        </p>
+  if (pageState === 'loading') {
+    return (
+      <div className="rp-fullscreen">
+        <div className="rp-card rp-card--center">
+          <Truck weight="duotone" size={48} style={{ color: 'var(--accent, #6366f1)', opacity: 0.5 }} />
+          <p className="rp-text-muted">Carregando cotacao...</p>
+        </div>
+        <style>{rpStyles}</style>
       </div>
-    </div>
-  )
+    )
+  }
 
-  if (sucesso) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow-lg p-8 text-center max-w-md">
-        <h2 className="text-xl font-bold text-green-800 mb-2">Resposta enviada com sucesso!</h2>
-        <p className="text-sm text-green-600">
-          Sua proposta foi registrada e sera analisada pelo comprador. Voce recebera uma notificacao com o resultado.
-        </p>
+  if (pageState === 'invalid') {
+    return (
+      <div className="rp-fullscreen">
+        <div className="rp-card rp-card--center">
+          <WarningCircle weight="duotone" size={64} style={{ color: 'var(--danger, #ef4444)' }} />
+          <h2 className="rp-title">Link Invalido ou Expirado</h2>
+          <p className="rp-text-muted">
+            Este link de cotacao nao e mais valido. Ele pode ter expirado ou ja ter sido utilizado.
+          </p>
+          <p className="rp-text-muted">
+            Entre em contato com o comprador para solicitar um novo link.
+          </p>
+        </div>
+        <style>{rpStyles}</style>
       </div>
-    </div>
-  )
+    )
+  }
+
+  if (pageState === 'success') {
+    return (
+      <div className="rp-fullscreen">
+        <div className="rp-card rp-card--center">
+          <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success, #22c55e)' }} />
+          <h2 className="rp-title">Obrigado pela sua proposta</h2>
+          <p className="rp-text-muted">
+            Sua resposta foi enviada com sucesso e sera analisada pelo comprador.
+            Voce sera notificado sobre o resultado.
+          </p>
+        </div>
+        <style>{rpStyles}</style>
+      </div>
+    )
+  }
+
+  // ─── Form State ─────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="rp-fullscreen">
+      <div className="rp-card rp-card--form">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h1 className="text-2xl font-bold mb-1">Responder Cotacao de Frete</h1>
-          <p className="text-sm text-gray-500">Preencha os dados da sua proposta abaixo</p>
+        <div className="rp-header">
+          <Truck weight="duotone" size={32} style={{ color: 'var(--accent, #6366f1)' }} />
+          <div>
+            <h1 className="rp-title">BID Frete — Resposta de Cotacao</h1>
+            {cotacao?.fornecedor_nome && (
+              <p className="rp-text-muted">Bem-vindo, {cotacao.fornecedor_nome}</p>
+            )}
+          </div>
         </div>
 
-        {error && <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm">{error}</div>}
-
-        {/* Dados da cotacao */}
-        {cotacao && (
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-sm font-semibold mb-3 text-gray-700">Detalhes da Cotacao</h2>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-gray-500">Numero: </span>
-                <span className="font-mono">{cotacao.numero}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Rota: </span>
-                <span>{cotacao.origem_nome} ({cotacao.origem_pais}) → {cotacao.destino_nome} ({cotacao.destino_pais})</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Modal: </span>
-                <span>{cotacao.modal} / {cotacao.modalidade}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Incoterm: </span>
-                <span>{cotacao.incoterm}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Mercadoria: </span>
-                <span>{cotacao.descricao_mercadoria}</span>
-              </div>
-              <div>
-                <span className="text-gray-500">Quantidade: </span>
-                <span>{cotacao.quantidade} {cotacao.tipo_container || 'un'}</span>
-              </div>
-              {cotacao.peso_kg && (
-                <div>
-                  <span className="text-gray-500">Peso: </span>
-                  <span>{cotacao.peso_kg.toLocaleString()} kg</span>
-                </div>
-              )}
-              {cotacao.data_limite_resposta && (
-                <div>
-                  <span className="text-gray-500">Prazo: </span>
-                  <span className={new Date(cotacao.data_limite_resposta) < new Date() ? 'text-red-600 font-medium' : ''}>
-                    {new Date(cotacao.data_limite_resposta).toLocaleString('pt-BR')}
-                  </span>
-                </div>
-              )}
+        {/* Quote Details */}
+        <div className="rp-details">
+          <h3 className="rp-section-title">Detalhes da Cotacao</h3>
+          <div className="rp-detail-grid">
+            <div className="rp-detail-item">
+              <span className="rp-detail-label">Numero</span>
+              <span className="rp-detail-value rp-mono">{cotacao?.numero ?? '—'}</span>
+            </div>
+            <div className="rp-detail-item">
+              <span className="rp-detail-label">Rota</span>
+              <span className="rp-detail-value">
+                <MapPin weight="duotone" size={14} />
+                {cotacao?.origem_nome ?? '—'} &rarr; {cotacao?.destino_nome ?? '—'}
+              </span>
+            </div>
+            <div className="rp-detail-item">
+              <span className="rp-detail-label">Modal</span>
+              <span className="rp-detail-value">
+                {cotacao?.modal ? MODAL_ICONS[cotacao.modal] : null}
+                {cotacao?.modal ? MODAL_LABELS[cotacao.modal] : '—'}
+              </span>
+            </div>
+            <div className="rp-detail-item">
+              <span className="rp-detail-label">Incoterm</span>
+              <span className="rp-detail-value">{cotacao?.incoterm ?? '—'}</span>
+            </div>
+            <div className="rp-detail-item rp-detail-wide">
+              <span className="rp-detail-label">Carga</span>
+              <span className="rp-detail-value">
+                <Package weight="duotone" size={14} />
+                {cotacao?.descricao_mercadoria ?? '—'}
+                {cotacao?.quantidade != null ? ` / ${cotacao.quantidade} un` : ''}
+                {cotacao?.peso_kg != null ? ` / ${cotacao.peso_kg.toLocaleString('pt-BR')} kg` : ''}
+              </span>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Formulario */}
-        <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Sua Proposta</h2>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Moeda</label>
-              <select value={form.moeda} onChange={e => update({ moeda: e.target.value })} className="w-full border rounded p-2 text-sm">
-                <option value="USD">USD</option>
-                <option value="BRL">BRL</option>
-                <option value="EUR">EUR</option>
+        {/* Response Form */}
+        <form className="rp-form" onSubmit={handleSubmit}>
+          <h3 className="rp-section-title">Sua Proposta</h3>
+          <div className="rp-form-grid">
+            <div className="rp-field">
+              <label className="rp-label">Moeda *</label>
+              <select className="rp-input" value={form.moeda} onChange={e => handleChange('moeda', e.target.value)}>
+                {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Valor do Frete</label>
-              <input type="number" step="0.01" value={form.valor_frete || ''} onChange={e => update({ valor_frete: Number(e.target.value) })} className="w-full border rounded p-2 text-sm" placeholder="0.00" />
+            <div className="rp-field">
+              <label className="rp-label">Valor Frete *</label>
+              <input
+                className="rp-input rp-input--mono"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={form.valor_frete}
+                onChange={e => handleChange('valor_frete', e.target.value)}
+              />
+            </div>
+            <div className="rp-field">
+              <label className="rp-label">Taxas Origem</label>
+              <input
+                className="rp-input rp-input--mono"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={form.taxas_origem}
+                onChange={e => handleChange('taxas_origem', e.target.value)}
+              />
+            </div>
+            <div className="rp-field">
+              <label className="rp-label">Taxas Destino</label>
+              <input
+                className="rp-input rp-input--mono"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={form.taxas_destino}
+                onChange={e => handleChange('taxas_destino', e.target.value)}
+              />
+            </div>
+
+            <div className="rp-field rp-field--wide">
+              <label className="rp-label">Total</label>
+              <div className="rp-total-display">
+                <CurrencyDollar weight="duotone" size={18} />
+                <span className="rp-total-valor">{form.moeda} {fmtTotal}</span>
+              </div>
+            </div>
+
+            <div className="rp-field">
+              <label className="rp-label">Transit Time (dias) *</label>
+              <input
+                className="rp-input rp-input--mono"
+                type="number"
+                min="1"
+                placeholder="0"
+                value={form.transit_time_dias}
+                onChange={e => handleChange('transit_time_dias', e.target.value)}
+              />
+            </div>
+            <div className="rp-field">
+              <label className="rp-label">Free Time (dias)</label>
+              <input
+                className="rp-input rp-input--mono"
+                type="number"
+                min="0"
+                placeholder="0"
+                value={form.free_time_dias}
+                onChange={e => handleChange('free_time_dias', e.target.value)}
+              />
+            </div>
+            <div className="rp-field">
+              <label className="rp-label">Validade *</label>
+              <input
+                className="rp-input"
+                type="date"
+                value={form.validade}
+                onChange={e => handleChange('validade', e.target.value)}
+              />
+            </div>
+            <div className="rp-field">
+              <label className="rp-label">Transbordos</label>
+              <input
+                className="rp-input rp-input--mono"
+                type="number"
+                min="0"
+                placeholder="0"
+                value={form.transbordos}
+                onChange={e => handleChange('transbordos', e.target.value)}
+              />
+            </div>
+            <div className="rp-field">
+              <label className="rp-label">Escalas</label>
+              <input
+                className="rp-input"
+                type="text"
+                placeholder="Ex: Singapore, Colombo"
+                value={form.escalas}
+                onChange={e => handleChange('escalas', e.target.value)}
+              />
+            </div>
+            <div className="rp-field rp-field--wide">
+              <label className="rp-label">Observacoes</label>
+              <textarea
+                className="rp-input rp-textarea"
+                rows={3}
+                placeholder="Informacoes adicionais..."
+                value={form.observacoes}
+                onChange={e => handleChange('observacoes', e.target.value)}
+              />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Taxas de Origem</label>
-              <input type="number" step="0.01" value={form.taxas_origem || ''} onChange={e => update({ taxas_origem: Number(e.target.value) })} className="w-full border rounded p-2 text-sm" placeholder="0.00" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Taxas de Destino</label>
-              <input type="number" step="0.01" value={form.taxas_destino || ''} onChange={e => update({ taxas_destino: Number(e.target.value) })} className="w-full border rounded p-2 text-sm" placeholder="0.00" />
-            </div>
-          </div>
+          {erro && <p className="rp-erro">{erro}</p>}
 
-          <div className="bg-blue-50 rounded p-3 flex justify-between items-center">
-            <span className="text-sm font-medium">Valor Total</span>
-            <span className="text-lg font-bold">{form.moeda} {valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Transit Time (dias)</label>
-              <input type="number" value={form.transit_time_dias || ''} onChange={e => update({ transit_time_dias: Number(e.target.value) })} className="w-full border rounded p-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Free Time (dias)</label>
-              <input type="number" value={form.free_time_dias ?? ''} onChange={e => update({ free_time_dias: e.target.value ? Number(e.target.value) : undefined })} className="w-full border rounded p-2 text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Transbordos</label>
-              <input type="number" value={form.transbordos} onChange={e => update({ transbordos: Number(e.target.value) })} className="w-full border rounded p-2 text-sm" min={0} />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Validade da Cotacao</label>
-            <input type="date" value={form.validade_cotacao} onChange={e => update({ validade_cotacao: e.target.value })} className="w-full border rounded p-2 text-sm" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Escalas</label>
-            <input value={form.escalas} onChange={e => update({ escalas: e.target.value })} className="w-full border rounded p-2 text-sm" placeholder="ex: Singapore, Colombo" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Observacoes</label>
-            <textarea value={form.observacoes} onChange={e => update({ observacoes: e.target.value })} className="w-full border rounded p-2 text-sm h-20" placeholder="Informacoes adicionais..." />
-          </div>
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            onClick={enviar}
-            disabled={enviando}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
-          >
+          <button className="rp-btn-submit" type="submit" disabled={enviando}>
             {enviando ? 'Enviando...' : 'Enviar Proposta'}
           </button>
-        </div>
+        </form>
       </div>
+
+      <style>{rpStyles}</style>
     </div>
   )
 }
+
+// ─── Styles ─────────────────────────────────────────────────────────────────
+
+const rpStyles = `
+  .rp-fullscreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-body-dark, #0f172a);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    padding: 2rem;
+  }
+
+  .rp-card {
+    background: var(--bg-surface, #334155);
+    border-radius: var(--radius-lg, 12px);
+    max-width: 700px;
+    width: 100%;
+  }
+
+  .rp-card--center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 3rem;
+    gap: 0.75rem;
+  }
+
+  .rp-card--form {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .rp-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+    margin: 0;
+  }
+
+  .rp-text-muted {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+
+  /* Header */
+  .rp-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--bg-elevated, #475569);
+  }
+
+  /* Details */
+  .rp-details {
+    padding-bottom: 0.5rem;
+  }
+
+  .rp-section-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+    margin: 0 0 0.75rem;
+  }
+
+  .rp-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .rp-detail-wide { grid-column: 1 / -1; }
+
+  .rp-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .rp-detail-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #64748b);
+  }
+
+  .rp-detail-value {
+    font-size: 0.875rem;
+    color: var(--text-primary, #f1f5f9);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .rp-mono { font-family: 'DM Mono', monospace; font-weight: 600; }
+
+  /* Form */
+  .rp-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .rp-field--wide { grid-column: 1 / -1; }
+
+  .rp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .rp-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  .rp-input {
+    background: var(--bg-elevated, #475569);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md, 8px);
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-primary, #f1f5f9);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .rp-input:focus { border-color: var(--accent, #6366f1); }
+  .rp-input--mono { font-family: 'DM Mono', monospace; }
+  .rp-textarea { resize: vertical; min-height: 70px; }
+
+  .rp-total-display {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: var(--radius-md, 8px);
+    padding: 0.75rem 1rem;
+    color: var(--accent, #6366f1);
+  }
+
+  .rp-total-valor {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  .rp-erro {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--danger, #ef4444);
+    background: rgba(239,68,68,0.1);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md, 8px);
+  }
+
+  .rp-btn-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    font-family: inherit;
+    background: var(--accent, #6366f1);
+    color: #fff;
+    margin-top: 0.75rem;
+  }
+  .rp-btn-submit:hover { background: var(--accent-hover, #4f46e5); }
+  .rp-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+`

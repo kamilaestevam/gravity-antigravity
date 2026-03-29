@@ -45,7 +45,7 @@
       "pathPrefix": "/api/v1/simula-custo"
     },
     "helpdesk": {
-      "baseUrl": "http://localhost:8020",
+      "baseUrl": "http://localhost:8024",
       "pathPrefix": "/api/v1/helpdesk"
     },
     "cronometro": {
@@ -55,6 +55,10 @@
     "email": {
       "baseUrl": "http://localhost:8022",
       "pathPrefix": "/api/v1/email"
+    },
+    "bid-frete": {
+      "baseUrl": "http://localhost:8023",
+      "pathPrefix": "/api/v1/bid-frete"
     }
   }
 }

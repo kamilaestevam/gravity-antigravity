@@ -6,6 +6,7 @@
  */
 
 import express, { Request, Response, NextFunction } from 'express'
+import helmet from 'helmet'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
@@ -20,12 +21,30 @@ import { portalPublicRouter } from './routes/portalPublic.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { startCronJobs } from './services/cronJobs.js'
+import { rateLimitPresets } from '../../../../servicos-global/tenant/middleware/rateLimiter.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT ?? 8023
+
+// --- 0. Security Headers ---
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "ws://localhost:*"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}))
 
 // --- 1. Body Parser ---
 app.use(express.json({ limit: '10mb' }))
@@ -62,10 +81,10 @@ app.get('/health', async (_req: Request, res: Response) => {
 })
 
 // --- 5. Master Data — SEM autenticacao (portos, NCMs, incoterms sao dados publicos) ---
-app.use('/api/v1/master-data', masterDataRouter)
+app.use('/api/v1/master-data', rateLimitPresets.public(), masterDataRouter)
 
 // --- 6. Portal Publico do Fornecedor — SEM internal key (usa token de resposta) ---
-app.use('/api/v1/bid-frete/portal/public', portalPublicRouter)
+app.use('/api/v1/bid-frete/portal/public', rateLimitPresets.public(), portalPublicRouter)
 
 // --- 7. requireInternalKey — protege todas as rotas abaixo ---
 app.use(requireInternalKey)

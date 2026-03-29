@@ -1,311 +1,695 @@
 /**
- * DetalheCotacao.tsx — Detalhe de uma cotacao
- * Dados completos, BidRequests enviados, BidResponses recebidos, timeline de status
+ * DetalheCotacao.tsx — Detalhe de Cotação (T4)
+ * Skill: antigravity-design-system, antigravity-componentes
+ *
+ * Baseado nos prints: modelo 8, 9
+ * Layout: Header + Timeline + Dados + BidRequests + BidResponses
  */
 
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { cotacoesApi, bidsApi } from '../shared/api.js'
-import type { Cotacao, BidRequest, BidResponse, StatusCotacao } from '../shared/types.js'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
+import {
+  FileText,
+  ArrowLeft,
+  Trash,
+  PaperPlaneTilt,
+  Ranking,
+  CheckCircle,
+  Clock,
+  Eye,
+  Envelope,
+  ChatCircle,
+  Anchor,
+  AirplaneTilt,
+  Van,
+  MapPin,
+  Package,
+  Scales,
+  Warning,
+  XCircle,
+} from '@phosphor-icons/react'
 
-const STATUS_LABELS: Record<string, { label: string; cor: string }> = {
-  RASCUNHO: { label: 'Rascunho', cor: 'bg-gray-100 text-gray-700' },
-  ENVIADA_FORNECEDORES: { label: 'Enviada ao fornecedor', cor: 'bg-blue-100 text-blue-700' },
-  EM_COTACAO: { label: 'Em cotacao', cor: 'bg-indigo-100 text-indigo-700' },
-  AGUARDANDO_APROVACAO: { label: 'Aprovacao pendente', cor: 'bg-yellow-100 text-yellow-700' },
-  APROVADA: { label: 'Aprovada', cor: 'bg-green-100 text-green-700' },
-  REPROVADA: { label: 'Reprovada', cor: 'bg-red-100 text-red-700' },
-  CANCELADA: { label: 'Cancelada', cor: 'bg-gray-100 text-gray-500' },
-  FALTA_INFORMACAO: { label: 'Falta de informacao', cor: 'bg-orange-100 text-orange-700' },
-  EXPIRADA: { label: 'Expirada', cor: 'bg-gray-100 text-gray-500' },
+import { getCotacao, getBidsPorCotacao, mudarStatusCotacao, excluirCotacao } from '../shared/api'
+import type { Cotacao, BidRequest, StatusCotacao, StatusBidRequest } from '../shared/types'
+import {
+  STATUS_LABELS,
+  STATUS_BADGE,
+  MODAL_LABELS,
+  MODALIDADE_LABELS,
+  OPERACAO_LABELS,
+  CANAL_LABELS,
+  STATUS_BID_LABELS,
+} from '../shared/types'
+
+// ─── Formatação ──────────────────────────────────────────────────────────────
+
+const dataBR = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'
+
+const dataHoraBR = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
+
+const usd = (val: number | null) =>
+  val != null ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(val) : '—'
+
+// ─── Badge de Status ─────────────────────────────────────────────────────────
+
+const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
+  info:    { bg: 'rgba(59,130,246,0.15)',  color: '#6366f1' },
+  warning: { bg: 'rgba(245,158,11,0.15)',  color: '#f59e0b' },
+  success: { bg: 'rgba(34,197,94,0.15)',   color: '#22c55e' },
+  danger:  { bg: 'rgba(239,68,68,0.15)',   color: '#ef4444' },
+  default: { bg: 'rgba(100,116,139,0.15)', color: '#64748b' },
 }
 
-const BID_STATUS_LABELS: Record<string, { label: string; cor: string }> = {
-  PENDENTE: { label: 'Pendente', cor: 'bg-gray-100 text-gray-600' },
-  ENVIADO: { label: 'Enviado', cor: 'bg-blue-100 text-blue-700' },
-  VISUALIZADO: { label: 'Visualizado', cor: 'bg-indigo-100 text-indigo-700' },
-  RESPONDIDO: { label: 'Respondido', cor: 'bg-green-100 text-green-700' },
-  EXPIRADO: { label: 'Expirado', cor: 'bg-gray-100 text-gray-500' },
-  ERRO_ENVIO: { label: 'Erro no envio', cor: 'bg-red-100 text-red-700' },
+function Badge({ label, variante }: { label: string; variante: string }) {
+  const cores = BADGE_COLORS[variante] ?? BADGE_COLORS.default
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', padding: '0.2rem 0.6rem',
+      borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 600,
+      background: cores.bg, color: cores.color,
+    }}>
+      {label}
+    </span>
+  )
 }
 
-const TIMELINE_ORDER: StatusCotacao[] = [
-  'RASCUNHO', 'ENVIADA_FORNECEDORES', 'EM_COTACAO', 'AGUARDANDO_APROVACAO', 'APROVADA',
+// ─── BidRequest Status Badge ─────────────────────────────────────────────────
+
+const BID_STATUS_VARIANTE: Record<StatusBidRequest, string> = {
+  PENDENTE: 'default',
+  ENVIADO: 'info',
+  VISUALIZADO: 'info',
+  RESPONDIDO: 'success',
+  EXPIRADO: 'danger',
+  ERRO_ENVIO: 'danger',
+}
+
+// ─── Timeline ────────────────────────────────────────────────────────────────
+
+const TIMELINE_STEPS: { status: StatusCotacao; label: string }[] = [
+  { status: 'RASCUNHO', label: 'Rascunho' },
+  { status: 'ENVIADA_FORNECEDORES', label: 'Enviada' },
+  { status: 'EM_COTACAO', label: 'Em Cotação' },
+  { status: 'AGUARDANDO_APROVACAO', label: 'Aguardando' },
+  { status: 'APROVADA', label: 'Aprovada' },
 ]
 
-export default function DetalheCotacao() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const [cotacao, setCotacao] = useState<Cotacao | null>(null)
-  const [bids, setBids] = useState<BidRequest[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [actionLoading, setActionLoading] = useState(false)
-
-  useEffect(() => {
-    if (!id) return
-    setLoading(true)
-    Promise.all([
-      cotacoesApi.detalhe(id),
-      bidsApi.listarPorCotacao(id),
-    ]).then(([cotRes, bidsRes]) => {
-      setCotacao(cotRes.cotacao || cotRes)
-      setBids(bidsRes.bid_requests || bidsRes || [])
-    }).catch(err => {
-      setError(err.message || 'Erro ao carregar cotacao')
-    }).finally(() => setLoading(false))
-  }, [id])
-
-  async function mudarStatus(status: string) {
-    if (!id) return
-    setActionLoading(true)
-    try {
-      await cotacoesApi.mudarStatus(id, { status })
-      const res = await cotacoesApi.detalhe(id)
-      setCotacao(res.cotacao || res)
-    } catch (err: any) {
-      setError(err.message || 'Erro ao alterar status')
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  if (loading) return <div className="p-8">Carregando cotacao...</div>
-  if (error) return <div className="p-8 text-red-600">{error}</div>
-  if (!cotacao) return <div className="p-8 text-gray-500">Cotacao nao encontrada</div>
-
-  const responses: BidResponse[] = cotacao.bid_responses || bids.filter(b => b.response).map(b => b.response!)
-  const currentStatusIdx = TIMELINE_ORDER.indexOf(cotacao.status)
+function Timeline({ statusAtual }: { statusAtual: StatusCotacao }) {
+  const currentIdx = TIMELINE_STEPS.findIndex(s => s.status === statusAtual)
+  const isFinal = ['APROVADA', 'REPROVADA', 'CANCELADA', 'EXPIRADA'].includes(statusAtual)
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <button onClick={() => navigate('/cotacoes')} className="text-sm text-blue-600 hover:underline mb-1 block">
-            Voltar para cotacoes
-          </button>
-          <h1 className="text-2xl font-bold">Cotacao {cotacao.numero}</h1>
-          {cotacao.referencia_interna && (
-            <p className="text-sm text-gray-500">Ref: {cotacao.referencia_interna}</p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <span className={`px-3 py-1 rounded text-sm font-medium ${STATUS_LABELS[cotacao.status]?.cor || 'bg-gray-100'}`}>
-            {STATUS_LABELS[cotacao.status]?.label || cotacao.status}
-          </span>
-        </div>
-      </div>
-
-      {/* Timeline */}
-      <div className="bg-white rounded-lg border p-4">
-        <h2 className="text-sm font-semibold mb-3">Timeline</h2>
-        <div className="flex items-center gap-1">
-          {TIMELINE_ORDER.map((s, i) => {
-            const isActive = i <= currentStatusIdx
-            const isCurrent = s === cotacao.status
-            return (
-              <div key={s} className="flex items-center flex-1">
-                <div className={`flex-1 h-2 rounded ${isActive ? 'bg-blue-500' : 'bg-gray-200'}`} />
-                {isCurrent && (
-                  <span className="text-xs font-medium ml-1 whitespace-nowrap">
-                    {STATUS_LABELS[s]?.label}
-                  </span>
-                )}
+    <div className="dc-timeline">
+      {TIMELINE_STEPS.map((step, i) => {
+        const done = i <= currentIdx
+        const active = i === currentIdx
+        return (
+          <React.Fragment key={step.status}>
+            <div className={`dc-tl-step ${done ? 'dc-tl-step--done' : ''} ${active ? 'dc-tl-step--active' : ''}`}>
+              <div className="dc-tl-dot">
+                {done ? <CheckCircle weight="fill" size={16} /> : <Clock weight="duotone" size={16} />}
               </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Dados da Cotacao */}
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border p-4 space-y-3">
-          <h2 className="text-lg font-semibold">Dados da Cotacao</h2>
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p className="text-gray-500">Tipo de Operacao</p>
-              <p className="font-medium">{cotacao.tipo_operacao}</p>
+              <span className="dc-tl-label">{step.label}</span>
             </div>
-            <div>
-              <p className="text-gray-500">Modal</p>
-              <p className="font-medium">{cotacao.modal} / {cotacao.modalidade}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Origem</p>
-              <p className="font-medium">{cotacao.origem_nome} ({cotacao.origem_codigo})</p>
-              <p className="text-xs text-gray-400">{cotacao.origem_pais}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Destino</p>
-              <p className="font-medium">{cotacao.destino_nome} ({cotacao.destino_codigo})</p>
-              <p className="text-xs text-gray-400">{cotacao.destino_pais}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Mercadoria</p>
-              <p className="font-medium">{cotacao.descricao_mercadoria}</p>
-              {cotacao.ncm && <p className="text-xs text-gray-400">NCM: {cotacao.ncm}</p>}
-            </div>
-            <div>
-              <p className="text-gray-500">Incoterm</p>
-              <p className="font-medium">{cotacao.incoterm}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Quantidade</p>
-              <p className="font-medium">{cotacao.quantidade} {cotacao.tipo_container || 'un'}</p>
-            </div>
-            <div>
-              <p className="text-gray-500">Peso</p>
-              <p className="font-medium">{cotacao.peso_kg ? `${cotacao.peso_kg.toLocaleString()} kg` : '-'}</p>
-            </div>
-            {cotacao.valor_target && (
-              <div>
-                <p className="text-gray-500">Valor Target</p>
-                <p className="font-medium">{cotacao.moeda_target} {cotacao.valor_target.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-              </div>
+            {i < TIMELINE_STEPS.length - 1 && (
+              <div className={`dc-tl-line ${i < currentIdx ? 'dc-tl-line--done' : ''}`} />
             )}
-            <div>
-              <p className="text-gray-500">Data Limite</p>
-              <p className="font-medium">{cotacao.data_limite_resposta ? new Date(cotacao.data_limite_resposta).toLocaleDateString('pt-BR') : '-'}</p>
-            </div>
-          </div>
-        </div>
+          </React.Fragment>
+        )
+      })}
+    </div>
+  )
+}
 
-        {/* Acoes */}
-        <div className="space-y-4">
-          <div className="bg-white rounded-lg border p-4">
-            <h2 className="text-lg font-semibold mb-3">Acoes</h2>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => navigate(`/comparativo/${cotacao.id}`)}
-                className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
-              >
-                Ver Comparativo
+// ─── Info Row ────────────────────────────────────────────────────────────────
+
+function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="dc-info-row">
+      <span className="dc-info-label">{label}</span>
+      <span className={`dc-info-value ${mono ? 'dc-info-mono' : ''}`}>{value}</span>
+    </div>
+  )
+}
+
+// ─── Componente Principal ────────────────────────────────────────────────────
+
+export default function DetalheCotacao() {
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+  const [cotacao, setCotacao] = useState<Cotacao | null>(null)
+  const [bids, setBids] = useState<BidRequest[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [tab, setTab] = useState<'dados' | 'bids' | 'respostas'>('dados')
+
+  const carregar = useCallback(async () => {
+    if (!id) return
+    setCarregando(true)
+    try {
+      const [cot, bidList] = await Promise.all([
+        getCotacao(id),
+        getBidsPorCotacao(id),
+      ])
+      setCotacao(cot)
+      setBids(bidList)
+    } catch {
+      // erro
+    } finally {
+      setCarregando(false)
+    }
+  }, [id])
+
+  useEffect(() => { carregar() }, [carregar])
+
+  // ─── Tabela de Bids ───────────────────────────────────────────────────
+
+  const bidColunas: TabelaGlobalColuna<BidRequest>[] = [
+    {
+      key: 'fornecedor_id',
+      label: 'Fornecedor',
+      tipo: 'texto',
+      largura: 200,
+      render: (_val: string, row: BidRequest) => row.fornecedor?.nome ?? row.fornecedor_id.slice(0, 8),
+    },
+    {
+      key: 'canal',
+      label: 'Canal',
+      tipo: 'texto',
+      largura: 100,
+      render: (val: string) => {
+        const icon = val === 'EMAIL' ? <Envelope weight="duotone" size={14} /> :
+                     val === 'WHATSAPP' ? <ChatCircle weight="duotone" size={14} /> :
+                     <Eye weight="duotone" size={14} />
+        return <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>{icon} {CANAL_LABELS[val as keyof typeof CANAL_LABELS] ?? val}</span>
+      },
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      tipo: 'texto',
+      largura: 130,
+      render: (val: StatusBidRequest) => (
+        <Badge label={STATUS_BID_LABELS[val]} variante={BID_STATUS_VARIANTE[val]} />
+      ),
+    },
+    {
+      key: 'enviado_em',
+      label: 'Enviado em',
+      tipo: 'periodo',
+      largura: 140,
+      render: (val: string | null) => dataHoraBR(val),
+    },
+    {
+      key: 'respondido_em',
+      label: 'Respondido em',
+      tipo: 'periodo',
+      largura: 140,
+      render: (val: string | null) => dataHoraBR(val),
+    },
+  ]
+
+  // ─── Loading ──────────────────────────────────────────────────────────
+
+  if (carregando || !cotacao) {
+    return (
+      <PaginaGlobal
+        cabecalho={<CabecalhoGlobal icone={<FileText weight="duotone" size={22} />} titulo="Carregando..." />}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>
+          <Clock weight="duotone" size={32} style={{ animation: 'spin 1s linear infinite' }} />
+        </div>
+      </PaginaGlobal>
+    )
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────
+
+  return (
+    <PaginaGlobal
+      className="dc-page"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<FileText weight="duotone" size={22} />}
+          titulo={`Cotação ${cotacao.numero}`}
+          subtitulo={cotacao.referencia_interna ? `Ref: ${cotacao.referencia_interna}` : undefined}
+          acoes={
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="dc-btn dc-btn--secondary" onClick={() => navigate('/cotacoes')}>
+                <ArrowLeft weight="bold" size={14} /> Voltar
               </button>
               {cotacao.status === 'AGUARDANDO_APROVACAO' && (
-                <>
-                  <button
-                    onClick={() => mudarStatus('APROVADA')}
-                    disabled={actionLoading}
-                    className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50"
-                  >
-                    Aprovar
-                  </button>
-                  <button
-                    onClick={() => mudarStatus('REPROVADA')}
-                    disabled={actionLoading}
-                    className="px-4 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50"
-                  >
-                    Reprovar
-                  </button>
-                </>
+                <button className="dc-btn dc-btn--primary" onClick={() => navigate(`/cotacoes/${id}/comparativo`)}>
+                  <Ranking weight="bold" size={14} /> Comparativo
+                </button>
               )}
               {cotacao.status === 'RASCUNHO' && (
-                <button
-                  onClick={() => mudarStatus('CANCELADA')}
-                  disabled={actionLoading}
-                  className="px-4 py-2 border border-red-300 text-red-600 rounded text-sm hover:bg-red-50 disabled:opacity-50"
-                >
-                  Cancelar
+                <button className="dc-btn dc-btn--danger" onClick={async () => { await excluirCotacao(cotacao.id); navigate('/cotacoes') }}>
+                  <Trash weight="bold" size={14} /> Excluir
                 </button>
               )}
             </div>
+          }
+        />
+      }
+    >
+      {/* Status Badge */}
+      <div className="dc-status-bar">
+        <Badge label={STATUS_LABELS[cotacao.status]} variante={STATUS_BADGE[cotacao.status]} />
+        <span className="dc-status-date">Criada em {dataBR(cotacao.created_at)}</span>
+        {cotacao.saving_percentual != null && cotacao.saving_percentual > 0 && (
+          <span className="dc-saving-badge">
+            Saving: {cotacao.saving_percentual.toFixed(1)}%
+          </span>
+        )}
+      </div>
+
+      {/* Timeline */}
+      <Timeline statusAtual={cotacao.status} />
+
+      {/* Tabs */}
+      <div className="dc-tabs">
+        <button className={`dc-tab ${tab === 'dados' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('dados')}>
+          Dados da Cotação
+        </button>
+        <button className={`dc-tab ${tab === 'bids' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('bids')}>
+          Disparos ({bids.length})
+        </button>
+        <button className={`dc-tab ${tab === 'respostas' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('respostas')}>
+          Respostas ({cotacao.bid_responses?.length ?? 0})
+        </button>
+      </div>
+
+      {/* Tab: Dados */}
+      {tab === 'dados' && (
+        <div className="dc-card">
+          <div className="dc-info-grid">
+            <div className="dc-info-col">
+              <InfoRow label="Tipo de Operação" value={OPERACAO_LABELS[cotacao.tipo_operacao]} />
+              <InfoRow label="Modal" value={MODAL_LABELS[cotacao.modal]} />
+              <InfoRow label="Modalidade" value={MODALIDADE_LABELS[cotacao.modalidade]} />
+              <InfoRow label="Incoterm" value={cotacao.incoterm} mono />
+              <InfoRow label="Visibilidade" value={cotacao.visibilidade === 'ABERTA' ? 'Aberta' : 'Direcionada'} />
+            </div>
+            <div className="dc-info-col">
+              <InfoRow label="Origem" value={`${cotacao.origem_nome} (${cotacao.origem_codigo})`} />
+              <InfoRow label="País Origem" value={cotacao.origem_pais} />
+              <InfoRow label="Destino" value={`${cotacao.destino_nome} (${cotacao.destino_codigo})`} />
+              <InfoRow label="País Destino" value={cotacao.destino_pais} />
+            </div>
+            <div className="dc-info-col">
+              <InfoRow label="Mercadoria" value={cotacao.descricao_mercadoria} />
+              <InfoRow label="NCM" value={cotacao.ncm ?? '—'} mono />
+              <InfoRow label="Quantidade" value={String(cotacao.quantidade)} />
+              <InfoRow label="Peso" value={cotacao.peso_kg ? `${cotacao.peso_kg.toLocaleString('pt-BR')} Kg` : '—'} />
+              <InfoRow label="Cubagem" value={cotacao.cubagem_m3 ? `${cotacao.cubagem_m3} m³` : '—'} />
+              {cotacao.tipo_container && <InfoRow label="Container" value={cotacao.tipo_container} />}
+            </div>
           </div>
 
-          {/* Saving */}
-          {cotacao.saving_valor != null && (
-            <div className="bg-green-50 rounded-lg border border-green-200 p-4">
-              <h3 className="text-sm font-semibold text-green-800">Saving</h3>
-              <p className="text-2xl font-bold text-green-700">
-                {cotacao.saving_percentual?.toFixed(1)}%
-              </p>
-              <p className="text-sm text-green-600">
-                {cotacao.moeda_target || 'USD'} {cotacao.saving_valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
+          {/* Valor alvo */}
+          {cotacao.valor_alvo != null && (
+            <div className="dc-target">
+              <span className="dc-target-label">Valor alvo:</span>
+              <span className="dc-target-value">{cotacao.moeda_alvo} {cotacao.valor_alvo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+            </div>
+          )}
+
+          {/* Valor aprovado */}
+          {cotacao.valor_aprovado != null && (
+            <div className="dc-aprovado">
+              <CheckCircle weight="fill" size={20} style={{ color: 'var(--success)' }} />
+              <span>Aprovado: <strong>{cotacao.moeda_aprovada ?? 'USD'} {cotacao.valor_aprovado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></span>
+              {cotacao.saving_valor != null && (
+                <span style={{ color: 'var(--success)', fontWeight: 700 }}>
+                  Saving: {usd(cotacao.saving_valor)} ({cotacao.saving_percentual?.toFixed(1)}%)
+                </span>
+              )}
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      {/* BidRequests enviados */}
-      <div className="bg-white rounded-lg border p-4">
-        <h2 className="text-lg font-semibold mb-3">BID Requests Enviados ({bids.length})</h2>
-        {bids.length === 0 ? (
-          <p className="text-sm text-gray-500">Nenhum BID enviado ainda.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="p-2 text-left">Fornecedor</th>
-                  <th className="p-2 text-left">Canal</th>
-                  <th className="p-2 text-left">Status</th>
-                  <th className="p-2 text-left">Enviado em</th>
-                  <th className="p-2 text-left">Respondido em</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bids.map(b => (
-                  <tr key={b.id} className="border-b">
-                    <td className="p-2">{b.fornecedor?.nome || b.fornecedor_id}</td>
-                    <td className="p-2">{b.canal}</td>
-                    <td className="p-2">
-                      <span className={`px-2 py-0.5 rounded text-xs ${BID_STATUS_LABELS[b.status]?.cor || 'bg-gray-100'}`}>
-                        {BID_STATUS_LABELS[b.status]?.label || b.status}
-                      </span>
-                    </td>
-                    <td className="p-2 text-xs">{b.enviado_em ? new Date(b.enviado_em).toLocaleString('pt-BR') : '-'}</td>
-                    <td className="p-2 text-xs">{b.respondido_em ? new Date(b.respondido_em).toLocaleString('pt-BR') : '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {/* Tab: Bids */}
+      {tab === 'bids' && (
+        <div className="dc-card">
+          <TabelaGlobal
+            dados={bids}
+            colunas={bidColunas}
+            idKey="id"
+            mensagemVazio="Nenhum disparo realizado"
+            tooltipBusca="Buscar por fornecedor"
+          />
+        </div>
+      )}
 
-      {/* BidResponses recebidos */}
-      <div className="bg-white rounded-lg border p-4">
-        <h2 className="text-lg font-semibold mb-3">Respostas Recebidas ({responses.length})</h2>
-        {responses.length === 0 ? (
-          <p className="text-sm text-gray-500">Nenhuma resposta recebida ainda.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="p-2 text-left">Fornecedor</th>
-                  <th className="p-2 text-right">Frete</th>
-                  <th className="p-2 text-right">Taxas Origem</th>
-                  <th className="p-2 text-right">Taxas Destino</th>
-                  <th className="p-2 text-right">Total</th>
-                  <th className="p-2 text-center">Transit Time</th>
-                  <th className="p-2 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {responses.map(r => (
-                  <tr key={r.id} className="border-b hover:bg-gray-50">
-                    <td className="p-2">{r.fornecedor?.nome || r.fornecedor_id}</td>
-                    <td className="p-2 text-right">{r.moeda} {r.valor_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-2 text-right">{r.taxas_origem.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-2 text-right">{r.taxas_destino.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-2 text-right font-semibold">{r.moeda} {r.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-2 text-center">{r.transit_time_dias} dias</td>
-                    <td className="p-2">
-                      <span className={`px-2 py-0.5 rounded text-xs ${
-                        r.status === 'APROVADA' ? 'bg-green-100 text-green-700' :
-                        r.status === 'REPROVADA' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-600'
-                      }`}>{r.status}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
+      {/* Tab: Respostas */}
+      {tab === 'respostas' && (
+        <div className="dc-card">
+          {(!cotacao.bid_responses || cotacao.bid_responses.length === 0) ? (
+            <div className="dc-empty">
+              <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
+              <p>Nenhuma resposta recebida ainda</p>
+            </div>
+          ) : (
+            <div className="dc-responses-list">
+              {cotacao.bid_responses.map(resp => (
+                <div key={resp.id} className={`dc-response-card ${resp.aprovada ? 'dc-response-card--aprovada' : ''}`}>
+                  <div className="dc-resp-header">
+                    <span className="dc-resp-fornecedor">{resp.fornecedor?.nome ?? 'Fornecedor'}</span>
+                    {resp.aprovada && <Badge label="Aprovada" variante="success" />}
+                  </div>
+                  <div className="dc-resp-grid">
+                    <div className="dc-resp-item">
+                      <span className="dc-resp-label">Frete</span>
+                      <span className="dc-resp-value">{resp.moeda} {resp.valor_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="dc-resp-item">
+                      <span className="dc-resp-label">Taxas Origem</span>
+                      <span className="dc-resp-value">{resp.moeda} {resp.taxas_origem.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="dc-resp-item">
+                      <span className="dc-resp-label">Taxas Destino</span>
+                      <span className="dc-resp-value">{resp.moeda} {resp.taxas_destino.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="dc-resp-item dc-resp-item--destaque">
+                      <span className="dc-resp-label">Total</span>
+                      <span className="dc-resp-value">{resp.moeda} {resp.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    </div>
+                    <div className="dc-resp-item">
+                      <span className="dc-resp-label">Transit Time</span>
+                      <span className="dc-resp-value">{resp.transit_time_dias} dias</span>
+                    </div>
+                    <div className="dc-resp-item">
+                      <span className="dc-resp-label">Free Time</span>
+                      <span className="dc-resp-value">{resp.free_time_dias ?? '—'} dias</span>
+                    </div>
+                    <div className="dc-resp-item">
+                      <span className="dc-resp-label">Transbordos</span>
+                      <span className="dc-resp-value">{resp.transbordos}</span>
+                    </div>
+                    <div className="dc-resp-item">
+                      <span className="dc-resp-label">Validade</span>
+                      <span className="dc-resp-value">{dataBR(resp.validade)}</span>
+                    </div>
+                  </div>
+                  {resp.observacoes && (
+                    <p className="dc-resp-obs">{resp.observacoes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <style>{`
+        .dc-page { padding: 0; }
+
+        /* ── Status Bar ── */
+        .dc-status-bar {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+        .dc-status-date {
+          font-size: 0.8125rem;
+          color: var(--text-muted, #64748b);
+        }
+        .dc-saving-badge {
+          padding: 0.2rem 0.75rem;
+          border-radius: var(--radius-pill, 9999px);
+          background: rgba(34,197,94,0.15);
+          color: var(--success, #22c55e);
+          font-size: 0.75rem;
+          font-weight: 700;
+        }
+
+        /* ── Timeline ── */
+        .dc-timeline {
+          display: flex;
+          align-items: center;
+          padding: 1rem 0;
+          margin-bottom: 1rem;
+        }
+
+        .dc-tl-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.35rem;
+          min-width: 80px;
+        }
+
+        .dc-tl-dot {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--bg-surface, #334155);
+          color: var(--text-muted, #64748b);
+        }
+        .dc-tl-step--done .dc-tl-dot {
+          background: var(--success, #22c55e);
+          color: #fff;
+        }
+        .dc-tl-step--active .dc-tl-dot {
+          background: var(--accent, #6366f1);
+          color: #fff;
+          box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
+        }
+
+        .dc-tl-label {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          color: var(--text-muted, #64748b);
+        }
+        .dc-tl-step--done .dc-tl-label { color: var(--success, #22c55e); }
+        .dc-tl-step--active .dc-tl-label { color: var(--accent, #6366f1); }
+
+        .dc-tl-line {
+          flex: 1;
+          height: 2px;
+          background: var(--bg-elevated, #475569);
+          margin-top: -1rem;
+          min-width: 20px;
+        }
+        .dc-tl-line--done { background: var(--success, #22c55e); }
+
+        /* ── Tabs ── */
+        .dc-tabs {
+          display: flex;
+          gap: 0.25rem;
+          border-bottom: 1px solid var(--bg-elevated, #475569);
+          margin-bottom: 1rem;
+        }
+        .dc-tab {
+          padding: 0.5rem 1rem;
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: var(--text-secondary, #94a3b8);
+          background: none;
+          border: none;
+          border-bottom: 2px solid transparent;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.15s;
+        }
+        .dc-tab:hover { color: var(--text-primary, #f1f5f9); }
+        .dc-tab--ativo {
+          color: var(--accent, #6366f1);
+          border-bottom-color: var(--accent, #6366f1);
+        }
+
+        /* ── Card ── */
+        .dc-card {
+          background: var(--bg-surface, #334155);
+          border-radius: var(--radius-lg, 12px);
+          padding: 1.5rem;
+        }
+
+        /* ── Info Grid ── */
+        .dc-info-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.5rem;
+        }
+        @media (max-width: 900px) {
+          .dc-info-grid { grid-template-columns: 1fr; }
+        }
+
+        .dc-info-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 0.4rem 0;
+          border-bottom: 1px solid var(--bg-elevated, #475569);
+        }
+        .dc-info-label {
+          font-size: 0.75rem;
+          color: var(--text-muted, #64748b);
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+        .dc-info-value {
+          font-size: 0.8125rem;
+          color: var(--text-primary, #f1f5f9);
+          font-weight: 500;
+          text-align: right;
+        }
+        .dc-info-mono { font-family: 'DM Mono', monospace; }
+
+        /* ── Target / Aprovado ── */
+        .dc-target, .dc-aprovado {
+          margin-top: 1.25rem;
+          padding: 0.75rem 1rem;
+          background: var(--bg-base, #1e293b);
+          border-radius: var(--radius-md, 8px);
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          font-size: 0.875rem;
+          color: var(--text-secondary, #94a3b8);
+        }
+        .dc-target-label { font-weight: 600; }
+        .dc-target-value {
+          font-family: 'DM Mono', monospace;
+          font-weight: 700;
+          color: var(--text-primary, #f1f5f9);
+        }
+        .dc-aprovado {
+          border: 1px solid rgba(34,197,94,0.3);
+          background: rgba(34,197,94,0.05);
+        }
+
+        /* ── Response Cards ── */
+        .dc-responses-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        .dc-response-card {
+          background: var(--bg-base, #1e293b);
+          border-radius: var(--radius-md, 8px);
+          padding: 1rem;
+          border: 1px solid var(--bg-elevated, #475569);
+        }
+        .dc-response-card--aprovada {
+          border-color: rgba(34,197,94,0.4);
+          background: rgba(34,197,94,0.03);
+        }
+        .dc-resp-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 0.75rem;
+        }
+        .dc-resp-fornecedor {
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: var(--text-primary, #f1f5f9);
+        }
+        .dc-resp-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.75rem;
+        }
+        @media (max-width: 800px) {
+          .dc-resp-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .dc-resp-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+        }
+        .dc-resp-item--destaque {
+          background: rgba(99,102,241,0.1);
+          padding: 0.5rem;
+          border-radius: var(--radius-sm, 4px);
+        }
+        .dc-resp-label {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          color: var(--text-muted, #64748b);
+          letter-spacing: 0.04em;
+        }
+        .dc-resp-value {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--text-primary, #f1f5f9);
+          font-family: 'DM Mono', monospace;
+        }
+        .dc-resp-obs {
+          margin-top: 0.75rem;
+          font-size: 0.8125rem;
+          color: var(--text-secondary, #94a3b8);
+          font-style: italic;
+          padding-top: 0.5rem;
+          border-top: 1px solid var(--bg-elevated, #475569);
+        }
+
+        /* ── Empty ── */
+        .dc-empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 200px;
+          gap: 0.75rem;
+          color: var(--text-muted, #64748b);
+          font-size: 0.875rem;
+        }
+
+        /* ── Botões ── */
+        .dc-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1.25rem;
+          border-radius: var(--radius-pill, 9999px);
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+          border: none;
+          font-family: inherit;
+        }
+        .dc-btn--primary {
+          background: var(--accent, #6366f1);
+          color: #fff;
+        }
+        .dc-btn--primary:hover { background: var(--accent-hover, #4f46e5); }
+        .dc-btn--secondary {
+          background: var(--bg-surface, #334155);
+          color: var(--text-secondary, #94a3b8);
+          border: 1px solid var(--bg-elevated, #475569);
+        }
+        .dc-btn--secondary:hover {
+          background: var(--bg-elevated, #475569);
+          color: var(--text-primary, #f1f5f9);
+        }
+        .dc-btn--danger {
+          background: rgba(239,68,68,0.15);
+          color: var(--danger, #ef4444);
+        }
+        .dc-btn--danger:hover {
+          background: var(--danger, #ef4444);
+          color: #fff;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+    </PaginaGlobal>
   )
 }

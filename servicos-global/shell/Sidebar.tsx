@@ -14,8 +14,11 @@ import {
   Plugs,
   Star,
   Gear,
-  Package,
+  CaretDoubleLeft,
+  CaretDoubleRight,
   Calculator,
+  Truck,
+  Package,
   Anchor,
   FileArchive,
   CaretDown,
@@ -44,6 +47,8 @@ export function Sidebar({
   const { sidebarOpen, toggleSidebar } = useShellStore()
   const { t } = useTranslation()
 
+  const { isProductAllowed } = useShellStore()
+
   // Mock de Permissões: Numa etapa futura, leremos "company_products" do contexto global.
   const hasPedidos = false;
   const hasDuimp = false;
@@ -51,7 +56,7 @@ export function Sidebar({
 
   // Se o produto não proveu itens customizados, usamos o padrão da plataforma
   const defaultNavItems: NavItem[] = [
-    // ── Produtos Gravity (primeiro) ─────────────────────────────────────
+    // -- Produtos Gravity (primeiro) --
     {
       label: 'Produtos Gravity',
       icon: <Star weight="duotone" size={20} />,
@@ -75,7 +80,6 @@ export function Sidebar({
       ]
     },
 
-    // ── Geral ───────────────────────────────────────────────────────────
     // ── Geral ───────────────────────────────────────────────────────────
     { to: '/notificacoes', label: t('shell.menu.notificacoes', 'Notificações'), icon: <Bell weight="duotone" size={20} /> },
     { to: '/historico',    label: t('shell.menu.historico', 'Histórico'),       icon: <FileText weight="duotone" size={20} /> },

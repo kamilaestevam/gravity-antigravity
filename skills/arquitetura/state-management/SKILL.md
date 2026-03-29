@@ -147,6 +147,53 @@ function SimulacaoPage() {
 
 ---
 
+## Event Bus — Padrão Obrigatório entre Módulos Tenant (Dream Team)
+
+Quando múltiplos serviços de tenant estão na mesma tela (atividades + email + cronômetro), eles precisam se comunicar **sem importar código um do outro**. O shell fornece um event bus:
+
+```typescript
+// servicos-global/shell/events.ts
+const bus = new EventTarget()
+
+export function emit(event: string, detail: unknown) {
+  bus.dispatchEvent(new CustomEvent(event, { detail }))
+}
+
+export function on(event: string, callback: (detail: unknown) => void) {
+  bus.addEventListener(event, (e) => callback((e as CustomEvent).detail))
+}
+
+export function off(event: string, callback: (detail: unknown) => void) {
+  bus.removeEventListener(event, callback as EventListener)
+}
+```
+
+### Eventos padronizados
+
+| Evento | Emissor | Dados | Quem escuta |
+|:---|:---|:---|:---|
+| `timer:stopped` | Cronômetro | `{ activity_id, duration }` | Atividades |
+| `activity:created` | Atividades | `{ id, title, product_id }` | Dashboard, Notificações |
+| `email:received` | Email | `{ id, subject, from }` | Notificações, Dashboard |
+| `notification:new` | Qualquer | `{ type, message }` | Shell (toast) |
+
+### Regras do Event Bus
+
+- **Comunicação leve** — o event bus é para notificações e sincronização, não para transferir dados grandes
+- **Fire and forget** — o emissor não espera resposta
+- **Estado persistente** — sempre vive na store correta (shell ou produto), nunca no event bus
+- **Cleanup** — componentes devem chamar `off()` no unmount para evitar memory leaks
+
+```typescript
+useEffect(() => {
+  const handler = (detail) => updateTimer(detail)
+  on('timer:stopped', handler)
+  return () => off('timer:stopped', handler)
+}, [])
+```
+
+---
+
 ## Checklist — Antes de Criar ou Modificar Estado
 
 - [ ] Este dado faz sentido em qualquer produto? → `shell/state`
@@ -157,3 +204,5 @@ function SimulacaoPage() {
 - [ ] Dados do servidor estão em queries, não em stores? → correto
 - [ ] Estado de UI reseta ao navegar? → esperado, não é bug
 - [ ] Nenhum dado sensível em `localStorage`? → obrigatório
+- [ ] Comunicação entre módulos via Event Bus (não import cruzado)?
+- [ ] Listeners do Event Bus limpam no unmount (`off()`)?

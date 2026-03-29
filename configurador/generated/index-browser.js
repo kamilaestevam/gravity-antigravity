@@ -213,12 +213,55 @@ exports.Prisma.ProductConfigScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.CompanyProductScalarFieldEnum = {
+exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  status: 'status',
+  launch_date: 'launch_date',
+  has_setup: 'has_setup',
+  setup_price: 'setup_price',
+  setup_currency: 'setup_currency',
+  billing_type: 'billing_type',
+  unit_price: 'unit_price',
+  unit_currency: 'unit_currency',
+  minimum_price: 'minimum_price',
+  minimum_currency: 'minimum_currency',
+  total_price: 'total_price',
+  total_currency: 'total_currency',
+  user_limit_type: 'user_limit_type',
+  base_users_qty: 'base_users_qty',
+  extra_user_price: 'extra_user_price',
+  extra_user_currency: 'extra_user_currency',
+  helpdesk_hours: 'helpdesk_hours',
+  extra_hour_price: 'extra_hour_price',
+  extra_hour_currency: 'extra_hour_currency',
+  backend_module: 'backend_module',
+  target_audience: 'target_audience',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.PriceTierScalarFieldEnum = {
+  id: 'id',
+  product_id: 'product_id',
+  range_from: 'range_from',
+  range_to: 'range_to',
+  price: 'price',
+  currency: 'currency',
+  created_at: 'created_at'
+};
+
+exports.Prisma.SpecialNegotiationScalarFieldEnum = {
+  id: 'id',
+  product_id: 'product_id',
   tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  product_key: 'product_key',
-  is_active: 'is_active',
+  tenant_name: 'tenant_name',
+  agreement: 'agreement',
+  starts_at: 'starts_at',
+  ends_at: 'ends_at',
+  is_unlimited: 'is_unlimited',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -239,27 +282,15 @@ exports.Prisma.SupplierTenantAccessScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.GlobalProductScalarFieldEnum = {
+exports.Prisma.ServiceTokenScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  slug: 'slug',
-  description: 'description',
-  status: 'status',
-  type_billing: 'type_billing',
-  setup_price: 'setup_price',
-  unit_price: 'unit_price',
-  min_price: 'min_price',
-  total_price: 'total_price',
-  currency: 'currency',
-  limit_users: 'limit_users',
-  base_users: 'base_users',
-  help_desk_hours: 'help_desk_hours',
-  backend_module: 'backend_module',
-  target_audience: 'target_audience',
-  features: 'features',
-  pricing_tiers: 'pricing_tiers',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  tenant_id: 'tenant_id',
+  user_id: 'user_id',
+  token_hash: 'token_hash',
+  scope: 'scope',
+  expires_at: 'expires_at',
+  revoked: 'revoked',
+  created_at: 'created_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -268,11 +299,6 @@ exports.Prisma.SortOrder = {
 };
 
 exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
-};
-
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -331,6 +357,37 @@ exports.UserMembershipRole = exports.$Enums.UserMembershipRole = {
   SUPPLIER: 'SUPPLIER'
 };
 
+exports.ProductStatus = exports.$Enums.ProductStatus = {
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  COMING_SOON: 'COMING_SOON',
+  LEGACY: 'LEGACY',
+  INACTIVE: 'INACTIVE'
+};
+
+exports.BillingType = exports.$Enums.BillingType = {
+  MONTHLY: 'MONTHLY',
+  PER_PROCESS: 'PER_PROCESS',
+  PER_DOCUMENT: 'PER_DOCUMENT',
+  PER_ESTIMATE: 'PER_ESTIMATE',
+  PER_DI_DUIMP: 'PER_DI_DUIMP',
+  PER_DUE: 'PER_DUE',
+  PER_PRODUCT: 'PER_PRODUCT',
+  PER_FLOW: 'PER_FLOW',
+  PER_LPCO: 'PER_LPCO'
+};
+
+exports.UserLimitType = exports.$Enums.UserLimitType = {
+  UNLIMITED: 'UNLIMITED',
+  LIMITED: 'LIMITED'
+};
+
+exports.ServiceTokenScope = exports.$Enums.ServiceTokenScope = {
+  SERVICE: 'SERVICE',
+  WEBHOOK: 'WEBHOOK',
+  CRON: 'CRON'
+};
+
 exports.Prisma.ModelName = {
   Tenant: 'Tenant',
   User: 'User',
@@ -340,10 +397,12 @@ exports.Prisma.ModelName = {
   Company: 'Company',
   UserMembership: 'UserMembership',
   ProductConfig: 'ProductConfig',
-  CompanyProduct: 'CompanyProduct',
+  Product: 'Product',
+  PriceTier: 'PriceTier',
+  SpecialNegotiation: 'SpecialNegotiation',
   StripeEvent: 'StripeEvent',
   SupplierTenantAccess: 'SupplierTenantAccess',
-  GlobalProduct: 'GlobalProduct'
+  ServiceToken: 'ServiceToken'
 };
 
 /**

@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import helmet from 'helmet'
 
 declare global {
   namespace Express {
@@ -21,6 +22,7 @@ import { configRouter } from './routes/config.js'
 const app = express()
 const PORT = Number(process.env.PORT ?? 8014)
 
+app.use(helmet())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 

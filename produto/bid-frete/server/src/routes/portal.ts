@@ -4,9 +4,9 @@
  *
  * GET  /dashboard           Dashboard do fornecedor
  * GET  /cotacoes-pendentes  Cotacoes pendentes para resposta
- * GET  /minhas-respostas    Historico de respostas
+ * GET  /respostas           Historico de respostas
  * POST /responder/:bidRequestId  Responder cotacao
- * GET  /meu-desempenho      Metricas e rating
+ * GET  /desempenho          Metricas e rating
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -139,8 +139,8 @@ router.get('/cotacoes-pendentes', async (req: Request & { prisma?: any }, res: R
   }
 })
 
-// GET /minhas-respostas — Historico de respostas
-router.get('/minhas-respostas', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// GET /respostas — Historico de respostas
+router.get('/respostas', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
     const fornecedor = await req.prisma.fornecedor.findFirst({
@@ -277,8 +277,8 @@ router.post('/responder/:bidRequestId', async (req: Request & { prisma?: any }, 
   }
 })
 
-// GET /meu-desempenho — Rating e metricas do fornecedor
-router.get('/meu-desempenho', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// GET /desempenho — Rating e metricas do fornecedor
+router.get('/desempenho', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
   try {
     const userId = req.headers['x-user-id'] as string
     const fornecedor = await req.prisma.fornecedor.findFirst({

@@ -1,104 +1,311 @@
 /**
- * CotacoesPendentes.tsx — Lista de cotacoes pendentes para o fornecedor responder
- * Detalhes da cotacao e botao "Responder"
+ * CotacoesPendentes.tsx — Portal do Fornecedor: Cotacoes Aguardando Resposta
+ * Cards com dados da cotacao, countdown, botao responder
  */
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { portalApi } from '../../shared/api.js'
-import type { Cotacao, BidRequest } from '../../shared/types.js'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import {
+  Envelope,
+  Anchor,
+  AirplaneTilt,
+  Van,
+  ArrowRight,
+  ClockCountdown,
+  Package,
+  MapPin,
+} from '@phosphor-icons/react'
 
-interface CotacaoPendente {
-  bid_request: BidRequest
-  cotacao: Cotacao
+import { getPortalPendentes } from '../../shared/api'
+import type { BidRequest, ModalFrete, StatusBidRequest } from '../../shared/types'
+import { MODAL_LABELS, STATUS_BID_LABELS } from '../../shared/types'
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+const MODAL_ICONS: Record<ModalFrete, React.ReactNode> = {
+  MARITIMO: <Anchor weight="duotone" size={20} />,
+  AEREO: <AirplaneTilt weight="duotone" size={20} />,
+  RODOVIARIO: <Van weight="duotone" size={20} />,
 }
+
+const BID_STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+  PENDENTE:    { bg: 'rgba(245,158,11,0.15)',  color: 'var(--warning, #f59e0b)' },
+  ENVIADO:     { bg: 'rgba(59,130,246,0.15)',   color: 'var(--accent, #6366f1)' },
+  VISUALIZADO: { bg: 'rgba(59,130,246,0.15)',   color: 'var(--accent, #6366f1)' },
+  RESPONDIDO:  { bg: 'rgba(34,197,94,0.15)',    color: 'var(--success, #22c55e)' },
+  EXPIRADO:    { bg: 'rgba(239,68,68,0.15)',    color: 'var(--danger, #ef4444)' },
+  ERRO_ENVIO:  { bg: 'rgba(239,68,68,0.15)',    color: 'var(--danger, #ef4444)' },
+}
+
+interface CotacaoInfo {
+  numero: string
+  origem_nome: string
+  destino_nome: string
+  modal: ModalFrete
+  incoterm: string
+  quantidade: number
+  peso_kg: number | null
+  prazo_resposta: string | null
+}
+
+function calcCountdown(prazo: string | null): { label: string; urgente: boolean } {
+  if (!prazo) return { label: 'Sem prazo', urgente: false }
+  const diff = new Date(prazo).getTime() - Date.now()
+  if (diff <= 0) return { label: 'Expirado', urgente: true }
+  const horas = Math.floor(diff / (1000 * 60 * 60))
+  const dias = Math.floor(horas / 24)
+  if (dias > 1) return { label: `${dias} dias restantes`, urgente: dias <= 2 }
+  if (horas > 0) return { label: `${horas}h restantes`, urgente: true }
+  const minutos = Math.floor(diff / (1000 * 60))
+  return { label: `${minutos}min restantes`, urgente: true }
+}
+
+// ─── Component ──────────────────────────────────────────────────────────────
 
 export default function CotacoesPendentes() {
   const navigate = useNavigate()
-  const [pendentes, setPendentes] = useState<CotacaoPendente[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [bids, setBids] = useState<BidRequest[]>([])
+  const [carregando, setCarregando] = useState(true)
 
-  useEffect(() => {
-    portalApi.cotacoesPendentes()
-      .then(res => setPendentes(res.pendentes || res || []))
-      .catch(err => setError(err.message || 'Erro ao carregar cotacoes pendentes'))
-      .finally(() => setLoading(false))
+  const carregar = useCallback(async () => {
+    setCarregando(true)
+    try {
+      const data = await getPortalPendentes()
+      setBids(data)
+    } catch {
+      // silencioso
+    } finally {
+      setCarregando(false)
+    }
   }, [])
 
-  if (loading) return <div className="p-8">Carregando cotacoes pendentes...</div>
-  if (error) return <div className="p-8 text-red-600">{error}</div>
+  useEffect(() => { carregar() }, [carregar])
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Cotacoes Pendentes</h1>
-        <button onClick={() => navigate('/portal')} className="px-4 py-2 border rounded text-sm">
-          Voltar ao Dashboard
-        </button>
-      </div>
-
-      {pendentes.length === 0 ? (
-        <div className="bg-white rounded-lg border p-8 text-center text-gray-500">
-          Nenhuma cotacao pendente no momento.
+    <PaginaGlobal
+      className="cp-page"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Envelope weight="duotone" size={22} />}
+          titulo="Cotacoes Pendentes"
+          subtitulo={`${bids.length} cotacao(oes) aguardando sua resposta`}
+        />
+      }
+    >
+      {carregando ? (
+        <div className="cp-loading">
+          <ClockCountdown weight="duotone" size={48} style={{ opacity: 0.3 }} />
+          <p>Carregando cotacoes...</p>
+        </div>
+      ) : bids.length === 0 ? (
+        <div className="cp-empty">
+          <Envelope weight="duotone" size={48} style={{ opacity: 0.3 }} />
+          <p>Nenhuma cotacao pendente no momento</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {pendentes.map(item => {
-            const c = item.cotacao
-            const br = item.bid_request
-            const expirada = c.data_limite_resposta && new Date(c.data_limite_resposta) < new Date()
+        <div className="cp-grid">
+          {bids.map(bid => {
+            const cotacao = (bid as unknown as { cotacao: CotacaoInfo }).cotacao
+            const numero = cotacao?.numero ?? bid.cotacao_id.slice(0, 8).toUpperCase()
+            const modal = cotacao?.modal ?? 'MARITIMO'
+            const countdown = calcCountdown(cotacao?.prazo_resposta ?? bid.expirado_em)
+            const statusCores = BID_STATUS_COLORS[bid.status] ?? BID_STATUS_COLORS.PENDENTE
+
             return (
-              <div key={br.id} className="bg-white rounded-lg border p-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-gray-400">{c.numero}</span>
-                      <span className={`px-2 py-0.5 rounded text-xs ${
-                        br.status === 'ENVIADO' ? 'bg-blue-100 text-blue-700' :
-                        br.status === 'VISUALIZADO' ? 'bg-indigo-100 text-indigo-700' :
-                        'bg-gray-100 text-gray-600'
-                      }`}>{br.status}</span>
-                      {expirada && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-red-100 text-red-700">Expirada</span>
-                      )}
-                    </div>
-                    <p className="text-sm font-medium">
-                      {c.origem_nome} ({c.origem_pais}) → {c.destino_nome} ({c.destino_pais})
-                    </p>
-                    <div className="flex gap-4 text-xs text-gray-500">
-                      <span>{c.tipo_operacao}</span>
-                      <span>{c.modal} / {c.modalidade}</span>
-                      <span>Incoterm: {c.incoterm}</span>
-                      <span>{c.quantidade} {c.tipo_container || 'un'}</span>
-                      {c.peso_kg && <span>{c.peso_kg.toLocaleString()} kg</span>}
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Mercadoria: {c.descricao_mercadoria}
-                      {c.ncm && ` (NCM: ${c.ncm})`}
-                    </p>
-                    {c.data_limite_resposta && (
-                      <p className={`text-xs ${expirada ? 'text-red-600' : 'text-gray-400'}`}>
-                        Prazo: {new Date(c.data_limite_resposta).toLocaleString('pt-BR')}
-                      </p>
-                    )}
-                    <p className="text-xs text-gray-400">
-                      Canal: {br.canal} | Enviado em: {br.enviado_em ? new Date(br.enviado_em).toLocaleString('pt-BR') : '-'}
-                    </p>
+              <div key={bid.id} className="cp-card">
+                <div className="cp-card-header">
+                  <div className="cp-modal-icon" style={{ color: 'var(--accent, #6366f1)' }}>
+                    {MODAL_ICONS[modal] ?? MODAL_ICONS.MARITIMO}
                   </div>
-                  <button
-                    onClick={() => navigate(`/portal/responder/${br.id}`)}
-                    disabled={!!expirada}
-                    className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap"
-                  >
-                    Responder
-                  </button>
+                  <div className="cp-card-meta">
+                    <span className="cp-numero">{numero}</span>
+                    <span
+                      className="cp-status-badge"
+                      style={{ background: statusCores.bg, color: statusCores.color }}
+                    >
+                      {STATUS_BID_LABELS[bid.status]}
+                    </span>
+                  </div>
                 </div>
+
+                <div className="cp-card-body">
+                  <div className="cp-info-row">
+                    <MapPin weight="duotone" size={14} />
+                    <span>{cotacao?.origem_nome ?? '—'} &rarr; {cotacao?.destino_nome ?? '—'}</span>
+                  </div>
+                  <div className="cp-info-row">
+                    <span className="cp-info-label">Modal</span>
+                    <span>{MODAL_LABELS[modal]}</span>
+                  </div>
+                  <div className="cp-info-row">
+                    <span className="cp-info-label">Incoterm</span>
+                    <span>{cotacao?.incoterm ?? '—'}</span>
+                  </div>
+                  <div className="cp-info-row">
+                    <Package weight="duotone" size={14} />
+                    <span>
+                      {cotacao?.quantidade ?? 0} un
+                      {cotacao?.peso_kg != null ? ` / ${cotacao.peso_kg.toLocaleString('pt-BR')} kg` : ''}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={`cp-countdown ${countdown.urgente ? 'cp-countdown--urgente' : ''}`}>
+                  <ClockCountdown weight="duotone" size={14} />
+                  <span>{countdown.label}</span>
+                </div>
+
+                <button
+                  className="cp-btn-responder"
+                  onClick={() => navigate(`/portal/responder/${bid.id}`)}
+                >
+                  Responder
+                  <ArrowRight weight="bold" size={14} />
+                </button>
               </div>
             )
           })}
         </div>
       )}
-    </div>
+
+      <style>{`
+        .cp-page { padding: 0; }
+
+        .cp-loading, .cp-empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 50vh;
+          gap: 1rem;
+          color: var(--text-muted, #64748b);
+          font-size: 0.875rem;
+        }
+
+        .cp-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+          gap: 1rem;
+        }
+
+        .cp-card {
+          background: var(--bg-surface, #334155);
+          border: 1px solid var(--bg-elevated, #475569);
+          border-radius: var(--radius-lg, 12px);
+          padding: 1.25rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          transition: border-color 0.15s;
+        }
+        .cp-card:hover {
+          border-color: var(--accent, #6366f1);
+        }
+
+        .cp-card-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .cp-modal-icon {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--bg-elevated, #475569);
+          border-radius: var(--radius-md, 8px);
+          flex-shrink: 0;
+        }
+
+        .cp-card-meta {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          flex: 1;
+        }
+
+        .cp-numero {
+          font-family: 'DM Mono', monospace;
+          font-size: 0.9375rem;
+          font-weight: 700;
+          color: var(--text-primary, #f1f5f9);
+        }
+
+        .cp-status-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.2rem 0.6rem;
+          border-radius: 9999px;
+          font-size: 0.6875rem;
+          font-weight: 600;
+        }
+
+        .cp-card-body {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+        }
+
+        .cp-info-row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8125rem;
+          color: var(--text-secondary, #94a3b8);
+        }
+
+        .cp-info-label {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: var(--text-muted, #64748b);
+          min-width: 60px;
+        }
+
+        .cp-countdown {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          color: var(--text-secondary, #94a3b8);
+          padding: 0.5rem 0.75rem;
+          background: var(--bg-elevated, #475569);
+          border-radius: var(--radius-md, 8px);
+        }
+
+        .cp-countdown--urgente {
+          background: rgba(239,68,68,0.1);
+          color: var(--danger, #ef4444);
+          border: 1px solid rgba(239,68,68,0.2);
+        }
+
+        .cp-btn-responder {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 0.6rem 1.25rem;
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          border: none;
+          font-family: inherit;
+          background: var(--accent, #6366f1);
+          color: #fff;
+          width: 100%;
+        }
+        .cp-btn-responder:hover {
+          background: var(--accent-hover, #4f46e5);
+        }
+      `}</style>
+    </PaginaGlobal>
   )
 }

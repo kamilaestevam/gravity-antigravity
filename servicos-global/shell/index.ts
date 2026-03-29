@@ -20,9 +20,12 @@ export { useShellStore }   from './store'
 
 // Hooks
 export { useUserPreferences } from './hooks/useUserPreferences'
+export { useSyncClerkToShell } from './hooks/useSyncClerkToShell'
+export { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 export type {
   ShellState,
   CurrentUser,
+  AllowedProduct,
   Notification,
   NotificationType,
   Theme,

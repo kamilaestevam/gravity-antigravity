@@ -9,13 +9,23 @@
   },
   "dependencies": {
     "@clerk/localizations": "^4.2.3",
-    "@prisma/client": "^5.22.0"
+    "@playwright/test": "^1.58.2",
+    "@prisma/client": "^5.22.0",
+    "helmet": "^8.1.0",
+    "i18next": "^26.0.1",
+    "react-i18next": "^17.0.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/supertest": "^7.2.0",
     "@vitest/ui": "^4.1.2",
     "concurrently": "^9.2.1",
+    "express": "^5.2.1",
     "playwright": "^1.58.2",
     "prisma": "^5.22.0",
-    "vitest": "^4.1.2"
+    "supertest": "^7.2.2",
+    "svix": "^1.89.0",
+    "vitest": "^4.1.2",
+    "zod": "^3.25.76"
   }
 }

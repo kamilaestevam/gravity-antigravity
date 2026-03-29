@@ -15,6 +15,7 @@
 //   router.use(withInternalKeyValidation)
 
 import { Request, Response, NextFunction } from 'express'
+import { timingSafeEqual as cryptoTimingSafeEqual } from 'crypto'
 
 // ---------------------------------------------------------------------------
 // withInternalKeyValidation
@@ -62,17 +63,21 @@ function withInternalKeyValidation(
 
 // ---------------------------------------------------------------------------
 // Helper: comparação de strings resistente a timing attacks
+// Usa crypto.timingSafeEqual nativo do Node.js para evitar leaks de tamanho.
 // ---------------------------------------------------------------------------
 
 function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false
+  const bufA = Buffer.from(a, 'utf8')
+  const bufB = Buffer.from(b, 'utf8')
 
-  let result = 0
-  for (let i = 0; i < a.length; i++) {
-    // XOR bit a bit — percorre o loop inteiro mesmo se diferente
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  // Se tamanhos diferem, compara bufA consigo mesmo para manter tempo constante
+  // e retorna false — sem early return que vaze informação de tamanho.
+  if (bufA.length !== bufB.length) {
+    cryptoTimingSafeEqual(bufA, bufA)
+    return false
   }
-  return result === 0
+
+  return cryptoTimingSafeEqual(bufA, bufB)
 }
 
 // ---------------------------------------------------------------------------

@@ -6,9 +6,11 @@
  */
 
 import express, { Request, Response, NextFunction } from 'express'
+import helmet from 'helmet'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { simulateRouter } from './routes/simulate.js'
+import { estimativasRouter } from './routes/estimativas.js'
 import { masterDataRouter } from './routes/masterData.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
@@ -20,6 +22,23 @@ const __dirname = dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT ?? 8020
+
+// ─── 0. Security Headers ──────────────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "ws://localhost:*"],
+      objectSrc: ["'none'"],
+      baseUri: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}))
 
 // ─── 1. Body Parser ────────────────────────────────────────────────────────────
 app.use(express.json())
@@ -70,6 +89,7 @@ app.use(tenantIsolationMiddleware)
 
 // ─── 8. Rotas do Produto ───────────────────────────────────────────────────────
 app.use('/api/v1/simula-custo', simulateRouter)
+app.use('/api/v1/simula-custo/estimativas', estimativasRouter)
 app.use('/api/v1/dashboard', dashboardRouter)
 
 // ─── 9. SPA Fallback (serve o client React para qualquer rota não-API) ─────────

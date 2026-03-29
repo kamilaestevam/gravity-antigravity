@@ -14,7 +14,7 @@ import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
-import { catalogService } from '../../services/catalogService'
+import { catalogApiService } from '../../services/catalogAdapter'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 
@@ -109,16 +109,23 @@ export function ProdutosAdmin() {
   const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
   const [loading, setLoading] = React.useState(true)
 
+  const [carregando, setCarregando] = React.useState(true)
+
   const carregarDados = React.useCallback(async () => {
     setLoading(true)
+    setCarregando(true)
     try {
-      const prods = await catalogService.getProdutos()
+      const [prods, negs] = await Promise.all([
+        catalogApiService.getProdutos(),
+        catalogApiService.getNegociacoes(),
+      ])
       setProdutos(prods)
-      setNegociacoes(catalogService.getNegociacoes())
+      setNegociacoes(negs)
     } catch (err) {
-      console.error('Erro ao carregar dados reais:', err)
+      console.error('[ProdutosAdmin] Erro ao carregar dados:', err)
     } finally {
       setLoading(false)
+      setCarregando(false)
     }
   }, [])
 
@@ -131,9 +138,9 @@ export function ProdutosAdmin() {
     if (!produto) return
 
     const novoStatus: StatusGlobal = produto.status === 'Ativo' ? 'Suspenso' : 'Ativo'
-    
+
     try {
-      await catalogService.toggleProdutoStatus(id, novoStatus, getToken)
+      await catalogApiService.toggleProdutoStatus(id)
       await carregarDados()
 
       logEvent({
@@ -513,12 +520,12 @@ export function ProdutosAdmin() {
         aoFechar={handleFecharModal}
         aoSalvar={async () => {
           const prodId = produtoEditando?.id ?? `p${Date.now()}`
-          
+
           const novoProduto: ProdutoCatalogo = {
-            id: prodId,
+            id: produtoEditando?.id ?? '',
             nome: formNome,
             descricao: formDescricao,
-            slug: formNome.toLowerCase().replace(/\s+/g, '-'),
+            slug: produtoEditando?.slug ?? formNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
             status: formStatus === 'ativo' ? 'Ativo' : 'Inativo',
             dataLancamento: formDataLancamento,
             temSetup: temSetup === 'sim',
@@ -536,16 +543,16 @@ export function ProdutosAdmin() {
           }
 
           try {
-            await catalogService.saveProduto(novoProduto, getToken)
-            
+            await catalogApiService.saveProduto(novoProduto)
+
             if (vincularOrg === 'sim' && orgSelecionada) {
               // Em breve integrar com a nova tabela de negociações no banco
             }
-            
+
             await carregarDados()
             handleFecharModal()
           } catch (err) {
-            alert('Erro ao persistir no Railway: ' + (err instanceof Error ? err.message : 'Desconhecido'))
+            console.error('[ProdutosAdmin] Erro ao salvar produto:', err)
           }
         }}
         icone={<ShoppingBagOpen weight="duotone" size={24} />}
@@ -1032,7 +1039,7 @@ export function ProdutosAdmin() {
       aoConfirmar={async () => {
         if (!produtoParaExcluir) return
         try {
-          await catalogService.deleteProduto(produtoParaExcluir.id, getToken)
+          await catalogApiService.deleteProduto(produtoParaExcluir.id)
           await carregarDados()
           setProdutoParaExcluir(null)
         } catch (err) {

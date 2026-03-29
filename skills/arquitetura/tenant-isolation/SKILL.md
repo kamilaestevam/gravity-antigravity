@@ -161,6 +161,53 @@ import { configuradorPrisma } from '../../configurador/server/prisma'
 
 ---
 
+## product_id Nullable por Design (Dream Team)
+
+O campo `product_id` é nullable de propósito. Existem atividades, emails e registros que não pertencem a nenhum produto — por exemplo, "Preparar reunião de diretoria". Forçar um `product_id` obrigatório criaria categorias artificiais.
+
+```prisma
+model Activity {
+  product_id  String?  // nullable — atividades gerais não têm produto
+}
+```
+
+**Regra:** nunca forçar `product_id` como obrigatório em tabelas de tenant que podem ter registros genéricos.
+
+---
+
+## Performance de RLS com Volume — 50k req (Dream Team)
+
+### Impacto de RLS em performance
+
+RLS adiciona uma condição a cada query. Com 50k requisições simultâneas, isso precisa ser eficiente:
+
+1. **Índice no tenant_id** — obrigatório para evitar full table scan
+2. **Tipo do tenant_id** — usar `UUID` (mais eficiente que `String` para comparação)
+3. **current_setting** — configurar UMA VEZ por conexão, não por query
+
+```sql
+-- Configurar tenant_id no início da conexão
+SET app.current_tenant_id = 'uuid-do-tenant';
+-- Todas as queries subsequentes usam RLS automaticamente
+```
+
+### Connection Pooling com RLS (PgBouncer — Fase 3)
+
+PgBouncer no modo `transaction` reseta a sessão entre transações. O `SET` precisa ser executado dentro de cada transação:
+
+```typescript
+await prisma.$transaction(async (tx) => {
+  await tx.$executeRaw`SET LOCAL app.current_tenant_id = ${tenantId}`
+  // queries aqui usam RLS com o tenant correto
+  const data = await tx.cotacao.findMany()
+  return data
+})
+```
+
+> `SET LOCAL` (não `SET`) garante que o valor só vale dentro da transação.
+
+---
+
 ## Checklist — Antes de Qualquer Acesso ao Banco
 
 - [ ] Estou usando `req.prisma` (com middleware) e não o `prisma` global?
@@ -171,3 +218,5 @@ import { configuradorPrisma } from '../../configurador/server/prisma'
 - [ ] O teste de acesso cross-tenant está implementado?
 - [ ] Nenhum endpoint retorna dados sem filtro de tenant?
 - [ ] Criações não aceitam `tenant_id` da payload — vem do token via middleware?
+- [ ] `product_id` é nullable quando apropriado?
+- [ ] Índice no `tenant_id` garante performance com RLS?

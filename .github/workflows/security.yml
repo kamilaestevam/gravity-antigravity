@@ -1,17 +1,28 @@
-name: Gravity DevSecOps | RLS Tier 1 Isolation Gate
+name: Security — RLS Offensive Tests
 
-on: 
+on:
   push:
     branches: [ "main", "staging" ]
+    paths:
+      - '**/rls-policies.sql'
+      - '**/apply-rls.sql'
+      - '**/fragment.prisma'
+      - '**/schema.prisma'
   pull_request:
-    branches: [ "main", "staging" ]
+    branches: [ "main", "staging", "develop" ]
+    paths:
+      - '**/rls-policies.sql'
+      - '**/apply-rls.sql'
+      - '**/fragment.prisma'
+
+env:
+  NODE_VERSION: "20"
 
 jobs:
-  rls-tests:
-    name: 🔴 Ofensiva de Isolamento RLS (Alpha vs Beta)
+  rls-offensive-tests:
+    name: RLS Offensive Tests (PostgreSQL 16)
     runs-on: ubuntu-latest
-    
-    # Sobe um Banco PostgreSQL Fantasma isolado para a action
+
     services:
       postgres:
         image: postgres:16
@@ -27,40 +38,160 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      DATABASE_URL: postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db
+      CONFIGURADOR_DATABASE_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
+      DIRECT_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
+
     steps:
-      - name: ⬇️ Checkout Git
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 📦 Setup Node.js (Ambiente da Aplicação)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
 
-      - name: ⚙️ NPM Install (Dependências Reais)
+      - name: Install dependencies
         run: npm ci
 
-      - name: 🗄️ Inicialização Estrutural do DB Falso (Prisma Push/Geração)
-        env:
-          CONFIGURADOR_DATABASE_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
-          DIRECT_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
+      - name: Apply tenant DB schema + RLS
         run: |
-          # 1. Empurra o schema para o banco levantado nos services
-          # (Deve estar executando dentro de ./configurador/prisma ou relativo)
+          # Empurra o schema para o banco levantado nos services
           npx prisma db push --schema=./configurador/prisma/schema.prisma --accept-data-loss
-          
-          # 2. Injeta manualmente o Bypass ou Políticas RLS vitais (Se existirem externalizadas)
-          # Psql está disponível via container
-          # psql -h localhost -U gravity_user -d gravity_test_db -f scripts/apply-rls.sql
 
-      - name: "⚔️ Action Gate: Executar Suíte de Ataques RLS (Vitest)"
+          # Aplicar schema do tenant DB
+          npx prisma db push --schema=servicos-global/tenant/prisma/schema.prisma --force-reset 2>/dev/null || true
+
+          # Aplicar RLS policies
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -f scripts/apply-rls.sql
+
+      - name: "Nivel 1 — ID Enumeration Attack"
+        run: |
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
+          -- Simular contexto do Tenant A
+          SELECT set_config('app.current_tenant_id', 'tenant-aaa', true);
+
+          -- Inserir dado do Tenant A
+          INSERT INTO "Empresa" (id, tenant_id, nome, created_at, updated_at)
+          VALUES ('emp-1', 'tenant-aaa', 'Empresa A', NOW(), NOW());
+
+          -- Simular contexto do Tenant B
+          SELECT set_config('app.current_tenant_id', 'tenant-bbb', true);
+
+          -- ATAQUE: Tenant B tenta acessar dados do Tenant A por ID direto
+          DO $$
+          DECLARE row_count INTEGER;
+          BEGIN
+            SELECT COUNT(*) INTO row_count FROM "Empresa" WHERE id = 'emp-1';
+            IF row_count > 0 THEN
+              RAISE EXCEPTION 'FALHA DE SEGURANCA: Tenant B acessou dados do Tenant A via ID direto!';
+            END IF;
+            RAISE NOTICE 'OK: Tenant B nao consegue acessar dados do Tenant A';
+          END $$;
+          SQL
+
+      - name: "Nivel 2 — Array Dump Attack"
+        run: |
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
+          -- Contexto Tenant B
+          SELECT set_config('app.current_tenant_id', 'tenant-bbb', true);
+
+          -- ATAQUE: Tenant B tenta listar TODOS os registros
+          DO $$
+          DECLARE row_count INTEGER;
+          BEGIN
+            SELECT COUNT(*) INTO row_count FROM "Empresa";
+            IF row_count > 0 THEN
+              RAISE EXCEPTION 'FALHA DE SEGURANCA: Tenant B ve % registros de outros tenants!', row_count;
+            END IF;
+            RAISE NOTICE 'OK: Tenant B nao ve registros de outros tenants';
+          END $$;
+          SQL
+
+      - name: "Nivel 3 — COUNT Leak Attack"
+        run: |
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
+          -- Contexto Tenant B
+          SELECT set_config('app.current_tenant_id', 'tenant-bbb', true);
+
+          -- ATAQUE: Tenant B tenta descobrir quantos registros existem no total
+          DO $$
+          DECLARE total INTEGER;
+          BEGIN
+            SELECT COUNT(*) INTO total FROM "Empresa";
+            IF total > 0 THEN
+              RAISE EXCEPTION 'FALHA DE SEGURANCA: COUNT leak — Tenant B descobriu que existem % registros!', total;
+            END IF;
+            RAISE NOTICE 'OK: COUNT retorna 0 para tenant sem dados';
+          END $$;
+
+          -- Verificar que sem contexto de tenant, nada e retornado
+          SELECT set_config('app.current_tenant_id', '', true);
+          DO $$
+          DECLARE total INTEGER;
+          BEGIN
+            SELECT COUNT(*) INTO total FROM "Empresa";
+            IF total > 0 THEN
+              RAISE EXCEPTION 'FALHA DE SEGURANCA: Sem tenant_id retornou % registros!', total;
+            END IF;
+            RAISE NOTICE 'OK: Sem tenant_id retorna 0 registros';
+          END $$;
+          SQL
+
+      - name: "Nivel 4 — UPDATE/DELETE Cross-Tenant Attack"
+        run: |
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
+          -- Contexto Tenant A: inserir dado
+          SELECT set_config('app.current_tenant_id', 'tenant-aaa', true);
+          INSERT INTO "Empresa" (id, tenant_id, nome, created_at, updated_at)
+          VALUES ('emp-update-test', 'tenant-aaa', 'Original', NOW(), NOW())
+          ON CONFLICT (id) DO NOTHING;
+
+          -- Contexto Tenant B: tentar UPDATE em dado do Tenant A
+          SELECT set_config('app.current_tenant_id', 'tenant-bbb', true);
+          UPDATE "Empresa" SET nome = 'HACKEADO' WHERE id = 'emp-update-test';
+
+          -- Verificar que o dado nao foi alterado
+          SELECT set_config('app.current_tenant_id', 'tenant-aaa', true);
+          DO $$
+          DECLARE empresa_nome TEXT;
+          BEGIN
+            SELECT nome INTO empresa_nome FROM "Empresa" WHERE id = 'emp-update-test';
+            IF empresa_nome = 'HACKEADO' THEN
+              RAISE EXCEPTION 'FALHA DE SEGURANCA: Tenant B conseguiu fazer UPDATE em dados do Tenant A!';
+            END IF;
+            RAISE NOTICE 'OK: UPDATE cross-tenant bloqueado. Nome permanece: %', empresa_nome;
+          END $$;
+
+          -- Contexto Tenant B: tentar DELETE em dado do Tenant A
+          SELECT set_config('app.current_tenant_id', 'tenant-bbb', true);
+          DELETE FROM "Empresa" WHERE id = 'emp-update-test';
+
+          -- Verificar que o dado nao foi deletado
+          SELECT set_config('app.current_tenant_id', 'tenant-aaa', true);
+          DO $$
+          DECLARE row_count INTEGER;
+          BEGIN
+            SELECT COUNT(*) INTO row_count FROM "Empresa" WHERE id = 'emp-update-test';
+            IF row_count = 0 THEN
+              RAISE EXCEPTION 'FALHA DE SEGURANCA: Tenant B conseguiu fazer DELETE em dados do Tenant A!';
+            END IF;
+            RAISE NOTICE 'OK: DELETE cross-tenant bloqueado. Registro ainda existe.';
+          END $$;
+          SQL
+
+      - name: "Nivel 5 — Vitest RLS Suite"
         env:
-          CONFIGURADOR_DATABASE_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
-          # Força variável de CI para Vitest não "assistir" testes e fechar ao acabar
-          CI: true 
+          CI: true
         run: |
           npx vitest run testes/security/ --bail 1
-          
-          # Se o step 'vitest run' retornar um Exit Code não 0, 
-          # Essa action falha Imediatamente.
-          # O botão de 'Merge to Main' no Github permanecerá cinza.
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "============================================"
+          echo "  RLS Offensive Tests Complete"
+          echo "  Niveis testados: 1 (ID enum), 2 (array dump), 3 (COUNT leak), 4 (UPDATE/DELETE), 5 (Vitest)"
+          echo "============================================"

@@ -14,47 +14,82 @@ Todo agente que precisar abrir ou interagir com o navegador deve garantir que el
 
 ---
 
-## Regra 2 — Porta Dedicada por Agente
+## Regra 2 — Portas de Frontend (Dev Server / Vite)
 
-Cada agente opera em uma porta exclusiva para evitar conflito entre servidores simultâneos.
+### Claude Code (CLI / Desktop / Web)
+Quando o agente é o **Claude Code**, os dev servers de frontend **SEMPRE** usam portas a partir de **5000**:
+
+| Instância Claude | Porta Frontend |
+|:---|:---|
+| 1o agente Claude | `5000` |
+| 2o agente Claude | `5001` |
+| 3o agente Claude | `5002` |
+| Agente N | `5000 + (N-1)` |
+
+### Outros agentes (Líder/Coordenador/QA)
+Agentes internos do projeto usam portas a partir de **8000**:
 
 | Agente | Porta |
 |:---|:---|
 | Agente 1 | `8000` |
 | Agente 2 | `8001` |
-| Agente 3 | `8002` |
-| Agente 4 | `8003` |
-| Agente 5 | `8004` |
 | Agente N | `8000 + (N-1)` |
 
-**Regra:**
+**Regra geral:**
 - Antes de iniciar o servidor, verificar se a porta já está em uso
 - Nunca usar a porta de outro agente
 - Sempre especificar a porta explicitamente no comando
 
 ```bash
-# Exemplo — Agente 2 inicia o servidor
-npm run dev -- --port 8001
-
 # Verificar se porta está em uso antes de iniciar
-netstat -an | findstr :8001
+netstat -an | findstr :5000
+
+# Claude Code — iniciar frontend na porta 5000
+npm run dev -- --port 5000
+
+# Ou configurar direto no vite.config.ts: server.port = 5000
 ```
 
 ---
 
-## Regra 3 — Como Identificar Sua Porta
+## Regra 3 — Portas de Backend (API Servers)
 
-O agente deve identificar sua porta com base no número do seu slot de execução, combinando com o Líder via prompt de distribuição da tarefa. O prompt de distribuição sempre deve conter a linha:
+Os backends dos produtos têm **portas fixas** definidas em `servicos-global/contracts.json`. Cada produto/serviço tem sua porta reservada (faixa 8010–8099). **Não alterar** — apenas subir o backend na porta que já está configurada.
+
+| Serviço | Porta Backend |
+|:---|:---|
+| Dashboard | `8010` |
+| Relatórios | `8011` |
+| SimulaCusto | `8020` |
+| Bid Frete | `8022` |
+| Processo | `8025` |
+| ... | Ver `contracts.json` |
+
+---
+
+## Regra 4 — Ordem de Inicialização
+
+Quando o produto tem backend + frontend:
+1. **Primeiro** subir o backend (`server/`) — verificar se deps estão instaladas
+2. **Depois** subir o frontend (`client/`) — configurar porta conforme Regra 2
+3. Se for **somente frontend** (sem backend), subir direto
+
+---
+
+## Regra 5 — Como Identificar Sua Porta
+
+O agente deve identificar sua porta com base no número do seu slot de execução. Para Claude Code, **sempre começar em 5000**. Para agentes internos, o prompt de distribuição do Líder deve conter:
 
 ```
-Porta designada: 800X
+Porta designada: XXXX
 ```
 
 ---
 
 ## Checklist — Antes de Iniciar o Servidor
 
-- [ ] Confirmou a porta designada no prompt de distribuição do Líder?
+- [ ] Identificou se o produto tem backend? Se sim, subir primeiro
+- [ ] Verificou que as deps estão instaladas (`node_modules`)?
 - [ ] Verificou que a porta está livre?
 - [ ] Iniciou o servidor com a porta explicitamente declarada?
 - [ ] Abriu o navegador na Área de Trabalho 1?

@@ -4,6 +4,7 @@
 
 import 'dotenv/config'
 import express from 'express'
+import helmet from 'helmet'
 import { correlationMiddleware } from './middleware/correlation.js'
 import { errorHandler } from './middleware/error-handler.js'
 import { healthRouter } from './routes/health.js'
@@ -16,6 +17,11 @@ import { webhookRouter } from './routes/webhook.js'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8008)
+
+// ---------------------------------------------------------------------------
+// Security Headers
+// ---------------------------------------------------------------------------
+app.use(helmet())
 
 // ---------------------------------------------------------------------------
 // Webhook deve receber body bruto para validação HMAC — registrar antes do json()

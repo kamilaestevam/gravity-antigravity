@@ -10,6 +10,8 @@ export type Page =
   | { name: 'store' }
 
 import { Onboarding } from './pages/Onboarding'
+import { Contato } from './pages/Contato'
+import { Waitlist } from './pages/Waitlist'
 import { SelecionarWorkspace } from './pages/SelecionarWorkspace'
 
 // Lazy-load — cada grupo carrega só quando o usuário navega para a rota
@@ -29,6 +31,7 @@ const MonitorApisAdmin = lazy(() => import('./pages/admin/MonitorApisAdmin'), 'M
 const UsuariosGlobaisAdmin = lazy(() => import('./pages/admin/UsuariosGlobaisAdmin'), 'UsuariosGlobaisAdmin')
 const TenantDetail = lazy(() => import('./pages/TenantDetail'), 'TenantDetail')
 const DeployRailwayAdmin = lazy(() => import('./pages/admin/DeployRailwayAdmin'), 'DeployRailwayAdmin')
+const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
 const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
 const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
 const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
@@ -110,6 +113,8 @@ export default function App() {
 
         {/* Onboarding — novos clientes vindos do Marketplace */}
         <Route path="/trial" element={<Onboarding />} />
+        <Route path="/contato" element={<Contato />} />
+        <Route path="/waitlist" element={<Waitlist />} />
 
         {/* Área autenticada */}
         <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Hub /></React.Suspense></ProtectedRoute>} />
@@ -131,6 +136,7 @@ export default function App() {
           <Route path="deploy" element={<React.Suspense fallback={<ProductLoading />}><DeployRailwayAdmin /></React.Suspense>} />
           <Route path="testes" element={<React.Suspense fallback={<ProductLoading />}><LogTestes /></React.Suspense>} />
           <Route path="apis" element={<React.Suspense fallback={<ProductLoading />}><MonitorApisAdmin /></React.Suspense>} />
+          <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
           <Route path="tenants" element={<React.Suspense fallback={<ProductLoading />}><AdminPanel navigate={adminNavigate} /></React.Suspense>} />
           <Route path="tenant/:id" element={<React.Suspense fallback={<ProductLoading />}><TenantDetailWrapper /></React.Suspense>} />
         </Route>
@@ -146,6 +152,16 @@ export default function App() {
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
         </Route>
+
+        {/* 404 — rota nao encontrada */}
+        <Route path="*" element={
+          <div style={{ textAlign: 'center', padding: '6rem 1.5rem' }}>
+            <p style={{ fontSize: '5rem', fontWeight: 800, color: 'var(--bg-elevated)', lineHeight: 1 }}>404</p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '1rem 0 0.5rem', color: 'var(--text-primary)' }}>Pagina nao encontrada</h1>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>A pagina que voce procura nao existe ou foi movida.</p>
+            <a href="/" style={{ color: 'var(--accent)' }}>Voltar ao inicio</a>
+          </div>
+        } />
       </Routes>
     </div>
   )

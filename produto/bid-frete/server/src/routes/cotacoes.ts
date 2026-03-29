@@ -3,7 +3,7 @@
  * POST   /                 Criar cotacao (manual ou bloco)
  * GET    /                 Listar cotacoes (com filtros)
  * GET    /:id              Detalhe da cotacao
- * PUT    /:id              Atualizar cotacao
+ * PATCH  /:id              Atualizar cotacao
  * PATCH  /:id/status       Mudar status (aprovar/reprovar/cancelar)
  * DELETE /:id              Excluir cotacao (rascunho)
  */
@@ -186,8 +186,8 @@ router.get('/:id', async (req: Request & { prisma?: any }, res: Response, next: 
   }
 })
 
-// --- PUT /:id — Atualizar cotacao ---
-router.put('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
+// --- PATCH /:id — Atualizar cotacao ---
+router.patch('/:id', async (req: Request & { prisma?: any }, res: Response, next: NextFunction) => {
   try {
     const existing = await req.prisma.cotacao.findFirst({ where: { id: req.params.id } })
     if (!existing) throw new AppError('Cotacao nao encontrada', 404, 'NOT_FOUND')

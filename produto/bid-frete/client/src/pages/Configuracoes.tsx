@@ -1,295 +1,760 @@
 /**
- * Configuracoes.tsx — Pagina de configuracao do produto BID Frete
- * Conectores (ERP, armadores), preferencias de notificacao, canais padrao
+ * Configuracoes.tsx — Configurações do BID Frete (T10)
+ * Sprint 3 — Geral + Conectores + Notificações
+ *
+ * Skill: antigravity-design-system, antigravity-componentes
+ * Layout: 3 tabs (Geral, Conectores, Notificações) com toggles customizados
  */
 
-import { useState, useEffect } from 'react'
-import type { CanalDisparo } from '../shared/types.js'
+import React, { useState, useCallback, useMemo } from 'react'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import {
+  GearSix,
+  Plugs,
+  Bell,
+  Faders,
+  FloppyDisk,
+  ArrowsClockwise,
+  CheckCircle,
+  XCircle,
+} from '@phosphor-icons/react'
 
-interface ConnectorConfig {
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+interface ConfigGeral {
+  respostaAutomatica: boolean
+  prazoPadraoHoras: number
+  canaisEmail: boolean
+  canaisWhatsApp: boolean
+}
+
+interface Conector {
   id: string
-  tipo: 'ERP' | 'ARMADOR' | 'CIA_AEREA' | 'WHATSAPP' | 'EMAIL'
   nome: string
-  habilitado: boolean
-  configuracao: Record<string, string>
+  tipo: string
+  ativo: boolean
+  ultimoTeste: { sucesso: boolean; data: string } | null
 }
 
-interface NotificationPrefs {
-  email_nova_resposta: boolean
-  email_cotacao_expirada: boolean
-  email_aprovacao: boolean
-  whatsapp_nova_resposta: boolean
-  whatsapp_cotacao_expirada: boolean
+interface NotificacaoRow {
+  id: string
+  label: string
+  email: boolean
+  whatsapp: boolean
 }
 
-interface Config {
-  connectors: ConnectorConfig[]
-  notifications: NotificationPrefs
-  canais_padrao: CanalDisparo[]
-  auto_disparar_tabela: boolean
-  prazo_padrao_resposta_horas: number
-}
+type TabKey = 'geral' | 'conectores' | 'notificacoes'
 
-const DEFAULT_CONFIG: Config = {
-  connectors: [],
-  notifications: {
-    email_nova_resposta: true,
-    email_cotacao_expirada: true,
-    email_aprovacao: true,
-    whatsapp_nova_resposta: false,
-    whatsapp_cotacao_expirada: false,
-  },
-  canais_padrao: ['EMAIL'],
-  auto_disparar_tabela: true,
-  prazo_padrao_resposta_horas: 72,
-}
+// ─── Toggle Switch ──────────────────────────────────────────────────────────
 
-const API_BASE = '/api/v1/bid-frete'
-
-export default function Configuracoes() {
-  const [config, setConfig] = useState<Config>(DEFAULT_CONFIG)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'conectores' | 'notificacoes' | 'geral'>('geral')
-
-  useEffect(() => {
-    fetch(`${API_BASE}/configuracoes`)
-      .then(r => r.ok ? r.json() : DEFAULT_CONFIG)
-      .then(data => setConfig({ ...DEFAULT_CONFIG, ...data }))
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
-
-  async function salvar() {
-    setSaving(true)
-    setError('')
-    setSaved(false)
-    try {
-      const res = await fetch(`${API_BASE}/configuracoes`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(config),
-      })
-      if (!res.ok) throw new Error('Erro ao salvar configuracoes')
-      setSaved(true)
-      setTimeout(() => setSaved(false), 3000)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  function toggleCanal(canal: CanalDisparo) {
-    setConfig(prev => ({
-      ...prev,
-      canais_padrao: prev.canais_padrao.includes(canal)
-        ? prev.canais_padrao.filter(c => c !== canal)
-        : [...prev.canais_padrao, canal],
-    }))
-  }
-
-  function toggleConnector(id: string) {
-    setConfig(prev => ({
-      ...prev,
-      connectors: prev.connectors.map(c =>
-        c.id === id ? { ...c, habilitado: !c.habilitado } : c
-      ),
-    }))
-  }
-
-  function updateNotification(key: keyof NotificationPrefs) {
-    setConfig(prev => ({
-      ...prev,
-      notifications: { ...prev.notifications, [key]: !prev.notifications[key] },
-    }))
-  }
-
-  if (loading) return <div className="p-8">Carregando configuracoes...</div>
-
+function Toggle({ checked, onChange, disabled }: {
+  checked: boolean
+  onChange: (v: boolean) => void
+  disabled?: boolean
+}) {
   return (
-    <div className="p-6 space-y-6 max-w-4xl">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Configuracoes</h1>
-        <div className="flex items-center gap-3">
-          {saved && <span className="text-sm text-green-600">Salvo com sucesso!</span>}
-          {error && <span className="text-sm text-red-600">{error}</span>}
-          <button
-            onClick={salvar}
-            disabled={saving}
-            className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50"
-          >
-            {saving ? 'Salvando...' : 'Salvar'}
-          </button>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      className={`bf-toggle ${checked ? 'bf-toggle--on' : ''} ${disabled ? 'bf-toggle--disabled' : ''}`}
+      onClick={() => !disabled && onChange(!checked)}
+    >
+      <span className="bf-toggle-knob" />
+    </button>
+  )
+}
+
+// ─── Tab: Geral ─────────────────────────────────────────────────────────────
+
+function TabGeral({ config, onChange }: {
+  config: ConfigGeral
+  onChange: (c: ConfigGeral) => void
+}) {
+  return (
+    <div className="bf-cfg-section">
+      <div className="bf-cfg-card">
+        <div className="bf-cfg-row">
+          <div className="bf-cfg-row-info">
+            <span className="bf-cfg-row-label">Resposta automática</span>
+            <span className="bf-cfg-row-desc">
+              Envia confirmação de recebimento automaticamente aos fornecedores
+            </span>
+          </div>
+          <Toggle
+            checked={config.respostaAutomatica}
+            onChange={(v) => onChange({ ...config, respostaAutomatica: v })}
+          />
+        </div>
+
+        <div className="bf-cfg-divider" />
+
+        <div className="bf-cfg-row">
+          <div className="bf-cfg-row-info">
+            <span className="bf-cfg-row-label">Prazo padrão de resposta</span>
+            <span className="bf-cfg-row-desc">
+              Tempo limite (em horas) para fornecedores responderem uma cotação
+            </span>
+          </div>
+          <div className="bf-cfg-input-group">
+            <input
+              type="number"
+              className="bf-cfg-input"
+              value={config.prazoPadraoHoras}
+              min={1}
+              max={720}
+              onChange={(e) => onChange({ ...config, prazoPadraoHoras: Number(e.target.value) || 0 })}
+            />
+            <span className="bf-cfg-input-suffix">horas</span>
+          </div>
+        </div>
+
+        <div className="bf-cfg-divider" />
+
+        <div className="bf-cfg-row">
+          <div className="bf-cfg-row-info">
+            <span className="bf-cfg-row-label">Canais padrão de disparo</span>
+            <span className="bf-cfg-row-desc">
+              Canais utilizados para enviar solicitações de cotação
+            </span>
+          </div>
+          <div className="bf-cfg-checkboxes">
+            <label className="bf-cfg-checkbox">
+              <Toggle
+                checked={config.canaisEmail}
+                onChange={(v) => onChange({ ...config, canaisEmail: v })}
+              />
+              <span>Email</span>
+            </label>
+            <label className="bf-cfg-checkbox">
+              <Toggle
+                checked={config.canaisWhatsApp}
+                onChange={(v) => onChange({ ...config, canaisWhatsApp: v })}
+              />
+              <span>WhatsApp</span>
+            </label>
+          </div>
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b">
-        {([
-          { key: 'geral', label: 'Geral' },
-          { key: 'conectores', label: 'Conectores' },
-          { key: 'notificacoes', label: 'Notificacoes' },
-        ] as const).map(t => (
+// ─── Tab: Conectores ────────────────────────────────────────────────────────
+
+function TabConectores({ conectores, onToggle, onTestar }: {
+  conectores: Conector[]
+  onToggle: (id: string, ativo: boolean) => void
+  onTestar: (id: string) => void
+}) {
+  return (
+    <div className="bf-cfg-section">
+      <div className="bf-cfg-connectors">
+        {conectores.map((c) => (
+          <div key={c.id} className="bf-cfg-connector">
+            <div className="bf-cfg-connector-header">
+              <div className="bf-cfg-connector-icon">
+                <Plugs weight="duotone" size={20} />
+              </div>
+              <div className="bf-cfg-connector-info">
+                <span className="bf-cfg-connector-name">{c.nome}</span>
+                <span className="bf-cfg-connector-tipo">{c.tipo}</span>
+              </div>
+              <Toggle
+                checked={c.ativo}
+                onChange={(v) => onToggle(c.id, v)}
+              />
+            </div>
+
+            <div className="bf-cfg-connector-footer">
+              <div className="bf-cfg-connector-status">
+                {c.ultimoTeste ? (
+                  <>
+                    <span className={`bf-cfg-dot ${c.ultimoTeste.sucesso ? 'bf-cfg-dot--green' : 'bf-cfg-dot--red'}`} />
+                    <span className="bf-cfg-connector-test-info">
+                      {c.ultimoTeste.sucesso ? 'Conectado' : 'Falha'}
+                      <span className="bf-cfg-connector-test-date"> — {c.ultimoTeste.data}</span>
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="bf-cfg-dot bf-cfg-dot--muted" />
+                    <span className="bf-cfg-connector-test-info">Nunca testado</span>
+                  </>
+                )}
+              </div>
+              <button
+                className="bf-cfg-btn-test"
+                onClick={() => onTestar(c.id)}
+              >
+                <ArrowsClockwise weight="bold" size={14} />
+                Testar Conexão
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Tab: Notificações ──────────────────────────────────────────────────────
+
+function TabNotificacoes({ rows, onChange }: {
+  rows: NotificacaoRow[]
+  onChange: (rows: NotificacaoRow[]) => void
+}) {
+  const update = (id: string, field: 'email' | 'whatsapp', value: boolean) => {
+    onChange(rows.map((r) => r.id === id ? { ...r, [field]: value } : r))
+  }
+
+  return (
+    <div className="bf-cfg-section">
+      <div className="bf-cfg-card">
+        <div className="bf-cfg-notif-header">
+          <span className="bf-cfg-notif-col" />
+          <span className="bf-cfg-notif-col-label">Email</span>
+          <span className="bf-cfg-notif-col-label">WhatsApp</span>
+        </div>
+
+        {rows.map((row, i) => (
+          <React.Fragment key={row.id}>
+            {i > 0 && <div className="bf-cfg-divider" />}
+            <div className="bf-cfg-notif-row">
+              <div className="bf-cfg-notif-label">
+                <Bell weight="duotone" size={16} />
+                <span>{row.label}</span>
+              </div>
+              <div className="bf-cfg-notif-toggle">
+                <Toggle checked={row.email} onChange={(v) => update(row.id, 'email', v)} />
+              </div>
+              <div className="bf-cfg-notif-toggle">
+                <Toggle checked={row.whatsapp} onChange={(v) => update(row.id, 'whatsapp', v)} />
+              </div>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Componente Principal ───────────────────────────────────────────────────
+
+const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
+  { key: 'geral', label: 'Geral', icon: <Faders weight="duotone" size={16} /> },
+  { key: 'conectores', label: 'Conectores', icon: <Plugs weight="duotone" size={16} /> },
+  { key: 'notificacoes', label: 'Notificações', icon: <Bell weight="duotone" size={16} /> },
+]
+
+const CONECTORES_INICIAIS: Conector[] = [
+  { id: 'sap', nome: 'SAP OData', tipo: 'ERP', ativo: true, ultimoTeste: { sucesso: true, data: '28/03/2026' } },
+  { id: 'maersk', nome: 'Maersk Spot', tipo: 'Armador', ativo: true, ultimoTeste: { sucesso: true, data: '27/03/2026' } },
+  { id: 'msc', nome: 'MSC API', tipo: 'Armador', ativo: false, ultimoTeste: { sucesso: false, data: '25/03/2026' } },
+  { id: 'hapag', nome: 'Hapag-Lloyd', tipo: 'Armador', ativo: false, ultimoTeste: null },
+]
+
+const NOTIFICACOES_INICIAIS: NotificacaoRow[] = [
+  { id: 'nova_resposta', label: 'Nova resposta recebida', email: true, whatsapp: false },
+  { id: 'cotacao_expirada', label: 'Cotação expirada', email: true, whatsapp: true },
+  { id: 'cotacao_aprovada', label: 'Cotação aprovada', email: true, whatsapp: false },
+]
+
+const CONFIG_INICIAL: ConfigGeral = {
+  respostaAutomatica: true,
+  prazoPadraoHoras: 72,
+  canaisEmail: true,
+  canaisWhatsApp: false,
+}
+
+export default function Configuracoes() {
+  const [tab, setTab] = useState<TabKey>('geral')
+  const [config, setConfig] = useState<ConfigGeral>(CONFIG_INICIAL)
+  const [conectores, setConectores] = useState<Conector[]>(CONECTORES_INICIAIS)
+  const [notificacoes, setNotificacoes] = useState<NotificacaoRow[]>(NOTIFICACOES_INICIAIS)
+  const [salvando, setSalvando] = useState(false)
+  const [salvoMsg, setSalvoMsg] = useState(false)
+
+  // Dirty state detection
+  const isDirty = useMemo(() => {
+    return (
+      JSON.stringify(config) !== JSON.stringify(CONFIG_INICIAL) ||
+      JSON.stringify(conectores) !== JSON.stringify(CONECTORES_INICIAIS) ||
+      JSON.stringify(notificacoes) !== JSON.stringify(NOTIFICACOES_INICIAIS)
+    )
+  }, [config, conectores, notificacoes])
+
+  const handleToggleConector = useCallback((id: string, ativo: boolean) => {
+    setConectores((prev) => prev.map((c) => c.id === id ? { ...c, ativo } : c))
+  }, [])
+
+  const handleTestarConector = useCallback((id: string) => {
+    const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    setConectores((prev) => prev.map((c) =>
+      c.id === id ? { ...c, ultimoTeste: { sucesso: true, data: hoje } } : c
+    ))
+  }, [])
+
+  const handleSalvar = useCallback(async () => {
+    setSalvando(true)
+    // Simula chamada API
+    await new Promise((r) => setTimeout(r, 800))
+    setSalvando(false)
+    setSalvoMsg(true)
+    setTimeout(() => setSalvoMsg(false), 2500)
+  }, [])
+
+  return (
+    <PaginaGlobal
+      className="bf-configuracoes"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<GearSix weight="duotone" size={22} />}
+          titulo="Configurações"
+          subtitulo="Conectores, notificações e preferências"
+        />
+      }
+    >
+      {/* ── Tabs ── */}
+      <div className="bf-cfg-tabs">
+        {TABS.map((t) => (
           <button
             key={t.key}
-            onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2 text-sm border-b-2 -mb-px ${
-              activeTab === t.key ? 'border-blue-600 text-blue-700 font-medium' : 'border-transparent text-gray-500'
-            }`}
+            className={`bf-cfg-tab ${tab === t.key ? 'bf-cfg-tab--ativo' : ''}`}
+            onClick={() => setTab(t.key)}
           >
+            {t.icon}
             {t.label}
           </button>
         ))}
       </div>
 
-      {/* Tab: Geral */}
-      {activeTab === 'geral' && (
-        <div className="bg-white rounded-lg border p-6 space-y-6">
-          <div>
-            <h3 className="text-sm font-semibold mb-3">Canais de Disparo Padrao</h3>
-            <div className="flex gap-3">
-              {(['EMAIL', 'WHATSAPP', 'API', 'PORTAL'] as CanalDisparo[]).map(canal => (
-                <label key={canal} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={config.canais_padrao.includes(canal)}
-                    onChange={() => toggleCanal(canal)}
-                  />
-                  {canal}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold mb-2">Prazo Padrao de Resposta</h3>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={config.prazo_padrao_resposta_horas}
-                onChange={e => setConfig(prev => ({ ...prev, prazo_padrao_resposta_horas: Number(e.target.value) }))}
-                className="border rounded p-2 w-24 text-sm"
-                min={1}
-              />
-              <span className="text-sm text-gray-500">horas</span>
-            </div>
-          </div>
-
-          <div>
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={config.auto_disparar_tabela}
-                onChange={() => setConfig(prev => ({ ...prev, auto_disparar_tabela: !prev.auto_disparar_tabela }))}
-              />
-              Auto-disparar resposta com base na tabela de precos do fornecedor
-            </label>
-          </div>
-        </div>
+      {/* ── Tab Content ── */}
+      {tab === 'geral' && (
+        <TabGeral config={config} onChange={setConfig} />
+      )}
+      {tab === 'conectores' && (
+        <TabConectores
+          conectores={conectores}
+          onToggle={handleToggleConector}
+          onTestar={handleTestarConector}
+        />
+      )}
+      {tab === 'notificacoes' && (
+        <TabNotificacoes rows={notificacoes} onChange={setNotificacoes} />
       )}
 
-      {/* Tab: Conectores */}
-      {activeTab === 'conectores' && (
-        <div className="space-y-4">
-          {config.connectors.length === 0 ? (
-            <div className="bg-white rounded-lg border p-8 text-center text-gray-500">
-              <p>Nenhum conector configurado.</p>
-              <p className="text-xs mt-1">Conectores de ERP, armadores e companhias aereas podem ser configurados aqui.</p>
-            </div>
+      {/* ── Save Bar ── */}
+      <div className={`bf-cfg-savebar ${isDirty ? 'bf-cfg-savebar--visible' : ''}`}>
+        <div className="bf-cfg-savebar-inner">
+          {salvoMsg ? (
+            <span className="bf-cfg-saved-msg">
+              <CheckCircle weight="fill" size={16} />
+              Configurações salvas
+            </span>
           ) : (
-            config.connectors.map(conn => (
-              <div key={conn.id} className="bg-white rounded-lg border p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="font-medium">{conn.nome}</h3>
-                    <p className="text-xs text-gray-400">{conn.tipo}</p>
-                  </div>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={conn.habilitado}
-                      onChange={() => toggleConnector(conn.id)}
-                    />
-                    <span className="text-sm">{conn.habilitado ? 'Habilitado' : 'Desabilitado'}</span>
-                  </label>
-                </div>
-                {conn.habilitado && (
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(conn.configuracao).map(([key, value]) => (
-                      <div key={key}>
-                        <label className="block text-xs text-gray-500 mb-1">{key}</label>
-                        <input
-                          type={key.toLowerCase().includes('secret') || key.toLowerCase().includes('password') ? 'password' : 'text'}
-                          value={value}
-                          onChange={e => {
-                            setConfig(prev => ({
-                              ...prev,
-                              connectors: prev.connectors.map(c =>
-                                c.id === conn.id
-                                  ? { ...c, configuracao: { ...c.configuracao, [key]: e.target.value } }
-                                  : c
-                              ),
-                            }))
-                          }}
-                          className="w-full border rounded p-1.5 text-sm"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))
+            <span className="bf-cfg-dirty-msg">Alterações não salvas</span>
           )}
-
-          <div className="bg-gray-50 rounded-lg border border-dashed p-4 text-center">
-            <p className="text-sm text-gray-500">Conectores disponiveis: SAP, TOTVS, Maersk, MSC, CMA CGM, Hapag-Lloyd</p>
-            <p className="text-xs text-gray-400 mt-1">Para adicionar, entre em contato com o suporte.</p>
-          </div>
+          <button
+            className="bf-cfg-btn-save"
+            onClick={handleSalvar}
+            disabled={salvando || !isDirty}
+          >
+            <FloppyDisk weight="bold" size={16} />
+            {salvando ? 'Salvando...' : 'Salvar'}
+          </button>
         </div>
-      )}
+      </div>
 
-      {/* Tab: Notificacoes */}
-      {activeTab === 'notificacoes' && (
-        <div className="bg-white rounded-lg border p-6 space-y-4">
-          <h3 className="text-sm font-semibold">Notificacoes por Email</h3>
-          <div className="space-y-2">
-            {[
-              { key: 'email_nova_resposta' as const, label: 'Nova resposta de fornecedor' },
-              { key: 'email_cotacao_expirada' as const, label: 'Cotacao expirada' },
-              { key: 'email_aprovacao' as const, label: 'Cotacao aprovada' },
-            ].map(item => (
-              <label key={item.key} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={config.notifications[item.key]}
-                  onChange={() => updateNotification(item.key)}
-                />
-                {item.label}
-              </label>
-            ))}
-          </div>
+      <style>{`
+        /* ═══════════════════════════════════════════════════════ */
+        /* BID FRETE — Configurações Styles                      */
+        /* Design System: Solid Slate (CSS Vars)                 */
+        /* ═══════════════════════════════════════════════════════ */
 
-          <h3 className="text-sm font-semibold pt-4">Notificacoes por WhatsApp</h3>
-          <div className="space-y-2">
-            {[
-              { key: 'whatsapp_nova_resposta' as const, label: 'Nova resposta de fornecedor' },
-              { key: 'whatsapp_cotacao_expirada' as const, label: 'Cotacao expirada' },
-            ].map(item => (
-              <label key={item.key} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={config.notifications[item.key]}
-                  onChange={() => updateNotification(item.key)}
-                />
-                {item.label}
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+        .bf-configuracoes { padding-bottom: 5rem; }
+
+        /* ── Tabs ── */
+        .bf-cfg-tabs {
+          display: flex;
+          gap: 0.25rem;
+          border-bottom: 1px solid var(--bg-elevated, #475569);
+          margin-bottom: 1.5rem;
+        }
+
+        .bf-cfg-tab {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: var(--text-secondary, #94a3b8);
+          background: none;
+          border: none;
+          border-bottom: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.15s;
+          font-family: inherit;
+          white-space: nowrap;
+        }
+        .bf-cfg-tab:hover {
+          color: var(--text-primary, #f1f5f9);
+        }
+        .bf-cfg-tab--ativo {
+          color: var(--accent, #6366f1);
+          border-bottom-color: var(--accent, #6366f1);
+        }
+
+        /* ── Section / Card ── */
+        .bf-cfg-section {
+          max-width: 720px;
+        }
+
+        .bf-cfg-card {
+          background: var(--bg-surface, #334155);
+          border-radius: var(--radius-lg, 12px);
+          padding: 0.25rem 0;
+        }
+
+        .bf-cfg-divider {
+          height: 1px;
+          background: var(--bg-elevated, #475569);
+          margin: 0 1.25rem;
+        }
+
+        /* ── Row ── */
+        .bf-cfg-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1.5rem;
+          padding: 1rem 1.25rem;
+        }
+
+        .bf-cfg-row-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.2rem;
+          flex: 1;
+        }
+
+        .bf-cfg-row-label {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--text-primary, #f1f5f9);
+        }
+
+        .bf-cfg-row-desc {
+          font-size: 0.75rem;
+          color: var(--text-muted, #64748b);
+        }
+
+        /* ── Input ── */
+        .bf-cfg-input-group {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .bf-cfg-input {
+          width: 80px;
+          padding: 0.4rem 0.6rem;
+          border-radius: var(--radius-md, 8px);
+          border: 1px solid var(--bg-elevated, #475569);
+          background: var(--bg-base, #1e293b);
+          color: var(--text-primary, #f1f5f9);
+          font-family: 'DM Mono', monospace;
+          font-size: 0.875rem;
+          text-align: center;
+          outline: none;
+          transition: border-color 0.15s;
+        }
+        .bf-cfg-input:focus {
+          border-color: var(--accent, #6366f1);
+        }
+
+        .bf-cfg-input-suffix {
+          font-size: 0.8125rem;
+          color: var(--text-muted, #64748b);
+        }
+
+        /* ── Checkboxes row ── */
+        .bf-cfg-checkboxes {
+          display: flex;
+          gap: 1.25rem;
+        }
+
+        .bf-cfg-checkbox {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          font-size: 0.8125rem;
+          color: var(--text-secondary, #94a3b8);
+        }
+
+        /* ── Toggle Switch ── */
+        .bf-toggle {
+          position: relative;
+          width: 40px;
+          height: 22px;
+          border-radius: 9999px;
+          border: none;
+          background: var(--bg-elevated, #475569);
+          cursor: pointer;
+          padding: 0;
+          transition: background 0.2s;
+          flex-shrink: 0;
+        }
+        .bf-toggle--on {
+          background: var(--accent, #6366f1);
+        }
+        .bf-toggle--disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .bf-toggle-knob {
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          transition: transform 0.2s;
+          pointer-events: none;
+        }
+        .bf-toggle--on .bf-toggle-knob {
+          transform: translateX(18px);
+        }
+
+        /* ── Conectores ── */
+        .bf-cfg-connectors {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+          gap: 1rem;
+        }
+
+        .bf-cfg-connector {
+          background: var(--bg-surface, #334155);
+          border-radius: var(--radius-lg, 12px);
+          padding: 1rem 1.25rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .bf-cfg-connector-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .bf-cfg-connector-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: var(--radius-md, 8px);
+          background: var(--bg-elevated, #475569);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--accent, #6366f1);
+          flex-shrink: 0;
+        }
+
+        .bf-cfg-connector-info {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+        }
+
+        .bf-cfg-connector-name {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--text-primary, #f1f5f9);
+          font-family: 'DM Mono', monospace;
+        }
+
+        .bf-cfg-connector-tipo {
+          font-size: 0.6875rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          color: var(--accent, #6366f1);
+          background: rgba(99,102,241,0.15);
+          padding: 0.1rem 0.45rem;
+          border-radius: var(--radius-pill, 9999px);
+          width: fit-content;
+        }
+
+        .bf-cfg-connector-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-top: 0.5rem;
+          border-top: 1px solid var(--bg-elevated, #475569);
+        }
+
+        .bf-cfg-connector-status {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .bf-cfg-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .bf-cfg-dot--green  { background: var(--success, #22c55e); }
+        .bf-cfg-dot--red    { background: var(--danger, #ef4444); }
+        .bf-cfg-dot--muted  { background: var(--text-muted, #64748b); }
+
+        .bf-cfg-connector-test-info {
+          font-size: 0.75rem;
+          color: var(--text-secondary, #94a3b8);
+        }
+
+        .bf-cfg-connector-test-date {
+          color: var(--text-muted, #64748b);
+        }
+
+        .bf-cfg-btn-test {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.35rem 0.75rem;
+          border-radius: var(--radius-pill, 9999px);
+          font-size: 0.75rem;
+          font-weight: 600;
+          cursor: pointer;
+          border: 1px solid var(--bg-elevated, #475569);
+          background: transparent;
+          color: var(--text-secondary, #94a3b8);
+          font-family: inherit;
+          transition: all 0.15s;
+        }
+        .bf-cfg-btn-test:hover {
+          background: var(--bg-elevated, #475569);
+          color: var(--text-primary, #f1f5f9);
+        }
+
+        /* ── Notificações ── */
+        .bf-cfg-notif-header {
+          display: grid;
+          grid-template-columns: 1fr 80px 80px;
+          gap: 1rem;
+          padding: 0.75rem 1.25rem;
+          border-bottom: 1px solid var(--bg-elevated, #475569);
+        }
+
+        .bf-cfg-notif-col-label {
+          font-size: 0.6875rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-muted, #64748b);
+          text-align: center;
+        }
+
+        .bf-cfg-notif-row {
+          display: grid;
+          grid-template-columns: 1fr 80px 80px;
+          gap: 1rem;
+          align-items: center;
+          padding: 0.875rem 1.25rem;
+        }
+
+        .bf-cfg-notif-label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: var(--text-primary, #f1f5f9);
+        }
+        .bf-cfg-notif-label svg {
+          color: var(--text-muted, #64748b);
+        }
+
+        .bf-cfg-notif-toggle {
+          display: flex;
+          justify-content: center;
+        }
+
+        /* ── Save Bar ── */
+        .bf-cfg-savebar {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 100;
+          transform: translateY(100%);
+          transition: transform 0.3s ease;
+          pointer-events: none;
+        }
+        .bf-cfg-savebar--visible {
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+
+        .bf-cfg-savebar-inner {
+          max-width: 720px;
+          margin: 0 auto 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          padding: 0.75rem 1.25rem;
+          background: var(--bg-surface, #334155);
+          border-radius: var(--radius-lg, 12px);
+          border: 1px solid var(--bg-elevated, #475569);
+          box-shadow: 0 -4px 24px rgba(0,0,0,0.3);
+        }
+
+        .bf-cfg-dirty-msg {
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: var(--warning, #f59e0b);
+        }
+
+        .bf-cfg-saved-msg {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          font-size: 0.8125rem;
+          font-weight: 500;
+          color: var(--success, #22c55e);
+        }
+
+        .bf-cfg-btn-save {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1.25rem;
+          border-radius: var(--radius-pill, 9999px);
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          border: none;
+          background: var(--accent, #6366f1);
+          color: #fff;
+          font-family: inherit;
+          transition: all 0.15s;
+        }
+        .bf-cfg-btn-save:hover {
+          background: var(--accent-hover, #4f46e5);
+        }
+        .bf-cfg-btn-save:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      `}</style>
+    </PaginaGlobal>
   )
 }

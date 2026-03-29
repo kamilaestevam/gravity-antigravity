@@ -1,15 +1,32 @@
 /**
- * Estimativas.tsx — Tela Principal do SimulaCusto
+ * Estimativas.tsx — Formulário de Criação / Edição de Estimativa
  * Skill: antigravity-simulacusto
  * PRD: https://docs.google.com/document/d/1xOjYUtixZ0DI0O1Fws78lj2mAg1utTfuoO0667s_AfM
  *
- * Formulário de entrada + resultado do cálculo fiscal (Landed Cost).
+ * Formulário completo de entrada + resultado do cálculo fiscal (Landed Cost).
+ * Alinhado com fragment.prisma — campos novos: operacao, tipo_operacao, incoterm, quantidade, referencia, documentos.
  * Design: Premium Dark Mode conforme UX 10 Gravity.
  */
 
-import React, { useState } from 'react'
-import { postSimulacao, getUfs, getPaises } from '../../shared/api'
-import type { SimulacaoInput, ResultadoFiscal, UfItem, PaisItem } from '../../shared/types'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { postSimulacao, getEstimativa, criarEstimativa, atualizarEstimativa } from '../../shared/api'
+import type {
+  SimulacaoInput,
+  ResultadoFiscal,
+  OperacaoTipo,
+  TipoOperacaoDetalhe,
+  DocumentoRef,
+  DocumentoTipo,
+} from '../../shared/types'
+import {
+  OPERACAO_LABELS,
+  TIPO_OPERACAO_LABELS,
+  DOCUMENTO_LABELS,
+} from '../../shared/types'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { Calculator, ArrowLeft, FloppyDisk, Play, Plus, Trash } from '@phosphor-icons/react'
 
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
@@ -19,12 +36,17 @@ const brl = (val: number) =>
 const pct = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2 }).format(val)
 
-// ─── Valores Padrão do Formulário ────────────────────────────────────────────
+// ─── Valores Padrão ──────────────────────────────────────────────────────────
 
 const FORM_DEFAULTS: SimulacaoInput = {
   ncm: '',
   paisOrigem: 'US',
   dataFatoGerador: new Date().toISOString().split('T')[0],
+  operacao: 'IMPORTACAO',
+  tipo_operacao: 'DIRETA',
+  incoterm: 'FOB',
+  quantidade: 1,
+  referencia: '',
   valorProduto: 0,
   moedaProduto: 'USD',
   freteInter: 0,
@@ -39,20 +61,80 @@ const FORM_DEFAULTS: SimulacaoInput = {
   aliquotaPIS: 0.021,
   aliquotaCOFINS: 0.0965,
   aliquotaICMS: 0.18,
+  documentos: [],
 }
+
+const INCOTERMS = ['EXW', 'FCA', 'FAS', 'FOB', 'CFR', 'CIF', 'CPT', 'CIP', 'DAP', 'DPU', 'DDP']
+const MOEDAS = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'BRL']
 
 // ─── Componente ──────────────────────────────────────────────────────────────
 
 export default function Estimativas() {
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+  const isEdicao = Boolean(id)
+
   const [form, setForm] = useState<SimulacaoInput>(FORM_DEFAULTS)
   const [resultado, setResultado] = useState<ResultadoFiscal | null>(null)
   const [loading, setLoading] = useState(false)
+  const [salvando, setSalvando] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const update = (field: keyof SimulacaoInput, value: any) =>
+  // Carregar estimativa existente em modo edição
+  useEffect(() => {
+    if (!id) return
+    getEstimativa(id).then(est => {
+      setForm({
+        ncm: est.ncm,
+        paisOrigem: 'US',
+        dataFatoGerador: est.data_geracao.split('T')[0],
+        operacao: est.operacao,
+        tipo_operacao: est.tipo_operacao,
+        incoterm: est.incoterm,
+        quantidade: est.quantidade,
+        referencia: est.referencia ?? '',
+        valorProduto: est.valor_produto,
+        moedaProduto: est.moeda_produto,
+        freteInter: est.valor_frete,
+        moedaFrete: est.moeda_frete,
+        seguroInter: est.valor_seguro,
+        moedaSeguro: est.moeda_seguro,
+        taxasOrigem: [],
+        taxasDestino: [],
+        ufDesembaraco: est.uf_desembaraco,
+        aliquotaII: est.aliquota_ii,
+        aliquotaIPI: est.aliquota_ipi,
+        aliquotaPIS: est.aliquota_pis,
+        aliquotaCOFINS: est.aliquota_cofins,
+        aliquotaICMS: est.aliquota_icms,
+        reducaoII: est.reducao_ii || undefined,
+        documentos: [],
+      })
+    }).catch(() => setError('Estimativa não encontrada'))
+  }, [id])
+
+  const update = <K extends keyof SimulacaoInput>(field: K, value: SimulacaoInput[K]) =>
     setForm(prev => ({ ...prev, [field]: value }))
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // ─── Documentos ───────────────────────────────────────────────────────────
+
+  const addDocumento = () => {
+    update('documentos', [...form.documentos, { tipo: 'INVOICE' as DocumentoTipo, numero: '' }])
+  }
+
+  const updateDocumento = (index: number, field: keyof DocumentoRef, value: string) => {
+    const docs = [...form.documentos]
+    docs[index] = { ...docs[index], [field]: value }
+    update('documentos', docs)
+  }
+
+  const removeDocumento = (index: number) => {
+    update('documentos', form.documentos.filter((_, i) => i !== index))
+  }
+
+  // ─── Simular ──────────────────────────────────────────────────────────────
+
+  const handleSimular = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -60,26 +142,100 @@ export default function Estimativas() {
     try {
       const res = await postSimulacao(form)
       setResultado(res)
-    } catch (err: any) {
-      setError(err.message ?? 'Erro ao simular')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao simular'
+      setError(msg)
     } finally {
       setLoading(false)
     }
   }
 
-  return (
-    <div className="sc-page">
-      <div className="sc-header">
-        <h1 className="sc-title">Simulador de Custo de Importação</h1>
-        <p className="sc-subtitle">Calcule o Landed Cost completo antes de fechar o negócio</p>
-      </div>
+  // ─── Salvar ───────────────────────────────────────────────────────────────
 
+  const handleSalvar = async () => {
+    setSalvando(true)
+    setError(null)
+    try {
+      if (isEdicao && id) {
+        await atualizarEstimativa(id, form)
+      } else {
+        await criarEstimativa(form)
+      }
+      navigate('/estimativas')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro ao salvar'
+      setError(msg)
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  return (
+    <PaginaGlobal
+      className="sc-page"
+      layout="formulario"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Calculator weight="duotone" size={22} />}
+          titulo={isEdicao ? 'Editar Estimativa' : 'Nova Estimativa de Custo'}
+          subtitulo="Calcule o Landed Cost completo antes de fechar o negócio"
+          acoes={
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="sc-btn sc-btn--ghost" onClick={() => navigate('/estimativas')}>
+                <ArrowLeft weight="bold" size={16} /> Voltar
+              </button>
+              <button className="sc-btn sc-btn--secondary" onClick={handleSalvar} disabled={salvando}>
+                <FloppyDisk weight="duotone" size={16} /> {salvando ? 'Salvando…' : 'Salvar'}
+              </button>
+            </div>
+          }
+        />
+      }
+    >
       <div className="sc-layout">
         {/* ─── Formulário ─────────────────────────────────── */}
-        <form className="sc-form" onSubmit={handleSubmit}>
-          <div className="sc-section-title">Produto & Operação</div>
+        <form className="sc-form" onSubmit={handleSimular}>
 
-          <div className="sc-row">
+          {/* Seção: Operação */}
+          <div className="sc-section-title">Operação</div>
+          <div className="sc-row sc-row--4">
+            <div className="sc-field">
+              <label>Tipo de Operação</label>
+              <select value={form.operacao} onChange={e => update('operacao', e.target.value as OperacaoTipo)}>
+                {(Object.keys(OPERACAO_LABELS) as OperacaoTipo[]).map(k => (
+                  <option key={k} value={k}>{OPERACAO_LABELS[k]}</option>
+                ))}
+              </select>
+            </div>
+            <div className="sc-field">
+              <label>Modalidade</label>
+              <select value={form.tipo_operacao} onChange={e => update('tipo_operacao', e.target.value as TipoOperacaoDetalhe)}>
+                {(Object.keys(TIPO_OPERACAO_LABELS) as TipoOperacaoDetalhe[]).map(k => (
+                  <option key={k} value={k}>{TIPO_OPERACAO_LABELS[k]}</option>
+                ))}
+              </select>
+            </div>
+            <div className="sc-field">
+              <label>Incoterm</label>
+              <select value={form.incoterm} onChange={e => update('incoterm', e.target.value)}>
+                {INCOTERMS.map(i => <option key={i} value={i}>{i}</option>)}
+              </select>
+            </div>
+            <div className="sc-field">
+              <label>Referência Interna</label>
+              <input
+                type="text"
+                maxLength={30}
+                placeholder="REF-2026-001"
+                value={form.referencia}
+                onChange={e => update('referencia', e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Seção: Produto */}
+          <div className="sc-section-title">Produto & Origem</div>
+          <div className="sc-row sc-row--4">
             <div className="sc-field">
               <label>NCM (8 dígitos)</label>
               <input
@@ -113,8 +269,21 @@ export default function Estimativas() {
                 required
               />
             </div>
+            <div className="sc-field">
+              <label>Quantidade</label>
+              <input
+                type="number"
+                min={0}
+                step="0.00001"
+                placeholder="1"
+                value={form.quantidade || ''}
+                onChange={e => update('quantidade', parseFloat(e.target.value) || 0)}
+              />
+            </div>
           </div>
 
+          {/* Seção: Valores */}
+          <div className="sc-section-title">Valores</div>
           <div className="sc-row">
             <div className="sc-field">
               <label>Valor do Produto</label>
@@ -129,7 +298,7 @@ export default function Estimativas() {
                   required
                 />
                 <select value={form.moedaProduto} onChange={e => update('moedaProduto', e.target.value)}>
-                  <option>USD</option><option>EUR</option><option>GBP</option><option>CNY</option><option>BRL</option>
+                  {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
             </div>
@@ -145,14 +314,30 @@ export default function Estimativas() {
                   onChange={e => update('freteInter', parseFloat(e.target.value) || 0)}
                 />
                 <select value={form.moedaFrete} onChange={e => update('moedaFrete', e.target.value)}>
-                  <option>USD</option><option>EUR</option><option>BRL</option>
+                  {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="sc-field">
+              <label>Seguro Internacional</label>
+              <div className="sc-input-group">
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  placeholder="0.00"
+                  value={form.seguroInter || ''}
+                  onChange={e => update('seguroInter', parseFloat(e.target.value) || 0)}
+                />
+                <select value={form.moedaSeguro} onChange={e => update('moedaSeguro', e.target.value)}>
+                  {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
             </div>
           </div>
 
+          {/* Seção: Alíquotas */}
           <div className="sc-section-title">Alíquotas</div>
-
           <div className="sc-row sc-row--4">
             <div className="sc-field">
               <label>II (%)</label>
@@ -195,10 +380,44 @@ export default function Estimativas() {
             </div>
           </div>
 
+          {/* Seção: Documentos Vinculados */}
+          <div className="sc-section-title">
+            Documentos Vinculados
+            <button type="button" className="sc-btn-inline" onClick={addDocumento}>
+              <Plus weight="bold" size={14} /> Adicionar
+            </button>
+          </div>
+          {form.documentos.map((doc, i) => (
+            <div key={i} className="sc-row sc-row--doc">
+              <div className="sc-field">
+                <label>Tipo</label>
+                <select value={doc.tipo} onChange={e => updateDocumento(i, 'tipo', e.target.value)}>
+                  {(Object.keys(DOCUMENTO_LABELS) as DocumentoTipo[]).map(k => (
+                    <option key={k} value={k}>{DOCUMENTO_LABELS[k]}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="sc-field">
+                <label>Número</label>
+                <input
+                  type="text"
+                  maxLength={30}
+                  placeholder="INV-2026-001"
+                  value={doc.numero}
+                  onChange={e => updateDocumento(i, 'numero', e.target.value)}
+                />
+              </div>
+              <button type="button" className="sc-btn-remove" onClick={() => removeDocumento(i)}>
+                <Trash weight="duotone" size={16} />
+              </button>
+            </div>
+          ))}
+
           {error && <div className="sc-error">{error}</div>}
 
           <button type="submit" className="sc-btn-simular" disabled={loading}>
-            {loading ? 'Calculando…' : '▶ Simular Custo'}
+            <Play weight="fill" size={16} />
+            {loading ? 'Calculando…' : 'Simular Custo'}
           </button>
         </form>
 
@@ -235,47 +454,81 @@ export default function Estimativas() {
                 <span>{brl(resultado.totalTributos)}</span>
               </div>
             </div>
+
+            <button type="button" className="sc-btn-salvar" onClick={handleSalvar} disabled={salvando}>
+              <FloppyDisk weight="duotone" size={16} />
+              {salvando ? 'Salvando…' : 'Salvar Estimativa'}
+            </button>
           </div>
         )}
       </div>
 
       <style>{`
-        .sc-page { padding: 2rem; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-primary, #f1f5f9); }
-        .sc-header { margin-bottom: 2rem; }
-        .sc-title { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.25rem; }
-        .sc-subtitle { font-size: 0.875rem; color: var(--text-muted, #94a3b8); margin: 0; }
+        .sc-page { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-primary, #f1f5f9); }
         .sc-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
         @media (max-width: 1024px) { .sc-layout { grid-template-columns: 1fr; } }
-        .sc-form { background: var(--surface-elevated, #1e2433); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-subtle, #334155); }
-        .sc-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted, #94a3b8); margin: 1.25rem 0 0.75rem; }
+
+        /* Form */
+        .sc-form { background: var(--bg-surface, #334155); border-radius: var(--radius-lg, 12px); padding: 1.5rem; }
+        .sc-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted, #64748b); margin: 1.25rem 0 0.75rem; display: flex; align-items: center; justify-content: space-between; }
         .sc-section-title:first-child { margin-top: 0; }
         .sc-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
         .sc-row--4 { grid-template-columns: repeat(4, 1fr); }
         .sc-row--2 { grid-template-columns: repeat(2, 1fr); }
-        .sc-field label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--text-secondary, #cbd5e1); margin-bottom: 0.4rem; }
-        .sc-field input, .sc-field select { width: 100%; background: var(--surface-base, #141929); border: 1px solid var(--border-subtle, #334155); border-radius: 8px; padding: 0.6rem 0.75rem; color: var(--text-primary, #f1f5f9); font-size: 0.875rem; font-family: inherit; outline: none; box-sizing: border-box; transition: border-color 0.15s; }
-        .sc-field input:focus, .sc-field select:focus { border-color: var(--accent-primary, #6366f1); }
+        .sc-row--doc { grid-template-columns: 200px 1fr auto; align-items: end; }
+        @media (max-width: 768px) {
+          .sc-row, .sc-row--4 { grid-template-columns: repeat(2, 1fr); }
+          .sc-row--doc { grid-template-columns: 1fr 1fr auto; }
+        }
+
+        /* Fields */
+        .sc-field label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary, #94a3b8); margin-bottom: 0.375rem; }
+        .sc-field input, .sc-field select { width: 100%; background: var(--bg-base, #1e293b); border: 1px solid var(--bg-elevated, #475569); border-radius: var(--radius-md, 8px); padding: 0.5rem 0.75rem; color: var(--text-primary, #f1f5f9); font-size: 0.875rem; font-family: inherit; outline: none; box-sizing: border-box; transition: border-color 0.15s; }
+        .sc-field input:focus, .sc-field select:focus { border-color: var(--accent, #6366f1); box-shadow: var(--focus-ring, 0 0 0 2px rgba(99,102,241,0.4)); }
         .sc-input-group { display: flex; gap: 0.5rem; }
         .sc-input-group input { flex: 1; }
         .sc-input-group select { width: 80px; flex-shrink: 0; }
-        .sc-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 0.75rem; font-size: 0.875rem; color: #f87171; margin-top: 1rem; }
-        .sc-btn-simular { width: 100%; margin-top: 1.5rem; padding: 0.875rem; background: var(--accent-primary, #6366f1); color: #fff; border: none; border-radius: 10px; font-size: 0.9375rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+
+        /* Buttons */
+        .sc-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.25rem; border-radius: var(--radius-pill, 9999px); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.15s; border: none; font-family: inherit; }
+        .sc-btn--ghost { background: transparent; color: var(--text-secondary, #94a3b8); }
+        .sc-btn--ghost:hover { background: var(--bg-surface, #334155); color: var(--text-primary, #f1f5f9); }
+        .sc-btn--secondary { background: var(--bg-surface, #334155); color: var(--text-primary, #f1f5f9); border: 1px solid var(--bg-elevated, #475569); }
+        .sc-btn--secondary:hover { background: var(--bg-elevated, #475569); }
+        .sc-btn--secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sc-btn-inline { display: inline-flex; align-items: center; gap: 0.25rem; background: none; border: none; color: var(--accent, #6366f1); font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .sc-btn-inline:hover { text-decoration: underline; }
+        .sc-btn-remove { background: none; border: none; color: var(--text-muted, #64748b); cursor: pointer; padding: 0.5rem; margin-bottom: 0.25rem; transition: color 0.15s; }
+        .sc-btn-remove:hover { color: var(--danger, #ef4444); }
+
+        /* Error */
+        .sc-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-md, 8px); padding: 0.75rem; font-size: 0.875rem; color: #f87171; margin-top: 1rem; }
+
+        /* Simular button */
+        .sc-btn-simular { width: 100%; margin-top: 1.5rem; padding: 0.875rem; background: var(--accent, #6366f1); color: #0f172a; border: none; border-radius: var(--radius-pill, 9999px); font-size: 0.9375rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s, transform 0.1s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
         .sc-btn-simular:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
         .sc-btn-simular:disabled { opacity: 0.5; cursor: not-allowed; }
-        .sc-result { background: var(--surface-elevated, #1e2433); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-subtle, #334155); height: fit-content; }
+
+        /* Result panel */
+        .sc-result { background: var(--bg-surface, #334155); border-radius: var(--radius-lg, 12px); padding: 1.5rem; height: fit-content; position: sticky; top: 1rem; }
         .sc-result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
-        .sc-result-badge { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(99,102,241,0.15); color: var(--accent-primary, #6366f1); padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(99,102,241,0.3); }
-        .sc-ptax { font-size: 0.75rem; color: var(--text-muted, #94a3b8); }
-        .sc-landed-cost { text-align: center; padding: 1.25rem 0; border-bottom: 1px solid var(--border-subtle, #334155); margin-bottom: 1.25rem; }
-        .sc-lc-label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--text-muted, #94a3b8); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
-        .sc-lc-value { font-size: 2rem; font-weight: 800; color: var(--accent-success, #10b981); }
+        .sc-result-badge { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(99,102,241,0.15); color: var(--accent, #6366f1); padding: 0.25rem 0.6rem; border-radius: var(--radius-pill, 9999px); border: 1px solid rgba(99,102,241,0.3); }
+        .sc-ptax { font-size: 0.75rem; color: var(--text-muted, #64748b); }
+        .sc-landed-cost { text-align: center; padding: 1.25rem 0; border-bottom: 1px solid var(--bg-elevated, #475569); margin-bottom: 1.25rem; }
+        .sc-lc-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted, #64748b); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+        .sc-lc-value { font-size: 2rem; font-weight: 800; color: var(--success, #22c55e); }
         .sc-breakdown { display: flex; flex-direction: column; gap: 0.5rem; }
         .sc-bk-row { display: flex; justify-content: space-between; font-size: 0.875rem; }
-        .sc-bk-row--tributo { color: var(--text-secondary, #cbd5e1); }
-        .sc-bk-row--tributo em { font-style: normal; font-size: 0.75rem; color: var(--text-muted, #94a3b8); margin-left: 0.25rem; }
+        .sc-bk-row--tributo { color: var(--text-secondary, #94a3b8); }
+        .sc-bk-row--tributo em { font-style: normal; font-size: 0.75rem; color: var(--text-muted, #64748b); margin-left: 0.25rem; }
         .sc-bk-row--total { font-weight: 700; color: var(--text-primary, #f1f5f9); }
-        .sc-bk-sep { height: 1px; background: var(--border-subtle, #334155); margin: 0.5rem 0; }
+        .sc-bk-sep { height: 1px; background: var(--bg-elevated, #475569); margin: 0.5rem 0; }
+
+        /* Salvar after result */
+        .sc-btn-salvar { width: 100%; margin-top: 1.25rem; padding: 0.75rem; background: var(--success, #22c55e); color: #0f172a; border: none; border-radius: var(--radius-pill, 9999px); font-size: 0.875rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .sc-btn-salvar:hover:not(:disabled) { opacity: 0.9; }
+        .sc-btn-salvar:disabled { opacity: 0.5; cursor: not-allowed; }
       `}</style>
-    </div>
+    </PaginaGlobal>
   )
 }

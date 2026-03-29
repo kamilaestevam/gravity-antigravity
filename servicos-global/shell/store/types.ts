@@ -21,6 +21,11 @@ export interface CurrentUser {
   tenantName?: string
 }
 
+export interface AllowedProduct {
+  product_key: string
+  is_active: boolean
+}
+
 export interface ShellState {
   // --- UI ---
   sidebarOpen: boolean
@@ -29,6 +34,10 @@ export interface ShellState {
 
   // --- Usuário ativo ---
   currentUser: CurrentUser
+
+  // --- Produtos habilitados para o tenant ---
+  allowedProducts: AllowedProduct[]
+  productsLoaded: boolean
 
   // --- Notificações (toasts) ---
   notifications: Notification[]
@@ -41,6 +50,8 @@ export interface ShellState {
   toggleTooltips: () => void
   setCurrentUser: (user: CurrentUser) => void
   clearCurrentUser: () => void
+  setAllowedProducts: (products: AllowedProduct[]) => void
+  isProductAllowed: (productKey: string) => boolean
 
   /**
    * Única forma de disparar toasts na aplicação.

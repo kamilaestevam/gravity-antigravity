@@ -55,25 +55,23 @@ export default defineConfig({
         __dirname,
         '../shell/index.ts'
       ),
+      '@shell': path.resolve(
+        __dirname,
+        '../shell/index.ts'
+      ),
     },
   },
+  optimizeDeps: {
+    include: ['react-i18next', 'i18next', 'zustand', '@clerk/clerk-react', '@phosphor-icons/react'],
+  },
   server: {
-    port: 8003,
-    // proxy desabilitado temporariamente (backend não está rodando, causa ENOBUFS)
-    // proxy: {
-    //   '/api': {
-    //     target: 'http://localhost:8005',
-    //     changeOrigin: true,
-    //   },
-    // },
-    // proxy: {
-    //   // Serviço de preferências de usuário (cross-device)
-    //   '/api/tenant/preferencias': {
-    //     target: 'http://localhost:8014',
-    //     changeOrigin: true,
-    //     rewrite: (path) => path.replace(/^\/api\/tenant\/preferencias/, '/api/v1/preferencias'),
-    //   },
-    // },
+    port: 5000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
+    },
   },
 })
 

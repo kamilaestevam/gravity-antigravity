@@ -16,6 +16,8 @@ import {
   Gear,
   CaretDoubleLeft,
   CaretDoubleRight,
+  Calculator,
+  Truck,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -33,8 +35,23 @@ export function Sidebar() {
   const { t } = useTranslation()
   const location = useLocation()
 
+  const { isProductAllowed } = useShellStore()
+
+  // Mapa de product_key por rota — itens com productKey são filtráveis
+  interface NavItem {
+    to: string
+    icon: React.ReactNode
+    labelKey: string
+    productKey?: string  // se definido, só aparece se o produto estiver ativo para o tenant
+  }
+
+  interface NavSection {
+    labelKey: string
+    items: NavItem[]
+  }
+
   // Seções e itens definidos com chaves de tradução — sem strings hardcoded
-  const NAV_SECTIONS = [
+  const NAV_SECTIONS: NavSection[] = [
     {
       labelKey: 'shell.secao.principal',
       items: [
@@ -59,6 +76,13 @@ export function Sidebar() {
       ],
     },
     {
+      labelKey: 'shell.secao.produtos',
+      items: [
+        { to: '/simula-custo', icon: <Calculator weight="duotone" size={20} />, labelKey: 'shell.menu.simula_custo', productKey: 'simula-custo' },
+        { to: '/bid-frete',    icon: <Truck weight="duotone" size={20} />,      labelKey: 'shell.menu.bid_frete',    productKey: 'bid-frete' },
+      ],
+    },
+    {
       labelKey: 'shell.secao.servicos',
       items: [
         { to: '/gabi',        icon: <Star weight="duotone" size={20} />,   labelKey: 'shell.menu.gabi' },
@@ -74,6 +98,14 @@ export function Sidebar() {
       ],
     },
   ]
+
+  // Filtra itens que requerem produto ativo
+  const filteredSections = NAV_SECTIONS.map(section => ({
+    ...section,
+    items: section.items.filter(item =>
+      !item.productKey || isProductAllowed(item.productKey)
+    ),
+  })).filter(section => section.items.length > 0)
 
   return (
     <aside
@@ -100,7 +132,7 @@ export function Sidebar() {
 
       {/* Itens de navegação */}
       <nav className="shell-sidebar__nav" aria-label={t('shell.modulos_sistema')}>
-        {NAV_SECTIONS.map((section) => (
+        {filteredSections.map((section) => (
           <React.Fragment key={section.labelKey}>
             <span
               className="shell-sidebar__section-label"

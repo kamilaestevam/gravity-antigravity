@@ -93,6 +93,32 @@ accessRouter.get('/check-access', async (req, res, next) => {
 })
 
 /**
+ * GET /api/internal/tenant-products
+ * Retorna TODOS os produtos habilitados para um tenant.
+ * Usado pelo Shell para filtrar o sidebar dinamicamente.
+ */
+accessRouter.get('/tenant-products', async (req, res, next) => {
+  try {
+    const tenantId = req.query.tenantId as string
+    if (!tenantId) {
+      throw new AppError('tenantId é obrigatório', 400, 'VALIDATION_ERROR')
+    }
+
+    const products = await productConfigService.listActiveProducts(tenantId)
+
+    // Retorna também os inativos para que o Shell saiba o que esconder
+    const allConfigs = await prisma.productConfig.findMany({
+      where: { tenant_id: tenantId },
+      select: { product_key: true, is_active: true, config: true, updated_at: true },
+    })
+
+    res.json({ tenant_id: tenantId, products: allConfigs })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/internal/product-permissions
  * Busca definições de permissão configuradas para um produto no tenant
  */

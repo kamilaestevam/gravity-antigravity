@@ -6,7 +6,7 @@ import { describe, it, expect } from 'vitest'
 import {
   executarCalculoFiscal,
   SimulacaoInput,
-} from '../../../servicos-global/produto/simula-custo/server/lib/calculator'
+} from '../../../produto/simula-custo/server/src/lib/calculator'
 
 describe('executarCalculoFiscal (Landed Cost Engine)', () => {
   

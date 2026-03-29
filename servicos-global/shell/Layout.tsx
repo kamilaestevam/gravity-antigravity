@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
+import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -21,6 +22,9 @@ interface LayoutProps {
  */
 export function Layout({ children }: LayoutProps) {
   const { sidebarOpen, currentTheme, tooltipsDisabled } = useShellStore()
+
+  // Carrega produtos permitidos para o tenant ao montar
+  useLoadAllowedProducts()
 
   // Sincroniza tema com body no mount e nas mudanças
   React.useEffect(() => {

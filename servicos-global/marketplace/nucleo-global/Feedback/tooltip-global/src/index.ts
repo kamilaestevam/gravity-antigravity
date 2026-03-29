@@ -1,0 +1,1 @@
+export { TooltipGlobal } from './TooltipGlobal'

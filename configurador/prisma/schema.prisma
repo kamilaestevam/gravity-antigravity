@@ -5,7 +5,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  output        = "../generated"
+  output        = "../../servicos-global/configurador/node_modules/.prisma/client"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
@@ -303,6 +303,137 @@ model ProductConfig {
 
   // Apenas uma config por produto por tenant
   @@unique([tenant_id, product_key])
+}
+
+// ---------------------------------------------------------------------------
+// PRODUCT (Catálogo Master da Plataforma)
+// Representa cada produto disponível no portfólio Gravity.
+// Gerenciado exclusivamente por gravity_admin via /api/admin/products.
+// NÃO confundir com ProductConfig (que é a ativação por tenant).
+// ---------------------------------------------------------------------------
+
+enum ProductStatus {
+  ACTIVE
+  SUSPENDED
+  COMING_SOON
+  LEGACY
+  INACTIVE
+}
+
+enum BillingType {
+  MONTHLY
+  PER_PROCESS
+  PER_DOCUMENT
+  PER_ESTIMATE
+  PER_DI_DUIMP
+  PER_DUE
+  PER_PRODUCT
+  PER_FLOW
+  PER_LPCO
+}
+
+enum UserLimitType {
+  UNLIMITED
+  LIMITED
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String
+  status      ProductStatus @default(ACTIVE)
+  launch_date DateTime?
+
+  // Setup
+  has_setup    Boolean @default(false)
+  setup_price  Decimal? @db.Decimal(15, 2)
+  setup_currency String @default("BRL")
+
+  // Billing
+  billing_type    BillingType @default(MONTHLY)
+  unit_price      Decimal  @db.Decimal(15, 2)
+  unit_currency   String   @default("BRL")
+  minimum_price   Decimal  @db.Decimal(15, 2) @default(0)
+  minimum_currency String  @default("BRL")
+  total_price     Decimal? @db.Decimal(15, 2)
+  total_currency  String   @default("BRL")
+
+  // Users
+  user_limit_type   UserLimitType @default(UNLIMITED)
+  base_users_qty    Int?
+  extra_user_price  Decimal? @db.Decimal(15, 2)
+  extra_user_currency String @default("BRL")
+
+  // Support
+  helpdesk_hours       Int @default(0)
+  extra_hour_price     Decimal? @db.Decimal(15, 2)
+  extra_hour_currency  String @default("BRL")
+
+  // Metadata
+  backend_module String?  // ex: "simula-custo", "bid-frete"
+  target_audience String?
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  price_tiers  PriceTier[]
+  negotiations SpecialNegotiation[]
+
+  @@index([status])
+  @@index([slug])
+}
+
+// ---------------------------------------------------------------------------
+// PRICE TIER (Faixas de Preço por Volume)
+// Precificação escalonada — preço varia conforme quantidade.
+// ---------------------------------------------------------------------------
+
+model PriceTier {
+  id          String @id @default(cuid())
+  product_id  String
+  range_from  Int
+  range_to    Int?
+  price       Decimal @db.Decimal(15, 2)
+  currency    String  @default("BRL")
+
+  // Timestamps
+  created_at DateTime @default(now())
+
+  // Relations
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+  @@index([product_id, range_from])
+}
+
+// ---------------------------------------------------------------------------
+// SPECIAL NEGOTIATION (Negociação Especial por Tenant)
+// Condições comerciais personalizadas para tenants específicos.
+// ---------------------------------------------------------------------------
+
+model SpecialNegotiation {
+  id          String   @id @default(cuid())
+  product_id  String
+  tenant_id   String
+  tenant_name String
+  agreement   String   // Descrição: "Desconto 20%", "Preço fixo R$ 5/proc"
+  starts_at   DateTime?
+  ends_at     DateTime?
+  is_unlimited Boolean @default(false)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+  @@index([tenant_id])
+  @@index([product_id, tenant_id])
 }
 
 // ---------------------------------------------------------------------------

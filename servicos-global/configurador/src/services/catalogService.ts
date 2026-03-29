@@ -49,6 +49,21 @@ const PRODUTOS_INICIAIS: ProdutoCatalogo[] = [
       { id: 'f2', de: 100, ate: 500, valor: '2,99', moeda: 'BRL' },
       { id: 'f3', de: 500, valor: '1,99', moeda: 'BRL' },
     ]
+  },
+  {
+    id: 'p3',
+    nome: 'BID Frete Internacional',
+    descricao: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
+    slug: 'bid-frete',
+    status: 'Ativo',
+    tipoCobranca: 'Por Processo',
+    temSetup: true,
+    precoUnitario: { valor: '1,99', moeda: 'BRL' },
+    precoMinimo: { valor: '199,00', moeda: 'BRL' },
+    limiteUsuarios: 'ilimitada',
+    horasHelpDesk: 0,
+    publicoAlvo: 'Importadores, exportadores e despachantes aduaneiros',
+    moduloBackend: 'bid-frete'
   }
 ]
 

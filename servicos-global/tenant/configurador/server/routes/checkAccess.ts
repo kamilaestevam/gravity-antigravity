@@ -51,6 +51,17 @@ const PRODUCT_PERMISSIONS: Record<string, string[]> = {
   'conector-erp': ['erp:sync', 'erp:read'],
   cronometro: ['cronometro:read', 'cronometro:write'],
   atividades: ['atividades:read', 'atividades:write'],
+  'bid-frete': [
+    'bid-frete:read',
+    'bid-frete:write',
+    'bid-frete:cotacao:create',
+    'bid-frete:cotacao:approve',
+    'bid-frete:cotacao:reject',
+    'bid-frete:fornecedor:manage',
+    'bid-frete:portal:access',
+    'bid-frete:dashboard:read',
+    'bid-frete:relatorios:export',
+  ],
 }
 
 // ---------------------------------------------------------------------------

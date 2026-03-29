@@ -55,7 +55,7 @@ export default defineConfig({
   },
 
   server: {
-    port: 5175,
+    port: 5000,
     fs: {
       allow: [monorepoRoot],
     },

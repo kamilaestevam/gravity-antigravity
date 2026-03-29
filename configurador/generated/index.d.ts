@@ -54,6 +54,21 @@ export type UserMembership = $Result.DefaultSelection<Prisma.$UserMembershipPayl
  */
 export type ProductConfig = $Result.DefaultSelection<Prisma.$ProductConfigPayload>
 /**
+ * Model Product
+ * 
+ */
+export type Product = $Result.DefaultSelection<Prisma.$ProductPayload>
+/**
+ * Model PriceTier
+ * 
+ */
+export type PriceTier = $Result.DefaultSelection<Prisma.$PriceTierPayload>
+/**
+ * Model SpecialNegotiation
+ * 
+ */
+export type SpecialNegotiation = $Result.DefaultSelection<Prisma.$SpecialNegotiationPayload>
+/**
  * Model StripeEvent
  * 
  */
@@ -131,6 +146,40 @@ export const UserMembershipRole: {
 export type UserMembershipRole = (typeof UserMembershipRole)[keyof typeof UserMembershipRole]
 
 
+export const ProductStatus: {
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  COMING_SOON: 'COMING_SOON',
+  LEGACY: 'LEGACY',
+  INACTIVE: 'INACTIVE'
+};
+
+export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
+
+
+export const BillingType: {
+  MONTHLY: 'MONTHLY',
+  PER_PROCESS: 'PER_PROCESS',
+  PER_DOCUMENT: 'PER_DOCUMENT',
+  PER_ESTIMATE: 'PER_ESTIMATE',
+  PER_DI_DUIMP: 'PER_DI_DUIMP',
+  PER_DUE: 'PER_DUE',
+  PER_PRODUCT: 'PER_PRODUCT',
+  PER_FLOW: 'PER_FLOW',
+  PER_LPCO: 'PER_LPCO'
+};
+
+export type BillingType = (typeof BillingType)[keyof typeof BillingType]
+
+
+export const UserLimitType: {
+  UNLIMITED: 'UNLIMITED',
+  LIMITED: 'LIMITED'
+};
+
+export type UserLimitType = (typeof UserLimitType)[keyof typeof UserLimitType]
+
+
 export const ServiceTokenScope: {
   SERVICE: 'SERVICE',
   WEBHOOK: 'WEBHOOK',
@@ -164,6 +213,18 @@ export const CompanyStatus: typeof $Enums.CompanyStatus
 export type UserMembershipRole = $Enums.UserMembershipRole
 
 export const UserMembershipRole: typeof $Enums.UserMembershipRole
+
+export type ProductStatus = $Enums.ProductStatus
+
+export const ProductStatus: typeof $Enums.ProductStatus
+
+export type BillingType = $Enums.BillingType
+
+export const BillingType: typeof $Enums.BillingType
+
+export type UserLimitType = $Enums.UserLimitType
+
+export const UserLimitType: typeof $Enums.UserLimitType
 
 export type ServiceTokenScope = $Enums.ServiceTokenScope
 
@@ -371,6 +432,36 @@ export class PrismaClient<
     * ```
     */
   get productConfig(): Prisma.ProductConfigDelegate<ExtArgs>;
+
+  /**
+   * `prisma.product`: Exposes CRUD operations for the **Product** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Products
+    * const products = await prisma.product.findMany()
+    * ```
+    */
+  get product(): Prisma.ProductDelegate<ExtArgs>;
+
+  /**
+   * `prisma.priceTier`: Exposes CRUD operations for the **PriceTier** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PriceTiers
+    * const priceTiers = await prisma.priceTier.findMany()
+    * ```
+    */
+  get priceTier(): Prisma.PriceTierDelegate<ExtArgs>;
+
+  /**
+   * `prisma.specialNegotiation`: Exposes CRUD operations for the **SpecialNegotiation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SpecialNegotiations
+    * const specialNegotiations = await prisma.specialNegotiation.findMany()
+    * ```
+    */
+  get specialNegotiation(): Prisma.SpecialNegotiationDelegate<ExtArgs>;
 
   /**
    * `prisma.stripeEvent`: Exposes CRUD operations for the **StripeEvent** model.
@@ -850,6 +941,9 @@ export namespace Prisma {
     Company: 'Company',
     UserMembership: 'UserMembership',
     ProductConfig: 'ProductConfig',
+    Product: 'Product',
+    PriceTier: 'PriceTier',
+    SpecialNegotiation: 'SpecialNegotiation',
     StripeEvent: 'StripeEvent',
     SupplierTenantAccess: 'SupplierTenantAccess',
     ServiceToken: 'ServiceToken'
@@ -868,7 +962,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "stripeEvent" | "supplierTenantAccess" | "serviceToken"
+      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "product" | "priceTier" | "specialNegotiation" | "stripeEvent" | "supplierTenantAccess" | "serviceToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1432,6 +1526,216 @@ export namespace Prisma {
           }
         }
       }
+      Product: {
+        payload: Prisma.$ProductPayload<ExtArgs>
+        fields: Prisma.ProductFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProductFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProductFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>
+          }
+          findFirst: {
+            args: Prisma.ProductFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProductFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>
+          }
+          findMany: {
+            args: Prisma.ProductFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>[]
+          }
+          create: {
+            args: Prisma.ProductCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>
+          }
+          createMany: {
+            args: Prisma.ProductCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProductCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>[]
+          }
+          delete: {
+            args: Prisma.ProductDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>
+          }
+          update: {
+            args: Prisma.ProductUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProductDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProductUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ProductUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProductPayload>
+          }
+          aggregate: {
+            args: Prisma.ProductAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProduct>
+          }
+          groupBy: {
+            args: Prisma.ProductGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProductGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProductCountArgs<ExtArgs>
+            result: $Utils.Optional<ProductCountAggregateOutputType> | number
+          }
+        }
+      }
+      PriceTier: {
+        payload: Prisma.$PriceTierPayload<ExtArgs>
+        fields: Prisma.PriceTierFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PriceTierFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PriceTierFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+          }
+          findFirst: {
+            args: Prisma.PriceTierFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PriceTierFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+          }
+          findMany: {
+            args: Prisma.PriceTierFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>[]
+          }
+          create: {
+            args: Prisma.PriceTierCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+          }
+          createMany: {
+            args: Prisma.PriceTierCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PriceTierCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>[]
+          }
+          delete: {
+            args: Prisma.PriceTierDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+          }
+          update: {
+            args: Prisma.PriceTierUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+          }
+          deleteMany: {
+            args: Prisma.PriceTierDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PriceTierUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.PriceTierUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+          }
+          aggregate: {
+            args: Prisma.PriceTierAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePriceTier>
+          }
+          groupBy: {
+            args: Prisma.PriceTierGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PriceTierGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PriceTierCountArgs<ExtArgs>
+            result: $Utils.Optional<PriceTierCountAggregateOutputType> | number
+          }
+        }
+      }
+      SpecialNegotiation: {
+        payload: Prisma.$SpecialNegotiationPayload<ExtArgs>
+        fields: Prisma.SpecialNegotiationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SpecialNegotiationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SpecialNegotiationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+          }
+          findFirst: {
+            args: Prisma.SpecialNegotiationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SpecialNegotiationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+          }
+          findMany: {
+            args: Prisma.SpecialNegotiationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>[]
+          }
+          create: {
+            args: Prisma.SpecialNegotiationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+          }
+          createMany: {
+            args: Prisma.SpecialNegotiationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SpecialNegotiationCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>[]
+          }
+          delete: {
+            args: Prisma.SpecialNegotiationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+          }
+          update: {
+            args: Prisma.SpecialNegotiationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+          }
+          deleteMany: {
+            args: Prisma.SpecialNegotiationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SpecialNegotiationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SpecialNegotiationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+          }
+          aggregate: {
+            args: Prisma.SpecialNegotiationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSpecialNegotiation>
+          }
+          groupBy: {
+            args: Prisma.SpecialNegotiationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SpecialNegotiationGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SpecialNegotiationCountArgs<ExtArgs>
+            result: $Utils.Optional<SpecialNegotiationCountAggregateOutputType> | number
+          }
+        }
+      }
       StripeEvent: {
         payload: Prisma.$StripeEventPayload<ExtArgs>
         fields: Prisma.StripeEventFieldRefs
@@ -1933,6 +2237,46 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UserMembershipWhereInput
+  }
+
+
+  /**
+   * Count Type ProductCountOutputType
+   */
+
+  export type ProductCountOutputType = {
+    price_tiers: number
+    negotiations: number
+  }
+
+  export type ProductCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    price_tiers?: boolean | ProductCountOutputTypeCountPrice_tiersArgs
+    negotiations?: boolean | ProductCountOutputTypeCountNegotiationsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProductCountOutputType
+     */
+    select?: ProductCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeCountPrice_tiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PriceTierWhereInput
+  }
+
+  /**
+   * ProductCountOutputType without action
+   */
+  export type ProductCountOutputTypeCountNegotiationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SpecialNegotiationWhereInput
   }
 
 
@@ -9869,6 +10213,3296 @@ export namespace Prisma {
 
 
   /**
+   * Model Product
+   */
+
+  export type AggregateProduct = {
+    _count: ProductCountAggregateOutputType | null
+    _avg: ProductAvgAggregateOutputType | null
+    _sum: ProductSumAggregateOutputType | null
+    _min: ProductMinAggregateOutputType | null
+    _max: ProductMaxAggregateOutputType | null
+  }
+
+  export type ProductAvgAggregateOutputType = {
+    setup_price: Decimal | null
+    unit_price: Decimal | null
+    minimum_price: Decimal | null
+    total_price: Decimal | null
+    base_users_qty: number | null
+    extra_user_price: Decimal | null
+    helpdesk_hours: number | null
+    extra_hour_price: Decimal | null
+  }
+
+  export type ProductSumAggregateOutputType = {
+    setup_price: Decimal | null
+    unit_price: Decimal | null
+    minimum_price: Decimal | null
+    total_price: Decimal | null
+    base_users_qty: number | null
+    extra_user_price: Decimal | null
+    helpdesk_hours: number | null
+    extra_hour_price: Decimal | null
+  }
+
+  export type ProductMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    slug: string | null
+    description: string | null
+    status: $Enums.ProductStatus | null
+    launch_date: Date | null
+    has_setup: boolean | null
+    setup_price: Decimal | null
+    setup_currency: string | null
+    billing_type: $Enums.BillingType | null
+    unit_price: Decimal | null
+    unit_currency: string | null
+    minimum_price: Decimal | null
+    minimum_currency: string | null
+    total_price: Decimal | null
+    total_currency: string | null
+    user_limit_type: $Enums.UserLimitType | null
+    base_users_qty: number | null
+    extra_user_price: Decimal | null
+    extra_user_currency: string | null
+    helpdesk_hours: number | null
+    extra_hour_price: Decimal | null
+    extra_hour_currency: string | null
+    backend_module: string | null
+    target_audience: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type ProductMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    slug: string | null
+    description: string | null
+    status: $Enums.ProductStatus | null
+    launch_date: Date | null
+    has_setup: boolean | null
+    setup_price: Decimal | null
+    setup_currency: string | null
+    billing_type: $Enums.BillingType | null
+    unit_price: Decimal | null
+    unit_currency: string | null
+    minimum_price: Decimal | null
+    minimum_currency: string | null
+    total_price: Decimal | null
+    total_currency: string | null
+    user_limit_type: $Enums.UserLimitType | null
+    base_users_qty: number | null
+    extra_user_price: Decimal | null
+    extra_user_currency: string | null
+    helpdesk_hours: number | null
+    extra_hour_price: Decimal | null
+    extra_hour_currency: string | null
+    backend_module: string | null
+    target_audience: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type ProductCountAggregateOutputType = {
+    id: number
+    name: number
+    slug: number
+    description: number
+    status: number
+    launch_date: number
+    has_setup: number
+    setup_price: number
+    setup_currency: number
+    billing_type: number
+    unit_price: number
+    unit_currency: number
+    minimum_price: number
+    minimum_currency: number
+    total_price: number
+    total_currency: number
+    user_limit_type: number
+    base_users_qty: number
+    extra_user_price: number
+    extra_user_currency: number
+    helpdesk_hours: number
+    extra_hour_price: number
+    extra_hour_currency: number
+    backend_module: number
+    target_audience: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type ProductAvgAggregateInputType = {
+    setup_price?: true
+    unit_price?: true
+    minimum_price?: true
+    total_price?: true
+    base_users_qty?: true
+    extra_user_price?: true
+    helpdesk_hours?: true
+    extra_hour_price?: true
+  }
+
+  export type ProductSumAggregateInputType = {
+    setup_price?: true
+    unit_price?: true
+    minimum_price?: true
+    total_price?: true
+    base_users_qty?: true
+    extra_user_price?: true
+    helpdesk_hours?: true
+    extra_hour_price?: true
+  }
+
+  export type ProductMinAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    description?: true
+    status?: true
+    launch_date?: true
+    has_setup?: true
+    setup_price?: true
+    setup_currency?: true
+    billing_type?: true
+    unit_price?: true
+    unit_currency?: true
+    minimum_price?: true
+    minimum_currency?: true
+    total_price?: true
+    total_currency?: true
+    user_limit_type?: true
+    base_users_qty?: true
+    extra_user_price?: true
+    extra_user_currency?: true
+    helpdesk_hours?: true
+    extra_hour_price?: true
+    extra_hour_currency?: true
+    backend_module?: true
+    target_audience?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type ProductMaxAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    description?: true
+    status?: true
+    launch_date?: true
+    has_setup?: true
+    setup_price?: true
+    setup_currency?: true
+    billing_type?: true
+    unit_price?: true
+    unit_currency?: true
+    minimum_price?: true
+    minimum_currency?: true
+    total_price?: true
+    total_currency?: true
+    user_limit_type?: true
+    base_users_qty?: true
+    extra_user_price?: true
+    extra_user_currency?: true
+    helpdesk_hours?: true
+    extra_hour_price?: true
+    extra_hour_currency?: true
+    backend_module?: true
+    target_audience?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type ProductCountAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    description?: true
+    status?: true
+    launch_date?: true
+    has_setup?: true
+    setup_price?: true
+    setup_currency?: true
+    billing_type?: true
+    unit_price?: true
+    unit_currency?: true
+    minimum_price?: true
+    minimum_currency?: true
+    total_price?: true
+    total_currency?: true
+    user_limit_type?: true
+    base_users_qty?: true
+    extra_user_price?: true
+    extra_user_currency?: true
+    helpdesk_hours?: true
+    extra_hour_price?: true
+    extra_hour_currency?: true
+    backend_module?: true
+    target_audience?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type ProductAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Product to aggregate.
+     */
+    where?: ProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Products to fetch.
+     */
+    orderBy?: ProductOrderByWithRelationInput | ProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Products from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Products.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Products
+    **/
+    _count?: true | ProductCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProductAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProductSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProductMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProductMaxAggregateInputType
+  }
+
+  export type GetProductAggregateType<T extends ProductAggregateArgs> = {
+        [P in keyof T & keyof AggregateProduct]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProduct[P]>
+      : GetScalarType<T[P], AggregateProduct[P]>
+  }
+
+
+
+
+  export type ProductGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProductWhereInput
+    orderBy?: ProductOrderByWithAggregationInput | ProductOrderByWithAggregationInput[]
+    by: ProductScalarFieldEnum[] | ProductScalarFieldEnum
+    having?: ProductScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProductCountAggregateInputType | true
+    _avg?: ProductAvgAggregateInputType
+    _sum?: ProductSumAggregateInputType
+    _min?: ProductMinAggregateInputType
+    _max?: ProductMaxAggregateInputType
+  }
+
+  export type ProductGroupByOutputType = {
+    id: string
+    name: string
+    slug: string
+    description: string
+    status: $Enums.ProductStatus
+    launch_date: Date | null
+    has_setup: boolean
+    setup_price: Decimal | null
+    setup_currency: string
+    billing_type: $Enums.BillingType
+    unit_price: Decimal
+    unit_currency: string
+    minimum_price: Decimal
+    minimum_currency: string
+    total_price: Decimal | null
+    total_currency: string
+    user_limit_type: $Enums.UserLimitType
+    base_users_qty: number | null
+    extra_user_price: Decimal | null
+    extra_user_currency: string
+    helpdesk_hours: number
+    extra_hour_price: Decimal | null
+    extra_hour_currency: string
+    backend_module: string | null
+    target_audience: string | null
+    created_at: Date
+    updated_at: Date
+    _count: ProductCountAggregateOutputType | null
+    _avg: ProductAvgAggregateOutputType | null
+    _sum: ProductSumAggregateOutputType | null
+    _min: ProductMinAggregateOutputType | null
+    _max: ProductMaxAggregateOutputType | null
+  }
+
+  type GetProductGroupByPayload<T extends ProductGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProductGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProductGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProductGroupByOutputType[P]>
+            : GetScalarType<T[P], ProductGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProductSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    description?: boolean
+    status?: boolean
+    launch_date?: boolean
+    has_setup?: boolean
+    setup_price?: boolean
+    setup_currency?: boolean
+    billing_type?: boolean
+    unit_price?: boolean
+    unit_currency?: boolean
+    minimum_price?: boolean
+    minimum_currency?: boolean
+    total_price?: boolean
+    total_currency?: boolean
+    user_limit_type?: boolean
+    base_users_qty?: boolean
+    extra_user_price?: boolean
+    extra_user_currency?: boolean
+    helpdesk_hours?: boolean
+    extra_hour_price?: boolean
+    extra_hour_currency?: boolean
+    backend_module?: boolean
+    target_audience?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    price_tiers?: boolean | Product$price_tiersArgs<ExtArgs>
+    negotiations?: boolean | Product$negotiationsArgs<ExtArgs>
+    _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["product"]>
+
+  export type ProductSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    description?: boolean
+    status?: boolean
+    launch_date?: boolean
+    has_setup?: boolean
+    setup_price?: boolean
+    setup_currency?: boolean
+    billing_type?: boolean
+    unit_price?: boolean
+    unit_currency?: boolean
+    minimum_price?: boolean
+    minimum_currency?: boolean
+    total_price?: boolean
+    total_currency?: boolean
+    user_limit_type?: boolean
+    base_users_qty?: boolean
+    extra_user_price?: boolean
+    extra_user_currency?: boolean
+    helpdesk_hours?: boolean
+    extra_hour_price?: boolean
+    extra_hour_currency?: boolean
+    backend_module?: boolean
+    target_audience?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["product"]>
+
+  export type ProductSelectScalar = {
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    description?: boolean
+    status?: boolean
+    launch_date?: boolean
+    has_setup?: boolean
+    setup_price?: boolean
+    setup_currency?: boolean
+    billing_type?: boolean
+    unit_price?: boolean
+    unit_currency?: boolean
+    minimum_price?: boolean
+    minimum_currency?: boolean
+    total_price?: boolean
+    total_currency?: boolean
+    user_limit_type?: boolean
+    base_users_qty?: boolean
+    extra_user_price?: boolean
+    extra_user_currency?: boolean
+    helpdesk_hours?: boolean
+    extra_hour_price?: boolean
+    extra_hour_currency?: boolean
+    backend_module?: boolean
+    target_audience?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    price_tiers?: boolean | Product$price_tiersArgs<ExtArgs>
+    negotiations?: boolean | Product$negotiationsArgs<ExtArgs>
+    _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ProductIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $ProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Product"
+    objects: {
+      price_tiers: Prisma.$PriceTierPayload<ExtArgs>[]
+      negotiations: Prisma.$SpecialNegotiationPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      slug: string
+      description: string
+      status: $Enums.ProductStatus
+      launch_date: Date | null
+      has_setup: boolean
+      setup_price: Prisma.Decimal | null
+      setup_currency: string
+      billing_type: $Enums.BillingType
+      unit_price: Prisma.Decimal
+      unit_currency: string
+      minimum_price: Prisma.Decimal
+      minimum_currency: string
+      total_price: Prisma.Decimal | null
+      total_currency: string
+      user_limit_type: $Enums.UserLimitType
+      base_users_qty: number | null
+      extra_user_price: Prisma.Decimal | null
+      extra_user_currency: string
+      helpdesk_hours: number
+      extra_hour_price: Prisma.Decimal | null
+      extra_hour_currency: string
+      backend_module: string | null
+      target_audience: string | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["product"]>
+    composites: {}
+  }
+
+  type ProductGetPayload<S extends boolean | null | undefined | ProductDefaultArgs> = $Result.GetResult<Prisma.$ProductPayload, S>
+
+  type ProductCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProductFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProductCountAggregateInputType | true
+    }
+
+  export interface ProductDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Product'], meta: { name: 'Product' } }
+    /**
+     * Find zero or one Product that matches the filter.
+     * @param {ProductFindUniqueArgs} args - Arguments to find a Product
+     * @example
+     * // Get one Product
+     * const product = await prisma.product.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProductFindUniqueArgs>(args: SelectSubset<T, ProductFindUniqueArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one Product that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ProductFindUniqueOrThrowArgs} args - Arguments to find a Product
+     * @example
+     * // Get one Product
+     * const product = await prisma.product.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProductFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first Product that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductFindFirstArgs} args - Arguments to find a Product
+     * @example
+     * // Get one Product
+     * const product = await prisma.product.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProductFindFirstArgs>(args?: SelectSubset<T, ProductFindFirstArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first Product that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductFindFirstOrThrowArgs} args - Arguments to find a Product
+     * @example
+     * // Get one Product
+     * const product = await prisma.product.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProductFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more Products that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Products
+     * const products = await prisma.product.findMany()
+     * 
+     * // Get first 10 Products
+     * const products = await prisma.product.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const productWithIdOnly = await prisma.product.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProductFindManyArgs>(args?: SelectSubset<T, ProductFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a Product.
+     * @param {ProductCreateArgs} args - Arguments to create a Product.
+     * @example
+     * // Create one Product
+     * const Product = await prisma.product.create({
+     *   data: {
+     *     // ... data to create a Product
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProductCreateArgs>(args: SelectSubset<T, ProductCreateArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many Products.
+     * @param {ProductCreateManyArgs} args - Arguments to create many Products.
+     * @example
+     * // Create many Products
+     * const product = await prisma.product.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProductCreateManyArgs>(args?: SelectSubset<T, ProductCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Products and returns the data saved in the database.
+     * @param {ProductCreateManyAndReturnArgs} args - Arguments to create many Products.
+     * @example
+     * // Create many Products
+     * const product = await prisma.product.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Products and only return the `id`
+     * const productWithIdOnly = await prisma.product.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProductCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a Product.
+     * @param {ProductDeleteArgs} args - Arguments to delete one Product.
+     * @example
+     * // Delete one Product
+     * const Product = await prisma.product.delete({
+     *   where: {
+     *     // ... filter to delete one Product
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProductDeleteArgs>(args: SelectSubset<T, ProductDeleteArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one Product.
+     * @param {ProductUpdateArgs} args - Arguments to update one Product.
+     * @example
+     * // Update one Product
+     * const product = await prisma.product.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProductUpdateArgs>(args: SelectSubset<T, ProductUpdateArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more Products.
+     * @param {ProductDeleteManyArgs} args - Arguments to filter Products to delete.
+     * @example
+     * // Delete a few Products
+     * const { count } = await prisma.product.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProductDeleteManyArgs>(args?: SelectSubset<T, ProductDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Products.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Products
+     * const product = await prisma.product.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProductUpdateManyArgs>(args: SelectSubset<T, ProductUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Product.
+     * @param {ProductUpsertArgs} args - Arguments to update or create a Product.
+     * @example
+     * // Update or create a Product
+     * const product = await prisma.product.upsert({
+     *   create: {
+     *     // ... data to create a Product
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Product we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProductUpsertArgs>(args: SelectSubset<T, ProductUpsertArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of Products.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductCountArgs} args - Arguments to filter Products to count.
+     * @example
+     * // Count the number of Products
+     * const count = await prisma.product.count({
+     *   where: {
+     *     // ... the filter for the Products we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProductCountArgs>(
+      args?: Subset<T, ProductCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProductCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Product.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProductAggregateArgs>(args: Subset<T, ProductAggregateArgs>): Prisma.PrismaPromise<GetProductAggregateType<T>>
+
+    /**
+     * Group by Product.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProductGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProductGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProductGroupByArgs['orderBy'] }
+        : { orderBy?: ProductGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProductGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Product model
+   */
+  readonly fields: ProductFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Product.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProductClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    price_tiers<T extends Product$price_tiersArgs<ExtArgs> = {}>(args?: Subset<T, Product$price_tiersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findMany"> | Null>
+    negotiations<T extends Product$negotiationsArgs<ExtArgs> = {}>(args?: Subset<T, Product$negotiationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Product model
+   */ 
+  interface ProductFieldRefs {
+    readonly id: FieldRef<"Product", 'String'>
+    readonly name: FieldRef<"Product", 'String'>
+    readonly slug: FieldRef<"Product", 'String'>
+    readonly description: FieldRef<"Product", 'String'>
+    readonly status: FieldRef<"Product", 'ProductStatus'>
+    readonly launch_date: FieldRef<"Product", 'DateTime'>
+    readonly has_setup: FieldRef<"Product", 'Boolean'>
+    readonly setup_price: FieldRef<"Product", 'Decimal'>
+    readonly setup_currency: FieldRef<"Product", 'String'>
+    readonly billing_type: FieldRef<"Product", 'BillingType'>
+    readonly unit_price: FieldRef<"Product", 'Decimal'>
+    readonly unit_currency: FieldRef<"Product", 'String'>
+    readonly minimum_price: FieldRef<"Product", 'Decimal'>
+    readonly minimum_currency: FieldRef<"Product", 'String'>
+    readonly total_price: FieldRef<"Product", 'Decimal'>
+    readonly total_currency: FieldRef<"Product", 'String'>
+    readonly user_limit_type: FieldRef<"Product", 'UserLimitType'>
+    readonly base_users_qty: FieldRef<"Product", 'Int'>
+    readonly extra_user_price: FieldRef<"Product", 'Decimal'>
+    readonly extra_user_currency: FieldRef<"Product", 'String'>
+    readonly helpdesk_hours: FieldRef<"Product", 'Int'>
+    readonly extra_hour_price: FieldRef<"Product", 'Decimal'>
+    readonly extra_hour_currency: FieldRef<"Product", 'String'>
+    readonly backend_module: FieldRef<"Product", 'String'>
+    readonly target_audience: FieldRef<"Product", 'String'>
+    readonly created_at: FieldRef<"Product", 'DateTime'>
+    readonly updated_at: FieldRef<"Product", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Product findUnique
+   */
+  export type ProductFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * Filter, which Product to fetch.
+     */
+    where: ProductWhereUniqueInput
+  }
+
+  /**
+   * Product findUniqueOrThrow
+   */
+  export type ProductFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * Filter, which Product to fetch.
+     */
+    where: ProductWhereUniqueInput
+  }
+
+  /**
+   * Product findFirst
+   */
+  export type ProductFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * Filter, which Product to fetch.
+     */
+    where?: ProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Products to fetch.
+     */
+    orderBy?: ProductOrderByWithRelationInput | ProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Products.
+     */
+    cursor?: ProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Products from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Products.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Products.
+     */
+    distinct?: ProductScalarFieldEnum | ProductScalarFieldEnum[]
+  }
+
+  /**
+   * Product findFirstOrThrow
+   */
+  export type ProductFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * Filter, which Product to fetch.
+     */
+    where?: ProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Products to fetch.
+     */
+    orderBy?: ProductOrderByWithRelationInput | ProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Products.
+     */
+    cursor?: ProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Products from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Products.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Products.
+     */
+    distinct?: ProductScalarFieldEnum | ProductScalarFieldEnum[]
+  }
+
+  /**
+   * Product findMany
+   */
+  export type ProductFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * Filter, which Products to fetch.
+     */
+    where?: ProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Products to fetch.
+     */
+    orderBy?: ProductOrderByWithRelationInput | ProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Products.
+     */
+    cursor?: ProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Products from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Products.
+     */
+    skip?: number
+    distinct?: ProductScalarFieldEnum | ProductScalarFieldEnum[]
+  }
+
+  /**
+   * Product create
+   */
+  export type ProductCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Product.
+     */
+    data: XOR<ProductCreateInput, ProductUncheckedCreateInput>
+  }
+
+  /**
+   * Product createMany
+   */
+  export type ProductCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Products.
+     */
+    data: ProductCreateManyInput | ProductCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Product createManyAndReturn
+   */
+  export type ProductCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many Products.
+     */
+    data: ProductCreateManyInput | ProductCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Product update
+   */
+  export type ProductUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Product.
+     */
+    data: XOR<ProductUpdateInput, ProductUncheckedUpdateInput>
+    /**
+     * Choose, which Product to update.
+     */
+    where: ProductWhereUniqueInput
+  }
+
+  /**
+   * Product updateMany
+   */
+  export type ProductUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Products.
+     */
+    data: XOR<ProductUpdateManyMutationInput, ProductUncheckedUpdateManyInput>
+    /**
+     * Filter which Products to update
+     */
+    where?: ProductWhereInput
+  }
+
+  /**
+   * Product upsert
+   */
+  export type ProductUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Product to update in case it exists.
+     */
+    where: ProductWhereUniqueInput
+    /**
+     * In case the Product found by the `where` argument doesn't exist, create a new Product with this data.
+     */
+    create: XOR<ProductCreateInput, ProductUncheckedCreateInput>
+    /**
+     * In case the Product was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProductUpdateInput, ProductUncheckedUpdateInput>
+  }
+
+  /**
+   * Product delete
+   */
+  export type ProductDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+    /**
+     * Filter which Product to delete.
+     */
+    where: ProductWhereUniqueInput
+  }
+
+  /**
+   * Product deleteMany
+   */
+  export type ProductDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Products to delete
+     */
+    where?: ProductWhereInput
+  }
+
+  /**
+   * Product.price_tiers
+   */
+  export type Product$price_tiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    where?: PriceTierWhereInput
+    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    cursor?: PriceTierWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+  }
+
+  /**
+   * Product.negotiations
+   */
+  export type Product$negotiationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    where?: SpecialNegotiationWhereInput
+    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    cursor?: SpecialNegotiationWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+  }
+
+  /**
+   * Product without action
+   */
+  export type ProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Product
+     */
+    select?: ProductSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProductInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PriceTier
+   */
+
+  export type AggregatePriceTier = {
+    _count: PriceTierCountAggregateOutputType | null
+    _avg: PriceTierAvgAggregateOutputType | null
+    _sum: PriceTierSumAggregateOutputType | null
+    _min: PriceTierMinAggregateOutputType | null
+    _max: PriceTierMaxAggregateOutputType | null
+  }
+
+  export type PriceTierAvgAggregateOutputType = {
+    range_from: number | null
+    range_to: number | null
+    price: Decimal | null
+  }
+
+  export type PriceTierSumAggregateOutputType = {
+    range_from: number | null
+    range_to: number | null
+    price: Decimal | null
+  }
+
+  export type PriceTierMinAggregateOutputType = {
+    id: string | null
+    product_id: string | null
+    range_from: number | null
+    range_to: number | null
+    price: Decimal | null
+    currency: string | null
+    created_at: Date | null
+  }
+
+  export type PriceTierMaxAggregateOutputType = {
+    id: string | null
+    product_id: string | null
+    range_from: number | null
+    range_to: number | null
+    price: Decimal | null
+    currency: string | null
+    created_at: Date | null
+  }
+
+  export type PriceTierCountAggregateOutputType = {
+    id: number
+    product_id: number
+    range_from: number
+    range_to: number
+    price: number
+    currency: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type PriceTierAvgAggregateInputType = {
+    range_from?: true
+    range_to?: true
+    price?: true
+  }
+
+  export type PriceTierSumAggregateInputType = {
+    range_from?: true
+    range_to?: true
+    price?: true
+  }
+
+  export type PriceTierMinAggregateInputType = {
+    id?: true
+    product_id?: true
+    range_from?: true
+    range_to?: true
+    price?: true
+    currency?: true
+    created_at?: true
+  }
+
+  export type PriceTierMaxAggregateInputType = {
+    id?: true
+    product_id?: true
+    range_from?: true
+    range_to?: true
+    price?: true
+    currency?: true
+    created_at?: true
+  }
+
+  export type PriceTierCountAggregateInputType = {
+    id?: true
+    product_id?: true
+    range_from?: true
+    range_to?: true
+    price?: true
+    currency?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type PriceTierAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PriceTier to aggregate.
+     */
+    where?: PriceTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PriceTiers to fetch.
+     */
+    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PriceTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PriceTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PriceTiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PriceTiers
+    **/
+    _count?: true | PriceTierCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PriceTierAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PriceTierSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PriceTierMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PriceTierMaxAggregateInputType
+  }
+
+  export type GetPriceTierAggregateType<T extends PriceTierAggregateArgs> = {
+        [P in keyof T & keyof AggregatePriceTier]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePriceTier[P]>
+      : GetScalarType<T[P], AggregatePriceTier[P]>
+  }
+
+
+
+
+  export type PriceTierGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PriceTierWhereInput
+    orderBy?: PriceTierOrderByWithAggregationInput | PriceTierOrderByWithAggregationInput[]
+    by: PriceTierScalarFieldEnum[] | PriceTierScalarFieldEnum
+    having?: PriceTierScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PriceTierCountAggregateInputType | true
+    _avg?: PriceTierAvgAggregateInputType
+    _sum?: PriceTierSumAggregateInputType
+    _min?: PriceTierMinAggregateInputType
+    _max?: PriceTierMaxAggregateInputType
+  }
+
+  export type PriceTierGroupByOutputType = {
+    id: string
+    product_id: string
+    range_from: number
+    range_to: number | null
+    price: Decimal
+    currency: string
+    created_at: Date
+    _count: PriceTierCountAggregateOutputType | null
+    _avg: PriceTierAvgAggregateOutputType | null
+    _sum: PriceTierSumAggregateOutputType | null
+    _min: PriceTierMinAggregateOutputType | null
+    _max: PriceTierMaxAggregateOutputType | null
+  }
+
+  type GetPriceTierGroupByPayload<T extends PriceTierGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PriceTierGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PriceTierGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PriceTierGroupByOutputType[P]>
+            : GetScalarType<T[P], PriceTierGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PriceTierSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    product_id?: boolean
+    range_from?: boolean
+    range_to?: boolean
+    price?: boolean
+    currency?: boolean
+    created_at?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["priceTier"]>
+
+  export type PriceTierSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    product_id?: boolean
+    range_from?: boolean
+    range_to?: boolean
+    price?: boolean
+    currency?: boolean
+    created_at?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["priceTier"]>
+
+  export type PriceTierSelectScalar = {
+    id?: boolean
+    product_id?: boolean
+    range_from?: boolean
+    range_to?: boolean
+    price?: boolean
+    currency?: boolean
+    created_at?: boolean
+  }
+
+  export type PriceTierInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type PriceTierIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $PriceTierPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PriceTier"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      product_id: string
+      range_from: number
+      range_to: number | null
+      price: Prisma.Decimal
+      currency: string
+      created_at: Date
+    }, ExtArgs["result"]["priceTier"]>
+    composites: {}
+  }
+
+  type PriceTierGetPayload<S extends boolean | null | undefined | PriceTierDefaultArgs> = $Result.GetResult<Prisma.$PriceTierPayload, S>
+
+  type PriceTierCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PriceTierFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PriceTierCountAggregateInputType | true
+    }
+
+  export interface PriceTierDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PriceTier'], meta: { name: 'PriceTier' } }
+    /**
+     * Find zero or one PriceTier that matches the filter.
+     * @param {PriceTierFindUniqueArgs} args - Arguments to find a PriceTier
+     * @example
+     * // Get one PriceTier
+     * const priceTier = await prisma.priceTier.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PriceTierFindUniqueArgs>(args: SelectSubset<T, PriceTierFindUniqueArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one PriceTier that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {PriceTierFindUniqueOrThrowArgs} args - Arguments to find a PriceTier
+     * @example
+     * // Get one PriceTier
+     * const priceTier = await prisma.priceTier.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PriceTierFindUniqueOrThrowArgs>(args: SelectSubset<T, PriceTierFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first PriceTier that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PriceTierFindFirstArgs} args - Arguments to find a PriceTier
+     * @example
+     * // Get one PriceTier
+     * const priceTier = await prisma.priceTier.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PriceTierFindFirstArgs>(args?: SelectSubset<T, PriceTierFindFirstArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first PriceTier that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PriceTierFindFirstOrThrowArgs} args - Arguments to find a PriceTier
+     * @example
+     * // Get one PriceTier
+     * const priceTier = await prisma.priceTier.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PriceTierFindFirstOrThrowArgs>(args?: SelectSubset<T, PriceTierFindFirstOrThrowArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more PriceTiers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PriceTierFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PriceTiers
+     * const priceTiers = await prisma.priceTier.findMany()
+     * 
+     * // Get first 10 PriceTiers
+     * const priceTiers = await prisma.priceTier.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const priceTierWithIdOnly = await prisma.priceTier.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PriceTierFindManyArgs>(args?: SelectSubset<T, PriceTierFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a PriceTier.
+     * @param {PriceTierCreateArgs} args - Arguments to create a PriceTier.
+     * @example
+     * // Create one PriceTier
+     * const PriceTier = await prisma.priceTier.create({
+     *   data: {
+     *     // ... data to create a PriceTier
+     *   }
+     * })
+     * 
+     */
+    create<T extends PriceTierCreateArgs>(args: SelectSubset<T, PriceTierCreateArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many PriceTiers.
+     * @param {PriceTierCreateManyArgs} args - Arguments to create many PriceTiers.
+     * @example
+     * // Create many PriceTiers
+     * const priceTier = await prisma.priceTier.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PriceTierCreateManyArgs>(args?: SelectSubset<T, PriceTierCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PriceTiers and returns the data saved in the database.
+     * @param {PriceTierCreateManyAndReturnArgs} args - Arguments to create many PriceTiers.
+     * @example
+     * // Create many PriceTiers
+     * const priceTier = await prisma.priceTier.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PriceTiers and only return the `id`
+     * const priceTierWithIdOnly = await prisma.priceTier.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PriceTierCreateManyAndReturnArgs>(args?: SelectSubset<T, PriceTierCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a PriceTier.
+     * @param {PriceTierDeleteArgs} args - Arguments to delete one PriceTier.
+     * @example
+     * // Delete one PriceTier
+     * const PriceTier = await prisma.priceTier.delete({
+     *   where: {
+     *     // ... filter to delete one PriceTier
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PriceTierDeleteArgs>(args: SelectSubset<T, PriceTierDeleteArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one PriceTier.
+     * @param {PriceTierUpdateArgs} args - Arguments to update one PriceTier.
+     * @example
+     * // Update one PriceTier
+     * const priceTier = await prisma.priceTier.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PriceTierUpdateArgs>(args: SelectSubset<T, PriceTierUpdateArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more PriceTiers.
+     * @param {PriceTierDeleteManyArgs} args - Arguments to filter PriceTiers to delete.
+     * @example
+     * // Delete a few PriceTiers
+     * const { count } = await prisma.priceTier.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PriceTierDeleteManyArgs>(args?: SelectSubset<T, PriceTierDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PriceTiers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PriceTierUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PriceTiers
+     * const priceTier = await prisma.priceTier.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PriceTierUpdateManyArgs>(args: SelectSubset<T, PriceTierUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PriceTier.
+     * @param {PriceTierUpsertArgs} args - Arguments to update or create a PriceTier.
+     * @example
+     * // Update or create a PriceTier
+     * const priceTier = await prisma.priceTier.upsert({
+     *   create: {
+     *     // ... data to create a PriceTier
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PriceTier we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PriceTierUpsertArgs>(args: SelectSubset<T, PriceTierUpsertArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of PriceTiers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PriceTierCountArgs} args - Arguments to filter PriceTiers to count.
+     * @example
+     * // Count the number of PriceTiers
+     * const count = await prisma.priceTier.count({
+     *   where: {
+     *     // ... the filter for the PriceTiers we want to count
+     *   }
+     * })
+    **/
+    count<T extends PriceTierCountArgs>(
+      args?: Subset<T, PriceTierCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PriceTierCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PriceTier.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PriceTierAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PriceTierAggregateArgs>(args: Subset<T, PriceTierAggregateArgs>): Prisma.PrismaPromise<GetPriceTierAggregateType<T>>
+
+    /**
+     * Group by PriceTier.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PriceTierGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PriceTierGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PriceTierGroupByArgs['orderBy'] }
+        : { orderBy?: PriceTierGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PriceTierGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPriceTierGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PriceTier model
+   */
+  readonly fields: PriceTierFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PriceTier.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PriceTierClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PriceTier model
+   */ 
+  interface PriceTierFieldRefs {
+    readonly id: FieldRef<"PriceTier", 'String'>
+    readonly product_id: FieldRef<"PriceTier", 'String'>
+    readonly range_from: FieldRef<"PriceTier", 'Int'>
+    readonly range_to: FieldRef<"PriceTier", 'Int'>
+    readonly price: FieldRef<"PriceTier", 'Decimal'>
+    readonly currency: FieldRef<"PriceTier", 'String'>
+    readonly created_at: FieldRef<"PriceTier", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PriceTier findUnique
+   */
+  export type PriceTierFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * Filter, which PriceTier to fetch.
+     */
+    where: PriceTierWhereUniqueInput
+  }
+
+  /**
+   * PriceTier findUniqueOrThrow
+   */
+  export type PriceTierFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * Filter, which PriceTier to fetch.
+     */
+    where: PriceTierWhereUniqueInput
+  }
+
+  /**
+   * PriceTier findFirst
+   */
+  export type PriceTierFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * Filter, which PriceTier to fetch.
+     */
+    where?: PriceTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PriceTiers to fetch.
+     */
+    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PriceTiers.
+     */
+    cursor?: PriceTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PriceTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PriceTiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PriceTiers.
+     */
+    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+  }
+
+  /**
+   * PriceTier findFirstOrThrow
+   */
+  export type PriceTierFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * Filter, which PriceTier to fetch.
+     */
+    where?: PriceTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PriceTiers to fetch.
+     */
+    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PriceTiers.
+     */
+    cursor?: PriceTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PriceTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PriceTiers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PriceTiers.
+     */
+    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+  }
+
+  /**
+   * PriceTier findMany
+   */
+  export type PriceTierFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * Filter, which PriceTiers to fetch.
+     */
+    where?: PriceTierWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PriceTiers to fetch.
+     */
+    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PriceTiers.
+     */
+    cursor?: PriceTierWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PriceTiers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PriceTiers.
+     */
+    skip?: number
+    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+  }
+
+  /**
+   * PriceTier create
+   */
+  export type PriceTierCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PriceTier.
+     */
+    data: XOR<PriceTierCreateInput, PriceTierUncheckedCreateInput>
+  }
+
+  /**
+   * PriceTier createMany
+   */
+  export type PriceTierCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PriceTiers.
+     */
+    data: PriceTierCreateManyInput | PriceTierCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PriceTier createManyAndReturn
+   */
+  export type PriceTierCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many PriceTiers.
+     */
+    data: PriceTierCreateManyInput | PriceTierCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PriceTier update
+   */
+  export type PriceTierUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PriceTier.
+     */
+    data: XOR<PriceTierUpdateInput, PriceTierUncheckedUpdateInput>
+    /**
+     * Choose, which PriceTier to update.
+     */
+    where: PriceTierWhereUniqueInput
+  }
+
+  /**
+   * PriceTier updateMany
+   */
+  export type PriceTierUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PriceTiers.
+     */
+    data: XOR<PriceTierUpdateManyMutationInput, PriceTierUncheckedUpdateManyInput>
+    /**
+     * Filter which PriceTiers to update
+     */
+    where?: PriceTierWhereInput
+  }
+
+  /**
+   * PriceTier upsert
+   */
+  export type PriceTierUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PriceTier to update in case it exists.
+     */
+    where: PriceTierWhereUniqueInput
+    /**
+     * In case the PriceTier found by the `where` argument doesn't exist, create a new PriceTier with this data.
+     */
+    create: XOR<PriceTierCreateInput, PriceTierUncheckedCreateInput>
+    /**
+     * In case the PriceTier was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PriceTierUpdateInput, PriceTierUncheckedUpdateInput>
+  }
+
+  /**
+   * PriceTier delete
+   */
+  export type PriceTierDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+    /**
+     * Filter which PriceTier to delete.
+     */
+    where: PriceTierWhereUniqueInput
+  }
+
+  /**
+   * PriceTier deleteMany
+   */
+  export type PriceTierDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PriceTiers to delete
+     */
+    where?: PriceTierWhereInput
+  }
+
+  /**
+   * PriceTier without action
+   */
+  export type PriceTierDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PriceTier
+     */
+    select?: PriceTierSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PriceTierInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SpecialNegotiation
+   */
+
+  export type AggregateSpecialNegotiation = {
+    _count: SpecialNegotiationCountAggregateOutputType | null
+    _min: SpecialNegotiationMinAggregateOutputType | null
+    _max: SpecialNegotiationMaxAggregateOutputType | null
+  }
+
+  export type SpecialNegotiationMinAggregateOutputType = {
+    id: string | null
+    product_id: string | null
+    tenant_id: string | null
+    tenant_name: string | null
+    agreement: string | null
+    starts_at: Date | null
+    ends_at: Date | null
+    is_unlimited: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type SpecialNegotiationMaxAggregateOutputType = {
+    id: string | null
+    product_id: string | null
+    tenant_id: string | null
+    tenant_name: string | null
+    agreement: string | null
+    starts_at: Date | null
+    ends_at: Date | null
+    is_unlimited: boolean | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type SpecialNegotiationCountAggregateOutputType = {
+    id: number
+    product_id: number
+    tenant_id: number
+    tenant_name: number
+    agreement: number
+    starts_at: number
+    ends_at: number
+    is_unlimited: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type SpecialNegotiationMinAggregateInputType = {
+    id?: true
+    product_id?: true
+    tenant_id?: true
+    tenant_name?: true
+    agreement?: true
+    starts_at?: true
+    ends_at?: true
+    is_unlimited?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type SpecialNegotiationMaxAggregateInputType = {
+    id?: true
+    product_id?: true
+    tenant_id?: true
+    tenant_name?: true
+    agreement?: true
+    starts_at?: true
+    ends_at?: true
+    is_unlimited?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type SpecialNegotiationCountAggregateInputType = {
+    id?: true
+    product_id?: true
+    tenant_id?: true
+    tenant_name?: true
+    agreement?: true
+    starts_at?: true
+    ends_at?: true
+    is_unlimited?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type SpecialNegotiationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SpecialNegotiation to aggregate.
+     */
+    where?: SpecialNegotiationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SpecialNegotiations to fetch.
+     */
+    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SpecialNegotiationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SpecialNegotiations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SpecialNegotiations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SpecialNegotiations
+    **/
+    _count?: true | SpecialNegotiationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SpecialNegotiationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SpecialNegotiationMaxAggregateInputType
+  }
+
+  export type GetSpecialNegotiationAggregateType<T extends SpecialNegotiationAggregateArgs> = {
+        [P in keyof T & keyof AggregateSpecialNegotiation]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSpecialNegotiation[P]>
+      : GetScalarType<T[P], AggregateSpecialNegotiation[P]>
+  }
+
+
+
+
+  export type SpecialNegotiationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SpecialNegotiationWhereInput
+    orderBy?: SpecialNegotiationOrderByWithAggregationInput | SpecialNegotiationOrderByWithAggregationInput[]
+    by: SpecialNegotiationScalarFieldEnum[] | SpecialNegotiationScalarFieldEnum
+    having?: SpecialNegotiationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SpecialNegotiationCountAggregateInputType | true
+    _min?: SpecialNegotiationMinAggregateInputType
+    _max?: SpecialNegotiationMaxAggregateInputType
+  }
+
+  export type SpecialNegotiationGroupByOutputType = {
+    id: string
+    product_id: string
+    tenant_id: string
+    tenant_name: string
+    agreement: string
+    starts_at: Date | null
+    ends_at: Date | null
+    is_unlimited: boolean
+    created_at: Date
+    updated_at: Date
+    _count: SpecialNegotiationCountAggregateOutputType | null
+    _min: SpecialNegotiationMinAggregateOutputType | null
+    _max: SpecialNegotiationMaxAggregateOutputType | null
+  }
+
+  type GetSpecialNegotiationGroupByPayload<T extends SpecialNegotiationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SpecialNegotiationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SpecialNegotiationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SpecialNegotiationGroupByOutputType[P]>
+            : GetScalarType<T[P], SpecialNegotiationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SpecialNegotiationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    product_id?: boolean
+    tenant_id?: boolean
+    tenant_name?: boolean
+    agreement?: boolean
+    starts_at?: boolean
+    ends_at?: boolean
+    is_unlimited?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["specialNegotiation"]>
+
+  export type SpecialNegotiationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    product_id?: boolean
+    tenant_id?: boolean
+    tenant_name?: boolean
+    agreement?: boolean
+    starts_at?: boolean
+    ends_at?: boolean
+    is_unlimited?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["specialNegotiation"]>
+
+  export type SpecialNegotiationSelectScalar = {
+    id?: boolean
+    product_id?: boolean
+    tenant_id?: boolean
+    tenant_name?: boolean
+    agreement?: boolean
+    starts_at?: boolean
+    ends_at?: boolean
+    is_unlimited?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type SpecialNegotiationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+  export type SpecialNegotiationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    product?: boolean | ProductDefaultArgs<ExtArgs>
+  }
+
+  export type $SpecialNegotiationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SpecialNegotiation"
+    objects: {
+      product: Prisma.$ProductPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      product_id: string
+      tenant_id: string
+      tenant_name: string
+      agreement: string
+      starts_at: Date | null
+      ends_at: Date | null
+      is_unlimited: boolean
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["specialNegotiation"]>
+    composites: {}
+  }
+
+  type SpecialNegotiationGetPayload<S extends boolean | null | undefined | SpecialNegotiationDefaultArgs> = $Result.GetResult<Prisma.$SpecialNegotiationPayload, S>
+
+  type SpecialNegotiationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<SpecialNegotiationFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: SpecialNegotiationCountAggregateInputType | true
+    }
+
+  export interface SpecialNegotiationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SpecialNegotiation'], meta: { name: 'SpecialNegotiation' } }
+    /**
+     * Find zero or one SpecialNegotiation that matches the filter.
+     * @param {SpecialNegotiationFindUniqueArgs} args - Arguments to find a SpecialNegotiation
+     * @example
+     * // Get one SpecialNegotiation
+     * const specialNegotiation = await prisma.specialNegotiation.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SpecialNegotiationFindUniqueArgs>(args: SelectSubset<T, SpecialNegotiationFindUniqueArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one SpecialNegotiation that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {SpecialNegotiationFindUniqueOrThrowArgs} args - Arguments to find a SpecialNegotiation
+     * @example
+     * // Get one SpecialNegotiation
+     * const specialNegotiation = await prisma.specialNegotiation.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SpecialNegotiationFindUniqueOrThrowArgs>(args: SelectSubset<T, SpecialNegotiationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first SpecialNegotiation that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SpecialNegotiationFindFirstArgs} args - Arguments to find a SpecialNegotiation
+     * @example
+     * // Get one SpecialNegotiation
+     * const specialNegotiation = await prisma.specialNegotiation.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SpecialNegotiationFindFirstArgs>(args?: SelectSubset<T, SpecialNegotiationFindFirstArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first SpecialNegotiation that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SpecialNegotiationFindFirstOrThrowArgs} args - Arguments to find a SpecialNegotiation
+     * @example
+     * // Get one SpecialNegotiation
+     * const specialNegotiation = await prisma.specialNegotiation.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SpecialNegotiationFindFirstOrThrowArgs>(args?: SelectSubset<T, SpecialNegotiationFindFirstOrThrowArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more SpecialNegotiations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SpecialNegotiationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SpecialNegotiations
+     * const specialNegotiations = await prisma.specialNegotiation.findMany()
+     * 
+     * // Get first 10 SpecialNegotiations
+     * const specialNegotiations = await prisma.specialNegotiation.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const specialNegotiationWithIdOnly = await prisma.specialNegotiation.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SpecialNegotiationFindManyArgs>(args?: SelectSubset<T, SpecialNegotiationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a SpecialNegotiation.
+     * @param {SpecialNegotiationCreateArgs} args - Arguments to create a SpecialNegotiation.
+     * @example
+     * // Create one SpecialNegotiation
+     * const SpecialNegotiation = await prisma.specialNegotiation.create({
+     *   data: {
+     *     // ... data to create a SpecialNegotiation
+     *   }
+     * })
+     * 
+     */
+    create<T extends SpecialNegotiationCreateArgs>(args: SelectSubset<T, SpecialNegotiationCreateArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many SpecialNegotiations.
+     * @param {SpecialNegotiationCreateManyArgs} args - Arguments to create many SpecialNegotiations.
+     * @example
+     * // Create many SpecialNegotiations
+     * const specialNegotiation = await prisma.specialNegotiation.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SpecialNegotiationCreateManyArgs>(args?: SelectSubset<T, SpecialNegotiationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SpecialNegotiations and returns the data saved in the database.
+     * @param {SpecialNegotiationCreateManyAndReturnArgs} args - Arguments to create many SpecialNegotiations.
+     * @example
+     * // Create many SpecialNegotiations
+     * const specialNegotiation = await prisma.specialNegotiation.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SpecialNegotiations and only return the `id`
+     * const specialNegotiationWithIdOnly = await prisma.specialNegotiation.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SpecialNegotiationCreateManyAndReturnArgs>(args?: SelectSubset<T, SpecialNegotiationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a SpecialNegotiation.
+     * @param {SpecialNegotiationDeleteArgs} args - Arguments to delete one SpecialNegotiation.
+     * @example
+     * // Delete one SpecialNegotiation
+     * const SpecialNegotiation = await prisma.specialNegotiation.delete({
+     *   where: {
+     *     // ... filter to delete one SpecialNegotiation
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SpecialNegotiationDeleteArgs>(args: SelectSubset<T, SpecialNegotiationDeleteArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one SpecialNegotiation.
+     * @param {SpecialNegotiationUpdateArgs} args - Arguments to update one SpecialNegotiation.
+     * @example
+     * // Update one SpecialNegotiation
+     * const specialNegotiation = await prisma.specialNegotiation.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SpecialNegotiationUpdateArgs>(args: SelectSubset<T, SpecialNegotiationUpdateArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more SpecialNegotiations.
+     * @param {SpecialNegotiationDeleteManyArgs} args - Arguments to filter SpecialNegotiations to delete.
+     * @example
+     * // Delete a few SpecialNegotiations
+     * const { count } = await prisma.specialNegotiation.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SpecialNegotiationDeleteManyArgs>(args?: SelectSubset<T, SpecialNegotiationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SpecialNegotiations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SpecialNegotiationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SpecialNegotiations
+     * const specialNegotiation = await prisma.specialNegotiation.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SpecialNegotiationUpdateManyArgs>(args: SelectSubset<T, SpecialNegotiationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SpecialNegotiation.
+     * @param {SpecialNegotiationUpsertArgs} args - Arguments to update or create a SpecialNegotiation.
+     * @example
+     * // Update or create a SpecialNegotiation
+     * const specialNegotiation = await prisma.specialNegotiation.upsert({
+     *   create: {
+     *     // ... data to create a SpecialNegotiation
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SpecialNegotiation we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SpecialNegotiationUpsertArgs>(args: SelectSubset<T, SpecialNegotiationUpsertArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of SpecialNegotiations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SpecialNegotiationCountArgs} args - Arguments to filter SpecialNegotiations to count.
+     * @example
+     * // Count the number of SpecialNegotiations
+     * const count = await prisma.specialNegotiation.count({
+     *   where: {
+     *     // ... the filter for the SpecialNegotiations we want to count
+     *   }
+     * })
+    **/
+    count<T extends SpecialNegotiationCountArgs>(
+      args?: Subset<T, SpecialNegotiationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SpecialNegotiationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SpecialNegotiation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SpecialNegotiationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SpecialNegotiationAggregateArgs>(args: Subset<T, SpecialNegotiationAggregateArgs>): Prisma.PrismaPromise<GetSpecialNegotiationAggregateType<T>>
+
+    /**
+     * Group by SpecialNegotiation.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SpecialNegotiationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SpecialNegotiationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SpecialNegotiationGroupByArgs['orderBy'] }
+        : { orderBy?: SpecialNegotiationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SpecialNegotiationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSpecialNegotiationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SpecialNegotiation model
+   */
+  readonly fields: SpecialNegotiationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SpecialNegotiation.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SpecialNegotiationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    product<T extends ProductDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProductDefaultArgs<ExtArgs>>): Prisma__ProductClient<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SpecialNegotiation model
+   */ 
+  interface SpecialNegotiationFieldRefs {
+    readonly id: FieldRef<"SpecialNegotiation", 'String'>
+    readonly product_id: FieldRef<"SpecialNegotiation", 'String'>
+    readonly tenant_id: FieldRef<"SpecialNegotiation", 'String'>
+    readonly tenant_name: FieldRef<"SpecialNegotiation", 'String'>
+    readonly agreement: FieldRef<"SpecialNegotiation", 'String'>
+    readonly starts_at: FieldRef<"SpecialNegotiation", 'DateTime'>
+    readonly ends_at: FieldRef<"SpecialNegotiation", 'DateTime'>
+    readonly is_unlimited: FieldRef<"SpecialNegotiation", 'Boolean'>
+    readonly created_at: FieldRef<"SpecialNegotiation", 'DateTime'>
+    readonly updated_at: FieldRef<"SpecialNegotiation", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SpecialNegotiation findUnique
+   */
+  export type SpecialNegotiationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * Filter, which SpecialNegotiation to fetch.
+     */
+    where: SpecialNegotiationWhereUniqueInput
+  }
+
+  /**
+   * SpecialNegotiation findUniqueOrThrow
+   */
+  export type SpecialNegotiationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * Filter, which SpecialNegotiation to fetch.
+     */
+    where: SpecialNegotiationWhereUniqueInput
+  }
+
+  /**
+   * SpecialNegotiation findFirst
+   */
+  export type SpecialNegotiationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * Filter, which SpecialNegotiation to fetch.
+     */
+    where?: SpecialNegotiationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SpecialNegotiations to fetch.
+     */
+    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SpecialNegotiations.
+     */
+    cursor?: SpecialNegotiationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SpecialNegotiations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SpecialNegotiations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SpecialNegotiations.
+     */
+    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+  }
+
+  /**
+   * SpecialNegotiation findFirstOrThrow
+   */
+  export type SpecialNegotiationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * Filter, which SpecialNegotiation to fetch.
+     */
+    where?: SpecialNegotiationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SpecialNegotiations to fetch.
+     */
+    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SpecialNegotiations.
+     */
+    cursor?: SpecialNegotiationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SpecialNegotiations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SpecialNegotiations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SpecialNegotiations.
+     */
+    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+  }
+
+  /**
+   * SpecialNegotiation findMany
+   */
+  export type SpecialNegotiationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * Filter, which SpecialNegotiations to fetch.
+     */
+    where?: SpecialNegotiationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SpecialNegotiations to fetch.
+     */
+    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SpecialNegotiations.
+     */
+    cursor?: SpecialNegotiationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SpecialNegotiations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SpecialNegotiations.
+     */
+    skip?: number
+    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+  }
+
+  /**
+   * SpecialNegotiation create
+   */
+  export type SpecialNegotiationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SpecialNegotiation.
+     */
+    data: XOR<SpecialNegotiationCreateInput, SpecialNegotiationUncheckedCreateInput>
+  }
+
+  /**
+   * SpecialNegotiation createMany
+   */
+  export type SpecialNegotiationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SpecialNegotiations.
+     */
+    data: SpecialNegotiationCreateManyInput | SpecialNegotiationCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SpecialNegotiation createManyAndReturn
+   */
+  export type SpecialNegotiationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many SpecialNegotiations.
+     */
+    data: SpecialNegotiationCreateManyInput | SpecialNegotiationCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SpecialNegotiation update
+   */
+  export type SpecialNegotiationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SpecialNegotiation.
+     */
+    data: XOR<SpecialNegotiationUpdateInput, SpecialNegotiationUncheckedUpdateInput>
+    /**
+     * Choose, which SpecialNegotiation to update.
+     */
+    where: SpecialNegotiationWhereUniqueInput
+  }
+
+  /**
+   * SpecialNegotiation updateMany
+   */
+  export type SpecialNegotiationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SpecialNegotiations.
+     */
+    data: XOR<SpecialNegotiationUpdateManyMutationInput, SpecialNegotiationUncheckedUpdateManyInput>
+    /**
+     * Filter which SpecialNegotiations to update
+     */
+    where?: SpecialNegotiationWhereInput
+  }
+
+  /**
+   * SpecialNegotiation upsert
+   */
+  export type SpecialNegotiationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SpecialNegotiation to update in case it exists.
+     */
+    where: SpecialNegotiationWhereUniqueInput
+    /**
+     * In case the SpecialNegotiation found by the `where` argument doesn't exist, create a new SpecialNegotiation with this data.
+     */
+    create: XOR<SpecialNegotiationCreateInput, SpecialNegotiationUncheckedCreateInput>
+    /**
+     * In case the SpecialNegotiation was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SpecialNegotiationUpdateInput, SpecialNegotiationUncheckedUpdateInput>
+  }
+
+  /**
+   * SpecialNegotiation delete
+   */
+  export type SpecialNegotiationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+    /**
+     * Filter which SpecialNegotiation to delete.
+     */
+    where: SpecialNegotiationWhereUniqueInput
+  }
+
+  /**
+   * SpecialNegotiation deleteMany
+   */
+  export type SpecialNegotiationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SpecialNegotiations to delete
+     */
+    where?: SpecialNegotiationWhereInput
+  }
+
+  /**
+   * SpecialNegotiation without action
+   */
+  export type SpecialNegotiationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SpecialNegotiation
+     */
+    select?: SpecialNegotiationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SpecialNegotiationInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Model StripeEvent
    */
 
@@ -12663,6 +16297,68 @@ export namespace Prisma {
   export type ProductConfigScalarFieldEnum = (typeof ProductConfigScalarFieldEnum)[keyof typeof ProductConfigScalarFieldEnum]
 
 
+  export const ProductScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    slug: 'slug',
+    description: 'description',
+    status: 'status',
+    launch_date: 'launch_date',
+    has_setup: 'has_setup',
+    setup_price: 'setup_price',
+    setup_currency: 'setup_currency',
+    billing_type: 'billing_type',
+    unit_price: 'unit_price',
+    unit_currency: 'unit_currency',
+    minimum_price: 'minimum_price',
+    minimum_currency: 'minimum_currency',
+    total_price: 'total_price',
+    total_currency: 'total_currency',
+    user_limit_type: 'user_limit_type',
+    base_users_qty: 'base_users_qty',
+    extra_user_price: 'extra_user_price',
+    extra_user_currency: 'extra_user_currency',
+    helpdesk_hours: 'helpdesk_hours',
+    extra_hour_price: 'extra_hour_price',
+    extra_hour_currency: 'extra_hour_currency',
+    backend_module: 'backend_module',
+    target_audience: 'target_audience',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+  export const PriceTierScalarFieldEnum: {
+    id: 'id',
+    product_id: 'product_id',
+    range_from: 'range_from',
+    range_to: 'range_to',
+    price: 'price',
+    currency: 'currency',
+    created_at: 'created_at'
+  };
+
+  export type PriceTierScalarFieldEnum = (typeof PriceTierScalarFieldEnum)[keyof typeof PriceTierScalarFieldEnum]
+
+
+  export const SpecialNegotiationScalarFieldEnum: {
+    id: 'id',
+    product_id: 'product_id',
+    tenant_id: 'tenant_id',
+    tenant_name: 'tenant_name',
+    agreement: 'agreement',
+    starts_at: 'starts_at',
+    ends_at: 'ends_at',
+    is_unlimited: 'is_unlimited',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type SpecialNegotiationScalarFieldEnum = (typeof SpecialNegotiationScalarFieldEnum)[keyof typeof SpecialNegotiationScalarFieldEnum]
+
+
   export const StripeEventScalarFieldEnum: {
     id: 'id',
     type: 'type',
@@ -12871,16 +16567,58 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'ServiceTokenScope'
+   * Reference to a field of type 'ProductStatus'
    */
-  export type EnumServiceTokenScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceTokenScope'>
+  export type EnumProductStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductStatus'>
     
 
 
   /**
-   * Reference to a field of type 'ServiceTokenScope[]'
+   * Reference to a field of type 'ProductStatus[]'
    */
-  export type ListEnumServiceTokenScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceTokenScope[]'>
+  export type ListEnumProductStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProductStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal'
+   */
+  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+  /**
+   * Reference to a field of type 'Decimal[]'
+   */
+  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'BillingType'
+   */
+  export type EnumBillingTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BillingType'>
+    
+
+
+  /**
+   * Reference to a field of type 'BillingType[]'
+   */
+  export type ListEnumBillingTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BillingType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'UserLimitType'
+   */
+  export type EnumUserLimitTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserLimitType'>
+    
+
+
+  /**
+   * Reference to a field of type 'UserLimitType[]'
+   */
+  export type ListEnumUserLimitTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserLimitType[]'>
     
 
 
@@ -12895,6 +16633,34 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ServiceTokenScope'
+   */
+  export type EnumServiceTokenScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceTokenScope'>
+    
+
+
+  /**
+   * Reference to a field of type 'ServiceTokenScope[]'
+   */
+  export type ListEnumServiceTokenScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ServiceTokenScope[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -13503,6 +17269,323 @@ export namespace Prisma {
     is_active?: BoolWithAggregatesFilter<"ProductConfig"> | boolean
     created_at?: DateTimeWithAggregatesFilter<"ProductConfig"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"ProductConfig"> | Date | string
+  }
+
+  export type ProductWhereInput = {
+    AND?: ProductWhereInput | ProductWhereInput[]
+    OR?: ProductWhereInput[]
+    NOT?: ProductWhereInput | ProductWhereInput[]
+    id?: StringFilter<"Product"> | string
+    name?: StringFilter<"Product"> | string
+    slug?: StringFilter<"Product"> | string
+    description?: StringFilter<"Product"> | string
+    status?: EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
+    launch_date?: DateTimeNullableFilter<"Product"> | Date | string | null
+    has_setup?: BoolFilter<"Product"> | boolean
+    setup_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFilter<"Product"> | string
+    billing_type?: EnumBillingTypeFilter<"Product"> | $Enums.BillingType
+    unit_price?: DecimalFilter<"Product"> | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFilter<"Product"> | string
+    minimum_price?: DecimalFilter<"Product"> | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFilter<"Product"> | string
+    total_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFilter<"Product"> | string
+    user_limit_type?: EnumUserLimitTypeFilter<"Product"> | $Enums.UserLimitType
+    base_users_qty?: IntNullableFilter<"Product"> | number | null
+    extra_user_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFilter<"Product"> | string
+    helpdesk_hours?: IntFilter<"Product"> | number
+    extra_hour_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFilter<"Product"> | string
+    backend_module?: StringNullableFilter<"Product"> | string | null
+    target_audience?: StringNullableFilter<"Product"> | string | null
+    created_at?: DateTimeFilter<"Product"> | Date | string
+    updated_at?: DateTimeFilter<"Product"> | Date | string
+    price_tiers?: PriceTierListRelationFilter
+    negotiations?: SpecialNegotiationListRelationFilter
+  }
+
+  export type ProductOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    launch_date?: SortOrderInput | SortOrder
+    has_setup?: SortOrder
+    setup_price?: SortOrderInput | SortOrder
+    setup_currency?: SortOrder
+    billing_type?: SortOrder
+    unit_price?: SortOrder
+    unit_currency?: SortOrder
+    minimum_price?: SortOrder
+    minimum_currency?: SortOrder
+    total_price?: SortOrderInput | SortOrder
+    total_currency?: SortOrder
+    user_limit_type?: SortOrder
+    base_users_qty?: SortOrderInput | SortOrder
+    extra_user_price?: SortOrderInput | SortOrder
+    extra_user_currency?: SortOrder
+    helpdesk_hours?: SortOrder
+    extra_hour_price?: SortOrderInput | SortOrder
+    extra_hour_currency?: SortOrder
+    backend_module?: SortOrderInput | SortOrder
+    target_audience?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    price_tiers?: PriceTierOrderByRelationAggregateInput
+    negotiations?: SpecialNegotiationOrderByRelationAggregateInput
+  }
+
+  export type ProductWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug?: string
+    AND?: ProductWhereInput | ProductWhereInput[]
+    OR?: ProductWhereInput[]
+    NOT?: ProductWhereInput | ProductWhereInput[]
+    name?: StringFilter<"Product"> | string
+    description?: StringFilter<"Product"> | string
+    status?: EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
+    launch_date?: DateTimeNullableFilter<"Product"> | Date | string | null
+    has_setup?: BoolFilter<"Product"> | boolean
+    setup_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFilter<"Product"> | string
+    billing_type?: EnumBillingTypeFilter<"Product"> | $Enums.BillingType
+    unit_price?: DecimalFilter<"Product"> | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFilter<"Product"> | string
+    minimum_price?: DecimalFilter<"Product"> | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFilter<"Product"> | string
+    total_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFilter<"Product"> | string
+    user_limit_type?: EnumUserLimitTypeFilter<"Product"> | $Enums.UserLimitType
+    base_users_qty?: IntNullableFilter<"Product"> | number | null
+    extra_user_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFilter<"Product"> | string
+    helpdesk_hours?: IntFilter<"Product"> | number
+    extra_hour_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFilter<"Product"> | string
+    backend_module?: StringNullableFilter<"Product"> | string | null
+    target_audience?: StringNullableFilter<"Product"> | string | null
+    created_at?: DateTimeFilter<"Product"> | Date | string
+    updated_at?: DateTimeFilter<"Product"> | Date | string
+    price_tiers?: PriceTierListRelationFilter
+    negotiations?: SpecialNegotiationListRelationFilter
+  }, "id" | "slug">
+
+  export type ProductOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    launch_date?: SortOrderInput | SortOrder
+    has_setup?: SortOrder
+    setup_price?: SortOrderInput | SortOrder
+    setup_currency?: SortOrder
+    billing_type?: SortOrder
+    unit_price?: SortOrder
+    unit_currency?: SortOrder
+    minimum_price?: SortOrder
+    minimum_currency?: SortOrder
+    total_price?: SortOrderInput | SortOrder
+    total_currency?: SortOrder
+    user_limit_type?: SortOrder
+    base_users_qty?: SortOrderInput | SortOrder
+    extra_user_price?: SortOrderInput | SortOrder
+    extra_user_currency?: SortOrder
+    helpdesk_hours?: SortOrder
+    extra_hour_price?: SortOrderInput | SortOrder
+    extra_hour_currency?: SortOrder
+    backend_module?: SortOrderInput | SortOrder
+    target_audience?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: ProductCountOrderByAggregateInput
+    _avg?: ProductAvgOrderByAggregateInput
+    _max?: ProductMaxOrderByAggregateInput
+    _min?: ProductMinOrderByAggregateInput
+    _sum?: ProductSumOrderByAggregateInput
+  }
+
+  export type ProductScalarWhereWithAggregatesInput = {
+    AND?: ProductScalarWhereWithAggregatesInput | ProductScalarWhereWithAggregatesInput[]
+    OR?: ProductScalarWhereWithAggregatesInput[]
+    NOT?: ProductScalarWhereWithAggregatesInput | ProductScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Product"> | string
+    name?: StringWithAggregatesFilter<"Product"> | string
+    slug?: StringWithAggregatesFilter<"Product"> | string
+    description?: StringWithAggregatesFilter<"Product"> | string
+    status?: EnumProductStatusWithAggregatesFilter<"Product"> | $Enums.ProductStatus
+    launch_date?: DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
+    has_setup?: BoolWithAggregatesFilter<"Product"> | boolean
+    setup_price?: DecimalNullableWithAggregatesFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringWithAggregatesFilter<"Product"> | string
+    billing_type?: EnumBillingTypeWithAggregatesFilter<"Product"> | $Enums.BillingType
+    unit_price?: DecimalWithAggregatesFilter<"Product"> | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringWithAggregatesFilter<"Product"> | string
+    minimum_price?: DecimalWithAggregatesFilter<"Product"> | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringWithAggregatesFilter<"Product"> | string
+    total_price?: DecimalNullableWithAggregatesFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringWithAggregatesFilter<"Product"> | string
+    user_limit_type?: EnumUserLimitTypeWithAggregatesFilter<"Product"> | $Enums.UserLimitType
+    base_users_qty?: IntNullableWithAggregatesFilter<"Product"> | number | null
+    extra_user_price?: DecimalNullableWithAggregatesFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringWithAggregatesFilter<"Product"> | string
+    helpdesk_hours?: IntWithAggregatesFilter<"Product"> | number
+    extra_hour_price?: DecimalNullableWithAggregatesFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringWithAggregatesFilter<"Product"> | string
+    backend_module?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    target_audience?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"Product"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"Product"> | Date | string
+  }
+
+  export type PriceTierWhereInput = {
+    AND?: PriceTierWhereInput | PriceTierWhereInput[]
+    OR?: PriceTierWhereInput[]
+    NOT?: PriceTierWhereInput | PriceTierWhereInput[]
+    id?: StringFilter<"PriceTier"> | string
+    product_id?: StringFilter<"PriceTier"> | string
+    range_from?: IntFilter<"PriceTier"> | number
+    range_to?: IntNullableFilter<"PriceTier"> | number | null
+    price?: DecimalFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"PriceTier"> | string
+    created_at?: DateTimeFilter<"PriceTier"> | Date | string
+    product?: XOR<ProductRelationFilter, ProductWhereInput>
+  }
+
+  export type PriceTierOrderByWithRelationInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    range_from?: SortOrder
+    range_to?: SortOrderInput | SortOrder
+    price?: SortOrder
+    currency?: SortOrder
+    created_at?: SortOrder
+    product?: ProductOrderByWithRelationInput
+  }
+
+  export type PriceTierWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PriceTierWhereInput | PriceTierWhereInput[]
+    OR?: PriceTierWhereInput[]
+    NOT?: PriceTierWhereInput | PriceTierWhereInput[]
+    product_id?: StringFilter<"PriceTier"> | string
+    range_from?: IntFilter<"PriceTier"> | number
+    range_to?: IntNullableFilter<"PriceTier"> | number | null
+    price?: DecimalFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"PriceTier"> | string
+    created_at?: DateTimeFilter<"PriceTier"> | Date | string
+    product?: XOR<ProductRelationFilter, ProductWhereInput>
+  }, "id">
+
+  export type PriceTierOrderByWithAggregationInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    range_from?: SortOrder
+    range_to?: SortOrderInput | SortOrder
+    price?: SortOrder
+    currency?: SortOrder
+    created_at?: SortOrder
+    _count?: PriceTierCountOrderByAggregateInput
+    _avg?: PriceTierAvgOrderByAggregateInput
+    _max?: PriceTierMaxOrderByAggregateInput
+    _min?: PriceTierMinOrderByAggregateInput
+    _sum?: PriceTierSumOrderByAggregateInput
+  }
+
+  export type PriceTierScalarWhereWithAggregatesInput = {
+    AND?: PriceTierScalarWhereWithAggregatesInput | PriceTierScalarWhereWithAggregatesInput[]
+    OR?: PriceTierScalarWhereWithAggregatesInput[]
+    NOT?: PriceTierScalarWhereWithAggregatesInput | PriceTierScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PriceTier"> | string
+    product_id?: StringWithAggregatesFilter<"PriceTier"> | string
+    range_from?: IntWithAggregatesFilter<"PriceTier"> | number
+    range_to?: IntNullableWithAggregatesFilter<"PriceTier"> | number | null
+    price?: DecimalWithAggregatesFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"PriceTier"> | string
+    created_at?: DateTimeWithAggregatesFilter<"PriceTier"> | Date | string
+  }
+
+  export type SpecialNegotiationWhereInput = {
+    AND?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
+    OR?: SpecialNegotiationWhereInput[]
+    NOT?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
+    id?: StringFilter<"SpecialNegotiation"> | string
+    product_id?: StringFilter<"SpecialNegotiation"> | string
+    tenant_id?: StringFilter<"SpecialNegotiation"> | string
+    tenant_name?: StringFilter<"SpecialNegotiation"> | string
+    agreement?: StringFilter<"SpecialNegotiation"> | string
+    starts_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
+    ends_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
+    is_unlimited?: BoolFilter<"SpecialNegotiation"> | boolean
+    created_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+    updated_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+    product?: XOR<ProductRelationFilter, ProductWhereInput>
+  }
+
+  export type SpecialNegotiationOrderByWithRelationInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    tenant_id?: SortOrder
+    tenant_name?: SortOrder
+    agreement?: SortOrder
+    starts_at?: SortOrderInput | SortOrder
+    ends_at?: SortOrderInput | SortOrder
+    is_unlimited?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    product?: ProductOrderByWithRelationInput
+  }
+
+  export type SpecialNegotiationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
+    OR?: SpecialNegotiationWhereInput[]
+    NOT?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
+    product_id?: StringFilter<"SpecialNegotiation"> | string
+    tenant_id?: StringFilter<"SpecialNegotiation"> | string
+    tenant_name?: StringFilter<"SpecialNegotiation"> | string
+    agreement?: StringFilter<"SpecialNegotiation"> | string
+    starts_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
+    ends_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
+    is_unlimited?: BoolFilter<"SpecialNegotiation"> | boolean
+    created_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+    updated_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+    product?: XOR<ProductRelationFilter, ProductWhereInput>
+  }, "id">
+
+  export type SpecialNegotiationOrderByWithAggregationInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    tenant_id?: SortOrder
+    tenant_name?: SortOrder
+    agreement?: SortOrder
+    starts_at?: SortOrderInput | SortOrder
+    ends_at?: SortOrderInput | SortOrder
+    is_unlimited?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: SpecialNegotiationCountOrderByAggregateInput
+    _max?: SpecialNegotiationMaxOrderByAggregateInput
+    _min?: SpecialNegotiationMinOrderByAggregateInput
+  }
+
+  export type SpecialNegotiationScalarWhereWithAggregatesInput = {
+    AND?: SpecialNegotiationScalarWhereWithAggregatesInput | SpecialNegotiationScalarWhereWithAggregatesInput[]
+    OR?: SpecialNegotiationScalarWhereWithAggregatesInput[]
+    NOT?: SpecialNegotiationScalarWhereWithAggregatesInput | SpecialNegotiationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
+    product_id?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
+    tenant_id?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
+    tenant_name?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
+    agreement?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
+    starts_at?: DateTimeNullableWithAggregatesFilter<"SpecialNegotiation"> | Date | string | null
+    ends_at?: DateTimeNullableWithAggregatesFilter<"SpecialNegotiation"> | Date | string | null
+    is_unlimited?: BoolWithAggregatesFilter<"SpecialNegotiation"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"SpecialNegotiation"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"SpecialNegotiation"> | Date | string
   }
 
   export type StripeEventWhereInput = {
@@ -14334,6 +18417,383 @@ export namespace Prisma {
     product_key?: StringFieldUpdateOperationsInput | string
     config?: JsonNullValueInput | InputJsonValue
     is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductCreateInput = {
+    id?: string
+    name: string
+    slug: string
+    description: string
+    status?: $Enums.ProductStatus
+    launch_date?: Date | string | null
+    has_setup?: boolean
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    setup_currency?: string
+    billing_type?: $Enums.BillingType
+    unit_price: Decimal | DecimalJsLike | number | string
+    unit_currency?: string
+    minimum_price?: Decimal | DecimalJsLike | number | string
+    minimum_currency?: string
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    total_currency?: string
+    user_limit_type?: $Enums.UserLimitType
+    base_users_qty?: number | null
+    extra_user_price?: Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: string
+    helpdesk_hours?: number
+    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: string
+    backend_module?: string | null
+    target_audience?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    price_tiers?: PriceTierCreateNestedManyWithoutProductInput
+    negotiations?: SpecialNegotiationCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateInput = {
+    id?: string
+    name: string
+    slug: string
+    description: string
+    status?: $Enums.ProductStatus
+    launch_date?: Date | string | null
+    has_setup?: boolean
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    setup_currency?: string
+    billing_type?: $Enums.BillingType
+    unit_price: Decimal | DecimalJsLike | number | string
+    unit_currency?: string
+    minimum_price?: Decimal | DecimalJsLike | number | string
+    minimum_currency?: string
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    total_currency?: string
+    user_limit_type?: $Enums.UserLimitType
+    base_users_qty?: number | null
+    extra_user_price?: Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: string
+    helpdesk_hours?: number
+    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: string
+    backend_module?: string | null
+    target_audience?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    price_tiers?: PriceTierUncheckedCreateNestedManyWithoutProductInput
+    negotiations?: SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    price_tiers?: PriceTierUpdateManyWithoutProductNestedInput
+    negotiations?: SpecialNegotiationUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    price_tiers?: PriceTierUncheckedUpdateManyWithoutProductNestedInput
+    negotiations?: SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductCreateManyInput = {
+    id?: string
+    name: string
+    slug: string
+    description: string
+    status?: $Enums.ProductStatus
+    launch_date?: Date | string | null
+    has_setup?: boolean
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    setup_currency?: string
+    billing_type?: $Enums.BillingType
+    unit_price: Decimal | DecimalJsLike | number | string
+    unit_currency?: string
+    minimum_price?: Decimal | DecimalJsLike | number | string
+    minimum_currency?: string
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    total_currency?: string
+    user_limit_type?: $Enums.UserLimitType
+    base_users_qty?: number | null
+    extra_user_price?: Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: string
+    helpdesk_hours?: number
+    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: string
+    backend_module?: string | null
+    target_audience?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type ProductUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProductUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PriceTierCreateInput = {
+    id?: string
+    range_from: number
+    range_to?: number | null
+    price: Decimal | DecimalJsLike | number | string
+    currency?: string
+    created_at?: Date | string
+    product: ProductCreateNestedOneWithoutPrice_tiersInput
+  }
+
+  export type PriceTierUncheckedCreateInput = {
+    id?: string
+    product_id: string
+    range_from: number
+    range_to?: number | null
+    price: Decimal | DecimalJsLike | number | string
+    currency?: string
+    created_at?: Date | string
+  }
+
+  export type PriceTierUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    range_from?: IntFieldUpdateOperationsInput | number
+    range_to?: NullableIntFieldUpdateOperationsInput | number | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutPrice_tiersNestedInput
+  }
+
+  export type PriceTierUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    range_from?: IntFieldUpdateOperationsInput | number
+    range_to?: NullableIntFieldUpdateOperationsInput | number | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PriceTierCreateManyInput = {
+    id?: string
+    product_id: string
+    range_from: number
+    range_to?: number | null
+    price: Decimal | DecimalJsLike | number | string
+    currency?: string
+    created_at?: Date | string
+  }
+
+  export type PriceTierUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    range_from?: IntFieldUpdateOperationsInput | number
+    range_to?: NullableIntFieldUpdateOperationsInput | number | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PriceTierUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    range_from?: IntFieldUpdateOperationsInput | number
+    range_to?: NullableIntFieldUpdateOperationsInput | number | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SpecialNegotiationCreateInput = {
+    id?: string
+    tenant_id: string
+    tenant_name: string
+    agreement: string
+    starts_at?: Date | string | null
+    ends_at?: Date | string | null
+    is_unlimited?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    product: ProductCreateNestedOneWithoutNegotiationsInput
+  }
+
+  export type SpecialNegotiationUncheckedCreateInput = {
+    id?: string
+    product_id: string
+    tenant_id: string
+    tenant_name: string
+    agreement: string
+    starts_at?: Date | string | null
+    ends_at?: Date | string | null
+    is_unlimited?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type SpecialNegotiationUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    tenant_name?: StringFieldUpdateOperationsInput | string
+    agreement?: StringFieldUpdateOperationsInput | string
+    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    product?: ProductUpdateOneRequiredWithoutNegotiationsNestedInput
+  }
+
+  export type SpecialNegotiationUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    tenant_name?: StringFieldUpdateOperationsInput | string
+    agreement?: StringFieldUpdateOperationsInput | string
+    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SpecialNegotiationCreateManyInput = {
+    id?: string
+    product_id: string
+    tenant_id: string
+    tenant_name: string
+    agreement: string
+    starts_at?: Date | string | null
+    ends_at?: Date | string | null
+    is_unlimited?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type SpecialNegotiationUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    tenant_name?: StringFieldUpdateOperationsInput | string
+    agreement?: StringFieldUpdateOperationsInput | string
+    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SpecialNegotiationUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    tenant_name?: StringFieldUpdateOperationsInput | string
+    agreement?: StringFieldUpdateOperationsInput | string
+    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15186,6 +19646,383 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type EnumProductStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductStatus | EnumProductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductStatusFilter<$PrismaModel> | $Enums.ProductStatus
+  }
+
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type EnumBillingTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.BillingType | EnumBillingTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumBillingTypeFilter<$PrismaModel> | $Enums.BillingType
+  }
+
+  export type DecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type EnumUserLimitTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserLimitType | EnumUserLimitTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserLimitTypeFilter<$PrismaModel> | $Enums.UserLimitType
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type PriceTierListRelationFilter = {
+    every?: PriceTierWhereInput
+    some?: PriceTierWhereInput
+    none?: PriceTierWhereInput
+  }
+
+  export type SpecialNegotiationListRelationFilter = {
+    every?: SpecialNegotiationWhereInput
+    some?: SpecialNegotiationWhereInput
+    none?: SpecialNegotiationWhereInput
+  }
+
+  export type PriceTierOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SpecialNegotiationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProductCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    launch_date?: SortOrder
+    has_setup?: SortOrder
+    setup_price?: SortOrder
+    setup_currency?: SortOrder
+    billing_type?: SortOrder
+    unit_price?: SortOrder
+    unit_currency?: SortOrder
+    minimum_price?: SortOrder
+    minimum_currency?: SortOrder
+    total_price?: SortOrder
+    total_currency?: SortOrder
+    user_limit_type?: SortOrder
+    base_users_qty?: SortOrder
+    extra_user_price?: SortOrder
+    extra_user_currency?: SortOrder
+    helpdesk_hours?: SortOrder
+    extra_hour_price?: SortOrder
+    extra_hour_currency?: SortOrder
+    backend_module?: SortOrder
+    target_audience?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ProductAvgOrderByAggregateInput = {
+    setup_price?: SortOrder
+    unit_price?: SortOrder
+    minimum_price?: SortOrder
+    total_price?: SortOrder
+    base_users_qty?: SortOrder
+    extra_user_price?: SortOrder
+    helpdesk_hours?: SortOrder
+    extra_hour_price?: SortOrder
+  }
+
+  export type ProductMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    launch_date?: SortOrder
+    has_setup?: SortOrder
+    setup_price?: SortOrder
+    setup_currency?: SortOrder
+    billing_type?: SortOrder
+    unit_price?: SortOrder
+    unit_currency?: SortOrder
+    minimum_price?: SortOrder
+    minimum_currency?: SortOrder
+    total_price?: SortOrder
+    total_currency?: SortOrder
+    user_limit_type?: SortOrder
+    base_users_qty?: SortOrder
+    extra_user_price?: SortOrder
+    extra_user_currency?: SortOrder
+    helpdesk_hours?: SortOrder
+    extra_hour_price?: SortOrder
+    extra_hour_currency?: SortOrder
+    backend_module?: SortOrder
+    target_audience?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ProductMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    description?: SortOrder
+    status?: SortOrder
+    launch_date?: SortOrder
+    has_setup?: SortOrder
+    setup_price?: SortOrder
+    setup_currency?: SortOrder
+    billing_type?: SortOrder
+    unit_price?: SortOrder
+    unit_currency?: SortOrder
+    minimum_price?: SortOrder
+    minimum_currency?: SortOrder
+    total_price?: SortOrder
+    total_currency?: SortOrder
+    user_limit_type?: SortOrder
+    base_users_qty?: SortOrder
+    extra_user_price?: SortOrder
+    extra_user_currency?: SortOrder
+    helpdesk_hours?: SortOrder
+    extra_hour_price?: SortOrder
+    extra_hour_currency?: SortOrder
+    backend_module?: SortOrder
+    target_audience?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ProductSumOrderByAggregateInput = {
+    setup_price?: SortOrder
+    unit_price?: SortOrder
+    minimum_price?: SortOrder
+    total_price?: SortOrder
+    base_users_qty?: SortOrder
+    extra_user_price?: SortOrder
+    helpdesk_hours?: SortOrder
+    extra_hour_price?: SortOrder
+  }
+
+  export type EnumProductStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductStatus | EnumProductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductStatusFilter<$PrismaModel>
+    _max?: NestedEnumProductStatusFilter<$PrismaModel>
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type EnumBillingTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BillingType | EnumBillingTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumBillingTypeWithAggregatesFilter<$PrismaModel> | $Enums.BillingType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBillingTypeFilter<$PrismaModel>
+    _max?: NestedEnumBillingTypeFilter<$PrismaModel>
+  }
+
+  export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type EnumUserLimitTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserLimitType | EnumUserLimitTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserLimitTypeWithAggregatesFilter<$PrismaModel> | $Enums.UserLimitType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserLimitTypeFilter<$PrismaModel>
+    _max?: NestedEnumUserLimitTypeFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type ProductRelationFilter = {
+    is?: ProductWhereInput
+    isNot?: ProductWhereInput
+  }
+
+  export type PriceTierCountOrderByAggregateInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    range_from?: SortOrder
+    range_to?: SortOrder
+    price?: SortOrder
+    currency?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PriceTierAvgOrderByAggregateInput = {
+    range_from?: SortOrder
+    range_to?: SortOrder
+    price?: SortOrder
+  }
+
+  export type PriceTierMaxOrderByAggregateInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    range_from?: SortOrder
+    range_to?: SortOrder
+    price?: SortOrder
+    currency?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PriceTierMinOrderByAggregateInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    range_from?: SortOrder
+    range_to?: SortOrder
+    price?: SortOrder
+    currency?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type PriceTierSumOrderByAggregateInput = {
+    range_from?: SortOrder
+    range_to?: SortOrder
+    price?: SortOrder
+  }
+
+  export type SpecialNegotiationCountOrderByAggregateInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    tenant_id?: SortOrder
+    tenant_name?: SortOrder
+    agreement?: SortOrder
+    starts_at?: SortOrder
+    ends_at?: SortOrder
+    is_unlimited?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type SpecialNegotiationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    tenant_id?: SortOrder
+    tenant_name?: SortOrder
+    agreement?: SortOrder
+    starts_at?: SortOrder
+    ends_at?: SortOrder
+    is_unlimited?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type SpecialNegotiationMinOrderByAggregateInput = {
+    id?: SortOrder
+    product_id?: SortOrder
+    tenant_id?: SortOrder
+    tenant_name?: SortOrder
+    agreement?: SortOrder
+    starts_at?: SortOrder
+    ends_at?: SortOrder
+    is_unlimited?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
   export type StripeEventCountOrderByAggregateInput = {
     id?: SortOrder
     type?: SortOrder
@@ -15779,6 +20616,162 @@ export namespace Prisma {
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutProduct_configsInput, TenantUpdateWithoutProduct_configsInput>, TenantUncheckedUpdateWithoutProduct_configsInput>
   }
 
+  export type PriceTierCreateNestedManyWithoutProductInput = {
+    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
+    createMany?: PriceTierCreateManyProductInputEnvelope
+    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+  }
+
+  export type SpecialNegotiationCreateNestedManyWithoutProductInput = {
+    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
+    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
+    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+  }
+
+  export type PriceTierUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
+    createMany?: PriceTierCreateManyProductInputEnvelope
+    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+  }
+
+  export type SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
+    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
+    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+  }
+
+  export type EnumProductStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ProductStatus
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type EnumBillingTypeFieldUpdateOperationsInput = {
+    set?: $Enums.BillingType
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type EnumUserLimitTypeFieldUpdateOperationsInput = {
+    set?: $Enums.UserLimitType
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type PriceTierUpdateManyWithoutProductNestedInput = {
+    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
+    upsert?: PriceTierUpsertWithWhereUniqueWithoutProductInput | PriceTierUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: PriceTierCreateManyProductInputEnvelope
+    set?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    disconnect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    delete?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    update?: PriceTierUpdateWithWhereUniqueWithoutProductInput | PriceTierUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: PriceTierUpdateManyWithWhereWithoutProductInput | PriceTierUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
+  }
+
+  export type SpecialNegotiationUpdateManyWithoutProductNestedInput = {
+    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
+    upsert?: SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput | SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
+    set?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    disconnect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    delete?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    update?: SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput | SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: SpecialNegotiationUpdateManyWithWhereWithoutProductInput | SpecialNegotiationUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
+  }
+
+  export type PriceTierUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
+    upsert?: PriceTierUpsertWithWhereUniqueWithoutProductInput | PriceTierUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: PriceTierCreateManyProductInputEnvelope
+    set?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    disconnect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    delete?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+    update?: PriceTierUpdateWithWhereUniqueWithoutProductInput | PriceTierUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: PriceTierUpdateManyWithWhereWithoutProductInput | PriceTierUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
+  }
+
+  export type SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
+    upsert?: SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput | SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
+    set?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    disconnect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    delete?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+    update?: SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput | SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: SpecialNegotiationUpdateManyWithWhereWithoutProductInput | SpecialNegotiationUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
+  }
+
+  export type ProductCreateNestedOneWithoutPrice_tiersInput = {
+    create?: XOR<ProductCreateWithoutPrice_tiersInput, ProductUncheckedCreateWithoutPrice_tiersInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutPrice_tiersInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type ProductUpdateOneRequiredWithoutPrice_tiersNestedInput = {
+    create?: XOR<ProductCreateWithoutPrice_tiersInput, ProductUncheckedCreateWithoutPrice_tiersInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutPrice_tiersInput
+    upsert?: ProductUpsertWithoutPrice_tiersInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutPrice_tiersInput, ProductUpdateWithoutPrice_tiersInput>, ProductUncheckedUpdateWithoutPrice_tiersInput>
+  }
+
+  export type ProductCreateNestedOneWithoutNegotiationsInput = {
+    create?: XOR<ProductCreateWithoutNegotiationsInput, ProductUncheckedCreateWithoutNegotiationsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutNegotiationsInput
+    connect?: ProductWhereUniqueInput
+  }
+
+  export type ProductUpdateOneRequiredWithoutNegotiationsNestedInput = {
+    create?: XOR<ProductCreateWithoutNegotiationsInput, ProductUncheckedCreateWithoutNegotiationsInput>
+    connectOrCreate?: ProductCreateOrConnectWithoutNegotiationsInput
+    upsert?: ProductUpsertWithoutNegotiationsInput
+    connect?: ProductWhereUniqueInput
+    update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutNegotiationsInput, ProductUpdateWithoutNegotiationsInput>, ProductUncheckedUpdateWithoutNegotiationsInput>
+  }
+
   export type EnumServiceTokenScopeFieldUpdateOperationsInput = {
     set?: $Enums.ServiceTokenScope
   }
@@ -16052,6 +21045,165 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumProductStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductStatus | EnumProductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductStatusFilter<$PrismaModel> | $Enums.ProductStatus
+  }
+
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedEnumBillingTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.BillingType | EnumBillingTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumBillingTypeFilter<$PrismaModel> | $Enums.BillingType
+  }
+
+  export type NestedDecimalFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type NestedEnumUserLimitTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserLimitType | EnumUserLimitTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserLimitTypeFilter<$PrismaModel> | $Enums.UserLimitType
+  }
+
+  export type NestedEnumProductStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProductStatus | EnumProductStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProductStatus[] | ListEnumProductStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumProductStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProductStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumProductStatusFilter<$PrismaModel>
+    _max?: NestedEnumProductStatusFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumBillingTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.BillingType | EnumBillingTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.BillingType[] | ListEnumBillingTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumBillingTypeWithAggregatesFilter<$PrismaModel> | $Enums.BillingType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumBillingTypeFilter<$PrismaModel>
+    _max?: NestedEnumBillingTypeFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedDecimalFilter<$PrismaModel>
+    _sum?: NestedDecimalFilter<$PrismaModel>
+    _min?: NestedDecimalFilter<$PrismaModel>
+    _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedEnumUserLimitTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UserLimitType | EnumUserLimitTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UserLimitType[] | ListEnumUserLimitTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumUserLimitTypeWithAggregatesFilter<$PrismaModel> | $Enums.UserLimitType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumUserLimitTypeFilter<$PrismaModel>
+    _max?: NestedEnumUserLimitTypeFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type NestedEnumServiceTokenScopeFilter<$PrismaModel = never> = {
@@ -17111,6 +22263,409 @@ export namespace Prisma {
     companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
   }
 
+  export type PriceTierCreateWithoutProductInput = {
+    id?: string
+    range_from: number
+    range_to?: number | null
+    price: Decimal | DecimalJsLike | number | string
+    currency?: string
+    created_at?: Date | string
+  }
+
+  export type PriceTierUncheckedCreateWithoutProductInput = {
+    id?: string
+    range_from: number
+    range_to?: number | null
+    price: Decimal | DecimalJsLike | number | string
+    currency?: string
+    created_at?: Date | string
+  }
+
+  export type PriceTierCreateOrConnectWithoutProductInput = {
+    where: PriceTierWhereUniqueInput
+    create: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput>
+  }
+
+  export type PriceTierCreateManyProductInputEnvelope = {
+    data: PriceTierCreateManyProductInput | PriceTierCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SpecialNegotiationCreateWithoutProductInput = {
+    id?: string
+    tenant_id: string
+    tenant_name: string
+    agreement: string
+    starts_at?: Date | string | null
+    ends_at?: Date | string | null
+    is_unlimited?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type SpecialNegotiationUncheckedCreateWithoutProductInput = {
+    id?: string
+    tenant_id: string
+    tenant_name: string
+    agreement: string
+    starts_at?: Date | string | null
+    ends_at?: Date | string | null
+    is_unlimited?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type SpecialNegotiationCreateOrConnectWithoutProductInput = {
+    where: SpecialNegotiationWhereUniqueInput
+    create: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput>
+  }
+
+  export type SpecialNegotiationCreateManyProductInputEnvelope = {
+    data: SpecialNegotiationCreateManyProductInput | SpecialNegotiationCreateManyProductInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PriceTierUpsertWithWhereUniqueWithoutProductInput = {
+    where: PriceTierWhereUniqueInput
+    update: XOR<PriceTierUpdateWithoutProductInput, PriceTierUncheckedUpdateWithoutProductInput>
+    create: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput>
+  }
+
+  export type PriceTierUpdateWithWhereUniqueWithoutProductInput = {
+    where: PriceTierWhereUniqueInput
+    data: XOR<PriceTierUpdateWithoutProductInput, PriceTierUncheckedUpdateWithoutProductInput>
+  }
+
+  export type PriceTierUpdateManyWithWhereWithoutProductInput = {
+    where: PriceTierScalarWhereInput
+    data: XOR<PriceTierUpdateManyMutationInput, PriceTierUncheckedUpdateManyWithoutProductInput>
+  }
+
+  export type PriceTierScalarWhereInput = {
+    AND?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
+    OR?: PriceTierScalarWhereInput[]
+    NOT?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
+    id?: StringFilter<"PriceTier"> | string
+    product_id?: StringFilter<"PriceTier"> | string
+    range_from?: IntFilter<"PriceTier"> | number
+    range_to?: IntNullableFilter<"PriceTier"> | number | null
+    price?: DecimalFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"PriceTier"> | string
+    created_at?: DateTimeFilter<"PriceTier"> | Date | string
+  }
+
+  export type SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput = {
+    where: SpecialNegotiationWhereUniqueInput
+    update: XOR<SpecialNegotiationUpdateWithoutProductInput, SpecialNegotiationUncheckedUpdateWithoutProductInput>
+    create: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput>
+  }
+
+  export type SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput = {
+    where: SpecialNegotiationWhereUniqueInput
+    data: XOR<SpecialNegotiationUpdateWithoutProductInput, SpecialNegotiationUncheckedUpdateWithoutProductInput>
+  }
+
+  export type SpecialNegotiationUpdateManyWithWhereWithoutProductInput = {
+    where: SpecialNegotiationScalarWhereInput
+    data: XOR<SpecialNegotiationUpdateManyMutationInput, SpecialNegotiationUncheckedUpdateManyWithoutProductInput>
+  }
+
+  export type SpecialNegotiationScalarWhereInput = {
+    AND?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
+    OR?: SpecialNegotiationScalarWhereInput[]
+    NOT?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
+    id?: StringFilter<"SpecialNegotiation"> | string
+    product_id?: StringFilter<"SpecialNegotiation"> | string
+    tenant_id?: StringFilter<"SpecialNegotiation"> | string
+    tenant_name?: StringFilter<"SpecialNegotiation"> | string
+    agreement?: StringFilter<"SpecialNegotiation"> | string
+    starts_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
+    ends_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
+    is_unlimited?: BoolFilter<"SpecialNegotiation"> | boolean
+    created_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+    updated_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+  }
+
+  export type ProductCreateWithoutPrice_tiersInput = {
+    id?: string
+    name: string
+    slug: string
+    description: string
+    status?: $Enums.ProductStatus
+    launch_date?: Date | string | null
+    has_setup?: boolean
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    setup_currency?: string
+    billing_type?: $Enums.BillingType
+    unit_price: Decimal | DecimalJsLike | number | string
+    unit_currency?: string
+    minimum_price?: Decimal | DecimalJsLike | number | string
+    minimum_currency?: string
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    total_currency?: string
+    user_limit_type?: $Enums.UserLimitType
+    base_users_qty?: number | null
+    extra_user_price?: Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: string
+    helpdesk_hours?: number
+    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: string
+    backend_module?: string | null
+    target_audience?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    negotiations?: SpecialNegotiationCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutPrice_tiersInput = {
+    id?: string
+    name: string
+    slug: string
+    description: string
+    status?: $Enums.ProductStatus
+    launch_date?: Date | string | null
+    has_setup?: boolean
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    setup_currency?: string
+    billing_type?: $Enums.BillingType
+    unit_price: Decimal | DecimalJsLike | number | string
+    unit_currency?: string
+    minimum_price?: Decimal | DecimalJsLike | number | string
+    minimum_currency?: string
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    total_currency?: string
+    user_limit_type?: $Enums.UserLimitType
+    base_users_qty?: number | null
+    extra_user_price?: Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: string
+    helpdesk_hours?: number
+    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: string
+    backend_module?: string | null
+    target_audience?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    negotiations?: SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutPrice_tiersInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutPrice_tiersInput, ProductUncheckedCreateWithoutPrice_tiersInput>
+  }
+
+  export type ProductUpsertWithoutPrice_tiersInput = {
+    update: XOR<ProductUpdateWithoutPrice_tiersInput, ProductUncheckedUpdateWithoutPrice_tiersInput>
+    create: XOR<ProductCreateWithoutPrice_tiersInput, ProductUncheckedCreateWithoutPrice_tiersInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutPrice_tiersInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutPrice_tiersInput, ProductUncheckedUpdateWithoutPrice_tiersInput>
+  }
+
+  export type ProductUpdateWithoutPrice_tiersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    negotiations?: SpecialNegotiationUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutPrice_tiersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    negotiations?: SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductCreateWithoutNegotiationsInput = {
+    id?: string
+    name: string
+    slug: string
+    description: string
+    status?: $Enums.ProductStatus
+    launch_date?: Date | string | null
+    has_setup?: boolean
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    setup_currency?: string
+    billing_type?: $Enums.BillingType
+    unit_price: Decimal | DecimalJsLike | number | string
+    unit_currency?: string
+    minimum_price?: Decimal | DecimalJsLike | number | string
+    minimum_currency?: string
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    total_currency?: string
+    user_limit_type?: $Enums.UserLimitType
+    base_users_qty?: number | null
+    extra_user_price?: Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: string
+    helpdesk_hours?: number
+    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: string
+    backend_module?: string | null
+    target_audience?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    price_tiers?: PriceTierCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductUncheckedCreateWithoutNegotiationsInput = {
+    id?: string
+    name: string
+    slug: string
+    description: string
+    status?: $Enums.ProductStatus
+    launch_date?: Date | string | null
+    has_setup?: boolean
+    setup_price?: Decimal | DecimalJsLike | number | string | null
+    setup_currency?: string
+    billing_type?: $Enums.BillingType
+    unit_price: Decimal | DecimalJsLike | number | string
+    unit_currency?: string
+    minimum_price?: Decimal | DecimalJsLike | number | string
+    minimum_currency?: string
+    total_price?: Decimal | DecimalJsLike | number | string | null
+    total_currency?: string
+    user_limit_type?: $Enums.UserLimitType
+    base_users_qty?: number | null
+    extra_user_price?: Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: string
+    helpdesk_hours?: number
+    extra_hour_price?: Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: string
+    backend_module?: string | null
+    target_audience?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    price_tiers?: PriceTierUncheckedCreateNestedManyWithoutProductInput
+  }
+
+  export type ProductCreateOrConnectWithoutNegotiationsInput = {
+    where: ProductWhereUniqueInput
+    create: XOR<ProductCreateWithoutNegotiationsInput, ProductUncheckedCreateWithoutNegotiationsInput>
+  }
+
+  export type ProductUpsertWithoutNegotiationsInput = {
+    update: XOR<ProductUpdateWithoutNegotiationsInput, ProductUncheckedUpdateWithoutNegotiationsInput>
+    create: XOR<ProductCreateWithoutNegotiationsInput, ProductUncheckedCreateWithoutNegotiationsInput>
+    where?: ProductWhereInput
+  }
+
+  export type ProductUpdateToOneWithWhereWithoutNegotiationsInput = {
+    where?: ProductWhereInput
+    data: XOR<ProductUpdateWithoutNegotiationsInput, ProductUncheckedUpdateWithoutNegotiationsInput>
+  }
+
+  export type ProductUpdateWithoutNegotiationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    price_tiers?: PriceTierUpdateManyWithoutProductNestedInput
+  }
+
+  export type ProductUncheckedUpdateWithoutNegotiationsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    status?: EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+    launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    has_setup?: BoolFieldUpdateOperationsInput | boolean
+    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    setup_currency?: StringFieldUpdateOperationsInput | string
+    billing_type?: EnumBillingTypeFieldUpdateOperationsInput | $Enums.BillingType
+    unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unit_currency?: StringFieldUpdateOperationsInput | string
+    minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minimum_currency?: StringFieldUpdateOperationsInput | string
+    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    total_currency?: StringFieldUpdateOperationsInput | string
+    user_limit_type?: EnumUserLimitTypeFieldUpdateOperationsInput | $Enums.UserLimitType
+    base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
+    extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_user_currency?: StringFieldUpdateOperationsInput | string
+    helpdesk_hours?: IntFieldUpdateOperationsInput | number
+    extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
+    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    price_tiers?: PriceTierUncheckedUpdateManyWithoutProductNestedInput
+  }
+
   export type UserCreateManyTenantInput = {
     id?: string
     clerk_user_id: string
@@ -17457,6 +23012,90 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PriceTierCreateManyProductInput = {
+    id?: string
+    range_from: number
+    range_to?: number | null
+    price: Decimal | DecimalJsLike | number | string
+    currency?: string
+    created_at?: Date | string
+  }
+
+  export type SpecialNegotiationCreateManyProductInput = {
+    id?: string
+    tenant_id: string
+    tenant_name: string
+    agreement: string
+    starts_at?: Date | string | null
+    ends_at?: Date | string | null
+    is_unlimited?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type PriceTierUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    range_from?: IntFieldUpdateOperationsInput | number
+    range_to?: NullableIntFieldUpdateOperationsInput | number | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PriceTierUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    range_from?: IntFieldUpdateOperationsInput | number
+    range_to?: NullableIntFieldUpdateOperationsInput | number | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PriceTierUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    range_from?: IntFieldUpdateOperationsInput | number
+    range_to?: NullableIntFieldUpdateOperationsInput | number | null
+    price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SpecialNegotiationUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    tenant_name?: StringFieldUpdateOperationsInput | string
+    agreement?: StringFieldUpdateOperationsInput | string
+    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SpecialNegotiationUncheckedUpdateWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    tenant_name?: StringFieldUpdateOperationsInput | string
+    agreement?: StringFieldUpdateOperationsInput | string
+    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SpecialNegotiationUncheckedUpdateManyWithoutProductInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    tenant_name?: StringFieldUpdateOperationsInput | string
+    agreement?: StringFieldUpdateOperationsInput | string
+    starts_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_unlimited?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
@@ -17474,6 +23113,10 @@ export namespace Prisma {
      * @deprecated Use CompanyCountOutputTypeDefaultArgs instead
      */
     export type CompanyCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CompanyCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ProductCountOutputTypeDefaultArgs instead
+     */
+    export type ProductCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProductCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use TenantDefaultArgs instead
      */
@@ -17506,6 +23149,18 @@ export namespace Prisma {
      * @deprecated Use ProductConfigDefaultArgs instead
      */
     export type ProductConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProductConfigDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ProductDefaultArgs instead
+     */
+    export type ProductArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProductDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use PriceTierDefaultArgs instead
+     */
+    export type PriceTierArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PriceTierDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SpecialNegotiationDefaultArgs instead
+     */
+    export type SpecialNegotiationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SpecialNegotiationDefaultArgs<ExtArgs>
     /**
      * @deprecated Use StripeEventDefaultArgs instead
      */

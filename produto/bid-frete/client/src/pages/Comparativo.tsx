@@ -1,256 +1,1121 @@
 /**
- * Comparativo.tsx — Tabela comparativa de respostas de uma cotacao
- * Ranking por preco, transit time e avaliacao. Botoes de aprovar e reprovar.
+ * Comparativo.tsx — Ranking e Aprovacao de Respostas (T8)
+ * Skill: antigravity-design-system, antigravity-componentes
+ *
+ * Ranking de respostas por cotacao, aprovacao em 2 cliques,
+ * rejeicao com motivo, sort por score/preco/transit/rating.
  */
 
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { comparativoApi, cotacoesApi } from '../shared/api.js'
-import type { Cotacao, BidResponse } from '../shared/types.js'
+import React, { useState, useEffect, useCallback } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import {
+  Ranking,
+  ArrowLeft,
+  Trophy,
+  CurrencyDollar,
+  Timer,
+  Star,
+  CheckCircle,
+  XCircle,
+  SortAscending,
+  SortDescending,
+  Confetti,
+  Warning,
+  Package,
+} from '@phosphor-icons/react'
 
-interface RankingItem extends BidResponse {
-  score_preco?: number
-  score_transit?: number
-  score_avaliacao?: number
-  score_total?: number
+import { getRanking, aprovarResposta, reprovarTodas, getCotacao } from '../shared/api'
+import type { BidResponse, Cotacao } from '../shared/types'
+
+// ─── Formatacao ─────────────────────────────────────────────────────────────
+
+const moeda = (val: number, currency = 'USD') =>
+  new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(val)
+
+const dataBR = (iso: string) =>
+  new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+
+// ─── Sort Options ───────────────────────────────────────────────────────────
+
+type SortKey = 'score_total' | 'valor_total' | 'transit_time_dias' | 'rating'
+
+interface SortOption {
+  key: SortKey
+  label: string
+  icone: React.ReactNode
 }
 
-export default function Comparativo() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const [cotacao, setCotacao] = useState<Cotacao | null>(null)
-  const [ranking, setRanking] = useState<RankingItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [actionLoading, setActionLoading] = useState<string | null>(null)
-  const [motivoReprovar, setMotivoReprovar] = useState('')
-  const [showReprovar, setShowReprovar] = useState(false)
-  const [sortBy, setSortBy] = useState<'preco' | 'transit' | 'avaliacao' | 'total'>('total')
+const SORT_OPTIONS: SortOption[] = [
+  { key: 'score_total',      label: 'Score Total',  icone: <Trophy weight="duotone" size={14} /> },
+  { key: 'valor_total',      label: 'Preco',        icone: <CurrencyDollar weight="duotone" size={14} /> },
+  { key: 'transit_time_dias', label: 'Transit Time', icone: <Timer weight="duotone" size={14} /> },
+  { key: 'rating',           label: 'Rating',       icone: <Star weight="duotone" size={14} /> },
+]
 
-  useEffect(() => {
-    if (!id) return
-    setLoading(true)
-    Promise.all([
-      comparativoApi.ranking(id),
-      cotacoesApi.detalhe(id),
-    ]).then(([rankRes, cotRes]) => {
-      setRanking(rankRes.ranking || rankRes || [])
-      setCotacao(cotRes.cotacao || cotRes)
-    }).catch(err => {
-      setError(err.message || 'Erro ao carregar comparativo')
-    }).finally(() => setLoading(false))
-  }, [id])
+// ─── Badge helpers ──────────────────────────────────────────────────────────
 
-  const sorted = [...ranking].sort((a, b) => {
-    if (sortBy === 'preco') return (a.valor_total ?? 0) - (b.valor_total ?? 0)
-    if (sortBy === 'transit') return (a.transit_time_dias ?? 0) - (b.transit_time_dias ?? 0)
-    if (sortBy === 'avaliacao') return (b.ranking_avaliacao ?? 0) - (a.ranking_avaliacao ?? 0)
-    return (a.score_total ?? a.valor_total ?? 0) - (b.score_total ?? b.valor_total ?? 0)
-  })
-
-  async function aprovar(responseId: string) {
-    if (!id) return
-    setActionLoading(responseId)
-    try {
-      await comparativoApi.aprovar(id, responseId)
-      const res = await cotacoesApi.detalhe(id)
-      setCotacao(res.cotacao || res)
-      navigate(`/cotacoes/${id}`)
-    } catch (err: any) {
-      setError(err.message || 'Erro ao aprovar')
-    } finally {
-      setActionLoading(null)
-    }
+function RankBadge({ posicao }: { posicao: number }) {
+  const cores: Record<number, { bg: string; color: string; border: string }> = {
+    1: { bg: 'rgba(234,179,8,0.15)',  color: '#eab308', border: 'rgba(234,179,8,0.4)' },
+    2: { bg: 'rgba(148,163,184,0.12)', color: '#94a3b8', border: 'rgba(148,163,184,0.3)' },
+    3: { bg: 'rgba(180,83,9,0.12)',   color: '#d97706', border: 'rgba(180,83,9,0.3)' },
   }
-
-  async function reprovar() {
-    if (!id) return
-    setActionLoading('reprovar')
-    try {
-      await comparativoApi.reprovar(id, motivoReprovar || undefined)
-      navigate(`/cotacoes/${id}`)
-    } catch (err: any) {
-      setError(err.message || 'Erro ao reprovar')
-    } finally {
-      setActionLoading(null)
-      setShowReprovar(false)
-    }
-  }
-
-  if (loading) return <div className="p-8">Carregando comparativo...</div>
-  if (error && !ranking.length) return <div className="p-8 text-red-600">{error}</div>
+  const c = cores[posicao] ?? { bg: 'rgba(100,116,139,0.1)', color: 'var(--text-muted, #64748b)', border: 'transparent' }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <button onClick={() => navigate(id ? `/cotacoes/${id}` : '/cotacoes')} className="text-sm text-blue-600 hover:underline mb-1 block">
-            Voltar para cotacao
+    <span
+      className="bf-rank-badge"
+      style={{ background: c.bg, color: c.color, border: `1px solid ${c.border}` }}
+    >
+      {posicao <= 3 && <Trophy weight="duotone" size={12} />}
+      {posicao}
+    </span>
+  )
+}
+
+function ScorePill({ score }: { score: number | null }) {
+  if (score == null) return <span className="bf-score-na">N/A</span>
+  const pct = Math.min(score, 100)
+  const color =
+    pct >= 80 ? 'var(--success, #22c55e)' :
+    pct >= 60 ? 'var(--warning, #f59e0b)' :
+    'var(--danger, #ef4444)'
+  return (
+    <div className="bf-score-pill">
+      <div className="bf-score-bar" style={{ width: `${pct}%`, background: color }} />
+      <span className="bf-score-value" style={{ color }}>{pct.toFixed(0)}</span>
+    </div>
+  )
+}
+
+function RatingStars({ rating }: { rating: number | null }) {
+  if (rating == null) return <span className="bf-text-muted">—</span>
+  return (
+    <span className="bf-rating">
+      <Star weight="duotone" size={14} style={{ color: '#eab308' }} />
+      <span>{rating.toFixed(1)}</span>
+    </span>
+  )
+}
+
+// ─── Modal Overlay ──────────────────────────────────────────────────────────
+
+interface ModalProps {
+  aberto: boolean
+  titulo: string
+  icone: React.ReactNode
+  children: React.ReactNode
+  onFechar: () => void
+}
+
+function ModalOverlay({ aberto, titulo, icone, children, onFechar }: ModalProps) {
+  if (!aberto) return null
+  return (
+    <div className="bf-modal-overlay" onClick={onFechar}>
+      <div className="bf-modal" onClick={e => e.stopPropagation()}>
+        <div className="bf-modal-header">
+          {icone}
+          <h3 className="bf-modal-titulo">{titulo}</h3>
+          <button className="bf-modal-fechar" onClick={onFechar}>
+            <XCircle weight="duotone" size={20} />
           </button>
-          <h1 className="text-2xl font-bold">Comparativo de Propostas</h1>
-          {cotacao && (
-            <p className="text-sm text-gray-500">
-              {cotacao.numero} | {cotacao.origem_nome} → {cotacao.destino_nome} | {cotacao.modal}
-            </p>
+        </div>
+        <div className="bf-modal-body">
+          {children}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Componente Principal ───────────────────────────────────────────────────
+
+export default function Comparativo() {
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+
+  const [cotacao, setCotacao] = useState<Cotacao | null>(null)
+  const [respostas, setRespostas] = useState<BidResponse[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [sortKey, setSortKey] = useState<SortKey>('score_total')
+  const [sortAsc, setSortAsc] = useState(false)
+
+  // Modal de aprovacao
+  const [modalAprovar, setModalAprovar] = useState(false)
+  const [respostaSelecionada, setRespostaSelecionada] = useState<BidResponse | null>(null)
+  const [aprovando, setAprovando] = useState(false)
+
+  // Modal de reprovacao
+  const [modalReprovar, setModalReprovar] = useState(false)
+  const [motivoReprovar, setMotivoReprovar] = useState('')
+  const [reprovando, setReprovando] = useState(false)
+
+  // Resultado pos-aprovacao
+  const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
+
+  const carregar = useCallback(async () => {
+    if (!id) return
+    setCarregando(true)
+    try {
+      const [cotRes, rankRes] = await Promise.all([
+        getCotacao(id),
+        getRanking(id),
+      ])
+      setCotacao(cotRes)
+      setRespostas(rankRes)
+    } catch {
+      setRespostas([])
+    } finally {
+      setCarregando(false)
+    }
+  }, [id])
+
+  useEffect(() => { carregar() }, [carregar])
+
+  // ─── Sort Logic ───────────────────────────────────────────────────────────
+
+  function handleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortAsc(!sortAsc)
+    } else {
+      setSortKey(key)
+      setSortAsc(key === 'valor_total' || key === 'transit_time_dias')
+    }
+  }
+
+  function getSortValue(r: BidResponse): number {
+    switch (sortKey) {
+      case 'score_total': return r.score_total ?? 0
+      case 'valor_total': return r.valor_total
+      case 'transit_time_dias': return r.transit_time_dias
+      case 'rating': return r.fornecedor?.rating_global ?? 0
+    }
+  }
+
+  const respostasOrdenadas = [...respostas].sort((a, b) => {
+    const va = getSortValue(a)
+    const vb = getSortValue(b)
+    return sortAsc ? va - vb : vb - va
+  })
+
+  // ─── Acoes ────────────────────────────────────────────────────────────────
+
+  async function handleAprovar() {
+    if (!id || !respostaSelecionada) return
+    setAprovando(true)
+    try {
+      const result = await aprovarResposta(id, respostaSelecionada.id)
+      setResultadoAprovacao(result)
+      setModalAprovar(false)
+    } catch {
+      // erro tratado pelo loading state
+    } finally {
+      setAprovando(false)
+    }
+  }
+
+  async function handleReprovar() {
+    if (!id || !motivoReprovar.trim()) return
+    setReprovando(true)
+    try {
+      await reprovarTodas(id, motivoReprovar.trim())
+      navigate(`/cotacoes/${id}`)
+    } catch {
+      // erro tratado pelo loading state
+    } finally {
+      setReprovando(false)
+    }
+  }
+
+  function abrirModalAprovar(resposta: BidResponse) {
+    setRespostaSelecionada(resposta)
+    setModalAprovar(true)
+  }
+
+  // ─── Colunas TabelaGlobal ────────────────────────────────────────────────
+
+  const colunas: TabelaGlobalColuna<BidResponse>[] = [
+    {
+      key: 'score_total' as keyof BidResponse,
+      label: 'Rank',
+      tipo: 'numero',
+      largura: 70,
+      render: (_val: number | null, _row: BidResponse, index?: number) => (
+        <RankBadge posicao={(index ?? 0) + 1} />
+      ),
+    },
+    {
+      key: 'fornecedor_id',
+      label: 'Fornecedor',
+      tipo: 'texto',
+      largura: 180,
+      render: (_val: string, row: BidResponse) => (
+        <div className="bf-fornecedor-cell">
+          <span className="bf-fornecedor-nome">{row.fornecedor?.nome ?? 'Fornecedor'}</span>
+          {row.fornecedor?.nome_fantasia && (
+            <span className="bf-fornecedor-fantasia">{row.fornecedor.nome_fantasia}</span>
           )}
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowReprovar(true)}
-            className="px-4 py-2 border border-red-300 text-red-600 rounded text-sm hover:bg-red-50"
-          >
-            Reprovar Todas
-          </button>
-        </div>
-      </div>
+      ),
+    },
+    {
+      key: 'valor_frete',
+      label: 'Valor Frete',
+      tipo: 'numero',
+      largura: 130,
+      align: 'right',
+      render: (val: number, row: BidResponse) => (
+        <span className="bf-mono">{moeda(val, row.moeda)}</span>
+      ),
+    },
+    {
+      key: 'taxas_origem',
+      label: 'Taxas Origem',
+      tipo: 'numero',
+      largura: 120,
+      align: 'right',
+      render: (val: number, row: BidResponse) => (
+        <span className="bf-mono">{moeda(val, row.moeda)}</span>
+      ),
+    },
+    {
+      key: 'taxas_destino',
+      label: 'Taxas Destino',
+      tipo: 'numero',
+      largura: 120,
+      align: 'right',
+      render: (val: number, row: BidResponse) => (
+        <span className="bf-mono">{moeda(val, row.moeda)}</span>
+      ),
+    },
+    {
+      key: 'valor_total',
+      label: 'Total',
+      tipo: 'numero',
+      largura: 130,
+      align: 'right',
+      render: (val: number, row: BidResponse) => (
+        <span className="bf-mono bf-total">{moeda(val, row.moeda)}</span>
+      ),
+    },
+    {
+      key: 'transit_time_dias',
+      label: 'Transit Time',
+      tipo: 'numero',
+      largura: 110,
+      align: 'center',
+      render: (val: number) => (
+        <span className="bf-transit">
+          <Timer weight="duotone" size={14} />
+          {val}d
+        </span>
+      ),
+    },
+    {
+      key: 'free_time_dias',
+      label: 'Free Time',
+      tipo: 'numero',
+      largura: 100,
+      align: 'center',
+      render: (val: number | null) => (
+        <span className="bf-mono">{val != null ? `${val}d` : '—'}</span>
+      ),
+    },
+    {
+      key: 'transbordos',
+      label: 'Transbordos',
+      tipo: 'numero',
+      largura: 100,
+      align: 'center',
+      render: (val: number) => (
+        <span className={`bf-transbordo ${val === 0 ? 'bf-transbordo--direto' : ''}`}>
+          {val === 0 ? 'Direto' : val}
+        </span>
+      ),
+    },
+    {
+      key: 'score_total' as keyof BidResponse,
+      label: 'Rating',
+      tipo: 'numero',
+      largura: 90,
+      align: 'center',
+      render: (_val: number | null, row: BidResponse) => (
+        <RatingStars rating={row.fornecedor?.rating_global ?? null} />
+      ),
+    },
+    {
+      key: 'validade',
+      label: 'Validade',
+      tipo: 'periodo',
+      largura: 110,
+      render: (val: string) => dataBR(val),
+    },
+  ]
 
-      {error && <div className="bg-red-50 border border-red-200 rounded p-3 text-red-700 text-sm">{error}</div>}
+  const acoes: TabelaGlobalAcao<BidResponse>[] = [
+    {
+      id: 'aprovar',
+      icone: <CheckCircle weight="duotone" size={16} />,
+      tooltip: 'Aprovar esta resposta',
+      onClick: (item: BidResponse) => abrirModalAprovar(item),
+    },
+  ]
 
-      {/* Sort controls */}
-      <div className="flex gap-2 items-center">
-        <span className="text-sm text-gray-500">Ordenar por:</span>
-        {([
-          { key: 'total', label: 'Score Total' },
-          { key: 'preco', label: 'Menor Preco' },
-          { key: 'transit', label: 'Menor Transit Time' },
-          { key: 'avaliacao', label: 'Melhor Avaliacao' },
-        ] as const).map(s => (
-          <button
-            key={s.key}
-            onClick={() => setSortBy(s.key)}
-            className={`px-3 py-1 text-sm rounded ${sortBy === s.key ? 'bg-blue-100 text-blue-700' : 'bg-gray-100'}`}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
+  // ─── Render ───────────────────────────────────────────────────────────────
 
-      {/* Ranking table */}
-      {sorted.length === 0 ? (
-        <div className="bg-white rounded-lg border p-8 text-center text-gray-500">
-          Nenhuma resposta recebida para comparar.
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm bg-white border rounded-lg">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="p-3 text-left">#</th>
-                <th className="p-3 text-left">Fornecedor</th>
-                <th className="p-3 text-right">Frete</th>
-                <th className="p-3 text-right">Taxas Origem</th>
-                <th className="p-3 text-right">Taxas Destino</th>
-                <th className="p-3 text-right">Total</th>
-                <th className="p-3 text-center">Transit Time</th>
-                <th className="p-3 text-center">Free Time</th>
-                <th className="p-3 text-center">Transbordos</th>
-                <th className="p-3 text-center">Rating</th>
-                <th className="p-3 text-center">Validade</th>
-                <th className="p-3 text-center">Acao</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((r, idx) => {
-                const isBest = idx === 0
-                return (
-                  <tr key={r.id} className={`border-b hover:bg-gray-50 ${isBest ? 'bg-green-50' : ''}`}>
-                    <td className="p-3">
-                      <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                        isBest ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-600'
-                      }`}>{idx + 1}</span>
-                    </td>
-                    <td className="p-3">
-                      <p className="font-medium">{r.fornecedor?.nome || r.fornecedor_id}</p>
-                      <p className="text-xs text-gray-400">{r.fornecedor?.tipo}</p>
-                    </td>
-                    <td className="p-3 text-right">{r.moeda} {r.valor_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-3 text-right">{r.taxas_origem.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-3 text-right">{r.taxas_destino.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                    <td className="p-3 text-right font-semibold">
-                      {r.moeda} {r.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="p-3 text-center">{r.transit_time_dias} dias</td>
-                    <td className="p-3 text-center">{r.free_time_dias ?? '-'} dias</td>
-                    <td className="p-3 text-center">{r.transbordos}</td>
-                    <td className="p-3 text-center">
-                      {r.ranking_avaliacao != null ? (
-                        <span className="text-yellow-600 font-medium">{r.ranking_avaliacao.toFixed(1)}</span>
-                      ) : '-'}
-                    </td>
-                    <td className="p-3 text-center text-xs">
-                      {new Date(r.validade_cotacao).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td className="p-3 text-center">
-                      <button
-                        onClick={() => aprovar(r.id)}
-                        disabled={actionLoading !== null}
-                        className="px-3 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 disabled:opacity-50"
-                      >
-                        {actionLoading === r.id ? '...' : 'Aprovar'}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+  // Se acabou de aprovar, mostra tela de confirmacao
+  if (resultadoAprovacao) {
+    return (
+      <PaginaGlobal
+        className="bf-comparativo"
+        cabecalho={
+          <CabecalhoGlobal
+            icone={<Confetti weight="duotone" size={22} />}
+            titulo="Resposta Aprovada"
+            subtitulo={`Cotacao ${resultadoAprovacao.numero}`}
+          />
+        }
+      >
+        <div className="bf-aprovacao-result">
+          <div className="bf-aprovacao-result-icon">
+            <CheckCircle weight="duotone" size={64} />
+          </div>
+          <h2 className="bf-aprovacao-result-titulo">Aprovacao confirmada</h2>
+          <p className="bf-aprovacao-result-sub">
+            Fornecedor selecionado: <strong>{respostaSelecionada?.fornecedor?.nome ?? 'Fornecedor'}</strong>
+          </p>
 
-      {/* Cost breakdown details */}
-      {sorted.length > 0 && sorted[0].detalhes_taxas && sorted[0].detalhes_taxas.length > 0 && (
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="text-lg font-semibold mb-3">Detalhamento de Taxas - Melhor Proposta</h2>
-          <div className="grid grid-cols-3 gap-4">
-            {['frete', 'origem', 'destino'].map(tipo => {
-              const taxas = sorted[0].detalhes_taxas!.filter(t => t.tipo === tipo)
-              return (
-                <div key={tipo} className="space-y-1">
-                  <h3 className="text-sm font-medium capitalize">{tipo === 'frete' ? 'Frete' : tipo === 'origem' ? 'Taxas Origem' : 'Taxas Destino'}</h3>
-                  {taxas.length === 0 ? (
-                    <p className="text-xs text-gray-400">Sem detalhamento</p>
-                  ) : (
-                    taxas.map(t => (
-                      <div key={t.id} className="flex justify-between text-xs">
-                        <span>{t.nome}</span>
-                        <span>{t.moeda} {t.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )
-            })}
+          {resultadoAprovacao.saving_valor != null && resultadoAprovacao.saving_valor > 0 && (
+            <div className="bf-saving-card">
+              <div className="bf-saving-header">
+                <CurrencyDollar weight="duotone" size={18} />
+                <span>Saving obtido</span>
+              </div>
+              <div className="bf-saving-valores">
+                <span className="bf-saving-valor">
+                  {moeda(resultadoAprovacao.saving_valor, resultadoAprovacao.moeda_aprovada ?? 'USD')}
+                </span>
+                {resultadoAprovacao.saving_percentual != null && (
+                  <span className="bf-saving-pct">
+                    {resultadoAprovacao.saving_percentual.toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="bf-aprovacao-result-acoes">
+            <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
+              <ArrowLeft weight="bold" size={14} />
+              Ver cotacao
+            </button>
+            <button className="btn btn-primary" onClick={() => navigate('/cotacoes')}>
+              Voltar para cotacoes
+            </button>
           </div>
         </div>
-      )}
 
-      {/* Modal Reprovar */}
-      {showReprovar && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h3 className="text-lg font-semibold mb-3">Reprovar Cotacao</h3>
-            <textarea
-              value={motivoReprovar}
-              onChange={e => setMotivoReprovar(e.target.value)}
-              placeholder="Motivo da reprovacao (opcional)"
-              className="w-full border rounded p-2 text-sm h-24"
-            />
-            <div className="flex justify-end gap-2 mt-4">
-              <button onClick={() => setShowReprovar(false)} className="px-4 py-2 border rounded text-sm">
-                Cancelar
+        <style>{comparativoStyles}</style>
+      </PaginaGlobal>
+    )
+  }
+
+  return (
+    <PaginaGlobal
+      className="bf-comparativo"
+      cabecalho={
+        <CabecalhoGlobal
+          icone={<Ranking weight="duotone" size={22} />}
+          titulo="Comparativo de Respostas"
+          subtitulo={cotacao ? `${cotacao.numero} — ${cotacao.origem_nome} → ${cotacao.destino_nome}` : 'Ranking, aprovacao e rejeicao'}
+          acoes={
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <button className="btn btn-danger-outline" onClick={() => setModalReprovar(true)} disabled={respostas.length === 0}>
+                <XCircle weight="duotone" size={16} />
+                Reprovar Todas
               </button>
-              <button
-                onClick={reprovar}
-                disabled={actionLoading !== null}
-                className="px-4 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50"
-              >
-                {actionLoading === 'reprovar' ? 'Reprovando...' : 'Confirmar Reprovacao'}
+              <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
+                <ArrowLeft weight="bold" size={14} />
+                Voltar
               </button>
+            </div>
+          }
+        />
+      }
+    >
+      {/* ════════ Sort Buttons ════════ */}
+      <div className="bf-sort-bar">
+        <span className="bf-sort-label">Ordenar por:</span>
+        {SORT_OPTIONS.map(opt => (
+          <button
+            key={opt.key}
+            className={`bf-sort-btn ${sortKey === opt.key ? 'bf-sort-btn--ativo' : ''}`}
+            onClick={() => handleSort(opt.key)}
+          >
+            {opt.icone}
+            {opt.label}
+            {sortKey === opt.key && (
+              sortAsc
+                ? <SortAscending weight="bold" size={12} />
+                : <SortDescending weight="bold" size={12} />
+            )}
+          </button>
+        ))}
+        <span className="bf-sort-count">
+          {respostas.length} resposta{respostas.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
+      {/* ════════ Summary Cards ════════ */}
+      {!carregando && respostas.length > 0 && cotacao && (
+        <div className="bf-summary-row">
+          <div className="bf-summary-card">
+            <Package weight="duotone" size={18} />
+            <div>
+              <span className="bf-summary-label">Valor alvo</span>
+              <span className="bf-summary-valor bf-mono">
+                {cotacao.valor_alvo != null ? moeda(cotacao.valor_alvo, cotacao.moeda_alvo) : '—'}
+              </span>
+            </div>
+          </div>
+          <div className="bf-summary-card">
+            <Trophy weight="duotone" size={18} />
+            <div>
+              <span className="bf-summary-label">Melhor oferta</span>
+              <span className="bf-summary-valor bf-mono">
+                {moeda(respostasOrdenadas[0]?.valor_total ?? 0, respostasOrdenadas[0]?.moeda ?? 'USD')}
+              </span>
+            </div>
+          </div>
+          <div className="bf-summary-card">
+            <Timer weight="duotone" size={18} />
+            <div>
+              <span className="bf-summary-label">Menor transit</span>
+              <span className="bf-summary-valor bf-mono">
+                {Math.min(...respostas.map(r => r.transit_time_dias))}d
+              </span>
+            </div>
+          </div>
+          <div className="bf-summary-card">
+            <Star weight="duotone" size={18} />
+            <div>
+              <span className="bf-summary-label">Maior rating</span>
+              <span className="bf-summary-valor bf-mono">
+                {Math.max(...respostas.map(r => r.fornecedor?.rating_global ?? 0)).toFixed(1)}
+              </span>
             </div>
           </div>
         </div>
       )}
-    </div>
+
+      {/* ════════ Ranking Table ════════ */}
+      {!carregando && respostas.length === 0 ? (
+        <div className="bf-empty-state">
+          <Ranking weight="duotone" size={48} />
+          <h3>Nenhuma resposta recebida</h3>
+          <p>As respostas dos fornecedores aparecerao aqui para comparacao e aprovacao.</p>
+          <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
+            <ArrowLeft weight="bold" size={14} />
+            Voltar para a cotacao
+          </button>
+        </div>
+      ) : (
+        <div className="bf-table-section">
+          <TabelaGlobal
+            dados={respostasOrdenadas}
+            colunas={colunas}
+            acoes={acoes}
+            idKey="id"
+            carregando={carregando}
+            mensagemVazio="Nenhuma resposta recebida"
+            tooltipBusca="Buscar por fornecedor"
+          />
+        </div>
+      )}
+
+      {/* ════════ Modal Aprovar ════════ */}
+      <ModalOverlay
+        aberto={modalAprovar}
+        titulo="Confirmar Aprovacao"
+        icone={<CheckCircle weight="duotone" size={20} style={{ color: 'var(--success, #22c55e)' }} />}
+        onFechar={() => setModalAprovar(false)}
+      >
+        {respostaSelecionada && (
+          <>
+            <p className="bf-modal-text">
+              Aprovar a resposta do fornecedor <strong>{respostaSelecionada.fornecedor?.nome ?? 'Fornecedor'}</strong>?
+            </p>
+            <div className="bf-modal-detail-grid">
+              <div className="bf-modal-detail">
+                <span className="bf-modal-detail-label">Valor total</span>
+                <span className="bf-modal-detail-valor bf-mono">
+                  {moeda(respostaSelecionada.valor_total, respostaSelecionada.moeda)}
+                </span>
+              </div>
+              <div className="bf-modal-detail">
+                <span className="bf-modal-detail-label">Transit time</span>
+                <span className="bf-modal-detail-valor bf-mono">{respostaSelecionada.transit_time_dias}d</span>
+              </div>
+              <div className="bf-modal-detail">
+                <span className="bf-modal-detail-label">Transbordos</span>
+                <span className="bf-modal-detail-valor bf-mono">
+                  {respostaSelecionada.transbordos === 0 ? 'Direto' : respostaSelecionada.transbordos}
+                </span>
+              </div>
+              <div className="bf-modal-detail">
+                <span className="bf-modal-detail-label">Validade</span>
+                <span className="bf-modal-detail-valor">{dataBR(respostaSelecionada.validade)}</span>
+              </div>
+            </div>
+            {respostaSelecionada.observacoes && (
+              <div className="bf-modal-obs">
+                <span className="bf-modal-detail-label">Observacoes</span>
+                <p>{respostaSelecionada.observacoes}</p>
+              </div>
+            )}
+            <div className="bf-modal-acoes">
+              <button className="btn btn-secondary" onClick={() => setModalAprovar(false)} disabled={aprovando}>
+                Cancelar
+              </button>
+              <button className="btn btn-success" onClick={handleAprovar} disabled={aprovando}>
+                <CheckCircle weight="bold" size={16} />
+                {aprovando ? 'Aprovando...' : 'Confirmar Aprovacao'}
+              </button>
+            </div>
+          </>
+        )}
+      </ModalOverlay>
+
+      {/* ════════ Modal Reprovar ════════ */}
+      <ModalOverlay
+        aberto={modalReprovar}
+        titulo="Reprovar Todas as Respostas"
+        icone={<Warning weight="duotone" size={20} style={{ color: 'var(--danger, #ef4444)' }} />}
+        onFechar={() => setModalReprovar(false)}
+      >
+        <p className="bf-modal-text">
+          Esta acao reprovara todas as {respostas.length} resposta{respostas.length !== 1 ? 's' : ''} desta cotacao. Informe o motivo:
+        </p>
+        <textarea
+          className="bf-modal-textarea"
+          placeholder="Motivo da reprovacao (obrigatorio)"
+          value={motivoReprovar}
+          onChange={e => setMotivoReprovar(e.target.value)}
+          rows={4}
+        />
+        <div className="bf-modal-acoes">
+          <button className="btn btn-secondary" onClick={() => setModalReprovar(false)} disabled={reprovando}>
+            Cancelar
+          </button>
+          <button
+            className="btn btn-danger"
+            onClick={handleReprovar}
+            disabled={reprovando || !motivoReprovar.trim()}
+          >
+            <XCircle weight="bold" size={16} />
+            {reprovando ? 'Reprovando...' : 'Confirmar Reprovacao'}
+          </button>
+        </div>
+      </ModalOverlay>
+
+      <style>{comparativoStyles}</style>
+    </PaginaGlobal>
   )
 }
+
+// ─── Styles ─────────────────────────────────────────────────────────────────
+
+const comparativoStyles = `
+  /* ═══════════════════════════════════════════════════════ */
+  /* BID FRETE — Comparativo Styles                        */
+  /* Design System: Solid Slate (CSS Vars)                 */
+  /* ═══════════════════════════════════════════════════════ */
+
+  .bf-comparativo { padding: 0; }
+
+  /* ── Sort Bar ── */
+  .bf-sort-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+    flex-wrap: wrap;
+  }
+
+  .bf-sort-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted, #64748b);
+    margin-right: 0.25rem;
+  }
+
+  .bf-sort-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-pill, 9999px);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary, #94a3b8);
+    background: var(--bg-surface, #334155);
+    border: 1px solid var(--bg-elevated, #475569);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .bf-sort-btn:hover {
+    background: var(--bg-elevated, #475569);
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-sort-btn--ativo {
+    background: rgba(99,102,241,0.15);
+    color: var(--accent, #6366f1);
+    border-color: rgba(99,102,241,0.3);
+  }
+
+  .bf-sort-count {
+    margin-left: auto;
+    font-size: 0.8125rem;
+    color: var(--text-muted, #64748b);
+  }
+
+  /* ── Summary Row ── */
+  .bf-summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 900px) {
+    .bf-summary-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 500px) {
+    .bf-summary-row { grid-template-columns: 1fr; }
+  }
+
+  .bf-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-surface, #334155);
+    border-radius: var(--radius-lg, 12px);
+    padding: 0.875rem 1rem;
+    color: var(--text-muted, #64748b);
+  }
+  .bf-summary-card > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .bf-summary-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #64748b);
+  }
+  .bf-summary-valor {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  /* ── Table Section ── */
+  .bf-table-section {
+    background: var(--bg-surface, #334155);
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden;
+  }
+
+  /* ── Rank Badge ── */
+  .bf-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    min-width: 2rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-pill, 9999px);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Fornecedor Cell ── */
+  .bf-fornecedor-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .bf-fornecedor-nome {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-fornecedor-fantasia {
+    font-size: 0.6875rem;
+    color: var(--text-muted, #64748b);
+  }
+
+  /* ── Mono values ── */
+  .bf-mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8125rem;
+  }
+  .bf-total {
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  /* ── Transit ── */
+  .bf-transit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  /* ── Transbordo ── */
+  .bf-transbordo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8125rem;
+    color: var(--text-secondary, #94a3b8);
+  }
+  .bf-transbordo--direto {
+    color: var(--success, #22c55e);
+    font-weight: 600;
+  }
+
+  /* ── Score pill ── */
+  .bf-score-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+  }
+  .bf-score-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--bg-elevated, #475569);
+    position: relative;
+    overflow: hidden;
+  }
+  .bf-score-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    min-width: 1.5rem;
+    text-align: right;
+  }
+  .bf-score-na {
+    font-size: 0.75rem;
+    color: var(--text-muted, #64748b);
+  }
+
+  /* ── Rating ── */
+  .bf-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  .bf-text-muted {
+    color: var(--text-muted, #64748b);
+  }
+
+  /* ── Empty State ── */
+  .bf-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 4rem 2rem;
+    color: var(--text-muted, #64748b);
+    text-align: center;
+  }
+  .bf-empty-state h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0;
+  }
+  .bf-empty-state p {
+    font-size: 0.875rem;
+    max-width: 400px;
+    margin: 0;
+  }
+
+  /* ── Modal ── */
+  .bf-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+  }
+  .bf-modal {
+    background: var(--bg-surface, #334155);
+    border-radius: var(--radius-lg, 12px);
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-xl, 0 20px 60px rgba(0,0,0,0.5));
+    border: 1px solid var(--bg-elevated, #475569);
+  }
+  .bf-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--bg-elevated, #475569);
+  }
+  .bf-modal-titulo {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+    margin: 0;
+  }
+  .bf-modal-fechar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted, #64748b);
+    display: flex;
+    padding: 0;
+  }
+  .bf-modal-fechar:hover { color: var(--text-primary, #f1f5f9); }
+
+  .bf-modal-body {
+    padding: 1.25rem;
+  }
+  .bf-modal-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0 0 1rem;
+    line-height: 1.5;
+  }
+  .bf-modal-text strong {
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  .bf-modal-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .bf-modal-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    background: var(--bg-base, #1e293b);
+    border-radius: var(--radius-md, 8px);
+    padding: 0.75rem;
+  }
+  .bf-modal-detail-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted, #64748b);
+  }
+  .bf-modal-detail-valor {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  .bf-modal-obs {
+    background: var(--bg-base, #1e293b);
+    border-radius: var(--radius-md, 8px);
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .bf-modal-obs p {
+    font-size: 0.8125rem;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0.25rem 0 0;
+    line-height: 1.5;
+  }
+
+  .bf-modal-textarea {
+    width: 100%;
+    min-height: 100px;
+    background: var(--bg-base, #1e293b);
+    border: 1px solid var(--bg-elevated, #475569);
+    border-radius: var(--radius-md, 8px);
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-primary, #f1f5f9);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    resize: vertical;
+    margin-bottom: 1rem;
+  }
+  .bf-modal-textarea:focus {
+    outline: none;
+    border-color: var(--accent, #6366f1);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
+  }
+  .bf-modal-textarea::placeholder {
+    color: var(--text-muted, #64748b);
+  }
+
+  .bf-modal-acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  /* ── Aprovacao Result ── */
+  .bf-aprovacao-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+  .bf-aprovacao-result-icon {
+    color: var(--success, #22c55e);
+    animation: bf-pulse 1s ease-out;
+  }
+  @keyframes bf-pulse {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .bf-aprovacao-result-titulo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #f1f5f9);
+    margin: 0;
+  }
+  .bf-aprovacao-result-sub {
+    font-size: 0.875rem;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0;
+  }
+  .bf-aprovacao-result-sub strong {
+    color: var(--text-primary, #f1f5f9);
+  }
+  .bf-aprovacao-result-acoes {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  /* ── Saving Card ── */
+  .bf-saving-card {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.2);
+    border-radius: var(--radius-lg, 12px);
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 240px;
+  }
+  .bf-saving-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--success, #22c55e);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .bf-saving-valores {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .bf-saving-valor {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--success, #22c55e);
+  }
+  .bf-saving-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--success, #22c55e);
+    opacity: 0.8;
+  }
+
+  /* ── Botoes ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius-pill, 9999px);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    font-family: inherit;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--accent, #6366f1);
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-hover, #4f46e5); }
+  .btn-secondary {
+    background: var(--bg-surface, #334155);
+    color: var(--text-secondary, #94a3b8);
+    border: 1px solid var(--bg-elevated, #475569);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--bg-elevated, #475569);
+    color: var(--text-primary, #f1f5f9);
+  }
+  .btn-success {
+    background: var(--success, #22c55e);
+    color: #fff;
+  }
+  .btn-success:hover:not(:disabled) { background: #16a34a; }
+  .btn-danger {
+    background: var(--danger, #ef4444);
+    color: #fff;
+  }
+  .btn-danger:hover:not(:disabled) { background: #dc2626; }
+  .btn-danger-outline {
+    background: transparent;
+    color: var(--danger, #ef4444);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .btn-danger-outline:hover:not(:disabled) {
+    background: rgba(239,68,68,0.1);
+  }
+`

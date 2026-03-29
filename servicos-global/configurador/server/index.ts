@@ -14,6 +14,9 @@ import { billingRouter } from './routes/billing.js'
 import { accessRouter } from './routes/access.js'
 import { adminRouter } from './routes/admin.js'
 import { serviceTokenRouter } from './routes/serviceToken.js'
+import { adminProductsRouter } from './routes/adminProducts.js'
+import { publicCatalogRouter } from './routes/publicCatalog.js'
+import { tenantProductsRouter } from './routes/tenantProducts.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -66,6 +69,12 @@ import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
 app.use('/api/tenant/historico-global', historicoRouter)
 
 app.use('/api/admin', adminRouter)
+app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)
+app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)
+
+// ─── Catálogo público (sem auth — usado pelo Store/Marketplace) ─────────────
+
+app.use('/api/v1/catalog', publicCatalogRouter)
 
 // ─── Handler de erros global ─────────────────────────────────────────────────
 

@@ -3,93 +3,241 @@
 // REGRA: todo model DEVE ter tenant_id (snake_case) e os 3 índices obrigatórios.
 // Skill: antigravity-tenant-isolation, antigravity-schema-composition
 
+// ─── Enums ──────────────────────────────────────────────────────────────────────
+
+enum OperacaoTipo {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum TipoOperacaoDetalhe {
+  DIRETA
+  CONTA_ORDEM
+  ENCOMENDA
+  COMERCIAL_EXPORTADORA
+}
+
+enum EstimativaStatus {
+  EM_CRIACAO
+  CRIADA
+  ARQUIVADA
+}
+
+enum TaxaTipo {
+  ORIGEM
+  DESTINO
+}
+
+enum CobrancaTipo {
+  PROCESSO
+  CONTAINER
+  AWB
+  BL
+  CRT
+  KGS
+  TON
+  CAIXA
+  M3
+}
+
+enum TributoTipo {
+  II
+  IPI
+  PIS
+  COFINS
+  ICMS
+}
+
+enum DocumentoTipo {
+  PEDIDO_COMPRA
+  PEDIDO_VENDA
+  PROFORMA
+  INVOICE
+  OUTRO
+}
+
+// ─── Models ─────────────────────────────────────────────────────────────────────
+
 model Estimativa {
-  id          String   @id @default(cuid())
-  tenant_id   String   // OBRIGATÓRIO — nunca nullable
-  product_id  String?  // "simula-custo" — permite queries isoladas por produto
-  user_id     String   // clerk_id do usuário que criou a estimativa
+  id              String            @id @default(cuid())
+  tenant_id       String
+  product_id      String            @default("simula-custo")
+  user_id         String
 
-  // Dados da Operação
-  ncm              String
-  pais_origem      String
-  uf_desembaraco   String
-  data_simulacao   DateTime @default(now())
+  // Dados da Estimativa
+  numero          String            // EST-IMP-00001/26 ou manual alfanumérico
+  referencia      String?           // Referência interna (até 30 chars)
+  operacao        OperacaoTipo      @default(IMPORTACAO)
+  tipo_operacao   TipoOperacaoDetalhe @default(DIRETA)
+  status          EstimativaStatus  @default(EM_CRIACAO)
+  data_geracao    DateTime          @default(now())
 
-  // Valores de Entrada (moeda original)
-  valor_produto    Float
-  moeda_produto    String
-  ptax_utilizada   Float
-  valor_frete      Float    @default(0)
-  moeda_frete      String
-  valor_seguro     Float    @default(0)
-  moeda_seguro     String
+  // Aba Produto
+  ncm             String
+  ncm_descricao   String?
+  incoterm        String            @default("FOB")
+  quantidade      Decimal           @db.Decimal(15, 5) @default(0)
+  moeda_produto   String            @default("USD")
+  valor_produto   Decimal           @db.Decimal(15, 2)
 
-  // Alíquotas utilizadas
-  aliquota_ii      Float    @default(0)
-  aliquota_ipi     Float    @default(0)
-  aliquota_pis     Float    @default(0)
-  aliquota_cofins  Float    @default(0)
-  aliquota_icms    Float    @default(0)
+  // Aba Frete Internacional
+  moeda_frete     String            @default("USD")
+  valor_frete     Decimal           @db.Decimal(15, 2) @default(0)
 
-  // Tributos calculados (em BRL)
-  valor_ii         Float    @default(0)
-  valor_ipi        Float    @default(0)
-  valor_pis        Float    @default(0)
-  valor_cofins     Float    @default(0)
-  valor_icms       Float    @default(0)
-  total_tributos   Float    @default(0)
+  // Aba Seguro Internacional
+  moeda_seguro    String            @default("USD")
+  valor_seguro    Decimal           @db.Decimal(15, 2) @default(0)
 
-  // Landed Cost Final em BRL
-  landed_cost_brl  Float    @default(0)
+  // Aba ICMS
+  uf_desembaraco  String            @default("SP")
+  aliquota_icms   Decimal           @db.Decimal(5, 4) @default(0)
+  usa_beneficio   Boolean           @default(false)
+  icms_entrada    Decimal?          @db.Decimal(15, 2)
+  icms_saida      Decimal?          @db.Decimal(15, 2)
 
-  // Controle de Status
-  status           String   @default("rascunho") // rascunho | criada | arquivada
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  // Alíquotas utilizadas no cálculo
+  aliquota_ii     Decimal           @db.Decimal(5, 4) @default(0)
+  aliquota_ipi    Decimal           @db.Decimal(5, 4) @default(0)
+  aliquota_pis    Decimal           @db.Decimal(5, 4) @default(0)
+  aliquota_cofins Decimal           @db.Decimal(5, 4) @default(0)
+  reducao_ii      Decimal           @db.Decimal(5, 4) @default(0)
 
-  taxas            TaxaEstimativa[]
+  // Resultado calculado (BRL)
+  ptax_utilizada  Decimal?          @db.Decimal(10, 4)
+  valor_aduaneiro Decimal?          @db.Decimal(15, 2)
+  total_tributos  Decimal?          @db.Decimal(15, 2)
+  landed_cost_brl Decimal?          @db.Decimal(15, 2)
+  source          String?           // 'siscomex' | 'gravity-engine' | 'fallback'
+
+  // Relações
+  taxas_origem    TaxaEstimativa[]  @relation("TaxasOrigem")
+  taxas_destino   TaxaEstimativa[]  @relation("TaxasDestino")
+  tributos        TributoEstimativa[]
+  documentos      DocumentoEstimativa[]
+
+  // Timestamps
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
 
   // Índices obrigatórios (skill: antigravity-tenant-isolation)
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@index([tenant_id, numero])
+  @@index([tenant_id, status])
+  @@index([tenant_id, ncm])
   @@map("estimativas_trade")
 }
 
 model TaxaEstimativa {
-  id            String     @id @default(cuid())
-  tenant_id     String     // OBRIGATÓRIO
-  estimativa_id String
-  tipo          String     // "origem" | "destino"
-  nome          String
-  valor         Float
-  moeda         String
+  id              String      @id @default(cuid())
+  tenant_id       String
+  product_id      String      @default("simula-custo")
+  user_id         String?
 
-  estimativa    Estimativa @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
+  estimativa_id   String
+  tipo            TaxaTipo
+  nome            String
+  moeda           String
+  cobranca_por    CobrancaTipo @default(PROCESSO)
+  valor_minimo    Decimal     @db.Decimal(15, 2) @default(0)
+  valor_total     Decimal     @db.Decimal(15, 2)
+
+  estimativa_origem  Estimativa? @relation("TaxasOrigem", fields: [estimativa_id], references: [id], onDelete: Cascade)
+  estimativa_destino Estimativa? @relation("TaxasDestino", fields: [estimativa_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
   @@index([tenant_id, estimativa_id])
   @@map("taxas_estimativa_trade")
 }
 
+model TributoEstimativa {
+  id              String      @id @default(cuid())
+  tenant_id       String
+  product_id      String      @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tributo         TributoTipo
+  aliquota        Decimal     @db.Decimal(5, 4)
+  base_calculo    Decimal     @db.Decimal(15, 2)
+  valor           Decimal     @db.Decimal(15, 2)
+  reducao         Decimal?    @db.Decimal(5, 4)
+  acordo          String?
+
+  estimativa      Estimativa  @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("tributos_estimativa_trade")
+}
+
+model DocumentoEstimativa {
+  id              String        @id @default(cuid())
+  tenant_id       String
+  product_id      String        @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tipo            DocumentoTipo
+  numero          String        // Alfanumérico até 30 chars
+
+  estimativa      Estimativa    @relation(fields: [estimativa_id], references: [id], onDelete: Cascade)
+
+  created_at      DateTime      @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("documentos_estimativa_trade")
+}
+
+// ─── Cache (sem tenant_id — dados públicos) ─────────────────────────────────────
+
 model CacheAliquota {
-  ncm              String   @id
-  aliquota_ii      Float
-  aliquota_ipi     Float
-  aliquota_pis     Float
-  aliquota_cofins  Float
-  fonte            String   @default("siscomex") // siscomex | tipi_fallback
-  updated_at       DateTime @updatedAt
+  ncm             String   @id
+  descricao       String?
+  aliquota_ii     Decimal  @db.Decimal(5, 4)
+  aliquota_ipi    Decimal  @db.Decimal(5, 4)
+  aliquota_pis    Decimal  @db.Decimal(5, 4)
+  aliquota_cofins Decimal  @db.Decimal(5, 4)
+  acordos         Json?
+  vigencia_inicio DateTime?
+  vigencia_fim    DateTime?
+  fonte           String   @default("siscomex") // siscomex | tipi_fallback
+  updated_at      DateTime @updatedAt
 
   @@map("cache_aliquotas_ncm")
 }
 
 model CacheCambio {
-  moeda        String   @id
-  ptax_venda   Float
-  ptax_compra  Float
-  data_cotacao DateTime
-  updated_at   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  moeda           String
+  data_referencia DateTime
+  ptax_compra     Decimal  @db.Decimal(10, 4)
+  ptax_venda      Decimal  @db.Decimal(10, 4)
+  fetched_at      DateTime @default(now())
 
+  @@unique([moeda, data_referencia])
+  @@index([moeda])
   @@map("cache_cambio_bacen")
+}
+
+// ─── Sequência de Numeração ─────────────────────────────────────────────────────
+
+model SequenciaEstimativa {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  user_id         String
+  ano             Int
+  ultimo_numero   Int      @default(0)
+
+  @@unique([tenant_id, user_id, ano])
+  @@index([tenant_id])
+  @@map("sequencia_estimativa_trade")
 }

@@ -55,6 +55,17 @@ const PRODUCTS = [
     color: '#fb923c',
     comingSoon: true,
   },
+  {
+    id: 'bid-frete',
+    icon: <Globe size={32} weight="duotone" />,
+    name: 'BID Frete Internacional',
+    tagline: 'Licitação de fretes com inteligência artificial',
+    desc: 'Compare ofertas de múltiplos fornecedores internacionais. Automatize a seleção com IA baseada em preço, tempo de trânsito e histórico. Aprove em 2 cliques.',
+    tags: ['Frete', 'Logística', 'IA'],
+    rating: 4.8,
+    reviews: 142,
+    color: '#34d399',
+  },
 ]
 
 export function Produtos() {

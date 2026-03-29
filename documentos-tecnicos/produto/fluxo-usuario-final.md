@@ -314,7 +314,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ORG["Organizacao: Acme Corp"] --> WS1["Workspace: Matriz SP"]
+    ORG["Organizacao: Empresa ABC Ltda."] --> WS1["Workspace: Matriz SP"]
     ORG --> WS2["Workspace: Filial RJ"]
     ORG --> WS3["Workspace: Filial MIA"]
 

@@ -11,6 +11,7 @@
     "@clerk/localizations": "^4.2.3",
     "@playwright/test": "^1.58.2",
     "@prisma/client": "^5.22.0",
+    "helmet": "^8.1.0",
     "i18next": "^26.0.1",
     "react-i18next": "^17.0.1"
   },

@@ -11,6 +11,10 @@ export interface NavItem {
   icon: React.ReactNode
   children?: NavItem[]
   disabled?: boolean
+  /** Texto de badge exibido à direita do label (ex: "Contratar", "Em Breve") */
+  badge?: string
+  /** Cor do badge — padrão: accent para "Contratar", muted para "Em Breve" */
+  badgeVariant?: 'accent' | 'muted'
   /** Se presente, este item age como um divisor de seção com título (sem link/clique) */
   sectionDivider?: boolean
 }
@@ -100,16 +104,25 @@ export function MenuLateralGlobal({
       )
     }
 
+    // Conteúdo de texto (nome + badge opcional em coluna)
+    const textContent = !isCollapsed ? (
+      item.badge ? (
+        <div className="mlg-nav-content">
+          <span className="mlg-nav-text">{item.label}</span>
+          <span className={`mlg-nav-badge ${item.badgeVariant === 'accent' ? 'mlg-nav-badge--accent' : 'mlg-nav-badge--muted'}`}>
+            {item.badge}
+          </span>
+        </div>
+      ) : (
+        <span className="mlg-nav-text">{item.label}</span>
+      )
+    ) : null
+
     // Item normal (link)
     const navLink = item.disabled ? (
-      <div className={`mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`} style={{ opacity: 0.5, cursor: 'not-allowed' }}>
+      <div className={`mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`}>
         <div className="mlg-nav-icon">{item.icon}</div>
-        {!isCollapsed && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingRight: '0.5rem' }}>
-            <span className="mlg-nav-text">{item.label}</span>
-            <Lock size={14} weight="bold" opacity={0.6} />
-          </div>
-        )}
+        {textContent}
       </div>
     ) : (
       <NavLink
@@ -118,7 +131,7 @@ export function MenuLateralGlobal({
         className={({ isActive }: { isActive: boolean }) => `mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`}
       >
         <div className="mlg-nav-icon">{item.icon}</div>
-        {!isCollapsed && <span className="mlg-nav-text">{item.label}</span>}
+        {textContent}
       </NavLink>
     )
 

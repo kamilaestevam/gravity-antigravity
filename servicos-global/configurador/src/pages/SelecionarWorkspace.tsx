@@ -35,8 +35,15 @@ export function SelecionarWorkspace() {
             'Authorization': `Bearer ${token}`
           }
         })
+
+        // User sem tenant no DB → redireciona para onboarding
+        if (response.status === 401) {
+          navigate('/trial')
+          return
+        }
+
         const data = await response.json()
-        
+
         if (data.companies) {
           // Mapeia o formato do banco para o formato do componente visual
           const mapeadas = data.companies.map((c: any) => ({

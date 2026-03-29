@@ -54,7 +54,8 @@ export function Hub() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Carrega produtos ativos do workspace
+  // Carrega produtos ativos do workspace.
+  // Se a company não tem produtos mas o tenant tem, auto-habilita na company.
   useEffect(() => {
     async function loadProducts() {
       if (!companyId) {
@@ -70,7 +71,43 @@ export function Hub() {
 
         if (res.ok) {
           const data = await res.json()
-          setProducts(data.products.filter((p: CompanyProduct) => p.is_active))
+          const activeProducts = data.products.filter((p: CompanyProduct) => p.is_active)
+
+          if (activeProducts.length > 0) {
+            setProducts(activeProducts)
+          } else {
+            // Company sem produtos — verifica se o tenant tem produtos contratados
+            const tenantRes = await fetch(`${API_URL}/tenants/products`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            if (tenantRes.ok) {
+              const tenantData = await tenantRes.json()
+              const tenantActive = tenantData.products?.filter((p: any) => p.is_active) || []
+
+              // Auto-habilita cada produto do tenant nesta company
+              for (const tp of tenantActive) {
+                await fetch(`${API_URL}/companies/${companyId}/products`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({ product_key: tp.product_key }),
+                }).catch(() => {})
+              }
+
+              // Recarrega os produtos da company
+              if (tenantActive.length > 0) {
+                const refreshRes = await fetch(`${API_URL}/companies/${companyId}/products`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                })
+                if (refreshRes.ok) {
+                  const refreshData = await refreshRes.json()
+                  setProducts(refreshData.products.filter((p: CompanyProduct) => p.is_active))
+                }
+              }
+            }
+          }
         }
       } catch (err) {
         console.error('[Hub] Erro ao carregar produtos:', err)

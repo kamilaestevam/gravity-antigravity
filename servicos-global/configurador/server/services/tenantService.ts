@@ -71,6 +71,15 @@ export const tenantService = {
         },
       })
 
+      // Cria primeira company automaticamente com o nome da organização
+      await tx.company.create({
+        data: {
+          tenant_id: newTenant.id,
+          name,
+          status: 'ACTIVE',
+        },
+      })
+
       return newTenant
     })
 

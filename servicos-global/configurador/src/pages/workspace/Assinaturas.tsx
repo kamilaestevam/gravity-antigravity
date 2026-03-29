@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useAuth } from '@clerk/clerk-react'
 import { CreditCard, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle, TreeStructure } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/card-global'
@@ -40,17 +41,42 @@ export const mockProdutos: Produto[] = [
   { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 10,99/est', renovacao: 'Variável',  workspacesHabilitados: ['Importes SA', 'Filial Sul'], workspacesVinculados: ['Importes SA', 'Filial Sul', 'Filial Rio'] },
 ]
 
-const upsellProducts = [
-  { id: 'help', nome: 'Helpdesk Premium', desc: 'Tickets com SLA e relatórios para seus clientes.',    valor: 'R$ 249/mês', billing: 'SaaS' as BillingType },
-  { id: 'nfe',  nome: 'NF-e Automático',  desc: 'Emissão automática de notas fiscais via gateway.',     valor: 'R$ 159/mês', billing: 'Uso'  as BillingType },
-  { id: 'bi',   nome: 'BI Analytics Pro', desc: 'Dashboards avançados com drill-down e exportação.',    valor: 'R$ 399/mês', billing: 'SaaS' as BillingType },
-]
 
 export function Assinaturas() {
+  const { getToken } = useAuth()
   const [produtos, setProdutos]         = useState<Produto[]>(mockProdutos)
+  const [catalogProdutos, setCatalogProdutos] = useState<any[]>([])
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null)
   const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null)
   const [vinculoParaExcluir, setVinculoParaExcluir] = useState<{produto: Produto, workspaceNome: string} | null>(null)
+
+  useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const [allProducts, subRes] = await Promise.all([
+          catalogService.getProdutos(),
+          fetch('/api/v1/tenants/products', {
+            headers: { Authorization: `Bearer ${await getToken()}` },
+          }).catch(() => null),
+        ])
+
+        const subscribedSlugs = new Set<string>()
+        if (subRes && subRes.ok) {
+          const subData = await subRes.json()
+          subData.products.forEach((p: any) => {
+            if (p.is_active) subscribedSlugs.add(p.product_key)
+          })
+        }
+
+        // Show only catalog products that are NOT subscribed
+        setCatalogProdutos(allProducts.filter(p => !subscribedSlugs.has(p.slug)))
+      } catch {
+        // fallback: show all catalog products
+        catalogService.getProdutos().then(setCatalogProdutos).catch(() => {})
+      }
+    }
+    loadCatalog()
+  }, [])
 
   const totalAtivos = produtos.filter(p => p.status === 'Ativo' || p.status === 'Trial').length
   const totalSuspensos = produtos.filter(p => p.status === 'Suspenso').length
@@ -494,7 +520,7 @@ export function Assinaturas() {
         Produtos Disponíveis para Contratar
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }} className="ws-fade-up ws-fade-up-d2">
-        {catalogService.getProdutos().map(p => (
+        {catalogProdutos.map(p => (
           <div key={p.id} className="ux-pulse-card" style={{
             borderRadius: '12px',
             padding: '1.5rem',
@@ -550,6 +576,40 @@ export function Assinaturas() {
               <TooltipGlobal descricao="Iniciar processo de contratação e ativação do produto">
                 <BotaoGlobal variante="primario" tamanho="pequeno">Assinar</BotaoGlobal>
               </TooltipGlobal>
+            </div>
+          </div>
+        ))}
+
+        {/* Produtos "Em Breve" da Gravity Store */}
+        {[
+          { id: 'mock-1', nome: 'Smart Read', descricao: 'Plataforma de automação (IDP) e IA para extração e validação inteligente de documentos de Comércio Exterior.', tipoCobranca: 'Subscription' },
+          { id: 'mock-2', nome: 'BID Frete Internacional', descricao: 'Centralize cotações marítimas e aéreas, comparando agentes de carga em tempo real.', tipoCobranca: 'Transactional' },
+          { id: 'mock-3', nome: 'BID Câmbio', descricao: 'Otimize transações de fechamento ao competir taxas entre corretoras e bancos em uma única interface.', tipoCobranca: 'Transactional' },
+        ].map(p => (
+          <div key={p.id} style={{
+            borderRadius: '12px',
+            padding: '1.5rem',
+            display: 'flex', flexDirection: 'column', gap: '0.75rem',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.03)',
+            opacity: 0.55,
+            cursor: 'not-allowed',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-muted)', margin: 0 }}>{p.nome}</p>
+              <span style={{
+                padding: '0.175rem 0.5rem', borderRadius: '4px',
+                fontSize: '0.625rem', fontWeight: 800, lineHeight: 1,
+                background: 'rgba(255,255,255,0.05)',
+                color: 'var(--ws-muted)',
+                border: '1px solid rgba(255,255,255,0.05)',
+                textTransform: 'uppercase',
+              }}>Em Breve</span>
+            </div>
+            <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', lineHeight: 1.55, margin: 0, minHeight: '3em' }}>{p.descricao}</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{p.tipoCobranca}</span>
+              <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled>Aguarde</BotaoGlobal>
             </div>
           </div>
         ))}

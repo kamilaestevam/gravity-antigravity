@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { CaretDown, ShieldCheck, Gear, Buildings, CreditCard, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
+import { CaretDown, ShieldCheck, Gear, Buildings, Storefront, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './usuario-global.css'
 
@@ -11,7 +11,7 @@ export interface UsuarioGlobalProps {
   isLight: boolean
   onToggleTheme: () => void
   onNavigateOrganizacao: () => void
-  onNavigateAssinaturas: () => void
+  onNavigateMarketPlace: () => void
   onSignOut: () => void
   isAdmin?: boolean
   isAdminPanel?: boolean
@@ -27,7 +27,7 @@ export function UsuarioGlobal({
   isLight,
   onToggleTheme,
   onNavigateOrganizacao,
-  onNavigateAssinaturas,
+  onNavigateMarketPlace,
   onSignOut,
   isAdmin,
   isAdminPanel,
@@ -136,29 +136,17 @@ export function UsuarioGlobal({
                   </button>
                 )}
 
-                {displayRole !== 'Master' && !isSuperAdminUser ? (
-                  <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar assinaturas.">
-                    <button 
-                      className="ws-profile-item disabled-item" 
-                      type="button"
-                      style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed', marginTop: '0.125rem' }}
-                    > 
-                      <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
-                    </button>
-                  </TooltipGlobal>
-                ) : (
-                  <button 
-                    className="ws-profile-item" 
-                    type="button"
-                    style={{ marginTop: '0.125rem' }}
-                    onClick={() => {
-                      onNavigateAssinaturas()
-                      setIsProfileOpen(false)
-                    }}
-                  > 
-                    <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
-                  </button>
-                )}
+                <button
+                  className="ws-profile-item"
+                  type="button"
+                  style={{ marginTop: '0.125rem' }}
+                  onClick={() => {
+                    onNavigateMarketPlace()
+                    setIsProfileOpen(false)
+                  }}
+                >
+                  <Storefront weight="duotone" size={16} /> Ir para Market Place
+                </button>
               </>
             )}
 

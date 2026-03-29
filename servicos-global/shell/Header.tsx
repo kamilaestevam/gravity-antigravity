@@ -164,7 +164,7 @@ export function Header() {
           isLight={currentTheme === 'light'}
           onToggleTheme={toggleTheme}
           onNavigateOrganizacao={() => console.log('Navegar para Organização')}
-          onNavigateAssinaturas={() => console.log('Navegar para Assinaturas')}
+          onNavigateMarketPlace={() => window.location.href = '/store'}
           onSignOut={() => {
             clearCurrentUser()
             window.location.href = '/'

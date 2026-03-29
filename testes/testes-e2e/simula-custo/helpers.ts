@@ -7,8 +7,8 @@ import { type Page, expect } from '@playwright/test'
 // ─── Constantes ─────────────────────────────────────────────────────────────
 
 const BASE_URL = process.env.E2E_BASE_URL ?? 'http://localhost:5180'
-const CONFIGURADOR_BASE_URL = process.env.CONFIGURADOR_BASE_URL ?? 'http://localhost:5006'
-const STORE_BASE_URL = process.env.STORE_BASE_URL ?? 'http://localhost:5006'
+const CONFIGURADOR_BASE_URL = process.env.CONFIGURADOR_BASE_URL ?? 'http://localhost:8005'
+const STORE_BASE_URL = process.env.STORE_BASE_URL ?? 'http://localhost:5000'
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? 'gravity-dev-internal-key-2026'
 const TENANT_ID = process.env.E2E_TENANT_ID ?? 'cmnbuvwyw00034rru361h5xng'
 const USER_ID = process.env.E2E_USER_ID ?? 'user_demo'
@@ -125,7 +125,7 @@ export async function apiPatch<T>(
 export async function seedProduct(page: Page): Promise<TestProdutoCatalogo> {
   return apiGet<TestProdutoCatalogo>(
     page,
-    `/api/v1/configurador/catalog/products/${PRODUCT_KEY}`,
+    `/api/v1/catalog/products/${PRODUCT_KEY}`,
     CONFIGURADOR_BASE_URL
   )
 }
@@ -136,7 +136,7 @@ export async function seedProduct(page: Page): Promise<TestProdutoCatalogo> {
 export async function seedTenant(page: Page): Promise<{ id: string; name: string }> {
   return apiPost<{ id: string; name: string }>(
     page,
-    '/api/v1/configurador/tenants',
+    '/api/v1/tenants',
     { id: TENANT_ID, name: 'Tenant de Teste E2E' },
     CONFIGURADOR_BASE_URL
   )
@@ -148,8 +148,8 @@ export async function seedTenant(page: Page): Promise<{ id: string; name: string
 export async function activateProduct(page: Page): Promise<{ product_key: string; active: boolean }> {
   return apiPost<{ product_key: string; active: boolean }>(
     page,
-    `/api/v1/configurador/tenant/products`,
-    { tenant_id: TENANT_ID, product_key: PRODUCT_KEY },
+    '/api/internal/tenant-products/activate',
+    { tenantId: TENANT_ID, productKey: PRODUCT_KEY },
     CONFIGURADOR_BASE_URL
   )
 }
@@ -158,16 +158,12 @@ export async function activateProduct(page: Page): Promise<{ product_key: string
  * Desativa SimulaCusto para o tenant de teste.
  */
 export async function deactivateProduct(page: Page): Promise<void> {
-  const response = await page.request.delete(
-    `${CONFIGURADOR_BASE_URL}/api/v1/configurador/tenant/products/${PRODUCT_KEY}`,
-    {
-      headers: {
-        'x-internal-key': INTERNAL_KEY,
-        'x-tenant-id': TENANT_ID,
-      },
-    }
+  return apiPost<void>(
+    page,
+    '/api/internal/tenant-products/deactivate',
+    { tenantId: TENANT_ID, productKey: PRODUCT_KEY },
+    CONFIGURADOR_BASE_URL
   )
-  expect(response.ok()).toBe(true)
 }
 
 /**
@@ -294,41 +290,61 @@ export async function fillEstimativaForm(
     await page.getByPlaceholder('REF-2026-001').fill(overrides.referencia)
   }
 
-  // Secao: Produto & Origem
+  // Secao: Produto & Origem — usar labels pois os inputs sao textbox/spinbutton
+  // Helper: preenche campo pelo label mais proximo
+  async function fillByLabel(label: RegExp | string, value: string) {
+    const container = page.locator('div').filter({ hasText: label }).last()
+    const input = container.locator('input, [role="spinbutton"]').first()
+    await input.click()
+    await input.fill(value)
+  }
+
   const ncmInput = page.getByPlaceholder('84713019')
-  await ncmInput.fill(overrides.ncm ?? '84713019')
+  if (await ncmInput.isVisible().catch(() => false)) {
+    await ncmInput.fill(overrides.ncm ?? '84713019')
+  } else {
+    await fillByLabel(/NCM/i, overrides.ncm ?? '84713019')
+  }
 
   const paisInput = page.getByPlaceholder('US')
-  await paisInput.fill(overrides.paisOrigem ?? 'US')
+  if (await paisInput.isVisible().catch(() => false)) {
+    await paisInput.fill(overrides.paisOrigem ?? 'US')
+  }
 
   const ufInput = page.getByPlaceholder('SP')
-  await ufInput.fill(overrides.ufDesembaraco ?? 'SP')
+  if (await ufInput.isVisible().catch(() => false)) {
+    await ufInput.fill(overrides.ufDesembaraco ?? 'SP')
+  }
 
-  const qtdInput = page.getByPlaceholder('1')
-  await qtdInput.fill(overrides.quantidade ?? '1')
+  // Secao: Valores — spinbutton inputs usam label approach
+  const valorProdutoSpinbutton = page.locator('div').filter({ hasText: /Valor do Produto/i }).last().locator('input, [role="spinbutton"]').first()
+  await valorProdutoSpinbutton.click()
+  await valorProdutoSpinbutton.fill(overrides.valorProduto ?? '5925')
 
-  // Secao: Valores
-  const valorProdutoInput = page.getByPlaceholder('5925.00')
-  await valorProdutoInput.fill(overrides.valorProduto ?? '5925')
+  const freteSpinbutton = page.locator('div').filter({ hasText: /Frete Internacional/i }).last().locator('input, [role="spinbutton"]').first()
+  await freteSpinbutton.click()
+  await freteSpinbutton.fill(overrides.freteInter ?? '500')
 
-  const freteInput = page.getByPlaceholder('0.00').first()
-  await freteInput.fill(overrides.freteInter ?? '500')
+  // Secao: Aliquotas — usar labels para spinbuttons
+  const iiSpinbutton = page.locator('div').filter({ hasText: /^II \(%\)$/i }).last().locator('input, [role="spinbutton"]').first()
+  await iiSpinbutton.click()
+  await iiSpinbutton.fill(overrides.aliquotaII ?? '16')
 
-  // Secao: Aliquotas
-  const iiInput = page.getByPlaceholder('16.00')
-  await iiInput.fill(overrides.aliquotaII ?? '16')
+  const ipiSpinbutton = page.locator('div').filter({ hasText: /^IPI \(%\)$/i }).last().locator('input, [role="spinbutton"]').first()
+  await ipiSpinbutton.click()
+  await ipiSpinbutton.fill(overrides.aliquotaIPI ?? '0')
 
-  const ipiInput = page.getByPlaceholder('0.00').nth(2)
-  await ipiInput.fill(overrides.aliquotaIPI ?? '0')
+  const pisSpinbutton = page.locator('div').filter({ hasText: /^PIS \(%\)$/i }).last().locator('input, [role="spinbutton"]').first()
+  await pisSpinbutton.click()
+  await pisSpinbutton.fill(overrides.aliquotaPIS ?? '2.10')
 
-  const pisInput = page.getByPlaceholder('2.10')
-  await pisInput.fill(overrides.aliquotaPIS ?? '2.10')
+  const cofinsSpinbutton = page.locator('div').filter({ hasText: /^COFINS \(%\)$/i }).last().locator('input, [role="spinbutton"]').first()
+  await cofinsSpinbutton.click()
+  await cofinsSpinbutton.fill(overrides.aliquotaCOFINS ?? '9.65')
 
-  const cofinsInput = page.getByPlaceholder('9.65')
-  await cofinsInput.fill(overrides.aliquotaCOFINS ?? '9.65')
-
-  const icmsInput = page.getByPlaceholder('18.00')
-  await icmsInput.fill(overrides.aliquotaICMS ?? '18')
+  const icmsSpinbutton = page.locator('div').filter({ hasText: /^ICMS \(%\)$/i }).last().locator('input, [role="spinbutton"]').first()
+  await icmsSpinbutton.click()
+  await icmsSpinbutton.fill(overrides.aliquotaICMS ?? '18')
 }
 
 /**

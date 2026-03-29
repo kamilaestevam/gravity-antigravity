@@ -119,6 +119,81 @@ accessRouter.get('/tenant-products', async (req, res, next) => {
 })
 
 /**
+ * POST /api/internal/tenant-products/activate
+ * Ativa um produto para um tenant via S2S (sem Clerk auth)
+ * Usado por testes E2E e serviços internos
+ */
+accessRouter.post('/tenant-products/activate', async (req, res, next) => {
+  try {
+    const { tenantId, productKey, config: productConfig } = req.body
+    if (!tenantId || !productKey) {
+      throw new AppError('tenantId e productKey são obrigatórios', 400, 'VALIDATION_ERROR')
+    }
+
+    const result = await productConfigService.upsertConfig(
+      tenantId,
+      productKey,
+      productConfig ?? {},
+      true
+    )
+
+    res.json({ product_key: productKey, active: true, config: result })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/internal/tenant-products/deactivate
+ * Desativa um produto para um tenant via S2S (sem Clerk auth)
+ */
+accessRouter.post('/tenant-products/deactivate', async (req, res, next) => {
+  try {
+    const { tenantId, productKey } = req.body
+    if (!tenantId || !productKey) {
+      throw new AppError('tenantId e productKey são obrigatórios', 400, 'VALIDATION_ERROR')
+    }
+
+    await productConfigService.disableProduct(tenantId, productKey)
+
+    res.json({ product_key: productKey, active: false })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PATCH /api/internal/catalog-products/:slug/status
+ * Toggle status de um produto no catálogo via S2S
+ * Usado por testes E2E
+ */
+accessRouter.patch('/catalog-products/:slug/status', async (req, res, next) => {
+  try {
+    const { status } = req.body
+    const validStatuses = ['ACTIVE', 'SUSPENDED', 'COMING_SOON', 'LEGACY', 'INACTIVE']
+    if (!status || !validStatuses.includes(status)) {
+      throw new AppError(`Status inválido. Use: ${validStatuses.join(', ')}`, 400, 'VALIDATION_ERROR')
+    }
+
+    const product = await prisma.catalogProduct.findFirst({
+      where: { slug: req.params.slug },
+    })
+    if (!product) {
+      throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const updated = await prisma.catalogProduct.update({
+      where: { id: product.id },
+      data: { status },
+    })
+
+    res.json({ id: updated.id, slug: updated.slug, status: updated.status })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/internal/product-permissions
  * Busca definições de permissão configuradas para um produto no tenant
  */

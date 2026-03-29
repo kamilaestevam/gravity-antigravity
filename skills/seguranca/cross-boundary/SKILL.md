@@ -179,9 +179,80 @@ Para alta escala (milhares de ações/segundo), a tabela `FailedTenantAction` se
 
 ---
 
+## Dead Letter Queue — Evolução para BullMQ (Dream Team)
+
+A tabela `FailedTenantAction` funciona bem até centenas de ações/minuto. Para alta escala, migrar para **BullMQ (Redis)**:
+
+```typescript
+import { Queue, Worker } from 'bullmq'
+
+const tenantQueue = new Queue('tenant-actions', { connection: redis })
+
+// Enfileirar — mesmo contrato do enqueueTenantAction
+await tenantQueue.add('create-activity', payload, {
+  attempts: 5,
+  backoff: { type: 'exponential', delay: 1000 },
+  removeOnComplete: { count: 1000 },
+  removeOnFail: { count: 5000 },
+})
+
+// Worker — processa a fila
+new Worker('tenant-actions', async (job) => {
+  const serviceToken = await getServiceToken(job.data.tenantId, job.data.userId)
+  await fetch(`${TENANT_URL}/api/tenant/${job.name}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${serviceToken}`,
+      'X-Idempotency-Key': job.data.idempotencyKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(job.data.payload),
+  })
+}, { connection: redis })
+```
+
+> **Timeline:** BullMQ é Fase 3. Até lá, a tabela `FailedTenantAction` com cron de 5 min cobre 99% dos casos.
+
+---
+
+## Endpoint de Agregação — Reduzir Chamadas HTTP (Dream Team)
+
+Quando uma tela precisa de dados de múltiplos serviços de tenant, criar um endpoint de agregação no produto para reduzir overhead:
+
+```typescript
+// bid-frete/server/routes/dashboard.ts
+app.get('/api/dashboard', async (req, res) => {
+  const { tenant_id, user_id } = req.auth
+
+  // 3 chamadas em paralelo, NÃO em série
+  const [activities, timers, emails] = await Promise.allSettled([
+    tenantAPI.get(`/activities?user_id=${user_id}&product_id=bid-frete`),
+    tenantAPI.get(`/timers?user_id=${user_id}&active=true`),
+    tenantAPI.get(`/email?unread=true&limit=5`),
+  ])
+
+  res.json({
+    activities: activities.status === 'fulfilled' ? activities.value : null,
+    timers: timers.status === 'fulfilled' ? timers.value : null,
+    emails: emails.status === 'fulfilled' ? emails.value : null,
+    partial: [activities, timers, emails].some(r => r.status === 'rejected'),
+  })
+})
+```
+
+**Regras:**
+- Usar `Promise.allSettled` (não `Promise.all`) — um serviço falhando não derruba os outros
+- Flag `partial: true` quando algum serviço falhou — frontend mostra degradação graciosa
+- Timeout de 5s em cada chamada individual
+
+---
+
 ## Checklist — Antes de Escrever Qualquer Cross-Boundary
 
 - [ ] A ação de destino (no tenant) é idempotente?
 - [ ] O banco de produto tem a tabela `FailedTenantAction` no schema?
 - [ ] O `idempotencyKey` é determinístico (ex: baseado no ID do registro original)?
-- [ ] A chamada está **fora** da transação principal do banco (para não dar rollback no produto se o tenant demorar)?
+- [ ] A chamada está **fora** da transação principal do banco?
+- [ ] Endpoint de agregação usa `Promise.allSettled`?
+- [ ] Timeout de 5s configurado em chamadas S2S?
+- [ ] Frontend trata `partial: true` com degradação graciosa?

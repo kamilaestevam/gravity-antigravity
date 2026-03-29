@@ -253,6 +253,33 @@ console.log('tenant:', tenantId, 'token:', token)
 - Todo serviço tem um template `.env.example` com todas as variáveis documentadas
 - Acesso via `process.env.NOME_DA_VARIAVEL` — nunca inline
 
+### Padrão de Naming: `SERVICO_PROVIDER_TIPO` (Dream Team)
+
+```bash
+# Banco de dados
+DATABASE_URL=postgresql://...
+TENANT_DATABASE_URL=postgresql://...
+
+# Provedor + tipo
+CLERK_SECRET_KEY=sk_live_...         # provider: Clerk, tipo: secret key
+STRIPE_SECRET_KEY=sk_live_...        # provider: Stripe, tipo: secret key
+RESEND_API_KEY=re_...                # provider: Resend, tipo: API key
+META_WHATSAPP_TOKEN=...              # provider: Meta, tipo: token
+OPENAI_API_KEY=sk-...                # provider: OpenAI, tipo: API key
+
+# Internos
+INTERNAL_SERVICE_KEY=...             # chave inter-serviço (rotacionar trimestralmente)
+TENANT_SERVICES_URL=http://tenant-services.railway.internal:3001
+CONFIGURATOR_URL=http://configurador.railway.internal:3000
+SENTRY_DSN=https://...
+```
+
+**Regras:**
+- Nome segue o padrão `SERVICO_PROVIDER_TIPO` ou `FUNCAO_URL`
+- `INTERNAL_SERVICE_KEY` rotacionada trimestralmente
+- Variáveis de staging e produção são **sempre** diferentes
+- Nunca commitar `.env` — apenas `.env.example`
+
 ```typescript
 // ✅ correto
 const tenantUrl = process.env.TENANT_SERVICES_URL!

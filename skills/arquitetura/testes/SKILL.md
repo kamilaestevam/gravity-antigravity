@@ -335,6 +335,52 @@ Se um endpoint mudar o payload sem versionar, o contract test falha e bloqueia o
 
 ---
 
+## Contract Tests com Zod (Dream Team)
+
+Cada serviço exporta schemas Zod que funcionam como **contratos da API**. O CI valida que os contratos não foram quebrados antes do merge.
+
+### Estrutura de Contract Tests
+
+```typescript
+// servicos-global/tenant/atividades/server/contracts.ts
+export const createActivityContract = z.object({
+  title: z.string().min(1).max(200),
+  status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']),
+  user_id: z.string().cuid(),
+  product_id: z.string().optional(),
+})
+
+export const activityResponseContract = z.object({
+  id: z.string().cuid(),
+  tenant_id: z.string(),
+  title: z.string(),
+  status: z.string(),
+  created_at: z.string().datetime(),
+})
+```
+
+### O que bloqueia o CI
+
+| Mudança | Breaking? | CI |
+|:---|:---|:---|
+| Adicionar campo opcional ao response | Não | Passa |
+| Remover campo do response | Sim | **Bloqueia** |
+| Mudar tipo de campo | Sim | **Bloqueia** |
+| Renomear endpoint | Sim | **Bloqueia** → versionar API |
+
+### CI job para contract tests
+
+```yaml
+contract-check:
+  runs-on: ubuntu-latest
+  steps:
+    - run: npm run test:contracts
+```
+
+> Para detalhes completos, ver skill `antigravity-contract-testing`.
+
+---
+
 ## Checklist — Antes de Entregar Código com Testes
 
 - [ ] Arquivos de teste na pasta `testes/` central na raiz do monorepo?
@@ -345,4 +391,6 @@ Se um endpoint mudar o payload sem versionar, o contract test falha e bloqueia o
 - [ ] Banco de teste limpo após cada suite funcional?
 - [ ] Todos os testes passam sem warnings?
 - [ ] Schemas Zod exportados como contratos de API?
+- [ ] Contract tests implementados (consumer + provider)?
+- [ ] CI bloqueia merge se contrato quebrar?
 - [ ] Para E2E: plano criado e enviado ao dono para aprovação?

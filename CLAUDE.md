@@ -51,14 +51,23 @@ Antes de qualquer tarefa, o agente DEVE:
 | State Management | `skills/arquitetura/state-management/SKILL.md` | Gerenciar estado (stores, event bus, queries) |
 | Tenant Isolation | `skills/arquitetura/tenant-isolation/SKILL.md` | **Qualquer acesso a banco de dados** |
 | Testes | `skills/arquitetura/testes/SKILL.md` | Criar/modificar testes, validar cobertura |
+| Contract Testing | `skills/arquitetura/contract-testing/SKILL.md` | Zod schemas como contratos, CI bloqueando breaking changes |
+| Caching Strategy | `skills/arquitetura/caching-strategy/SKILL.md` | Redis/in-memory, TTL, invalidação, performance |
+| Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Degradação graciosa, retry, circuit breaker, health P0 |
 
 ### Segurança
 
 | Skill | Caminho | Quando Consultar |
 |-------|---------|-----------------|
-| Autenticação S2S | `skills/seguranca/autenticacao-s2s/SKILL.md` | Chamadas entre serviços, JWT, machine tokens |
-| Cross-Boundary | `skills/seguranca/cross-boundary/SKILL.md` | Ações que cruzam dois bancos (produto → tenant) |
+| Autenticação S2S | `skills/seguranca/autenticacao-s2s/SKILL.md` | Chamadas entre serviços, JWT, machine tokens, proxy de tenant |
+| Cross-Boundary | `skills/seguranca/cross-boundary/SKILL.md` | Ações que cruzam dois bancos (produto → tenant), DLQ, agregação |
 | Permissões | `skills/seguranca/permissoes/SKILL.md` | Roles, permissões granulares, middleware de auth |
+| Incident Response | `skills/seguranca/incident-response/SKILL.md` | Runbook de incidentes, severidades, post-mortem |
+| Performance & Monitoring | `skills/seguranca/performance-monitoring/SKILL.md` | APM, dashboards, alertas, profiling |
+| Pentest | `skills/seguranca/pentest/SKILL.md` | OWASP Top 10, ferramentas, relatório de pentest |
+| SLA & Performance | `skills/seguranca/sla-performance/SKILL.md` | 200ms/50k req/99,9%, budget de latência, load testing |
+| Rate Limiting | `skills/seguranca/rate-limiting/SKILL.md` | Limites por tenant/rota, proteção contra abuso |
+| Segurança 5 Camadas | `skills/seguranca/seguranca-5-camadas/SKILL.md` | **Checklist obrigatório de segurança para toda entrega** |
 
 ### Infraestrutura
 
@@ -71,6 +80,9 @@ Antes de qualquer tarefa, o agente DEVE:
 | Marketplace | `skills/infra-estrutura/marketplace/SKILL.md` | Landing page, pricing, onboarding público |
 | Service Registry | `skills/infra-estrutura/service-registry/SKILL.md` | PRODUCT_CONFIG, navegação, integração com Shell |
 | Simulador COMEX | `skills/infra-estrutura/simulador-comex/SKILL.md` | **BLOQUEADO — não iniciar sem regras de negócio** |
+| Database Operations | `skills/infra-estrutura/database-operations/SKILL.md` | Migrations, índices, particionamento, PgBouncer |
+| Auto-Scaling | `skills/infra-estrutura/auto-scaling/SKILL.md` | Regras de scaling Railway, limites de orçamento |
+| Backup & DR | `skills/infra-estrutura/backup-disaster-recovery/SKILL.md` | 4 tipos de backup, RPO/RTO, disaster recovery |
 
 ### Serviços Tenant
 
@@ -99,6 +111,18 @@ Antes de qualquer tarefa, o agente DEVE:
 | Componentes | `skills/ux/componentes/SKILL.md` | Escolher qual componente usar para cada caso |
 | Design System | `skills/ux/design-system/SKILL.md` | CSS, cores, tipografia, ícones, padrões visuais |
 | Tooltip | `skills/ux/tooltip/SKILL.md` | Escrever texto de tooltip em qualquer campo |
+| Acessibilidade | `skills/ux/acessibilidade/SKILL.md` | WCAG 2.1 AA, aria-labels, navegação por teclado |
+
+### Gestão
+
+| Skill | Caminho | Quando Consultar |
+|-------|---------|-----------------|
+| Sprint Management | `skills/gestao/sprint-management/SKILL.md` | Cadência de sprints, planning, retrospectiva |
+| Handoff | `skills/gestao/handoff/SKILL.md` | Processo Design → Dev, tokens, specs |
+| Definition of Done | `skills/gestao/definition-of-done/SKILL.md` | Checklist universal de "pronto" para entregas |
+| Code Review | `skills/gestao/code-review/SKILL.md` | Padrões de review, checklist, aprovação |
+| API Design | `skills/gestao/api-design/SKILL.md` | Convenções REST, versionamento, paginação |
+| Onboarding Produto | `skills/gestao/onboarding-produto/SKILL.md` | Wizard de primeiro uso, dados demo, tutorial |
 
 ---
 
@@ -171,7 +195,7 @@ gravity/
 ├── produtos/                ← Cada produto isolado (client/ + server/)
 ├── scripts/                 ← compose-tenant-schema.ts, etc.
 ├── testes/                  ← Unitários, funcionais, E2E centralizados
-├── skills/                  ← 38 SKILL.md (este mapa)
+├── skills/                  ← 57 SKILL.md (Dream Team completo)
 └── documentos-tecnicos/     ← Documentação técnica
 ```
 
@@ -205,6 +229,7 @@ gravity/
 
 Use `/comando` para ativar papéis e fluxos específicos:
 
+- `/dream-team-tecnologia` — **Carregar o time completo (57 skills, 11 papéis)**
 - `/lider` — Ativar modo Líder (análise + distribuição)
 - `/coordenar` — Ativar modo Coordenador (schema + contratos + ondas)
 - `/qa` — Ativar modo QA (revisão completa pós-entrega)

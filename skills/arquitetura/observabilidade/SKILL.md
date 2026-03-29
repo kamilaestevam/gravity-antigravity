@@ -243,13 +243,91 @@ app.use(errorHandler)
 
 ---
 
+## Métricas de Latência — p95/p99 (Dream Team)
+
+### Metas de SLA
+
+| Métrica | Meta | Alerta quando |
+|:---|:---|:---|
+| Latência p50 | ≤ 50ms | > 100ms por 5 min |
+| Latência p95 | ≤ 200ms | > 200ms por 5 min |
+| Latência p99 | ≤ 500ms | > 500ms por 5 min |
+| Error rate | < 1% | > 1% por 5 min |
+
+### Configuração de Performance no Sentry
+
+```typescript
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+
+  // APM — capturar transações de performance
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+
+  integrations: [
+    new Sentry.Integrations.Express({ app }),
+    new Sentry.Integrations.Prisma({ client: prisma }),
+  ],
+})
+```
+
+### Alertas de Latência no Sentry
+
+Configurar alertas no Sentry Dashboard:
+1. **Alert Rule:** Transaction Duration p95 > 200ms for 5 min → Slack #alerts
+2. **Alert Rule:** Error Rate > 5% for 5 min → Slack #alerts + Email
+3. **Alert Rule:** New error type (first seen) → Slack #errors
+
+---
+
+## Health Check P0 — Notificação em < 5 min (Dream Team)
+
+**Regra P0:** se um serviço cair, o responsável é notificado em **menos de 5 minutos**.
+
+### Health Check com dependências
+
+```typescript
+app.get('/health', async (req, res) => {
+  const checks = { database: false }
+
+  try {
+    await prisma.$queryRaw`SELECT 1`
+    checks.database = true
+  } catch {}
+
+  const healthy = checks.database
+  res.status(healthy ? 200 : 503).json({
+    status: healthy ? 'ok' : 'down',
+    service: 'nome-do-servico',
+    checks,
+    timestamp: new Date().toISOString(),
+  })
+})
+```
+
+### UptimeRobot — Configuração P0
+
+| Monitor | URL | Intervalo | Alerta |
+|:---|:---|:---|:---|
+| Configurador | `/health` | 2 min | Slack + Email |
+| Tenant Services | `/health` | 2 min | Slack + Email |
+| SimulaCusto | `/health` | 5 min | Slack |
+| Bid Frete | `/health` | 5 min | Slack |
+| Marketplace | `/health` | 5 min | Email |
+
+> **2 falhas consecutivas** → notificação imediata.
+
+---
+
 ## Checklist — Ao Criar um Novo Servidor
 
 - [ ] `correlationMiddleware` registrado antes das rotas de negócio?
 - [ ] Correlation ID propagado via `x-correlation-id` em toda chamada para outros serviços?
 - [ ] Endpoint `/health` implementado com verificação do banco?
-- [ ] Sentry inicializado com `dsn`, `environment` e contexto de tenant?
+- [ ] Sentry inicializado com `dsn`, `environment`, contexto de tenant **e performance**?
 - [ ] `SENTRY_DSN` documentado no `.env.example`?
 - [ ] Logger estruturado usando `createLogger` com todos os campos obrigatórios?
 - [ ] Nenhum `console.log` com dados sensíveis — apenas via logger estruturado?
 - [ ] Monitor no UptimeRobot configurado para o novo serviço?
+- [ ] Alertas de latência p95 > 200ms configurados no Sentry?
+- [ ] Health check P0 com verificação de dependências?

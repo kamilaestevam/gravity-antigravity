@@ -1,6 +1,4 @@
-import ExcelJS from 'exceljs'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
+// exceljs (~2.5MB) e jspdf (~1.5MB) são importados dinamicamente nas funções que os usam
 
 // ─── Tipos Genéricos ──────────────────────────────────────────────────────────
 
@@ -55,6 +53,7 @@ export async function exportarExcel<T extends Record<string, unknown>>(
   const titulo = opcoes.titulo     ?? nome
   const rows   = linhas(dados, colunas)
 
+  const ExcelJS = (await import('exceljs')).default
   const wb = new ExcelJS.Workbook()
   wb.creator  = 'Gravity Platform'
   wb.created  = new Date()
@@ -193,7 +192,7 @@ export function exportarJSON<T extends Record<string, unknown>>(
 
 // ─── PDF (jspdf + autotable) ──────────────────────────────────────────────────
 
-export function exportarPDF<T extends Record<string, unknown>>(
+export async function exportarPDF<T extends Record<string, unknown>>(
   dados: T[],
   colunas: ColunasExport[],
   opcoes: OpcoesExport = {}
@@ -201,6 +200,10 @@ export function exportarPDF<T extends Record<string, unknown>>(
   const nome = opcoes.nomeArquivo ?? 'exportacao'
   const titulo = opcoes.titulo ?? nome
 
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
 
   // Cabeçalho

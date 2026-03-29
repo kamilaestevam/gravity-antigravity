@@ -44,8 +44,8 @@ app.use(express.json())
 // --- 2. CORS (Configurador, Shell Gravity) ------------------------------------
 app.use((_req: Request, res: Response, next: NextFunction) => {
   const allowedOrigins = [
-    'http://localhost:5174', // client dev
-    'http://localhost:8003', // configurador
+    'http://localhost:8002', // client dev
+    'http://localhost:8000', // configurador
     process.env.CLIENT_URL ?? '',
   ].filter(Boolean)
 

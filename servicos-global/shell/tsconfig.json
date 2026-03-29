@@ -4,8 +4,18 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@nucleo/*": ["../../nucleo-global/*"],
-      "@tenant/*": ["../../tenant/*"]
+      "@nucleo/*": [
+        "../../nucleo-global/Botoes/*/src/index.ts",
+        "../../nucleo-global/Campos/*/src/index.ts",
+        "../../nucleo-global/Feedback/*/src/index.ts",
+        "../../nucleo-global/Layout/*/src/index.ts",
+        "../../nucleo-global/Mensageria Global/*/src/index.ts",
+        "../../nucleo-global/Modais/*/src/index.ts",
+        "../../nucleo-global/Tabelas/*/src/index.ts",
+        "../../nucleo-global/Utilidades/*/src/index.ts",
+        "../../nucleo-global/*/src/index.ts"
+      ],
+      "@tenant/*": ["../tenant/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

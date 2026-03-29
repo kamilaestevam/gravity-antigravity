@@ -1,3 +1,4 @@
+import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth } from '@clerk/clerk-react'
 import { AuthPage } from './pages/AuthPage'
@@ -8,32 +9,47 @@ export type Page =
   | { name: 'hub' }
   | { name: 'store' }
 
-import { AdminPanel } from './pages/AdminPanel'
-import { AdminLayout } from './pages/admin/AdminLayout'
-import { VisaoGeralAdmin } from './pages/admin/VisaoGeralAdmin'
-import { ProdutosAdmin } from './pages/admin/ProdutosAdmin'
-import { HistoricoGlobalAdmin } from './pages/admin/HistoricoGlobalAdmin'
-import { AdminFinanceiro } from './pages/admin/AdminFinanceiro'
-import { LogTestes } from './pages/admin/LogTestes'
-import { MonitorApisAdmin } from './pages/admin/MonitorApisAdmin'
-import { UsuariosGlobaisAdmin } from './pages/admin/UsuariosGlobaisAdmin'
-import { TenantDetail } from './pages/TenantDetail'
 import { Onboarding } from './pages/Onboarding'
 import { Contato } from './pages/Contato'
 import { Waitlist } from './pages/Waitlist'
-import { Hub } from './pages/Hub'
-import { Store } from './pages/Store'
-import { WorkspaceLayout } from './pages/workspace/WorkspaceLayout'
-import { Organizacao }       from './pages/workspace/Organizacao'
-import { Workspaces }                 from './pages/workspace/Workspaces'
-import { Usuarios }          from './pages/workspace/Usuarios'
-import { Assinaturas }       from './pages/workspace/Assinaturas'
-import { Financeiro }        from './pages/workspace/Financeiro'
-import { ApiCockpit }        from './pages/workspace/ApiCockpit'
-import { ConectorCargoWise } from './pages/workspace/ConectorCargoWise'
 import { SelecionarWorkspace } from './pages/SelecionarWorkspace'
-import { DeployRailwayAdmin } from './pages/admin/DeployRailwayAdmin'
-import { SegurancaAdmin } from './pages/admin/SegurancaAdmin'
+
+// Lazy-load — cada grupo carrega só quando o usuário navega para a rota
+const lazy = (fn: () => Promise<{ [k: string]: React.ComponentType<any> }>, name: string) =>
+  React.lazy(() => fn().then(m => ({ default: (m as any)[name] })))
+
+const Hub = lazy(() => import('./pages/Hub'), 'Hub')
+const Store = lazy(() => import('./pages/Store'), 'Store')
+const AdminPanel = lazy(() => import('./pages/AdminPanel'), 'AdminPanel')
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'), 'AdminLayout')
+const VisaoGeralAdmin = lazy(() => import('./pages/admin/VisaoGeralAdmin'), 'VisaoGeralAdmin')
+const ProdutosAdmin = lazy(() => import('./pages/admin/ProdutosAdmin'), 'ProdutosAdmin')
+const HistoricoGlobalAdmin = lazy(() => import('./pages/admin/HistoricoGlobalAdmin'), 'HistoricoGlobalAdmin')
+const AdminFinanceiro = lazy(() => import('./pages/admin/AdminFinanceiro'), 'AdminFinanceiro')
+const LogTestes = lazy(() => import('./pages/admin/LogTestes'), 'LogTestes')
+const MonitorApisAdmin = lazy(() => import('./pages/admin/MonitorApisAdmin'), 'MonitorApisAdmin')
+const UsuariosGlobaisAdmin = lazy(() => import('./pages/admin/UsuariosGlobaisAdmin'), 'UsuariosGlobaisAdmin')
+const TenantDetail = lazy(() => import('./pages/TenantDetail'), 'TenantDetail')
+const DeployRailwayAdmin = lazy(() => import('./pages/admin/DeployRailwayAdmin'), 'DeployRailwayAdmin')
+const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
+const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
+const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
+const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
+const Usuarios = lazy(() => import('./pages/workspace/Usuarios'), 'Usuarios')
+const Assinaturas = lazy(() => import('./pages/workspace/Assinaturas'), 'Assinaturas')
+const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeiro')
+const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
+const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
+
+// Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
+const SimulaCustoApp = React.lazy(() => import('../../../produto/simula-custo/client/src/App'))
+const ProcessoApp = React.lazy(() => import('../../../produto/processo/client/src/App'))
+
+const ProductLoading = () => (
+  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', color: 'var(--color-text-muted)' }}>
+    Carregando produto...
+  </div>
+)
 
 function TenantDetailWrapper() {
   const { id } = useParams()
@@ -58,7 +74,7 @@ function RootRedirect() {
 /** Guarda para rotas públicas (Login/Cadastro). Se logado, expulsa para o sistema. */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
-  
+
   if (!isLoaded) return null
 
   return isSignedIn ? (
@@ -101,37 +117,40 @@ export default function App() {
         <Route path="/waitlist" element={<Waitlist />} />
 
         {/* Área autenticada */}
-        {/* /hub → redireciona para /selecionar-workspace */}
-        <Route path="/hub" element={<Navigate to="/selecionar-workspace" replace />} />
+        <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Hub /></React.Suspense></ProtectedRoute>} />
         <Route path="/selecionar-workspace" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
-        <Route path="/store" element={<ProtectedRoute><Store /></ProtectedRoute>} />
+        <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
+
+        {/* Produtos — carregados como lazy routes dentro do Configurador */}
+        <Route path="/produto/simula-custo/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProtectedRoute>} />
+        <Route path="/produto/processo/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProtectedRoute>} />
 
         {/* Admin — área interna restrita */}
-        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+        <Route path="/admin" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></ProtectedRoute>}>
           <Route index element={<Navigate to="/admin/visao-geral" replace />} />
-          <Route path="visao-geral" element={<VisaoGeralAdmin />} />
-          <Route path="usuarios" element={<UsuariosGlobaisAdmin />} />
-          <Route path="produtos" element={<ProdutosAdmin />} />
-          <Route path="financeiro" element={<AdminFinanceiro />} />
-          <Route path="historico" element={<HistoricoGlobalAdmin />} />
-          <Route path="deploy" element={<DeployRailwayAdmin />} />
-          <Route path="testes" element={<LogTestes />} />
-          <Route path="apis" element={<MonitorApisAdmin />} />
-          <Route path="seguranca" element={<SegurancaAdmin />} />
-          <Route path="tenants" element={<AdminPanel navigate={adminNavigate} />} />
-          <Route path="tenant/:id" element={<TenantDetailWrapper />} />
+          <Route path="visao-geral" element={<React.Suspense fallback={<ProductLoading />}><VisaoGeralAdmin /></React.Suspense>} />
+          <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><UsuariosGlobaisAdmin /></React.Suspense>} />
+          <Route path="produtos" element={<React.Suspense fallback={<ProductLoading />}><ProdutosAdmin /></React.Suspense>} />
+          <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><AdminFinanceiro /></React.Suspense>} />
+          <Route path="historico" element={<React.Suspense fallback={<ProductLoading />}><HistoricoGlobalAdmin /></React.Suspense>} />
+          <Route path="deploy" element={<React.Suspense fallback={<ProductLoading />}><DeployRailwayAdmin /></React.Suspense>} />
+          <Route path="testes" element={<React.Suspense fallback={<ProductLoading />}><LogTestes /></React.Suspense>} />
+          <Route path="apis" element={<React.Suspense fallback={<ProductLoading />}><MonitorApisAdmin /></React.Suspense>} />
+          <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
+          <Route path="tenants" element={<React.Suspense fallback={<ProductLoading />}><AdminPanel navigate={adminNavigate} /></React.Suspense>} />
+          <Route path="tenant/:id" element={<React.Suspense fallback={<ProductLoading />}><TenantDetailWrapper /></React.Suspense>} />
         </Route>
 
         {/* Workspace — área do cliente */}
-        <Route path="/workspace" element={<ProtectedRoute><WorkspaceLayout /></ProtectedRoute>}>
+        <Route path="/workspace" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><WorkspaceLayout /></React.Suspense></ProtectedRoute>}>
           <Route index element={<Navigate to="/workspace/organizacao" replace />} />
-          <Route path="organizacao" element={<Organizacao />} />
-          <Route path="workspaces" element={<Workspaces />} />
-          <Route path="usuarios"    element={<Usuarios />} />
-          <Route path="assinaturas" element={<Assinaturas />} />
-          <Route path="financeiro"  element={<Financeiro />} />
-          <Route path="api-cockpit" element={<ApiCockpit />} />
-          <Route path="conector-cargowise" element={<ConectorCargoWise />} />
+          <Route path="organizacao" element={<React.Suspense fallback={<ProductLoading />}><Organizacao /></React.Suspense>} />
+          <Route path="workspaces" element={<React.Suspense fallback={<ProductLoading />}><Workspaces /></React.Suspense>} />
+          <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><Usuarios /></React.Suspense>} />
+          <Route path="assinaturas" element={<React.Suspense fallback={<ProductLoading />}><Assinaturas /></React.Suspense>} />
+          <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><Financeiro /></React.Suspense>} />
+          <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />
+          <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
         </Route>
 
         {/* 404 — rota nao encontrada */}
@@ -147,4 +166,3 @@ export default function App() {
     </div>
   )
 }
-

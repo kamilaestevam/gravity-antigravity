@@ -5,6 +5,9 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { Columns } from '@phosphor-icons/react'
+import { useTablePersistence } from '../../tabela-global/src/hooks/useTablePersistence.js'
+import { VisibilidadeColunasGlobal } from '../../tabela-global/src/componentes/VisibilidadeColunasGlobal.js'
 import './tabela-camadas.css'
 import type { TabelaCamadasGlobalProps, TCGColuna, TCGAcao } from './tipos.js'
 
@@ -128,7 +131,41 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
     expandidosPadrao = [],
     itemId = (item: T) => (item as any).id,
     itensPorPagina: itensPorPaginaInicial = 10,
+    id: tableId
   } = props
+
+  // ─── Visibilidade de Colunas (Persistência) ───
+  const colunasConfig = useMemo(() => colunas.map(c => ({ 
+    key: c.key as string, 
+    label: c.label, 
+    naoOcultavel: (c as any).naoOcultavel 
+  })), [colunas])
+
+  const {
+    visibleKeys,
+    isVisible,
+    toggleVisibility,
+    resetToDefault,
+    setAllVisible,
+    clearAllVisible
+  } = useTablePersistence({
+    tableId: tableId || 'tcg-default',
+    initialKeys: colunas.map(c => c.key as string),
+    defaultHiddenKeys: colunas.filter(c => (c as any).oculta).map(c => c.key as string)
+  })
+
+  const colunasVisiveis = useMemo(() => 
+    tableId ? colunas.filter(c => isVisible(c.key as string)) : colunas,
+    [colunas, tableId, isVisible]
+  )
+
+  const colunasFilhasVisiveis = useMemo(() => 
+    tableId ? colunasFilhas.filter(c => isVisible(c.key as string)) : colunasFilhas,
+    [colunasFilhas, tableId, isVisible]
+  )
+
+  const [visibilidadeAberta, setVisibilidadeAberta] = useState(false)
+  const visibilidadeBtnRef = useRef<HTMLButtonElement>(null)
 
   const [busca, setBusca] = useState('')
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set(expandidosPadrao))
@@ -152,9 +189,9 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
     const q = busca.toLowerCase()
     return dados.filter(item => {
       if (campoBusca) return String((item as any)[campoBusca]).toLowerCase().includes(q)
-      return Object.values(item as any).some((v: unknown) => typeof v === 'string' && v.toLowerCase().includes(q))
+      return colunasVisiveis.some(c => String((item as any)[c.key]).toLowerCase().includes(q))
     })
-  }, [dados, busca, campoBusca])
+  }, [dados, busca, campoBusca, colunasVisiveis])
 
   const totalPaginas = Math.max(1, Math.ceil(dadosFiltrados.length / itensPorPagina))
   const paginaAtual = Math.min(pagina, totalPaginas)
@@ -190,8 +227,36 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
           </div>
         </div>
 
-        {temExport && (
-          <div className="tcg-toolbar-direita">
+        <div className="tcg-toolbar-direita" style={{ display: 'flex', gap: '0.5rem' }}>
+          {tableId && (
+            <div style={{ position: 'relative' }}>
+              <TooltipGlobal descricao="Gerenciar colunas visíveis">
+                <button
+                  ref={visibilidadeBtnRef}
+                  type="button"
+                  className="tcg-btn"
+                  onClick={() => setVisibilidadeAberta(v => !v)}
+                  style={{ minWidth: 'auto', padding: '0.4375rem 0.625rem' }}
+                >
+                  <Columns size={13} weight="bold" />
+                </button>
+              </TooltipGlobal>
+              {visibilidadeAberta && (
+                <VisibilidadeColunasGlobal 
+                  colunas={colunasConfig}
+                  visibleKeys={visibleKeys}
+                  onToggle={toggleVisibility}
+                  onReset={resetToDefault}
+                  onShowAll={setAllVisible}
+                  onHideAll={clearAllVisible}
+                  onFechar={() => setVisibilidadeAberta(false)}
+                  triggerRef={visibilidadeBtnRef as React.RefObject<HTMLButtonElement | null>}
+                />
+              )}
+            </div>
+          )}
+
+          {temExport && (
             <div className="tcg-export-wrapper" ref={exportRef}>
               <button type="button" className="tcg-btn" onClick={() => setExportMenuAberto(v => !v)}>
                 <IconeExport />
@@ -211,8 +276,8 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                 </div>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* ── Tabela ── */}
@@ -223,15 +288,15 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
           <thead className="tcg-cabecalho">
             <tr>
               <th className="tcg-th tcg-th--expand" />
-              {colunas.map(col => (
+              {colunasVisiveis.map(col => (
                 <th
-                  key={col.key}
+                  key={col.key as string}
                   className={`tcg-th${col.align === 'center' ? ' tcg-th--center' : col.align === 'right' ? ' tcg-th--right' : ''}`}
                 >
                   <span className="tcg-th-inner">
                     {col.label}
-                    {col.tooltipTitulo && (
-                      <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>
+                    {(col as any).tooltipTitulo && (
+                      <TooltipGlobal titulo={(col as any).tooltipTitulo} descricao={(col as any).tooltipDescricao}>
                         <span
                           style={{ opacity: 0.4, fontSize: '0.625rem' }}
                         >▾</span>
@@ -289,9 +354,9 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                       </td>
 
                       {/* Células pai */}
-                      {colunas.map((col, colIdx) => (
+                      {colunasVisiveis.map((col, colIdx) => (
                         <td
-                          key={col.key}
+                          key={col.key as string}
                           className={`tcg-td${col.align === 'center' ? ' tcg-td--center' : col.align === 'right' ? ' tcg-td--right' : ''}`}
                         >
                           {colIdx === 0 && temFilhos ? (

@@ -21,6 +21,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  position: relative;
   /* Compensa o padding do ws-content pai (24px topo, 2rem laterais)
      para que o cabeçalho fique colado ao topo e alinhado com a tabela */
   margin: -24px -2rem 0 -2rem;
@@ -31,7 +32,7 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  font-family: var(--font, system-ui);
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
 }
 
 /* ── Bloco título + subtítulo ────────────────────────────────────────── */
@@ -39,7 +40,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.1875rem;
+  gap: 0px; /* Reduzido de 0.1875rem para 0px para aproximar nome do Super Admin */
 }
 
 /* Linha do ícone + h1 */
@@ -60,11 +61,13 @@
 
 /* H1 */
 .cg-header__title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--cg-text);
-  line-height: 1.2;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.625rem !important; /* Impacto total UX 10 */
+  font-weight: 700 !important;
+  color: var(--text-primary, #f1f5f9);
+  line-height: 1.1;
   margin: 0;
+  letter-spacing: -0.015em;
 }
 
 /* Subtítulo — alinhado com o ícone (mesma borda esquerda) */
@@ -82,3 +85,15 @@
   gap: 0.5rem;
   flex-shrink: 0;
 }
+
+/* ── Slot central — view toggle ──────────────────────────────────────── */
+.cg-header__view-toggle {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  /* Empurra para o centro absoluto do header */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+

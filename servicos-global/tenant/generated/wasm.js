@@ -122,94 +122,42 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.EmpresaScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  nome: 'nome',
-  cnpj: 'cnpj',
-  email: 'email',
-  telefone: 'telefone',
-  site: 'site',
-  segmento: 'segmento',
-  status: 'status',
-  observacao: 'observacao',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.ContatoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  empresa_id: 'empresa_id',
-  nome: 'nome',
-  cargo: 'cargo',
-  email: 'email',
-  telefone: 'telefone',
-  whatsapp: 'whatsapp',
-  linkedin: 'linkedin',
-  observacao: 'observacao',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
 exports.Prisma.AtividadeScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
-  product_id: 'product_id',
   user_id: 'user_id',
   titulo: 'titulo',
   descricao: 'descricao',
   tipo: 'tipo',
   status: 'status',
   prioridade: 'prioridade',
-  data_inicio: 'data_inicio',
-  data_fim: 'data_fim',
-  data_venc: 'data_venc',
-  empresa_id: 'empresa_id',
-  contato_id: 'contato_id',
-  pipeline_id: 'pipeline_id',
+  data_atividade: 'data_atividade',
+  data_vencimento: 'data_vencimento',
+  tempo_gasto_minutos: 'tempo_gasto_minutos',
+  proximo_passo_titulo: 'proximo_passo_titulo',
+  proximo_passo_data: 'proximo_passo_data',
+  lembrete_em: 'lembrete_em',
+  lembrete_email: 'lembrete_email',
+  lembrete_whatsapp: 'lembrete_whatsapp',
+  notificar_ao_atribuir: 'notificar_ao_atribuir',
+  processo_id: 'processo_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
 
-exports.Prisma.PipelineScalarFieldEnum = {
+exports.Prisma.AtividadeParticipanteScalarFieldEnum = {
   id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  titulo: 'titulo',
-  etapa: 'etapa',
-  valor: 'valor',
-  empresa_id: 'empresa_id',
-  contato_id: 'contato_id',
-  probabilidade: 'probabilidade',
-  data_fechamento: 'data_fechamento',
-  observacao: 'observacao',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.KanbanCardScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  titulo: 'titulo',
-  descricao: 'descricao',
-  status: 'status',
-  posicao: 'posicao',
-  cor: 'cor',
-  etiquetas: 'etiquetas',
-  data_venc: 'data_venc',
   atividade_id: 'atividade_id',
-  empresa_id: 'empresa_id',
-  contato_id: 'contato_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  user_id: 'user_id',
+  user_nome: 'user_nome'
+};
+
+exports.Prisma.AtividadeSessaoTimerScalarFieldEnum = {
+  id: 'id',
+  atividade_id: 'atividade_id',
+  iniciado_em: 'iniciado_em',
+  duracao_min: 'duracao_min',
+  assunto: 'assunto'
 };
 
 exports.Prisma.TimerSessionScalarFieldEnum = {
@@ -622,54 +570,6 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.EmpresaStatus = exports.$Enums.EmpresaStatus = {
-  ATIVA: 'ATIVA',
-  INATIVA: 'INATIVA',
-  PROSPECTO: 'PROSPECTO',
-  CLIENTE: 'CLIENTE',
-  CHURNED: 'CHURNED'
-};
-
-exports.AtividadeTipo = exports.$Enums.AtividadeTipo = {
-  TAREFA: 'TAREFA',
-  REUNIAO: 'REUNIAO',
-  LIGACAO: 'LIGACAO',
-  EMAIL: 'EMAIL',
-  FOLLOW_UP: 'FOLLOW_UP',
-  VISITA: 'VISITA',
-  OUTRO: 'OUTRO'
-};
-
-exports.AtividadeStatus = exports.$Enums.AtividadeStatus = {
-  PENDENTE: 'PENDENTE',
-  EM_ANDAMENTO: 'EM_ANDAMENTO',
-  CONCLUIDA: 'CONCLUIDA',
-  CANCELADA: 'CANCELADA'
-};
-
-exports.AtividadePrioridade = exports.$Enums.AtividadePrioridade = {
-  BAIXA: 'BAIXA',
-  MEDIA: 'MEDIA',
-  ALTA: 'ALTA',
-  URGENTE: 'URGENTE'
-};
-
-exports.PipelineEtapa = exports.$Enums.PipelineEtapa = {
-  PROSPECCAO: 'PROSPECCAO',
-  QUALIFICACAO: 'QUALIFICACAO',
-  PROPOSTA: 'PROPOSTA',
-  NEGOCIACAO: 'NEGOCIACAO',
-  FECHAMENTO: 'FECHAMENTO',
-  POS_VENDA: 'POS_VENDA'
-};
-
-exports.KanbanCardStatus = exports.$Enums.KanbanCardStatus = {
-  ABERTO: 'ABERTO',
-  EM_PROGRESSO: 'EM_PROGRESSO',
-  BLOQUEADO: 'BLOQUEADO',
-  CONCLUIDO: 'CONCLUIDO'
-};
-
 exports.EmailThreadStatus = exports.$Enums.EmailThreadStatus = {
   ABERTA: 'ABERTA',
   ARQUIVADA: 'ARQUIVADA',
@@ -712,11 +612,9 @@ exports.ActorType = exports.$Enums.ActorType = {
 };
 
 exports.Prisma.ModelName = {
-  Empresa: 'Empresa',
-  Contato: 'Contato',
   Atividade: 'Atividade',
-  Pipeline: 'Pipeline',
-  KanbanCard: 'KanbanCard',
+  AtividadeParticipante: 'AtividadeParticipante',
+  AtividadeSessaoTimer: 'AtividadeSessaoTimer',
   TimerSession: 'TimerSession',
   TimerActive: 'TimerActive',
   RelatorioTempoCache: 'RelatorioTempoCache',

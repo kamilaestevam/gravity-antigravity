@@ -637,6 +637,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<Tenant>
+          id="admin-organizations"
           dados={tenants}
           colunas={COLUNAS}
           acoes={ACOES}
@@ -652,13 +653,13 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
               </div>
               <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
                 <TabelaGlobal<Workspace>
+                  id={`admin-org-workspaces-${tenant.id}`}
                   dados={tenant.workspaces}
                   colunas={COLUNAS_FILHAS}
                   acoes={ACOES_FILHAS}
                   mensagemVazio="Nenhum workspace cadastrado."
-                
-        acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FILHAS, 'dados_tabela', 'Exportação de Dados')}
-      />
+                  acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FILHAS, 'dados_tabela', 'Exportação de Dados')}
+                />
               </div>
             </div>
           )}

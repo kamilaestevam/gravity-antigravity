@@ -6,7 +6,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom'],
+    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next'],
     alias: {
       // ── Botoes ──
       '@nucleo/botao-global': path.resolve(__dirname, '../../nucleo-global/Botoes/botao-global/src/index.ts'),
@@ -17,6 +17,7 @@ export default defineConfig({
       '@nucleo/campo-geral-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-geral-global/src/index.ts'),
       '@nucleo/campo-localizar-expandido-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-localizar-expandido-global/src/index.ts'),
       '@nucleo/campo-select-global': path.resolve(__dirname, '../../nucleo-global/Campos/campo-select-global/src/index.ts'),
+      '@nucleo/switch-global': path.resolve(__dirname, '../../nucleo-global/Campos/switch-global/src/index.ts'),
       '@nucleo/modal-confirmar-excluir-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'),
       '@nucleo/modal-workspace-inicial-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-workspace-inicial-global/src/index.ts'),
       // ── Feedback ──
@@ -30,6 +31,7 @@ export default defineConfig({
       '@nucleo/pagina-global': path.resolve(__dirname, '../../nucleo-global/Layout/pagina-global/src/index.ts'),
       '@nucleo/card-global': path.resolve(__dirname, '../../nucleo-global/Layout/card-global/src/index.ts'),
       '@nucleo/usuario-global': path.resolve(__dirname, '../../nucleo-global/Layout/usuario-global/src/index.ts'),
+      '@nucleo/view-toggle-global': path.resolve(__dirname, '../../nucleo-global/Layout/view-toggle-global/src/index.ts'),
       '@nucleo/menu-lateral-global': path.resolve(__dirname, '../../nucleo-global/Layout/menu-lateral-global/src/index.ts'),
       // ── Modais ──
       '@nucleo/modal-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-global/src/index.ts'),
@@ -47,18 +49,17 @@ export default defineConfig({
       // ── Login ──
 
       '@nucleo/login-global': path.resolve(__dirname, '../../nucleo-global/Login/login-global/src/index.ts'),
-      '@tenant/gabi': path.resolve(
-        __dirname,
-        '../tenant/gabi'
-      ),
+      '@tenant/gabi': path.resolve(__dirname, '../tenant/gabi'),
+      '@tenant/dashboard': path.resolve(__dirname, '../tenant/dashboard'),
+      '@tenant/atividades': path.resolve(__dirname, '../tenant/atividades'),
       '@gravity/shell': path.resolve(
         __dirname,
         '../shell/index.ts'
       ),
-      '@shell': path.resolve(
-        __dirname,
-        '../shell/index.ts'
-      ),
+      // ── Aliases dos Produtos (para lazy-load dentro do Configurador) ──
+      '@shell': path.resolve(__dirname, '../shell'),
+      '@tenant': path.resolve(__dirname, '../tenant'),
+      '@produto': path.resolve(__dirname, '../../produto'),
     },
   },
   optimizeDeps: {
@@ -66,7 +67,11 @@ export default defineConfig({
   },
   server: {
     port: 5000,
+    fs: {
+      allow: ['../..'],
+    },
     proxy: {
+      // Configurador API
       '/api': {
         target: 'http://localhost:8005',
         changeOrigin: true,

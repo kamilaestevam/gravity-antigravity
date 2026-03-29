@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { ModalProvider } from '@nucleo/modal-global'
+import '@nucleo/Utilidades/localization/i18n'
 import App from './App'
 
 import { ptBR } from './ptBR'

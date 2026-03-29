@@ -5,7 +5,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
-import { withTenantIsolation } from '../../middleware/withTenantIsolation.js'
+import { withTenantIsolation } from '@tenant/middleware/withTenantIsolation.js'
 
 const router = Router()
 

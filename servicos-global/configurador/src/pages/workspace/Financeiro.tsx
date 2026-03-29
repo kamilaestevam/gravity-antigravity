@@ -445,6 +445,7 @@ export function Financeiro() {
           </p>
           <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
             <TabelaGlobal<Fatura>
+              id="workspace-financeiro-faturas"
               dados={faturas}
               colunas={COLUNAS_FATURAS}
               acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_FATURAS, 'dados_tabela', 'Exportação de Dados')}
@@ -540,6 +541,7 @@ export function Financeiro() {
 
           <div style={{ position: 'relative', zIndex: 10 }}>
             <TabelaGlobal<ProdutoCatalogo>
+              id="workspace-financeiro-catalogo"
               dados={produtos}
               colunas={COLUNAS_PRODUTOS}
               acoes={ACOES_PRODUTOS}

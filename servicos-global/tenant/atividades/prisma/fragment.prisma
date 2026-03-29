@@ -1,222 +1,102 @@
 // servicos-global/tenant/atividades/prisma/fragment.prisma
-// AGENTE ATIVIDADES — ONDA 3
+// AGENTE ATIVIDADES — Minhas Atividades (Tasks Board)
 //
-// Fragment Prisma para o serviço de Atividades (CRM).
+// Fragment Prisma para o serviço de Atividades — portado do Journey tasks-board.
+// Suporta Kanban (4 colunas), drag-and-drop, timer, participantes e vínculo a processo.
 // Não editar o schema.prisma final — apenas este fragment.
 // O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
-// Enums
-// ---------------------------------------------------------------------------
-
-enum EmpresaStatus {
-  ATIVA
-  INATIVA
-  PROSPECTO
-  CLIENTE
-  CHURNED
-}
-
-enum AtividadeStatus {
-  PENDENTE
-  EM_ANDAMENTO
-  CONCLUIDA
-  CANCELADA
-}
-
-enum AtividadePrioridade {
-  BAIXA
-  MEDIA
-  ALTA
-  URGENTE
-}
-
-enum AtividadeTipo {
-  TAREFA
-  REUNIAO
-  LIGACAO
-  EMAIL
-  FOLLOW_UP
-  VISITA
-  OUTRO
-}
-
-enum PipelineEtapa {
-  PROSPECCAO
-  QUALIFICACAO
-  PROPOSTA
-  NEGOCIACAO
-  FECHAMENTO
-  POS_VENDA
-}
-
-enum KanbanCardStatus {
-  ABERTO
-  EM_PROGRESSO
-  BLOQUEADO
-  CONCLUIDO
-}
-
-// ---------------------------------------------------------------------------
-// Empresa — cadastro de empresas do CRM
-// ---------------------------------------------------------------------------
-
-model Empresa {
-  id         String        @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
-
-  nome       String
-  cnpj       String?
-  email      String?
-  telefone   String?
-  site       String?
-  segmento   String?
-  status     EmpresaStatus @default(PROSPECTO)
-  observacao String?
-
-  contatos     Contato[]
-  atividades   Atividade[]
-  pipelines    Pipeline[]
-  kanbanCards  KanbanCard[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-}
-
-// ---------------------------------------------------------------------------
-// Contato — pessoas vinculadas a empresas
-// ---------------------------------------------------------------------------
-
-model Contato {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
-
-  empresa_id String?
-  empresa    Empresa? @relation(fields: [empresa_id], references: [id])
-  nome       String
-  cargo      String?
-  email      String?
-  telefone   String?
-  whatsapp   String?
-  linkedin   String?
-  observacao String?
-
-  atividades  Atividade[]
-  pipelines   Pipeline[]
-  kanbanCards KanbanCard[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-}
-
-// ---------------------------------------------------------------------------
-// Atividade — tarefas e interações de CRM
+// Atividade — tarefas e interações cross-produto do usuário logado
 // ---------------------------------------------------------------------------
 
 model Atividade {
-  id         String              @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id        String @id @default(cuid())
+  tenant_id String
+  user_id   String? // criador da atividade
 
-  titulo      String
-  descricao   String?
-  tipo        AtividadeTipo       @default(TAREFA)
-  status      AtividadeStatus     @default(PENDENTE)
-  prioridade  AtividadePrioridade @default(MEDIA)
-  data_inicio DateTime?
-  data_fim    DateTime?
-  data_venc   DateTime?
+  // Conteúdo
+  titulo    String
+  descricao String?
 
-  empresa_id  String?
-  empresa     Empresa?  @relation(fields: [empresa_id], references: [id])
-  contato_id  String?
-  contato     Contato?  @relation(fields: [contato_id], references: [id])
-  pipeline_id String?
-  pipeline    Pipeline? @relation(fields: [pipeline_id], references: [id])
+  // Tipo de atividade (igual ao Journey)
+  // Valores: "Comentário" | "Reunião" | "Chamados HD" | "Chamados CS" | "Ação necessária" | "Tarefa" | "Outros"
+  tipo String @default("Tarefa")
 
-  kanbanCards KanbanCard[]
+  // Status Kanban (colunas do board)
+  // Valores: "A Fazer" | "Em Andamento" | "Concluída" | "Cancelada"
+  status String @default("A Fazer")
 
+  // Prioridade
+  // Valores: "baixa" | "média" | "alta" | "urgente"
+  prioridade String?
+
+  // Temporal
+  data_atividade  DateTime?
+  data_vencimento DateTime?
+
+  // Tempo trabalhado (acumulado de todas as sessões)
+  tempo_gasto_minutos Int @default(0)
+
+  // Próximo passo
+  proximo_passo_titulo String?
+  proximo_passo_data   DateTime?
+
+  // Lembrete
+  lembrete_em       DateTime?
+  lembrete_email    Boolean @default(false)
+  lembrete_whatsapp Boolean @default(false)
+
+  // Notificação ao atribuir
+  notificar_ao_atribuir Boolean @default(false)
+
+  // Vínculos opcionais
+  processo_id String? // link opcional a um Processo Comex (para navegar)
+
+  // Metadados
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  // Relações
+  participantes AtividadeParticipante[]
+  sessoes_timer AtividadeSessaoTimer[]
+
   @@index([tenant_id])
-  @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@map("atividades")
 }
 
 // ---------------------------------------------------------------------------
-// Pipeline — funil de vendas
+// AtividadeParticipante — usuários atribuídos à atividade (M2M)
 // ---------------------------------------------------------------------------
 
-model Pipeline {
-  id         String        @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+model AtividadeParticipante {
+  id           String  @id @default(cuid())
+  atividade_id String
+  user_id      String
+  user_nome    String? // cache de nome para exibição sem JOIN extra
 
-  titulo      String
-  etapa       PipelineEtapa @default(PROSPECCAO)
-  valor       Float?
-  empresa_id  String?
-  empresa     Empresa?  @relation(fields: [empresa_id], references: [id])
-  contato_id  String?
-  contato     Contato?  @relation(fields: [contato_id], references: [id])
-  probabilidade Int?
-  data_fechamento DateTime?
-  observacao  String?
+  atividade Atividade @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
 
-  atividades Atividade[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@unique([atividade_id, user_id])
+  @@index([atividade_id])
+  @@map("atividade_participantes")
 }
 
 // ---------------------------------------------------------------------------
-// KanbanCard — cards para visão kanban de atividades
+// AtividadeSessaoTimer — sessões do cronômetro registradas
 // ---------------------------------------------------------------------------
 
-model KanbanCard {
-  id         String           @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+model AtividadeSessaoTimer {
+  id           String   @id @default(cuid())
+  atividade_id String
+  iniciado_em  DateTime
+  duracao_min  Int
+  assunto      String?
 
-  titulo      String
-  descricao   String?
-  status      KanbanCardStatus @default(ABERTO)
-  posicao     Int              @default(0)
-  cor         String?
-  etiquetas   String[]
-  data_venc   DateTime?
+  atividade Atividade @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
 
-  atividade_id String?
-  atividade    Atividade? @relation(fields: [atividade_id], references: [id])
-  empresa_id   String?
-  empresa      Empresa?   @relation(fields: [empresa_id], references: [id])
-  contato_id   String?
-  contato      Contato?   @relation(fields: [contato_id], references: [id])
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([atividade_id])
+  @@map("atividade_sessoes_timer")
 }

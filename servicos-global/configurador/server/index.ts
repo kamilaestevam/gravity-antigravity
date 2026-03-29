@@ -14,6 +14,7 @@ for (const envVar of requiredEnvVars) {
 
 import express from 'express'
 import helmet from 'helmet'
+import cors from 'cors'
 import { correlationMiddleware } from './middleware/correlationId.js'
 import { rateLimitPresets } from '../../tenant/middleware/rateLimiter.js'
 import { errorHandler } from './middleware/errorHandler.js'
@@ -24,10 +25,12 @@ import { plansRouter } from './routes/plans.js'
 import { billingRouter } from './routes/billing.js'
 import { accessRouter } from './routes/access.js'
 import { adminRouter } from './routes/admin.js'
+import { productsRouter } from './routes/products.js'
+import { tenantProductsRouter } from './routes/tenantProducts.js'
+import { companyProductsRouter } from './routes/companyProducts.js'
 import { serviceTokenRouter } from './routes/serviceToken.js'
 import { adminProductsRouter } from './routes/adminProducts.js'
 import { publicCatalogRouter } from './routes/publicCatalog.js'
-import { tenantProductsRouter } from './routes/tenantProducts.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -56,6 +59,10 @@ app.use(helmet({
 app.use('/api/v1/billing/webhook', express.raw({ type: 'application/json' }))
 
 app.use(express.json())
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:8003',
+  credentials: true
+}))
 app.use(correlationMiddleware)
 
 // ─── Health check ───────────────────────────────────────────────────────────
@@ -88,9 +95,12 @@ app.use('/api/catalog', rateLimitPresets.public())
 
 app.use('/api/v1/webhooks', authRouter)
 app.use('/api/v1/tenants', tenantsRouter)
-app.use('/api/v1/users', usersRouter)
-app.use('/api/v1/plans', plansRouter)
 app.use('/api/v1/billing', billingRouter)
+app.use('/api/v1/admin', adminRouter)
+app.use('/api/v1/products', productsRouter)
+app.use('/api/v1/tenants/products', tenantProductsRouter)
+app.use('/api/v1/companies/:companyId/products', companyProductsRouter)
+app.use('/api/v1/service-tokens', serviceTokenRouter)
 
 // ─── Rotas internas (x-internal-key obrigatória) ────────────────────────────
 

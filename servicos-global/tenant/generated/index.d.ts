@@ -14,30 +14,20 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 
 /**
- * Model Empresa
- * 
- */
-export type Empresa = $Result.DefaultSelection<Prisma.$EmpresaPayload>
-/**
- * Model Contato
- * 
- */
-export type Contato = $Result.DefaultSelection<Prisma.$ContatoPayload>
-/**
  * Model Atividade
  * 
  */
 export type Atividade = $Result.DefaultSelection<Prisma.$AtividadePayload>
 /**
- * Model Pipeline
+ * Model AtividadeParticipante
  * 
  */
-export type Pipeline = $Result.DefaultSelection<Prisma.$PipelinePayload>
+export type AtividadeParticipante = $Result.DefaultSelection<Prisma.$AtividadeParticipantePayload>
 /**
- * Model KanbanCard
+ * Model AtividadeSessaoTimer
  * 
  */
-export type KanbanCard = $Result.DefaultSelection<Prisma.$KanbanCardPayload>
+export type AtividadeSessaoTimer = $Result.DefaultSelection<Prisma.$AtividadeSessaoTimerPayload>
 /**
  * Model TimerSession
  * 
@@ -173,73 +163,7 @@ export type UserPreferences = $Result.DefaultSelection<Prisma.$UserPreferencesPa
  * Enums
  */
 export namespace $Enums {
-  export const EmpresaStatus: {
-  ATIVA: 'ATIVA',
-  INATIVA: 'INATIVA',
-  PROSPECTO: 'PROSPECTO',
-  CLIENTE: 'CLIENTE',
-  CHURNED: 'CHURNED'
-};
-
-export type EmpresaStatus = (typeof EmpresaStatus)[keyof typeof EmpresaStatus]
-
-
-export const AtividadeTipo: {
-  TAREFA: 'TAREFA',
-  REUNIAO: 'REUNIAO',
-  LIGACAO: 'LIGACAO',
-  EMAIL: 'EMAIL',
-  FOLLOW_UP: 'FOLLOW_UP',
-  VISITA: 'VISITA',
-  OUTRO: 'OUTRO'
-};
-
-export type AtividadeTipo = (typeof AtividadeTipo)[keyof typeof AtividadeTipo]
-
-
-export const AtividadeStatus: {
-  PENDENTE: 'PENDENTE',
-  EM_ANDAMENTO: 'EM_ANDAMENTO',
-  CONCLUIDA: 'CONCLUIDA',
-  CANCELADA: 'CANCELADA'
-};
-
-export type AtividadeStatus = (typeof AtividadeStatus)[keyof typeof AtividadeStatus]
-
-
-export const AtividadePrioridade: {
-  BAIXA: 'BAIXA',
-  MEDIA: 'MEDIA',
-  ALTA: 'ALTA',
-  URGENTE: 'URGENTE'
-};
-
-export type AtividadePrioridade = (typeof AtividadePrioridade)[keyof typeof AtividadePrioridade]
-
-
-export const PipelineEtapa: {
-  PROSPECCAO: 'PROSPECCAO',
-  QUALIFICACAO: 'QUALIFICACAO',
-  PROPOSTA: 'PROPOSTA',
-  NEGOCIACAO: 'NEGOCIACAO',
-  FECHAMENTO: 'FECHAMENTO',
-  POS_VENDA: 'POS_VENDA'
-};
-
-export type PipelineEtapa = (typeof PipelineEtapa)[keyof typeof PipelineEtapa]
-
-
-export const KanbanCardStatus: {
-  ABERTO: 'ABERTO',
-  EM_PROGRESSO: 'EM_PROGRESSO',
-  BLOQUEADO: 'BLOQUEADO',
-  CONCLUIDO: 'CONCLUIDO'
-};
-
-export type KanbanCardStatus = (typeof KanbanCardStatus)[keyof typeof KanbanCardStatus]
-
-
-export const EmailThreadStatus: {
+  export const EmailThreadStatus: {
   ABERTA: 'ABERTA',
   ARQUIVADA: 'ARQUIVADA',
   RESOLVIDA: 'RESOLVIDA'
@@ -299,30 +223,6 @@ export type ActorType = (typeof ActorType)[keyof typeof ActorType]
 
 }
 
-export type EmpresaStatus = $Enums.EmpresaStatus
-
-export const EmpresaStatus: typeof $Enums.EmpresaStatus
-
-export type AtividadeTipo = $Enums.AtividadeTipo
-
-export const AtividadeTipo: typeof $Enums.AtividadeTipo
-
-export type AtividadeStatus = $Enums.AtividadeStatus
-
-export const AtividadeStatus: typeof $Enums.AtividadeStatus
-
-export type AtividadePrioridade = $Enums.AtividadePrioridade
-
-export const AtividadePrioridade: typeof $Enums.AtividadePrioridade
-
-export type PipelineEtapa = $Enums.PipelineEtapa
-
-export const PipelineEtapa: typeof $Enums.PipelineEtapa
-
-export type KanbanCardStatus = $Enums.KanbanCardStatus
-
-export const KanbanCardStatus: typeof $Enums.KanbanCardStatus
-
 export type EmailThreadStatus = $Enums.EmailThreadStatus
 
 export const EmailThreadStatus: typeof $Enums.EmailThreadStatus
@@ -354,8 +254,8 @@ export const ActorType: typeof $Enums.ActorType
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Empresas
- * const empresas = await prisma.empresa.findMany()
+ * // Fetch zero or more Atividades
+ * const atividades = await prisma.atividade.findMany()
  * ```
  *
  * 
@@ -375,8 +275,8 @@ export class PrismaClient<
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Empresas
-   * const empresas = await prisma.empresa.findMany()
+   * // Fetch zero or more Atividades
+   * const atividades = await prisma.atividade.findMany()
    * ```
    *
    * 
@@ -471,26 +371,6 @@ export class PrismaClient<
   $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb, ExtArgs>
 
       /**
-   * `prisma.empresa`: Exposes CRUD operations for the **Empresa** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Empresas
-    * const empresas = await prisma.empresa.findMany()
-    * ```
-    */
-  get empresa(): Prisma.EmpresaDelegate<ExtArgs>;
-
-  /**
-   * `prisma.contato`: Exposes CRUD operations for the **Contato** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Contatoes
-    * const contatoes = await prisma.contato.findMany()
-    * ```
-    */
-  get contato(): Prisma.ContatoDelegate<ExtArgs>;
-
-  /**
    * `prisma.atividade`: Exposes CRUD operations for the **Atividade** model.
     * Example usage:
     * ```ts
@@ -501,24 +381,24 @@ export class PrismaClient<
   get atividade(): Prisma.AtividadeDelegate<ExtArgs>;
 
   /**
-   * `prisma.pipeline`: Exposes CRUD operations for the **Pipeline** model.
+   * `prisma.atividadeParticipante`: Exposes CRUD operations for the **AtividadeParticipante** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Pipelines
-    * const pipelines = await prisma.pipeline.findMany()
+    * // Fetch zero or more AtividadeParticipantes
+    * const atividadeParticipantes = await prisma.atividadeParticipante.findMany()
     * ```
     */
-  get pipeline(): Prisma.PipelineDelegate<ExtArgs>;
+  get atividadeParticipante(): Prisma.AtividadeParticipanteDelegate<ExtArgs>;
 
   /**
-   * `prisma.kanbanCard`: Exposes CRUD operations for the **KanbanCard** model.
+   * `prisma.atividadeSessaoTimer`: Exposes CRUD operations for the **AtividadeSessaoTimer** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more KanbanCards
-    * const kanbanCards = await prisma.kanbanCard.findMany()
+    * // Fetch zero or more AtividadeSessaoTimers
+    * const atividadeSessaoTimers = await prisma.atividadeSessaoTimer.findMany()
     * ```
     */
-  get kanbanCard(): Prisma.KanbanCardDelegate<ExtArgs>;
+  get atividadeSessaoTimer(): Prisma.AtividadeSessaoTimerDelegate<ExtArgs>;
 
   /**
    * `prisma.timerSession`: Exposes CRUD operations for the **TimerSession** model.
@@ -1220,11 +1100,9 @@ export namespace Prisma {
 
 
   export const ModelName: {
-    Empresa: 'Empresa',
-    Contato: 'Contato',
     Atividade: 'Atividade',
-    Pipeline: 'Pipeline',
-    KanbanCard: 'KanbanCard',
+    AtividadeParticipante: 'AtividadeParticipante',
+    AtividadeSessaoTimer: 'AtividadeSessaoTimer',
     TimerSession: 'TimerSession',
     TimerActive: 'TimerActive',
     RelatorioTempoCache: 'RelatorioTempoCache',
@@ -1266,150 +1144,10 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "contato" | "atividade" | "pipeline" | "kanbanCard" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "configDashboard" | "metricaSnapshot" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "userPreferences"
+      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "configDashboard" | "metricaSnapshot" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "userPreferences"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
-      Empresa: {
-        payload: Prisma.$EmpresaPayload<ExtArgs>
-        fields: Prisma.EmpresaFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.EmpresaFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.EmpresaFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
-          }
-          findFirst: {
-            args: Prisma.EmpresaFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.EmpresaFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
-          }
-          findMany: {
-            args: Prisma.EmpresaFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
-          }
-          create: {
-            args: Prisma.EmpresaCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
-          }
-          createMany: {
-            args: Prisma.EmpresaCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.EmpresaCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
-          }
-          delete: {
-            args: Prisma.EmpresaDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
-          }
-          update: {
-            args: Prisma.EmpresaUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
-          }
-          deleteMany: {
-            args: Prisma.EmpresaDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.EmpresaUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.EmpresaUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
-          }
-          aggregate: {
-            args: Prisma.EmpresaAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateEmpresa>
-          }
-          groupBy: {
-            args: Prisma.EmpresaGroupByArgs<ExtArgs>
-            result: $Utils.Optional<EmpresaGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.EmpresaCountArgs<ExtArgs>
-            result: $Utils.Optional<EmpresaCountAggregateOutputType> | number
-          }
-        }
-      }
-      Contato: {
-        payload: Prisma.$ContatoPayload<ExtArgs>
-        fields: Prisma.ContatoFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.ContatoFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.ContatoFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>
-          }
-          findFirst: {
-            args: Prisma.ContatoFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.ContatoFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>
-          }
-          findMany: {
-            args: Prisma.ContatoFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>[]
-          }
-          create: {
-            args: Prisma.ContatoCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>
-          }
-          createMany: {
-            args: Prisma.ContatoCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.ContatoCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>[]
-          }
-          delete: {
-            args: Prisma.ContatoDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>
-          }
-          update: {
-            args: Prisma.ContatoUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>
-          }
-          deleteMany: {
-            args: Prisma.ContatoDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.ContatoUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.ContatoUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ContatoPayload>
-          }
-          aggregate: {
-            args: Prisma.ContatoAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateContato>
-          }
-          groupBy: {
-            args: Prisma.ContatoGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ContatoGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.ContatoCountArgs<ExtArgs>
-            result: $Utils.Optional<ContatoCountAggregateOutputType> | number
-          }
-        }
-      }
       Atividade: {
         payload: Prisma.$AtividadePayload<ExtArgs>
         fields: Prisma.AtividadeFieldRefs
@@ -1480,143 +1218,143 @@ export namespace Prisma {
           }
         }
       }
-      Pipeline: {
-        payload: Prisma.$PipelinePayload<ExtArgs>
-        fields: Prisma.PipelineFieldRefs
+      AtividadeParticipante: {
+        payload: Prisma.$AtividadeParticipantePayload<ExtArgs>
+        fields: Prisma.AtividadeParticipanteFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PipelineFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload> | null
+            args: Prisma.AtividadeParticipanteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PipelineFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>
+            args: Prisma.AtividadeParticipanteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>
           }
           findFirst: {
-            args: Prisma.PipelineFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload> | null
+            args: Prisma.AtividadeParticipanteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PipelineFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>
+            args: Prisma.AtividadeParticipanteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>
           }
           findMany: {
-            args: Prisma.PipelineFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>[]
+            args: Prisma.AtividadeParticipanteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>[]
           }
           create: {
-            args: Prisma.PipelineCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>
+            args: Prisma.AtividadeParticipanteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>
           }
           createMany: {
-            args: Prisma.PipelineCreateManyArgs<ExtArgs>
+            args: Prisma.AtividadeParticipanteCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PipelineCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>[]
+            args: Prisma.AtividadeParticipanteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>[]
           }
           delete: {
-            args: Prisma.PipelineDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>
+            args: Prisma.AtividadeParticipanteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>
           }
           update: {
-            args: Prisma.PipelineUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>
+            args: Prisma.AtividadeParticipanteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>
           }
           deleteMany: {
-            args: Prisma.PipelineDeleteManyArgs<ExtArgs>
+            args: Prisma.AtividadeParticipanteDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PipelineUpdateManyArgs<ExtArgs>
+            args: Prisma.AtividadeParticipanteUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.PipelineUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PipelinePayload>
+            args: Prisma.AtividadeParticipanteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeParticipantePayload>
           }
           aggregate: {
-            args: Prisma.PipelineAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePipeline>
+            args: Prisma.AtividadeParticipanteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAtividadeParticipante>
           }
           groupBy: {
-            args: Prisma.PipelineGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PipelineGroupByOutputType>[]
+            args: Prisma.AtividadeParticipanteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AtividadeParticipanteGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PipelineCountArgs<ExtArgs>
-            result: $Utils.Optional<PipelineCountAggregateOutputType> | number
+            args: Prisma.AtividadeParticipanteCountArgs<ExtArgs>
+            result: $Utils.Optional<AtividadeParticipanteCountAggregateOutputType> | number
           }
         }
       }
-      KanbanCard: {
-        payload: Prisma.$KanbanCardPayload<ExtArgs>
-        fields: Prisma.KanbanCardFieldRefs
+      AtividadeSessaoTimer: {
+        payload: Prisma.$AtividadeSessaoTimerPayload<ExtArgs>
+        fields: Prisma.AtividadeSessaoTimerFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.KanbanCardFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload> | null
+            args: Prisma.AtividadeSessaoTimerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.KanbanCardFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+            args: Prisma.AtividadeSessaoTimerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>
           }
           findFirst: {
-            args: Prisma.KanbanCardFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload> | null
+            args: Prisma.AtividadeSessaoTimerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.KanbanCardFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+            args: Prisma.AtividadeSessaoTimerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>
           }
           findMany: {
-            args: Prisma.KanbanCardFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>[]
+            args: Prisma.AtividadeSessaoTimerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>[]
           }
           create: {
-            args: Prisma.KanbanCardCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+            args: Prisma.AtividadeSessaoTimerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>
           }
           createMany: {
-            args: Prisma.KanbanCardCreateManyArgs<ExtArgs>
+            args: Prisma.AtividadeSessaoTimerCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.KanbanCardCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>[]
+            args: Prisma.AtividadeSessaoTimerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>[]
           }
           delete: {
-            args: Prisma.KanbanCardDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+            args: Prisma.AtividadeSessaoTimerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>
           }
           update: {
-            args: Prisma.KanbanCardUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+            args: Prisma.AtividadeSessaoTimerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>
           }
           deleteMany: {
-            args: Prisma.KanbanCardDeleteManyArgs<ExtArgs>
+            args: Prisma.AtividadeSessaoTimerDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.KanbanCardUpdateManyArgs<ExtArgs>
+            args: Prisma.AtividadeSessaoTimerUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.KanbanCardUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$KanbanCardPayload>
+            args: Prisma.AtividadeSessaoTimerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AtividadeSessaoTimerPayload>
           }
           aggregate: {
-            args: Prisma.KanbanCardAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateKanbanCard>
+            args: Prisma.AtividadeSessaoTimerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAtividadeSessaoTimer>
           }
           groupBy: {
-            args: Prisma.KanbanCardGroupByArgs<ExtArgs>
-            result: $Utils.Optional<KanbanCardGroupByOutputType>[]
+            args: Prisma.AtividadeSessaoTimerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AtividadeSessaoTimerGroupByOutputType>[]
           }
           count: {
-            args: Prisma.KanbanCardCountArgs<ExtArgs>
-            result: $Utils.Optional<KanbanCardCountAggregateOutputType> | number
+            args: Prisma.AtividadeSessaoTimerCountArgs<ExtArgs>
+            result: $Utils.Optional<AtividadeSessaoTimerCountAggregateOutputType> | number
           }
         }
       }
@@ -3597,6 +3335,46 @@ export namespace Prisma {
 
 
   /**
+   * Count Type AtividadeCountOutputType
+   */
+
+  export type AtividadeCountOutputType = {
+    participantes: number
+    sessoes_timer: number
+  }
+
+  export type AtividadeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    participantes?: boolean | AtividadeCountOutputTypeCountParticipantesArgs
+    sessoes_timer?: boolean | AtividadeCountOutputTypeCountSessoes_timerArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AtividadeCountOutputType without action
+   */
+  export type AtividadeCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeCountOutputType
+     */
+    select?: AtividadeCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AtividadeCountOutputType without action
+   */
+  export type AtividadeCountOutputTypeCountParticipantesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AtividadeParticipanteWhereInput
+  }
+
+  /**
+   * AtividadeCountOutputType without action
+   */
+  export type AtividadeCountOutputTypeCountSessoes_timerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AtividadeSessaoTimerWhereInput
+  }
+
+
+  /**
    * Count Type EmailThreadCountOutputType
    */
 
@@ -3725,2003 +3503,44 @@ export namespace Prisma {
    */
 
   /**
-   * Model Empresa
-   */
-
-  export type AggregateEmpresa = {
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
-  }
-
-  export type EmpresaMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    nome: string | null
-    cnpj: string | null
-    email: string | null
-    telefone: string | null
-    site: string | null
-    segmento: string | null
-    status: $Enums.EmpresaStatus | null
-    observacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type EmpresaMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    nome: string | null
-    cnpj: string | null
-    email: string | null
-    telefone: string | null
-    site: string | null
-    segmento: string | null
-    status: $Enums.EmpresaStatus | null
-    observacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type EmpresaCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    nome: number
-    cnpj: number
-    email: number
-    telefone: number
-    site: number
-    segmento: number
-    status: number
-    observacao: number
-    created_at: number
-    updated_at: number
-    _all: number
-  }
-
-
-  export type EmpresaMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    cnpj?: true
-    email?: true
-    telefone?: true
-    site?: true
-    segmento?: true
-    status?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type EmpresaMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    cnpj?: true
-    email?: true
-    telefone?: true
-    site?: true
-    segmento?: true
-    status?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type EmpresaCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    nome?: true
-    cnpj?: true
-    email?: true
-    telefone?: true
-    site?: true
-    segmento?: true
-    status?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-    _all?: true
-  }
-
-  export type EmpresaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Empresa to aggregate.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Empresas
-    **/
-    _count?: true | EmpresaCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: EmpresaMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: EmpresaMaxAggregateInputType
-  }
-
-  export type GetEmpresaAggregateType<T extends EmpresaAggregateArgs> = {
-        [P in keyof T & keyof AggregateEmpresa]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateEmpresa[P]>
-      : GetScalarType<T[P], AggregateEmpresa[P]>
-  }
-
-
-
-
-  export type EmpresaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: EmpresaWhereInput
-    orderBy?: EmpresaOrderByWithAggregationInput | EmpresaOrderByWithAggregationInput[]
-    by: EmpresaScalarFieldEnum[] | EmpresaScalarFieldEnum
-    having?: EmpresaScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: EmpresaCountAggregateInputType | true
-    _min?: EmpresaMinAggregateInputType
-    _max?: EmpresaMaxAggregateInputType
-  }
-
-  export type EmpresaGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    nome: string
-    cnpj: string | null
-    email: string | null
-    telefone: string | null
-    site: string | null
-    segmento: string | null
-    status: $Enums.EmpresaStatus
-    observacao: string | null
-    created_at: Date
-    updated_at: Date
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
-  }
-
-  type GetEmpresaGroupByPayload<T extends EmpresaGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<EmpresaGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof EmpresaGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
-            : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    cnpj?: boolean
-    email?: boolean
-    telefone?: boolean
-    site?: boolean
-    segmento?: boolean
-    status?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["empresa"]>
-
-  export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    cnpj?: boolean
-    email?: boolean
-    telefone?: boolean
-    site?: boolean
-    segmento?: boolean
-    status?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["empresa"]>
-
-  export type EmpresaSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    nome?: boolean
-    cnpj?: boolean
-    email?: boolean
-    telefone?: boolean
-    site?: boolean
-    segmento?: boolean
-    status?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }
-
-
-  export type $EmpresaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Empresa"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      nome: string
-      cnpj: string | null
-      email: string | null
-      telefone: string | null
-      site: string | null
-      segmento: string | null
-      status: $Enums.EmpresaStatus
-      observacao: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["empresa"]>
-    composites: {}
-  }
-
-  type EmpresaGetPayload<S extends boolean | null | undefined | EmpresaDefaultArgs> = $Result.GetResult<Prisma.$EmpresaPayload, S>
-
-  type EmpresaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<EmpresaFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: EmpresaCountAggregateInputType | true
-    }
-
-  export interface EmpresaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Empresa'], meta: { name: 'Empresa' } }
-    /**
-     * Find zero or one Empresa that matches the filter.
-     * @param {EmpresaFindUniqueArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends EmpresaFindUniqueArgs>(args: SelectSubset<T, EmpresaFindUniqueArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one Empresa that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {EmpresaFindUniqueOrThrowArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends EmpresaFindUniqueOrThrowArgs>(args: SelectSubset<T, EmpresaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first Empresa that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends EmpresaFindFirstArgs>(args?: SelectSubset<T, EmpresaFindFirstArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first Empresa that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstOrThrowArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends EmpresaFindFirstOrThrowArgs>(args?: SelectSubset<T, EmpresaFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more Empresas that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Empresas
-     * const empresas = await prisma.empresa.findMany()
-     * 
-     * // Get first 10 Empresas
-     * const empresas = await prisma.empresa.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const empresaWithIdOnly = await prisma.empresa.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends EmpresaFindManyArgs>(args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a Empresa.
-     * @param {EmpresaCreateArgs} args - Arguments to create a Empresa.
-     * @example
-     * // Create one Empresa
-     * const Empresa = await prisma.empresa.create({
-     *   data: {
-     *     // ... data to create a Empresa
-     *   }
-     * })
-     * 
-     */
-    create<T extends EmpresaCreateArgs>(args: SelectSubset<T, EmpresaCreateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many Empresas.
-     * @param {EmpresaCreateManyArgs} args - Arguments to create many Empresas.
-     * @example
-     * // Create many Empresas
-     * const empresa = await prisma.empresa.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends EmpresaCreateManyArgs>(args?: SelectSubset<T, EmpresaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Empresas and returns the data saved in the database.
-     * @param {EmpresaCreateManyAndReturnArgs} args - Arguments to create many Empresas.
-     * @example
-     * // Create many Empresas
-     * const empresa = await prisma.empresa.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Empresas and only return the `id`
-     * const empresaWithIdOnly = await prisma.empresa.createManyAndReturn({ 
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends EmpresaCreateManyAndReturnArgs>(args?: SelectSubset<T, EmpresaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a Empresa.
-     * @param {EmpresaDeleteArgs} args - Arguments to delete one Empresa.
-     * @example
-     * // Delete one Empresa
-     * const Empresa = await prisma.empresa.delete({
-     *   where: {
-     *     // ... filter to delete one Empresa
-     *   }
-     * })
-     * 
-     */
-    delete<T extends EmpresaDeleteArgs>(args: SelectSubset<T, EmpresaDeleteArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one Empresa.
-     * @param {EmpresaUpdateArgs} args - Arguments to update one Empresa.
-     * @example
-     * // Update one Empresa
-     * const empresa = await prisma.empresa.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends EmpresaUpdateArgs>(args: SelectSubset<T, EmpresaUpdateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more Empresas.
-     * @param {EmpresaDeleteManyArgs} args - Arguments to filter Empresas to delete.
-     * @example
-     * // Delete a few Empresas
-     * const { count } = await prisma.empresa.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends EmpresaDeleteManyArgs>(args?: SelectSubset<T, EmpresaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Empresas.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Empresas
-     * const empresa = await prisma.empresa.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends EmpresaUpdateManyArgs>(args: SelectSubset<T, EmpresaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Empresa.
-     * @param {EmpresaUpsertArgs} args - Arguments to update or create a Empresa.
-     * @example
-     * // Update or create a Empresa
-     * const empresa = await prisma.empresa.upsert({
-     *   create: {
-     *     // ... data to create a Empresa
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Empresa we want to update
-     *   }
-     * })
-     */
-    upsert<T extends EmpresaUpsertArgs>(args: SelectSubset<T, EmpresaUpsertArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of Empresas.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaCountArgs} args - Arguments to filter Empresas to count.
-     * @example
-     * // Count the number of Empresas
-     * const count = await prisma.empresa.count({
-     *   where: {
-     *     // ... the filter for the Empresas we want to count
-     *   }
-     * })
-    **/
-    count<T extends EmpresaCountArgs>(
-      args?: Subset<T, EmpresaCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], EmpresaCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Empresa.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends EmpresaAggregateArgs>(args: Subset<T, EmpresaAggregateArgs>): Prisma.PrismaPromise<GetEmpresaAggregateType<T>>
-
-    /**
-     * Group by Empresa.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends EmpresaGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: EmpresaGroupByArgs['orderBy'] }
-        : { orderBy?: EmpresaGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, EmpresaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmpresaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Empresa model
-   */
-  readonly fields: EmpresaFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Empresa.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__EmpresaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Empresa model
-   */ 
-  interface EmpresaFieldRefs {
-    readonly id: FieldRef<"Empresa", 'String'>
-    readonly tenant_id: FieldRef<"Empresa", 'String'>
-    readonly product_id: FieldRef<"Empresa", 'String'>
-    readonly user_id: FieldRef<"Empresa", 'String'>
-    readonly nome: FieldRef<"Empresa", 'String'>
-    readonly cnpj: FieldRef<"Empresa", 'String'>
-    readonly email: FieldRef<"Empresa", 'String'>
-    readonly telefone: FieldRef<"Empresa", 'String'>
-    readonly site: FieldRef<"Empresa", 'String'>
-    readonly segmento: FieldRef<"Empresa", 'String'>
-    readonly status: FieldRef<"Empresa", 'EmpresaStatus'>
-    readonly observacao: FieldRef<"Empresa", 'String'>
-    readonly created_at: FieldRef<"Empresa", 'DateTime'>
-    readonly updated_at: FieldRef<"Empresa", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Empresa findUnique
-   */
-  export type EmpresaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-  /**
-   * Empresa findUniqueOrThrow
-   */
-  export type EmpresaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-  /**
-   * Empresa findFirst
-   */
-  export type EmpresaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Empresas.
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Empresas.
-     */
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
-  }
-
-  /**
-   * Empresa findFirstOrThrow
-   */
-  export type EmpresaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Empresas.
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Empresas.
-     */
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
-  }
-
-  /**
-   * Empresa findMany
-   */
-  export type EmpresaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Filter, which Empresas to fetch.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Empresas.
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
-  }
-
-  /**
-   * Empresa create
-   */
-  export type EmpresaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * The data needed to create a Empresa.
-     */
-    data: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
-  }
-
-  /**
-   * Empresa createMany
-   */
-  export type EmpresaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Empresas.
-     */
-    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Empresa createManyAndReturn
-   */
-  export type EmpresaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many Empresas.
-     */
-    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Empresa update
-   */
-  export type EmpresaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * The data needed to update a Empresa.
-     */
-    data: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
-    /**
-     * Choose, which Empresa to update.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-  /**
-   * Empresa updateMany
-   */
-  export type EmpresaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Empresas.
-     */
-    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyInput>
-    /**
-     * Filter which Empresas to update
-     */
-    where?: EmpresaWhereInput
-  }
-
-  /**
-   * Empresa upsert
-   */
-  export type EmpresaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * The filter to search for the Empresa to update in case it exists.
-     */
-    where: EmpresaWhereUniqueInput
-    /**
-     * In case the Empresa found by the `where` argument doesn't exist, create a new Empresa with this data.
-     */
-    create: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
-    /**
-     * In case the Empresa was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
-  }
-
-  /**
-   * Empresa delete
-   */
-  export type EmpresaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Filter which Empresa to delete.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-  /**
-   * Empresa deleteMany
-   */
-  export type EmpresaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Empresas to delete
-     */
-    where?: EmpresaWhereInput
-  }
-
-  /**
-   * Empresa without action
-   */
-  export type EmpresaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Contato
-   */
-
-  export type AggregateContato = {
-    _count: ContatoCountAggregateOutputType | null
-    _min: ContatoMinAggregateOutputType | null
-    _max: ContatoMaxAggregateOutputType | null
-  }
-
-  export type ContatoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    empresa_id: string | null
-    nome: string | null
-    cargo: string | null
-    email: string | null
-    telefone: string | null
-    whatsapp: string | null
-    linkedin: string | null
-    observacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type ContatoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    empresa_id: string | null
-    nome: string | null
-    cargo: string | null
-    email: string | null
-    telefone: string | null
-    whatsapp: string | null
-    linkedin: string | null
-    observacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type ContatoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    empresa_id: number
-    nome: number
-    cargo: number
-    email: number
-    telefone: number
-    whatsapp: number
-    linkedin: number
-    observacao: number
-    created_at: number
-    updated_at: number
-    _all: number
-  }
-
-
-  export type ContatoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    empresa_id?: true
-    nome?: true
-    cargo?: true
-    email?: true
-    telefone?: true
-    whatsapp?: true
-    linkedin?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type ContatoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    empresa_id?: true
-    nome?: true
-    cargo?: true
-    email?: true
-    telefone?: true
-    whatsapp?: true
-    linkedin?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type ContatoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    empresa_id?: true
-    nome?: true
-    cargo?: true
-    email?: true
-    telefone?: true
-    whatsapp?: true
-    linkedin?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-    _all?: true
-  }
-
-  export type ContatoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Contato to aggregate.
-     */
-    where?: ContatoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Contatoes to fetch.
-     */
-    orderBy?: ContatoOrderByWithRelationInput | ContatoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: ContatoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Contatoes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Contatoes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Contatoes
-    **/
-    _count?: true | ContatoCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: ContatoMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: ContatoMaxAggregateInputType
-  }
-
-  export type GetContatoAggregateType<T extends ContatoAggregateArgs> = {
-        [P in keyof T & keyof AggregateContato]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateContato[P]>
-      : GetScalarType<T[P], AggregateContato[P]>
-  }
-
-
-
-
-  export type ContatoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ContatoWhereInput
-    orderBy?: ContatoOrderByWithAggregationInput | ContatoOrderByWithAggregationInput[]
-    by: ContatoScalarFieldEnum[] | ContatoScalarFieldEnum
-    having?: ContatoScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: ContatoCountAggregateInputType | true
-    _min?: ContatoMinAggregateInputType
-    _max?: ContatoMaxAggregateInputType
-  }
-
-  export type ContatoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    empresa_id: string | null
-    nome: string
-    cargo: string | null
-    email: string | null
-    telefone: string | null
-    whatsapp: string | null
-    linkedin: string | null
-    observacao: string | null
-    created_at: Date
-    updated_at: Date
-    _count: ContatoCountAggregateOutputType | null
-    _min: ContatoMinAggregateOutputType | null
-    _max: ContatoMaxAggregateOutputType | null
-  }
-
-  type GetContatoGroupByPayload<T extends ContatoGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<ContatoGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof ContatoGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], ContatoGroupByOutputType[P]>
-            : GetScalarType<T[P], ContatoGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type ContatoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    empresa_id?: boolean
-    nome?: boolean
-    cargo?: boolean
-    email?: boolean
-    telefone?: boolean
-    whatsapp?: boolean
-    linkedin?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["contato"]>
-
-  export type ContatoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    empresa_id?: boolean
-    nome?: boolean
-    cargo?: boolean
-    email?: boolean
-    telefone?: boolean
-    whatsapp?: boolean
-    linkedin?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["contato"]>
-
-  export type ContatoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    empresa_id?: boolean
-    nome?: boolean
-    cargo?: boolean
-    email?: boolean
-    telefone?: boolean
-    whatsapp?: boolean
-    linkedin?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }
-
-
-  export type $ContatoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Contato"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      empresa_id: string | null
-      nome: string
-      cargo: string | null
-      email: string | null
-      telefone: string | null
-      whatsapp: string | null
-      linkedin: string | null
-      observacao: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["contato"]>
-    composites: {}
-  }
-
-  type ContatoGetPayload<S extends boolean | null | undefined | ContatoDefaultArgs> = $Result.GetResult<Prisma.$ContatoPayload, S>
-
-  type ContatoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ContatoFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ContatoCountAggregateInputType | true
-    }
-
-  export interface ContatoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Contato'], meta: { name: 'Contato' } }
-    /**
-     * Find zero or one Contato that matches the filter.
-     * @param {ContatoFindUniqueArgs} args - Arguments to find a Contato
-     * @example
-     * // Get one Contato
-     * const contato = await prisma.contato.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends ContatoFindUniqueArgs>(args: SelectSubset<T, ContatoFindUniqueArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one Contato that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {ContatoFindUniqueOrThrowArgs} args - Arguments to find a Contato
-     * @example
-     * // Get one Contato
-     * const contato = await prisma.contato.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends ContatoFindUniqueOrThrowArgs>(args: SelectSubset<T, ContatoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first Contato that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ContatoFindFirstArgs} args - Arguments to find a Contato
-     * @example
-     * // Get one Contato
-     * const contato = await prisma.contato.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends ContatoFindFirstArgs>(args?: SelectSubset<T, ContatoFindFirstArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first Contato that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ContatoFindFirstOrThrowArgs} args - Arguments to find a Contato
-     * @example
-     * // Get one Contato
-     * const contato = await prisma.contato.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends ContatoFindFirstOrThrowArgs>(args?: SelectSubset<T, ContatoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more Contatoes that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ContatoFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Contatoes
-     * const contatoes = await prisma.contato.findMany()
-     * 
-     * // Get first 10 Contatoes
-     * const contatoes = await prisma.contato.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const contatoWithIdOnly = await prisma.contato.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends ContatoFindManyArgs>(args?: SelectSubset<T, ContatoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a Contato.
-     * @param {ContatoCreateArgs} args - Arguments to create a Contato.
-     * @example
-     * // Create one Contato
-     * const Contato = await prisma.contato.create({
-     *   data: {
-     *     // ... data to create a Contato
-     *   }
-     * })
-     * 
-     */
-    create<T extends ContatoCreateArgs>(args: SelectSubset<T, ContatoCreateArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many Contatoes.
-     * @param {ContatoCreateManyArgs} args - Arguments to create many Contatoes.
-     * @example
-     * // Create many Contatoes
-     * const contato = await prisma.contato.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends ContatoCreateManyArgs>(args?: SelectSubset<T, ContatoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Contatoes and returns the data saved in the database.
-     * @param {ContatoCreateManyAndReturnArgs} args - Arguments to create many Contatoes.
-     * @example
-     * // Create many Contatoes
-     * const contato = await prisma.contato.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Contatoes and only return the `id`
-     * const contatoWithIdOnly = await prisma.contato.createManyAndReturn({ 
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends ContatoCreateManyAndReturnArgs>(args?: SelectSubset<T, ContatoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a Contato.
-     * @param {ContatoDeleteArgs} args - Arguments to delete one Contato.
-     * @example
-     * // Delete one Contato
-     * const Contato = await prisma.contato.delete({
-     *   where: {
-     *     // ... filter to delete one Contato
-     *   }
-     * })
-     * 
-     */
-    delete<T extends ContatoDeleteArgs>(args: SelectSubset<T, ContatoDeleteArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one Contato.
-     * @param {ContatoUpdateArgs} args - Arguments to update one Contato.
-     * @example
-     * // Update one Contato
-     * const contato = await prisma.contato.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends ContatoUpdateArgs>(args: SelectSubset<T, ContatoUpdateArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more Contatoes.
-     * @param {ContatoDeleteManyArgs} args - Arguments to filter Contatoes to delete.
-     * @example
-     * // Delete a few Contatoes
-     * const { count } = await prisma.contato.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends ContatoDeleteManyArgs>(args?: SelectSubset<T, ContatoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Contatoes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ContatoUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Contatoes
-     * const contato = await prisma.contato.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends ContatoUpdateManyArgs>(args: SelectSubset<T, ContatoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Contato.
-     * @param {ContatoUpsertArgs} args - Arguments to update or create a Contato.
-     * @example
-     * // Update or create a Contato
-     * const contato = await prisma.contato.upsert({
-     *   create: {
-     *     // ... data to create a Contato
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Contato we want to update
-     *   }
-     * })
-     */
-    upsert<T extends ContatoUpsertArgs>(args: SelectSubset<T, ContatoUpsertArgs<ExtArgs>>): Prisma__ContatoClient<$Result.GetResult<Prisma.$ContatoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of Contatoes.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ContatoCountArgs} args - Arguments to filter Contatoes to count.
-     * @example
-     * // Count the number of Contatoes
-     * const count = await prisma.contato.count({
-     *   where: {
-     *     // ... the filter for the Contatoes we want to count
-     *   }
-     * })
-    **/
-    count<T extends ContatoCountArgs>(
-      args?: Subset<T, ContatoCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], ContatoCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Contato.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ContatoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends ContatoAggregateArgs>(args: Subset<T, ContatoAggregateArgs>): Prisma.PrismaPromise<GetContatoAggregateType<T>>
-
-    /**
-     * Group by Contato.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {ContatoGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends ContatoGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ContatoGroupByArgs['orderBy'] }
-        : { orderBy?: ContatoGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, ContatoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContatoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Contato model
-   */
-  readonly fields: ContatoFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Contato.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__ContatoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Contato model
-   */ 
-  interface ContatoFieldRefs {
-    readonly id: FieldRef<"Contato", 'String'>
-    readonly tenant_id: FieldRef<"Contato", 'String'>
-    readonly product_id: FieldRef<"Contato", 'String'>
-    readonly user_id: FieldRef<"Contato", 'String'>
-    readonly empresa_id: FieldRef<"Contato", 'String'>
-    readonly nome: FieldRef<"Contato", 'String'>
-    readonly cargo: FieldRef<"Contato", 'String'>
-    readonly email: FieldRef<"Contato", 'String'>
-    readonly telefone: FieldRef<"Contato", 'String'>
-    readonly whatsapp: FieldRef<"Contato", 'String'>
-    readonly linkedin: FieldRef<"Contato", 'String'>
-    readonly observacao: FieldRef<"Contato", 'String'>
-    readonly created_at: FieldRef<"Contato", 'DateTime'>
-    readonly updated_at: FieldRef<"Contato", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Contato findUnique
-   */
-  export type ContatoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * Filter, which Contato to fetch.
-     */
-    where: ContatoWhereUniqueInput
-  }
-
-  /**
-   * Contato findUniqueOrThrow
-   */
-  export type ContatoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * Filter, which Contato to fetch.
-     */
-    where: ContatoWhereUniqueInput
-  }
-
-  /**
-   * Contato findFirst
-   */
-  export type ContatoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * Filter, which Contato to fetch.
-     */
-    where?: ContatoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Contatoes to fetch.
-     */
-    orderBy?: ContatoOrderByWithRelationInput | ContatoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Contatoes.
-     */
-    cursor?: ContatoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Contatoes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Contatoes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Contatoes.
-     */
-    distinct?: ContatoScalarFieldEnum | ContatoScalarFieldEnum[]
-  }
-
-  /**
-   * Contato findFirstOrThrow
-   */
-  export type ContatoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * Filter, which Contato to fetch.
-     */
-    where?: ContatoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Contatoes to fetch.
-     */
-    orderBy?: ContatoOrderByWithRelationInput | ContatoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Contatoes.
-     */
-    cursor?: ContatoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Contatoes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Contatoes.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Contatoes.
-     */
-    distinct?: ContatoScalarFieldEnum | ContatoScalarFieldEnum[]
-  }
-
-  /**
-   * Contato findMany
-   */
-  export type ContatoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * Filter, which Contatoes to fetch.
-     */
-    where?: ContatoWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Contatoes to fetch.
-     */
-    orderBy?: ContatoOrderByWithRelationInput | ContatoOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Contatoes.
-     */
-    cursor?: ContatoWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Contatoes from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Contatoes.
-     */
-    skip?: number
-    distinct?: ContatoScalarFieldEnum | ContatoScalarFieldEnum[]
-  }
-
-  /**
-   * Contato create
-   */
-  export type ContatoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * The data needed to create a Contato.
-     */
-    data: XOR<ContatoCreateInput, ContatoUncheckedCreateInput>
-  }
-
-  /**
-   * Contato createMany
-   */
-  export type ContatoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Contatoes.
-     */
-    data: ContatoCreateManyInput | ContatoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Contato createManyAndReturn
-   */
-  export type ContatoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many Contatoes.
-     */
-    data: ContatoCreateManyInput | ContatoCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Contato update
-   */
-  export type ContatoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * The data needed to update a Contato.
-     */
-    data: XOR<ContatoUpdateInput, ContatoUncheckedUpdateInput>
-    /**
-     * Choose, which Contato to update.
-     */
-    where: ContatoWhereUniqueInput
-  }
-
-  /**
-   * Contato updateMany
-   */
-  export type ContatoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Contatoes.
-     */
-    data: XOR<ContatoUpdateManyMutationInput, ContatoUncheckedUpdateManyInput>
-    /**
-     * Filter which Contatoes to update
-     */
-    where?: ContatoWhereInput
-  }
-
-  /**
-   * Contato upsert
-   */
-  export type ContatoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * The filter to search for the Contato to update in case it exists.
-     */
-    where: ContatoWhereUniqueInput
-    /**
-     * In case the Contato found by the `where` argument doesn't exist, create a new Contato with this data.
-     */
-    create: XOR<ContatoCreateInput, ContatoUncheckedCreateInput>
-    /**
-     * In case the Contato was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<ContatoUpdateInput, ContatoUncheckedUpdateInput>
-  }
-
-  /**
-   * Contato delete
-   */
-  export type ContatoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-    /**
-     * Filter which Contato to delete.
-     */
-    where: ContatoWhereUniqueInput
-  }
-
-  /**
-   * Contato deleteMany
-   */
-  export type ContatoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Contatoes to delete
-     */
-    where?: ContatoWhereInput
-  }
-
-  /**
-   * Contato without action
-   */
-  export type ContatoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contato
-     */
-    select?: ContatoSelect<ExtArgs> | null
-  }
-
-
-  /**
    * Model Atividade
    */
 
   export type AggregateAtividade = {
     _count: AtividadeCountAggregateOutputType | null
+    _avg: AtividadeAvgAggregateOutputType | null
+    _sum: AtividadeSumAggregateOutputType | null
     _min: AtividadeMinAggregateOutputType | null
     _max: AtividadeMaxAggregateOutputType | null
+  }
+
+  export type AtividadeAvgAggregateOutputType = {
+    tempo_gasto_minutos: number | null
+  }
+
+  export type AtividadeSumAggregateOutputType = {
+    tempo_gasto_minutos: number | null
   }
 
   export type AtividadeMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    product_id: string | null
     user_id: string | null
     titulo: string | null
     descricao: string | null
-    tipo: $Enums.AtividadeTipo | null
-    status: $Enums.AtividadeStatus | null
-    prioridade: $Enums.AtividadePrioridade | null
-    data_inicio: Date | null
-    data_fim: Date | null
-    data_venc: Date | null
-    empresa_id: string | null
-    contato_id: string | null
-    pipeline_id: string | null
+    tipo: string | null
+    status: string | null
+    prioridade: string | null
+    data_atividade: Date | null
+    data_vencimento: Date | null
+    tempo_gasto_minutos: number | null
+    proximo_passo_titulo: string | null
+    proximo_passo_data: Date | null
+    lembrete_em: Date | null
+    lembrete_email: boolean | null
+    lembrete_whatsapp: boolean | null
+    notificar_ao_atribuir: boolean | null
+    processo_id: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -5729,19 +3548,22 @@ export namespace Prisma {
   export type AtividadeMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    product_id: string | null
     user_id: string | null
     titulo: string | null
     descricao: string | null
-    tipo: $Enums.AtividadeTipo | null
-    status: $Enums.AtividadeStatus | null
-    prioridade: $Enums.AtividadePrioridade | null
-    data_inicio: Date | null
-    data_fim: Date | null
-    data_venc: Date | null
-    empresa_id: string | null
-    contato_id: string | null
-    pipeline_id: string | null
+    tipo: string | null
+    status: string | null
+    prioridade: string | null
+    data_atividade: Date | null
+    data_vencimento: Date | null
+    tempo_gasto_minutos: number | null
+    proximo_passo_titulo: string | null
+    proximo_passo_data: Date | null
+    lembrete_em: Date | null
+    lembrete_email: boolean | null
+    lembrete_whatsapp: boolean | null
+    notificar_ao_atribuir: boolean | null
+    processo_id: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -5749,41 +3571,55 @@ export namespace Prisma {
   export type AtividadeCountAggregateOutputType = {
     id: number
     tenant_id: number
-    product_id: number
     user_id: number
     titulo: number
     descricao: number
     tipo: number
     status: number
     prioridade: number
-    data_inicio: number
-    data_fim: number
-    data_venc: number
-    empresa_id: number
-    contato_id: number
-    pipeline_id: number
+    data_atividade: number
+    data_vencimento: number
+    tempo_gasto_minutos: number
+    proximo_passo_titulo: number
+    proximo_passo_data: number
+    lembrete_em: number
+    lembrete_email: number
+    lembrete_whatsapp: number
+    notificar_ao_atribuir: number
+    processo_id: number
     created_at: number
     updated_at: number
     _all: number
   }
 
 
+  export type AtividadeAvgAggregateInputType = {
+    tempo_gasto_minutos?: true
+  }
+
+  export type AtividadeSumAggregateInputType = {
+    tempo_gasto_minutos?: true
+  }
+
   export type AtividadeMinAggregateInputType = {
     id?: true
     tenant_id?: true
-    product_id?: true
     user_id?: true
     titulo?: true
     descricao?: true
     tipo?: true
     status?: true
     prioridade?: true
-    data_inicio?: true
-    data_fim?: true
-    data_venc?: true
-    empresa_id?: true
-    contato_id?: true
-    pipeline_id?: true
+    data_atividade?: true
+    data_vencimento?: true
+    tempo_gasto_minutos?: true
+    proximo_passo_titulo?: true
+    proximo_passo_data?: true
+    lembrete_em?: true
+    lembrete_email?: true
+    lembrete_whatsapp?: true
+    notificar_ao_atribuir?: true
+    processo_id?: true
     created_at?: true
     updated_at?: true
   }
@@ -5791,19 +3627,22 @@ export namespace Prisma {
   export type AtividadeMaxAggregateInputType = {
     id?: true
     tenant_id?: true
-    product_id?: true
     user_id?: true
     titulo?: true
     descricao?: true
     tipo?: true
     status?: true
     prioridade?: true
-    data_inicio?: true
-    data_fim?: true
-    data_venc?: true
-    empresa_id?: true
-    contato_id?: true
-    pipeline_id?: true
+    data_atividade?: true
+    data_vencimento?: true
+    tempo_gasto_minutos?: true
+    proximo_passo_titulo?: true
+    proximo_passo_data?: true
+    lembrete_em?: true
+    lembrete_email?: true
+    lembrete_whatsapp?: true
+    notificar_ao_atribuir?: true
+    processo_id?: true
     created_at?: true
     updated_at?: true
   }
@@ -5811,19 +3650,22 @@ export namespace Prisma {
   export type AtividadeCountAggregateInputType = {
     id?: true
     tenant_id?: true
-    product_id?: true
     user_id?: true
     titulo?: true
     descricao?: true
     tipo?: true
     status?: true
     prioridade?: true
-    data_inicio?: true
-    data_fim?: true
-    data_venc?: true
-    empresa_id?: true
-    contato_id?: true
-    pipeline_id?: true
+    data_atividade?: true
+    data_vencimento?: true
+    tempo_gasto_minutos?: true
+    proximo_passo_titulo?: true
+    proximo_passo_data?: true
+    lembrete_em?: true
+    lembrete_email?: true
+    lembrete_whatsapp?: true
+    notificar_ao_atribuir?: true
+    processo_id?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -5867,6 +3709,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: AtividadeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AtividadeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: AtividadeMinAggregateInputType
@@ -5897,6 +3751,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: AtividadeCountAggregateInputType | true
+    _avg?: AtividadeAvgAggregateInputType
+    _sum?: AtividadeSumAggregateInputType
     _min?: AtividadeMinAggregateInputType
     _max?: AtividadeMaxAggregateInputType
   }
@@ -5904,22 +3760,27 @@ export namespace Prisma {
   export type AtividadeGroupByOutputType = {
     id: string
     tenant_id: string
-    product_id: string | null
     user_id: string | null
     titulo: string
     descricao: string | null
-    tipo: $Enums.AtividadeTipo
-    status: $Enums.AtividadeStatus
-    prioridade: $Enums.AtividadePrioridade
-    data_inicio: Date | null
-    data_fim: Date | null
-    data_venc: Date | null
-    empresa_id: string | null
-    contato_id: string | null
-    pipeline_id: string | null
+    tipo: string
+    status: string
+    prioridade: string | null
+    data_atividade: Date | null
+    data_vencimento: Date | null
+    tempo_gasto_minutos: number
+    proximo_passo_titulo: string | null
+    proximo_passo_data: Date | null
+    lembrete_em: Date | null
+    lembrete_email: boolean
+    lembrete_whatsapp: boolean
+    notificar_ao_atribuir: boolean
+    processo_id: string | null
     created_at: Date
     updated_at: Date
     _count: AtividadeCountAggregateOutputType | null
+    _avg: AtividadeAvgAggregateOutputType | null
+    _sum: AtividadeSumAggregateOutputType | null
     _min: AtividadeMinAggregateOutputType | null
     _max: AtividadeMaxAggregateOutputType | null
   }
@@ -5941,39 +3802,48 @@ export namespace Prisma {
   export type AtividadeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
-    product_id?: boolean
     user_id?: boolean
     titulo?: boolean
     descricao?: boolean
     tipo?: boolean
     status?: boolean
     prioridade?: boolean
-    data_inicio?: boolean
-    data_fim?: boolean
-    data_venc?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    pipeline_id?: boolean
+    data_atividade?: boolean
+    data_vencimento?: boolean
+    tempo_gasto_minutos?: boolean
+    proximo_passo_titulo?: boolean
+    proximo_passo_data?: boolean
+    lembrete_em?: boolean
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: boolean
     created_at?: boolean
     updated_at?: boolean
+    participantes?: boolean | Atividade$participantesArgs<ExtArgs>
+    sessoes_timer?: boolean | Atividade$sessoes_timerArgs<ExtArgs>
+    _count?: boolean | AtividadeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["atividade"]>
 
   export type AtividadeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
-    product_id?: boolean
     user_id?: boolean
     titulo?: boolean
     descricao?: boolean
     tipo?: boolean
     status?: boolean
     prioridade?: boolean
-    data_inicio?: boolean
-    data_fim?: boolean
-    data_venc?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    pipeline_id?: boolean
+    data_atividade?: boolean
+    data_vencimento?: boolean
+    tempo_gasto_minutos?: boolean
+    proximo_passo_titulo?: boolean
+    proximo_passo_data?: boolean
+    lembrete_em?: boolean
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["atividade"]>
@@ -5981,43 +3851,58 @@ export namespace Prisma {
   export type AtividadeSelectScalar = {
     id?: boolean
     tenant_id?: boolean
-    product_id?: boolean
     user_id?: boolean
     titulo?: boolean
     descricao?: boolean
     tipo?: boolean
     status?: boolean
     prioridade?: boolean
-    data_inicio?: boolean
-    data_fim?: boolean
-    data_venc?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    pipeline_id?: boolean
+    data_atividade?: boolean
+    data_vencimento?: boolean
+    tempo_gasto_minutos?: boolean
+    proximo_passo_titulo?: boolean
+    proximo_passo_data?: boolean
+    lembrete_em?: boolean
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
+  export type AtividadeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    participantes?: boolean | Atividade$participantesArgs<ExtArgs>
+    sessoes_timer?: boolean | Atividade$sessoes_timerArgs<ExtArgs>
+    _count?: boolean | AtividadeCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AtividadeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $AtividadePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Atividade"
-    objects: {}
+    objects: {
+      participantes: Prisma.$AtividadeParticipantePayload<ExtArgs>[]
+      sessoes_timer: Prisma.$AtividadeSessaoTimerPayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       tenant_id: string
-      product_id: string | null
       user_id: string | null
       titulo: string
       descricao: string | null
-      tipo: $Enums.AtividadeTipo
-      status: $Enums.AtividadeStatus
-      prioridade: $Enums.AtividadePrioridade
-      data_inicio: Date | null
-      data_fim: Date | null
-      data_venc: Date | null
-      empresa_id: string | null
-      contato_id: string | null
-      pipeline_id: string | null
+      tipo: string
+      status: string
+      prioridade: string | null
+      data_atividade: Date | null
+      data_vencimento: Date | null
+      tempo_gasto_minutos: number
+      proximo_passo_titulo: string | null
+      proximo_passo_data: Date | null
+      lembrete_em: Date | null
+      lembrete_email: boolean
+      lembrete_whatsapp: boolean
+      notificar_ao_atribuir: boolean
+      processo_id: string | null
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["atividade"]>
@@ -6384,6 +4269,8 @@ export namespace Prisma {
    */
   export interface Prisma__AtividadeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    participantes<T extends Atividade$participantesArgs<ExtArgs> = {}>(args?: Subset<T, Atividade$participantesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "findMany"> | Null>
+    sessoes_timer<T extends Atividade$sessoes_timerArgs<ExtArgs> = {}>(args?: Subset<T, Atividade$sessoes_timerArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6415,19 +4302,22 @@ export namespace Prisma {
   interface AtividadeFieldRefs {
     readonly id: FieldRef<"Atividade", 'String'>
     readonly tenant_id: FieldRef<"Atividade", 'String'>
-    readonly product_id: FieldRef<"Atividade", 'String'>
     readonly user_id: FieldRef<"Atividade", 'String'>
     readonly titulo: FieldRef<"Atividade", 'String'>
     readonly descricao: FieldRef<"Atividade", 'String'>
-    readonly tipo: FieldRef<"Atividade", 'AtividadeTipo'>
-    readonly status: FieldRef<"Atividade", 'AtividadeStatus'>
-    readonly prioridade: FieldRef<"Atividade", 'AtividadePrioridade'>
-    readonly data_inicio: FieldRef<"Atividade", 'DateTime'>
-    readonly data_fim: FieldRef<"Atividade", 'DateTime'>
-    readonly data_venc: FieldRef<"Atividade", 'DateTime'>
-    readonly empresa_id: FieldRef<"Atividade", 'String'>
-    readonly contato_id: FieldRef<"Atividade", 'String'>
-    readonly pipeline_id: FieldRef<"Atividade", 'String'>
+    readonly tipo: FieldRef<"Atividade", 'String'>
+    readonly status: FieldRef<"Atividade", 'String'>
+    readonly prioridade: FieldRef<"Atividade", 'String'>
+    readonly data_atividade: FieldRef<"Atividade", 'DateTime'>
+    readonly data_vencimento: FieldRef<"Atividade", 'DateTime'>
+    readonly tempo_gasto_minutos: FieldRef<"Atividade", 'Int'>
+    readonly proximo_passo_titulo: FieldRef<"Atividade", 'String'>
+    readonly proximo_passo_data: FieldRef<"Atividade", 'DateTime'>
+    readonly lembrete_em: FieldRef<"Atividade", 'DateTime'>
+    readonly lembrete_email: FieldRef<"Atividade", 'Boolean'>
+    readonly lembrete_whatsapp: FieldRef<"Atividade", 'Boolean'>
+    readonly notificar_ao_atribuir: FieldRef<"Atividade", 'Boolean'>
+    readonly processo_id: FieldRef<"Atividade", 'String'>
     readonly created_at: FieldRef<"Atividade", 'DateTime'>
     readonly updated_at: FieldRef<"Atividade", 'DateTime'>
   }
@@ -6443,6 +4333,10 @@ export namespace Prisma {
      */
     select?: AtividadeSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
+    /**
      * Filter, which Atividade to fetch.
      */
     where: AtividadeWhereUniqueInput
@@ -6457,6 +4351,10 @@ export namespace Prisma {
      */
     select?: AtividadeSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
+    /**
      * Filter, which Atividade to fetch.
      */
     where: AtividadeWhereUniqueInput
@@ -6470,6 +4368,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Atividade
      */
     select?: AtividadeSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
     /**
      * Filter, which Atividade to fetch.
      */
@@ -6515,6 +4417,10 @@ export namespace Prisma {
      */
     select?: AtividadeSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
+    /**
      * Filter, which Atividade to fetch.
      */
     where?: AtividadeWhereInput
@@ -6559,6 +4465,10 @@ export namespace Prisma {
      */
     select?: AtividadeSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
+    /**
      * Filter, which Atividades to fetch.
      */
     where?: AtividadeWhereInput
@@ -6597,6 +4507,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Atividade
      */
     select?: AtividadeSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
     /**
      * The data needed to create a Atividade.
      */
@@ -6638,6 +4552,10 @@ export namespace Prisma {
      */
     select?: AtividadeSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
+    /**
      * The data needed to update a Atividade.
      */
     data: XOR<AtividadeUpdateInput, AtividadeUncheckedUpdateInput>
@@ -6670,6 +4588,10 @@ export namespace Prisma {
      */
     select?: AtividadeSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
+    /**
      * The filter to search for the Atividade to update in case it exists.
      */
     where: AtividadeWhereUniqueInput
@@ -6692,6 +4614,10 @@ export namespace Prisma {
      */
     select?: AtividadeSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
+    /**
      * Filter which Atividade to delete.
      */
     where: AtividadeWhereUniqueInput
@@ -6708,6 +4634,46 @@ export namespace Prisma {
   }
 
   /**
+   * Atividade.participantes
+   */
+  export type Atividade$participantesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeParticipante
+     */
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    where?: AtividadeParticipanteWhereInput
+    orderBy?: AtividadeParticipanteOrderByWithRelationInput | AtividadeParticipanteOrderByWithRelationInput[]
+    cursor?: AtividadeParticipanteWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AtividadeParticipanteScalarFieldEnum | AtividadeParticipanteScalarFieldEnum[]
+  }
+
+  /**
+   * Atividade.sessoes_timer
+   */
+  export type Atividade$sessoes_timerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    where?: AtividadeSessaoTimerWhereInput
+    orderBy?: AtividadeSessaoTimerOrderByWithRelationInput | AtividadeSessaoTimerOrderByWithRelationInput[]
+    cursor?: AtividadeSessaoTimerWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AtividadeSessaoTimerScalarFieldEnum | AtividadeSessaoTimerScalarFieldEnum[]
+  }
+
+  /**
    * Atividade without action
    */
   export type AtividadeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6715,1506 +4681,334 @@ export namespace Prisma {
      * Select specific fields to fetch from the Atividade
      */
     select?: AtividadeSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model Pipeline
+   * Model AtividadeParticipante
    */
 
-  export type AggregatePipeline = {
-    _count: PipelineCountAggregateOutputType | null
-    _avg: PipelineAvgAggregateOutputType | null
-    _sum: PipelineSumAggregateOutputType | null
-    _min: PipelineMinAggregateOutputType | null
-    _max: PipelineMaxAggregateOutputType | null
+  export type AggregateAtividadeParticipante = {
+    _count: AtividadeParticipanteCountAggregateOutputType | null
+    _min: AtividadeParticipanteMinAggregateOutputType | null
+    _max: AtividadeParticipanteMaxAggregateOutputType | null
   }
 
-  export type PipelineAvgAggregateOutputType = {
-    valor: number | null
-    probabilidade: number | null
-  }
-
-  export type PipelineSumAggregateOutputType = {
-    valor: number | null
-    probabilidade: number | null
-  }
-
-  export type PipelineMinAggregateOutputType = {
+  export type AtividadeParticipanteMinAggregateOutputType = {
     id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    titulo: string | null
-    etapa: $Enums.PipelineEtapa | null
-    valor: number | null
-    empresa_id: string | null
-    contato_id: string | null
-    probabilidade: number | null
-    data_fechamento: Date | null
-    observacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type PipelineMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    titulo: string | null
-    etapa: $Enums.PipelineEtapa | null
-    valor: number | null
-    empresa_id: string | null
-    contato_id: string | null
-    probabilidade: number | null
-    data_fechamento: Date | null
-    observacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type PipelineCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    titulo: number
-    etapa: number
-    valor: number
-    empresa_id: number
-    contato_id: number
-    probabilidade: number
-    data_fechamento: number
-    observacao: number
-    created_at: number
-    updated_at: number
-    _all: number
-  }
-
-
-  export type PipelineAvgAggregateInputType = {
-    valor?: true
-    probabilidade?: true
-  }
-
-  export type PipelineSumAggregateInputType = {
-    valor?: true
-    probabilidade?: true
-  }
-
-  export type PipelineMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    titulo?: true
-    etapa?: true
-    valor?: true
-    empresa_id?: true
-    contato_id?: true
-    probabilidade?: true
-    data_fechamento?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type PipelineMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    titulo?: true
-    etapa?: true
-    valor?: true
-    empresa_id?: true
-    contato_id?: true
-    probabilidade?: true
-    data_fechamento?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type PipelineCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    titulo?: true
-    etapa?: true
-    valor?: true
-    empresa_id?: true
-    contato_id?: true
-    probabilidade?: true
-    data_fechamento?: true
-    observacao?: true
-    created_at?: true
-    updated_at?: true
-    _all?: true
-  }
-
-  export type PipelineAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Pipeline to aggregate.
-     */
-    where?: PipelineWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Pipelines to fetch.
-     */
-    orderBy?: PipelineOrderByWithRelationInput | PipelineOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: PipelineWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Pipelines from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Pipelines.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Pipelines
-    **/
-    _count?: true | PipelineCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: PipelineAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: PipelineSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: PipelineMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: PipelineMaxAggregateInputType
-  }
-
-  export type GetPipelineAggregateType<T extends PipelineAggregateArgs> = {
-        [P in keyof T & keyof AggregatePipeline]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregatePipeline[P]>
-      : GetScalarType<T[P], AggregatePipeline[P]>
-  }
-
-
-
-
-  export type PipelineGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PipelineWhereInput
-    orderBy?: PipelineOrderByWithAggregationInput | PipelineOrderByWithAggregationInput[]
-    by: PipelineScalarFieldEnum[] | PipelineScalarFieldEnum
-    having?: PipelineScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: PipelineCountAggregateInputType | true
-    _avg?: PipelineAvgAggregateInputType
-    _sum?: PipelineSumAggregateInputType
-    _min?: PipelineMinAggregateInputType
-    _max?: PipelineMaxAggregateInputType
-  }
-
-  export type PipelineGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    titulo: string
-    etapa: $Enums.PipelineEtapa
-    valor: number | null
-    empresa_id: string | null
-    contato_id: string | null
-    probabilidade: number | null
-    data_fechamento: Date | null
-    observacao: string | null
-    created_at: Date
-    updated_at: Date
-    _count: PipelineCountAggregateOutputType | null
-    _avg: PipelineAvgAggregateOutputType | null
-    _sum: PipelineSumAggregateOutputType | null
-    _min: PipelineMinAggregateOutputType | null
-    _max: PipelineMaxAggregateOutputType | null
-  }
-
-  type GetPipelineGroupByPayload<T extends PipelineGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<PipelineGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof PipelineGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], PipelineGroupByOutputType[P]>
-            : GetScalarType<T[P], PipelineGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type PipelineSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    etapa?: boolean
-    valor?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    probabilidade?: boolean
-    data_fechamento?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["pipeline"]>
-
-  export type PipelineSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    etapa?: boolean
-    valor?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    probabilidade?: boolean
-    data_fechamento?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["pipeline"]>
-
-  export type PipelineSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    etapa?: boolean
-    valor?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    probabilidade?: boolean
-    data_fechamento?: boolean
-    observacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }
-
-
-  export type $PipelinePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Pipeline"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      titulo: string
-      etapa: $Enums.PipelineEtapa
-      valor: number | null
-      empresa_id: string | null
-      contato_id: string | null
-      probabilidade: number | null
-      data_fechamento: Date | null
-      observacao: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["pipeline"]>
-    composites: {}
-  }
-
-  type PipelineGetPayload<S extends boolean | null | undefined | PipelineDefaultArgs> = $Result.GetResult<Prisma.$PipelinePayload, S>
-
-  type PipelineCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<PipelineFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: PipelineCountAggregateInputType | true
-    }
-
-  export interface PipelineDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Pipeline'], meta: { name: 'Pipeline' } }
-    /**
-     * Find zero or one Pipeline that matches the filter.
-     * @param {PipelineFindUniqueArgs} args - Arguments to find a Pipeline
-     * @example
-     * // Get one Pipeline
-     * const pipeline = await prisma.pipeline.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends PipelineFindUniqueArgs>(args: SelectSubset<T, PipelineFindUniqueArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one Pipeline that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {PipelineFindUniqueOrThrowArgs} args - Arguments to find a Pipeline
-     * @example
-     * // Get one Pipeline
-     * const pipeline = await prisma.pipeline.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends PipelineFindUniqueOrThrowArgs>(args: SelectSubset<T, PipelineFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first Pipeline that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {PipelineFindFirstArgs} args - Arguments to find a Pipeline
-     * @example
-     * // Get one Pipeline
-     * const pipeline = await prisma.pipeline.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends PipelineFindFirstArgs>(args?: SelectSubset<T, PipelineFindFirstArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first Pipeline that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {PipelineFindFirstOrThrowArgs} args - Arguments to find a Pipeline
-     * @example
-     * // Get one Pipeline
-     * const pipeline = await prisma.pipeline.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends PipelineFindFirstOrThrowArgs>(args?: SelectSubset<T, PipelineFindFirstOrThrowArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more Pipelines that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {PipelineFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Pipelines
-     * const pipelines = await prisma.pipeline.findMany()
-     * 
-     * // Get first 10 Pipelines
-     * const pipelines = await prisma.pipeline.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const pipelineWithIdOnly = await prisma.pipeline.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends PipelineFindManyArgs>(args?: SelectSubset<T, PipelineFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a Pipeline.
-     * @param {PipelineCreateArgs} args - Arguments to create a Pipeline.
-     * @example
-     * // Create one Pipeline
-     * const Pipeline = await prisma.pipeline.create({
-     *   data: {
-     *     // ... data to create a Pipeline
-     *   }
-     * })
-     * 
-     */
-    create<T extends PipelineCreateArgs>(args: SelectSubset<T, PipelineCreateArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many Pipelines.
-     * @param {PipelineCreateManyArgs} args - Arguments to create many Pipelines.
-     * @example
-     * // Create many Pipelines
-     * const pipeline = await prisma.pipeline.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends PipelineCreateManyArgs>(args?: SelectSubset<T, PipelineCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Pipelines and returns the data saved in the database.
-     * @param {PipelineCreateManyAndReturnArgs} args - Arguments to create many Pipelines.
-     * @example
-     * // Create many Pipelines
-     * const pipeline = await prisma.pipeline.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Pipelines and only return the `id`
-     * const pipelineWithIdOnly = await prisma.pipeline.createManyAndReturn({ 
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends PipelineCreateManyAndReturnArgs>(args?: SelectSubset<T, PipelineCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a Pipeline.
-     * @param {PipelineDeleteArgs} args - Arguments to delete one Pipeline.
-     * @example
-     * // Delete one Pipeline
-     * const Pipeline = await prisma.pipeline.delete({
-     *   where: {
-     *     // ... filter to delete one Pipeline
-     *   }
-     * })
-     * 
-     */
-    delete<T extends PipelineDeleteArgs>(args: SelectSubset<T, PipelineDeleteArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one Pipeline.
-     * @param {PipelineUpdateArgs} args - Arguments to update one Pipeline.
-     * @example
-     * // Update one Pipeline
-     * const pipeline = await prisma.pipeline.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends PipelineUpdateArgs>(args: SelectSubset<T, PipelineUpdateArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more Pipelines.
-     * @param {PipelineDeleteManyArgs} args - Arguments to filter Pipelines to delete.
-     * @example
-     * // Delete a few Pipelines
-     * const { count } = await prisma.pipeline.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends PipelineDeleteManyArgs>(args?: SelectSubset<T, PipelineDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Pipelines.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {PipelineUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Pipelines
-     * const pipeline = await prisma.pipeline.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends PipelineUpdateManyArgs>(args: SelectSubset<T, PipelineUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Pipeline.
-     * @param {PipelineUpsertArgs} args - Arguments to update or create a Pipeline.
-     * @example
-     * // Update or create a Pipeline
-     * const pipeline = await prisma.pipeline.upsert({
-     *   create: {
-     *     // ... data to create a Pipeline
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Pipeline we want to update
-     *   }
-     * })
-     */
-    upsert<T extends PipelineUpsertArgs>(args: SelectSubset<T, PipelineUpsertArgs<ExtArgs>>): Prisma__PipelineClient<$Result.GetResult<Prisma.$PipelinePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of Pipelines.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {PipelineCountArgs} args - Arguments to filter Pipelines to count.
-     * @example
-     * // Count the number of Pipelines
-     * const count = await prisma.pipeline.count({
-     *   where: {
-     *     // ... the filter for the Pipelines we want to count
-     *   }
-     * })
-    **/
-    count<T extends PipelineCountArgs>(
-      args?: Subset<T, PipelineCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], PipelineCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Pipeline.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {PipelineAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends PipelineAggregateArgs>(args: Subset<T, PipelineAggregateArgs>): Prisma.PrismaPromise<GetPipelineAggregateType<T>>
-
-    /**
-     * Group by Pipeline.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {PipelineGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends PipelineGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PipelineGroupByArgs['orderBy'] }
-        : { orderBy?: PipelineGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, PipelineGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPipelineGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Pipeline model
-   */
-  readonly fields: PipelineFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Pipeline.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__PipelineClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Pipeline model
-   */ 
-  interface PipelineFieldRefs {
-    readonly id: FieldRef<"Pipeline", 'String'>
-    readonly tenant_id: FieldRef<"Pipeline", 'String'>
-    readonly product_id: FieldRef<"Pipeline", 'String'>
-    readonly user_id: FieldRef<"Pipeline", 'String'>
-    readonly titulo: FieldRef<"Pipeline", 'String'>
-    readonly etapa: FieldRef<"Pipeline", 'PipelineEtapa'>
-    readonly valor: FieldRef<"Pipeline", 'Float'>
-    readonly empresa_id: FieldRef<"Pipeline", 'String'>
-    readonly contato_id: FieldRef<"Pipeline", 'String'>
-    readonly probabilidade: FieldRef<"Pipeline", 'Int'>
-    readonly data_fechamento: FieldRef<"Pipeline", 'DateTime'>
-    readonly observacao: FieldRef<"Pipeline", 'String'>
-    readonly created_at: FieldRef<"Pipeline", 'DateTime'>
-    readonly updated_at: FieldRef<"Pipeline", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Pipeline findUnique
-   */
-  export type PipelineFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * Filter, which Pipeline to fetch.
-     */
-    where: PipelineWhereUniqueInput
-  }
-
-  /**
-   * Pipeline findUniqueOrThrow
-   */
-  export type PipelineFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * Filter, which Pipeline to fetch.
-     */
-    where: PipelineWhereUniqueInput
-  }
-
-  /**
-   * Pipeline findFirst
-   */
-  export type PipelineFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * Filter, which Pipeline to fetch.
-     */
-    where?: PipelineWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Pipelines to fetch.
-     */
-    orderBy?: PipelineOrderByWithRelationInput | PipelineOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Pipelines.
-     */
-    cursor?: PipelineWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Pipelines from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Pipelines.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Pipelines.
-     */
-    distinct?: PipelineScalarFieldEnum | PipelineScalarFieldEnum[]
-  }
-
-  /**
-   * Pipeline findFirstOrThrow
-   */
-  export type PipelineFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * Filter, which Pipeline to fetch.
-     */
-    where?: PipelineWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Pipelines to fetch.
-     */
-    orderBy?: PipelineOrderByWithRelationInput | PipelineOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Pipelines.
-     */
-    cursor?: PipelineWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Pipelines from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Pipelines.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Pipelines.
-     */
-    distinct?: PipelineScalarFieldEnum | PipelineScalarFieldEnum[]
-  }
-
-  /**
-   * Pipeline findMany
-   */
-  export type PipelineFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * Filter, which Pipelines to fetch.
-     */
-    where?: PipelineWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Pipelines to fetch.
-     */
-    orderBy?: PipelineOrderByWithRelationInput | PipelineOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Pipelines.
-     */
-    cursor?: PipelineWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Pipelines from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Pipelines.
-     */
-    skip?: number
-    distinct?: PipelineScalarFieldEnum | PipelineScalarFieldEnum[]
-  }
-
-  /**
-   * Pipeline create
-   */
-  export type PipelineCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * The data needed to create a Pipeline.
-     */
-    data: XOR<PipelineCreateInput, PipelineUncheckedCreateInput>
-  }
-
-  /**
-   * Pipeline createMany
-   */
-  export type PipelineCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Pipelines.
-     */
-    data: PipelineCreateManyInput | PipelineCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Pipeline createManyAndReturn
-   */
-  export type PipelineCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many Pipelines.
-     */
-    data: PipelineCreateManyInput | PipelineCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Pipeline update
-   */
-  export type PipelineUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * The data needed to update a Pipeline.
-     */
-    data: XOR<PipelineUpdateInput, PipelineUncheckedUpdateInput>
-    /**
-     * Choose, which Pipeline to update.
-     */
-    where: PipelineWhereUniqueInput
-  }
-
-  /**
-   * Pipeline updateMany
-   */
-  export type PipelineUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Pipelines.
-     */
-    data: XOR<PipelineUpdateManyMutationInput, PipelineUncheckedUpdateManyInput>
-    /**
-     * Filter which Pipelines to update
-     */
-    where?: PipelineWhereInput
-  }
-
-  /**
-   * Pipeline upsert
-   */
-  export type PipelineUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * The filter to search for the Pipeline to update in case it exists.
-     */
-    where: PipelineWhereUniqueInput
-    /**
-     * In case the Pipeline found by the `where` argument doesn't exist, create a new Pipeline with this data.
-     */
-    create: XOR<PipelineCreateInput, PipelineUncheckedCreateInput>
-    /**
-     * In case the Pipeline was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<PipelineUpdateInput, PipelineUncheckedUpdateInput>
-  }
-
-  /**
-   * Pipeline delete
-   */
-  export type PipelineDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-    /**
-     * Filter which Pipeline to delete.
-     */
-    where: PipelineWhereUniqueInput
-  }
-
-  /**
-   * Pipeline deleteMany
-   */
-  export type PipelineDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Pipelines to delete
-     */
-    where?: PipelineWhereInput
-  }
-
-  /**
-   * Pipeline without action
-   */
-  export type PipelineDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Pipeline
-     */
-    select?: PipelineSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * Model KanbanCard
-   */
-
-  export type AggregateKanbanCard = {
-    _count: KanbanCardCountAggregateOutputType | null
-    _avg: KanbanCardAvgAggregateOutputType | null
-    _sum: KanbanCardSumAggregateOutputType | null
-    _min: KanbanCardMinAggregateOutputType | null
-    _max: KanbanCardMaxAggregateOutputType | null
-  }
-
-  export type KanbanCardAvgAggregateOutputType = {
-    posicao: number | null
-  }
-
-  export type KanbanCardSumAggregateOutputType = {
-    posicao: number | null
-  }
-
-  export type KanbanCardMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    titulo: string | null
-    descricao: string | null
-    status: $Enums.KanbanCardStatus | null
-    posicao: number | null
-    cor: string | null
-    data_venc: Date | null
     atividade_id: string | null
-    empresa_id: string | null
-    contato_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type KanbanCardMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
     user_id: string | null
-    titulo: string | null
-    descricao: string | null
-    status: $Enums.KanbanCardStatus | null
-    posicao: number | null
-    cor: string | null
-    data_venc: Date | null
-    atividade_id: string | null
-    empresa_id: string | null
-    contato_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    user_nome: string | null
   }
 
-  export type KanbanCardCountAggregateOutputType = {
+  export type AtividadeParticipanteMaxAggregateOutputType = {
+    id: string | null
+    atividade_id: string | null
+    user_id: string | null
+    user_nome: string | null
+  }
+
+  export type AtividadeParticipanteCountAggregateOutputType = {
     id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    titulo: number
-    descricao: number
-    status: number
-    posicao: number
-    cor: number
-    etiquetas: number
-    data_venc: number
     atividade_id: number
-    empresa_id: number
-    contato_id: number
-    created_at: number
-    updated_at: number
+    user_id: number
+    user_nome: number
     _all: number
   }
 
 
-  export type KanbanCardAvgAggregateInputType = {
-    posicao?: true
-  }
-
-  export type KanbanCardSumAggregateInputType = {
-    posicao?: true
-  }
-
-  export type KanbanCardMinAggregateInputType = {
+  export type AtividadeParticipanteMinAggregateInputType = {
     id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    titulo?: true
-    descricao?: true
-    status?: true
-    posicao?: true
-    cor?: true
-    data_venc?: true
     atividade_id?: true
-    empresa_id?: true
-    contato_id?: true
-    created_at?: true
-    updated_at?: true
+    user_id?: true
+    user_nome?: true
   }
 
-  export type KanbanCardMaxAggregateInputType = {
+  export type AtividadeParticipanteMaxAggregateInputType = {
     id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    titulo?: true
-    descricao?: true
-    status?: true
-    posicao?: true
-    cor?: true
-    data_venc?: true
     atividade_id?: true
-    empresa_id?: true
-    contato_id?: true
-    created_at?: true
-    updated_at?: true
+    user_id?: true
+    user_nome?: true
   }
 
-  export type KanbanCardCountAggregateInputType = {
+  export type AtividadeParticipanteCountAggregateInputType = {
     id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    titulo?: true
-    descricao?: true
-    status?: true
-    posicao?: true
-    cor?: true
-    etiquetas?: true
-    data_venc?: true
     atividade_id?: true
-    empresa_id?: true
-    contato_id?: true
-    created_at?: true
-    updated_at?: true
+    user_id?: true
+    user_nome?: true
     _all?: true
   }
 
-  export type KanbanCardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which KanbanCard to aggregate.
+     * Filter which AtividadeParticipante to aggregate.
      */
-    where?: KanbanCardWhereInput
+    where?: AtividadeParticipanteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of KanbanCards to fetch.
+     * Determine the order of AtividadeParticipantes to fetch.
      */
-    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    orderBy?: AtividadeParticipanteOrderByWithRelationInput | AtividadeParticipanteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: KanbanCardWhereUniqueInput
+    cursor?: AtividadeParticipanteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` KanbanCards from the position of the cursor.
+     * Take `±n` AtividadeParticipantes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` KanbanCards.
+     * Skip the first `n` AtividadeParticipantes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned KanbanCards
+     * Count returned AtividadeParticipantes
     **/
-    _count?: true | KanbanCardCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: KanbanCardAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: KanbanCardSumAggregateInputType
+    _count?: true | AtividadeParticipanteCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: KanbanCardMinAggregateInputType
+    _min?: AtividadeParticipanteMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: KanbanCardMaxAggregateInputType
+    _max?: AtividadeParticipanteMaxAggregateInputType
   }
 
-  export type GetKanbanCardAggregateType<T extends KanbanCardAggregateArgs> = {
-        [P in keyof T & keyof AggregateKanbanCard]: P extends '_count' | 'count'
+  export type GetAtividadeParticipanteAggregateType<T extends AtividadeParticipanteAggregateArgs> = {
+        [P in keyof T & keyof AggregateAtividadeParticipante]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateKanbanCard[P]>
-      : GetScalarType<T[P], AggregateKanbanCard[P]>
+        : GetScalarType<T[P], AggregateAtividadeParticipante[P]>
+      : GetScalarType<T[P], AggregateAtividadeParticipante[P]>
   }
 
 
 
 
-  export type KanbanCardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: KanbanCardWhereInput
-    orderBy?: KanbanCardOrderByWithAggregationInput | KanbanCardOrderByWithAggregationInput[]
-    by: KanbanCardScalarFieldEnum[] | KanbanCardScalarFieldEnum
-    having?: KanbanCardScalarWhereWithAggregatesInput
+  export type AtividadeParticipanteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AtividadeParticipanteWhereInput
+    orderBy?: AtividadeParticipanteOrderByWithAggregationInput | AtividadeParticipanteOrderByWithAggregationInput[]
+    by: AtividadeParticipanteScalarFieldEnum[] | AtividadeParticipanteScalarFieldEnum
+    having?: AtividadeParticipanteScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: KanbanCardCountAggregateInputType | true
-    _avg?: KanbanCardAvgAggregateInputType
-    _sum?: KanbanCardSumAggregateInputType
-    _min?: KanbanCardMinAggregateInputType
-    _max?: KanbanCardMaxAggregateInputType
+    _count?: AtividadeParticipanteCountAggregateInputType | true
+    _min?: AtividadeParticipanteMinAggregateInputType
+    _max?: AtividadeParticipanteMaxAggregateInputType
   }
 
-  export type KanbanCardGroupByOutputType = {
+  export type AtividadeParticipanteGroupByOutputType = {
     id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    titulo: string
-    descricao: string | null
-    status: $Enums.KanbanCardStatus
-    posicao: number
-    cor: string | null
-    etiquetas: string[]
-    data_venc: Date | null
-    atividade_id: string | null
-    empresa_id: string | null
-    contato_id: string | null
-    created_at: Date
-    updated_at: Date
-    _count: KanbanCardCountAggregateOutputType | null
-    _avg: KanbanCardAvgAggregateOutputType | null
-    _sum: KanbanCardSumAggregateOutputType | null
-    _min: KanbanCardMinAggregateOutputType | null
-    _max: KanbanCardMaxAggregateOutputType | null
+    atividade_id: string
+    user_id: string
+    user_nome: string | null
+    _count: AtividadeParticipanteCountAggregateOutputType | null
+    _min: AtividadeParticipanteMinAggregateOutputType | null
+    _max: AtividadeParticipanteMaxAggregateOutputType | null
   }
 
-  type GetKanbanCardGroupByPayload<T extends KanbanCardGroupByArgs> = Prisma.PrismaPromise<
+  type GetAtividadeParticipanteGroupByPayload<T extends AtividadeParticipanteGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<KanbanCardGroupByOutputType, T['by']> &
+      PickEnumerable<AtividadeParticipanteGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof KanbanCardGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof AtividadeParticipanteGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], KanbanCardGroupByOutputType[P]>
-            : GetScalarType<T[P], KanbanCardGroupByOutputType[P]>
+              : GetScalarType<T[P], AtividadeParticipanteGroupByOutputType[P]>
+            : GetScalarType<T[P], AtividadeParticipanteGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type KanbanCardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AtividadeParticipanteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    descricao?: boolean
-    status?: boolean
-    posicao?: boolean
-    cor?: boolean
-    etiquetas?: boolean
-    data_venc?: boolean
     atividade_id?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["kanbanCard"]>
+    user_id?: boolean
+    user_nome?: boolean
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["atividadeParticipante"]>
 
-  export type KanbanCardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AtividadeParticipanteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    descricao?: boolean
-    status?: boolean
-    posicao?: boolean
-    cor?: boolean
-    etiquetas?: boolean
-    data_venc?: boolean
     atividade_id?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["kanbanCard"]>
+    user_id?: boolean
+    user_nome?: boolean
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["atividadeParticipante"]>
 
-  export type KanbanCardSelectScalar = {
+  export type AtividadeParticipanteSelectScalar = {
     id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    titulo?: boolean
-    descricao?: boolean
-    status?: boolean
-    posicao?: boolean
-    cor?: boolean
-    etiquetas?: boolean
-    data_venc?: boolean
     atividade_id?: boolean
-    empresa_id?: boolean
-    contato_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    user_id?: boolean
+    user_nome?: boolean
   }
 
+  export type AtividadeParticipanteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }
+  export type AtividadeParticipanteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }
 
-  export type $KanbanCardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "KanbanCard"
-    objects: {}
+  export type $AtividadeParticipantePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AtividadeParticipante"
+    objects: {
+      atividade: Prisma.$AtividadePayload<ExtArgs>
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      titulo: string
-      descricao: string | null
-      status: $Enums.KanbanCardStatus
-      posicao: number
-      cor: string | null
-      etiquetas: string[]
-      data_venc: Date | null
-      atividade_id: string | null
-      empresa_id: string | null
-      contato_id: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["kanbanCard"]>
+      atividade_id: string
+      user_id: string
+      user_nome: string | null
+    }, ExtArgs["result"]["atividadeParticipante"]>
     composites: {}
   }
 
-  type KanbanCardGetPayload<S extends boolean | null | undefined | KanbanCardDefaultArgs> = $Result.GetResult<Prisma.$KanbanCardPayload, S>
+  type AtividadeParticipanteGetPayload<S extends boolean | null | undefined | AtividadeParticipanteDefaultArgs> = $Result.GetResult<Prisma.$AtividadeParticipantePayload, S>
 
-  type KanbanCardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<KanbanCardFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: KanbanCardCountAggregateInputType | true
+  type AtividadeParticipanteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AtividadeParticipanteFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AtividadeParticipanteCountAggregateInputType | true
     }
 
-  export interface KanbanCardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['KanbanCard'], meta: { name: 'KanbanCard' } }
+  export interface AtividadeParticipanteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AtividadeParticipante'], meta: { name: 'AtividadeParticipante' } }
     /**
-     * Find zero or one KanbanCard that matches the filter.
-     * @param {KanbanCardFindUniqueArgs} args - Arguments to find a KanbanCard
+     * Find zero or one AtividadeParticipante that matches the filter.
+     * @param {AtividadeParticipanteFindUniqueArgs} args - Arguments to find a AtividadeParticipante
      * @example
-     * // Get one KanbanCard
-     * const kanbanCard = await prisma.kanbanCard.findUnique({
+     * // Get one AtividadeParticipante
+     * const atividadeParticipante = await prisma.atividadeParticipante.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends KanbanCardFindUniqueArgs>(args: SelectSubset<T, KanbanCardFindUniqueArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends AtividadeParticipanteFindUniqueArgs>(args: SelectSubset<T, AtividadeParticipanteFindUniqueArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one KanbanCard that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one AtividadeParticipante that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {KanbanCardFindUniqueOrThrowArgs} args - Arguments to find a KanbanCard
+     * @param {AtividadeParticipanteFindUniqueOrThrowArgs} args - Arguments to find a AtividadeParticipante
      * @example
-     * // Get one KanbanCard
-     * const kanbanCard = await prisma.kanbanCard.findUniqueOrThrow({
+     * // Get one AtividadeParticipante
+     * const atividadeParticipante = await prisma.atividadeParticipante.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends KanbanCardFindUniqueOrThrowArgs>(args: SelectSubset<T, KanbanCardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends AtividadeParticipanteFindUniqueOrThrowArgs>(args: SelectSubset<T, AtividadeParticipanteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first KanbanCard that matches the filter.
+     * Find the first AtividadeParticipante that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {KanbanCardFindFirstArgs} args - Arguments to find a KanbanCard
+     * @param {AtividadeParticipanteFindFirstArgs} args - Arguments to find a AtividadeParticipante
      * @example
-     * // Get one KanbanCard
-     * const kanbanCard = await prisma.kanbanCard.findFirst({
+     * // Get one AtividadeParticipante
+     * const atividadeParticipante = await prisma.atividadeParticipante.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends KanbanCardFindFirstArgs>(args?: SelectSubset<T, KanbanCardFindFirstArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends AtividadeParticipanteFindFirstArgs>(args?: SelectSubset<T, AtividadeParticipanteFindFirstArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first KanbanCard that matches the filter or
+     * Find the first AtividadeParticipante that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {KanbanCardFindFirstOrThrowArgs} args - Arguments to find a KanbanCard
+     * @param {AtividadeParticipanteFindFirstOrThrowArgs} args - Arguments to find a AtividadeParticipante
      * @example
-     * // Get one KanbanCard
-     * const kanbanCard = await prisma.kanbanCard.findFirstOrThrow({
+     * // Get one AtividadeParticipante
+     * const atividadeParticipante = await prisma.atividadeParticipante.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends KanbanCardFindFirstOrThrowArgs>(args?: SelectSubset<T, KanbanCardFindFirstOrThrowArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends AtividadeParticipanteFindFirstOrThrowArgs>(args?: SelectSubset<T, AtividadeParticipanteFindFirstOrThrowArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more KanbanCards that matches the filter.
+     * Find zero or more AtividadeParticipantes that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {KanbanCardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {AtividadeParticipanteFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all KanbanCards
-     * const kanbanCards = await prisma.kanbanCard.findMany()
+     * // Get all AtividadeParticipantes
+     * const atividadeParticipantes = await prisma.atividadeParticipante.findMany()
      * 
-     * // Get first 10 KanbanCards
-     * const kanbanCards = await prisma.kanbanCard.findMany({ take: 10 })
+     * // Get first 10 AtividadeParticipantes
+     * const atividadeParticipantes = await prisma.atividadeParticipante.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const kanbanCardWithIdOnly = await prisma.kanbanCard.findMany({ select: { id: true } })
+     * const atividadeParticipanteWithIdOnly = await prisma.atividadeParticipante.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends KanbanCardFindManyArgs>(args?: SelectSubset<T, KanbanCardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends AtividadeParticipanteFindManyArgs>(args?: SelectSubset<T, AtividadeParticipanteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a KanbanCard.
-     * @param {KanbanCardCreateArgs} args - Arguments to create a KanbanCard.
+     * Create a AtividadeParticipante.
+     * @param {AtividadeParticipanteCreateArgs} args - Arguments to create a AtividadeParticipante.
      * @example
-     * // Create one KanbanCard
-     * const KanbanCard = await prisma.kanbanCard.create({
+     * // Create one AtividadeParticipante
+     * const AtividadeParticipante = await prisma.atividadeParticipante.create({
      *   data: {
-     *     // ... data to create a KanbanCard
+     *     // ... data to create a AtividadeParticipante
      *   }
      * })
      * 
      */
-    create<T extends KanbanCardCreateArgs>(args: SelectSubset<T, KanbanCardCreateArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends AtividadeParticipanteCreateArgs>(args: SelectSubset<T, AtividadeParticipanteCreateArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many KanbanCards.
-     * @param {KanbanCardCreateManyArgs} args - Arguments to create many KanbanCards.
+     * Create many AtividadeParticipantes.
+     * @param {AtividadeParticipanteCreateManyArgs} args - Arguments to create many AtividadeParticipantes.
      * @example
-     * // Create many KanbanCards
-     * const kanbanCard = await prisma.kanbanCard.createMany({
+     * // Create many AtividadeParticipantes
+     * const atividadeParticipante = await prisma.atividadeParticipante.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends KanbanCardCreateManyArgs>(args?: SelectSubset<T, KanbanCardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends AtividadeParticipanteCreateManyArgs>(args?: SelectSubset<T, AtividadeParticipanteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many KanbanCards and returns the data saved in the database.
-     * @param {KanbanCardCreateManyAndReturnArgs} args - Arguments to create many KanbanCards.
+     * Create many AtividadeParticipantes and returns the data saved in the database.
+     * @param {AtividadeParticipanteCreateManyAndReturnArgs} args - Arguments to create many AtividadeParticipantes.
      * @example
-     * // Create many KanbanCards
-     * const kanbanCard = await prisma.kanbanCard.createManyAndReturn({
+     * // Create many AtividadeParticipantes
+     * const atividadeParticipante = await prisma.atividadeParticipante.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many KanbanCards and only return the `id`
-     * const kanbanCardWithIdOnly = await prisma.kanbanCard.createManyAndReturn({ 
+     * // Create many AtividadeParticipantes and only return the `id`
+     * const atividadeParticipanteWithIdOnly = await prisma.atividadeParticipante.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -8224,28 +5018,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends KanbanCardCreateManyAndReturnArgs>(args?: SelectSubset<T, KanbanCardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends AtividadeParticipanteCreateManyAndReturnArgs>(args?: SelectSubset<T, AtividadeParticipanteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a KanbanCard.
-     * @param {KanbanCardDeleteArgs} args - Arguments to delete one KanbanCard.
+     * Delete a AtividadeParticipante.
+     * @param {AtividadeParticipanteDeleteArgs} args - Arguments to delete one AtividadeParticipante.
      * @example
-     * // Delete one KanbanCard
-     * const KanbanCard = await prisma.kanbanCard.delete({
+     * // Delete one AtividadeParticipante
+     * const AtividadeParticipante = await prisma.atividadeParticipante.delete({
      *   where: {
-     *     // ... filter to delete one KanbanCard
+     *     // ... filter to delete one AtividadeParticipante
      *   }
      * })
      * 
      */
-    delete<T extends KanbanCardDeleteArgs>(args: SelectSubset<T, KanbanCardDeleteArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends AtividadeParticipanteDeleteArgs>(args: SelectSubset<T, AtividadeParticipanteDeleteArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one KanbanCard.
-     * @param {KanbanCardUpdateArgs} args - Arguments to update one KanbanCard.
+     * Update one AtividadeParticipante.
+     * @param {AtividadeParticipanteUpdateArgs} args - Arguments to update one AtividadeParticipante.
      * @example
-     * // Update one KanbanCard
-     * const kanbanCard = await prisma.kanbanCard.update({
+     * // Update one AtividadeParticipante
+     * const atividadeParticipante = await prisma.atividadeParticipante.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -8255,30 +5049,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends KanbanCardUpdateArgs>(args: SelectSubset<T, KanbanCardUpdateArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends AtividadeParticipanteUpdateArgs>(args: SelectSubset<T, AtividadeParticipanteUpdateArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more KanbanCards.
-     * @param {KanbanCardDeleteManyArgs} args - Arguments to filter KanbanCards to delete.
+     * Delete zero or more AtividadeParticipantes.
+     * @param {AtividadeParticipanteDeleteManyArgs} args - Arguments to filter AtividadeParticipantes to delete.
      * @example
-     * // Delete a few KanbanCards
-     * const { count } = await prisma.kanbanCard.deleteMany({
+     * // Delete a few AtividadeParticipantes
+     * const { count } = await prisma.atividadeParticipante.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends KanbanCardDeleteManyArgs>(args?: SelectSubset<T, KanbanCardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends AtividadeParticipanteDeleteManyArgs>(args?: SelectSubset<T, AtividadeParticipanteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more KanbanCards.
+     * Update zero or more AtividadeParticipantes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {KanbanCardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {AtividadeParticipanteUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many KanbanCards
-     * const kanbanCard = await prisma.kanbanCard.updateMany({
+     * // Update many AtividadeParticipantes
+     * const atividadeParticipante = await prisma.atividadeParticipante.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -8288,56 +5082,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends KanbanCardUpdateManyArgs>(args: SelectSubset<T, KanbanCardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends AtividadeParticipanteUpdateManyArgs>(args: SelectSubset<T, AtividadeParticipanteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one KanbanCard.
-     * @param {KanbanCardUpsertArgs} args - Arguments to update or create a KanbanCard.
+     * Create or update one AtividadeParticipante.
+     * @param {AtividadeParticipanteUpsertArgs} args - Arguments to update or create a AtividadeParticipante.
      * @example
-     * // Update or create a KanbanCard
-     * const kanbanCard = await prisma.kanbanCard.upsert({
+     * // Update or create a AtividadeParticipante
+     * const atividadeParticipante = await prisma.atividadeParticipante.upsert({
      *   create: {
-     *     // ... data to create a KanbanCard
+     *     // ... data to create a AtividadeParticipante
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the KanbanCard we want to update
+     *     // ... the filter for the AtividadeParticipante we want to update
      *   }
      * })
      */
-    upsert<T extends KanbanCardUpsertArgs>(args: SelectSubset<T, KanbanCardUpsertArgs<ExtArgs>>): Prisma__KanbanCardClient<$Result.GetResult<Prisma.$KanbanCardPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends AtividadeParticipanteUpsertArgs>(args: SelectSubset<T, AtividadeParticipanteUpsertArgs<ExtArgs>>): Prisma__AtividadeParticipanteClient<$Result.GetResult<Prisma.$AtividadeParticipantePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of KanbanCards.
+     * Count the number of AtividadeParticipantes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {KanbanCardCountArgs} args - Arguments to filter KanbanCards to count.
+     * @param {AtividadeParticipanteCountArgs} args - Arguments to filter AtividadeParticipantes to count.
      * @example
-     * // Count the number of KanbanCards
-     * const count = await prisma.kanbanCard.count({
+     * // Count the number of AtividadeParticipantes
+     * const count = await prisma.atividadeParticipante.count({
      *   where: {
-     *     // ... the filter for the KanbanCards we want to count
+     *     // ... the filter for the AtividadeParticipantes we want to count
      *   }
      * })
     **/
-    count<T extends KanbanCardCountArgs>(
-      args?: Subset<T, KanbanCardCountArgs>,
+    count<T extends AtividadeParticipanteCountArgs>(
+      args?: Subset<T, AtividadeParticipanteCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], KanbanCardCountAggregateOutputType>
+          : GetScalarType<T['select'], AtividadeParticipanteCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a KanbanCard.
+     * Allows you to perform aggregations operations on a AtividadeParticipante.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {KanbanCardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {AtividadeParticipanteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -8357,13 +5151,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends KanbanCardAggregateArgs>(args: Subset<T, KanbanCardAggregateArgs>): Prisma.PrismaPromise<GetKanbanCardAggregateType<T>>
+    aggregate<T extends AtividadeParticipanteAggregateArgs>(args: Subset<T, AtividadeParticipanteAggregateArgs>): Prisma.PrismaPromise<GetAtividadeParticipanteAggregateType<T>>
 
     /**
-     * Group by KanbanCard.
+     * Group by AtividadeParticipante.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {KanbanCardGroupByArgs} args - Group by arguments.
+     * @param {AtividadeParticipanteGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -8378,14 +5172,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends KanbanCardGroupByArgs,
+      T extends AtividadeParticipanteGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: KanbanCardGroupByArgs['orderBy'] }
-        : { orderBy?: KanbanCardGroupByArgs['orderBy'] },
+        ? { orderBy: AtividadeParticipanteGroupByArgs['orderBy'] }
+        : { orderBy?: AtividadeParticipanteGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -8434,21 +5228,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, KanbanCardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetKanbanCardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, AtividadeParticipanteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAtividadeParticipanteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the KanbanCard model
+   * Fields of the AtividadeParticipante model
    */
-  readonly fields: KanbanCardFieldRefs;
+  readonly fields: AtividadeParticipanteFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for KanbanCard.
+   * The delegate class that acts as a "Promise-like" for AtividadeParticipante.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__KanbanCardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AtividadeParticipanteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    atividade<T extends AtividadeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadeDefaultArgs<ExtArgs>>): Prisma__AtividadeClient<$Result.GetResult<Prisma.$AtividadePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8475,310 +5270,1309 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the KanbanCard model
+   * Fields of the AtividadeParticipante model
    */ 
-  interface KanbanCardFieldRefs {
-    readonly id: FieldRef<"KanbanCard", 'String'>
-    readonly tenant_id: FieldRef<"KanbanCard", 'String'>
-    readonly product_id: FieldRef<"KanbanCard", 'String'>
-    readonly user_id: FieldRef<"KanbanCard", 'String'>
-    readonly titulo: FieldRef<"KanbanCard", 'String'>
-    readonly descricao: FieldRef<"KanbanCard", 'String'>
-    readonly status: FieldRef<"KanbanCard", 'KanbanCardStatus'>
-    readonly posicao: FieldRef<"KanbanCard", 'Int'>
-    readonly cor: FieldRef<"KanbanCard", 'String'>
-    readonly etiquetas: FieldRef<"KanbanCard", 'String[]'>
-    readonly data_venc: FieldRef<"KanbanCard", 'DateTime'>
-    readonly atividade_id: FieldRef<"KanbanCard", 'String'>
-    readonly empresa_id: FieldRef<"KanbanCard", 'String'>
-    readonly contato_id: FieldRef<"KanbanCard", 'String'>
-    readonly created_at: FieldRef<"KanbanCard", 'DateTime'>
-    readonly updated_at: FieldRef<"KanbanCard", 'DateTime'>
+  interface AtividadeParticipanteFieldRefs {
+    readonly id: FieldRef<"AtividadeParticipante", 'String'>
+    readonly atividade_id: FieldRef<"AtividadeParticipante", 'String'>
+    readonly user_id: FieldRef<"AtividadeParticipante", 'String'>
+    readonly user_nome: FieldRef<"AtividadeParticipante", 'String'>
   }
     
 
   // Custom InputTypes
   /**
-   * KanbanCard findUnique
+   * AtividadeParticipante findUnique
    */
-  export type KanbanCardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeParticipante
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
     /**
-     * Filter, which KanbanCard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: KanbanCardWhereUniqueInput
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeParticipante to fetch.
+     */
+    where: AtividadeParticipanteWhereUniqueInput
   }
 
   /**
-   * KanbanCard findUniqueOrThrow
+   * AtividadeParticipante findUniqueOrThrow
    */
-  export type KanbanCardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeParticipante
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
     /**
-     * Filter, which KanbanCard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: KanbanCardWhereUniqueInput
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeParticipante to fetch.
+     */
+    where: AtividadeParticipanteWhereUniqueInput
   }
 
   /**
-   * KanbanCard findFirst
+   * AtividadeParticipante findFirst
    */
-  export type KanbanCardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeParticipante
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
     /**
-     * Filter, which KanbanCard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: KanbanCardWhereInput
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeParticipante to fetch.
+     */
+    where?: AtividadeParticipanteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of KanbanCards to fetch.
+     * Determine the order of AtividadeParticipantes to fetch.
      */
-    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    orderBy?: AtividadeParticipanteOrderByWithRelationInput | AtividadeParticipanteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for KanbanCards.
+     * Sets the position for searching for AtividadeParticipantes.
      */
-    cursor?: KanbanCardWhereUniqueInput
+    cursor?: AtividadeParticipanteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` KanbanCards from the position of the cursor.
+     * Take `±n` AtividadeParticipantes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` KanbanCards.
+     * Skip the first `n` AtividadeParticipantes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of KanbanCards.
+     * Filter by unique combinations of AtividadeParticipantes.
      */
-    distinct?: KanbanCardScalarFieldEnum | KanbanCardScalarFieldEnum[]
+    distinct?: AtividadeParticipanteScalarFieldEnum | AtividadeParticipanteScalarFieldEnum[]
   }
 
   /**
-   * KanbanCard findFirstOrThrow
+   * AtividadeParticipante findFirstOrThrow
    */
-  export type KanbanCardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeParticipante
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
     /**
-     * Filter, which KanbanCard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: KanbanCardWhereInput
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeParticipante to fetch.
+     */
+    where?: AtividadeParticipanteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of KanbanCards to fetch.
+     * Determine the order of AtividadeParticipantes to fetch.
      */
-    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    orderBy?: AtividadeParticipanteOrderByWithRelationInput | AtividadeParticipanteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for KanbanCards.
+     * Sets the position for searching for AtividadeParticipantes.
      */
-    cursor?: KanbanCardWhereUniqueInput
+    cursor?: AtividadeParticipanteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` KanbanCards from the position of the cursor.
+     * Take `±n` AtividadeParticipantes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` KanbanCards.
+     * Skip the first `n` AtividadeParticipantes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of KanbanCards.
+     * Filter by unique combinations of AtividadeParticipantes.
      */
-    distinct?: KanbanCardScalarFieldEnum | KanbanCardScalarFieldEnum[]
+    distinct?: AtividadeParticipanteScalarFieldEnum | AtividadeParticipanteScalarFieldEnum[]
   }
 
   /**
-   * KanbanCard findMany
+   * AtividadeParticipante findMany
    */
-  export type KanbanCardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeParticipante
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
     /**
-     * Filter, which KanbanCards to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: KanbanCardWhereInput
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeParticipantes to fetch.
+     */
+    where?: AtividadeParticipanteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of KanbanCards to fetch.
+     * Determine the order of AtividadeParticipantes to fetch.
      */
-    orderBy?: KanbanCardOrderByWithRelationInput | KanbanCardOrderByWithRelationInput[]
+    orderBy?: AtividadeParticipanteOrderByWithRelationInput | AtividadeParticipanteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing KanbanCards.
+     * Sets the position for listing AtividadeParticipantes.
      */
-    cursor?: KanbanCardWhereUniqueInput
+    cursor?: AtividadeParticipanteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` KanbanCards from the position of the cursor.
+     * Take `±n` AtividadeParticipantes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` KanbanCards.
+     * Skip the first `n` AtividadeParticipantes.
      */
     skip?: number
-    distinct?: KanbanCardScalarFieldEnum | KanbanCardScalarFieldEnum[]
+    distinct?: AtividadeParticipanteScalarFieldEnum | AtividadeParticipanteScalarFieldEnum[]
   }
 
   /**
-   * KanbanCard create
+   * AtividadeParticipante create
    */
-  export type KanbanCardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeParticipante
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
     /**
-     * The data needed to create a KanbanCard.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<KanbanCardCreateInput, KanbanCardUncheckedCreateInput>
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AtividadeParticipante.
+     */
+    data: XOR<AtividadeParticipanteCreateInput, AtividadeParticipanteUncheckedCreateInput>
   }
 
   /**
-   * KanbanCard createMany
+   * AtividadeParticipante createMany
    */
-  export type KanbanCardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many KanbanCards.
+     * The data used to create many AtividadeParticipantes.
      */
-    data: KanbanCardCreateManyInput | KanbanCardCreateManyInput[]
+    data: AtividadeParticipanteCreateManyInput | AtividadeParticipanteCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * KanbanCard createManyAndReturn
+   * AtividadeParticipante createManyAndReturn
    */
-  export type KanbanCardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeParticipanteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeParticipante
      */
-    select?: KanbanCardSelectCreateManyAndReturn<ExtArgs> | null
+    select?: AtividadeParticipanteSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many KanbanCards.
+     * The data used to create many AtividadeParticipantes.
      */
-    data: KanbanCardCreateManyInput | KanbanCardCreateManyInput[]
+    data: AtividadeParticipanteCreateManyInput | AtividadeParticipanteCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeParticipanteIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AtividadeParticipante update
+   */
+  export type AtividadeParticipanteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeParticipante
+     */
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AtividadeParticipante.
+     */
+    data: XOR<AtividadeParticipanteUpdateInput, AtividadeParticipanteUncheckedUpdateInput>
+    /**
+     * Choose, which AtividadeParticipante to update.
+     */
+    where: AtividadeParticipanteWhereUniqueInput
+  }
+
+  /**
+   * AtividadeParticipante updateMany
+   */
+  export type AtividadeParticipanteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AtividadeParticipantes.
+     */
+    data: XOR<AtividadeParticipanteUpdateManyMutationInput, AtividadeParticipanteUncheckedUpdateManyInput>
+    /**
+     * Filter which AtividadeParticipantes to update
+     */
+    where?: AtividadeParticipanteWhereInput
+  }
+
+  /**
+   * AtividadeParticipante upsert
+   */
+  export type AtividadeParticipanteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeParticipante
+     */
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AtividadeParticipante to update in case it exists.
+     */
+    where: AtividadeParticipanteWhereUniqueInput
+    /**
+     * In case the AtividadeParticipante found by the `where` argument doesn't exist, create a new AtividadeParticipante with this data.
+     */
+    create: XOR<AtividadeParticipanteCreateInput, AtividadeParticipanteUncheckedCreateInput>
+    /**
+     * In case the AtividadeParticipante was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AtividadeParticipanteUpdateInput, AtividadeParticipanteUncheckedUpdateInput>
+  }
+
+  /**
+   * AtividadeParticipante delete
+   */
+  export type AtividadeParticipanteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeParticipante
+     */
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+    /**
+     * Filter which AtividadeParticipante to delete.
+     */
+    where: AtividadeParticipanteWhereUniqueInput
+  }
+
+  /**
+   * AtividadeParticipante deleteMany
+   */
+  export type AtividadeParticipanteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AtividadeParticipantes to delete
+     */
+    where?: AtividadeParticipanteWhereInput
+  }
+
+  /**
+   * AtividadeParticipante without action
+   */
+  export type AtividadeParticipanteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeParticipante
+     */
+    select?: AtividadeParticipanteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeParticipanteInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AtividadeSessaoTimer
+   */
+
+  export type AggregateAtividadeSessaoTimer = {
+    _count: AtividadeSessaoTimerCountAggregateOutputType | null
+    _avg: AtividadeSessaoTimerAvgAggregateOutputType | null
+    _sum: AtividadeSessaoTimerSumAggregateOutputType | null
+    _min: AtividadeSessaoTimerMinAggregateOutputType | null
+    _max: AtividadeSessaoTimerMaxAggregateOutputType | null
+  }
+
+  export type AtividadeSessaoTimerAvgAggregateOutputType = {
+    duracao_min: number | null
+  }
+
+  export type AtividadeSessaoTimerSumAggregateOutputType = {
+    duracao_min: number | null
+  }
+
+  export type AtividadeSessaoTimerMinAggregateOutputType = {
+    id: string | null
+    atividade_id: string | null
+    iniciado_em: Date | null
+    duracao_min: number | null
+    assunto: string | null
+  }
+
+  export type AtividadeSessaoTimerMaxAggregateOutputType = {
+    id: string | null
+    atividade_id: string | null
+    iniciado_em: Date | null
+    duracao_min: number | null
+    assunto: string | null
+  }
+
+  export type AtividadeSessaoTimerCountAggregateOutputType = {
+    id: number
+    atividade_id: number
+    iniciado_em: number
+    duracao_min: number
+    assunto: number
+    _all: number
+  }
+
+
+  export type AtividadeSessaoTimerAvgAggregateInputType = {
+    duracao_min?: true
+  }
+
+  export type AtividadeSessaoTimerSumAggregateInputType = {
+    duracao_min?: true
+  }
+
+  export type AtividadeSessaoTimerMinAggregateInputType = {
+    id?: true
+    atividade_id?: true
+    iniciado_em?: true
+    duracao_min?: true
+    assunto?: true
+  }
+
+  export type AtividadeSessaoTimerMaxAggregateInputType = {
+    id?: true
+    atividade_id?: true
+    iniciado_em?: true
+    duracao_min?: true
+    assunto?: true
+  }
+
+  export type AtividadeSessaoTimerCountAggregateInputType = {
+    id?: true
+    atividade_id?: true
+    iniciado_em?: true
+    duracao_min?: true
+    assunto?: true
+    _all?: true
+  }
+
+  export type AtividadeSessaoTimerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AtividadeSessaoTimer to aggregate.
+     */
+    where?: AtividadeSessaoTimerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AtividadeSessaoTimers to fetch.
+     */
+    orderBy?: AtividadeSessaoTimerOrderByWithRelationInput | AtividadeSessaoTimerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AtividadeSessaoTimerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AtividadeSessaoTimers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AtividadeSessaoTimers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AtividadeSessaoTimers
+    **/
+    _count?: true | AtividadeSessaoTimerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AtividadeSessaoTimerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AtividadeSessaoTimerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AtividadeSessaoTimerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AtividadeSessaoTimerMaxAggregateInputType
+  }
+
+  export type GetAtividadeSessaoTimerAggregateType<T extends AtividadeSessaoTimerAggregateArgs> = {
+        [P in keyof T & keyof AggregateAtividadeSessaoTimer]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAtividadeSessaoTimer[P]>
+      : GetScalarType<T[P], AggregateAtividadeSessaoTimer[P]>
+  }
+
+
+
+
+  export type AtividadeSessaoTimerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AtividadeSessaoTimerWhereInput
+    orderBy?: AtividadeSessaoTimerOrderByWithAggregationInput | AtividadeSessaoTimerOrderByWithAggregationInput[]
+    by: AtividadeSessaoTimerScalarFieldEnum[] | AtividadeSessaoTimerScalarFieldEnum
+    having?: AtividadeSessaoTimerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AtividadeSessaoTimerCountAggregateInputType | true
+    _avg?: AtividadeSessaoTimerAvgAggregateInputType
+    _sum?: AtividadeSessaoTimerSumAggregateInputType
+    _min?: AtividadeSessaoTimerMinAggregateInputType
+    _max?: AtividadeSessaoTimerMaxAggregateInputType
+  }
+
+  export type AtividadeSessaoTimerGroupByOutputType = {
+    id: string
+    atividade_id: string
+    iniciado_em: Date
+    duracao_min: number
+    assunto: string | null
+    _count: AtividadeSessaoTimerCountAggregateOutputType | null
+    _avg: AtividadeSessaoTimerAvgAggregateOutputType | null
+    _sum: AtividadeSessaoTimerSumAggregateOutputType | null
+    _min: AtividadeSessaoTimerMinAggregateOutputType | null
+    _max: AtividadeSessaoTimerMaxAggregateOutputType | null
+  }
+
+  type GetAtividadeSessaoTimerGroupByPayload<T extends AtividadeSessaoTimerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AtividadeSessaoTimerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AtividadeSessaoTimerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AtividadeSessaoTimerGroupByOutputType[P]>
+            : GetScalarType<T[P], AtividadeSessaoTimerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AtividadeSessaoTimerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    atividade_id?: boolean
+    iniciado_em?: boolean
+    duracao_min?: boolean
+    assunto?: boolean
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["atividadeSessaoTimer"]>
+
+  export type AtividadeSessaoTimerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    atividade_id?: boolean
+    iniciado_em?: boolean
+    duracao_min?: boolean
+    assunto?: boolean
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["atividadeSessaoTimer"]>
+
+  export type AtividadeSessaoTimerSelectScalar = {
+    id?: boolean
+    atividade_id?: boolean
+    iniciado_em?: boolean
+    duracao_min?: boolean
+    assunto?: boolean
+  }
+
+  export type AtividadeSessaoTimerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }
+  export type AtividadeSessaoTimerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    atividade?: boolean | AtividadeDefaultArgs<ExtArgs>
+  }
+
+  export type $AtividadeSessaoTimerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AtividadeSessaoTimer"
+    objects: {
+      atividade: Prisma.$AtividadePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      atividade_id: string
+      iniciado_em: Date
+      duracao_min: number
+      assunto: string | null
+    }, ExtArgs["result"]["atividadeSessaoTimer"]>
+    composites: {}
+  }
+
+  type AtividadeSessaoTimerGetPayload<S extends boolean | null | undefined | AtividadeSessaoTimerDefaultArgs> = $Result.GetResult<Prisma.$AtividadeSessaoTimerPayload, S>
+
+  type AtividadeSessaoTimerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AtividadeSessaoTimerFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AtividadeSessaoTimerCountAggregateInputType | true
+    }
+
+  export interface AtividadeSessaoTimerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AtividadeSessaoTimer'], meta: { name: 'AtividadeSessaoTimer' } }
+    /**
+     * Find zero or one AtividadeSessaoTimer that matches the filter.
+     * @param {AtividadeSessaoTimerFindUniqueArgs} args - Arguments to find a AtividadeSessaoTimer
+     * @example
+     * // Get one AtividadeSessaoTimer
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AtividadeSessaoTimerFindUniqueArgs>(args: SelectSubset<T, AtividadeSessaoTimerFindUniqueArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AtividadeSessaoTimer that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AtividadeSessaoTimerFindUniqueOrThrowArgs} args - Arguments to find a AtividadeSessaoTimer
+     * @example
+     * // Get one AtividadeSessaoTimer
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AtividadeSessaoTimerFindUniqueOrThrowArgs>(args: SelectSubset<T, AtividadeSessaoTimerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AtividadeSessaoTimer that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AtividadeSessaoTimerFindFirstArgs} args - Arguments to find a AtividadeSessaoTimer
+     * @example
+     * // Get one AtividadeSessaoTimer
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AtividadeSessaoTimerFindFirstArgs>(args?: SelectSubset<T, AtividadeSessaoTimerFindFirstArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AtividadeSessaoTimer that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AtividadeSessaoTimerFindFirstOrThrowArgs} args - Arguments to find a AtividadeSessaoTimer
+     * @example
+     * // Get one AtividadeSessaoTimer
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AtividadeSessaoTimerFindFirstOrThrowArgs>(args?: SelectSubset<T, AtividadeSessaoTimerFindFirstOrThrowArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AtividadeSessaoTimers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AtividadeSessaoTimerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AtividadeSessaoTimers
+     * const atividadeSessaoTimers = await prisma.atividadeSessaoTimer.findMany()
+     * 
+     * // Get first 10 AtividadeSessaoTimers
+     * const atividadeSessaoTimers = await prisma.atividadeSessaoTimer.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const atividadeSessaoTimerWithIdOnly = await prisma.atividadeSessaoTimer.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AtividadeSessaoTimerFindManyArgs>(args?: SelectSubset<T, AtividadeSessaoTimerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AtividadeSessaoTimer.
+     * @param {AtividadeSessaoTimerCreateArgs} args - Arguments to create a AtividadeSessaoTimer.
+     * @example
+     * // Create one AtividadeSessaoTimer
+     * const AtividadeSessaoTimer = await prisma.atividadeSessaoTimer.create({
+     *   data: {
+     *     // ... data to create a AtividadeSessaoTimer
+     *   }
+     * })
+     * 
+     */
+    create<T extends AtividadeSessaoTimerCreateArgs>(args: SelectSubset<T, AtividadeSessaoTimerCreateArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AtividadeSessaoTimers.
+     * @param {AtividadeSessaoTimerCreateManyArgs} args - Arguments to create many AtividadeSessaoTimers.
+     * @example
+     * // Create many AtividadeSessaoTimers
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AtividadeSessaoTimerCreateManyArgs>(args?: SelectSubset<T, AtividadeSessaoTimerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AtividadeSessaoTimers and returns the data saved in the database.
+     * @param {AtividadeSessaoTimerCreateManyAndReturnArgs} args - Arguments to create many AtividadeSessaoTimers.
+     * @example
+     * // Create many AtividadeSessaoTimers
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AtividadeSessaoTimers and only return the `id`
+     * const atividadeSessaoTimerWithIdOnly = await prisma.atividadeSessaoTimer.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AtividadeSessaoTimerCreateManyAndReturnArgs>(args?: SelectSubset<T, AtividadeSessaoTimerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AtividadeSessaoTimer.
+     * @param {AtividadeSessaoTimerDeleteArgs} args - Arguments to delete one AtividadeSessaoTimer.
+     * @example
+     * // Delete one AtividadeSessaoTimer
+     * const AtividadeSessaoTimer = await prisma.atividadeSessaoTimer.delete({
+     *   where: {
+     *     // ... filter to delete one AtividadeSessaoTimer
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AtividadeSessaoTimerDeleteArgs>(args: SelectSubset<T, AtividadeSessaoTimerDeleteArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AtividadeSessaoTimer.
+     * @param {AtividadeSessaoTimerUpdateArgs} args - Arguments to update one AtividadeSessaoTimer.
+     * @example
+     * // Update one AtividadeSessaoTimer
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AtividadeSessaoTimerUpdateArgs>(args: SelectSubset<T, AtividadeSessaoTimerUpdateArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AtividadeSessaoTimers.
+     * @param {AtividadeSessaoTimerDeleteManyArgs} args - Arguments to filter AtividadeSessaoTimers to delete.
+     * @example
+     * // Delete a few AtividadeSessaoTimers
+     * const { count } = await prisma.atividadeSessaoTimer.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AtividadeSessaoTimerDeleteManyArgs>(args?: SelectSubset<T, AtividadeSessaoTimerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AtividadeSessaoTimers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AtividadeSessaoTimerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AtividadeSessaoTimers
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AtividadeSessaoTimerUpdateManyArgs>(args: SelectSubset<T, AtividadeSessaoTimerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AtividadeSessaoTimer.
+     * @param {AtividadeSessaoTimerUpsertArgs} args - Arguments to update or create a AtividadeSessaoTimer.
+     * @example
+     * // Update or create a AtividadeSessaoTimer
+     * const atividadeSessaoTimer = await prisma.atividadeSessaoTimer.upsert({
+     *   create: {
+     *     // ... data to create a AtividadeSessaoTimer
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AtividadeSessaoTimer we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AtividadeSessaoTimerUpsertArgs>(args: SelectSubset<T, AtividadeSessaoTimerUpsertArgs<ExtArgs>>): Prisma__AtividadeSessaoTimerClient<$Result.GetResult<Prisma.$AtividadeSessaoTimerPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AtividadeSessaoTimers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AtividadeSessaoTimerCountArgs} args - Arguments to filter AtividadeSessaoTimers to count.
+     * @example
+     * // Count the number of AtividadeSessaoTimers
+     * const count = await prisma.atividadeSessaoTimer.count({
+     *   where: {
+     *     // ... the filter for the AtividadeSessaoTimers we want to count
+     *   }
+     * })
+    **/
+    count<T extends AtividadeSessaoTimerCountArgs>(
+      args?: Subset<T, AtividadeSessaoTimerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AtividadeSessaoTimerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AtividadeSessaoTimer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AtividadeSessaoTimerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AtividadeSessaoTimerAggregateArgs>(args: Subset<T, AtividadeSessaoTimerAggregateArgs>): Prisma.PrismaPromise<GetAtividadeSessaoTimerAggregateType<T>>
+
+    /**
+     * Group by AtividadeSessaoTimer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AtividadeSessaoTimerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AtividadeSessaoTimerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AtividadeSessaoTimerGroupByArgs['orderBy'] }
+        : { orderBy?: AtividadeSessaoTimerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AtividadeSessaoTimerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAtividadeSessaoTimerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AtividadeSessaoTimer model
+   */
+  readonly fields: AtividadeSessaoTimerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AtividadeSessaoTimer.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AtividadeSessaoTimerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    atividade<T extends AtividadeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AtividadeDefaultArgs<ExtArgs>>): Prisma__AtividadeClient<$Result.GetResult<Prisma.$AtividadePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AtividadeSessaoTimer model
+   */ 
+  interface AtividadeSessaoTimerFieldRefs {
+    readonly id: FieldRef<"AtividadeSessaoTimer", 'String'>
+    readonly atividade_id: FieldRef<"AtividadeSessaoTimer", 'String'>
+    readonly iniciado_em: FieldRef<"AtividadeSessaoTimer", 'DateTime'>
+    readonly duracao_min: FieldRef<"AtividadeSessaoTimer", 'Int'>
+    readonly assunto: FieldRef<"AtividadeSessaoTimer", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AtividadeSessaoTimer findUnique
+   */
+  export type AtividadeSessaoTimerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeSessaoTimer to fetch.
+     */
+    where: AtividadeSessaoTimerWhereUniqueInput
+  }
+
+  /**
+   * AtividadeSessaoTimer findUniqueOrThrow
+   */
+  export type AtividadeSessaoTimerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeSessaoTimer to fetch.
+     */
+    where: AtividadeSessaoTimerWhereUniqueInput
+  }
+
+  /**
+   * AtividadeSessaoTimer findFirst
+   */
+  export type AtividadeSessaoTimerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeSessaoTimer to fetch.
+     */
+    where?: AtividadeSessaoTimerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AtividadeSessaoTimers to fetch.
+     */
+    orderBy?: AtividadeSessaoTimerOrderByWithRelationInput | AtividadeSessaoTimerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AtividadeSessaoTimers.
+     */
+    cursor?: AtividadeSessaoTimerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AtividadeSessaoTimers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AtividadeSessaoTimers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AtividadeSessaoTimers.
+     */
+    distinct?: AtividadeSessaoTimerScalarFieldEnum | AtividadeSessaoTimerScalarFieldEnum[]
+  }
+
+  /**
+   * AtividadeSessaoTimer findFirstOrThrow
+   */
+  export type AtividadeSessaoTimerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeSessaoTimer to fetch.
+     */
+    where?: AtividadeSessaoTimerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AtividadeSessaoTimers to fetch.
+     */
+    orderBy?: AtividadeSessaoTimerOrderByWithRelationInput | AtividadeSessaoTimerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AtividadeSessaoTimers.
+     */
+    cursor?: AtividadeSessaoTimerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AtividadeSessaoTimers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AtividadeSessaoTimers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AtividadeSessaoTimers.
+     */
+    distinct?: AtividadeSessaoTimerScalarFieldEnum | AtividadeSessaoTimerScalarFieldEnum[]
+  }
+
+  /**
+   * AtividadeSessaoTimer findMany
+   */
+  export type AtividadeSessaoTimerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * Filter, which AtividadeSessaoTimers to fetch.
+     */
+    where?: AtividadeSessaoTimerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AtividadeSessaoTimers to fetch.
+     */
+    orderBy?: AtividadeSessaoTimerOrderByWithRelationInput | AtividadeSessaoTimerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AtividadeSessaoTimers.
+     */
+    cursor?: AtividadeSessaoTimerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AtividadeSessaoTimers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AtividadeSessaoTimers.
+     */
+    skip?: number
+    distinct?: AtividadeSessaoTimerScalarFieldEnum | AtividadeSessaoTimerScalarFieldEnum[]
+  }
+
+  /**
+   * AtividadeSessaoTimer create
+   */
+  export type AtividadeSessaoTimerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AtividadeSessaoTimer.
+     */
+    data: XOR<AtividadeSessaoTimerCreateInput, AtividadeSessaoTimerUncheckedCreateInput>
+  }
+
+  /**
+   * AtividadeSessaoTimer createMany
+   */
+  export type AtividadeSessaoTimerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AtividadeSessaoTimers.
+     */
+    data: AtividadeSessaoTimerCreateManyInput | AtividadeSessaoTimerCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * KanbanCard update
+   * AtividadeSessaoTimer createManyAndReturn
    */
-  export type KanbanCardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeSessaoTimerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeSessaoTimer
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeSessaoTimerSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data needed to update a KanbanCard.
+     * The data used to create many AtividadeSessaoTimers.
      */
-    data: XOR<KanbanCardUpdateInput, KanbanCardUncheckedUpdateInput>
+    data: AtividadeSessaoTimerCreateManyInput | AtividadeSessaoTimerCreateManyInput[]
+    skipDuplicates?: boolean
     /**
-     * Choose, which KanbanCard to update.
+     * Choose, which related nodes to fetch as well
      */
-    where: KanbanCardWhereUniqueInput
+    include?: AtividadeSessaoTimerIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * KanbanCard updateMany
+   * AtividadeSessaoTimer update
    */
-  export type KanbanCardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeSessaoTimerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update KanbanCards.
+     * Select specific fields to fetch from the AtividadeSessaoTimer
      */
-    data: XOR<KanbanCardUpdateManyMutationInput, KanbanCardUncheckedUpdateManyInput>
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
     /**
-     * Filter which KanbanCards to update
+     * Choose, which related nodes to fetch as well
      */
-    where?: KanbanCardWhereInput
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AtividadeSessaoTimer.
+     */
+    data: XOR<AtividadeSessaoTimerUpdateInput, AtividadeSessaoTimerUncheckedUpdateInput>
+    /**
+     * Choose, which AtividadeSessaoTimer to update.
+     */
+    where: AtividadeSessaoTimerWhereUniqueInput
   }
 
   /**
-   * KanbanCard upsert
+   * AtividadeSessaoTimer updateMany
    */
-  export type KanbanCardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeSessaoTimerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * The data used to update AtividadeSessaoTimers.
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    data: XOR<AtividadeSessaoTimerUpdateManyMutationInput, AtividadeSessaoTimerUncheckedUpdateManyInput>
     /**
-     * The filter to search for the KanbanCard to update in case it exists.
+     * Filter which AtividadeSessaoTimers to update
      */
-    where: KanbanCardWhereUniqueInput
-    /**
-     * In case the KanbanCard found by the `where` argument doesn't exist, create a new KanbanCard with this data.
-     */
-    create: XOR<KanbanCardCreateInput, KanbanCardUncheckedCreateInput>
-    /**
-     * In case the KanbanCard was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<KanbanCardUpdateInput, KanbanCardUncheckedUpdateInput>
+    where?: AtividadeSessaoTimerWhereInput
   }
 
   /**
-   * KanbanCard delete
+   * AtividadeSessaoTimer upsert
    */
-  export type KanbanCardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeSessaoTimerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Select specific fields to fetch from the AtividadeSessaoTimer
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
     /**
-     * Filter which KanbanCard to delete.
+     * Choose, which related nodes to fetch as well
      */
-    where: KanbanCardWhereUniqueInput
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AtividadeSessaoTimer to update in case it exists.
+     */
+    where: AtividadeSessaoTimerWhereUniqueInput
+    /**
+     * In case the AtividadeSessaoTimer found by the `where` argument doesn't exist, create a new AtividadeSessaoTimer with this data.
+     */
+    create: XOR<AtividadeSessaoTimerCreateInput, AtividadeSessaoTimerUncheckedCreateInput>
+    /**
+     * In case the AtividadeSessaoTimer was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AtividadeSessaoTimerUpdateInput, AtividadeSessaoTimerUncheckedUpdateInput>
   }
 
   /**
-   * KanbanCard deleteMany
+   * AtividadeSessaoTimer delete
    */
-  export type KanbanCardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeSessaoTimerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which KanbanCards to delete
+     * Select specific fields to fetch from the AtividadeSessaoTimer
      */
-    where?: KanbanCardWhereInput
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
+    /**
+     * Filter which AtividadeSessaoTimer to delete.
+     */
+    where: AtividadeSessaoTimerWhereUniqueInput
   }
 
   /**
-   * KanbanCard without action
+   * AtividadeSessaoTimer deleteMany
    */
-  export type KanbanCardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AtividadeSessaoTimerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the KanbanCard
+     * Filter which AtividadeSessaoTimers to delete
      */
-    select?: KanbanCardSelect<ExtArgs> | null
+    where?: AtividadeSessaoTimerWhereInput
+  }
+
+  /**
+   * AtividadeSessaoTimer without action
+   */
+  export type AtividadeSessaoTimerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AtividadeSessaoTimer
+     */
+    select?: AtividadeSessaoTimerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AtividadeSessaoTimerInclude<ExtArgs> | null
   }
 
 
@@ -34652,62 +32446,25 @@ export namespace Prisma {
   export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-  export const EmpresaScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    nome: 'nome',
-    cnpj: 'cnpj',
-    email: 'email',
-    telefone: 'telefone',
-    site: 'site',
-    segmento: 'segmento',
-    status: 'status',
-    observacao: 'observacao',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
-  };
-
-  export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
-
-
-  export const ContatoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    empresa_id: 'empresa_id',
-    nome: 'nome',
-    cargo: 'cargo',
-    email: 'email',
-    telefone: 'telefone',
-    whatsapp: 'whatsapp',
-    linkedin: 'linkedin',
-    observacao: 'observacao',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
-  };
-
-  export type ContatoScalarFieldEnum = (typeof ContatoScalarFieldEnum)[keyof typeof ContatoScalarFieldEnum]
-
-
   export const AtividadeScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
-    product_id: 'product_id',
     user_id: 'user_id',
     titulo: 'titulo',
     descricao: 'descricao',
     tipo: 'tipo',
     status: 'status',
     prioridade: 'prioridade',
-    data_inicio: 'data_inicio',
-    data_fim: 'data_fim',
-    data_venc: 'data_venc',
-    empresa_id: 'empresa_id',
-    contato_id: 'contato_id',
-    pipeline_id: 'pipeline_id',
+    data_atividade: 'data_atividade',
+    data_vencimento: 'data_vencimento',
+    tempo_gasto_minutos: 'tempo_gasto_minutos',
+    proximo_passo_titulo: 'proximo_passo_titulo',
+    proximo_passo_data: 'proximo_passo_data',
+    lembrete_em: 'lembrete_em',
+    lembrete_email: 'lembrete_email',
+    lembrete_whatsapp: 'lembrete_whatsapp',
+    notificar_ao_atribuir: 'notificar_ao_atribuir',
+    processo_id: 'processo_id',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -34715,46 +32472,25 @@ export namespace Prisma {
   export type AtividadeScalarFieldEnum = (typeof AtividadeScalarFieldEnum)[keyof typeof AtividadeScalarFieldEnum]
 
 
-  export const PipelineScalarFieldEnum: {
+  export const AtividadeParticipanteScalarFieldEnum: {
     id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    titulo: 'titulo',
-    etapa: 'etapa',
-    valor: 'valor',
-    empresa_id: 'empresa_id',
-    contato_id: 'contato_id',
-    probabilidade: 'probabilidade',
-    data_fechamento: 'data_fechamento',
-    observacao: 'observacao',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
-  };
-
-  export type PipelineScalarFieldEnum = (typeof PipelineScalarFieldEnum)[keyof typeof PipelineScalarFieldEnum]
-
-
-  export const KanbanCardScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    titulo: 'titulo',
-    descricao: 'descricao',
-    status: 'status',
-    posicao: 'posicao',
-    cor: 'cor',
-    etiquetas: 'etiquetas',
-    data_venc: 'data_venc',
     atividade_id: 'atividade_id',
-    empresa_id: 'empresa_id',
-    contato_id: 'contato_id',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    user_id: 'user_id',
+    user_nome: 'user_nome'
   };
 
-  export type KanbanCardScalarFieldEnum = (typeof KanbanCardScalarFieldEnum)[keyof typeof KanbanCardScalarFieldEnum]
+  export type AtividadeParticipanteScalarFieldEnum = (typeof AtividadeParticipanteScalarFieldEnum)[keyof typeof AtividadeParticipanteScalarFieldEnum]
+
+
+  export const AtividadeSessaoTimerScalarFieldEnum: {
+    id: 'id',
+    atividade_id: 'atividade_id',
+    iniciado_em: 'iniciado_em',
+    duracao_min: 'duracao_min',
+    assunto: 'assunto'
+  };
+
+  export type AtividadeSessaoTimerScalarFieldEnum = (typeof AtividadeSessaoTimerScalarFieldEnum)[keyof typeof AtividadeSessaoTimerScalarFieldEnum]
 
 
   export const TimerSessionScalarFieldEnum: {
@@ -35284,20 +33020,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'EmpresaStatus'
-   */
-  export type EnumEmpresaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmpresaStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'EmpresaStatus[]'
-   */
-  export type ListEnumEmpresaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmpresaStatus[]'>
-    
-
-
-  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -35312,76 +33034,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'AtividadeTipo'
-   */
-  export type EnumAtividadeTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtividadeTipo'>
-    
-
-
-  /**
-   * Reference to a field of type 'AtividadeTipo[]'
-   */
-  export type ListEnumAtividadeTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtividadeTipo[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'AtividadeStatus'
-   */
-  export type EnumAtividadeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtividadeStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'AtividadeStatus[]'
-   */
-  export type ListEnumAtividadeStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtividadeStatus[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'AtividadePrioridade'
-   */
-  export type EnumAtividadePrioridadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtividadePrioridade'>
-    
-
-
-  /**
-   * Reference to a field of type 'AtividadePrioridade[]'
-   */
-  export type ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AtividadePrioridade[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'PipelineEtapa'
-   */
-  export type EnumPipelineEtapaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PipelineEtapa'>
-    
-
-
-  /**
-   * Reference to a field of type 'PipelineEtapa[]'
-   */
-  export type ListEnumPipelineEtapaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PipelineEtapa[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
-    
-
-
-  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -35392,20 +33044,6 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'KanbanCardStatus'
-   */
-  export type EnumKanbanCardStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KanbanCardStatus'>
-    
-
-
-  /**
-   * Reference to a field of type 'KanbanCardStatus[]'
-   */
-  export type ListEnumKanbanCardStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KanbanCardStatus[]'>
     
 
 
@@ -35427,6 +33065,20 @@ export namespace Prisma {
    * Reference to a field of type 'EmailThreadStatus[]'
    */
   export type ListEnumEmailThreadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailThreadStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -35524,241 +33176,57 @@ export namespace Prisma {
    */
 
 
-  export type EmpresaWhereInput = {
-    AND?: EmpresaWhereInput | EmpresaWhereInput[]
-    OR?: EmpresaWhereInput[]
-    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    id?: StringFilter<"Empresa"> | string
-    tenant_id?: StringFilter<"Empresa"> | string
-    product_id?: StringNullableFilter<"Empresa"> | string | null
-    user_id?: StringNullableFilter<"Empresa"> | string | null
-    nome?: StringFilter<"Empresa"> | string
-    cnpj?: StringNullableFilter<"Empresa"> | string | null
-    email?: StringNullableFilter<"Empresa"> | string | null
-    telefone?: StringNullableFilter<"Empresa"> | string | null
-    site?: StringNullableFilter<"Empresa"> | string | null
-    segmento?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    observacao?: StringNullableFilter<"Empresa"> | string | null
-    created_at?: DateTimeFilter<"Empresa"> | Date | string
-    updated_at?: DateTimeFilter<"Empresa"> | Date | string
-  }
-
-  export type EmpresaOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    telefone?: SortOrderInput | SortOrder
-    site?: SortOrderInput | SortOrder
-    segmento?: SortOrderInput | SortOrder
-    status?: SortOrder
-    observacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: EmpresaWhereInput | EmpresaWhereInput[]
-    OR?: EmpresaWhereInput[]
-    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    tenant_id?: StringFilter<"Empresa"> | string
-    product_id?: StringNullableFilter<"Empresa"> | string | null
-    user_id?: StringNullableFilter<"Empresa"> | string | null
-    nome?: StringFilter<"Empresa"> | string
-    cnpj?: StringNullableFilter<"Empresa"> | string | null
-    email?: StringNullableFilter<"Empresa"> | string | null
-    telefone?: StringNullableFilter<"Empresa"> | string | null
-    site?: StringNullableFilter<"Empresa"> | string | null
-    segmento?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
-    observacao?: StringNullableFilter<"Empresa"> | string | null
-    created_at?: DateTimeFilter<"Empresa"> | Date | string
-    updated_at?: DateTimeFilter<"Empresa"> | Date | string
-  }, "id">
-
-  export type EmpresaOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    telefone?: SortOrderInput | SortOrder
-    site?: SortOrderInput | SortOrder
-    segmento?: SortOrderInput | SortOrder
-    status?: SortOrder
-    observacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: EmpresaCountOrderByAggregateInput
-    _max?: EmpresaMaxOrderByAggregateInput
-    _min?: EmpresaMinOrderByAggregateInput
-  }
-
-  export type EmpresaScalarWhereWithAggregatesInput = {
-    AND?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    OR?: EmpresaScalarWhereWithAggregatesInput[]
-    NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Empresa"> | string
-    tenant_id?: StringWithAggregatesFilter<"Empresa"> | string
-    product_id?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    nome?: StringWithAggregatesFilter<"Empresa"> | string
-    cnpj?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    email?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    telefone?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    site?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    segmento?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    status?: EnumEmpresaStatusWithAggregatesFilter<"Empresa"> | $Enums.EmpresaStatus
-    observacao?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
-  }
-
-  export type ContatoWhereInput = {
-    AND?: ContatoWhereInput | ContatoWhereInput[]
-    OR?: ContatoWhereInput[]
-    NOT?: ContatoWhereInput | ContatoWhereInput[]
-    id?: StringFilter<"Contato"> | string
-    tenant_id?: StringFilter<"Contato"> | string
-    product_id?: StringNullableFilter<"Contato"> | string | null
-    user_id?: StringNullableFilter<"Contato"> | string | null
-    empresa_id?: StringNullableFilter<"Contato"> | string | null
-    nome?: StringFilter<"Contato"> | string
-    cargo?: StringNullableFilter<"Contato"> | string | null
-    email?: StringNullableFilter<"Contato"> | string | null
-    telefone?: StringNullableFilter<"Contato"> | string | null
-    whatsapp?: StringNullableFilter<"Contato"> | string | null
-    linkedin?: StringNullableFilter<"Contato"> | string | null
-    observacao?: StringNullableFilter<"Contato"> | string | null
-    created_at?: DateTimeFilter<"Contato"> | Date | string
-    updated_at?: DateTimeFilter<"Contato"> | Date | string
-  }
-
-  export type ContatoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    cargo?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    telefone?: SortOrderInput | SortOrder
-    whatsapp?: SortOrderInput | SortOrder
-    linkedin?: SortOrderInput | SortOrder
-    observacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type ContatoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: ContatoWhereInput | ContatoWhereInput[]
-    OR?: ContatoWhereInput[]
-    NOT?: ContatoWhereInput | ContatoWhereInput[]
-    tenant_id?: StringFilter<"Contato"> | string
-    product_id?: StringNullableFilter<"Contato"> | string | null
-    user_id?: StringNullableFilter<"Contato"> | string | null
-    empresa_id?: StringNullableFilter<"Contato"> | string | null
-    nome?: StringFilter<"Contato"> | string
-    cargo?: StringNullableFilter<"Contato"> | string | null
-    email?: StringNullableFilter<"Contato"> | string | null
-    telefone?: StringNullableFilter<"Contato"> | string | null
-    whatsapp?: StringNullableFilter<"Contato"> | string | null
-    linkedin?: StringNullableFilter<"Contato"> | string | null
-    observacao?: StringNullableFilter<"Contato"> | string | null
-    created_at?: DateTimeFilter<"Contato"> | Date | string
-    updated_at?: DateTimeFilter<"Contato"> | Date | string
-  }, "id">
-
-  export type ContatoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    nome?: SortOrder
-    cargo?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    telefone?: SortOrderInput | SortOrder
-    whatsapp?: SortOrderInput | SortOrder
-    linkedin?: SortOrderInput | SortOrder
-    observacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: ContatoCountOrderByAggregateInput
-    _max?: ContatoMaxOrderByAggregateInput
-    _min?: ContatoMinOrderByAggregateInput
-  }
-
-  export type ContatoScalarWhereWithAggregatesInput = {
-    AND?: ContatoScalarWhereWithAggregatesInput | ContatoScalarWhereWithAggregatesInput[]
-    OR?: ContatoScalarWhereWithAggregatesInput[]
-    NOT?: ContatoScalarWhereWithAggregatesInput | ContatoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Contato"> | string
-    tenant_id?: StringWithAggregatesFilter<"Contato"> | string
-    product_id?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    empresa_id?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    nome?: StringWithAggregatesFilter<"Contato"> | string
-    cargo?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    email?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    telefone?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    whatsapp?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    linkedin?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    observacao?: StringNullableWithAggregatesFilter<"Contato"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"Contato"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Contato"> | Date | string
-  }
-
   export type AtividadeWhereInput = {
     AND?: AtividadeWhereInput | AtividadeWhereInput[]
     OR?: AtividadeWhereInput[]
     NOT?: AtividadeWhereInput | AtividadeWhereInput[]
     id?: StringFilter<"Atividade"> | string
     tenant_id?: StringFilter<"Atividade"> | string
-    product_id?: StringNullableFilter<"Atividade"> | string | null
     user_id?: StringNullableFilter<"Atividade"> | string | null
     titulo?: StringFilter<"Atividade"> | string
     descricao?: StringNullableFilter<"Atividade"> | string | null
-    tipo?: EnumAtividadeTipoFilter<"Atividade"> | $Enums.AtividadeTipo
-    status?: EnumAtividadeStatusFilter<"Atividade"> | $Enums.AtividadeStatus
-    prioridade?: EnumAtividadePrioridadeFilter<"Atividade"> | $Enums.AtividadePrioridade
-    data_inicio?: DateTimeNullableFilter<"Atividade"> | Date | string | null
-    data_fim?: DateTimeNullableFilter<"Atividade"> | Date | string | null
-    data_venc?: DateTimeNullableFilter<"Atividade"> | Date | string | null
-    empresa_id?: StringNullableFilter<"Atividade"> | string | null
-    contato_id?: StringNullableFilter<"Atividade"> | string | null
-    pipeline_id?: StringNullableFilter<"Atividade"> | string | null
+    tipo?: StringFilter<"Atividade"> | string
+    status?: StringFilter<"Atividade"> | string
+    prioridade?: StringNullableFilter<"Atividade"> | string | null
+    data_atividade?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    data_vencimento?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    tempo_gasto_minutos?: IntFilter<"Atividade"> | number
+    proximo_passo_titulo?: StringNullableFilter<"Atividade"> | string | null
+    proximo_passo_data?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    lembrete_em?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    lembrete_email?: BoolFilter<"Atividade"> | boolean
+    lembrete_whatsapp?: BoolFilter<"Atividade"> | boolean
+    notificar_ao_atribuir?: BoolFilter<"Atividade"> | boolean
+    processo_id?: StringNullableFilter<"Atividade"> | string | null
     created_at?: DateTimeFilter<"Atividade"> | Date | string
     updated_at?: DateTimeFilter<"Atividade"> | Date | string
+    participantes?: AtividadeParticipanteListRelationFilter
+    sessoes_timer?: AtividadeSessaoTimerListRelationFilter
   }
 
   export type AtividadeOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     titulo?: SortOrder
     descricao?: SortOrderInput | SortOrder
     tipo?: SortOrder
     status?: SortOrder
-    prioridade?: SortOrder
-    data_inicio?: SortOrderInput | SortOrder
-    data_fim?: SortOrderInput | SortOrder
-    data_venc?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    contato_id?: SortOrderInput | SortOrder
-    pipeline_id?: SortOrderInput | SortOrder
+    prioridade?: SortOrderInput | SortOrder
+    data_atividade?: SortOrderInput | SortOrder
+    data_vencimento?: SortOrderInput | SortOrder
+    tempo_gasto_minutos?: SortOrder
+    proximo_passo_titulo?: SortOrderInput | SortOrder
+    proximo_passo_data?: SortOrderInput | SortOrder
+    lembrete_em?: SortOrderInput | SortOrder
+    lembrete_email?: SortOrder
+    lembrete_whatsapp?: SortOrder
+    notificar_ao_atribuir?: SortOrder
+    processo_id?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    participantes?: AtividadeParticipanteOrderByRelationAggregateInput
+    sessoes_timer?: AtividadeSessaoTimerOrderByRelationAggregateInput
   }
 
   export type AtividadeWhereUniqueInput = Prisma.AtLeast<{
@@ -35767,44 +33235,54 @@ export namespace Prisma {
     OR?: AtividadeWhereInput[]
     NOT?: AtividadeWhereInput | AtividadeWhereInput[]
     tenant_id?: StringFilter<"Atividade"> | string
-    product_id?: StringNullableFilter<"Atividade"> | string | null
     user_id?: StringNullableFilter<"Atividade"> | string | null
     titulo?: StringFilter<"Atividade"> | string
     descricao?: StringNullableFilter<"Atividade"> | string | null
-    tipo?: EnumAtividadeTipoFilter<"Atividade"> | $Enums.AtividadeTipo
-    status?: EnumAtividadeStatusFilter<"Atividade"> | $Enums.AtividadeStatus
-    prioridade?: EnumAtividadePrioridadeFilter<"Atividade"> | $Enums.AtividadePrioridade
-    data_inicio?: DateTimeNullableFilter<"Atividade"> | Date | string | null
-    data_fim?: DateTimeNullableFilter<"Atividade"> | Date | string | null
-    data_venc?: DateTimeNullableFilter<"Atividade"> | Date | string | null
-    empresa_id?: StringNullableFilter<"Atividade"> | string | null
-    contato_id?: StringNullableFilter<"Atividade"> | string | null
-    pipeline_id?: StringNullableFilter<"Atividade"> | string | null
+    tipo?: StringFilter<"Atividade"> | string
+    status?: StringFilter<"Atividade"> | string
+    prioridade?: StringNullableFilter<"Atividade"> | string | null
+    data_atividade?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    data_vencimento?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    tempo_gasto_minutos?: IntFilter<"Atividade"> | number
+    proximo_passo_titulo?: StringNullableFilter<"Atividade"> | string | null
+    proximo_passo_data?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    lembrete_em?: DateTimeNullableFilter<"Atividade"> | Date | string | null
+    lembrete_email?: BoolFilter<"Atividade"> | boolean
+    lembrete_whatsapp?: BoolFilter<"Atividade"> | boolean
+    notificar_ao_atribuir?: BoolFilter<"Atividade"> | boolean
+    processo_id?: StringNullableFilter<"Atividade"> | string | null
     created_at?: DateTimeFilter<"Atividade"> | Date | string
     updated_at?: DateTimeFilter<"Atividade"> | Date | string
+    participantes?: AtividadeParticipanteListRelationFilter
+    sessoes_timer?: AtividadeSessaoTimerListRelationFilter
   }, "id">
 
   export type AtividadeOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
     user_id?: SortOrderInput | SortOrder
     titulo?: SortOrder
     descricao?: SortOrderInput | SortOrder
     tipo?: SortOrder
     status?: SortOrder
-    prioridade?: SortOrder
-    data_inicio?: SortOrderInput | SortOrder
-    data_fim?: SortOrderInput | SortOrder
-    data_venc?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    contato_id?: SortOrderInput | SortOrder
-    pipeline_id?: SortOrderInput | SortOrder
+    prioridade?: SortOrderInput | SortOrder
+    data_atividade?: SortOrderInput | SortOrder
+    data_vencimento?: SortOrderInput | SortOrder
+    tempo_gasto_minutos?: SortOrder
+    proximo_passo_titulo?: SortOrderInput | SortOrder
+    proximo_passo_data?: SortOrderInput | SortOrder
+    lembrete_em?: SortOrderInput | SortOrder
+    lembrete_email?: SortOrder
+    lembrete_whatsapp?: SortOrder
+    notificar_ao_atribuir?: SortOrder
+    processo_id?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     _count?: AtividadeCountOrderByAggregateInput
+    _avg?: AtividadeAvgOrderByAggregateInput
     _max?: AtividadeMaxOrderByAggregateInput
     _min?: AtividadeMinOrderByAggregateInput
+    _sum?: AtividadeSumOrderByAggregateInput
   }
 
   export type AtividadeScalarWhereWithAggregatesInput = {
@@ -35813,229 +33291,132 @@ export namespace Prisma {
     NOT?: AtividadeScalarWhereWithAggregatesInput | AtividadeScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Atividade"> | string
     tenant_id?: StringWithAggregatesFilter<"Atividade"> | string
-    product_id?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
     titulo?: StringWithAggregatesFilter<"Atividade"> | string
     descricao?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
-    tipo?: EnumAtividadeTipoWithAggregatesFilter<"Atividade"> | $Enums.AtividadeTipo
-    status?: EnumAtividadeStatusWithAggregatesFilter<"Atividade"> | $Enums.AtividadeStatus
-    prioridade?: EnumAtividadePrioridadeWithAggregatesFilter<"Atividade"> | $Enums.AtividadePrioridade
-    data_inicio?: DateTimeNullableWithAggregatesFilter<"Atividade"> | Date | string | null
-    data_fim?: DateTimeNullableWithAggregatesFilter<"Atividade"> | Date | string | null
-    data_venc?: DateTimeNullableWithAggregatesFilter<"Atividade"> | Date | string | null
-    empresa_id?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
-    contato_id?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
-    pipeline_id?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
+    tipo?: StringWithAggregatesFilter<"Atividade"> | string
+    status?: StringWithAggregatesFilter<"Atividade"> | string
+    prioridade?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
+    data_atividade?: DateTimeNullableWithAggregatesFilter<"Atividade"> | Date | string | null
+    data_vencimento?: DateTimeNullableWithAggregatesFilter<"Atividade"> | Date | string | null
+    tempo_gasto_minutos?: IntWithAggregatesFilter<"Atividade"> | number
+    proximo_passo_titulo?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
+    proximo_passo_data?: DateTimeNullableWithAggregatesFilter<"Atividade"> | Date | string | null
+    lembrete_em?: DateTimeNullableWithAggregatesFilter<"Atividade"> | Date | string | null
+    lembrete_email?: BoolWithAggregatesFilter<"Atividade"> | boolean
+    lembrete_whatsapp?: BoolWithAggregatesFilter<"Atividade"> | boolean
+    notificar_ao_atribuir?: BoolWithAggregatesFilter<"Atividade"> | boolean
+    processo_id?: StringNullableWithAggregatesFilter<"Atividade"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Atividade"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Atividade"> | Date | string
   }
 
-  export type PipelineWhereInput = {
-    AND?: PipelineWhereInput | PipelineWhereInput[]
-    OR?: PipelineWhereInput[]
-    NOT?: PipelineWhereInput | PipelineWhereInput[]
-    id?: StringFilter<"Pipeline"> | string
-    tenant_id?: StringFilter<"Pipeline"> | string
-    product_id?: StringNullableFilter<"Pipeline"> | string | null
-    user_id?: StringNullableFilter<"Pipeline"> | string | null
-    titulo?: StringFilter<"Pipeline"> | string
-    etapa?: EnumPipelineEtapaFilter<"Pipeline"> | $Enums.PipelineEtapa
-    valor?: FloatNullableFilter<"Pipeline"> | number | null
-    empresa_id?: StringNullableFilter<"Pipeline"> | string | null
-    contato_id?: StringNullableFilter<"Pipeline"> | string | null
-    probabilidade?: IntNullableFilter<"Pipeline"> | number | null
-    data_fechamento?: DateTimeNullableFilter<"Pipeline"> | Date | string | null
-    observacao?: StringNullableFilter<"Pipeline"> | string | null
-    created_at?: DateTimeFilter<"Pipeline"> | Date | string
-    updated_at?: DateTimeFilter<"Pipeline"> | Date | string
+  export type AtividadeParticipanteWhereInput = {
+    AND?: AtividadeParticipanteWhereInput | AtividadeParticipanteWhereInput[]
+    OR?: AtividadeParticipanteWhereInput[]
+    NOT?: AtividadeParticipanteWhereInput | AtividadeParticipanteWhereInput[]
+    id?: StringFilter<"AtividadeParticipante"> | string
+    atividade_id?: StringFilter<"AtividadeParticipante"> | string
+    user_id?: StringFilter<"AtividadeParticipante"> | string
+    user_nome?: StringNullableFilter<"AtividadeParticipante"> | string | null
+    atividade?: XOR<AtividadeRelationFilter, AtividadeWhereInput>
   }
 
-  export type PipelineOrderByWithRelationInput = {
+  export type AtividadeParticipanteOrderByWithRelationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    titulo?: SortOrder
-    etapa?: SortOrder
-    valor?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    contato_id?: SortOrderInput | SortOrder
-    probabilidade?: SortOrderInput | SortOrder
-    data_fechamento?: SortOrderInput | SortOrder
-    observacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    atividade_id?: SortOrder
+    user_id?: SortOrder
+    user_nome?: SortOrderInput | SortOrder
+    atividade?: AtividadeOrderByWithRelationInput
   }
 
-  export type PipelineWhereUniqueInput = Prisma.AtLeast<{
+  export type AtividadeParticipanteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: PipelineWhereInput | PipelineWhereInput[]
-    OR?: PipelineWhereInput[]
-    NOT?: PipelineWhereInput | PipelineWhereInput[]
-    tenant_id?: StringFilter<"Pipeline"> | string
-    product_id?: StringNullableFilter<"Pipeline"> | string | null
-    user_id?: StringNullableFilter<"Pipeline"> | string | null
-    titulo?: StringFilter<"Pipeline"> | string
-    etapa?: EnumPipelineEtapaFilter<"Pipeline"> | $Enums.PipelineEtapa
-    valor?: FloatNullableFilter<"Pipeline"> | number | null
-    empresa_id?: StringNullableFilter<"Pipeline"> | string | null
-    contato_id?: StringNullableFilter<"Pipeline"> | string | null
-    probabilidade?: IntNullableFilter<"Pipeline"> | number | null
-    data_fechamento?: DateTimeNullableFilter<"Pipeline"> | Date | string | null
-    observacao?: StringNullableFilter<"Pipeline"> | string | null
-    created_at?: DateTimeFilter<"Pipeline"> | Date | string
-    updated_at?: DateTimeFilter<"Pipeline"> | Date | string
+    atividade_id_user_id?: AtividadeParticipanteAtividade_idUser_idCompoundUniqueInput
+    AND?: AtividadeParticipanteWhereInput | AtividadeParticipanteWhereInput[]
+    OR?: AtividadeParticipanteWhereInput[]
+    NOT?: AtividadeParticipanteWhereInput | AtividadeParticipanteWhereInput[]
+    atividade_id?: StringFilter<"AtividadeParticipante"> | string
+    user_id?: StringFilter<"AtividadeParticipante"> | string
+    user_nome?: StringNullableFilter<"AtividadeParticipante"> | string | null
+    atividade?: XOR<AtividadeRelationFilter, AtividadeWhereInput>
+  }, "id" | "atividade_id_user_id">
+
+  export type AtividadeParticipanteOrderByWithAggregationInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    user_id?: SortOrder
+    user_nome?: SortOrderInput | SortOrder
+    _count?: AtividadeParticipanteCountOrderByAggregateInput
+    _max?: AtividadeParticipanteMaxOrderByAggregateInput
+    _min?: AtividadeParticipanteMinOrderByAggregateInput
+  }
+
+  export type AtividadeParticipanteScalarWhereWithAggregatesInput = {
+    AND?: AtividadeParticipanteScalarWhereWithAggregatesInput | AtividadeParticipanteScalarWhereWithAggregatesInput[]
+    OR?: AtividadeParticipanteScalarWhereWithAggregatesInput[]
+    NOT?: AtividadeParticipanteScalarWhereWithAggregatesInput | AtividadeParticipanteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AtividadeParticipante"> | string
+    atividade_id?: StringWithAggregatesFilter<"AtividadeParticipante"> | string
+    user_id?: StringWithAggregatesFilter<"AtividadeParticipante"> | string
+    user_nome?: StringNullableWithAggregatesFilter<"AtividadeParticipante"> | string | null
+  }
+
+  export type AtividadeSessaoTimerWhereInput = {
+    AND?: AtividadeSessaoTimerWhereInput | AtividadeSessaoTimerWhereInput[]
+    OR?: AtividadeSessaoTimerWhereInput[]
+    NOT?: AtividadeSessaoTimerWhereInput | AtividadeSessaoTimerWhereInput[]
+    id?: StringFilter<"AtividadeSessaoTimer"> | string
+    atividade_id?: StringFilter<"AtividadeSessaoTimer"> | string
+    iniciado_em?: DateTimeFilter<"AtividadeSessaoTimer"> | Date | string
+    duracao_min?: IntFilter<"AtividadeSessaoTimer"> | number
+    assunto?: StringNullableFilter<"AtividadeSessaoTimer"> | string | null
+    atividade?: XOR<AtividadeRelationFilter, AtividadeWhereInput>
+  }
+
+  export type AtividadeSessaoTimerOrderByWithRelationInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    iniciado_em?: SortOrder
+    duracao_min?: SortOrder
+    assunto?: SortOrderInput | SortOrder
+    atividade?: AtividadeOrderByWithRelationInput
+  }
+
+  export type AtividadeSessaoTimerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AtividadeSessaoTimerWhereInput | AtividadeSessaoTimerWhereInput[]
+    OR?: AtividadeSessaoTimerWhereInput[]
+    NOT?: AtividadeSessaoTimerWhereInput | AtividadeSessaoTimerWhereInput[]
+    atividade_id?: StringFilter<"AtividadeSessaoTimer"> | string
+    iniciado_em?: DateTimeFilter<"AtividadeSessaoTimer"> | Date | string
+    duracao_min?: IntFilter<"AtividadeSessaoTimer"> | number
+    assunto?: StringNullableFilter<"AtividadeSessaoTimer"> | string | null
+    atividade?: XOR<AtividadeRelationFilter, AtividadeWhereInput>
   }, "id">
 
-  export type PipelineOrderByWithAggregationInput = {
+  export type AtividadeSessaoTimerOrderByWithAggregationInput = {
     id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    titulo?: SortOrder
-    etapa?: SortOrder
-    valor?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    contato_id?: SortOrderInput | SortOrder
-    probabilidade?: SortOrderInput | SortOrder
-    data_fechamento?: SortOrderInput | SortOrder
-    observacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: PipelineCountOrderByAggregateInput
-    _avg?: PipelineAvgOrderByAggregateInput
-    _max?: PipelineMaxOrderByAggregateInput
-    _min?: PipelineMinOrderByAggregateInput
-    _sum?: PipelineSumOrderByAggregateInput
+    atividade_id?: SortOrder
+    iniciado_em?: SortOrder
+    duracao_min?: SortOrder
+    assunto?: SortOrderInput | SortOrder
+    _count?: AtividadeSessaoTimerCountOrderByAggregateInput
+    _avg?: AtividadeSessaoTimerAvgOrderByAggregateInput
+    _max?: AtividadeSessaoTimerMaxOrderByAggregateInput
+    _min?: AtividadeSessaoTimerMinOrderByAggregateInput
+    _sum?: AtividadeSessaoTimerSumOrderByAggregateInput
   }
 
-  export type PipelineScalarWhereWithAggregatesInput = {
-    AND?: PipelineScalarWhereWithAggregatesInput | PipelineScalarWhereWithAggregatesInput[]
-    OR?: PipelineScalarWhereWithAggregatesInput[]
-    NOT?: PipelineScalarWhereWithAggregatesInput | PipelineScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Pipeline"> | string
-    tenant_id?: StringWithAggregatesFilter<"Pipeline"> | string
-    product_id?: StringNullableWithAggregatesFilter<"Pipeline"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"Pipeline"> | string | null
-    titulo?: StringWithAggregatesFilter<"Pipeline"> | string
-    etapa?: EnumPipelineEtapaWithAggregatesFilter<"Pipeline"> | $Enums.PipelineEtapa
-    valor?: FloatNullableWithAggregatesFilter<"Pipeline"> | number | null
-    empresa_id?: StringNullableWithAggregatesFilter<"Pipeline"> | string | null
-    contato_id?: StringNullableWithAggregatesFilter<"Pipeline"> | string | null
-    probabilidade?: IntNullableWithAggregatesFilter<"Pipeline"> | number | null
-    data_fechamento?: DateTimeNullableWithAggregatesFilter<"Pipeline"> | Date | string | null
-    observacao?: StringNullableWithAggregatesFilter<"Pipeline"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"Pipeline"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Pipeline"> | Date | string
-  }
-
-  export type KanbanCardWhereInput = {
-    AND?: KanbanCardWhereInput | KanbanCardWhereInput[]
-    OR?: KanbanCardWhereInput[]
-    NOT?: KanbanCardWhereInput | KanbanCardWhereInput[]
-    id?: StringFilter<"KanbanCard"> | string
-    tenant_id?: StringFilter<"KanbanCard"> | string
-    product_id?: StringNullableFilter<"KanbanCard"> | string | null
-    user_id?: StringNullableFilter<"KanbanCard"> | string | null
-    titulo?: StringFilter<"KanbanCard"> | string
-    descricao?: StringNullableFilter<"KanbanCard"> | string | null
-    status?: EnumKanbanCardStatusFilter<"KanbanCard"> | $Enums.KanbanCardStatus
-    posicao?: IntFilter<"KanbanCard"> | number
-    cor?: StringNullableFilter<"KanbanCard"> | string | null
-    etiquetas?: StringNullableListFilter<"KanbanCard">
-    data_venc?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
-    atividade_id?: StringNullableFilter<"KanbanCard"> | string | null
-    empresa_id?: StringNullableFilter<"KanbanCard"> | string | null
-    contato_id?: StringNullableFilter<"KanbanCard"> | string | null
-    created_at?: DateTimeFilter<"KanbanCard"> | Date | string
-    updated_at?: DateTimeFilter<"KanbanCard"> | Date | string
-  }
-
-  export type KanbanCardOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    status?: SortOrder
-    posicao?: SortOrder
-    cor?: SortOrderInput | SortOrder
-    etiquetas?: SortOrder
-    data_venc?: SortOrderInput | SortOrder
-    atividade_id?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    contato_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type KanbanCardWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: KanbanCardWhereInput | KanbanCardWhereInput[]
-    OR?: KanbanCardWhereInput[]
-    NOT?: KanbanCardWhereInput | KanbanCardWhereInput[]
-    tenant_id?: StringFilter<"KanbanCard"> | string
-    product_id?: StringNullableFilter<"KanbanCard"> | string | null
-    user_id?: StringNullableFilter<"KanbanCard"> | string | null
-    titulo?: StringFilter<"KanbanCard"> | string
-    descricao?: StringNullableFilter<"KanbanCard"> | string | null
-    status?: EnumKanbanCardStatusFilter<"KanbanCard"> | $Enums.KanbanCardStatus
-    posicao?: IntFilter<"KanbanCard"> | number
-    cor?: StringNullableFilter<"KanbanCard"> | string | null
-    etiquetas?: StringNullableListFilter<"KanbanCard">
-    data_venc?: DateTimeNullableFilter<"KanbanCard"> | Date | string | null
-    atividade_id?: StringNullableFilter<"KanbanCard"> | string | null
-    empresa_id?: StringNullableFilter<"KanbanCard"> | string | null
-    contato_id?: StringNullableFilter<"KanbanCard"> | string | null
-    created_at?: DateTimeFilter<"KanbanCard"> | Date | string
-    updated_at?: DateTimeFilter<"KanbanCard"> | Date | string
-  }, "id">
-
-  export type KanbanCardOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrderInput | SortOrder
-    status?: SortOrder
-    posicao?: SortOrder
-    cor?: SortOrderInput | SortOrder
-    etiquetas?: SortOrder
-    data_venc?: SortOrderInput | SortOrder
-    atividade_id?: SortOrderInput | SortOrder
-    empresa_id?: SortOrderInput | SortOrder
-    contato_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: KanbanCardCountOrderByAggregateInput
-    _avg?: KanbanCardAvgOrderByAggregateInput
-    _max?: KanbanCardMaxOrderByAggregateInput
-    _min?: KanbanCardMinOrderByAggregateInput
-    _sum?: KanbanCardSumOrderByAggregateInput
-  }
-
-  export type KanbanCardScalarWhereWithAggregatesInput = {
-    AND?: KanbanCardScalarWhereWithAggregatesInput | KanbanCardScalarWhereWithAggregatesInput[]
-    OR?: KanbanCardScalarWhereWithAggregatesInput[]
-    NOT?: KanbanCardScalarWhereWithAggregatesInput | KanbanCardScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"KanbanCard"> | string
-    tenant_id?: StringWithAggregatesFilter<"KanbanCard"> | string
-    product_id?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
-    titulo?: StringWithAggregatesFilter<"KanbanCard"> | string
-    descricao?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
-    status?: EnumKanbanCardStatusWithAggregatesFilter<"KanbanCard"> | $Enums.KanbanCardStatus
-    posicao?: IntWithAggregatesFilter<"KanbanCard"> | number
-    cor?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
-    etiquetas?: StringNullableListFilter<"KanbanCard">
-    data_venc?: DateTimeNullableWithAggregatesFilter<"KanbanCard"> | Date | string | null
-    atividade_id?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
-    empresa_id?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
-    contato_id?: StringNullableWithAggregatesFilter<"KanbanCard"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"KanbanCard"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"KanbanCard"> | Date | string
+  export type AtividadeSessaoTimerScalarWhereWithAggregatesInput = {
+    AND?: AtividadeSessaoTimerScalarWhereWithAggregatesInput | AtividadeSessaoTimerScalarWhereWithAggregatesInput[]
+    OR?: AtividadeSessaoTimerScalarWhereWithAggregatesInput[]
+    NOT?: AtividadeSessaoTimerScalarWhereWithAggregatesInput | AtividadeSessaoTimerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AtividadeSessaoTimer"> | string
+    atividade_id?: StringWithAggregatesFilter<"AtividadeSessaoTimer"> | string
+    iniciado_em?: DateTimeWithAggregatesFilter<"AtividadeSessaoTimer"> | Date | string
+    duracao_min?: IntWithAggregatesFilter<"AtividadeSessaoTimer"> | number
+    assunto?: StringNullableWithAggregatesFilter<"AtividadeSessaoTimer"> | string | null
   }
 
   export type TimerSessionWhereInput = {
@@ -38312,340 +35693,125 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
   }
 
-  export type EmpresaCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    cnpj?: string | null
-    email?: string | null
-    telefone?: string | null
-    site?: string | null
-    segmento?: string | null
-    status?: $Enums.EmpresaStatus
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type EmpresaUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    cnpj?: string | null
-    email?: string | null
-    telefone?: string | null
-    site?: string | null
-    segmento?: string | null
-    status?: $Enums.EmpresaStatus
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type EmpresaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    site?: NullableStringFieldUpdateOperationsInput | string | null
-    segmento?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type EmpresaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    site?: NullableStringFieldUpdateOperationsInput | string | null
-    segmento?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type EmpresaCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    nome: string
-    cnpj?: string | null
-    email?: string | null
-    telefone?: string | null
-    site?: string | null
-    segmento?: string | null
-    status?: $Enums.EmpresaStatus
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type EmpresaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    site?: NullableStringFieldUpdateOperationsInput | string | null
-    segmento?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type EmpresaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    site?: NullableStringFieldUpdateOperationsInput | string | null
-    segmento?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContatoCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    empresa_id?: string | null
-    nome: string
-    cargo?: string | null
-    email?: string | null
-    telefone?: string | null
-    whatsapp?: string | null
-    linkedin?: string | null
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type ContatoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    empresa_id?: string | null
-    nome: string
-    cargo?: string | null
-    email?: string | null
-    telefone?: string | null
-    whatsapp?: string | null
-    linkedin?: string | null
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type ContatoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContatoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContatoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    empresa_id?: string | null
-    nome: string
-    cargo?: string | null
-    email?: string | null
-    telefone?: string | null
-    whatsapp?: string | null
-    linkedin?: string | null
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type ContatoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContatoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    linkedin?: NullableStringFieldUpdateOperationsInput | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type AtividadeCreateInput = {
     id?: string
     tenant_id: string
-    product_id?: string | null
     user_id?: string | null
     titulo: string
     descricao?: string | null
-    tipo?: $Enums.AtividadeTipo
-    status?: $Enums.AtividadeStatus
-    prioridade?: $Enums.AtividadePrioridade
-    data_inicio?: Date | string | null
-    data_fim?: Date | string | null
-    data_venc?: Date | string | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    pipeline_id?: string | null
+    tipo?: string
+    status?: string
+    prioridade?: string | null
+    data_atividade?: Date | string | null
+    data_vencimento?: Date | string | null
+    tempo_gasto_minutos?: number
+    proximo_passo_titulo?: string | null
+    proximo_passo_data?: Date | string | null
+    lembrete_em?: Date | string | null
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    participantes?: AtividadeParticipanteCreateNestedManyWithoutAtividadeInput
+    sessoes_timer?: AtividadeSessaoTimerCreateNestedManyWithoutAtividadeInput
   }
 
   export type AtividadeUncheckedCreateInput = {
     id?: string
     tenant_id: string
-    product_id?: string | null
     user_id?: string | null
     titulo: string
     descricao?: string | null
-    tipo?: $Enums.AtividadeTipo
-    status?: $Enums.AtividadeStatus
-    prioridade?: $Enums.AtividadePrioridade
-    data_inicio?: Date | string | null
-    data_fim?: Date | string | null
-    data_venc?: Date | string | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    pipeline_id?: string | null
+    tipo?: string
+    status?: string
+    prioridade?: string | null
+    data_atividade?: Date | string | null
+    data_vencimento?: Date | string | null
+    tempo_gasto_minutos?: number
+    proximo_passo_titulo?: string | null
+    proximo_passo_data?: Date | string | null
+    lembrete_em?: Date | string | null
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    participantes?: AtividadeParticipanteUncheckedCreateNestedManyWithoutAtividadeInput
+    sessoes_timer?: AtividadeSessaoTimerUncheckedCreateNestedManyWithoutAtividadeInput
   }
 
   export type AtividadeUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
     descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: EnumAtividadeTipoFieldUpdateOperationsInput | $Enums.AtividadeTipo
-    status?: EnumAtividadeStatusFieldUpdateOperationsInput | $Enums.AtividadeStatus
-    prioridade?: EnumAtividadePrioridadeFieldUpdateOperationsInput | $Enums.AtividadePrioridade
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    pipeline_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes?: AtividadeParticipanteUpdateManyWithoutAtividadeNestedInput
+    sessoes_timer?: AtividadeSessaoTimerUpdateManyWithoutAtividadeNestedInput
   }
 
   export type AtividadeUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
     descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: EnumAtividadeTipoFieldUpdateOperationsInput | $Enums.AtividadeTipo
-    status?: EnumAtividadeStatusFieldUpdateOperationsInput | $Enums.AtividadeStatus
-    prioridade?: EnumAtividadePrioridadeFieldUpdateOperationsInput | $Enums.AtividadePrioridade
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    pipeline_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes?: AtividadeParticipanteUncheckedUpdateManyWithoutAtividadeNestedInput
+    sessoes_timer?: AtividadeSessaoTimerUncheckedUpdateManyWithoutAtividadeNestedInput
   }
 
   export type AtividadeCreateManyInput = {
     id?: string
     tenant_id: string
-    product_id?: string | null
     user_id?: string | null
     titulo: string
     descricao?: string | null
-    tipo?: $Enums.AtividadeTipo
-    status?: $Enums.AtividadeStatus
-    prioridade?: $Enums.AtividadePrioridade
-    data_inicio?: Date | string | null
-    data_fim?: Date | string | null
-    data_venc?: Date | string | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    pipeline_id?: string | null
+    tipo?: string
+    status?: string
+    prioridade?: string | null
+    data_atividade?: Date | string | null
+    data_vencimento?: Date | string | null
+    tempo_gasto_minutos?: number
+    proximo_passo_titulo?: string | null
+    proximo_passo_data?: Date | string | null
+    lembrete_em?: Date | string | null
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -38653,19 +35819,22 @@ export namespace Prisma {
   export type AtividadeUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
     descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: EnumAtividadeTipoFieldUpdateOperationsInput | $Enums.AtividadeTipo
-    status?: EnumAtividadeStatusFieldUpdateOperationsInput | $Enums.AtividadeStatus
-    prioridade?: EnumAtividadePrioridadeFieldUpdateOperationsInput | $Enums.AtividadePrioridade
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    pipeline_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -38673,273 +35842,127 @@ export namespace Prisma {
   export type AtividadeUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     titulo?: StringFieldUpdateOperationsInput | string
     descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    tipo?: EnumAtividadeTipoFieldUpdateOperationsInput | $Enums.AtividadeTipo
-    status?: EnumAtividadeStatusFieldUpdateOperationsInput | $Enums.AtividadeStatus
-    prioridade?: EnumAtividadePrioridadeFieldUpdateOperationsInput | $Enums.AtividadePrioridade
-    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    pipeline_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PipelineCreateInput = {
+  export type AtividadeParticipanteCreateInput = {
     id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    titulo: string
-    etapa?: $Enums.PipelineEtapa
-    valor?: number | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    probabilidade?: number | null
-    data_fechamento?: Date | string | null
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    user_id: string
+    user_nome?: string | null
+    atividade: AtividadeCreateNestedOneWithoutParticipantesInput
   }
 
-  export type PipelineUncheckedCreateInput = {
+  export type AtividadeParticipanteUncheckedCreateInput = {
     id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    titulo: string
-    etapa?: $Enums.PipelineEtapa
-    valor?: number | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    probabilidade?: number | null
-    data_fechamento?: Date | string | null
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    atividade_id: string
+    user_id: string
+    user_nome?: string | null
   }
 
-  export type PipelineUpdateInput = {
+  export type AtividadeParticipanteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    etapa?: EnumPipelineEtapaFieldUpdateOperationsInput | $Enums.PipelineEtapa
-    valor?: NullableFloatFieldUpdateOperationsInput | number | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    probabilidade?: NullableIntFieldUpdateOperationsInput | number | null
-    data_fechamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+    atividade?: AtividadeUpdateOneRequiredWithoutParticipantesNestedInput
   }
 
-  export type PipelineUncheckedUpdateInput = {
+  export type AtividadeParticipanteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    etapa?: EnumPipelineEtapaFieldUpdateOperationsInput | $Enums.PipelineEtapa
-    valor?: NullableFloatFieldUpdateOperationsInput | number | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    probabilidade?: NullableIntFieldUpdateOperationsInput | number | null
-    data_fechamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    atividade_id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type PipelineCreateManyInput = {
+  export type AtividadeParticipanteCreateManyInput = {
     id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    titulo: string
-    etapa?: $Enums.PipelineEtapa
-    valor?: number | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    probabilidade?: number | null
-    data_fechamento?: Date | string | null
-    observacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    atividade_id: string
+    user_id: string
+    user_nome?: string | null
   }
 
-  export type PipelineUpdateManyMutationInput = {
+  export type AtividadeParticipanteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    etapa?: EnumPipelineEtapaFieldUpdateOperationsInput | $Enums.PipelineEtapa
-    valor?: NullableFloatFieldUpdateOperationsInput | number | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    probabilidade?: NullableIntFieldUpdateOperationsInput | number | null
-    data_fechamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type PipelineUncheckedUpdateManyInput = {
+  export type AtividadeParticipanteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    etapa?: EnumPipelineEtapaFieldUpdateOperationsInput | $Enums.PipelineEtapa
-    valor?: NullableFloatFieldUpdateOperationsInput | number | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    probabilidade?: NullableIntFieldUpdateOperationsInput | number | null
-    data_fechamento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    observacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    atividade_id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type KanbanCardCreateInput = {
+  export type AtividadeSessaoTimerCreateInput = {
     id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    status?: $Enums.KanbanCardStatus
-    posicao?: number
-    cor?: string | null
-    etiquetas?: KanbanCardCreateetiquetasInput | string[]
-    data_venc?: Date | string | null
-    atividade_id?: string | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    iniciado_em: Date | string
+    duracao_min: number
+    assunto?: string | null
+    atividade: AtividadeCreateNestedOneWithoutSessoes_timerInput
   }
 
-  export type KanbanCardUncheckedCreateInput = {
+  export type AtividadeSessaoTimerUncheckedCreateInput = {
     id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    status?: $Enums.KanbanCardStatus
-    posicao?: number
-    cor?: string | null
-    etiquetas?: KanbanCardCreateetiquetasInput | string[]
-    data_venc?: Date | string | null
-    atividade_id?: string | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    atividade_id: string
+    iniciado_em: Date | string
+    duracao_min: number
+    assunto?: string | null
   }
 
-  export type KanbanCardUpdateInput = {
+  export type AtividadeSessaoTimerUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumKanbanCardStatusFieldUpdateOperationsInput | $Enums.KanbanCardStatus
-    posicao?: IntFieldUpdateOperationsInput | number
-    cor?: NullableStringFieldUpdateOperationsInput | string | null
-    etiquetas?: KanbanCardUpdateetiquetasInput | string[]
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    atividade_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min?: IntFieldUpdateOperationsInput | number
+    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+    atividade?: AtividadeUpdateOneRequiredWithoutSessoes_timerNestedInput
   }
 
-  export type KanbanCardUncheckedUpdateInput = {
+  export type AtividadeSessaoTimerUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumKanbanCardStatusFieldUpdateOperationsInput | $Enums.KanbanCardStatus
-    posicao?: IntFieldUpdateOperationsInput | number
-    cor?: NullableStringFieldUpdateOperationsInput | string | null
-    etiquetas?: KanbanCardUpdateetiquetasInput | string[]
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    atividade_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    atividade_id?: StringFieldUpdateOperationsInput | string
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min?: IntFieldUpdateOperationsInput | number
+    assunto?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type KanbanCardCreateManyInput = {
+  export type AtividadeSessaoTimerCreateManyInput = {
     id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    titulo: string
-    descricao?: string | null
-    status?: $Enums.KanbanCardStatus
-    posicao?: number
-    cor?: string | null
-    etiquetas?: KanbanCardCreateetiquetasInput | string[]
-    data_venc?: Date | string | null
-    atividade_id?: string | null
-    empresa_id?: string | null
-    contato_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    atividade_id: string
+    iniciado_em: Date | string
+    duracao_min: number
+    assunto?: string | null
   }
 
-  export type KanbanCardUpdateManyMutationInput = {
+  export type AtividadeSessaoTimerUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumKanbanCardStatusFieldUpdateOperationsInput | $Enums.KanbanCardStatus
-    posicao?: IntFieldUpdateOperationsInput | number
-    cor?: NullableStringFieldUpdateOperationsInput | string | null
-    etiquetas?: KanbanCardUpdateetiquetasInput | string[]
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    atividade_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min?: IntFieldUpdateOperationsInput | number
+    assunto?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type KanbanCardUncheckedUpdateManyInput = {
+  export type AtividadeSessaoTimerUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    titulo?: StringFieldUpdateOperationsInput | string
-    descricao?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumKanbanCardStatusFieldUpdateOperationsInput | $Enums.KanbanCardStatus
-    posicao?: IntFieldUpdateOperationsInput | number
-    cor?: NullableStringFieldUpdateOperationsInput | string | null
-    etiquetas?: KanbanCardUpdateetiquetasInput | string[]
-    data_venc?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    atividade_id?: NullableStringFieldUpdateOperationsInput | string | null
-    empresa_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contato_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    atividade_id?: StringFieldUpdateOperationsInput | string
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min?: IntFieldUpdateOperationsInput | number
+    assunto?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TimerSessionCreateInput = {
@@ -41654,11 +38677,31 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type EnumEmpresaStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumEmpresaStatusFilter<$PrismaModel> | $Enums.EmpresaStatus
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type DateTimeFilter<$PrismaModel = never> = {
@@ -41672,60 +38715,106 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type AtividadeParticipanteListRelationFilter = {
+    every?: AtividadeParticipanteWhereInput
+    some?: AtividadeParticipanteWhereInput
+    none?: AtividadeParticipanteWhereInput
+  }
+
+  export type AtividadeSessaoTimerListRelationFilter = {
+    every?: AtividadeSessaoTimerWhereInput
+    some?: AtividadeSessaoTimerWhereInput
+    none?: AtividadeSessaoTimerWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
-  export type EmpresaCountOrderByAggregateInput = {
+  export type AtividadeParticipanteOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AtividadeSessaoTimerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AtividadeCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    product_id?: SortOrder
     user_id?: SortOrder
-    nome?: SortOrder
-    cnpj?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    site?: SortOrder
-    segmento?: SortOrder
+    titulo?: SortOrder
+    descricao?: SortOrder
+    tipo?: SortOrder
     status?: SortOrder
-    observacao?: SortOrder
+    prioridade?: SortOrder
+    data_atividade?: SortOrder
+    data_vencimento?: SortOrder
+    tempo_gasto_minutos?: SortOrder
+    proximo_passo_titulo?: SortOrder
+    proximo_passo_data?: SortOrder
+    lembrete_em?: SortOrder
+    lembrete_email?: SortOrder
+    lembrete_whatsapp?: SortOrder
+    notificar_ao_atribuir?: SortOrder
+    processo_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
 
-  export type EmpresaMaxOrderByAggregateInput = {
+  export type AtividadeAvgOrderByAggregateInput = {
+    tempo_gasto_minutos?: SortOrder
+  }
+
+  export type AtividadeMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    product_id?: SortOrder
     user_id?: SortOrder
-    nome?: SortOrder
-    cnpj?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    site?: SortOrder
-    segmento?: SortOrder
+    titulo?: SortOrder
+    descricao?: SortOrder
+    tipo?: SortOrder
     status?: SortOrder
-    observacao?: SortOrder
+    prioridade?: SortOrder
+    data_atividade?: SortOrder
+    data_vencimento?: SortOrder
+    tempo_gasto_minutos?: SortOrder
+    proximo_passo_titulo?: SortOrder
+    proximo_passo_data?: SortOrder
+    lembrete_em?: SortOrder
+    lembrete_email?: SortOrder
+    lembrete_whatsapp?: SortOrder
+    notificar_ao_atribuir?: SortOrder
+    processo_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
 
-  export type EmpresaMinOrderByAggregateInput = {
+  export type AtividadeMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    product_id?: SortOrder
     user_id?: SortOrder
-    nome?: SortOrder
-    cnpj?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    site?: SortOrder
-    segmento?: SortOrder
+    titulo?: SortOrder
+    descricao?: SortOrder
+    tipo?: SortOrder
     status?: SortOrder
-    observacao?: SortOrder
+    prioridade?: SortOrder
+    data_atividade?: SortOrder
+    data_vencimento?: SortOrder
+    tempo_gasto_minutos?: SortOrder
+    proximo_passo_titulo?: SortOrder
+    proximo_passo_data?: SortOrder
+    lembrete_em?: SortOrder
+    lembrete_email?: SortOrder
+    lembrete_whatsapp?: SortOrder
+    notificar_ao_atribuir?: SortOrder
+    processo_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+  }
+
+  export type AtividadeSumOrderByAggregateInput = {
+    tempo_gasto_minutos?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -41764,203 +38853,6 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type EnumEmpresaStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumEmpresaStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmpresaStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEmpresaStatusFilter<$PrismaModel>
-    _max?: NestedEnumEmpresaStatusFilter<$PrismaModel>
-  }
-
-  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type ContatoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    empresa_id?: SortOrder
-    nome?: SortOrder
-    cargo?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    whatsapp?: SortOrder
-    linkedin?: SortOrder
-    observacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type ContatoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    empresa_id?: SortOrder
-    nome?: SortOrder
-    cargo?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    whatsapp?: SortOrder
-    linkedin?: SortOrder
-    observacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type ContatoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    empresa_id?: SortOrder
-    nome?: SortOrder
-    cargo?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    whatsapp?: SortOrder
-    linkedin?: SortOrder
-    observacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type EnumAtividadeTipoFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeTipo | EnumAtividadeTipoFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeTipoFilter<$PrismaModel> | $Enums.AtividadeTipo
-  }
-
-  export type EnumAtividadeStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeStatus | EnumAtividadeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeStatusFilter<$PrismaModel> | $Enums.AtividadeStatus
-  }
-
-  export type EnumAtividadePrioridadeFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadePrioridade | EnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadePrioridadeFilter<$PrismaModel> | $Enums.AtividadePrioridade
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type AtividadeCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    data_inicio?: SortOrder
-    data_fim?: SortOrder
-    data_venc?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    pipeline_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type AtividadeMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    data_inicio?: SortOrder
-    data_fim?: SortOrder
-    data_venc?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    pipeline_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type AtividadeMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    tipo?: SortOrder
-    status?: SortOrder
-    prioridade?: SortOrder
-    data_inicio?: SortOrder
-    data_fim?: SortOrder
-    data_venc?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    pipeline_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type EnumAtividadeTipoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeTipo | EnumAtividadeTipoFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeTipoWithAggregatesFilter<$PrismaModel> | $Enums.AtividadeTipo
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAtividadeTipoFilter<$PrismaModel>
-    _max?: NestedEnumAtividadeTipoFilter<$PrismaModel>
-  }
-
-  export type EnumAtividadeStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeStatus | EnumAtividadeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeStatusWithAggregatesFilter<$PrismaModel> | $Enums.AtividadeStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAtividadeStatusFilter<$PrismaModel>
-    _max?: NestedEnumAtividadeStatusFilter<$PrismaModel>
-  }
-
-  export type EnumAtividadePrioridadeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadePrioridade | EnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadePrioridadeWithAggregatesFilter<$PrismaModel> | $Enums.AtividadePrioridade
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAtividadePrioridadeFilter<$PrismaModel>
-    _max?: NestedEnumAtividadePrioridadeFilter<$PrismaModel>
-  }
-
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -41973,237 +38865,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
-  export type EnumPipelineEtapaFilter<$PrismaModel = never> = {
-    equals?: $Enums.PipelineEtapa | EnumPipelineEtapaFieldRefInput<$PrismaModel>
-    in?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    not?: NestedEnumPipelineEtapaFilter<$PrismaModel> | $Enums.PipelineEtapa
-  }
-
-  export type FloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type PipelineCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    etapa?: SortOrder
-    valor?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    probabilidade?: SortOrder
-    data_fechamento?: SortOrder
-    observacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type PipelineAvgOrderByAggregateInput = {
-    valor?: SortOrder
-    probabilidade?: SortOrder
-  }
-
-  export type PipelineMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    etapa?: SortOrder
-    valor?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    probabilidade?: SortOrder
-    data_fechamento?: SortOrder
-    observacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type PipelineMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    etapa?: SortOrder
-    valor?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    probabilidade?: SortOrder
-    data_fechamento?: SortOrder
-    observacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type PipelineSumOrderByAggregateInput = {
-    valor?: SortOrder
-    probabilidade?: SortOrder
-  }
-
-  export type EnumPipelineEtapaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PipelineEtapa | EnumPipelineEtapaFieldRefInput<$PrismaModel>
-    in?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    not?: NestedEnumPipelineEtapaWithAggregatesFilter<$PrismaModel> | $Enums.PipelineEtapa
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPipelineEtapaFilter<$PrismaModel>
-    _max?: NestedEnumPipelineEtapaFilter<$PrismaModel>
-  }
-
-  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type EnumKanbanCardStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.KanbanCardStatus | EnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumKanbanCardStatusFilter<$PrismaModel> | $Enums.KanbanCardStatus
-  }
-
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type StringNullableListFilter<$PrismaModel = never> = {
-    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    has?: string | StringFieldRefInput<$PrismaModel> | null
-    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
-    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
-  }
-
-  export type KanbanCardCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    status?: SortOrder
-    posicao?: SortOrder
-    cor?: SortOrder
-    etiquetas?: SortOrder
-    data_venc?: SortOrder
-    atividade_id?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type KanbanCardAvgOrderByAggregateInput = {
-    posicao?: SortOrder
-  }
-
-  export type KanbanCardMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    status?: SortOrder
-    posicao?: SortOrder
-    cor?: SortOrder
-    data_venc?: SortOrder
-    atividade_id?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type KanbanCardMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    titulo?: SortOrder
-    descricao?: SortOrder
-    status?: SortOrder
-    posicao?: SortOrder
-    cor?: SortOrder
-    data_venc?: SortOrder
-    atividade_id?: SortOrder
-    empresa_id?: SortOrder
-    contato_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type KanbanCardSumOrderByAggregateInput = {
-    posicao?: SortOrder
-  }
-
-  export type EnumKanbanCardStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.KanbanCardStatus | EnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumKanbanCardStatusWithAggregatesFilter<$PrismaModel> | $Enums.KanbanCardStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumKanbanCardStatusFilter<$PrismaModel>
-    _max?: NestedEnumKanbanCardStatusFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -42222,9 +38883,100 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type AtividadeRelationFilter = {
+    is?: AtividadeWhereInput
+    isNot?: AtividadeWhereInput
+  }
+
+  export type AtividadeParticipanteAtividade_idUser_idCompoundUniqueInput = {
+    atividade_id: string
+    user_id: string
+  }
+
+  export type AtividadeParticipanteCountOrderByAggregateInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    user_id?: SortOrder
+    user_nome?: SortOrder
+  }
+
+  export type AtividadeParticipanteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    user_id?: SortOrder
+    user_nome?: SortOrder
+  }
+
+  export type AtividadeParticipanteMinOrderByAggregateInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    user_id?: SortOrder
+    user_nome?: SortOrder
+  }
+
+  export type AtividadeSessaoTimerCountOrderByAggregateInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    iniciado_em?: SortOrder
+    duracao_min?: SortOrder
+    assunto?: SortOrder
+  }
+
+  export type AtividadeSessaoTimerAvgOrderByAggregateInput = {
+    duracao_min?: SortOrder
+  }
+
+  export type AtividadeSessaoTimerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    iniciado_em?: SortOrder
+    duracao_min?: SortOrder
+    assunto?: SortOrder
+  }
+
+  export type AtividadeSessaoTimerMinOrderByAggregateInput = {
+    id?: SortOrder
+    atividade_id?: SortOrder
+    iniciado_em?: SortOrder
+    duracao_min?: SortOrder
+    assunto?: SortOrder
+  }
+
+  export type AtividadeSessaoTimerSumOrderByAggregateInput = {
+    duracao_min?: SortOrder
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type TimerSessionCountOrderByAggregateInput = {
@@ -42289,12 +39041,20 @@ export namespace Prisma {
     duration_minutes?: SortOrder
   }
 
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type TimerActiveCountOrderByAggregateInput = {
@@ -42524,6 +39284,17 @@ export namespace Prisma {
     not?: NestedEnumEmailDirectionFilter<$PrismaModel> | $Enums.EmailDirection
   }
 
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type EmailThreadRelationFilter = {
     is?: EmailThreadWhereInput
     isNot?: EmailThreadWhereInput
@@ -42614,6 +39385,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEmailDirectionFilter<$PrismaModel>
     _max?: NestedEnumEmailDirectionFilter<$PrismaModel>
+  }
+
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type EnumEmailStatusFilter<$PrismaModel = never> = {
@@ -42707,6 +39494,14 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEmailStatusFilter<$PrismaModel>
     _max?: NestedEnumEmailStatusFilter<$PrismaModel>
+  }
+
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
   }
 
   export type TemplateTenant_idSlugCompoundUniqueInput = {
@@ -43800,6 +40595,34 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
+  export type AtividadeParticipanteCreateNestedManyWithoutAtividadeInput = {
+    create?: XOR<AtividadeParticipanteCreateWithoutAtividadeInput, AtividadeParticipanteUncheckedCreateWithoutAtividadeInput> | AtividadeParticipanteCreateWithoutAtividadeInput[] | AtividadeParticipanteUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeParticipanteCreateOrConnectWithoutAtividadeInput | AtividadeParticipanteCreateOrConnectWithoutAtividadeInput[]
+    createMany?: AtividadeParticipanteCreateManyAtividadeInputEnvelope
+    connect?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+  }
+
+  export type AtividadeSessaoTimerCreateNestedManyWithoutAtividadeInput = {
+    create?: XOR<AtividadeSessaoTimerCreateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput> | AtividadeSessaoTimerCreateWithoutAtividadeInput[] | AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput | AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput[]
+    createMany?: AtividadeSessaoTimerCreateManyAtividadeInputEnvelope
+    connect?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+  }
+
+  export type AtividadeParticipanteUncheckedCreateNestedManyWithoutAtividadeInput = {
+    create?: XOR<AtividadeParticipanteCreateWithoutAtividadeInput, AtividadeParticipanteUncheckedCreateWithoutAtividadeInput> | AtividadeParticipanteCreateWithoutAtividadeInput[] | AtividadeParticipanteUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeParticipanteCreateOrConnectWithoutAtividadeInput | AtividadeParticipanteCreateOrConnectWithoutAtividadeInput[]
+    createMany?: AtividadeParticipanteCreateManyAtividadeInputEnvelope
+    connect?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+  }
+
+  export type AtividadeSessaoTimerUncheckedCreateNestedManyWithoutAtividadeInput = {
+    create?: XOR<AtividadeSessaoTimerCreateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput> | AtividadeSessaoTimerCreateWithoutAtividadeInput[] | AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput | AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput[]
+    createMany?: AtividadeSessaoTimerCreateManyAtividadeInputEnvelope
+    connect?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -43808,56 +40631,8 @@ export namespace Prisma {
     set?: string | null
   }
 
-  export type EnumEmpresaStatusFieldUpdateOperationsInput = {
-    set?: $Enums.EmpresaStatus
-  }
-
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
-  }
-
-  export type EnumAtividadeTipoFieldUpdateOperationsInput = {
-    set?: $Enums.AtividadeTipo
-  }
-
-  export type EnumAtividadeStatusFieldUpdateOperationsInput = {
-    set?: $Enums.AtividadeStatus
-  }
-
-  export type EnumAtividadePrioridadeFieldUpdateOperationsInput = {
-    set?: $Enums.AtividadePrioridade
-  }
-
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
-  }
-
-  export type EnumPipelineEtapaFieldUpdateOperationsInput = {
-    set?: $Enums.PipelineEtapa
-  }
-
-  export type NullableFloatFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
-  export type KanbanCardCreateetiquetasInput = {
-    set: string[]
-  }
-
-  export type EnumKanbanCardStatusFieldUpdateOperationsInput = {
-    set?: $Enums.KanbanCardStatus
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -43868,13 +40643,104 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type KanbanCardUpdateetiquetasInput = {
-    set?: string[]
-    push?: string | string[]
-  }
-
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
+  export type AtividadeParticipanteUpdateManyWithoutAtividadeNestedInput = {
+    create?: XOR<AtividadeParticipanteCreateWithoutAtividadeInput, AtividadeParticipanteUncheckedCreateWithoutAtividadeInput> | AtividadeParticipanteCreateWithoutAtividadeInput[] | AtividadeParticipanteUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeParticipanteCreateOrConnectWithoutAtividadeInput | AtividadeParticipanteCreateOrConnectWithoutAtividadeInput[]
+    upsert?: AtividadeParticipanteUpsertWithWhereUniqueWithoutAtividadeInput | AtividadeParticipanteUpsertWithWhereUniqueWithoutAtividadeInput[]
+    createMany?: AtividadeParticipanteCreateManyAtividadeInputEnvelope
+    set?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    disconnect?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    delete?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    connect?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    update?: AtividadeParticipanteUpdateWithWhereUniqueWithoutAtividadeInput | AtividadeParticipanteUpdateWithWhereUniqueWithoutAtividadeInput[]
+    updateMany?: AtividadeParticipanteUpdateManyWithWhereWithoutAtividadeInput | AtividadeParticipanteUpdateManyWithWhereWithoutAtividadeInput[]
+    deleteMany?: AtividadeParticipanteScalarWhereInput | AtividadeParticipanteScalarWhereInput[]
+  }
+
+  export type AtividadeSessaoTimerUpdateManyWithoutAtividadeNestedInput = {
+    create?: XOR<AtividadeSessaoTimerCreateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput> | AtividadeSessaoTimerCreateWithoutAtividadeInput[] | AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput | AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput[]
+    upsert?: AtividadeSessaoTimerUpsertWithWhereUniqueWithoutAtividadeInput | AtividadeSessaoTimerUpsertWithWhereUniqueWithoutAtividadeInput[]
+    createMany?: AtividadeSessaoTimerCreateManyAtividadeInputEnvelope
+    set?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    disconnect?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    delete?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    connect?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    update?: AtividadeSessaoTimerUpdateWithWhereUniqueWithoutAtividadeInput | AtividadeSessaoTimerUpdateWithWhereUniqueWithoutAtividadeInput[]
+    updateMany?: AtividadeSessaoTimerUpdateManyWithWhereWithoutAtividadeInput | AtividadeSessaoTimerUpdateManyWithWhereWithoutAtividadeInput[]
+    deleteMany?: AtividadeSessaoTimerScalarWhereInput | AtividadeSessaoTimerScalarWhereInput[]
+  }
+
+  export type AtividadeParticipanteUncheckedUpdateManyWithoutAtividadeNestedInput = {
+    create?: XOR<AtividadeParticipanteCreateWithoutAtividadeInput, AtividadeParticipanteUncheckedCreateWithoutAtividadeInput> | AtividadeParticipanteCreateWithoutAtividadeInput[] | AtividadeParticipanteUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeParticipanteCreateOrConnectWithoutAtividadeInput | AtividadeParticipanteCreateOrConnectWithoutAtividadeInput[]
+    upsert?: AtividadeParticipanteUpsertWithWhereUniqueWithoutAtividadeInput | AtividadeParticipanteUpsertWithWhereUniqueWithoutAtividadeInput[]
+    createMany?: AtividadeParticipanteCreateManyAtividadeInputEnvelope
+    set?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    disconnect?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    delete?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    connect?: AtividadeParticipanteWhereUniqueInput | AtividadeParticipanteWhereUniqueInput[]
+    update?: AtividadeParticipanteUpdateWithWhereUniqueWithoutAtividadeInput | AtividadeParticipanteUpdateWithWhereUniqueWithoutAtividadeInput[]
+    updateMany?: AtividadeParticipanteUpdateManyWithWhereWithoutAtividadeInput | AtividadeParticipanteUpdateManyWithWhereWithoutAtividadeInput[]
+    deleteMany?: AtividadeParticipanteScalarWhereInput | AtividadeParticipanteScalarWhereInput[]
+  }
+
+  export type AtividadeSessaoTimerUncheckedUpdateManyWithoutAtividadeNestedInput = {
+    create?: XOR<AtividadeSessaoTimerCreateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput> | AtividadeSessaoTimerCreateWithoutAtividadeInput[] | AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput[]
+    connectOrCreate?: AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput | AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput[]
+    upsert?: AtividadeSessaoTimerUpsertWithWhereUniqueWithoutAtividadeInput | AtividadeSessaoTimerUpsertWithWhereUniqueWithoutAtividadeInput[]
+    createMany?: AtividadeSessaoTimerCreateManyAtividadeInputEnvelope
+    set?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    disconnect?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    delete?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    connect?: AtividadeSessaoTimerWhereUniqueInput | AtividadeSessaoTimerWhereUniqueInput[]
+    update?: AtividadeSessaoTimerUpdateWithWhereUniqueWithoutAtividadeInput | AtividadeSessaoTimerUpdateWithWhereUniqueWithoutAtividadeInput[]
+    updateMany?: AtividadeSessaoTimerUpdateManyWithWhereWithoutAtividadeInput | AtividadeSessaoTimerUpdateManyWithWhereWithoutAtividadeInput[]
+    deleteMany?: AtividadeSessaoTimerScalarWhereInput | AtividadeSessaoTimerScalarWhereInput[]
+  }
+
+  export type AtividadeCreateNestedOneWithoutParticipantesInput = {
+    create?: XOR<AtividadeCreateWithoutParticipantesInput, AtividadeUncheckedCreateWithoutParticipantesInput>
+    connectOrCreate?: AtividadeCreateOrConnectWithoutParticipantesInput
+    connect?: AtividadeWhereUniqueInput
+  }
+
+  export type AtividadeUpdateOneRequiredWithoutParticipantesNestedInput = {
+    create?: XOR<AtividadeCreateWithoutParticipantesInput, AtividadeUncheckedCreateWithoutParticipantesInput>
+    connectOrCreate?: AtividadeCreateOrConnectWithoutParticipantesInput
+    upsert?: AtividadeUpsertWithoutParticipantesInput
+    connect?: AtividadeWhereUniqueInput
+    update?: XOR<XOR<AtividadeUpdateToOneWithWhereWithoutParticipantesInput, AtividadeUpdateWithoutParticipantesInput>, AtividadeUncheckedUpdateWithoutParticipantesInput>
+  }
+
+  export type AtividadeCreateNestedOneWithoutSessoes_timerInput = {
+    create?: XOR<AtividadeCreateWithoutSessoes_timerInput, AtividadeUncheckedCreateWithoutSessoes_timerInput>
+    connectOrCreate?: AtividadeCreateOrConnectWithoutSessoes_timerInput
+    connect?: AtividadeWhereUniqueInput
+  }
+
+  export type AtividadeUpdateOneRequiredWithoutSessoes_timerNestedInput = {
+    create?: XOR<AtividadeCreateWithoutSessoes_timerInput, AtividadeUncheckedCreateWithoutSessoes_timerInput>
+    connectOrCreate?: AtividadeCreateOrConnectWithoutSessoes_timerInput
+    upsert?: AtividadeUpsertWithoutSessoes_timerInput
+    connect?: AtividadeWhereUniqueInput
+    update?: XOR<XOR<AtividadeUpdateToOneWithWhereWithoutSessoes_timerInput, AtividadeUpdateWithoutSessoes_timerInput>, AtividadeUncheckedUpdateWithoutSessoes_timerInput>
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type EmailMessageCreateNestedManyWithoutThreadInput = {
@@ -43943,6 +40809,14 @@ export namespace Prisma {
 
   export type EnumEmailDirectionFieldUpdateOperationsInput = {
     set?: $Enums.EmailDirection
+  }
+
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type EmailThreadUpdateOneRequiredWithoutMensagensNestedInput = {
@@ -44233,11 +41107,31 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
-  export type NestedEnumEmpresaStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumEmpresaStatusFilter<$PrismaModel> | $Enums.EmpresaStatus
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -44268,17 +41162,6 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -44307,92 +41190,6 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedEnumEmpresaStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumEmpresaStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmpresaStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumEmpresaStatusFilter<$PrismaModel>
-    _max?: NestedEnumEmpresaStatusFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedDateTimeFilter<$PrismaModel>
-    _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type NestedEnumAtividadeTipoFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeTipo | EnumAtividadeTipoFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeTipoFilter<$PrismaModel> | $Enums.AtividadeTipo
-  }
-
-  export type NestedEnumAtividadeStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeStatus | EnumAtividadeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeStatusFilter<$PrismaModel> | $Enums.AtividadeStatus
-  }
-
-  export type NestedEnumAtividadePrioridadeFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadePrioridade | EnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadePrioridadeFilter<$PrismaModel> | $Enums.AtividadePrioridade
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedEnumAtividadeTipoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeTipo | EnumAtividadeTipoFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeTipo[] | ListEnumAtividadeTipoFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeTipoWithAggregatesFilter<$PrismaModel> | $Enums.AtividadeTipo
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAtividadeTipoFilter<$PrismaModel>
-    _max?: NestedEnumAtividadeTipoFilter<$PrismaModel>
-  }
-
-  export type NestedEnumAtividadeStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadeStatus | EnumAtividadeStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadeStatus[] | ListEnumAtividadeStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadeStatusWithAggregatesFilter<$PrismaModel> | $Enums.AtividadeStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAtividadeStatusFilter<$PrismaModel>
-    _max?: NestedEnumAtividadeStatusFilter<$PrismaModel>
-  }
-
-  export type NestedEnumAtividadePrioridadeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AtividadePrioridade | EnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AtividadePrioridade[] | ListEnumAtividadePrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumAtividadePrioridadeWithAggregatesFilter<$PrismaModel> | $Enums.AtividadePrioridade
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAtividadePrioridadeFilter<$PrismaModel>
-    _max?: NestedEnumAtividadePrioridadeFilter<$PrismaModel>
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -44405,83 +41202,6 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
-  export type NestedEnumPipelineEtapaFilter<$PrismaModel = never> = {
-    equals?: $Enums.PipelineEtapa | EnumPipelineEtapaFieldRefInput<$PrismaModel>
-    in?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    not?: NestedEnumPipelineEtapaFilter<$PrismaModel> | $Enums.PipelineEtapa
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
-  }
-
-  export type NestedEnumPipelineEtapaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.PipelineEtapa | EnumPipelineEtapaFieldRefInput<$PrismaModel>
-    in?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.PipelineEtapa[] | ListEnumPipelineEtapaFieldRefInput<$PrismaModel>
-    not?: NestedEnumPipelineEtapaWithAggregatesFilter<$PrismaModel> | $Enums.PipelineEtapa
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumPipelineEtapaFilter<$PrismaModel>
-    _max?: NestedEnumPipelineEtapaFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedFloatNullableFilter<$PrismaModel>
-    _min?: NestedFloatNullableFilter<$PrismaModel>
-    _max?: NestedFloatNullableFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedEnumKanbanCardStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.KanbanCardStatus | EnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumKanbanCardStatusFilter<$PrismaModel> | $Enums.KanbanCardStatus
-  }
-
-  export type NestedEnumKanbanCardStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.KanbanCardStatus | EnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.KanbanCardStatus[] | ListEnumKanbanCardStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumKanbanCardStatusWithAggregatesFilter<$PrismaModel> | $Enums.KanbanCardStatus
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumKanbanCardStatusFilter<$PrismaModel>
-    _max?: NestedEnumKanbanCardStatusFilter<$PrismaModel>
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -44511,17 +41231,53 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumEmailThreadStatusFilter<$PrismaModel = never> = {
@@ -44589,6 +41345,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumEmailDirectionFilter<$PrismaModel>
     _max?: NestedEnumEmailDirectionFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumEmailStatusFilter<$PrismaModel = never> = {
@@ -44711,6 +41483,329 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumActorTypeFilter<$PrismaModel>
     _max?: NestedEnumActorTypeFilter<$PrismaModel>
+  }
+
+  export type AtividadeParticipanteCreateWithoutAtividadeInput = {
+    id?: string
+    user_id: string
+    user_nome?: string | null
+  }
+
+  export type AtividadeParticipanteUncheckedCreateWithoutAtividadeInput = {
+    id?: string
+    user_id: string
+    user_nome?: string | null
+  }
+
+  export type AtividadeParticipanteCreateOrConnectWithoutAtividadeInput = {
+    where: AtividadeParticipanteWhereUniqueInput
+    create: XOR<AtividadeParticipanteCreateWithoutAtividadeInput, AtividadeParticipanteUncheckedCreateWithoutAtividadeInput>
+  }
+
+  export type AtividadeParticipanteCreateManyAtividadeInputEnvelope = {
+    data: AtividadeParticipanteCreateManyAtividadeInput | AtividadeParticipanteCreateManyAtividadeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AtividadeSessaoTimerCreateWithoutAtividadeInput = {
+    id?: string
+    iniciado_em: Date | string
+    duracao_min: number
+    assunto?: string | null
+  }
+
+  export type AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput = {
+    id?: string
+    iniciado_em: Date | string
+    duracao_min: number
+    assunto?: string | null
+  }
+
+  export type AtividadeSessaoTimerCreateOrConnectWithoutAtividadeInput = {
+    where: AtividadeSessaoTimerWhereUniqueInput
+    create: XOR<AtividadeSessaoTimerCreateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput>
+  }
+
+  export type AtividadeSessaoTimerCreateManyAtividadeInputEnvelope = {
+    data: AtividadeSessaoTimerCreateManyAtividadeInput | AtividadeSessaoTimerCreateManyAtividadeInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AtividadeParticipanteUpsertWithWhereUniqueWithoutAtividadeInput = {
+    where: AtividadeParticipanteWhereUniqueInput
+    update: XOR<AtividadeParticipanteUpdateWithoutAtividadeInput, AtividadeParticipanteUncheckedUpdateWithoutAtividadeInput>
+    create: XOR<AtividadeParticipanteCreateWithoutAtividadeInput, AtividadeParticipanteUncheckedCreateWithoutAtividadeInput>
+  }
+
+  export type AtividadeParticipanteUpdateWithWhereUniqueWithoutAtividadeInput = {
+    where: AtividadeParticipanteWhereUniqueInput
+    data: XOR<AtividadeParticipanteUpdateWithoutAtividadeInput, AtividadeParticipanteUncheckedUpdateWithoutAtividadeInput>
+  }
+
+  export type AtividadeParticipanteUpdateManyWithWhereWithoutAtividadeInput = {
+    where: AtividadeParticipanteScalarWhereInput
+    data: XOR<AtividadeParticipanteUpdateManyMutationInput, AtividadeParticipanteUncheckedUpdateManyWithoutAtividadeInput>
+  }
+
+  export type AtividadeParticipanteScalarWhereInput = {
+    AND?: AtividadeParticipanteScalarWhereInput | AtividadeParticipanteScalarWhereInput[]
+    OR?: AtividadeParticipanteScalarWhereInput[]
+    NOT?: AtividadeParticipanteScalarWhereInput | AtividadeParticipanteScalarWhereInput[]
+    id?: StringFilter<"AtividadeParticipante"> | string
+    atividade_id?: StringFilter<"AtividadeParticipante"> | string
+    user_id?: StringFilter<"AtividadeParticipante"> | string
+    user_nome?: StringNullableFilter<"AtividadeParticipante"> | string | null
+  }
+
+  export type AtividadeSessaoTimerUpsertWithWhereUniqueWithoutAtividadeInput = {
+    where: AtividadeSessaoTimerWhereUniqueInput
+    update: XOR<AtividadeSessaoTimerUpdateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedUpdateWithoutAtividadeInput>
+    create: XOR<AtividadeSessaoTimerCreateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedCreateWithoutAtividadeInput>
+  }
+
+  export type AtividadeSessaoTimerUpdateWithWhereUniqueWithoutAtividadeInput = {
+    where: AtividadeSessaoTimerWhereUniqueInput
+    data: XOR<AtividadeSessaoTimerUpdateWithoutAtividadeInput, AtividadeSessaoTimerUncheckedUpdateWithoutAtividadeInput>
+  }
+
+  export type AtividadeSessaoTimerUpdateManyWithWhereWithoutAtividadeInput = {
+    where: AtividadeSessaoTimerScalarWhereInput
+    data: XOR<AtividadeSessaoTimerUpdateManyMutationInput, AtividadeSessaoTimerUncheckedUpdateManyWithoutAtividadeInput>
+  }
+
+  export type AtividadeSessaoTimerScalarWhereInput = {
+    AND?: AtividadeSessaoTimerScalarWhereInput | AtividadeSessaoTimerScalarWhereInput[]
+    OR?: AtividadeSessaoTimerScalarWhereInput[]
+    NOT?: AtividadeSessaoTimerScalarWhereInput | AtividadeSessaoTimerScalarWhereInput[]
+    id?: StringFilter<"AtividadeSessaoTimer"> | string
+    atividade_id?: StringFilter<"AtividadeSessaoTimer"> | string
+    iniciado_em?: DateTimeFilter<"AtividadeSessaoTimer"> | Date | string
+    duracao_min?: IntFilter<"AtividadeSessaoTimer"> | number
+    assunto?: StringNullableFilter<"AtividadeSessaoTimer"> | string | null
+  }
+
+  export type AtividadeCreateWithoutParticipantesInput = {
+    id?: string
+    tenant_id: string
+    user_id?: string | null
+    titulo: string
+    descricao?: string | null
+    tipo?: string
+    status?: string
+    prioridade?: string | null
+    data_atividade?: Date | string | null
+    data_vencimento?: Date | string | null
+    tempo_gasto_minutos?: number
+    proximo_passo_titulo?: string | null
+    proximo_passo_data?: Date | string | null
+    lembrete_em?: Date | string | null
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    sessoes_timer?: AtividadeSessaoTimerCreateNestedManyWithoutAtividadeInput
+  }
+
+  export type AtividadeUncheckedCreateWithoutParticipantesInput = {
+    id?: string
+    tenant_id: string
+    user_id?: string | null
+    titulo: string
+    descricao?: string | null
+    tipo?: string
+    status?: string
+    prioridade?: string | null
+    data_atividade?: Date | string | null
+    data_vencimento?: Date | string | null
+    tempo_gasto_minutos?: number
+    proximo_passo_titulo?: string | null
+    proximo_passo_data?: Date | string | null
+    lembrete_em?: Date | string | null
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    sessoes_timer?: AtividadeSessaoTimerUncheckedCreateNestedManyWithoutAtividadeInput
+  }
+
+  export type AtividadeCreateOrConnectWithoutParticipantesInput = {
+    where: AtividadeWhereUniqueInput
+    create: XOR<AtividadeCreateWithoutParticipantesInput, AtividadeUncheckedCreateWithoutParticipantesInput>
+  }
+
+  export type AtividadeUpsertWithoutParticipantesInput = {
+    update: XOR<AtividadeUpdateWithoutParticipantesInput, AtividadeUncheckedUpdateWithoutParticipantesInput>
+    create: XOR<AtividadeCreateWithoutParticipantesInput, AtividadeUncheckedCreateWithoutParticipantesInput>
+    where?: AtividadeWhereInput
+  }
+
+  export type AtividadeUpdateToOneWithWhereWithoutParticipantesInput = {
+    where?: AtividadeWhereInput
+    data: XOR<AtividadeUpdateWithoutParticipantesInput, AtividadeUncheckedUpdateWithoutParticipantesInput>
+  }
+
+  export type AtividadeUpdateWithoutParticipantesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessoes_timer?: AtividadeSessaoTimerUpdateManyWithoutAtividadeNestedInput
+  }
+
+  export type AtividadeUncheckedUpdateWithoutParticipantesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sessoes_timer?: AtividadeSessaoTimerUncheckedUpdateManyWithoutAtividadeNestedInput
+  }
+
+  export type AtividadeCreateWithoutSessoes_timerInput = {
+    id?: string
+    tenant_id: string
+    user_id?: string | null
+    titulo: string
+    descricao?: string | null
+    tipo?: string
+    status?: string
+    prioridade?: string | null
+    data_atividade?: Date | string | null
+    data_vencimento?: Date | string | null
+    tempo_gasto_minutos?: number
+    proximo_passo_titulo?: string | null
+    proximo_passo_data?: Date | string | null
+    lembrete_em?: Date | string | null
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    participantes?: AtividadeParticipanteCreateNestedManyWithoutAtividadeInput
+  }
+
+  export type AtividadeUncheckedCreateWithoutSessoes_timerInput = {
+    id?: string
+    tenant_id: string
+    user_id?: string | null
+    titulo: string
+    descricao?: string | null
+    tipo?: string
+    status?: string
+    prioridade?: string | null
+    data_atividade?: Date | string | null
+    data_vencimento?: Date | string | null
+    tempo_gasto_minutos?: number
+    proximo_passo_titulo?: string | null
+    proximo_passo_data?: Date | string | null
+    lembrete_em?: Date | string | null
+    lembrete_email?: boolean
+    lembrete_whatsapp?: boolean
+    notificar_ao_atribuir?: boolean
+    processo_id?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    participantes?: AtividadeParticipanteUncheckedCreateNestedManyWithoutAtividadeInput
+  }
+
+  export type AtividadeCreateOrConnectWithoutSessoes_timerInput = {
+    where: AtividadeWhereUniqueInput
+    create: XOR<AtividadeCreateWithoutSessoes_timerInput, AtividadeUncheckedCreateWithoutSessoes_timerInput>
+  }
+
+  export type AtividadeUpsertWithoutSessoes_timerInput = {
+    update: XOR<AtividadeUpdateWithoutSessoes_timerInput, AtividadeUncheckedUpdateWithoutSessoes_timerInput>
+    create: XOR<AtividadeCreateWithoutSessoes_timerInput, AtividadeUncheckedCreateWithoutSessoes_timerInput>
+    where?: AtividadeWhereInput
+  }
+
+  export type AtividadeUpdateToOneWithWhereWithoutSessoes_timerInput = {
+    where?: AtividadeWhereInput
+    data: XOR<AtividadeUpdateWithoutSessoes_timerInput, AtividadeUncheckedUpdateWithoutSessoes_timerInput>
+  }
+
+  export type AtividadeUpdateWithoutSessoes_timerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes?: AtividadeParticipanteUpdateManyWithoutAtividadeNestedInput
+  }
+
+  export type AtividadeUncheckedUpdateWithoutSessoes_timerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    titulo?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    prioridade?: NullableStringFieldUpdateOperationsInput | string | null
+    data_atividade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_vencimento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    tempo_gasto_minutos?: IntFieldUpdateOperationsInput | number
+    proximo_passo_titulo?: NullableStringFieldUpdateOperationsInput | string | null
+    proximo_passo_data?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    lembrete_email?: BoolFieldUpdateOperationsInput | boolean
+    lembrete_whatsapp?: BoolFieldUpdateOperationsInput | boolean
+    notificar_ao_atribuir?: BoolFieldUpdateOperationsInput | boolean
+    processo_id?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    participantes?: AtividadeParticipanteUncheckedUpdateManyWithoutAtividadeNestedInput
   }
 
   export type EmailMessageCreateWithoutThreadInput = {
@@ -45380,6 +42475,58 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AtividadeParticipanteCreateManyAtividadeInput = {
+    id?: string
+    user_id: string
+    user_nome?: string | null
+  }
+
+  export type AtividadeSessaoTimerCreateManyAtividadeInput = {
+    id?: string
+    iniciado_em: Date | string
+    duracao_min: number
+    assunto?: string | null
+  }
+
+  export type AtividadeParticipanteUpdateWithoutAtividadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AtividadeParticipanteUncheckedUpdateWithoutAtividadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AtividadeParticipanteUncheckedUpdateManyWithoutAtividadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    user_nome?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AtividadeSessaoTimerUpdateWithoutAtividadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min?: IntFieldUpdateOperationsInput | number
+    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AtividadeSessaoTimerUncheckedUpdateWithoutAtividadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min?: IntFieldUpdateOperationsInput | number
+    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AtividadeSessaoTimerUncheckedUpdateManyWithoutAtividadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    duracao_min?: IntFieldUpdateOperationsInput | number
+    assunto?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type EmailMessageCreateManyThreadInput = {
     id?: string
     tenant_id: string
@@ -45608,6 +42755,10 @@ export namespace Prisma {
    * Aliases for legacy arg types
    */
     /**
+     * @deprecated Use AtividadeCountOutputTypeDefaultArgs instead
+     */
+    export type AtividadeCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadeCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use EmailThreadCountOutputTypeDefaultArgs instead
      */
     export type EmailThreadCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmailThreadCountOutputTypeDefaultArgs<ExtArgs>
@@ -45624,25 +42775,17 @@ export namespace Prisma {
      */
     export type GabiConversationCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiConversationCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use EmpresaDefaultArgs instead
-     */
-    export type EmpresaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use ContatoDefaultArgs instead
-     */
-    export type ContatoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ContatoDefaultArgs<ExtArgs>
-    /**
      * @deprecated Use AtividadeDefaultArgs instead
      */
     export type AtividadeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use PipelineDefaultArgs instead
+     * @deprecated Use AtividadeParticipanteDefaultArgs instead
      */
-    export type PipelineArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PipelineDefaultArgs<ExtArgs>
+    export type AtividadeParticipanteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadeParticipanteDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use KanbanCardDefaultArgs instead
+     * @deprecated Use AtividadeSessaoTimerDefaultArgs instead
      */
-    export type KanbanCardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = KanbanCardDefaultArgs<ExtArgs>
+    export type AtividadeSessaoTimerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AtividadeSessaoTimerDefaultArgs<ExtArgs>
     /**
      * @deprecated Use TimerSessionDefaultArgs instead
      */

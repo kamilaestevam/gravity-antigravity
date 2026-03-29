@@ -83,3 +83,4 @@ export function App() {
 
 // Exporta o config para uso pelo Shell
 export { PRODUCT_CONFIG }
+export default App

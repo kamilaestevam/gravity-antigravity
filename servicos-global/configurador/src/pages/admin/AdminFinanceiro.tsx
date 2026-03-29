@@ -427,6 +427,7 @@ export function AdminFinanceiro() {
       </p>
       <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
         <TabelaGlobal<FaturaGlobal>
+          id="financeiro-admin-faturas"
           dados={faturasLocal}
           colunas={COLUNAS}
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
@@ -574,6 +575,7 @@ export function AdminFinanceiro() {
                 {docsLocal.length > 0 ? (
                   <div style={{ border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '12px', overflow: 'visible' }}>
                     <TabelaGlobal<DocumentoFatura>
+                      id="financeiro-admin-documentos"
                       dados={docsLocal}
                       idKey="id"
                       colunas={[

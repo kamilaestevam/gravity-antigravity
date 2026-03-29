@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { useClerk, useUser } from '@clerk/clerk-react'
+import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import {
   ArrowLeft,
   Plus,
@@ -19,15 +20,52 @@ const mockEmpresas: Empresa[] = [
 export function SelecionarWorkspace() {
   const { signOut } = useClerk()
   const { user } = useUser()
+  const { getToken } = useAuth()
   const navigate = useNavigate()
+  const [empresas, setEmpresas] = useState<Empresa[]>([])
+  const [carregando, setCarregando] = useState(true)
   const [selecionando, setSelecionando] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function carregarEmpresas() {
+      try {
+        const token = await getToken()
+        const response = await fetch('/api/v1/tenants/companies', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        const data = await response.json()
+        
+        if (data.companies) {
+          // Mapeia o formato do banco para o formato do componente visual
+          const mapeadas = data.companies.map((c: any) => ({
+            id: c.id,
+            nome: c.name,
+            cnpj: c.cnpj || 'Sob consulta',
+            plano: 'Empresarial',
+            cor: '#818cf8',
+            iniciais: c.name.substring(0, 2).toUpperCase()
+          }))
+          setEmpresas(mapeadas)
+        }
+      } catch (err) {
+        console.error('Erro ao carregar empresas do Railway:', err)
+      } finally {
+        setCarregando(false)
+      }
+    }
+    carregarEmpresas()
+  }, [getToken])
 
   const isAdmin = user?.publicMetadata?.role === 'gravity_admin'
 
   function handleSelect(empresa: Empresa) {
     setSelecionando(empresa.id)
-    // Simula carregamento breve antes de entrar no workspace
-    setTimeout(() => navigate('/workspace'), 600)
+    // Salva o workspace selecionado no sessionStorage para uso no Hub e produtos
+    sessionStorage.setItem('gravity_company_id', empresa.id)
+    sessionStorage.setItem('gravity_company_name', empresa.nome)
+    setTimeout(() => navigate('/hub'), 600)
   }
 
   function handleVoltar() {
@@ -124,18 +162,29 @@ export function SelecionarWorkspace() {
 
         {/* Lista de empresas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
-          {mockEmpresas.map(emp => (
-            <TooltipGlobal key={emp.id} titulo="AMBIENTE DE TRABALHO" descricao={`Acesse o ecossistema exclusivo da ${emp.nome} com seus próprios dados e módulos`}>
-              <div style={{ width: '100%' }}>
-                <WorkspaceSelecaoGlobal
-                  empresa={emp}
-                  selecionando={selecionando === emp.id}
-                  onClick={() => handleSelect(emp)}
-                  disabled={selecionando !== null}
-                />
-              </div>
-            </TooltipGlobal>
-          ))}
+          {carregando ? (
+             <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b', fontSize: '0.875rem' }}>
+                <LogoGlobal iconOnly iconSize={24} className="ws-rotate" iconColor="rgba(129,140,248,0.3)" />
+                <p style={{ marginTop: '0.5rem' }}>Buscando workspaces no Railway...</p>
+             </div>
+          ) : empresas.length === 0 ? (
+             <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b', fontSize: '0.875rem' }}>
+                <p>Nenhuma empresa encontrada no seu tenant de Staging.</p>
+             </div>
+          ) : (
+            empresas.map(emp => (
+              <TooltipGlobal key={emp.id} titulo="AMBIENTE DE TRABALHO" descricao={`Acesse o ecossistema exclusivo da ${emp.nome} com seus próprios dados e módulos`}>
+                <div style={{ width: '100%' }}>
+                  <WorkspaceSelecaoGlobal
+                    empresa={emp}
+                    selecionando={selecionando === emp.id}
+                    onClick={() => handleSelect(emp)}
+                    disabled={selecionando !== null}
+                  />
+                </div>
+              </TooltipGlobal>
+            ))
+          )}
         </div>
 
         {/* Linha divisória */}

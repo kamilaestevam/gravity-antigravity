@@ -1,0 +1,684 @@
+/* atividades.css — Minhas Atividades (Tasks Board) */
+/* Portado do Journey tasks-board.js — design system Gravity (shell.css tokens) */
+
+/* ── Página ────────────────────────────────────────────────────────────────── */
+.ativ-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ── Header fixo ───────────────────────────────────────────────────────────── */
+.ativ-sticky-header {
+  flex-shrink: 0;
+  padding: 1.5rem 1.75rem 0;
+  background: var(--bg-body-dark);
+  transition: box-shadow 0.2s;
+}
+.ativ-sticky-header.is-stuck {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+
+.ativ-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.ativ-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+.ativ-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* ── Filtros bar ───────────────────────────────────────────────────────────── */
+.ativ-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: 0.65rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.ativ-filters__left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.ativ-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(15,23,42,0.6);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  padding: 0 0.6rem;
+  height: 32px;
+  width: 260px;
+  max-width: 300px;
+  flex-shrink: 0;
+}
+.ativ-search-wrap input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  width: 100%;
+}
+.ativ-search-wrap input::placeholder { color: var(--text-muted); }
+
+.ativ-select {
+  height: 32px;
+  background: rgba(15,23,42,0.6);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  padding: 0 0.65rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+}
+.ativ-select:focus { border-color: var(--accent); }
+
+.ativ-date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+.ativ-date-range input[type=date] {
+  height: 32px;
+  background: rgba(15,23,42,0.6);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  padding: 0 0.5rem;
+  outline: none;
+  min-width: 120px;
+}
+
+.ativ-btn-ghost {
+  height: 32px;
+  background: none;
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  padding: 0 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.ativ-btn-ghost:hover { background: var(--bg-surface); color: var(--text-primary); }
+
+/* Toggle Kanban / Lista */
+.ativ-view-toggle {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+  height: 32px;
+}
+.ativ-view-btn {
+  border: none;
+  background: none;
+  padding: 0 0.85rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  height: 100%;
+  transition: background 0.15s, color 0.15s;
+}
+.ativ-view-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+.ativ-view-btn.active { background: var(--accent); color: #fff; }
+
+/* ── Conteúdo rolável ──────────────────────────────────────────────────────── */
+.ativ-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem 1.75rem 1.75rem;
+}
+
+/* ── Kanban ────────────────────────────────────────────────────────────────── */
+.ativ-kanban-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(256px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.ativ-kanban-col {
+  background: rgba(30,41,59,0.7);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  overflow: visible;
+}
+
+.ativ-kanban-col__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ativ-kanban-col__title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.ativ-kanban-col__badge {
+  border-radius: 20px;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.ativ-kanban-dropzone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-height: 80px;
+  padding: 0.9rem;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  transition: background 0.18s;
+}
+.ativ-kanban-dropzone.drag-over {
+  background: rgba(99,102,241,0.07);
+  outline: 2px dashed rgba(99,102,241,0.45);
+}
+
+/* ── Kanban Card ───────────────────────────────────────────────────────────── */
+.ativ-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--bg-elevated);
+  border-radius: 10px;
+  padding: 0.8rem;
+  cursor: grab;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  position: relative;
+  user-select: none;
+}
+.ativ-card:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(99,102,241,0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+.ativ-card.dragging {
+  opacity: 0.35;
+  transform: scale(0.96) rotate(-1.5deg);
+  cursor: grabbing;
+}
+
+.ativ-card__company {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ativ-card__title {
+  font-weight: 600;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin-bottom: 0.45rem;
+  padding-right: 3rem; /* espaço pro badge de prioridade */
+}
+.ativ-card__date {
+  font-size: 0.73rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ativ-card__footer {
+  margin-top: 0.55rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ativ-card__type {
+  font-size: 0.69rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ativ-card__edit {
+  font-size: 0.69rem;
+  color: rgba(99,102,241,0.7);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.ativ-card__priority {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  border-radius: 20px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.ativ-empty-col {
+  text-align: center;
+  padding: 1.75rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  border: 1px dashed var(--bg-elevated);
+  border-radius: 8px;
+}
+
+/* ── Lista (tabela) ────────────────────────────────────────────────────────── */
+.ativ-table-wrap {
+  background: rgba(30,41,59,0.7);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.ativ-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.ativ-table th {
+  background: rgba(15,23,42,0.8);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.73rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.65rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--bg-elevated);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.ativ-table td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+.ativ-table tr:last-child td { border-bottom: none; }
+.ativ-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ativ-table tbody tr:hover { background: rgba(99,102,241,0.06); }
+
+/* ── Badge genérico ────────────────────────────────────────────────────────── */
+.ativ-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 20px;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+/* ── Modal overlay ─────────────────────────────────────────────────────────── */
+.ativ-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow-y: auto;
+  animation: ativ-fade-in 0.18s ease;
+}
+
+@keyframes ativ-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ativ-modal {
+  background: var(--bg-base);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  animation: ativ-slide-up 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes ativ-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ativ-modal__head {
+  padding: 1.25rem 1.5rem 0;
+}
+.ativ-modal__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+.ativ-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+}
+.ativ-modal__close:hover { color: var(--text-primary); background: var(--bg-surface); }
+
+.ativ-modal__title-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+}
+
+.ativ-modal__badges { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.85rem; }
+
+/* ── Modal Tabs ────────────────────────────────────────────────────────────── */
+.ativ-modal__tabs {
+  display: flex;
+  border-bottom: 1px solid var(--bg-elevated);
+  padding: 0 1.5rem;
+}
+.ativ-modal__tab {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.6rem 0.85rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.ativ-modal__tab:hover { color: var(--text-primary); }
+.ativ-modal__tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.ativ-modal__body { padding: 1.25rem 1.5rem 1.5rem; }
+
+/* ── Seções do formulário ──────────────────────────────────────────────────── */
+.ativ-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ativ-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.ativ-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.ativ-field label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.ativ-field input,
+.ativ-field select,
+.ativ-field textarea {
+  background: rgba(15,23,42,0.6);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.86rem;
+  padding: 0.5rem 0.7rem;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  width: 100%;
+}
+.ativ-field input:focus,
+.ativ-field select:focus,
+.ativ-field textarea:focus { border-color: var(--accent); }
+.ativ-field textarea { resize: vertical; min-height: 80px; }
+
+/* ── Participantes chips ───────────────────────────────────────────────────── */
+.ativ-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+.ativ-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 20px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.73rem;
+  color: var(--accent);
+}
+.ativ-chip button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+.ativ-chip button:hover { opacity: 1; }
+
+/* ── Timer ─────────────────────────────────────────────────────────────────── */
+.ativ-timer-display {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+}
+.ativ-timer-running { color: var(--accent); animation: ativ-pulse 1.5s infinite; }
+@keyframes ativ-pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+.ativ-sessoes-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+}
+.ativ-sessoes-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--bg-elevated);
+  text-align: left;
+}
+.ativ-sessoes-table td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-primary);
+}
+
+/* ── Botões primários e secundários ────────────────────────────────────────── */
+.ativ-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1.1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.ativ-btn-primary:hover { background: var(--accent-hover); }
+
+.ativ-btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s;
+}
+.ativ-btn-secondary:hover { background: var(--bg-elevated); }
+
+.ativ-btn-danger {
+  background: rgba(239,68,68,0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s;
+}
+.ativ-btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+.ativ-modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bg-elevated);
+}
+.ativ-modal-actions__right { display: flex; gap: 0.5rem; }
+
+/* ── Empty state ───────────────────────────────────────────────────────────── */
+.ativ-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  text-align: center;
+  gap: 0.75rem;
+}
+.ativ-empty-state__icon { font-size: 2.5rem; }
+.ativ-empty-state__title { font-size: 1rem; font-weight: 600; color: var(--text-secondary); }
+.ativ-empty-state__desc  { font-size: 0.83rem; }
+
+/* ── Spinner ───────────────────────────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.ativ-spin { animation: spin 1s linear infinite; display: inline-block; }
+
+/* ── Paginação ─────────────────────────────────────────────────────────────── */
+.ativ-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--bg-elevated);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.ativ-pagination-btns { display: flex; gap: 0.25rem; }
+.ativ-page-btn {
+  background: none;
+  border: 1px solid var(--bg-elevated);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.15s, color 0.15s;
+}
+.ativ-page-btn:hover { background: var(--bg-surface); color: var(--text-primary); }
+.ativ-page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.ativ-page-btn:disabled { opacity: 0.35; cursor: not-allowed; }

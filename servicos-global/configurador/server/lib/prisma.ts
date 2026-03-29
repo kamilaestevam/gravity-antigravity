@@ -1,7 +1,7 @@
 // server/lib/prisma.ts
 // Singleton do Prisma Client — reutiliza conexão entre hot-reloads em dev
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '../../../../configurador/generated/index.js'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined

@@ -52,32 +52,8 @@ tenantsRouter.post('/', async (req, res, next) => {
       )
     }
 
-    try {
-      const tenant = await tenantService.createTenant(parsed.data)
-      return res.status(201).json({ tenant })
-    } catch (dbErr: any) {
-      // Se o banco não estiver disponível em modo de demonstração local,
-      // retorna um tenant fictício para o fluxo visual funcionar
-      const isDbError =
-        dbErr?.message?.includes('findUnique') ||
-        dbErr?.message?.includes('connect') ||
-        dbErr?.code === 'P1001' ||
-        dbErr?.code === 'P1003'
-
-      if (isDbError || process.env.DEMO_MODE === 'true') {
-        const mockTenant = {
-          id: `demo-${Date.now()}`,
-          name: parsed.data.name,
-          slug: parsed.data.slug,
-          status: 'PENDING_SETUP',
-          created_at: new Date().toISOString(),
-        }
-        console.warn('[DEMO MODE] Banco indisponível — retornando tenant mock:', mockTenant.id)
-        return res.status(201).json({ tenant: mockTenant, demo: true })
-      }
-
-      throw dbErr
-    }
+    const tenant = await tenantService.createTenant(parsed.data)
+    return res.status(201).json({ tenant })
   } catch (err) {
     next(err)
   }

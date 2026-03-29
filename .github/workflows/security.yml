@@ -2,13 +2,14 @@ name: Security — RLS Offensive Tests
 
 on:
   push:
+    branches: [ "main", "staging" ]
     paths:
       - '**/rls-policies.sql'
       - '**/apply-rls.sql'
       - '**/fragment.prisma'
       - '**/schema.prisma'
   pull_request:
-    branches: [main, develop]
+    branches: [ "main", "staging", "develop" ]
     paths:
       - '**/rls-policies.sql'
       - '**/apply-rls.sql'
@@ -26,19 +27,21 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
-          POSTGRES_DB: rls_test
+          POSTGRES_DB: gravity_test_db
+          POSTGRES_USER: gravity_user
+          POSTGRES_PASSWORD: gravity_test_password
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
 
     env:
-      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/rls_test
+      DATABASE_URL: postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db
+      CONFIGURADOR_DATABASE_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
+      DIRECT_URL: "postgresql://gravity_user:gravity_test_password@localhost:5432/gravity_test_db?schema=public"
 
     steps:
       - name: Checkout
@@ -51,19 +54,22 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Apply tenant DB schema + RLS
         run: |
+          # Empurra o schema para o banco levantado nos services
+          npx prisma db push --schema=./configurador/prisma/schema.prisma --accept-data-loss
+
           # Aplicar schema do tenant DB
           npx prisma db push --schema=servicos-global/tenant/prisma/schema.prisma --force-reset 2>/dev/null || true
 
           # Aplicar RLS policies
-          PGPASSWORD=testpass psql -h localhost -U testuser -d rls_test -f scripts/apply-rls.sql
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -f scripts/apply-rls.sql
 
       - name: "Nivel 1 — ID Enumeration Attack"
         run: |
-          PGPASSWORD=testpass psql -h localhost -U testuser -d rls_test -v ON_ERROR_STOP=1 <<'SQL'
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
           -- Simular contexto do Tenant A
           SELECT set_config('app.current_tenant_id', 'tenant-aaa', true);
 
@@ -88,7 +94,7 @@ jobs:
 
       - name: "Nivel 2 — Array Dump Attack"
         run: |
-          PGPASSWORD=testpass psql -h localhost -U testuser -d rls_test -v ON_ERROR_STOP=1 <<'SQL'
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
           -- Contexto Tenant B
           SELECT set_config('app.current_tenant_id', 'tenant-bbb', true);
 
@@ -106,7 +112,7 @@ jobs:
 
       - name: "Nivel 3 — COUNT Leak Attack"
         run: |
-          PGPASSWORD=testpass psql -h localhost -U testuser -d rls_test -v ON_ERROR_STOP=1 <<'SQL'
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
           -- Contexto Tenant B
           SELECT set_config('app.current_tenant_id', 'tenant-bbb', true);
 
@@ -136,7 +142,7 @@ jobs:
 
       - name: "Nivel 4 — UPDATE/DELETE Cross-Tenant Attack"
         run: |
-          PGPASSWORD=testpass psql -h localhost -U testuser -d rls_test -v ON_ERROR_STOP=1 <<'SQL'
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -v ON_ERROR_STOP=1 <<'SQL'
           -- Contexto Tenant A: inserir dado
           SELECT set_config('app.current_tenant_id', 'tenant-aaa', true);
           INSERT INTO "Empresa" (id, tenant_id, nome, created_at, updated_at)
@@ -176,10 +182,16 @@ jobs:
           END $$;
           SQL
 
+      - name: "Nivel 5 — Vitest RLS Suite"
+        env:
+          CI: true
+        run: |
+          npx vitest run testes/security/ --bail 1
+
       - name: Summary
         if: always()
         run: |
           echo "============================================"
           echo "  RLS Offensive Tests Complete"
-          echo "  Niveis testados: 1 (ID enum), 2 (array dump), 3 (COUNT leak), 4 (UPDATE/DELETE)"
+          echo "  Niveis testados: 1 (ID enum), 2 (array dump), 3 (COUNT leak), 4 (UPDATE/DELETE), 5 (Vitest)"
           echo "============================================"

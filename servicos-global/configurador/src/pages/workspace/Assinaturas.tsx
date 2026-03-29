@@ -354,6 +354,7 @@ export function Assinaturas() {
       </p>
       <div style={{ marginBottom: '2rem' }}>
         <TabelaGlobal<Produto>
+          id="workspace-subscriptions"
           dados={produtos}
           colunas={COLUNAS}
           acoes={ACOES}
@@ -369,6 +370,7 @@ export function Assinaturas() {
               </div>
               <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
                 <TabelaGlobal<{ nome: string; status: string; id: string }>
+                  id={`workspace-subscription-workspaces-${produto.id}`}
                   dados={TODOS_WORKSPACES_MAPP
                     .filter(ws => produto.workspacesVinculados ? produto.workspacesVinculados.includes(ws.nome) : true)
                     .map(ws => ({

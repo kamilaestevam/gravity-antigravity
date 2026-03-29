@@ -18,6 +18,8 @@ out/
 # ── Prisma ───────────────────────────────────────────────────
 prisma/dev.db
 prisma/dev.db-journal
+*.tmp*
+configurador/generated/*.tmp*
 
 # ── Logs ─────────────────────────────────────────────────────
 *.log

@@ -5,7 +5,6 @@
  */
 
 import React from 'react'
-import { useTranslation } from 'react-i18next'
 import type { Coluna, EstadoOrdenacao, DirecaoOrdenacao, RegistroTabela } from './tipos.js'
 
 interface CabecalhoTabelaProps<T extends RegistroTabela> {
@@ -28,7 +27,6 @@ export function CabecalhoTabela<T extends RegistroTabela>({
   aoSelecionarTodos,
   temAcoesLinha,
 }: CabecalhoTabelaProps<T>) {
-  const { t } = useTranslation()
   const handleOrdenar = (key: string, ordenavel: boolean | undefined) => {
     if (!ordenavel) return
     if (ordenacao?.coluna === key) {
@@ -48,7 +46,7 @@ export function CabecalhoTabela<T extends RegistroTabela>({
               className="tg-checkbox"
               checked={todosSelecionados}
               onChange={(e) => aoSelecionarTodos(e.target.checked)}
-              aria-label={t('tabela.selecionar_todos')}
+              aria-label="Selecionar todos"
             />
           </th>
         )}
@@ -74,7 +72,7 @@ export function CabecalhoTabela<T extends RegistroTabela>({
         })}
         {temAcoesLinha && (
           <th className="tg-th tg-th--acoes">
-            <span className="sr-only">{t('tabela.acoes')}</span>
+            <span className="sr-only">Ações</span>
           </th>
         )}
       </tr>

@@ -59,10 +59,12 @@ enum DocumentoTipo {
 // ─── Models ─────────────────────────────────────────────────────────────────────
 
 model Estimativa {
-  id              String            @id @default(cuid())
-  tenant_id       String
-  product_id      String            @default("simula-custo")
-  user_id         String
+  id              String   @id @default(cuid()) // Formato padrão Gravity: esti_id_000000001/26
+  tenant_id       String   // OBRIGATÓRIO — Nunca nullable
+  company_id      String   // OBRIGATÓRIO (Workspace) — Isola os dados (Prevenção Zero-Trust)
+  product_id      String   @default("simula-custo")
+  user_id         String   // clerk_id do criador
+  processo_id     String?  // Quando a estimativa é "Efetivada", ela se atrela ao Processo Real.
 
   // Dados da Estimativa
   numero          String            // EST-IMP-00001/26 ou manual alfanumérico
@@ -121,17 +123,21 @@ model Estimativa {
 
   // Índices obrigatórios (skill: antigravity-tenant-isolation)
   @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, numero])
   @@index([tenant_id, status])
   @@index([tenant_id, ncm])
+  @@index([processo_id])
   @@map("estimativas_trade")
 }
 
 model TaxaEstimativa {
   id              String      @id @default(cuid())
-  tenant_id       String
+  tenant_id       String      // OBRIGATÓRIO
+  company_id      String      // OBRIGATÓRIO
   product_id      String      @default("simula-custo")
   user_id         String?
 
@@ -147,6 +153,8 @@ model TaxaEstimativa {
   estimativa_destino Estimativa? @relation("TaxasDestino", fields: [estimativa_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, estimativa_id])

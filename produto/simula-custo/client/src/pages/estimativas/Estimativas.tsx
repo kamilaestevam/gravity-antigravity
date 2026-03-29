@@ -1,15 +1,18 @@
 /**
- * Estimativas.tsx — Formulário de Criação / Edição de Estimativa
+ * Estimativas.tsx — Formulario de Criacao / Edicao de Estimativa
  * Skill: antigravity-simulacusto
- * PRD: https://docs.google.com/document/d/1xOjYUtixZ0DI0O1Fws78lj2mAg1utTfuoO0667s_AfM
  *
- * Formulário completo de entrada + resultado do cálculo fiscal (Landed Cost).
+ * Formulario completo de entrada + resultado do calculo fiscal (Landed Cost).
  * Alinhado com fragment.prisma — campos novos: operacao, tipo_operacao, incoterm, quantidade, referencia, documentos.
  * Design: Premium Dark Mode conforme UX 10 Gravity.
  */
 
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { Calculator, ArrowLeft, FloppyDisk, Play, Plus, Trash } from '@phosphor-icons/react'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { SeletorVisualizacao, type ViewMode } from '@nucleo/view-toggle-global'
 import { postSimulacao, getEstimativa, criarEstimativa, atualizarEstimativa } from '../../shared/api'
 import type {
   SimulacaoInput,
@@ -24,11 +27,9 @@ import {
   TIPO_OPERACAO_LABELS,
   DOCUMENTO_LABELS,
 } from '../../shared/types'
-import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { Calculator, ArrowLeft, FloppyDisk, Play, Plus, Trash } from '@phosphor-icons/react'
+import { ModalSimulacao } from './ModalSimulacao'
 
-// ─── Formatação ──────────────────────────────────────────────────────────────
+// ─── Formatacao ──────────────────────────────────────────────────────────────
 
 const brl = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
@@ -36,7 +37,7 @@ const brl = (val: number) =>
 const pct = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 2 }).format(val)
 
-// ─── Valores Padrão ──────────────────────────────────────────────────────────
+// ─── Valores Padrao ──────────────────────────────────────────────────────────
 
 const FORM_DEFAULTS: SimulacaoInput = {
   ncm: '',
@@ -73,14 +74,31 @@ export default function Estimativas() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const isEdicao = Boolean(id)
-
+  const [view, setView] = useState<ViewMode>('lista')
   const [form, setForm] = useState<SimulacaoInput>(FORM_DEFAULTS)
   const [resultado, setResultado] = useState<ResultadoFiscal | null>(null)
   const [loading, setLoading] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [modalAberto, setModalAberto] = useState(false)
 
-  // Carregar estimativa existente em modo edição
+  const handleSimular = async (dados: SimulacaoInput) => {
+    setLoading(true)
+    setError(null)
+    setResultado(null)
+    try {
+      const res = await postSimulacao(dados)
+      setResultado(res)
+      setModalAberto(false)
+      setForm(dados) // Atualiza o form local com o que foi simulado
+    } catch (err: any) {
+      setError(err.message ?? 'Erro ao simular')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Carregar estimativa existente em modo edicao
   useEffect(() => {
     if (!id) return
     getEstimativa(id).then(est => {
@@ -110,7 +128,7 @@ export default function Estimativas() {
         reducaoII: est.reducao_ii || undefined,
         documentos: [],
       })
-    }).catch(() => setError('Estimativa não encontrada'))
+    }).catch(() => setError('Estimativa nao encontrada'))
   }, [id])
 
   const update = <K extends keyof SimulacaoInput>(field: K, value: SimulacaoInput[K]) =>
@@ -132,9 +150,9 @@ export default function Estimativas() {
     update('documentos', form.documentos.filter((_, i) => i !== index))
   }
 
-  // ─── Simular ──────────────────────────────────────────────────────────────
+  // ─── Simular (via form submit) ────────────────────────────────────────────
 
-  const handleSimular = async (e: React.FormEvent) => {
+  const handleSimularForm = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
@@ -176,31 +194,39 @@ export default function Estimativas() {
       layout="formulario"
       cabecalho={
         <CabecalhoGlobal
-          icone={<Calculator weight="duotone" size={22} />}
+          icone={<Calculator weight="duotone" size={22} color="#818cf8" />}
           titulo={isEdicao ? 'Editar Estimativa' : 'Nova Estimativa de Custo'}
-          subtitulo="Calcule o Landed Cost completo antes de fechar o negócio"
+          subtitulo="Calcule o Landed Cost completo antes de fechar o negocio"
           acoes={
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button className="sc-btn sc-btn--ghost" onClick={() => navigate('/estimativas')}>
                 <ArrowLeft weight="bold" size={16} /> Voltar
               </button>
               <button className="sc-btn sc-btn--secondary" onClick={handleSalvar} disabled={salvando}>
-                <FloppyDisk weight="duotone" size={16} /> {salvando ? 'Salvando…' : 'Salvar'}
+                <FloppyDisk weight="duotone" size={16} /> {salvando ? 'Salvando...' : 'Salvar'}
               </button>
             </div>
+          }
+          viewToggle={
+            <SeletorVisualizacao
+              view="lista"
+              onChange={(v: ViewMode) => {
+                if (v === 'dashboard') navigate('/dashboard')
+              }}
+            />
           }
         />
       }
     >
       <div className="sc-layout">
-        {/* ─── Formulário ─────────────────────────────────── */}
-        <form className="sc-form" onSubmit={handleSimular}>
+        {/* ─── Formulario ─────────────────────────────────── */}
+        <form className="sc-form" onSubmit={handleSimularForm}>
 
-          {/* Seção: Operação */}
-          <div className="sc-section-title">Operação</div>
+          {/* Secao: Operacao */}
+          <div className="sc-section-title">Operacao</div>
           <div className="sc-row sc-row--4">
             <div className="sc-field">
-              <label>Tipo de Operação</label>
+              <label>Tipo de Operacao</label>
               <select value={form.operacao} onChange={e => update('operacao', e.target.value as OperacaoTipo)}>
                 {(Object.keys(OPERACAO_LABELS) as OperacaoTipo[]).map(k => (
                   <option key={k} value={k}>{OPERACAO_LABELS[k]}</option>
@@ -222,7 +248,7 @@ export default function Estimativas() {
               </select>
             </div>
             <div className="sc-field">
-              <label>Referência Interna</label>
+              <label>Referencia Interna</label>
               <input
                 type="text"
                 maxLength={30}
@@ -233,11 +259,11 @@ export default function Estimativas() {
             </div>
           </div>
 
-          {/* Seção: Produto */}
+          {/* Secao: Produto */}
           <div className="sc-section-title">Produto & Origem</div>
           <div className="sc-row sc-row--4">
             <div className="sc-field">
-              <label>NCM (8 dígitos)</label>
+              <label>NCM (8 digitos)</label>
               <input
                 type="text"
                 maxLength={8}
@@ -248,7 +274,7 @@ export default function Estimativas() {
               />
             </div>
             <div className="sc-field">
-              <label>País de Origem (ISO)</label>
+              <label>Pais de Origem (ISO)</label>
               <input
                 type="text"
                 maxLength={2}
@@ -259,7 +285,7 @@ export default function Estimativas() {
               />
             </div>
             <div className="sc-field">
-              <label>UF de Desembaraço</label>
+              <label>UF de Desembaraco</label>
               <input
                 type="text"
                 maxLength={2}
@@ -282,7 +308,7 @@ export default function Estimativas() {
             </div>
           </div>
 
-          {/* Seção: Valores */}
+          {/* Secao: Valores */}
           <div className="sc-section-title">Valores</div>
           <div className="sc-row">
             <div className="sc-field">
@@ -336,8 +362,8 @@ export default function Estimativas() {
             </div>
           </div>
 
-          {/* Seção: Alíquotas */}
-          <div className="sc-section-title">Alíquotas</div>
+          {/* Secao: Aliquotas */}
+          <div className="sc-section-title">Aliquotas</div>
           <div className="sc-row sc-row--4">
             <div className="sc-field">
               <label>II (%)</label>
@@ -373,14 +399,14 @@ export default function Estimativas() {
                 onChange={e => update('aliquotaICMS', (parseFloat(e.target.value) || 0) / 100)} />
             </div>
             <div className="sc-field">
-              <label>Redução II — Acordos (%)</label>
+              <label>Reducao II -- Acordos (%)</label>
               <input type="number" min={0} max={100} step="0.01" placeholder="0.00"
                 value={((form.reducaoII ?? 0) * 100) || ''}
                 onChange={e => update('reducaoII', (parseFloat(e.target.value) || 0) / 100)} />
             </div>
           </div>
 
-          {/* Seção: Documentos Vinculados */}
+          {/* Secao: Documentos Vinculados */}
           <div className="sc-section-title">
             Documentos Vinculados
             <button type="button" className="sc-btn-inline" onClick={addDocumento}>
@@ -398,7 +424,7 @@ export default function Estimativas() {
                 </select>
               </div>
               <div className="sc-field">
-                <label>Número</label>
+                <label>Numero</label>
                 <input
                   type="text"
                   maxLength={30}
@@ -417,16 +443,35 @@ export default function Estimativas() {
 
           <button type="submit" className="sc-btn-simular" disabled={loading}>
             <Play weight="fill" size={16} />
-            {loading ? 'Calculando…' : 'Simular Custo'}
+            {loading ? 'Calculando...' : 'Simular Custo'}
           </button>
         </form>
+
+        {/* ─── Area de Lista/Acoes ─────────────────────────── */}
+        <div className="sc-list-area">
+          <div className="sc-actions-bar">
+            <button
+              className="sc-btn-nova"
+              onClick={() => setModalAberto(true)}
+            >
+              <Plus weight="bold" />
+              Nova Simulacao
+            </button>
+          </div>
+
+          <div className="sc-empty-state">
+            <Calculator weight="duotone" size={48} />
+            <h3>Nenhuma simulacao recente</h3>
+            <p>Clique no botao acima para iniciar um novo calculo de Landed Cost.</p>
+          </div>
+        </div>
 
         {/* ─── Resultado ──────────────────────────────────── */}
         {resultado && (
           <div className="sc-result">
             <div className="sc-result-header">
               <span className="sc-result-badge">
-                {resultado.source === 'siscomex' ? 'Portal Único' : 'Gravity Cloud Engine'}
+                {resultado.source === 'siscomex' ? 'Portal Unico' : 'Gravity Cloud Engine'}
               </span>
               <span className="sc-ptax">PTAX: R$ {resultado.ptaxUtilizada?.toFixed(4)}</span>
             </div>
@@ -442,7 +487,7 @@ export default function Estimativas() {
                 <span>{brl(resultado.vAduaneiroBRL)}</span>
               </div>
               <div className="sc-bk-sep" />
-              {Object.entries(resultado.tributos).map(([key, t]) => (
+              {Object.entries(resultado.tributos).map(([key, t]: [string, any]) => (
                 <div key={key} className="sc-bk-row sc-bk-row--tributo">
                   <span>{key.toUpperCase()} <em>{pct(t.aliquota)}</em></span>
                   <span>{brl(t.valor)}</span>
@@ -457,15 +502,23 @@ export default function Estimativas() {
 
             <button type="button" className="sc-btn-salvar" onClick={handleSalvar} disabled={salvando}>
               <FloppyDisk weight="duotone" size={16} />
-              {salvando ? 'Salvando…' : 'Salvar Estimativa'}
+              {salvando ? 'Salvando...' : 'Salvar Estimativa'}
             </button>
           </div>
         )}
       </div>
 
+      <ModalSimulacao
+        aberto={modalAberto}
+        aoFechar={() => setModalAberto(false)}
+        aoSimular={handleSimular}
+        loading={loading}
+        dadosIniciais={form}
+      />
+
       <style>{`
         .sc-page { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-primary, #f1f5f9); }
-        .sc-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
+        .sc-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; padding: 1.5rem 0; }
         @media (max-width: 1024px) { .sc-layout { grid-template-columns: 1fr; } }
 
         /* Form */
@@ -501,6 +554,17 @@ export default function Estimativas() {
         .sc-btn-remove { background: none; border: none; color: var(--text-muted, #64748b); cursor: pointer; padding: 0.5rem; margin-bottom: 0.25rem; transition: color 0.15s; }
         .sc-btn-remove:hover { color: var(--danger, #ef4444); }
 
+        /* List area (master) */
+        .sc-list-area { display: flex; flex-direction: column; gap: 1.5rem; }
+        .sc-actions-bar { display: flex; justify-content: flex-end; }
+        .sc-btn-nova { display: flex; align-items: center; gap: 0.5rem; background: var(--ws-accent, #818cf8); color: #fff; border: none; border-radius: 8px; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .sc-btn-nova:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .sc-empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--ws-surface, #1e293b); border: 2px dashed var(--ws-accent-border, rgba(129,140,248,0.20)); border-radius: 12px; padding: 4rem 2rem; color: var(--ws-muted, #94a3b8); text-align: center; }
+        .sc-empty-state svg { color: var(--ws-accent, #818cf8); opacity: 0.5; margin-bottom: 1.5rem; }
+        .sc-empty-state h3 { font-size: 1.125rem; font-weight: 600; color: var(--ws-text, #f1f5f9); margin: 0 0 0.5rem 0; }
+        .sc-empty-state p { font-size: 0.875rem; max-width: 300px; margin: 0; }
+
         /* Error */
         .sc-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-md, 8px); padding: 0.75rem; font-size: 0.875rem; color: #f87171; margin-top: 1rem; }
 
@@ -510,19 +574,19 @@ export default function Estimativas() {
         .sc-btn-simular:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Result panel */
-        .sc-result { background: var(--bg-surface, #334155); border-radius: var(--radius-lg, 12px); padding: 1.5rem; height: fit-content; position: sticky; top: 1rem; }
+        .sc-result { background: var(--ws-surface, #1e293b); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); height: fit-content; position: sticky; top: 1rem; }
         .sc-result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
-        .sc-result-badge { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(99,102,241,0.15); color: var(--accent, #6366f1); padding: 0.25rem 0.6rem; border-radius: var(--radius-pill, 9999px); border: 1px solid rgba(99,102,241,0.3); }
-        .sc-ptax { font-size: 0.75rem; color: var(--text-muted, #64748b); }
-        .sc-landed-cost { text-align: center; padding: 1.25rem 0; border-bottom: 1px solid var(--bg-elevated, #475569); margin-bottom: 1.25rem; }
-        .sc-lc-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted, #64748b); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+        .sc-result-badge { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(129,140,248,0.15); color: var(--ws-accent, #818cf8); padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(129,140,248,0.3); }
+        .sc-ptax { font-size: 0.75rem; color: var(--ws-muted, #94a3b8); }
+        .sc-landed-cost { text-align: center; padding: 1.25rem 0; border-bottom: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); margin-bottom: 1.25rem; }
+        .sc-lc-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--ws-muted, #94a3b8); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
         .sc-lc-value { font-size: 2rem; font-weight: 800; color: var(--success, #22c55e); }
         .sc-breakdown { display: flex; flex-direction: column; gap: 0.5rem; }
-        .sc-bk-row { display: flex; justify-content: space-between; font-size: 0.875rem; }
-        .sc-bk-row--tributo { color: var(--text-secondary, #94a3b8); }
-        .sc-bk-row--tributo em { font-style: normal; font-size: 0.75rem; color: var(--text-muted, #64748b); margin-left: 0.25rem; }
-        .sc-bk-row--total { font-weight: 700; color: var(--text-primary, #f1f5f9); }
-        .sc-bk-sep { height: 1px; background: var(--bg-elevated, #475569); margin: 0.5rem 0; }
+        .sc-bk-row { display: flex; justify-content: space-between; font-size: 0.875rem; color: var(--ws-text, #f1f5f9); }
+        .sc-bk-row--tributo { color: var(--ws-muted, #94a3b8); }
+        .sc-bk-row--tributo em { font-style: normal; font-size: 0.75rem; color: var(--ws-muted, #64748b); margin-left: 0.25rem; }
+        .sc-bk-row--total { font-weight: 700; color: var(--ws-text, #f1f5f9); }
+        .sc-bk-sep { height: 1px; background: var(--ws-accent-border, rgba(129,140,248,0.20)); margin: 0.5rem 0; }
 
         /* Salvar after result */
         .sc-btn-salvar { width: 100%; margin-top: 1.25rem; padding: 0.75rem; background: var(--success, #22c55e); color: #0f172a; border: none; border-radius: var(--radius-pill, 9999px); font-size: 0.875rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; }

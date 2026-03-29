@@ -558,6 +558,7 @@ export function Usuarios() {
 
       <div style={{ position: 'relative', zIndex: 10 }}>
         <TabelaGlobal<TenantUser>
+          id="workspace-users"
           dados={users}
           colunas={COLUNAS}
           acoes={ACOES}
@@ -578,6 +579,7 @@ export function Usuarios() {
                 {vinculados.length > 0 ? (
                   <div style={{ border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', overflow: 'hidden', background: 'var(--ws-surface)' }}>
                     <TabelaGlobal<EspacoTrabalho>
+                      id={`user-workspaces-drilldown-${usuario.id}`}
                       dados={vinculados}
                       tooltipBusca="Filtrar workspaces por nome ou ID comercial"
                       colunas={[

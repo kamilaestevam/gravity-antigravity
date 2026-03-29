@@ -1,14 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import {
   List,
   Sun,
   Moon,
-  Bell,
   MagnifyingGlass,
   Info,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
+import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
+import { UsuarioGlobal } from '@nucleo/usuario-global'
+
+const AVISOS_MOCK: AvisoInterno[] = [
+  {
+    id: '1',
+    conteudo: 'Bem-vindo ao SimulaCusto! Configure seus parâmetros de custo antes de iniciar.',
+    autor: { nome: 'Sistema' },
+    dataHora: new Date().toLocaleString('pt-BR'),
+    lido: false,
+    tipo: 'sistema',
+  },
+  {
+    id: '2',
+    conteudo: 'Sua simulação #SC-042 foi concluída com sucesso e está disponível para revisão.',
+    autor: { nome: 'SimulaCusto' },
+    dataHora: new Date(Date.now() - 3600_000).toLocaleString('pt-BR'),
+    lido: false,
+    tipo: 'aviso',
+  },
+]
 
 /**
  * Mapa de rota → label de breadcrumb
@@ -59,41 +79,43 @@ export function Header() {
     toggleSidebar,
     toggleTheme,
     currentTheme,
-    notifications,
     tooltipsDisabled,
     toggleTooltips,
+    currentUser,
+    clearCurrentUser,
   } = useShellStore()
 
+  const [avisos, setAvisos] = useState<AvisoInterno[]>(AVISOS_MOCK)
+
   const pageLabel = getPageLabel(location.pathname)
-  const unreadCount = notifications.length
+
+  const handleMarcarLido = (id: string) => {
+    setAvisos(prev => prev.map(a => a.id === id ? { ...a, lido: true } : a))
+  }
+
+  const handleMarcarTodosLidos = () => {
+    setAvisos(prev => prev.map(a => ({ ...a, lido: true })))
+  }
+
+  const handleCriarAviso = (texto: string) => {
+    const novo: AvisoInterno = {
+      id: `aviso-${Date.now()}`,
+      conteudo: texto,
+      autor: { nome: 'Você' },
+      dataHora: new Date().toLocaleString('pt-BR'),
+      lido: false,
+      tipo: 'aviso',
+    }
+    setAvisos(prev => [novo, ...prev])
+  }
+
+  const initials = currentUser.name
+    ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : '??'
 
   return (
     <header className="shell-header" role="banner">
-      {/* ESQUERDA: toggle + breadcrumb */}
-      <div className="shell-header__left">
-        <button
-          className="shell-header__toggle"
-          onClick={toggleSidebar}
-          aria-label="Alternar menu lateral"
-          title="Alternar menu lateral"
-          type="button"
-        >
-          <List size={20} weight="bold" />
-        </button>
-
-        <nav className="shell-header__breadcrumb" aria-label="Localização atual">
-          <span>Gravity</span>
-          <span aria-hidden="true">/</span>
-          <span
-            className="shell-header__breadcrumb-current"
-            aria-current="page"
-          >
-            {pageLabel}
-          </span>
-        </nav>
-      </div>
-
-      {/* DIREITA: ações + usuário */}
+      {/* DIREITA: ações + usuário (Floating Header) */}
       <div className="shell-header__right">
         {/* Busca global — dispara evento, sem lógica de produto */}
         <button
@@ -102,30 +124,10 @@ export function Header() {
           title="Busca global"
           type="button"
           onClick={() => {
-            // Produto pode escutar este evento via event bus (@nucleo/shell)
             window.dispatchEvent(new CustomEvent('shell:global-search'))
           }}
         >
           <MagnifyingGlass size={18} />
-        </button>
-
-        {/* Toggle de tema */}
-        <button
-          className="shell-header__icon-btn"
-          aria-label={
-            currentTheme === 'dark'
-              ? 'Alternar para tema claro'
-              : 'Alternar para tema escuro'
-          }
-          title={
-            currentTheme === 'dark'
-              ? 'Tema claro'
-              : 'Tema escuro'
-          }
-          type="button"
-          onClick={toggleTheme}
-        >
-          {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
         {/* Toggle de tooltips */}
@@ -140,35 +142,36 @@ export function Header() {
           <Info size={18} weight={tooltipsDisabled ? 'regular' : 'fill'} />
         </button>
 
-        {/* Notificações */}
-        <button
-          className="shell-header__icon-btn"
-          aria-label={
-            unreadCount > 0
-              ? `${unreadCount} notificaç${unreadCount === 1 ? 'ão' : 'ões'} pendente${unreadCount === 1 ? '' : 's'}`
-              : 'Sem notificações pendentes'
-          }
-          title="Notificações"
-          type="button"
-          style={{ position: 'relative' }}
-        >
-          <Bell size={18} />
-          {unreadCount > 0 && (
-            <span
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                top: '6px',
-                right: '6px',
-                width: '8px',
-                height: '8px',
-                background: 'var(--danger)',
-                borderRadius: '50%',
-                border: '2px solid var(--bg-base)',
-              }}
-            />
-          )}
-        </button>
+        {/* Mensageria — Quadro de Avisos Internos */}
+        <div className="shell-header__icon-btn" style={{ padding: 0, background: 'none', border: 'none' }}>
+          <AvisoInternoGlobal
+            avisos={avisos}
+            onMarcarLido={handleMarcarLido}
+            onMarcarTodosLidos={handleMarcarTodosLidos}
+            onCriarAviso={handleCriarAviso}
+          />
+        </div>
+
+        {/* Divisor visual */}
+        <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />
+
+        {/* Usuário Global — Perfil e Conta */}
+        <UsuarioGlobal
+          userName={currentUser.name || 'Usuário'}
+          userEmail={currentUser.email || 'usuario@gravity.com.br'}
+          userInitials={initials}
+          userRole="Membro"
+          isLight={currentTheme === 'light'}
+          onToggleTheme={toggleTheme}
+          onNavigateOrganizacao={() => console.log('Navegar para Organização')}
+          onNavigateAssinaturas={() => console.log('Navegar para Assinaturas')}
+          onSignOut={() => {
+            clearCurrentUser()
+            window.location.href = '/'
+          }}
+          isAdmin={currentUser.email === 'admin@gravity.com.br'}
+          onNavigateAdmin={() => window.location.href = '/admin'}
+        />
       </div>
     </header>
   )

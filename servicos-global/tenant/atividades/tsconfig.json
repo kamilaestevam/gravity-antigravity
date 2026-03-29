@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "dist",
+    "jsx": "react-jsx",
     "paths": {
       "@nucleo/*": ["../../../nucleo-global/*"],
       "@tenant/*": ["../../tenant/*"],

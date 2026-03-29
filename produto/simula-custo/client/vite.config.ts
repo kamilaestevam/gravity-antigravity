@@ -38,6 +38,7 @@ export default defineConfig({
       '@nucleo/menu-lateral-global':               nucleo('Layout/menu-lateral-global/src/index.ts'),
       '@nucleo/pagina-global':                     nucleo('Layout/pagina-global/src/index.ts'),
       '@nucleo/usuario-global':                    nucleo('Layout/usuario-global/src/index.ts'),
+      '@nucleo/view-toggle-global':                nucleo('Layout/view-toggle-global/src/index.ts'),
       // ── Modais ──
       '@nucleo/modal-global':                      nucleo('Modais/modal-global/src/index.ts'),
       '@nucleo/modal-formulario-global':           nucleo('Modais/modal-formulario-global/src/index.ts'),

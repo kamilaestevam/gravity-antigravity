@@ -7,12 +7,15 @@
  */
 
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Calculator } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { SeletorVisualizacao, type ViewMode } from '@nucleo/view-toggle-global'
 import { postSimulacao } from '../../shared/api'
 import type { SimulacaoInput, ResultadoFiscal } from '../../shared/types'
-
+import { ModalSimulacao } from './ModalSimulacao'
+import { Plus } from '@phosphor-icons/react'
 // ─── Formatação ──────────────────────────────────────────────────────────────
 
 const brl = (val: number) =>
@@ -46,10 +49,29 @@ const FORM_DEFAULTS: SimulacaoInput = {
 // ─── Componente ──────────────────────────────────────────────────────────────
 
 export default function Estimativas() {
+  const navigate = useNavigate()
+  const [view, setView] = useState<ViewMode>('lista')
   const [form, setForm] = useState<SimulacaoInput>(FORM_DEFAULTS)
   const [resultado, setResultado] = useState<ResultadoFiscal | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [modalAberto, setModalAberto] = useState(false)
+
+  const handleSimular = async (dados: SimulacaoInput) => {
+    setLoading(true)
+    setError(null)
+    setResultado(null)
+    try {
+      const res = await postSimulacao(dados)
+      setResultado(res)
+      setModalAberto(false)
+      setForm(dados) // Atualiza o form local com o que foi simulado
+    } catch (err: any) {
+      setError(err.message ?? 'Erro ao simular')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const update = (field: keyof SimulacaoInput, value: any) =>
     setForm(prev => ({ ...prev, [field]: value }))
@@ -76,137 +98,39 @@ export default function Estimativas() {
         <CabecalhoGlobal
           titulo="Simulador de Custo"
           subtitulo="Calcule o Landed Cost completo antes de fechar o negócio"
-          icone={<Calculator weight="duotone" size={22} />}
+          icone={<Calculator weight="duotone" size={22} color="#818cf8" />}
+          viewToggle={
+            <SeletorVisualizacao 
+              view="lista" 
+              onChange={(v: ViewMode) => {
+                if (v === 'dashboard') navigate('/dashboard')
+              }} 
+            />
+          }
         />
       }
     >
       <div className="sc-layout">
-        {/* ─── Formulário ─────────────────────────────────── */}
-        <form className="sc-form" onSubmit={handleSubmit}>
-          <div className="sc-section-title">Produto &amp; Operação</div>
-
-          <div className="sc-row">
-            <div className="sc-field">
-              <label>NCM (8 dígitos)</label>
-              <input
-                type="text"
-                maxLength={8}
-                placeholder="84713019"
-                value={form.ncm}
-                onChange={e => update('ncm', e.target.value.replace(/\D/g, ''))}
-                required
-              />
-            </div>
-            <div className="sc-field">
-              <label>País de Origem (ISO)</label>
-              <input
-                type="text"
-                maxLength={2}
-                placeholder="US"
-                value={form.paisOrigem}
-                onChange={e => update('paisOrigem', e.target.value.toUpperCase())}
-                required
-              />
-            </div>
-            <div className="sc-field">
-              <label>UF de Desembaraço</label>
-              <input
-                type="text"
-                maxLength={2}
-                placeholder="SP"
-                value={form.ufDesembaraco}
-                onChange={e => update('ufDesembaraco', e.target.value.toUpperCase())}
-                required
-              />
-            </div>
+        {/* ─── Área de Lista/Ações ─────────────────────────── */}
+        <div className="sc-list-area">
+          <div className="sc-actions-bar">
+            <button 
+              className="sc-btn-nova"
+              onClick={() => setModalAberto(true)}
+            >
+              <Plus weight="bold" />
+              Nova Simulação
+            </button>
           </div>
 
-          <div className="sc-row">
-            <div className="sc-field">
-              <label>Valor do Produto</label>
-              <div className="sc-input-group">
-                <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  placeholder="5925.00"
-                  value={form.valorProduto || ''}
-                  onChange={e => update('valorProduto', parseFloat(e.target.value) || 0)}
-                  required
-                />
-                <select value={form.moedaProduto} onChange={e => update('moedaProduto', e.target.value)}>
-                  <option>USD</option><option>EUR</option><option>GBP</option><option>CNY</option><option>BRL</option>
-                </select>
-              </div>
-            </div>
-            <div className="sc-field">
-              <label>Frete Internacional</label>
-              <div className="sc-input-group">
-                <input
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  placeholder="0.00"
-                  value={form.freteInter || ''}
-                  onChange={e => update('freteInter', parseFloat(e.target.value) || 0)}
-                />
-                <select value={form.moedaFrete} onChange={e => update('moedaFrete', e.target.value)}>
-                  <option>USD</option><option>EUR</option><option>BRL</option>
-                </select>
-              </div>
-            </div>
+          <div className="sc-empty-state">
+            <Calculator weight="duotone" size={48} />
+            <h3>Nenhuma simulação recente</h3>
+            <p>Clique no botão acima para iniciar um novo cálculo de Landed Cost.</p>
           </div>
+        </div>
 
-          <div className="sc-section-title">Alíquotas</div>
-
-          <div className="sc-row sc-row--4">
-            <div className="sc-field">
-              <label>II (%)</label>
-              <input type="number" min={0} max={100} step="0.01" placeholder="16.00"
-                value={(form.aliquotaII * 100) || ''}
-                onChange={e => update('aliquotaII', (parseFloat(e.target.value) || 0) / 100)} />
-            </div>
-            <div className="sc-field">
-              <label>IPI (%)</label>
-              <input type="number" min={0} max={100} step="0.01" placeholder="0.00"
-                value={(form.aliquotaIPI * 100) || ''}
-                onChange={e => update('aliquotaIPI', (parseFloat(e.target.value) || 0) / 100)} />
-            </div>
-            <div className="sc-field">
-              <label>PIS (%)</label>
-              <input type="number" min={0} max={100} step="0.01" placeholder="2.10"
-                value={(form.aliquotaPIS * 100) || ''}
-                onChange={e => update('aliquotaPIS', (parseFloat(e.target.value) || 0) / 100)} />
-            </div>
-            <div className="sc-field">
-              <label>COFINS (%)</label>
-              <input type="number" min={0} max={100} step="0.01" placeholder="9.65"
-                value={(form.aliquotaCOFINS * 100) || ''}
-                onChange={e => update('aliquotaCOFINS', (parseFloat(e.target.value) || 0) / 100)} />
-            </div>
-          </div>
-
-          <div className="sc-row sc-row--2">
-            <div className="sc-field">
-              <label>ICMS (%)</label>
-              <input type="number" min={0} max={100} step="0.01" placeholder="18.00"
-                value={(form.aliquotaICMS * 100) || ''}
-                onChange={e => update('aliquotaICMS', (parseFloat(e.target.value) || 0) / 100)} />
-            </div>
-            <div className="sc-field">
-              <label>Redução II — Acordos (%)</label>
-              <input type="number" min={0} max={100} step="0.01" placeholder="0.00"
-                value={((form.reducaoII ?? 0) * 100) || ''}
-                onChange={e => update('reducaoII', (parseFloat(e.target.value) || 0) / 100)} />
-            </div>
-          </div>
-
-          {error && <div className="sc-error">{error}</div>}
-
-          <button type="submit" className="sc-btn-simular" disabled={loading}>
-            {loading ? 'Calculando…' : '▶ Simular Custo'}
-          </button>
-        </form>
+        {/* ─── Resultado ──────────────────────────────────── */}
 
         {/* ─── Resultado ──────────────────────────────────── */}
         {resultado && (
@@ -245,25 +169,30 @@ export default function Estimativas() {
         )}
       </div>
 
+      <ModalSimulacao
+        aberto={modalAberto}
+        aoFechar={() => setModalAberto(false)}
+        aoSimular={handleSimular}
+        loading={loading}
+        dadosIniciais={form}
+      />
+
       <style>{`
         .sc-layout { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; padding: 1.5rem 0; }
         @media (max-width: 1024px) { .sc-layout { grid-template-columns: 1fr; } }
-        .sc-form { background: var(--ws-surface, #1e293b); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); }
-        .sc-section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ws-muted, #94a3b8); margin: 1.25rem 0 0.75rem; }
-        .sc-section-title:first-child { margin-top: 0; }
-        .sc-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
-        .sc-row--4 { grid-template-columns: repeat(4, 1fr); }
-        .sc-row--2 { grid-template-columns: repeat(2, 1fr); }
-        .sc-field label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--ws-muted, #94a3b8); margin-bottom: 0.4rem; }
-        .sc-field input, .sc-field select { width: 100%; background: var(--ws-bg-body, #0f172a); border: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); border-radius: 8px; padding: 0.6rem 0.75rem; color: var(--ws-text, #f1f5f9); font-size: 0.875rem; font-family: inherit; outline: none; box-sizing: border-box; transition: border-color 0.15s; }
-        .sc-field input:focus, .sc-field select:focus { border-color: var(--ws-accent, #818cf8); box-shadow: 0 0 0 2px rgba(129,140,248,0.15); }
-        .sc-input-group { display: flex; gap: 0.5rem; }
-        .sc-input-group input { flex: 1; }
-        .sc-input-group select { width: 80px; flex-shrink: 0; }
-        .sc-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 0.75rem; font-size: 0.875rem; color: #f87171; margin-top: 1rem; }
-        .sc-btn-simular { width: 100%; margin-top: 1.5rem; padding: 0.875rem; background: var(--ws-accent, #818cf8); color: #fff; border: none; border-radius: 10px; font-size: 0.9375rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
-        .sc-btn-simular:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
-        .sc-btn-simular:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .sc-list-area { display: flex; flex-direction: column; gap: 1.5rem; }
+        .sc-actions-bar { display: flex; justify-content: flex-end; }
+        .sc-btn-nova { display: flex; align-items: center; gap: 0.5rem; background: var(--ws-accent, #818cf8); color: #fff; border: none; border-radius: 8px; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .sc-btn-nova:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .sc-empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--ws-surface, #1e293b); border: 2px dashed var(--ws-accent-border, rgba(129,140,248,0.20)); border-radius: 12px; padding: 4rem 2rem; color: var(--ws-muted, #94a3b8); text-align: center; }
+        .sc-empty-state svg { color: var(--ws-accent, #818cf8); opacity: 0.5; margin-bottom: 1.5rem; }
+        .sc-empty-state h3 { font-size: 1.125rem; font-weight: 600; color: var(--ws-text, #f1f5f9); margin: 0 0 0.5rem 0; }
+        .sc-empty-state p { font-size: 0.875rem; max-width: 300px; margin: 0; }
+
+        .sc-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 0.75rem; font-size: 0.875rem; color: #f87171; margin-bottom: 1rem; }
+        
         .sc-result { background: var(--ws-surface, #1e293b); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--ws-accent-border, rgba(129,140,248,0.20)); height: fit-content; }
         .sc-result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
         .sc-result-badge { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(129,140,248,0.15); color: var(--ws-accent, #818cf8); padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid rgba(129,140,248,0.3); }
@@ -281,3 +210,4 @@ export default function Estimativas() {
     </PaginaGlobal>
   )
 }
+

@@ -1,0 +1,5 @@
+﻿server/routes/atividades.ts(9,37): error TS2307: Cannot find module '../../middleware/withTenantIsolation.js' or its corresponding type declarations.
+server/routes/contatos.ts(8,37): error TS2307: Cannot find module '../../middleware/withTenantIsolation.js' or its corresponding type declarations.
+server/routes/empresas.ts(8,37): error TS2307: Cannot find module '../../middleware/withTenantIsolation.js' or its corresponding type declarations.
+server/routes/kanban.ts(8,37): error TS2307: Cannot find module '../../middleware/withTenantIsolation.js' or its corresponding type declarations.
+server/routes/pipelines.ts(8,37): error TS2307: Cannot find module '../../middleware/withTenantIsolation.js' or its corresponding type declarations.

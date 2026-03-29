@@ -11,6 +11,8 @@ export interface NavItem {
   icon: React.ReactNode
   children?: NavItem[]
   disabled?: boolean
+  /** Se presente, este item age como um divisor de seção com título (sem link/clique) */
+  sectionDivider?: boolean
 }
 
 export interface MenuLateralGlobalProps {
@@ -48,10 +50,10 @@ export function MenuLateralGlobal({
     }
   }
 
-  const toggleSubmenu = (label: string) => {
+  const toggleSubmenu = (label: string, currentExpandedState: boolean) => {
     setExpandedItems(prev => ({
       ...prev,
-      [label]: !prev[label]
+      [label]: !currentExpandedState
     }))
   }
 
@@ -62,8 +64,15 @@ export function MenuLateralGlobal({
   } as React.CSSProperties
 
   const renderNavItem = (item: NavItem, isSubmenu = false) => {
+    // ── Divisor de seção ──
+    if (item.sectionDivider) {
+      if (isCollapsed) return <div key={item.label} className="mlg-nav-spacer" />
+      return <p key={item.label} className="mlg-nav-label mlg-nav-section-label">{item.label}</p>
+    }
+
     const hasChildren = item.children && item.children.length > 0
-    const isExpanded = expandedItems[item.label] || (hasChildren && item.children?.some(child => location.pathname === child.to))
+    const initiallyExpanded = hasChildren && item.children?.some(child => location.pathname === child.to)
+    const isExpanded = expandedItems[item.label] !== undefined ? expandedItems[item.label] : initiallyExpanded
     
     // Se for um item com submenus
     if (hasChildren) {
@@ -71,7 +80,7 @@ export function MenuLateralGlobal({
         <div key={item.label} className={`mlg-nav-group ${isExpanded ? 'active' : ''}`}>
           <button 
             className={`mlg-nav-item mlg-nav-parent ${isExpanded ? 'expanded' : ''}`}
-            onClick={() => toggleSubmenu(item.label)}
+            onClick={() => toggleSubmenu(item.label, isExpanded as boolean)}
           >
             <div className="mlg-nav-icon">{item.icon}</div>
             {!isCollapsed && (
@@ -175,7 +184,6 @@ export function MenuLateralGlobal({
 
       {/* ── Navigation ── */}
       <nav className="mlg-nav">
-        {!isCollapsed && <p className="mlg-nav-label">Workspace</p>}
         {isCollapsed && <div className="mlg-nav-spacer" />}
         
         {navItems.map(item => renderNavItem(item))}

@@ -15,7 +15,7 @@ export default function ImportarMassa() {
         <CabecalhoGlobal
           titulo="Importar em Massa"
           subtitulo="Carregue múltiplas simulações via planilha Excel ou CSV"
-          icone={<Upload weight="duotone" size={22} />}
+          icone={<Upload weight="duotone" size={22} color="#818cf8" />}
         />
       }
     >

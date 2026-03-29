@@ -45,7 +45,7 @@ export default function Relatorios() {
         <CabecalhoGlobal
           titulo="Financeiro Global"
           subtitulo="Relatório consolidado por cliente, produto e data com acompanhamento de inadimplências."
-          icone={<CurrencyDollar weight="duotone" size={24} />}
+          icone={<CurrencyDollar weight="duotone" size={22} color="#818cf8" />}
         />
       }
       stats={

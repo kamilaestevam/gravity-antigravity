@@ -51,10 +51,7 @@ export function Sidebar({
 
   // Se o produto não proveu itens customizados, usamos o padrão da plataforma
   const defaultNavItems: NavItem[] = [
-    { to: '/dashboard',   label: t('shell.menu.dashboard', 'Dashboard'),   icon: <House weight="duotone" size={20} /> },
-    { to: '/atividades',   label: t('shell.menu.atividades', 'Minhas Atividades'), icon: <BookOpen weight="duotone" size={20} /> },
-    { to: '/email',        label: t('shell.menu.email', 'E-mails'),       icon: <Envelope weight="duotone" size={20} /> },
-    { to: '/whatsapp',     label: t('shell.menu.whatsapp', 'WhatsApp'),    icon: <ChatCircle weight="duotone" size={20} /> },
+    // ── Produtos Gravity (primeiro) ─────────────────────────────────────
     {
       label: 'Produtos Gravity',
       icon: <Star weight="duotone" size={20} />,
@@ -65,8 +62,23 @@ export function Sidebar({
         { to: '/tracking', label: 'Tracking de Carga', icon: <Anchor weight="duotone" size={18} />, disabled: !hasTracking }
       ]
     },
+
+    // ── Meu Espaço (grupo expansível) ───────────────────────────────────
+    {
+      label: 'Meu Espaço',
+      icon: <House weight="duotone" size={20} />,
+      children: [
+        { to: '/meu-espaco',          label: t('shell.menu.dashboard', 'Dashboard'),         icon: <House weight="duotone" size={18} /> },
+        { to: '/meu-espaco/atividades', label: t('shell.menu.atividades', 'Minhas Atividades'), icon: <BookOpen weight="duotone" size={18} /> },
+        { to: '/meu-espaco/email',      label: t('shell.menu.email', 'E-mails'),               icon: <Envelope weight="duotone" size={18} /> },
+        { to: '/meu-espaco/whatsapp',   label: t('shell.menu.whatsapp', 'WhatsApp'),            icon: <ChatCircle weight="duotone" size={18} /> },
+      ]
+    },
+
+    // ── Geral ───────────────────────────────────────────────────────────
+    // ── Geral ───────────────────────────────────────────────────────────
     { to: '/notificacoes', label: t('shell.menu.notificacoes', 'Notificações'), icon: <Bell weight="duotone" size={20} /> },
-    { to: '/historico',    label: t('shell.menu.historico', 'Histórico'), icon: <FileText weight="duotone" size={20} /> },
+    { to: '/historico',    label: t('shell.menu.historico', 'Histórico'),       icon: <FileText weight="duotone" size={20} /> },
     { to: '/conector-erp', label: t('shell.menu.conector_erp', 'Conector ERP'), icon: <Plugs weight="duotone" size={20} /> },
     { to: '/configurador', label: t('shell.menu.configuracoes', 'Configurações'), icon: <Gear weight="duotone" size={20} /> },
   ]

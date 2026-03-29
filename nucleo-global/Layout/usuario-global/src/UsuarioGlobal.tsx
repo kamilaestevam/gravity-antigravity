@@ -48,14 +48,6 @@ export function UsuarioGlobal({
 
   // Estilos específicos para Super Admin (Verde Platinum)
   // Caso contrário, mantemos os estilos padrão (Master/Violet/Muted)
-  const roleTextStyles: React.CSSProperties = isSuperAdminUser 
-    ? { color: '#22c55e', fontWeight: 700 } 
-    : {}
-
-  const badgeStyles: React.CSSProperties = isSuperAdminUser
-    ? { color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.15)' }
-    : {}
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
@@ -70,28 +62,28 @@ export function UsuarioGlobal({
     <div className="ws-global-user-wrap" ref={profileRef}>
       <TooltipGlobal titulo="Perfil e Conta" descricao="Gerencie preferências de acesso e encerre sua sessão">
         <button 
-          className="ws-global-user" 
+          className={`ws-global-user ${isSuperAdminUser ? 'ws-global-user--super-admin' : ''}`} 
           type="button"
           onClick={() => setIsProfileOpen(v => !v)}
           aria-expanded={isProfileOpen}
         >
-          <div className="ws-global-user__avatar" style={isSuperAdminUser ? { borderColor: 'rgba(34, 197, 94, 0.3)', color: '#22c55e', background: 'rgba(34, 197, 94, 0.08)' } : {}}>{userInitials}</div>
+          <div className="ws-global-user__avatar">{userInitials}</div>
           <div className="ws-global-user__info">
             <span className="ws-global-user__name">{userName}</span>
-            <span className="ws-global-user__role" style={roleTextStyles}>{displayRole}</span>
+            <span className="ws-global-user__role">{displayRole}</span>
           </div>
           <CaretDown weight="bold" size={14} className="ws-global-caret" />
         </button>
       </TooltipGlobal>
 
       {isProfileOpen && (
-        <div className="ws-profile-dropdown">
+        <div className={`ws-profile-dropdown ${isSuperAdminUser ? 'ws-profile-dropdown--super-admin' : ''}`}>
           <div className="ws-profile-header">
-            <div className="ws-profile-avatar-lg" style={isSuperAdminUser ? { borderColor: 'rgba(34, 197, 94, 0.3)', color: '#22c55e', background: 'rgba(34, 197, 94, 0.08)' } : {}}>{userInitials}</div>
+            <div className="ws-profile-avatar-lg">{userInitials}</div>
             <div className="ws-profile-details">
               <span className="ws-profile-name" title={userName}>{userName}</span>
               <span className="ws-profile-email" title={userEmail}>{userEmail}</span>
-              <span className="ws-profile-badge" style={badgeStyles}>{displayRole}</span>
+              <span className="ws-profile-badge">{displayRole}</span>
             </div>
           </div>
 

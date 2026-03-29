@@ -10,6 +10,8 @@ export interface CabecalhoProps {
   subtitulo?: string
   /** Ícone à esquerda do título (ReactNode — ex: ícone Phosphor) */
   icone?: ReactNode
+  /** Slot central — ex: SeletorVisualizacao (Dashboard/Lista/Kanban) */
+  viewToggle?: ReactNode
   /** Slot direito — ex: botão de ação primária */
   acoes?: ReactNode
 }

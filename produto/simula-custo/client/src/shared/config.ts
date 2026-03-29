@@ -44,15 +44,15 @@ export const PRODUCT_CONFIG = {
   // Navegação: telas do produto + serviços de tenant
   navigation: [
     { 
-      id: 'minhas-atividades-group', 
-      label: 'Minhas atividades', 
+      id: 'meu-espaco-group', 
+      label: 'Meu Espaço', 
       icon: 'check-circle', 
       source: 'tenant',
       children: [
-        { id: 'dashboard',    label: 'Dashboard',          icon: 'bar-chart',      source: 'product' },
-        { id: 'atividades',   label: 'Minhas Atividades',  icon: 'check-circle',   source: 'tenant'  },
-        { id: 'email',        label: 'E-mails',            icon: 'envelope',       source: 'tenant'  },
-        { id: 'whatsapp',     label: 'Whatsapp',           icon: 'chat-circle',    source: 'tenant'  },
+        { id: 'meu-espaco',           label: 'Dashboard',          icon: 'bar-chart',      source: 'product' },
+        { id: 'meu-espaco/atividades',label: 'Minhas Atividades',  icon: 'check-circle',   source: 'tenant'  },
+        { id: 'meu-espaco/email',     label: 'E-mails',            icon: 'envelope',       source: 'tenant'  },
+        { id: 'meu-espaco/whatsapp',  label: 'Whatsapp',           icon: 'chat-circle',    source: 'tenant'  },
       ]
     },
     { id: 'estimativas',   label: 'Estimativas',       icon: 'calculator',     source: 'product' },

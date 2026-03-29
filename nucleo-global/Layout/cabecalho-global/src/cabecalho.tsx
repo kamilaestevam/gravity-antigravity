@@ -21,7 +21,7 @@ import type { CabecalhoProps } from './tipos.js'
  *   acoes={<BotaoGlobal variante="primario">Nova Empresa</BotaoGlobal>}
  * />
  */
-export function CabecalhoGlobal({ titulo, subtitulo, icone, acoes }: CabecalhoProps) {
+export function CabecalhoGlobal({ titulo, subtitulo, icone, acoes, viewToggle }: CabecalhoProps) {
   return (
     <header className="cg-header">
       <div className="cg-header__title-block">
@@ -40,6 +40,13 @@ export function CabecalhoGlobal({ titulo, subtitulo, icone, acoes }: CabecalhoPr
           <p className="cg-header__subtitle">{subtitulo}</p>
         )}
       </div>
+
+      {/* Slot central — view toggle (Dashboard/Lista/Kanban) */}
+      {viewToggle && (
+        <div className="cg-header__view-toggle">
+          {viewToggle}
+        </div>
+      )}
 
       {/* Slot de ações (direita) */}
       {acoes && (

@@ -21,6 +21,9 @@ const Dashboard = DashboardSimulaCusto
 const Estimativas = EstimativasPage
 const Relatorios = RelatoriosPage
 
+// Importa o Dashboard Global (Tenant)
+import { Dashboard as GlobalDashboard } from '@tenant/dashboard/src/Dashboard'
+
 const LoadingFallback = () => (
   <div style={{
     display: 'flex',
@@ -93,8 +96,9 @@ export function App() {
 
   return (
     <Layout 
-      moduleName={PRODUCT_CONFIG.name}
+      moduleName="SimulaCusto Verificada"
       moduleColor="#818cf8"
+      navItems={navItems}
     >
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
@@ -102,13 +106,17 @@ export function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/estimativas" element={<Estimativas />} />
           <Route path="/relatorios" element={<Relatorios />} />
-          {/* Placeholders para novos serviços */}
-          <Route path="/atividades" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Atividades (Tenant)</div>} />
-          <Route path="/email" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de E-mails (Tenant)</div>} />
-          <Route path="/whatsapp" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Whatsapp (Tenant)</div>} />
+          
+          {/* Serviços de tenant globais (Meu Espaço) */}
+          <Route path="/meu-espaco" element={<GlobalDashboard />} />
+          <Route path="/meu-espaco/atividades" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Atividades (Tenant)</div>} />
+          <Route path="/meu-espaco/email" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de E-mails (Tenant)</div>} />
+          <Route path="/meu-espaco/whatsapp" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Whatsapp (Tenant)</div>} />
           <Route path="/historico" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Histórico (Tenant)</div>} />
+          
           {/* Rota para Teste de Inversão de Contexto */}
           <Route path="/processo/:id/*" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}><h1>Dentro do Processo (Deep Work)</h1><p>O Menu Lateral sumiu e você está isolado aqui.</p></div>} />
+          
           {/* Serviços de tenant são renderizados pelo Shell automaticamente via PRODUCT_CONFIG se configurado no roteador global */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

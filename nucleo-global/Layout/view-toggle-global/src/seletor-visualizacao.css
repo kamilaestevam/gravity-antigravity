@@ -1,0 +1,126 @@
+/* seletor-visualizacao.css — SeletorVisualizacao · Gravity Design System
+   Pill-toggle premium com glassmorphism e animações suaves.
+
+   Tokens esperados:
+     --ws-surface         fundo do pill
+     --ws-accent          cor do item ativo
+     --ws-text            texto normal
+     --ws-muted           texto inativo
+     --ws-accent-border   borda do pill
+*/
+
+/* ── Root ─────────────────────────────────────────────────────────────── */
+.sv-root {
+  --sv-bg:         var(--ws-surface, #1e293b);
+  --sv-active:     var(--ws-accent, #818cf8);
+  --sv-text:       var(--ws-text, #f1f5f9);
+  --sv-muted:      var(--ws-muted, #64748b);
+  --sv-border:     var(--ws-accent-border, rgba(129,140,248,0.18));
+  --sv-radius:     10px;
+  --sv-h:          36px;
+  --sv-pad-x:      0.75rem;
+  --sv-gap:        2px;
+  --sv-font-size:  0.8rem;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: var(--sv-bg);
+  border: 1px solid var(--sv-border);
+  border-radius: calc(var(--sv-radius) + 4px);
+  padding: var(--sv-gap);
+  gap: 0;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Tamanho pequeno */
+.sv-root--pequeno {
+  --sv-h: 30px;
+  --sv-pad-x: 0.5rem;
+  --sv-font-size: 0.72rem;
+}
+
+/* ── Trilha visual (fundo estático) ──────────────────────────────────── */
+.sv-track {
+  display: none; /* Visual já dado pelo sv-root */
+}
+
+/* ── Botão individual ────────────────────────────────────────────────── */
+.sv-btn {
+  all: unset;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: var(--sv-h);
+  padding: 0 var(--sv-pad-x);
+  border-radius: var(--sv-radius);
+  font-size: var(--sv-font-size);
+  font-weight: 500;
+  color: var(--sv-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sv-btn:hover:not(.sv-btn--active) {
+  color: var(--sv-text);
+  background: rgba(255,255,255,0.05);
+}
+
+/* ── Estado ativo ────────────────────────────────────────────────────── */
+.sv-btn--active {
+  color: var(--sv-active);
+  font-weight: 600;
+  background: rgba(129, 140, 248, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(129,140,248,0.30),
+    0 2px 8px rgba(129,140,248,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* ── Ícone ───────────────────────────────────────────────────────────── */
+.sv-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sv-btn--active .sv-btn__icon {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* ── Label ──────────────────────────────────────────────────────────── */
+.sv-btn__label {
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+/* ── Separador visual entre botões ──────────────────────────────────── */
+.sv-btn + .sv-btn::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background: var(--sv-border);
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.sv-btn--active + .sv-btn::before,
+.sv-btn + .sv-btn--active::before {
+  opacity: 0; /* Some o separador adjacente ao ativo */
+}

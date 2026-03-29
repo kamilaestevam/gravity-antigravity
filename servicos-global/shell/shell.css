@@ -264,10 +264,10 @@ body,
   position: absolute;
   top: 0;
   right: 0;
-  height: 74px; /* Aumentado para combinar com UX 10 */
-  padding: 0 2rem;
-  background: transparent; /* Remove fundo opaco */
-  border-bottom: none; /* Remove a linha indesejada */
+  height: 74px; /* Ajustado para EXATOS 74px do Configurador Golder Source */
+  padding: 0 1.5rem;
+  background: transparent; 
+  border-bottom: none; 
   display: flex;
   align-items: center;
   justify-content: flex-end; /* Move tudo para a direita */
@@ -497,3 +497,88 @@ body,
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--bg-surface); }
+
+/* ─── Forçado Global de Componentes (Vite Cache Bypass) ──────────────── */
+
+/* 1. Módulo de Usuário (Header Top-Right) */
+.ws-global-user {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 4px 6px 4px 8px !important; /* Exato Configurador: L:0.5rem(8px), R:0.25rem(4px) */
+  border-radius: 999px !important; 
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(129, 140, 248, 0.18) !important;
+  backdrop-filter: blur(8px);
+}
+
+.ws-global-user:hover {
+  background: rgba(129, 140, 248, 0.08) !important;
+  border-color: rgba(129, 140, 248, 0.4) !important;
+}
+
+.ws-global-user__info {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0px !important;
+}
+
+/* 2. Badge de Notificação (Sino) */
+.ws-global-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-md) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  transition: all 0.2s !important;
+  overflow: visible !important; /* Essencial para o badge aparecer fora */
+}
+
+.ws-global-btn:hover {
+  background: rgba(129, 140, 248, 0.08) !important;
+  color: var(--text-primary) !important;
+}
+
+.ws-global-badge {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  top: -2px !important;
+  right: -2px !important;
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 2px #0f172a !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+/* 2. Menu Lateral - Submenus Hierarquia Visual */
+.mlg-submenu {
+  padding-left: 0.75rem !important;
+  margin-left: 1.5rem !important;
+  border-left: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20)) !important;
+}
+
+.mlg-submenu-item {
+  padding: 8px 12px !important;
+  color: var(--text-muted) !important;
+  border-radius: 6px !important;
+}
+
+.mlg-submenu-item:hover {
+  color: var(--text-primary) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+}

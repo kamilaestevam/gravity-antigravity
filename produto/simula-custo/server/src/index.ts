@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { simulateRouter } from './routes/simulate.js'
 import { masterDataRouter } from './routes/masterData.js'
+import { dashboardRouter } from './routes/dashboard.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { tokenPool } from './services/tokenPool.js'
@@ -69,6 +70,7 @@ app.use(tenantIsolationMiddleware)
 
 // ─── 8. Rotas do Produto ───────────────────────────────────────────────────────
 app.use('/api/v1/simula-custo', simulateRouter)
+app.use('/api/v1/dashboard', dashboardRouter)
 
 // ─── 9. SPA Fallback (serve o client React para qualquer rota não-API) ─────────
 app.get('*', (_req: Request, res: Response) => {

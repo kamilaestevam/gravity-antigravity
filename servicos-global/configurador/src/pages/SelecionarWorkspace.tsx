@@ -31,6 +31,7 @@ import {
   ListChecks,
 } from '@phosphor-icons/react'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
+import { UsuarioGlobal } from '@nucleo/usuario-global'
 import './selecionar-workspace.css'
 
 /* ── Tipos ── */
@@ -233,6 +234,7 @@ export function SelecionarWorkspace() {
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userRole = (user?.publicMetadata?.role as string) ?? 'Superadmin'
+  const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
   const tenantName = selectedWs?.nome ?? 'Gravity'
@@ -447,18 +449,19 @@ export function SelecionarWorkspace() {
               <MagnifyingGlass size={15} />
             </button>
             <div className="sw-t-sep" />
-            <button className="sw-t-user" type="button">
-              <div className="sw-t-user-ava">{userInitials}</div>
-              <div>
-                <div className="sw-t-user-name">{userName}</div>
-                <div className="sw-t-user-role">{userRole}</div>
-              </div>
-              <CaretDown size={12} style={{ color: 'var(--sw-text-3)', marginLeft: 2 }} />
-            </button>
-            <button className="sw-t-exit" type="button" onClick={handleSair}>
-              <SignOut size={13} />
-              Sair
-            </button>
+            <UsuarioGlobal
+              userName={userName}
+              userEmail={userEmail}
+              userInitials={userInitials}
+              userRole={userRole}
+              isLight={false}
+              onToggleTheme={() => {}}
+              onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
+              onNavigateMarketPlace={() => navigate('/store')}
+              onSignOut={handleSair}
+              isAdmin={true}
+              onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            />
           </div>
         </header>
 

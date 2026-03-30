@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useUser } from '@clerk/clerk-react'
 import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -30,56 +31,51 @@ export interface Empresa {
   organizacao?: string
 }
 
-const mockWorkspaces: Empresa[] = [
-  { id:  '1', nome: 'Acme Logística',          subdominio: 'acme-log',       usuarios:  8, status: 'Ativa',    criadaEm: '12/01/2025' },
-  { id:  '2', nome: 'Acme Importações',        subdominio: 'acme-import',    usuarios:  3, status: 'Ativa',    criadaEm: '18/02/2025' },
-  { id:  '3', nome: 'Acme Distribuição',       subdominio: 'acme-dist',      usuarios: 12, status: 'Ativa',    criadaEm: '05/03/2025' },
-  { id:  '4', nome: 'Acme Varejo SP',          subdominio: 'acme-sp',        usuarios:  5, status: 'Suspensa', criadaEm: '22/03/2025' },
-  { id:  '5', nome: 'Brasilcom Tecnologia',    subdominio: 'brasilcom-tech', usuarios: 27, status: 'Ativa',    criadaEm: '03/01/2025' },
-  { id:  '6', nome: 'Brasilcom Suporte',       subdominio: 'brasilcom-sup',  usuarios:  6, status: 'Ativa',    criadaEm: '14/01/2025' },
-  { id:  '7', nome: 'Delta Comercial',         subdominio: 'delta-com',      usuarios: 41, status: 'Ativa',    criadaEm: '20/01/2025' },
-  { id:  '8', nome: 'Delta Financeiro',        subdominio: 'delta-fin',      usuarios:  9, status: 'Suspensa', criadaEm: '28/01/2025' },
-  { id:  '9', nome: 'Delta RH',                subdominio: 'delta-rh',       usuarios:  2, status: 'Ativa',    criadaEm: '02/02/2025' },
-  { id: '10', nome: 'Grupo Nexus Principal',   subdominio: 'nexus-main',     usuarios: 55, status: 'Ativa',    criadaEm: '07/02/2025' },
-  { id: '11', nome: 'Grupo Nexus Regional',    subdominio: 'nexus-reg',      usuarios: 18, status: 'Ativa',    criadaEm: '11/02/2025' },
-  { id: '12', nome: 'Grupo Nexus Sul',         subdominio: 'nexus-sul',      usuarios:  7, status: 'Suspensa', criadaEm: '15/02/2025' },
-  { id: '13', nome: 'Fênix Exportações',       subdominio: 'fenix-exp',      usuarios: 33, status: 'Ativa',    criadaEm: '19/02/2025' },
-  { id: '14', nome: 'Fênix Consultoria',       subdominio: 'fenix-cons',     usuarios:  4, status: 'Ativa',    criadaEm: '24/02/2025' },
-  { id: '15', nome: 'Orion Serviços',          subdominio: 'orion-srv',      usuarios: 14, status: 'Ativa',    criadaEm: '01/03/2025' },
-  { id: '16', nome: 'Orion Manufatura',        subdominio: 'orion-mfg',      usuarios: 62, status: 'Ativa',    criadaEm: '04/03/2025' },
-  { id: '17', nome: 'Orion Atacado',           subdominio: 'orion-atk',      usuarios:  1, status: 'Suspensa', criadaEm: '08/03/2025' },
-  { id: '18', nome: 'Vega Saúde',              subdominio: 'vega-saude',     usuarios: 22, status: 'Ativa',    criadaEm: '11/03/2025' },
-  { id: '19', nome: 'Vega Hospitalar',         subdominio: 'vega-hosp',      usuarios: 38, status: 'Ativa',    criadaEm: '13/03/2025' },
-  { id: '20', nome: 'Vega Clínicas',           subdominio: 'vega-clin',      usuarios:  9, status: 'Suspensa', criadaEm: '15/03/2025' },
-  { id: '21', nome: 'Titan Construções',       subdominio: 'titan-const',    usuarios: 17, status: 'Ativa',    criadaEm: '17/03/2025' },
-  { id: '22', nome: 'Titan Incorporações',     subdominio: 'titan-inc',      usuarios: 48, status: 'Ativa',    criadaEm: '18/03/2025' },
-  { id: '23', nome: 'Radius Seguros',          subdominio: 'radius-seg',     usuarios: 11, status: 'Ativa',    criadaEm: '19/03/2025' },
-  { id: '24', nome: 'Radius Previdência',      subdominio: 'radius-prev',    usuarios:  6, status: 'Suspensa', criadaEm: '20/03/2025' },
-  { id: '25', nome: 'Quantum Analytics',       subdominio: 'quantum-ai',     usuarios: 29, status: 'Ativa',    criadaEm: '21/03/2025' },
-  { id: '26', nome: 'Quantum Data',            subdominio: 'quantum-data',   usuarios: 73, status: 'Ativa',    criadaEm: '21/03/2025' },
-  { id: '27', nome: 'Solaris Energia',         subdominio: 'solaris-enrg',   usuarios: 16, status: 'Ativa',    criadaEm: '22/03/2025' },
-  { id: '28', nome: 'Solaris Renováveis',      subdominio: 'solaris-ren',    usuarios:  3, status: 'Suspensa', criadaEm: '22/03/2025' },
-  { id: '29', nome: 'Atlas Transporte',        subdominio: 'atlas-transp',   usuarios: 44, status: 'Ativa',    criadaEm: '23/03/2025' },
-  { id: '30', nome: 'Atlas Logística Global',  subdominio: 'atlas-global',   usuarios: 19, status: 'Ativa',    criadaEm: '23/03/2025' },
-]
-
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  try {
+    const session = await (window as any).Clerk?.session
+    const token = session ? await session.getToken() : null
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  } catch { /* sem token */ }
+  return headers
+}
 
 export function Workspaces() {
   const { t } = useTranslation()
-  const [empresas, setWorkspaces] = useState<Empresa[]>(() => {
-    try {
-      const salvo = localStorage.getItem('gravity:workspaces-dados')
-      if (salvo) return JSON.parse(salvo)
-    } catch (e) {
-      console.error('Erro ao ler workspaces do localStorage', e)
-    }
-    return mockWorkspaces
-  })
+  const { isLoaded: userLoaded } = useUser()
+  const [empresas, setWorkspaces] = useState<Empresa[]>([])
+  const [carregando, setCarregando] = useState(true)
 
-  // Salvar no localStorage sempre que houver mudança na lista de workspaces
+  // Carregar workspaces da API real
   useEffect(() => {
-    localStorage.setItem('gravity:workspaces-dados', JSON.stringify(empresas))
-  }, [empresas])
+    if (!userLoaded) return
+    async function fetchWorkspaces() {
+      try {
+        setCarregando(true)
+        const headers = await getAuthHeaders()
+        const res = await fetch('/api/v1/tenants/companies', { headers })
+        if (res.ok) {
+          const { companies } = await res.json()
+          setWorkspaces(companies.map((c: any) => ({
+            id: c.id,
+            nome: c.name,
+            subdominio: c.subdomain ?? '',
+            usuarios: c._count?.memberships ?? 0,
+            status: c.status === 'ACTIVE' ? 'Ativa' : 'Suspensa',
+            criadaEm: c.created_at
+              ? new Date(c.created_at).toLocaleDateString('pt-BR')
+              : '',
+          })))
+        }
+      } catch (err) {
+        console.error('Erro ao carregar workspaces:', err)
+      } finally {
+        setCarregando(false)
+      }
+    }
+    fetchWorkspaces()
+  }, [userLoaded])
   const [showForm, setShowForm]    = useState(false)
   const [empresaEditando, setEmpresaEditando] = useState<Empresa | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -107,16 +103,29 @@ export function Workspaces() {
   const limite = 50
 
 
-  function handleAdd(dados: { nome: string; subdominio: string }) {
-    const nova: Empresa = {
-      id: String(Date.now()),
-      nome: dados.nome,
-      subdominio: dados.subdominio,
-      usuarios: 0,
-      status: 'Ativa',
-      criadaEm: new Date().toLocaleDateString('pt-BR'),
+  async function handleAdd(dados: { nome: string; subdominio: string }) {
+    try {
+      const headers = await getAuthHeaders()
+      const res = await fetch('/api/v1/tenants/companies', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ name: dados.nome, subdomain: dados.subdominio }),
+      })
+      if (res.ok) {
+        const company = await res.json()
+        const nova: Empresa = {
+          id: company.id,
+          nome: company.name ?? dados.nome,
+          subdominio: company.subdomain ?? dados.subdominio,
+          usuarios: 0,
+          status: 'Ativa',
+          criadaEm: new Date().toLocaleDateString('pt-BR'),
+        }
+        setWorkspaces(prev => [...prev, nova])
+      }
+    } catch (err) {
+      console.error('Erro ao criar workspace:', err)
     }
-    setWorkspaces(prev => [...prev, nova])
     setShowForm(false)
   }
 

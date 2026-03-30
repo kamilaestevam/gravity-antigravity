@@ -4,6 +4,12 @@
 // GET   /api/admin/tenants/:id   — detalhes de um tenant
 // PATCH /api/admin/tenants/:id   — atualizar status/plano
 // GET   /api/admin/stats         — estatísticas globais da plataforma
+// GET   /api/admin/users         — listar todos os usuários de todos os tenants
+// GET   /api/admin/billing/invoices — listar faturas globais
+// GET   /api/admin/deploys       — listar histórico de deploys
+// GET   /api/admin/test-logs     — listar logs de testes
+// GET   /api/admin/platform-config — dados da plataforma (Visão Geral Admin)
+// PUT   /api/admin/platform-config — atualizar dados da plataforma
 
 import { Router } from 'express'
 import { z } from 'zod'

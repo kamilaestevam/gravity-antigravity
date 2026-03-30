@@ -112,7 +112,9 @@ export function Financeiro() {
   const [produtoVisualizando, setProdutoVisualizando] = useState<ProdutoCatalogo | null>(null)
 
   useEffect(() => {
-    setProdutos(catalogService.getProdutos().filter(p => p.status === 'Ativo'))
+    catalogService.getProdutos().then(lista => {
+      setProdutos(lista.filter(p => p.status === 'Ativo'))
+    })
     setNegociacoes(catalogService.getNegociacoes())
   }, [])
 

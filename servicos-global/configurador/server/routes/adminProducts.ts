@@ -20,6 +20,7 @@ function getContractsSlugs(): string[] {
   // Tentar múltiplos caminhos possíveis (dev vs deploy)
   const possiblePaths = [
     join(__dirname, '..', '..', '..', 'contracts.json'),           // dev: server/routes/ -> servicos-global/
+    join(__dirname, '..', '..', 'contracts.json'),                 // se __dirname=server/routes -> configurador/contracts.json (não existe, mas tenta)
     join(__dirname, '..', '..', '..', '..', 'servicos-global', 'contracts.json'), // alt: se __dirname resolve diferente
     join(process.cwd(), 'servicos-global', 'contracts.json'),      // cwd = root do monorepo
     join(process.cwd(), 'contracts.json'),                         // cwd = servicos-global/configurador
@@ -32,6 +33,7 @@ function getContractsSlugs(): string[] {
       const contracts = JSON.parse(raw)
       const slugs = Object.keys(contracts.services ?? {})
       if (slugs.length > 0) {
+        console.log(`[adminProducts] contracts.json encontrado em: ${contractsPath}`)
         return slugs
       }
     } catch {
@@ -39,8 +41,14 @@ function getContractsSlugs(): string[] {
     }
   }
 
-  console.warn('[adminProducts] contracts.json NÃO ENCONTRADO em nenhum dos paths acima!')
-  return []
+  console.warn('[adminProducts] contracts.json NÃO ENCONTRADO! Paths tentados:', possiblePaths)
+  // Fallback: retorna os slugs conhecidos para não bloquear a UI
+  return [
+    'dashboard', 'relatorios', 'atividades', 'notificacoes', 'agendamento',
+    'gabi', 'api-cockpit', 'conector-erp', 'historico', 'whatsapp',
+    'simula-custo', 'helpdesk', 'cronometro', 'email', 'bid-frete',
+    'bid-cambio', 'pedido', 'smart-read',
+  ]
 }
 
 export const adminProductsRouter = Router()
@@ -172,11 +180,6 @@ adminProductsRouter.post('/', async (req, res, next) => {
       )
     }
 
-    const existing = await productCatalogService.getBySlug(parsed.data.slug)
-    if (existing) {
-      throw new AppError('Já existe um produto com este slug', 409, 'CONFLICT')
-    }
-
     // Se status ACTIVE, o slug deve existir em contracts.json (tem infraestrutura)
     if (parsed.data.status === 'ACTIVE') {
       const contractsSlugs = getContractsSlugs()
@@ -188,6 +191,15 @@ adminProductsRouter.post('/', async (req, res, next) => {
           'MISSING_INFRASTRUCTURE'
         )
       }
+    }
+
+    // Upsert: se já existe produto com este slug, atualiza em vez de 409
+    const existing = await productCatalogService.getBySlug(parsed.data.slug)
+    if (existing) {
+      const product = await productCatalogService.update(existing.id, parsed.data as Parameters<typeof productCatalogService.update>[1])
+      console.log(`[admin] Produto "${product.name}" atualizado (upsert) por ${req.auth.clerkUserId}`)
+      res.json({ product })
+      return
     }
 
     const product = await productCatalogService.create(parsed.data as Parameters<typeof productCatalogService.create>[0])

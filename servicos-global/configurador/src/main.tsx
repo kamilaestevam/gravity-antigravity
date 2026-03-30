@@ -20,8 +20,8 @@ createRoot(root).render(
     <ClerkProvider
       publishableKey={PUBLISHABLE_KEY}
       localization={ptBR as any}
-      afterSignUpUrl="/selecionar-workspace"
-      afterSignInUrl="/selecionar-workspace"
+      afterSignUpUrl="/hub"
+      afterSignInUrl="/hub"
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
     >

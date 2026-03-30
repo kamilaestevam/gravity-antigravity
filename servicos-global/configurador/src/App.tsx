@@ -163,6 +163,9 @@ export default function App() {
         <Route path="/contato" element={<Contato />} />
         <Route path="/waitlist" element={<Waitlist />} />
 
+        {/* Redirect legado — Clerk antigo redirecionava para /selecionar-workspace */}
+        <Route path="/selecionar-workspace" element={<Navigate to="/hub" replace />} />
+
         {/* Área autenticada */}
         <Route path="/hub" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />

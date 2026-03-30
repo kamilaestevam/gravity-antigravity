@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useUser } from '@clerk/clerk-react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -33,115 +34,25 @@ type EspacoTrabalho = {
   usuarios: { userId: string; role: string; habilitado: boolean }[]
 }
 
-// 50 empresas filhas mock
-const ALL_FILIAIS: EspacoTrabalho[] = Array.from({ length: 50 }, (_, i) => ({
-  id: `f${i + 1}`,
-  nome: [
-    'Acme Logística', 'Acme Importações', 'Acme Distribuição', 'Acme Exportação', 'Acme Varejo',
-    'Acme Tech', 'Acme Sul', 'Acme Norte', 'Acme Leste', 'Acme Oeste',
-    'EspacoTrabalho SP Centro', 'EspacoTrabalho SP Interior', 'EspacoTrabalho RJ', 'EspacoTrabalho MG', 'EspacoTrabalho RS',
-    'EspacoTrabalho SC', 'EspacoTrabalho PR', 'EspacoTrabalho BA', 'EspacoTrabalho GO', 'EspacoTrabalho DF',
-    'Unidade Campinas', 'Unidade Santos', 'Unidade Sorocaba', 'Unidade Ribeirão Preto', 'Unidade São José',
-    'Unidade Belém', 'Unidade Manaus', 'Unidade Fortaleza', 'Unidade Recife', 'Unidade Salvador',
-    'Depósito Central', 'Depósito Norte', 'Depósito Sul', 'Depósito Leste', 'Depósito Oeste',
-    'CD São Paulo', 'CD Rio de Janeiro', 'CD Belo Horizonte', 'CD Curitiba', 'CD Porto Alegre',
-    'Hub Exportação I', 'Hub Exportação II', 'Hub Importação I', 'Hub Importação II', 'Hub Logístico',
-    'Escritório SP', 'Escritório RJ', 'Escritório BH', 'Escritório Curitiba', 'Escritório Recife',
-  ][i],
-  usuarios: [], // não usado no novo modelo centrado no usuário
-}))
+// ─── Auth helper (mesmo padrão de Workspaces.tsx) ──────────────────────────
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  try {
+    const session = await (window as any).Clerk?.session
+    const token = session ? await session.getToken() : null
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  } catch { /* sem token */ }
+  return headers
+}
 
-// Empresa filha vínculo por usuário: u2=1, u3=5, u4=10, u5=30
-const mockEspacos: EspacoTrabalho[] = ALL_FILIAIS
-
-const mockUsers: TenantUser[] = [
-  { id: 'u01', nome: 'Daniel Marques',      email: 'daniel@acme.com.br',        tipo: 'Master',     status: 'Ativo'   },
-  { id: 'u02', nome: 'Carla Souza',         email: 'carla@acme.com.br',          tipo: 'Master',     status: 'Ativo'   },
-  { id: 'u01a', nome: 'Mariana Financeiro', email: 'mariana.fin@acme.com.br',    tipo: 'Admin',      status: 'Ativo'   },
-  { id: 'u03', nome: 'Felipe Lima',         email: 'felipe@acme.com.br',         tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u04', nome: 'Rodrigo Faria',       email: 'rodrigo@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u05', nome: 'Ana Beatriz Costa',   email: 'ana.beatriz@acme.com.br',    tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u06', nome: 'Paulo Henrique',      email: 'paulo.h@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u07', nome: 'Juliana Martins',     email: 'juliana@acme.com.br',        tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u08', nome: 'Marcos Oliveira',     email: 'marcos@acme.com.br',         tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u09', nome: 'Fernanda Rocha',      email: 'fernanda@acme.com.br',       tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u10', nome: 'Gustavo Almeida',     email: 'gustavo@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u11', nome: 'Tatiane Ferreira',    email: 'tatiane@acme.com.br',        tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u12', nome: 'Bruno Cardoso',       email: 'bruno@acme.com.br',          tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u13', nome: 'Larissa Mendes',      email: 'larissa@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u14', nome: 'Thiago Nascimento',   email: 'thiago@acme.com.br',         tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u15', nome: 'Patrícia Lopes',      email: 'patricia@acme.com.br',       tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u16', nome: 'Eduardo Silva',       email: 'eduardo@acme.com.br',        tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u17', nome: 'Camila Santos',       email: 'camila@acme.com.br',         tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u18', nome: 'Leandro Pereira',     email: 'leandro@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u19', nome: 'Vanessa Ribeiro',     email: 'vanessa@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u20', nome: 'Ricardo Gomes',       email: 'ricardo@acme.com.br',        tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u21', nome: 'Aline Correia',       email: 'aline@acme.com.br',          tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u22', nome: 'Vinicius Carvalho',   email: 'vinicius@acme.com.br',       tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u23', nome: 'Renata Barbosa',      email: 'renata@acme.com.br',         tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u24', nome: 'Sérgio Moraes',       email: 'sergio@acme.com.br',         tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u25', nome: 'Isabela Teixeira',    email: 'isabela@acme.com.br',        tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u26', nome: 'Diego Cunha',         email: 'diego@acme.com.br',          tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u27', nome: 'Priscila Vieira',     email: 'priscila@acme.com.br',       tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u28', nome: 'Fábio Araújo',        email: 'fabio@acme.com.br',          tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u29', nome: 'Monique Dias',        email: 'monique@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u30', nome: 'Henrique Cavalcanti', email: 'henrique@acme.com.br',       tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u31', nome: 'Sabrina Pinto',       email: 'sabrina@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u32', nome: 'Caio Rezende',        email: 'caio@acme.com.br',           tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u33', nome: 'Letícia Castro',      email: 'leticia@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u34', nome: 'Omar Khalil',         email: 'omar@acme.com.br',           tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u35', nome: 'Giovana Ramos',       email: 'giovana@acme.com.br',        tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u36', nome: 'Alex Freitas',        email: 'alex@acme.com.br',           tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u37', nome: 'Debora Monteiro',     email: 'debora@acme.com.br',         tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u38', nome: 'Walter Cruz',         email: 'walter@acme.com.br',         tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u39', nome: 'Natália Borges',      email: 'natalia@acme.com.br',        tipo: 'Standard',   status: 'Ativo'   },
-  { id: 'u40', nome: 'Rafael Nunes',        email: 'rafael@acme.com.br',         tipo: 'Standard',   status: 'Inativo' },
-  { id: 'u41', nome: 'Fornecedor Alpha',    email: 'forn@alpha.com',             tipo: 'Fornecedor', status: 'Ativo'   },
-  { id: 'u42', nome: 'Fornecedor Beta',     email: 'contato@beta.com.br',        tipo: 'Fornecedor', status: 'Ativo'   },
-  { id: 'u43', nome: 'Fornecedor Gamma',    email: 'ops@gamma.io',               tipo: 'Fornecedor', status: 'Inativo' },
-  { id: 'u44', nome: 'Fornecedor Delta',    email: 'ti@delta.com.br',            tipo: 'Fornecedor', status: 'Ativo'   },
-  { id: 'u45', nome: 'Fornecedor Épsilon',  email: 'suporte@epsilon.com',        tipo: 'Fornecedor', status: 'Ativo'   },
-  { id: 'u46', nome: 'Fornecedor Zeta',     email: 'admin@zeta.com.br',          tipo: 'Fornecedor', status: 'Ativo'   },
-  { id: 'u47', nome: 'Fornecedor Eta',      email: 'contato@eta.net',            tipo: 'Fornecedor', status: 'Inativo' },
-  { id: 'u48', nome: 'Fornecedor Theta',    email: 'ti@theta.com.br',            tipo: 'Fornecedor', status: 'Ativo'   },
-  { id: 'u49', nome: 'Fornecedor Iota',     email: 'ops@iota.io',                tipo: 'Fornecedor', status: 'Ativo'   },
-  { id: 'u50', nome: 'Fornecedor Kappa',    email: 'suporte@kappa.com.br',       tipo: 'Fornecedor', status: 'Ativo'   },
-]
-
-// Vínculos por usuário (id → lista de filial ids)
-const VINCULOS: Record<string, string[]> = {
-  // Masters: sem vínculo manual (acesso total automático)
-  // Standard com 1 empresa
-  u03: ['f1'],
-  u07: ['f3'],
-  u11: ['f7'],
-  u16: ['f12'],
-  u20: ['f5'],
-  // Standard com 5 empresas
-  u04: ['f1','f2','f3','f4','f5'],
-  u08: ['f6','f7','f8','f9','f10'],
-  u13: ['f11','f12','f13','f14','f15'],
-  u17: ['f2','f4','f6','f8','f10'],
-  u21: ['f1','f3','f5','f7','f9'],
-  // Standard com 10 empresas
-  u05: Array.from({ length: 10 }, (_, i) => `f${i + 1}`),
-  u09: Array.from({ length: 10 }, (_, i) => `f${i + 6}`),
-  u14: Array.from({ length: 10 }, (_, i) => `f${i + 11}`),
-  u18: Array.from({ length: 10 }, (_, i) => `f${i + 21}`),
-  u22: Array.from({ length: 10 }, (_, i) => `f${i + 31}`),
-  // Standard com 30 empresas
-  u06: Array.from({ length: 30 }, (_, i) => `f${i + 1}`),
-  u10: Array.from({ length: 30 }, (_, i) => `f${i + 1}`),
-  u23: Array.from({ length: 30 }, (_, i) => `f${i + 1}`),
-  // Fornecedores com vínculos variados
-  u41: ['f1','f2','f3'],
-  u42: ['f5','f10','f15','f20','f25'],
-  u44: Array.from({ length: 10 }, (_, i) => `f${i + 1}`),
-  u45: ['f3'],
-  u46: Array.from({ length: 20 }, (_, i) => `f${i + 1}`),
-  u48: ['f1','f4','f7'],
-  u49: ['f2'],
-  u50: Array.from({ length: 15 }, (_, i) => `f${i + 5}`),
+// Mapeia role do backend para NivelAcesso do frontend
+function mapRoleToTipo(role: string): NivelAcesso {
+  switch (role) {
+    case 'MASTER': return 'Master'
+    case 'ADMIN': return 'Admin'
+    case 'SUPPLIER': return 'Fornecedor'
+    default: return 'Standard'
+  }
 }
 
 // ── Chips de empresas vinculadas com overflow via TooltipGlobal ─────────────────
@@ -230,9 +141,64 @@ const OPCOES_TIPO: SelectOpcao[] = [
 
 export function Usuarios() {
   const { t } = useTranslation()
-  const [users, setUsers]     = useState<TenantUser[]>(mockUsers)
-  const [espacos, setFiliais] = useState<EspacoTrabalho[]>(mockEspacos)
+  const { isLoaded: userLoaded } = useUser()
+  const [users, setUsers]     = useState<TenantUser[]>([])
+  const [espacos, setFiliais] = useState<EspacoTrabalho[]>([])
+  const [membershipsMap, setMembershipsMap] = useState<Record<string, string[]>>({})
+  const [carregando, setCarregando] = useState(true)
 
+  // Carregar usuários e workspaces da API real
+  useEffect(() => {
+    if (!userLoaded) return
+    async function fetchData() {
+      try {
+        setCarregando(true)
+        const headers = await getAuthHeaders()
+
+        const [usersRes, companiesRes] = await Promise.all([
+          fetch('/api/v1/users', { headers }),
+          fetch('/api/v1/tenants/companies', { headers }),
+        ])
+
+        if (usersRes.ok) {
+          const { users: apiUsers } = await usersRes.json()
+          const mappedUsers: TenantUser[] = apiUsers.map((u: any) => ({
+            id: u.id,
+            nome: u.name ?? '',
+            email: u.email ?? '',
+            tipo: mapRoleToTipo(u.role),
+            status: 'Ativo' as UserStatus,
+          }))
+          setUsers(mappedUsers)
+
+          // Construir mapa de memberships: userId -> companyIds[]
+          const mMap: Record<string, string[]> = {}
+          for (const u of apiUsers) {
+            if (u.memberships && u.memberships.length > 0) {
+              mMap[u.id] = u.memberships
+                .filter((m: any) => m.is_active)
+                .map((m: any) => m.company_id)
+            }
+          }
+          setMembershipsMap(mMap)
+        }
+
+        if (companiesRes.ok) {
+          const { companies } = await companiesRes.json()
+          setFiliais(companies.map((c: any) => ({
+            id: c.id,
+            nome: c.name ?? '',
+            usuarios: [],
+          })))
+        }
+      } catch (err) {
+        console.error('Erro ao carregar usuários:', err)
+      } finally {
+        setCarregando(false)
+      }
+    }
+    fetchData()
+  }, [userLoaded])
 
   const [showForm, setShowForm] = useState(false)
   const [fNome, setFNome]       = useState('')
@@ -242,16 +208,40 @@ export function Usuarios() {
   const [usuarioEditando, setUsuarioEditando] = useState<TenantUser | null>(null)
   const [abaEditando, setAbaEditando] = useState<string>('dados')
 
-  function handleInvite() {
+  async function handleInvite() {
     if (!fNome.trim() || !fEmail.trim()) return
-    const newUser: TenantUser = {
-      id: String(Date.now()),
-      nome: fNome.trim(),
-      email: fEmail.trim(),
-      tipo: fTipo,
-      status: 'Ativo',
+    try {
+      const headers = await getAuthHeaders()
+      const roleMap: Record<NivelAcesso, string> = {
+        'Super Admin': 'MASTER',
+        'Admin': 'MASTER',
+        'Master': 'MASTER',
+        'Standard': 'STANDARD',
+        'Fornecedor': 'SUPPLIER',
+      }
+      const res = await fetch('/api/v1/users/invite', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          email: fEmail.trim(),
+          name: fNome.trim(),
+          role: roleMap[fTipo] ?? 'STANDARD',
+        }),
+      })
+      if (res.ok) {
+        const { user: created } = await res.json()
+        const newUser: TenantUser = {
+          id: created.id,
+          nome: fNome.trim(),
+          email: created.email,
+          tipo: fTipo,
+          status: 'Ativo',
+        }
+        setUsers(prev => [...prev, newUser])
+      }
+    } catch (err) {
+      console.error('Erro ao convidar usuário:', err)
     }
-    setUsers(prev => [...prev, newUser])
     setFNome(''); setFEmail(''); setFTipo('Standard'); setShowForm(false)
   }
 
@@ -367,9 +357,9 @@ export function Usuarios() {
     { label: 'JSON', icone: <Code size={14} weight="bold" />, onClick: (dados) => void exportarJSON(dados as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
   ]
 
-  // Computa empresas vinculadas por usuário via VINCULOS
+  // Computa empresas vinculadas por usuário via memberships da API
   function espacosDoUsuario(userId: string): EspacoTrabalho[] {
-    const ids = VINCULOS[userId] ?? []
+    const ids = membershipsMap[userId] ?? []
     return espacos.filter(f => ids.includes(f.id))
   }
 
@@ -423,9 +413,9 @@ export function Usuarios() {
     { label: 'Exportação Completa', icone: <FileXls size={14} weight="bold" />, onClick: (dados) => void exportarExcel(dados as any, COLUNAS_EXPORT_FILIAIS, OPCOES_EXPORT_FILIAIS) },
   ]
 
-  const totalVinculos = users.reduce((acc, u) => acc + (u.tipo === 'Master' ? espacos.length : (VINCULOS[u.id]?.length || 0)), 0)
+  const totalVinculos = users.reduce((acc, u) => acc + (u.tipo === 'Master' ? espacos.length : (membershipsMap[u.id]?.length || 0)), 0)
   const mediaEspacosPorUsuario = users.length ? (totalVinculos / users.length).toFixed(1) : '0'
-  const usuariosComAcesso = users.filter(u => u.tipo === 'Master' ? espacos.length > 0 : (VINCULOS[u.id]?.length || 0) > 0).length
+  const usuariosComAcesso = users.filter(u => u.tipo === 'Master' ? espacos.length > 0 : (membershipsMap[u.id]?.length || 0) > 0).length
 
   return (
     <PaginaGlobal
@@ -559,6 +549,11 @@ export function Usuarios() {
     >
 
       <div style={{ position: 'relative', zIndex: 10 }}>
+        {carregando ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '3rem', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>
+            Carregando usuários...
+          </div>
+        ) : (
         <TabelaGlobal<TenantUser>
           id="workspace-users"
           dados={users}
@@ -634,6 +629,7 @@ export function Usuarios() {
             )
           }}
         />
+        )}
       </div>
 
       {/* Modal Convidar Usuário */}

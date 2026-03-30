@@ -36,14 +36,19 @@ const billingColor: Record<BillingType, string> = {
   Setup: '#fb923c',
 }
 
-export const mockProdutos: Produto[] = [
-  { id: 'dash',     nome: 'Dashboard Global',     status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 299/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo', 'Filial Rio'], workspacesVinculados: ['Sede São Paulo', 'Filial Rio', 'Filial Sul', 'Importes SA', 'Logística MG'] },
-  { id: 'ativ',     nome: 'Gestão de Atividades',  status: 'Ativo',   billing: 'SaaS',  valor: 'R$ 199/mês',  renovacao: '01/05/2026', workspacesHabilitados: ['Sede São Paulo'], workspacesVinculados: ['Sede São Paulo', 'Filial Rio'] },
-  { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 10,99/est', renovacao: 'Variável',  workspacesHabilitados: ['Importes SA', 'Filial Sul'], workspacesVinculados: ['Importes SA', 'Filial Sul', 'Filial Rio'] },
-]
+// ─── Auth helper ────────────────────────────────────────────────────────────
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  try {
+    const session = await (window as any).Clerk?.session
+    const token = session ? await session.getToken() : null
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  } catch { /* sem token */ }
+  return headers
+}
 
 export function Assinaturas() {
-  const { getToken } = useAuth()
+  const _auth = useAuth() // mantido para contexto Clerk
   const { t } = useTranslation()
 
   const upsellProducts = [
@@ -51,38 +56,68 @@ export function Assinaturas() {
     { id: 'nfe',  nome: t('workspace.subscriptions.upsell.nfe'),  desc: t('workspace.subscriptions.upsell.nfe_desc'),     valor: 'R$ 159/mês', billing: 'Uso'  as BillingType },
     { id: 'bi',   nome: t('workspace.subscriptions.upsell.bi'), desc: t('workspace.subscriptions.upsell.bi_desc'),    valor: 'R$ 399/mês', billing: 'SaaS' as BillingType },
   ]
-  const [produtos, setProdutos]         = useState<Produto[]>(mockProdutos)
+  const [produtos, setProdutos]         = useState<Produto[]>([])
   const [catalogProdutos, setCatalogProdutos] = useState<any[]>([])
+  const [workspaces, setWorkspaces] = useState<{ nome: string; status: string; id: string }[]>([])
+  const [carregando, setCarregando] = useState(true)
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null)
   const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null)
   const [vinculoParaExcluir, setVinculoParaExcluir] = useState<{produto: Produto, workspaceNome: string} | null>(null)
 
   useEffect(() => {
-    async function loadCatalog() {
+    async function loadData() {
       try {
-        const [allProducts, subRes] = await Promise.all([
+        setCarregando(true)
+        const headers = await getAuthHeaders()
+
+        const [allProducts, subRes, companiesRes] = await Promise.all([
           catalogService.getProdutos(),
-          fetch('/api/v1/tenants/products', {
-            headers: { Authorization: `Bearer ${await getToken()}` },
-          }).catch(() => null),
+          fetch('/api/v1/tenants/products', { headers }).catch(() => null),
+          fetch('/api/v1/tenants/companies', { headers }).catch(() => null),
         ])
 
+        // Carregar workspaces reais
+        if (companiesRes && companiesRes.ok) {
+          const { companies } = await companiesRes.json()
+          setWorkspaces(companies.map((c: any) => ({
+            id: c.id,
+            nome: c.name ?? '',
+            status: c.status === 'ACTIVE' ? 'Ativa' : 'Suspensa',
+          })))
+        }
+
         const subscribedSlugs = new Set<string>()
+        const subscribedProducts: Produto[] = []
         if (subRes && subRes.ok) {
           const subData = await subRes.json()
           subData.products.forEach((p: any) => {
             if (p.is_active) subscribedSlugs.add(p.product_key)
+            subscribedProducts.push({
+              id: p.product_key ?? p.id,
+              nome: p.product_name ?? p.product_key ?? '',
+              status: p.is_active ? 'Ativo' : 'Suspenso',
+              billing: (p.billing_type === 'USAGE' ? 'Uso' : p.billing_type === 'SETUP' ? 'Setup' : 'SaaS') as BillingType,
+              valor: p.price_display ?? '',
+              renovacao: p.renewal_date ? new Date(p.renewal_date).toLocaleDateString('pt-BR') : '',
+              workspacesHabilitados: p.enabled_companies ?? [],
+              workspacesVinculados: p.linked_companies ?? [],
+            })
           })
+          if (subscribedProducts.length > 0) {
+            setProdutos(subscribedProducts)
+          }
         }
 
         // Show only catalog products that are NOT subscribed
-        setCatalogProdutos(allProducts.filter(p => !subscribedSlugs.has(p.slug)))
+        setCatalogProdutos(allProducts.filter((p: any) => !subscribedSlugs.has(p.slug)))
       } catch {
         // fallback: show all catalog products
         catalogService.getProdutos().then(setCatalogProdutos).catch(() => {})
+      } finally {
+        setCarregando(false)
       }
     }
-    loadCatalog()
+    loadData()
   }, [])
 
   const totalAtivos = produtos.filter(p => p.status === 'Ativo' || p.status === 'Trial').length
@@ -261,13 +296,8 @@ export function Assinaturas() {
     { header: 'Status',    key: 'status'   },
   ]
   const OPCOES_EXPORT = { nomeArquivo: 'assinaturas', titulo: 'Assinaturas & Planos' }
-  const TODOS_WORKSPACES_MAPP = [
-    { nome: 'Sede São Paulo', status: 'Ativa', id: 'ws1' },
-    { nome: 'Filial Rio', status: 'Ativa', id: 'ws2' },
-    { nome: 'Filial Sul', status: 'Ativa', id: 'ws3' },
-    { nome: 'Importes SA', status: 'Ativa', id: 'ws4' },
-    { nome: 'Logística MG', status: 'Suspensa', id: 'ws5' }
-  ]
+  // Workspaces carregados da API (substituiu TODOS_WORKSPACES_MAPP hardcoded)
+  const TODOS_WORKSPACES_MAPP = workspaces
 
   const ACOES_EXPORT: TabelaExportAcao<Produto>[] = [
     { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: (d) => void exportarExcel(d as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
@@ -386,6 +416,11 @@ export function Assinaturas() {
         Produtos Contratados
       </p>
       <div style={{ marginBottom: '2rem' }}>
+        {carregando ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '3rem', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>
+            Carregando assinaturas...
+          </div>
+        ) : (
         <TabelaGlobal<Produto>
           id="workspace-subscriptions"
           dados={produtos}
@@ -520,6 +555,7 @@ export function Assinaturas() {
             </div>
           )}
         />
+        )}
       </div>
 
       {/* Upsell cards dinâmicos do catalogService */}

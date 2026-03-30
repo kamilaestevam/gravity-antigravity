@@ -91,6 +91,15 @@ a[href="https://clerk.com?utm_source=clerk&utm_medium=components"] {
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4) !important;
 }
 
+.login-global-panel .cl-formFieldInput:-webkit-autofill,
+.login-global-panel .cl-formFieldInput:-webkit-autofill:hover,
+.login-global-panel .cl-formFieldInput:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-base, #1e293b) inset !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
 .login-global-panel .cl-formFieldLabel {
   font-size: 0.8125rem !important;
   font-weight: 600 !important;
@@ -265,6 +274,15 @@ a[href="https://clerk.com?utm_source=clerk&utm_medium=components"] {
   color: #818cf8;
 }
 
+.forgot-input-wrapper input:-webkit-autofill,
+.forgot-input-wrapper input:-webkit-autofill:hover,
+.forgot-input-wrapper input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px rgba(15, 23, 42, 0.6) inset !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
 .forgot-button {
   width: 100%;
   padding: 0.875rem;
@@ -414,6 +432,15 @@ body.light-theme .login-global-panel .cl-formFieldInput:focus,
 body.light-theme .login-global-panel .cl-formFieldInput:focus-visible {
   border-color: #4f46e5 !important;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35) !important;
+}
+
+body.light-theme .login-global-panel .cl-formFieldInput:-webkit-autofill,
+body.light-theme .login-global-panel .cl-formFieldInput:-webkit-autofill:hover,
+body.light-theme .login-global-panel .cl-formFieldInput:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-surface, #ffffff) inset !important;
+  -webkit-text-fill-color: #1e293b !important;
+  border-color: var(--border-default, #cbd5e1) !important;
+  transition: background-color 5000s ease-in-out 0s !important;
 }
 
 body.light-theme .login-global-panel .cl-formFieldLabel {

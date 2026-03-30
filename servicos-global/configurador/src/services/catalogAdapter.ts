@@ -167,11 +167,12 @@ export const catalogApiService = {
 
   async saveProduto(produto: ProdutoCatalogo): Promise<void> {
     const data = uiToApiCreate(produto)
-    // Se tem ID que parece ser do Prisma (cuid), atualiza; senão cria
-    const isExisting = produto.id && !produto.id.startsWith('p')
+    // Se tem ID real (Prisma cuid), atualiza diretamente
+    const isExisting = produto.id && !produto.id.startsWith('p') && produto.id.length > 0
     if (isExisting) {
       await adminProductsApi.update(produto.id, data)
     } else {
+      // POST faz upsert no backend (se slug já existe, atualiza)
       await adminProductsApi.create(data)
     }
   },
@@ -220,9 +221,11 @@ export const catalogApiService = {
 
   async getSlugsDisponiveis(): Promise<string[]> {
     try {
-      const { available } = await adminProductsApi.getAvailableSlugs()
-      console.log('[catalogAdapter] slugs disponíveis:', available)
-      return available
+      const { available, all } = await adminProductsApi.getAvailableSlugs()
+      // Retorna todos os slugs de contracts.json (POST faz upsert se slug já existe)
+      const slugs = all.length > 0 ? all : available
+      console.log('[catalogAdapter] slugs disponíveis:', slugs)
+      return slugs
     } catch (err) {
       console.error('[catalogAdapter] ERRO ao buscar slugs disponíveis:', err)
       return []

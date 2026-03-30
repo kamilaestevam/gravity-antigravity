@@ -25,6 +25,12 @@
   border-color: var(--brand-primary, #818cf8);
 }
 
+.lang-switcher__trigger:focus-visible,
+.lang-switcher__option:focus-visible {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+  outline: none;
+}
+
 .lang-switcher__code {
   line-height: 1;
 }

@@ -77,6 +77,11 @@
   background: rgba(255,255,255,0.05);
 }
 
+.sv-btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+  outline: none;
+}
+
 /* ── Estado ativo ────────────────────────────────────────────────────── */
 .sv-btn--active {
   color: var(--sv-active);

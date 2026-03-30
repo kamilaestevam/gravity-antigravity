@@ -7,18 +7,18 @@
 
 /* ─── Tokens internos (mapeados para o DS Gravity) ───────────────────────── */
 .tg-container {
-  --tg-bg:           var(--ws-surface, var(--color-surface, #1e293b));
-  --tg-bg-alt:       var(--ws-bg-body, var(--color-bg, #0f172a));
+  --tg-bg:           var(--bg-surface, var(--color-surface, #1e293b));
+  --tg-bg-alt:       var(--bg-body-dark, var(--color-bg, #0f172a));
   --tg-bg-hover:     rgba(129, 140, 248, 0.04);
   --tg-bg-selected:  rgba(129, 140, 248, 0.08);
   --tg-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
   --tg-border-solid: var(--color-border, #334155);
-  --tg-accent:       var(--ws-accent, #818cf8);
-  --tg-text:         var(--ws-text, var(--color-text, #f1f5f9));
-  --tg-text-muted:   var(--ws-muted, var(--color-text-muted, #94a3b8));
+  --tg-accent:       var(--accent, #818cf8);
+  --tg-text:         var(--text-primary, var(--color-text, #f1f5f9));
+  --tg-text-muted:   var(--text-muted, var(--color-text-muted, #94a3b8));
   --tg-danger:       var(--color-danger, #ef4444);
-  --tg-radius:       12px;
-  --tg-radius-sm:    6px;
+  --tg-radius:       var(--radius-lg, 12px);
+  --tg-radius-sm:    var(--radius-sm, 6px);
   --tg-focus-ring:   0 0 0 3px rgba(129, 140, 248, 0.18);
 }
 
@@ -500,10 +500,10 @@
   white-space: nowrap;
 }
 
-.badge-success { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
-.badge-warning { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
-.badge-danger  { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
-.badge-default { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.15); }
+.tg-badge-success { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+.tg-badge-warning { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+.tg-badge-danger  { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+.tg-badge-default { background: rgba(148,163,184,0.1); color: #94a3b8; border: 1px solid rgba(148,163,184,0.15); }
 
 /* ─── Skeleton ───────────────────────────────────────────────────────────── */
 .tg-skeleton {
@@ -607,6 +607,10 @@
 .tg-select-pagina:focus {
   outline: none;
   border-color: var(--tg-accent);
+}
+
+.tg-select-pagina:focus-visible {
+  box-shadow: var(--tg-focus-ring);
 }
 
 /* ─── Acessibilidade ─────────────────────────────────────────────────────── */
@@ -738,15 +742,15 @@
 
 /* ── Light theme ─────────────────────────────────────────────────────────── */
 body.light-theme .tg-container {
-  --tg-bg:           var(--ws-surface, var(--bg-base, #f8fafc));
-  --tg-bg-alt:       var(--ws-bg-body, var(--bg-body, #f1f5f9));
+  --tg-bg:           var(--bg-surface, var(--bg-base, #f8fafc));
+  --tg-bg-alt:       var(--bg-body-dark, var(--bg-body, #f1f5f9));
   --tg-bg-hover:     rgba(79, 70, 229, 0.04);
   --tg-bg-selected:  #e0e7ff;
   --tg-border:       var(--border-default, #cbd5e1);
   --tg-border-solid: var(--border-default, #cbd5e1);
   --tg-accent:       #4f46e5;
-  --tg-text:         var(--ws-text, #1e293b);
-  --tg-text-muted:   var(--ws-muted, #475569);
+  --tg-text:         var(--text-primary, #1e293b);
+  --tg-text-muted:   var(--text-muted, #475569);
   --tg-danger:       #dc2626;
   --tg-focus-ring:   0 0 0 3px rgba(79, 70, 229, 0.25);
 }
@@ -788,25 +792,25 @@ body.light-theme .tg-filtro-select option {
   color: #1e293b;
 }
 
-body.light-theme .badge-success {
+body.light-theme .tg-badge-success {
   background: #dcfce7;
   color: #16a34a;
   border-color: rgba(22, 163, 74, 0.2);
 }
 
-body.light-theme .badge-warning {
+body.light-theme .tg-badge-warning {
   background: #fef3c7;
   color: #b45309;
   border-color: rgba(180, 83, 9, 0.2);
 }
 
-body.light-theme .badge-danger {
+body.light-theme .tg-badge-danger {
   background: #fee2e2;
   color: #dc2626;
   border-color: rgba(220, 38, 38, 0.2);
 }
 
-body.light-theme .badge-default {
+body.light-theme .tg-badge-default {
   background: rgba(0, 0, 0, 0.05);
   color: #475569;
   border-color: rgba(0, 0, 0, 0.08);

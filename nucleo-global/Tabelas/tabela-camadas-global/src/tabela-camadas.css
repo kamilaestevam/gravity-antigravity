@@ -6,17 +6,17 @@
 
 /* ─── Tokens internos ─────────────────────────────────────────────────────── */
 .tcg-container {
-  --tcg-bg:           var(--ws-surface, #1e293b);
-  --tcg-bg-alt:       var(--ws-bg-body, #0f172a);
+  --tcg-bg:           var(--bg-surface, #1e293b);
+  --tcg-bg-alt:       var(--bg-body-dark, #0f172a);
   --tcg-bg-hover:     rgba(129, 140, 248, 0.04);
   --tcg-bg-filho:     rgba(10, 18, 36, 0.55);
   --tcg-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
   --tcg-border-solid: var(--color-border, #334155);
-  --tcg-accent:       var(--ws-accent, #818cf8);
-  --tcg-text:         var(--ws-text, #f1f5f9);
-  --tcg-muted:        var(--ws-muted, #94a3b8);
-  --tcg-radius:       12px;
-  --tcg-radius-sm:    6px;
+  --tcg-accent:       var(--accent, #818cf8);
+  --tcg-text:         var(--text-primary, #f1f5f9);
+  --tcg-muted:        var(--text-muted, #94a3b8);
+  --tcg-radius:       var(--radius-lg, 12px);
+  --tcg-radius-sm:    var(--radius-sm, 6px);
   --tcg-focus-ring:   0 0 0 3px rgba(129, 140, 248, 0.18);
 }
 
@@ -325,6 +325,11 @@
   color: var(--tcg-accent);
 }
 
+.tcg-chevron-btn:focus-visible {
+  box-shadow: var(--tcg-focus-ring);
+  outline: none;
+}
+
 .tcg-chevron-icon {
   transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   line-height: 0;
@@ -377,6 +382,11 @@
   background: rgba(129, 140, 248, 0.1);
   border-color: rgba(129, 140, 248, 0.2);
   color: var(--tcg-accent);
+}
+
+.tcg-acao-btn:focus-visible {
+  box-shadow: var(--tcg-focus-ring);
+  outline: none;
 }
 
 /* ─── Estado vazio ────────────────────────────────────────────────────────── */
@@ -490,17 +500,21 @@
   border-color: var(--tcg-accent);
 }
 
+.tcg-select-pagina:focus-visible {
+  box-shadow: var(--tcg-focus-ring);
+}
+
 /* ── Light theme ─────────────────────────────────────────────────────────── */
 body.light-theme .tcg-container {
-  --tcg-bg:           var(--ws-surface, var(--bg-base, #f8fafc));
-  --tcg-bg-alt:       var(--ws-bg-body, var(--bg-body, #f1f5f9));
+  --tcg-bg:           var(--bg-surface, var(--bg-base, #f8fafc));
+  --tcg-bg-alt:       var(--bg-body-dark, var(--bg-body, #f1f5f9));
   --tcg-bg-hover:     rgba(79, 70, 229, 0.04);
   --tcg-bg-filho:     rgba(79, 70, 229, 0.03);
   --tcg-border:       var(--border-default, #cbd5e1);
   --tcg-border-solid: var(--border-default, #cbd5e1);
   --tcg-accent:       #4f46e5;
-  --tcg-text:         var(--ws-text, #1e293b);
-  --tcg-muted:        var(--ws-muted, #475569);
+  --tcg-text:         var(--text-primary, #1e293b);
+  --tcg-muted:        var(--text-muted, #475569);
   --tcg-focus-ring:   0 0 0 3px rgba(79, 70, 229, 0.25);
 }
 

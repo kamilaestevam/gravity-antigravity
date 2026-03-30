@@ -241,6 +241,117 @@ const DEFAULT_SUGGESTIONS = [
   'Como funciona o trial?',
 ]
 
+// ── Blurred typing effect — infinite lines, auto-scroll ──
+
+const GHOST_LINES = [
+  { text: 'Baseado na documentacao da plataforma,', width: '95%' },
+  { text: 'vou analisar os detalhes relevantes para', width: '100%' },
+  { text: 'sua pergunta e trazer informacoes', width: '82%' },
+  { text: 'precisas sobre o assunto.', width: '62%' },
+  { text: 'Verificando dados e parametros do', width: '88%' },
+  { text: 'sistema para garantir uma resposta', width: '92%' },
+  { text: 'completa e atualizada com base nos', width: '90%' },
+  { text: 'registros disponiveis na plataforma.', width: '78%' },
+  { text: 'Consultando a base de conhecimento', width: '85%' },
+  { text: 'para validar as informacoes antes de', width: '96%' },
+  { text: 'apresentar o resultado final.', width: '68%' },
+  { text: 'Analisando contexto e historico para', width: '91%' },
+  { text: 'oferecer a melhor orientacao possivel', width: '87%' },
+  { text: 'sobre sua solicitacao atual.', width: '65%' },
+]
+
+const LINE_INTERVAL_MS = 1200
+
+function GabiBlurTyping() {
+  const [visibleCount, setVisibleCount] = useState(1)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVisibleCount(prev => prev + 1)
+    }, LINE_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [])
+
+  // Auto-scroll to bottom as new lines appear
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [visibleCount])
+
+  // Cycle through GHOST_LINES infinitely
+  const lines = Array.from({ length: visibleCount }, (_, i) => {
+    const src = GHOST_LINES[i % GHOST_LINES.length]
+    return { ...src, key: i }
+  })
+
+  return (
+    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', animation: 'gabiFadeIn 0.3s ease' }}>
+      {/* Avatar */}
+      <div style={{
+        width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+        background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        animation: 'gabiAvatarBreath 2s ease-in-out infinite',
+      }}>
+        <Sparkle size={14} weight="fill" color="#818cf8" style={{ animation: 'gabiThinkPulse 2s ease-in-out infinite' }} />
+      </div>
+
+      {/* Blurred text bubble */}
+      <div style={{
+        background: '#1c2233', border: '1px solid #272d42',
+        borderRadius: '16px 16px 16px 4px',
+        padding: '0.875rem 1rem',
+        display: 'flex', flexDirection: 'column', gap: '0.5rem',
+        minWidth: 200, maxWidth: '70%',
+        maxHeight: 160, overflowY: 'auto',
+        position: 'relative',
+        scrollbarWidth: 'none',
+      }} ref={scrollRef} className="gabi-blur-scroll">
+
+        {/* Shimmer sweep overlay */}
+        <div style={{
+          position: 'sticky', top: 0, left: 0, right: 0, height: 0, zIndex: 3,
+        }}>
+          <div style={{
+            position: 'absolute', top: 0, left: '-1rem', right: '-1rem', height: 160,
+            background: 'linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.06) 40%, rgba(139,92,246,0.1) 50%, rgba(99,102,241,0.06) 60%, transparent 100%)',
+            backgroundSize: '200% 100%',
+            animation: 'gabiShimmer 1.8s ease-in-out infinite',
+            pointerEvents: 'none',
+          }} />
+        </div>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.125rem', position: 'relative', zIndex: 2 }}>
+          <Sparkle size={12} weight="fill" color="#6366f1" style={{ animation: 'gabiThinkPulse 1s ease-in-out infinite', flexShrink: 0 }} />
+          <span style={{ fontSize: '0.75rem', color: '#818cf8', fontWeight: 500 }}>Gerando resposta...</span>
+        </div>
+
+        {/* Lines */}
+        {lines.map(line => (
+          <div key={line.key} style={{
+            fontSize: '0.8125rem', lineHeight: 1.5,
+            color: 'rgba(160, 170, 200, 0.55)',
+            filter: 'blur(3.5px)',
+            userSelect: 'none',
+            position: 'relative', zIndex: 2,
+            width: line.width,
+            WebkitMaskImage: 'linear-gradient(90deg, #000 0%, #000 30%, transparent 50%, transparent 100%)',
+            maskImage: 'linear-gradient(90deg, #000 0%, #000 30%, transparent 50%, transparent 100%)',
+            WebkitMaskSize: '300% 100%',
+            maskSize: '300% 100%',
+            animation: 'gabiTypeReveal 1.4s ease-out both, gabiLineReveal 2.4s ease-in-out infinite',
+          }}>
+            {line.text}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── Copy button component ──
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false)
@@ -969,70 +1080,9 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
               })
             )}
 
-            {/* Thinking animation — Blurred text preview */}
+            {/* Thinking animation — Blurred text preview (infinite) */}
             {isTyping && !messages.some(m => m.streaming) && (
-              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', animation: 'gabiFadeIn 0.3s ease' }}>
-                {/* Avatar */}
-                <div style={{
-                  width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
-                  background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  animation: 'gabiAvatarBreath 2s ease-in-out infinite',
-                }}>
-                  <Sparkle size={14} weight="fill" color="#818cf8" style={{ animation: 'gabiThinkPulse 2s ease-in-out infinite' }} />
-                </div>
-
-                {/* Blurred text mock — simulates text being generated */}
-                <div style={{
-                  background: '#1c2233', border: '1px solid #272d42',
-                  borderRadius: '16px 16px 16px 4px',
-                  padding: '0.875rem 1rem',
-                  display: 'flex', flexDirection: 'column', gap: '0.5rem',
-                  minWidth: 200, maxWidth: '70%',
-                  overflow: 'hidden', position: 'relative',
-                }}>
-                  {/* Shimmer sweep overlay */}
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.06) 40%, rgba(139,92,246,0.1) 50%, rgba(99,102,241,0.06) 60%, transparent 100%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'gabiShimmer 1.8s ease-in-out infinite',
-                    zIndex: 1,
-                  }} />
-
-                  {/* Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.125rem', position: 'relative', zIndex: 2 }}>
-                    <Sparkle size={12} weight="fill" color="#6366f1" style={{ animation: 'gabiThinkPulse 1s ease-in-out infinite', flexShrink: 0 }} />
-                    <span style={{ fontSize: '0.75rem', color: '#818cf8', fontWeight: 500 }}>Gerando resposta...</span>
-                  </div>
-
-                  {/* Blurred text lines — revealed left-to-right, line by line */}
-                  {[
-                    { text: 'Baseado na documentacao da plataforma,', delay: 0, width: '95%' },
-                    { text: 'vou analisar os detalhes relevantes para', delay: 1.2, width: '100%' },
-                    { text: 'sua pergunta e trazer informacoes', delay: 2.4, width: '82%' },
-                    { text: 'precisas sobre o assunto.', delay: 3.6, width: '62%' },
-                  ].map((line, i) => (
-                    <div key={i} style={{
-                      fontSize: '0.8125rem', lineHeight: 1.5,
-                      color: 'rgba(160, 170, 200, 0.55)',
-                      filter: 'blur(3.5px)',
-                      userSelect: 'none',
-                      position: 'relative', zIndex: 2,
-                      width: line.width,
-                      WebkitMaskImage: 'linear-gradient(90deg, #000 0%, #000 30%, transparent 50%, transparent 100%)',
-                      maskImage: 'linear-gradient(90deg, #000 0%, #000 30%, transparent 50%, transparent 100%)',
-                      WebkitMaskSize: '300% 100%',
-                      maskSize: '300% 100%',
-                      WebkitMaskPosition: '100% 0',
-                      maskPosition: '100% 0',
-                      animation: `gabiTypeReveal 1.4s ease-out ${line.delay}s both, gabiLineReveal 2.4s ease-in-out ${line.delay}s infinite`,
-                    }}>
-                      {line.text}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <GabiBlurTyping />
             )}
 
             <div ref={chatEndRef} />
@@ -1110,6 +1160,7 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
       )}
 
       <style>{`
+        .gabi-blur-scroll::-webkit-scrollbar { display: none; }
         @keyframes gabiPulse {
           0%, 100% { box-shadow: 0 8px 32px rgba(99,102,241,0.4); }
           50% { box-shadow: 0 8px 48px rgba(99,102,241,0.6), 0 0 0 8px rgba(99,102,241,0.1); }

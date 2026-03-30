@@ -88,12 +88,33 @@ body.light-theme .ws-main::before {
   background: rgba(0, 0, 0, 0.08);
 }
 
-/* Badge ENTERPRISE — contraste OK no claro */
+/* Badge ENTERPRISE — contraste forte no claro */
 body.light-theme .ws-mae-card__badge,
 body.light-theme .em-tag {
-  color: #92620a;
-  background: rgba(251, 191, 36, 0.18);
-  border-color: rgba(251, 191, 36, 0.40);
+  color: #92400e;
+  background: rgba(251, 191, 36, 0.22);
+  border-color: rgba(217, 119, 6, 0.45);
+  font-weight: 700;
+}
+
+/* Card Organização — amarelo mais quente no claro */
+body.light-theme .em-identity {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, var(--ws-surface) 55%);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+body.light-theme .em-identity__avatar {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.30);
+  color: #92400e;
+}
+
+body.light-theme .em-identity__badge {
+  color: #92400e;
+}
+
+body.light-theme .em-identity__name {
+  color: var(--ws-text, #1e293b);
 }
 
 /* Readonly field — fundo sutil no claro */
@@ -105,6 +126,30 @@ body.light-theme .em-readonly {
 /* Separador de meta no claro */
 body.light-theme .em-identity__sep {
   color: rgba(0, 0, 0, 0.25);
+}
+
+/* Subdomínio na tabela — visível no claro */
+.ws-subdominio-code {
+  font-size: 0.8125rem;
+  padding: 0.125rem 0.4rem;
+  border-radius: 4px;
+  color: #c7d2fe;
+  background: rgba(199, 210, 254, 0.1);
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.ws-subdominio-code:hover {
+  background: rgba(199, 210, 254, 0.2);
+}
+
+body.light-theme .ws-subdominio-code {
+  color: #4338ca;
+  background: rgba(79, 70, 229, 0.08);
+}
+
+body.light-theme .ws-subdominio-code:hover {
+  background: rgba(79, 70, 229, 0.14);
 }
 
 /* Tooltip no claro */
@@ -1164,7 +1209,7 @@ body.light-theme .ws-profile-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   left: 50%;
-  z-index: 500;
+  z-index: 9999;
 
   background: var(--ws-surface);
   border: 1px solid var(--ws-accent-border);

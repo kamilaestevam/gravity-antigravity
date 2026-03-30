@@ -351,11 +351,10 @@ function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void
 
 function ExportMenuItem({ label, icon, onClick, tooltip }: { label: string; icon: React.ReactNode; onClick: () => void; tooltip?: string }) {
   const content = (
-    <button type="button" onClick={onClick}
-      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', padding: '0.45rem 0.875rem', background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s, color 0.1s' }}
-      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.07)'; e.currentTarget.style.color = '#f1f5f9' }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8' }}>
-      <span style={{ color: '#818cf8', display: 'flex', flexShrink: 0 }}>{icon}</span>
+    <button type="button" onClick={onClick} className="tg-export-menu-item"
+      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.07)' }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
+      <span className="tg-export-menu-icon" style={{ display: 'flex', flexShrink: 0 }}>{icon}</span>
       {label}
     </button>
   )
@@ -646,7 +645,8 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
 
               {exportMenuAberto && (
                 <div ref={exportMenuRef}
-                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, background: '#1e293b', border: '1px solid var(--ws-accent-border)', borderRadius: '10px', boxShadow: '0 12px 32px rgba(0,0,0,0.55)', minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
+                  className="tg-export-menu"
+                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
                   onClick={e => e.stopPropagation()}>
                   {acoesExportacao.map(a => (
                     <ExportMenuItem 

@@ -17,14 +17,30 @@ const __dirname = dirname(__filename)
 
 /** Lê os slugs registrados em contracts.json */
 function getContractsSlugs(): string[] {
-  try {
-    const contractsPath = join(__dirname, '..', '..', '..', 'contracts.json')
-    const raw = readFileSync(contractsPath, 'utf-8')
-    const contracts = JSON.parse(raw)
-    return Object.keys(contracts.services ?? {})
-  } catch {
-    return []
+  // Tentar múltiplos caminhos possíveis (dev vs deploy)
+  const possiblePaths = [
+    join(__dirname, '..', '..', '..', 'contracts.json'),           // dev: server/routes/ -> servicos-global/
+    join(__dirname, '..', '..', '..', '..', 'servicos-global', 'contracts.json'), // alt: se __dirname resolve diferente
+    join(process.cwd(), 'servicos-global', 'contracts.json'),      // cwd = root do monorepo
+    join(process.cwd(), 'contracts.json'),                         // cwd = servicos-global/configurador
+    join(process.cwd(), '..', 'contracts.json'),                   // cwd = servicos-global/configurador -> servicos-global/
+  ]
+
+  for (const contractsPath of possiblePaths) {
+    try {
+      const raw = readFileSync(contractsPath, 'utf-8')
+      const contracts = JSON.parse(raw)
+      const slugs = Object.keys(contracts.services ?? {})
+      if (slugs.length > 0) {
+        return slugs
+      }
+    } catch {
+      // Tentar proximo path
+    }
   }
+
+  console.warn('[adminProducts] contracts.json não encontrado em nenhum path')
+  return []
 }
 
 export const adminProductsRouter = Router()

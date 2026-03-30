@@ -431,19 +431,9 @@ export function SelecionarWorkspace() {
      RENDER
   ══════════════════════════════════ */
   return (
-    <div className="sw-shell">
-      {/* ── MENU LATERAL ── */}
-      <MenuLateralGlobal
-        tenantName={tenantName}
-        tenantPlan={tenantPlan}
-        navItems={navItems}
-        moduleName="Gravity"
-        moduleColor="#4F63FF"
-        defaultCollapsed={false}
-      />
-
-      {/* ── PAGE ── */}
-      <div className="sw-page">
+    <div className="sw-shell sw-shell--no-sidebar">
+      {/* ── PAGE (Hub sem menu lateral) ── */}
+      <div className="sw-page sw-page--full">
         {/* TOPBAR */}
         <header className="sw-topbar">
           <span className="sw-t-brand">Gravity<span>.</span></span>

@@ -70,6 +70,14 @@
   z-index: 10;
 }
 
+/* ── Hub mode: sem sidebar ── */
+.sw-shell--no-sidebar .mlg-sidebar {
+  display: none !important;
+}
+.sw-shell--no-sidebar .sw-page--full {
+  width: 100%;
+}
+
 /* ── Page scroll area ── */
 .sw-page {
   flex: 1;

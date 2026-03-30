@@ -416,7 +416,7 @@ export function SelecionarWorkspace() {
     setEntrando(true)
     sessionStorage.setItem('gravity_company_id', selectedWs.id)
     sessionStorage.setItem('gravity_company_name', selectedWs.nome)
-    setTimeout(() => navigate('/hub'), 500)
+    setTimeout(() => navigate('/core'), 500)
   }, [selectedWs, entrando, navigate])
 
   const handleSair = useCallback(() => {

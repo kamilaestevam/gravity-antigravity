@@ -1,0 +1,98 @@
+/**
+ * secao-global.css — Componente de seção
+ * Match visual com .em-section + .ws-section-title do Configurador
+ */
+
+.gb-secao {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: var(--space-5, 1.25rem);
+}
+
+.gb-secao:last-child {
+  margin-bottom: 0;
+}
+
+/* Card variant — match com .em-section do Configurador */
+.gb-secao--card {
+  background: var(--ws-surface, var(--bg-base, #1e293b));
+  border: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.20));
+  border-radius: var(--radius-lg, 12px);
+  padding: var(--space-6, 1.5rem);
+}
+
+/* Header: título + ações lado a lado */
+.gb-secao__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4, 1rem);
+}
+
+.gb-secao__header-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.25rem);
+}
+
+/* Título — match exato com .ws-section-title do Configurador */
+.gb-secao__titulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ws-muted, var(--text-muted, #64748b));
+  margin: 0;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Ícone no título — accent color */
+.gb-secao__titulo-icone {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ws-accent, var(--accent, #818cf8));
+}
+
+.gb-secao__subtitulo {
+  font-size: var(--text-sm, 0.8125rem);
+  color: var(--ws-muted, var(--text-muted, #64748b));
+  margin: 0;
+  line-height: 1.5;
+}
+
+.gb-secao__acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  flex-shrink: 0;
+}
+
+.gb-secao__conteudo {
+  width: 100%;
+}
+
+/* ─── Animação cascading — match com ws-fade-up do Configurador ─── */
+
+@keyframes ws-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ws-fade-up {
+  animation: ws-fade-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.ws-fade-up-d1 { animation-delay: 0.07s; }
+.ws-fade-up-d2 { animation-delay: 0.14s; }
+.ws-fade-up-d3 { animation-delay: 0.21s; }

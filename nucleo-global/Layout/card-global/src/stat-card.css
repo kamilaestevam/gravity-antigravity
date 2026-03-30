@@ -140,3 +140,25 @@
   overflow: visible;
 }
 
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .scg-card {
+  background: var(--ws-surface, var(--bg-base, #f8fafc));
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .scg-card:hover {
+  border-color: var(--ws-accent, #4f46e5);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.15), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .scg-card__trend--up {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+body.light-theme .scg-card__trend--down {
+  color: #dc2626;
+  background: #fee2e2;
+}
+

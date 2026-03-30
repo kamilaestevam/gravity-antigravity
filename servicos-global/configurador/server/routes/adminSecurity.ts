@@ -220,22 +220,18 @@ adminSecurityRouter.get('/secrets', async (_req, res, _next) => {
     {
       name: 'INTERNAL_SERVICE_KEY',
       configured: !!process.env.INTERNAL_SERVICE_KEY,
-      prefix: process.env.INTERNAL_SERVICE_KEY?.slice(0, 8) || 'N/A',
     },
     {
       name: 'CLERK_SECRET_KEY',
       configured: !!process.env.CLERK_SECRET_KEY,
-      prefix: process.env.CLERK_SECRET_KEY?.slice(0, 10) || 'N/A',
     },
     {
       name: 'STRIPE_SECRET_KEY',
       configured: !!process.env.STRIPE_SECRET_KEY,
-      prefix: process.env.STRIPE_SECRET_KEY?.slice(0, 10) || 'N/A',
     },
     {
       name: 'ENCRYPTION_KEY',
       configured: !!process.env.ENCRYPTION_KEY,
-      prefix: 'AES-256',
     },
   ]
 

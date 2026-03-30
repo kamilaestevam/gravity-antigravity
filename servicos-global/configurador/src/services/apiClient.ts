@@ -4,13 +4,54 @@
 
 const BASE_URL = '/api'
 
+// ─── Auth token provider (Clerk JWT) ──────────────────────────────────────
+
+let _getToken: (() => Promise<string | null>) | null = null
+
+/** Configura o provider de token Clerk para todas as chamadas API */
+export function setAuthTokenProvider(getToken: () => Promise<string | null>) {
+  _getToken = getToken
+}
+
+/**
+ * Tenta obter o token Clerk de múltiplas formas:
+ * 1. Provider configurado via setAuthTokenProvider
+ * 2. Cookie __session do Clerk (fallback)
+ * 3. window.Clerk?.session?.getToken() (fallback global)
+ */
+async function getAuthToken(): Promise<string | null> {
+  // 1. Provider configurado
+  if (_getToken) {
+    try {
+      const token = await _getToken()
+      if (token) return token
+    } catch { /* fallback */ }
+  }
+
+  // 2. Clerk global (injetado pelo ClerkProvider)
+  try {
+    const clerk = (window as unknown as { Clerk?: { session?: { getToken: () => Promise<string | null> } } }).Clerk
+    if (clerk?.session?.getToken) {
+      const token = await clerk.session.getToken()
+      if (token) return token
+    }
+  } catch { /* fallback */ }
+
+  return null
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const authHeaders: Record<string, string> = {}
+  const token = await getAuthToken()
+  if (token) authHeaders['Authorization'] = `Bearer ${token}`
+
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...options.headers,
     },
     ...options,

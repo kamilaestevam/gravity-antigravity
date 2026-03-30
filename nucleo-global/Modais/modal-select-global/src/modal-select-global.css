@@ -1,9 +1,9 @@
 
 
 .modal-campo-select-global {
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.04) 0%, var(--ws-surface) 60%);
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.04) 0%, var(--bg-surface, #1e293b) 60%);
   border: 1px solid rgba(129, 140, 248, 0.30);
-  border-radius: 12px;
+  border-radius: var(--radius-lg, 12px);
   padding: 1.5rem;
   margin-bottom: 1.25rem;
   overflow: visible;
@@ -14,7 +14,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ws-muted);
+  color: var(--text-muted, #64748b);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -23,7 +23,7 @@
 
 .modal-campo-select-global__desc {
   font-size: 0.875rem;
-  color: var(--ws-muted);
+  color: var(--text-muted, #64748b);
   margin: -0.25rem 0 1rem;
   line-height: 1.6;
 }
@@ -53,12 +53,23 @@
   padding: 0.625rem 1rem;
   background: rgba(52, 211, 153, 0.08);
   border: 1px solid rgba(52, 211, 153, 0.2);
-  border-radius: 8px;
+  border-radius: var(--radius-md, 8px);
   font-size: 0.875rem;
-  color: var(--ws-text);
+  color: var(--text-primary, #f1f5f9);
 }
 
 .modal-campo-select-global__active-sub {
-  color: var(--ws-muted);
+  color: var(--text-muted, #64748b);
   font-size: 0.8125rem;
+}
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .modal-campo-select-global {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.03) 0%, var(--bg-surface, #ffffff) 60%);
+  border-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .modal-campo-select-global__active {
+  background: rgba(22, 163, 74, 0.06);
+  border-color: rgba(22, 163, 74, 0.15);
 }

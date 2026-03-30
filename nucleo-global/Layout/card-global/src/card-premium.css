@@ -414,3 +414,46 @@
 .cg-card--reduced-2px .cg-gauge__num  { font-size: 13px; }
 .cg-card--reduced-2px .cg-gauge__pct  { font-size: 7px; }
 .cg-card--reduced-2px .cg-legend      { font-size: 10px; }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .cg-card {
+  background: var(--ws-surface, var(--bg-base, #f8fafc));
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .cg-card:hover {
+  border-color: var(--ws-accent, #4f46e5);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.15), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .cg-card__tooltip,
+body.light-theme .cg-period-picker {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .cg-period-picker__btn:hover {
+  background: rgba(79, 70, 229, 0.06);
+  border-color: rgba(79, 70, 229, 0.12);
+}
+
+body.light-theme .cg-period-picker__btn--active {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
+body.light-theme .cg-card__trend--up {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+body.light-theme .cg-card__trend--down {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+body.light-theme .cg-dot--green  { background: #16a34a; }
+body.light-theme .cg-dot--yellow { background: #b45309; }
+body.light-theme .cg-dot--red    { background: #dc2626; }

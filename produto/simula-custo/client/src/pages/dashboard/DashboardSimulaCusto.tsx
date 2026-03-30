@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
   ChartBar,
@@ -97,6 +98,7 @@ const GabiInsight = ({ text }: { text: string }) => (
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 export default function DashboardSimulaCusto() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [kpis, setKpis]             = useState<DashboardKPIs | null>(null)
   const [recentes, setRecentes]     = useState<SimulacaoRecente[]>([])
@@ -149,14 +151,14 @@ export default function DashboardSimulaCusto() {
   ) : (
     <>
       <CardBasicoGlobal
-        titulo="Total de Simulações"
+        titulo={t('simulacusto.dashboard.total_simulacoes')}
         icone={<Calculator weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
         valor={totalSimulacoes}
         periodos={[
-          { periodo: '7d',  rotulo: '7 dias',  valor: '+4',   direcao: 'up',   descricao: 'vs semana anterior'   },
-          { periodo: '30d', rotulo: '30 dias', valor: '+12%', direcao: 'up',   descricao: 'vs mês anterior'      },
-          { periodo: '6m',  rotulo: '6 meses', valor: '+38%', direcao: 'up',   descricao: 'vs semestre anterior' },
-          { periodo: '1a',  rotulo: '1 ano',   valor: '+92',  direcao: 'up',   descricao: 'vs ano anterior'      },
+          { periodo: '7d',  rotulo: t('simulacusto.periodos.7_dias'),  valor: '+4',   direcao: 'up',   descricao: t('simulacusto.periodos.vs_semana')   },
+          { periodo: '30d', rotulo: t('simulacusto.periodos.30_dias'), valor: '+12%', direcao: 'up',   descricao: t('simulacusto.periodos.vs_mes')      },
+          { periodo: '6m',  rotulo: t('simulacusto.periodos.6_meses'), valor: '+38%', direcao: 'up',   descricao: t('simulacusto.periodos.vs_semestre') },
+          { periodo: '1a',  rotulo: t('simulacusto.periodos.1_ano'),   valor: '+92',  direcao: 'up',   descricao: t('simulacusto.periodos.vs_ano')      },
         ] as PeriodoTendencia[]}
         tooltip={
           <>
@@ -178,15 +180,15 @@ export default function DashboardSimulaCusto() {
       />
 
       <CardBasicoGlobal
-        titulo="Custo Médio (BRL)"
+        titulo={t('simulacusto.dashboard.custo_medio')}
         icone={<TrendUp weight="duotone" size={16} style={{ color: '#34d399' }} />}
         valor={mediaLanded}
         variante="sucesso"
         periodos={[
-          { periodo: '7d',  rotulo: '7 dias',  valor: '-1%',  direcao: 'down', descricao: 'vs semana anterior'   },
-          { periodo: '30d', rotulo: '30 dias', valor: '-4%',  direcao: 'down', descricao: 'vs mês anterior'      },
-          { periodo: '6m',  rotulo: '6 meses', valor: '-8%',  direcao: 'down', descricao: 'vs semestre anterior' },
-          { periodo: '1a',  rotulo: '1 ano',   valor: '-11%', direcao: 'down', descricao: 'vs ano anterior'      },
+          { periodo: '7d',  rotulo: t('simulacusto.periodos.7_dias'),  valor: '-1%',  direcao: 'down', descricao: t('simulacusto.periodos.vs_semana')   },
+          { periodo: '30d', rotulo: t('simulacusto.periodos.30_dias'), valor: '-4%',  direcao: 'down', descricao: t('simulacusto.periodos.vs_mes')      },
+          { periodo: '6m',  rotulo: t('simulacusto.periodos.6_meses'), valor: '-8%',  direcao: 'down', descricao: t('simulacusto.periodos.vs_semestre') },
+          { periodo: '1a',  rotulo: t('simulacusto.periodos.1_ano'),   valor: '-11%', direcao: 'down', descricao: t('simulacusto.periodos.vs_ano')      },
         ] as PeriodoTendencia[]}
         tooltip={
           <>
@@ -208,13 +210,13 @@ export default function DashboardSimulaCusto() {
       />
 
       <CardBasicoGlobal
-        titulo="Base CIF Total (USD)"
+        titulo={t('simulacusto.dashboard.base_cif')}
         icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
         valor={usdFmt(kpis?.totalCifUsd ?? null)}
         variante="aviso"
         periodos={[
-          { periodo: '30d', rotulo: '30 dias', valor: '+6%',  direcao: 'up',   descricao: 'vs mês anterior'      },
-          { periodo: '6m',  rotulo: '6 meses', valor: '+14%', direcao: 'up',   descricao: 'vs semestre anterior' },
+          { periodo: '30d', rotulo: t('simulacusto.periodos.30_dias'), valor: '+6%',  direcao: 'up',   descricao: t('simulacusto.periodos.vs_mes')      },
+          { periodo: '6m',  rotulo: t('simulacusto.periodos.6_meses'), valor: '+14%', direcao: 'up',   descricao: t('simulacusto.periodos.vs_semestre') },
         ] as PeriodoTendencia[]}
         tooltip={
           <>
@@ -230,15 +232,15 @@ export default function DashboardSimulaCusto() {
       />
 
       <CardGraficoGlobal
-        titulo="Viabilidade Fiscal"
+        titulo={t('simulacusto.dashboard.viabilidade')}
         icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
         total={totalSimulacoes}
         valorPrincipal={kpis?.viavel ?? 0}
         corGauge="#34d399"
         legenda={[
-          { label: 'Viável',   valor: kpis?.viavel ?? 0,   cor: 'green'  },
-          { label: 'Atenção',  valor: kpis?.atencao ?? 0,  cor: 'yellow' },
-          { label: 'Inviável', valor: kpis?.inviavel ?? 0, cor: 'red'    },
+          { label: t('simulacusto.dashboard.viavel'),   valor: kpis?.viavel ?? 0,   cor: 'green'  },
+          { label: t('simulacusto.dashboard.atencao'),  valor: kpis?.atencao ?? 0,  cor: 'yellow' },
+          { label: t('simulacusto.dashboard.inviavel'), valor: kpis?.inviavel ?? 0, cor: 'red'    },
         ]}
         tooltip={
           <>
@@ -266,7 +268,7 @@ export default function DashboardSimulaCusto() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="SimulaCusto"
+          titulo={t('simulacusto.dashboard.titulo')}
           subtitulo="Simulação completa de custos, impostos e viabilidade para operações de importação"
           icone={<ChartBar weight="duotone" size={22} color="#818cf8" />}
           viewToggle={
@@ -288,10 +290,10 @@ export default function DashboardSimulaCusto() {
             icone={<ArrowsClockwise weight="bold" />}
             onClick={fetchDashboard}
           >
-            Atualizar
+            {t('comum.atualizar')}
           </BotaoGlobal>
           <BotaoGlobal variante="primario" tamanho="pequeno" icone={<Calculator weight="bold" />}>
-            Nova Simulação
+            {t('simulacusto.estimativas.nova')}
           </BotaoGlobal>
         </div>
       }
@@ -302,11 +304,11 @@ export default function DashboardSimulaCusto() {
           {/* Card: Fluxo de Câmbio */}
           <div className="db-panel">
             <div className="db-panel-header">
-              <span className="db-panel-title">Projeção de Fluxo de Caixa (Câmbio)</span>
+              <span className="db-panel-title">{t('simulacusto.dashboard.projecao_fluxo')}</span>
               <div className="db-panel-legend">
-                <span className="dot dot-opt"></span> Otimista
-                <span className="dot dot-base"></span> Base
-                <span className="dot dot-pess"></span> Pessimista
+                <span className="dot dot-opt"></span> {t('simulacusto.dashboard.otimista')}
+                <span className="dot dot-base"></span> {t('simulacusto.dashboard.base')}
+                <span className="dot dot-pess"></span> {t('simulacusto.dashboard.pessimista')}
               </div>
             </div>
             <div className="db-chart-placeholder">
@@ -325,8 +327,8 @@ export default function DashboardSimulaCusto() {
           {/* Card: Simulações Recentes — dados reais */}
           <div className="db-panel">
             <div className="db-panel-header">
-              <span className="db-panel-title">Simulações Recentes</span>
-              <button className="db-btn-ghost">Ver todas <ArrowRight size={14} /></button>
+              <span className="db-panel-title">{t('simulacusto.dashboard.simulacoes_recentes')}</span>
+              <button className="db-btn-ghost">{t('simulacusto.dashboard.ver_todas')} <ArrowRight size={14} /></button>
             </div>
 
             {loadingRecentes ? (
@@ -350,8 +352,8 @@ export default function DashboardSimulaCusto() {
                 id="simulacoes-recentes-dashboard"
                 dados={recentes}
                 colunas={COLUNAS_TABELA}
-                mensagemVazio="Nenhuma simulação encontrada para este workspace."
-                tooltipBusca="Filtrar por NCM ou País"
+                mensagemVazio={t('simulacusto.dashboard.sem_simulacoes')}
+                tooltipBusca={t('simulacusto.dashboard.filtrar_ncm_pais')}
               />
             )}
           </div>
@@ -362,7 +364,7 @@ export default function DashboardSimulaCusto() {
           <GabiInsight text="Identificamos que 40% das suas simulações recentes para NCM 8471 poderiam economizar até 12% em ICMS se o desembaraço fosse feito via Santa Catarina." />
           <div className="db-panel db-panel-warning">
             <div className="db-panel-header">
-              <span className="db-panel-title"><WarningCircle weight="fill" size={16} /> Alertas de Câmbio</span>
+              <span className="db-panel-title"><WarningCircle weight="fill" size={16} /> {t('simulacusto.dashboard.alertas_cambio')}</span>
             </div>
             <div className="db-warning-content">
               <p>A taxa PTAX do USD subiu <strong>1.4%</strong> hoje. Recomenda-se revisar simulações em rascunho.</p>

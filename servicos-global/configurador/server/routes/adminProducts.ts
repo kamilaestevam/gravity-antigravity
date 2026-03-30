@@ -17,32 +17,29 @@ const __dirname = dirname(__filename)
 
 /** Lê os slugs registrados em contracts.json */
 function getContractsSlugs(): string[] {
+  // Tentar múltiplos caminhos possíveis (dev vs deploy)
   const possiblePaths = [
-    join(__dirname, '..', '..', '..', 'contracts.json'),
-    join(__dirname, '..', '..', '..', '..', 'servicos-global', 'contracts.json'),
-    join(process.cwd(), 'servicos-global', 'contracts.json'),
-    join(process.cwd(), 'contracts.json'),
-    join(process.cwd(), '..', 'contracts.json'),
+    join(__dirname, '..', '..', '..', 'contracts.json'),           // dev: server/routes/ -> servicos-global/
+    join(__dirname, '..', '..', '..', '..', 'servicos-global', 'contracts.json'), // alt: se __dirname resolve diferente
+    join(process.cwd(), 'servicos-global', 'contracts.json'),      // cwd = root do monorepo
+    join(process.cwd(), 'contracts.json'),                         // cwd = servicos-global/configurador
+    join(process.cwd(), '..', 'contracts.json'),                   // cwd = servicos-global/configurador -> servicos-global/
   ]
 
-  console.log('[getContractsSlugs] __dirname:', __dirname)
-  console.log('[getContractsSlugs] cwd:', process.cwd())
-
-  for (const p of possiblePaths) {
+  for (const contractsPath of possiblePaths) {
     try {
-      const raw = readFileSync(p, 'utf-8')
+      const raw = readFileSync(contractsPath, 'utf-8')
       const contracts = JSON.parse(raw)
       const slugs = Object.keys(contracts.services ?? {})
       if (slugs.length > 0) {
-        console.log(`[getContractsSlugs] ENCONTRADO: ${p} (${slugs.length} slugs)`)
         return slugs
       }
     } catch {
-      console.log(`[getContractsSlugs] não encontrado: ${p}`)
+      // Tenta o proximo path
     }
   }
 
-  console.warn('[getContractsSlugs] contracts.json NÃO ENCONTRADO em nenhum path!')
+  console.warn('[adminProducts] contracts.json NÃO ENCONTRADO em nenhum dos paths acima!')
   return []
 }
 
@@ -108,20 +105,20 @@ const UpdateProductSchema = CreateProductSchema.partial()
 adminProductsRouter.get('/available-slugs', async (_req, res, next) => {
   try {
     const allSlugs = getContractsSlugs()
-    console.log('[available-slugs] allSlugs:', allSlugs)
+    console.log('[available-slugs] allSlugs from contracts.json:', allSlugs)
     const existingProducts = await productCatalogService.list({ limit: 1000 })
-    console.log('[available-slugs] produtos existentes:', existingProducts.products.length)
+    console.log('[available-slugs] existing products count:', existingProducts.products.length)
     const usedSlugs = new Set(
       existingProducts.products
         .map((p: { slug?: string; backend_module?: string | null }) => p.backend_module ?? p.slug)
         .filter(Boolean)
     )
-    console.log('[available-slugs] usados:', [...usedSlugs])
+    console.log('[available-slugs] usedSlugs:', [...usedSlugs])
     const available = allSlugs.filter(slug => !usedSlugs.has(slug))
-    console.log('[available-slugs] disponíveis:', available)
+    console.log('[available-slugs] available:', available)
     res.json({ available, all: allSlugs })
   } catch (err) {
-    console.error('[available-slugs] ERRO:', err)
+    console.error('[available-slugs] ERROR:', err)
     next(err)
   }
 })

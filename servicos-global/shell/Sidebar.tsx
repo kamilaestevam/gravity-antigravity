@@ -103,12 +103,12 @@ export function Sidebar({
   const defaultNavItems: NavItem[] = [
     // ── Meu Espaco ──
     {
-      label: 'Meu Espaco',
+      label: t('shell.menu.meu_espaco', 'Meu Espaco'),
       icon: <House weight="duotone" size={20} />,
       children: [
         { to: '/meu-espaco',            label: t('shell.menu.dashboard', 'Dashboard'),          icon: <House weight="duotone" size={18} /> },
-        { to: '/meu-espaco/atividades', label: t('shell.menu.atividades', 'Minhas Atividades'), icon: <BookOpen weight="duotone" size={18} /> },
-        { to: '/meu-espaco/email',      label: t('shell.menu.email', 'E-mails'),                icon: <Envelope weight="duotone" size={18} /> },
+        { to: '/meu-espaco/atividades', label: t('shell.menu.minhas_atividades', 'Minhas Atividades'), icon: <BookOpen weight="duotone" size={18} /> },
+        { to: '/meu-espaco/email',      label: t('shell.menu.emails', 'E-mails'),               icon: <Envelope weight="duotone" size={18} /> },
         { to: '/meu-espaco/whatsapp',   label: t('shell.menu.whatsapp', 'WhatsApp'),            icon: <ChatCircle weight="duotone" size={18} /> },
       ]
     },

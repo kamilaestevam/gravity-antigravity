@@ -61,3 +61,25 @@
 .sg-root:focus-visible {
   box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.5);
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .sg-root {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .sg-root:hover {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+body.light-theme .sg-root--checked {
+  background: #4f46e5;
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.25);
+}
+
+body.light-theme .sg-root:focus-visible {
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35);
+}
+
+body.light-theme .sg-thumb {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}

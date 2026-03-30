@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -131,6 +132,7 @@ function TabsFiltro({ ativo, aoMudar, contadores }: TabFiltroProps) {
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function EstimativasDashboard() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [estimativas, setEstimativas] = useState<Estimativa[]>([])
   const [kpis, setKpis] = useState<EstimativasKpis>({
@@ -273,12 +275,12 @@ export default function EstimativasDashboard() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Calculator weight="duotone" size={22} />}
-          titulo="Estimativas de Custo"
-          subtitulo="Gerencie suas simulações de Landed Cost"
+          titulo={t('simulacusto.estimativas.titulo')}
+          subtitulo={t('simulacusto.estimativas.subtitulo')}
           acoes={
             <button className="btn btn-primary" onClick={() => navigate('/estimativas/nova')}>
               <Plus weight="bold" size={16} />
-              Nova Estimativa
+              {t('simulacusto.estimativas.nova')}
             </button>
           }
         />
@@ -288,22 +290,22 @@ export default function EstimativasDashboard() {
       <div className="ed-kpis">
         <KpiCard
           icone={<ChartBar weight="duotone" size={20} color="#6366f1" />}
-          label="Total de Estimativas"
+          label={t('simulacusto.estimativas.total')}
           valor={String(kpis.total)}
         />
         <KpiCard
           icone={<ClockCountdown weight="duotone" size={20} color="#f59e0b" />}
-          label="Em Criação"
+          label={t('simulacusto.estimativas.em_criacao')}
           valor={String(kpis.em_criacao)}
         />
         <KpiCard
           icone={<CheckCircle weight="duotone" size={20} color="#22c55e" />}
-          label="Criadas"
+          label={t('simulacusto.estimativas.criadas')}
           valor={String(kpis.criadas)}
         />
         <KpiCard
           icone={<CurrencyDollar weight="duotone" size={20} color="#22c55e" />}
-          label="Landed Cost Médio"
+          label={t('simulacusto.estimativas.landed_cost_medio')}
           valor={brl(kpis.landed_cost_medio)}
           destaque
         />
@@ -322,8 +324,8 @@ export default function EstimativasDashboard() {
           colunas={colunas}
           acoes={acoes}
           idKey="id"
-          mensagemVazio="Nenhuma estimativa encontrada"
-          tooltipBusca="Buscar por número, NCM ou referência"
+          mensagemVazio={t('simulacusto.estimativas.vazio')}
+          tooltipBusca={t('simulacusto.estimativas.buscar')}
         />
       </div>
 

@@ -15,6 +15,7 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 import { catalogApiService } from '../../services/catalogAdapter'
+import { setAuthTokenProvider } from '../../services/apiClient'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 
@@ -113,6 +114,9 @@ export function ProdutosAdmin() {
   const [carregando, setCarregando] = React.useState(true)
 
   const carregarDados = React.useCallback(async () => {
+    // Garantir que o token Clerk está configurado ANTES de qualquer chamada API
+    setAuthTokenProvider(() => getToken())
+
     setLoading(true)
     setCarregando(true)
     try {
@@ -130,7 +134,7 @@ export function ProdutosAdmin() {
       setLoading(false)
       setCarregando(false)
     }
-  }, [])
+  }, [getToken])
 
   React.useEffect(() => {
     carregarDados()
@@ -413,7 +417,7 @@ export function ProdutosAdmin() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Produtos"
+          titulo="Produtos Gravity"
           subtitulo="Toda a gestão de produtos, catálogos e negociações da plataforma Gravity é realizada por aqui."
           icone={<ShoppingBagOpen weight="duotone" size={22} color="#818cf8" />}
         />

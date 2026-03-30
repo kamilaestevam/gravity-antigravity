@@ -49,3 +49,18 @@
 .cg-wrapper--erro .ws-field select {
   border-color: #f87171;
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .cg-obrigatorio {
+  color: #dc2626;
+}
+
+body.light-theme .cg-erro {
+  color: #dc2626;
+}
+
+body.light-theme .cg-wrapper--erro .sg-campo,
+body.light-theme .cg-wrapper--erro .ws-field input,
+body.light-theme .cg-wrapper--erro .ws-field select {
+  border-color: #dc2626;
+}

@@ -92,6 +92,11 @@
   background: var(--bg-elevated, rgba(255,255,255,0.05));
 }
 
+.mg-btn-fechar:focus-visible {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+  outline: none;
+}
+
 /* ─── Body ───────────────────────────────────────────────────────────────────── */
 /* .modal-body já definido no design system */
 .mg-body {
@@ -178,7 +183,7 @@
   width: 100%;
   padding: 1.25rem 1.5rem;
   background: var(--bg-base);
-  border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-top: 1px solid var(--border-default, var(--bg-elevated, rgba(255, 255, 255, 0.08)));
 }
 
 .botoes-footer-padrao {

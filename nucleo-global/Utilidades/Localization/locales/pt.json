@@ -13,12 +13,41 @@
     "visualizar": "Visualizar",
     "carregando": "Carregando...",
     "nenhum_resultado": "Nenhum resultado encontrado",
-    "erro_inesperado": "Ocorreu um erro inesperado"
+    "erro_inesperado": "Ocorreu um erro inesperado",
+    "sim": "SIM",
+    "nao": "NÃO",
+    "ativo": "Ativo",
+    "inativo": "Inativo",
+    "status": "Status",
+    "tipo": "Tipo",
+    "nome": "Nome",
+    "email": "E-mail",
+    "organizacao": "Organização",
+    "valor": "Valor",
+    "data": "Data",
+    "erro_carregar": "Erro ao carregar dados",
+    "tentar_novamente": "Tentar novamente",
+    "atualizar": "Atualizar",
+    "importar": "Importar",
+    "exportar": "Exportar",
+    "selecione": "Selecione...",
+    "em_breve": "Em breve",
+    "voltar": "Voltar",
+    "pago": "Pago",
+    "pendente": "Pendente",
+    "atrasado": "Atrasado",
+    "suspensa": "Suspensa",
+    "funcionalidade_indisponivel": "funcionalidade disponível quando o backend estiver conectado."
   },
   "acoes": {
     "clique_aqui": "Clique aqui",
     "voltar": "Voltar",
-    "continuar": "Continuar"
+    "continuar": "Continuar",
+    "ver_detalhes": "Ver detalhes",
+    "duplicar": "Duplicar",
+    "arquivar": "Arquivar",
+    "adicionar": "Adicionar",
+    "download": "Download de"
   },
   "shell": {
     "alternar_menu": "Alternar menu lateral",
@@ -43,6 +72,24 @@
     "conteudo_principal": "Conteúdo principal",
     "carregando_modulo": "Carregando módulo…",
     "pagina_nao_encontrada": "Página não encontrada",
+    "fechar_notificacao": "Fechar notificação",
+    "usuario_padrao": "Usuário",
+    "email_padrao": "usuario@gravity.com.br",
+    "papel_membro": "Membro",
+    "organizacao_padrao": "Organização",
+    "plano_padrao": "Plano Profissional",
+    "voce": "Você",
+    "sistema": "Sistema",
+    "gravity": "Gravity",
+    "modulo": "Módulo",
+    "onda_3": "Onda 3",
+    "desconhecido": "Desconhecido",
+    "sair_processo": "Sair do Processo",
+    "processo_prefixo": "Processo",
+    "resumo_di": "Resumo da D.I.",
+    "financeiro": "Financeiro",
+    "mensageria": "Mensageria",
+    "deep_work": "Deep Work",
     "menu": {
       "dashboard": "Dashboard",
       "relatorios": "Relatórios",
@@ -56,7 +103,16 @@
       "helpdesk": "Helpdesk",
       "conector_erp": "Conector ERP",
       "configuracoes": "Configurações",
-      "gravity_store": "Gravity Store"
+      "gravity_store": "Gravity Store",
+      "produtos_gravity": "Produtos Gravity",
+      "simula_custo": "SimulaCusto",
+      "bid_cambio": "BID Cambio",
+      "pedidos_compra": "Pedidos de Compra",
+      "exportador_duimp": "Exportador DUIMP",
+      "tracking_carga": "Tracking de Carga",
+      "meu_espaco": "Meu Espaço",
+      "minhas_atividades": "Minhas Atividades",
+      "emails": "E-mails"
     },
     "secao": {
       "principal": "Principal",
@@ -64,6 +120,17 @@
       "operacional": "Operacional",
       "servicos": "Serviços",
       "sistema": "Sistema"
+    },
+    "notificacoes_mock": {
+      "boas_vindas": "Bem-vindo ao SimulaCusto! Configure seus parâmetros de custo antes de iniciar.",
+      "simulacao_concluida": "Sua simulação #SC-042 foi concluída com sucesso e está disponível para revisão."
+    },
+    "idioma": {
+      "titulo": "Idioma",
+      "portugues": "Português",
+      "ingles": "English",
+      "espanhol": "Español",
+      "trocar_idioma": "Trocar idioma"
     }
   },
   "modal": {
@@ -104,7 +171,14 @@
     "buscar": "Buscar…",
     "de": "de",
     "expandir_detalhes": "Expandir para visualizar mais detalhes e informações complementares",
-    "recolher_detalhes": "Recolher visualização detalhada"
+    "recolher_detalhes": "Recolher visualização detalhada",
+    "nenhum_item": "Nenhum item encontrado.",
+    "gerenciar_colunas": "Gerenciar colunas visíveis",
+    "paineis_visiveis": "Painéis Visíveis",
+    "selecionar_tudo": "Selecionar Tudo",
+    "restaurar_padrao": "Restaurar Padrão",
+    "por_pagina_label": "Por página:",
+    "pesquisar_valores": "Pesquise na lista de valores disponíveis"
   },
   "campo": {
     "limpar": "Limpar",
@@ -112,7 +186,12 @@
     "selecione_periodo": "Selecione um período...",
     "localizar_sistema": "Localizar no sistema...",
     "localizar_tela": "Localizar na Tela",
-    "localizar_tela_desc": "Filtre rapidamente dados e registros visíveis na página atual"
+    "localizar_tela_desc": "Filtre rapidamente dados e registros visíveis na página atual",
+    "carregando": "Carregando...",
+    "nenhuma_opcao": "Nenhuma opção encontrada",
+    "buscar_opcoes": "Buscar opções",
+    "buscar_placeholder": "Buscar...",
+    "remover": "Remover {{label}}"
   },
   "calendario": {
     "hoje": "Hoje",
@@ -127,7 +206,7 @@
     "aplicar": "Aplicar",
     "mes_0": "Janeiro",
     "mes_1": "Fevereiro",
-    "mes_2": "Marco",
+    "mes_2": "Março",
     "mes_3": "Abril",
     "mes_4": "Maio",
     "mes_5": "Junho",
@@ -149,6 +228,945 @@
     "salvar": "Salvar",
     "salvando": "Salvando…",
     "cancelar": "Cancelar",
-    "alteracoes_nao_salvas": "Alterações não salvas"
+    "alteracoes_nao_salvas": "Alterações não salvas",
+    "salvar_tooltip": "Salvar alterações pendentes",
+    "cancelar_tooltip": "Descartar alterações e reverter para o estado original"
+  },
+  "feedback": {
+    "salvo": "Salvo",
+    "alteracoes_pendentes": "Alterações pendentes",
+    "salvando": "Salvando...",
+    "salvo_sucesso": "Salvo com sucesso",
+    "erro_salvar": "Erro ao salvar"
+  },
+  "usuario": {
+    "super_admin": "Super Admin",
+    "perfil_conta": "Perfil e Conta",
+    "perfil_conta_desc": "Gerencie preferências de acesso e encerre sua sessão",
+    "acesso_restrito": "Acesso Restrito",
+    "apenas_master_org": "Apenas usuários Master podem gerenciar a organização.",
+    "apenas_master_assinaturas": "Apenas usuários Master podem gerenciar assinaturas.",
+    "gerenciar_organizacao": "Gerenciar Organização",
+    "assinaturas_recibos": "Assinaturas e Recibos",
+    "acesso_admin": "Acesso ao Admin",
+    "acesso_configurador": "Acesso ao Configurador",
+    "alternar_tema": "Alternar para Tema {{tema}}",
+    "central_ajuda": "Central de Ajuda",
+    "novidades": "Novidades",
+    "sair": "Sair do Sistema",
+    "seguranca_acesso": "Segurança e Acesso",
+    "preferencias": "Preferências"
+  },
+  "login": {
+    "recuperar_senha_titulo": "Recuperar senha",
+    "criar_conta_titulo": "Criar sua conta",
+    "acessar_titulo": "Acessar a plataforma",
+    "recuperar_subtitulo": "Informe seu e-mail para receber o link de recuperação",
+    "criar_subtitulo": "Preencha os dados e comece agora",
+    "acessar_subtitulo": "Entre com suas credenciais para continuar",
+    "esqueceu_senha": "Esqueceu a senha?",
+    "entrar": "Entrar",
+    "registrar": "Registre-se",
+    "sem_conta": "Não possui uma conta?",
+    "ja_conhece": "Já conhece a plataforma?",
+    "saiba_mais": "Saiba mais",
+    "conheca_plataforma": "Conheça a plataforma",
+    "verificar_email_titulo": "Verifique seu e-mail",
+    "verificar_email_desc": "Enviamos as instruções de recuperação para: ",
+    "voltar_login": "Voltar para o login",
+    "placeholder_email": "Digite seu e-mail",
+    "erro_email_nao_encontrado": "Não encontramos nenhuma conta com este e-mail.",
+    "enviar_instrucoes": "Enviar instruções"
+  },
+  "admin": {
+    "layout": {
+      "visao_geral": "Visão Geral",
+      "organizacoes": "Organizações",
+      "produtos": "Produtos Gravity",
+      "usuarios_globais": "Usuários Globais",
+      "financeiro": "Financeiro",
+      "historico_global": "Histórico Global",
+      "deploy_railway": "Deploy Railway",
+      "api_cockpit": "API Cockpit",
+      "seguranca": "Segurança",
+      "log_testes": "Testes",
+      "tenant_name": "Gravity HQ",
+      "tenant_plan": "Núcleo Central",
+      "module_name": "Admin Panel",
+      "dicas_titulo": "Dicas e Explicações",
+      "habilitadas": "Habilitadas",
+      "habilitadas_desc": "dicas aparecem ao passar o mouse",
+      "desabilitadas": "Desabilitadas",
+      "desabilitadas_desc": "nenhuma dica é exibida",
+      "agora": "Agora:"
+    },
+    "cockpit": {
+      "titulo": "API Cockpit",
+      "subtitulo": "Monitoramento em tempo real da infraestrutura no Railway",
+      "status_geral": "Status Geral",
+      "operacional": "Operacional",
+      "uptime_24h": "Uptime (24h)",
+      "latencia_media": "Latência Média",
+      "aba_inventario": "Inventário de Serviços",
+      "aba_logs": "Logs de Requisições",
+      "tabela": {
+        "servico": "Serviço",
+        "tipo": "Tipo",
+        "status": "Status",
+        "latencia": "Latência",
+        "versao": "Versão",
+        "ultimo_check": "Último Check",
+        "data_hora": "Data/Hora",
+        "metodo": "Método",
+        "endpoint": "Endpoint",
+        "organizacao": "Organização",
+        "produto": "Produto",
+        "duracao": "Duração"
+      },
+      "vazio": {
+        "sem_servicos": "Nenhum serviço registrado no momento.",
+        "sem_requisicoes": "Nenhuma requisição processada nas últimas 24h."
+      },
+      "status": {
+        "sucesso": "SUCESSO",
+        "erro_cliente": "ERRO_CLIENTE",
+        "erro_server": "ERRO_SERVER",
+        "negado": "NEGADO"
+      }
+    },
+    "monitor": {
+      "titulo": "Monitor de Infraestrutura",
+      "subtitulo": "Visão administrativa global da saúde das APIs no Railway",
+      "apis_online": "APIs Online",
+      "requisicoes_24h": "Requisições (24h)",
+      "alertas_ativos": "Alertas Ativos",
+      "aba_monitoramento": "Monitoramento",
+      "aba_alertas": "Alertas",
+      "novo_alerta": "Novo Alerta",
+      "vazio": {
+        "sem_servicos": "Nenhum serviço registrado no Railway.",
+        "sem_trafego": "Nenhum registro de tráfego nas últimas 24h.",
+        "sem_alertas": "Nenhuma regra de alerta configurada."
+      },
+      "tabela": {
+        "servico": "Serviço",
+        "organizacao": "Organização",
+        "status": "Status",
+        "consumo": "Consumo",
+        "data": "Data",
+        "hora": "Hora",
+        "org": "Org",
+        "metodo": "Método",
+        "endpoint": "Endpoint",
+        "grupo": "Grupo",
+        "canais": "Canais",
+        "ativo": "Ativo"
+      }
+    },
+    "overview": {
+      "titulo": "Visão Geral da Plataforma",
+      "subtitulo": "Informações globais do Núcleo Gravity",
+      "badge_nivel_super": "Nível Super",
+      "badge_nivel_super_desc": "Permissão irrestrita e abrangência em todos os tenants",
+      "badge_hq_owner": "HQ Owner",
+      "badge_plano": "Plano do Backend",
+      "badge_status_master": "Status de operação Master",
+      "secao_institucional": "Institucional Base",
+      "dados_registrados": "Dados Registrados",
+      "dados_registrados_desc": "Identidade fiscal master da plataforma",
+      "campo_empresa": "Nome da Empresa",
+      "campo_empresa_tooltip": "Identidade da Organização",
+      "campo_empresa_desc": "Nome oficial da organização que detém o controle master da plataforma Gravity.",
+      "campo_cnpj": "CNPJ",
+      "campo_cnpj_tooltip": "Registro Fiscal",
+      "campo_cnpj_desc": "Cadastro Nacional da Pessoa Jurídica da empresa proprietária do Núcleo Central.",
+      "campo_estado": "Estado",
+      "campo_estado_tooltip": "Localização Estadual",
+      "campo_estado_desc": "Unidade federativa onde a sede da organização está registrada para fins fiscais.",
+      "campo_cidade": "Cidade",
+      "campo_cidade_tooltip": "Sede Municipal",
+      "campo_cidade_desc": "Cidade onde a instância master está fisicamente baseada ou legalmente sediada.",
+      "campo_segmento": "Segmento",
+      "campo_segmento_tooltip": "Vertical de Negócio",
+      "campo_segmento_desc": "Ramo de atuação principal da organização para personalização de temas e recursos.",
+      "campo_site": "Site",
+      "campo_site_tooltip": "Página Oficial",
+      "campo_site_desc": "Endereço da página institucional da organização proprietária do núcleo.",
+      "secao_infra": "Infraestrutura",
+      "instancia_atual": "Instância atual",
+      "operando_desde": "Operando desde",
+      "aguardando_estado": "Aguardando estado",
+      "msg_sucesso": "Configurações globais salvas com sucesso!",
+      "msg_erro": "Falha ao salvar. Tente novamente."
+    },
+    "security": {
+      "titulo": "Segurança",
+      "subtitulo": "Monitoramento em tempo real — atualizado",
+      "subtitulo_template": "Monitoramento em tempo real — atualizado {{time}} (a cada {{interval}}s)",
+      "carregando": "Carregando...",
+      "verificando": "VERIFICANDO",
+      "status_geral": "Status Geral",
+      "protegido": "PROTEGIDO",
+      "criticos_24h": "Críticos (24h)",
+      "alertas_24h": "Alertas (24h)",
+      "bloqueados_24h": "Bloqueados (24h)",
+      "aba_health": "Serviços & Health",
+      "aba_eventos": "Eventos de Segurança",
+      "aba_rate_limit": "Rate Limiting",
+      "aba_secrets": "Secrets & Rotação",
+      "btn_atualizar": "Atualizar",
+      "tabela": {
+        "horario": "Horário",
+        "severidade": "Severidade",
+        "tipo": "Tipo",
+        "tenant": "Tenant",
+        "ator": "Ator",
+        "descricao": "Descrição",
+        "ip": "IP",
+        "servico": "Serviço",
+        "status": "Status",
+        "latencia": "Latência",
+        "erro": "Erro",
+        "requests": "Requests",
+        "bloqueado": "Bloqueado"
+      },
+      "health": {
+        "resumo": "Resumo:",
+        "ok": "OK,",
+        "degradados": "degradados,",
+        "offline": "offline de",
+        "servicos": "serviços"
+      },
+      "vazio": {
+        "sem_servicos": "Nenhum serviço encontrado",
+        "verificando": "Verificando serviços...",
+        "erro_health": "Não foi possível carregar o health check.",
+        "backend_offline": "Verifique se o backend está rodando.",
+        "sem_eventos": "Nenhum evento de segurança registrado nas últimas 24h",
+        "carregando_eventos": "Carregando eventos...",
+        "sem_rate_limit": "Nenhum rate limit ativo na última hora"
+      },
+      "filtro": {
+        "severidade": "Severidade",
+        "tipo": "Tipo",
+        "todas": "Todas",
+        "critica": "Crítica",
+        "alerta": "Alerta",
+        "info": "Info"
+      },
+      "rate_limit": {
+        "presets": "Presets ativos:",
+        "publico": "Público (30/min)",
+        "auth": "Auth (10/min)",
+        "webhook": "Webhook (100/min)",
+        "interno": "Interno (200/min)",
+        "bloqueados_hora": "Bloqueados na última hora:"
+      },
+      "secrets": {
+        "configurada": "CONFIGURADA",
+        "ausente": "AUSENTE",
+        "prefixo": "Prefixo:",
+        "erro_carregar": "Não foi possível carregar status dos secrets.",
+        "rotacao_instrucao": "Para rotacionar chaves, execute:"
+      }
+    },
+    "financial": {
+      "titulo": "Financeiro Global",
+      "tabela": {
+        "numero": "#",
+        "cliente": "Cliente",
+        "competencia": "Competência",
+        "valor": "Valor",
+        "vencimento": "Data (Vencimento)",
+        "status": "Status"
+      },
+      "status": {
+        "pago": "Pago",
+        "pendente": "Pendente",
+        "atrasado": "Atrasado"
+      },
+      "doc_tipo": {
+        "boleto": "Boleto",
+        "nota_fiscal": "Nota Fiscal",
+        "relatorio": "Relatório",
+        "outros": "Outros"
+      },
+      "doc_status": {
+        "anexado": "Anexado"
+      },
+      "entrada_manual": "Lançamento Manual",
+      "msg_salvo": "Fatura salva com sucesso! (Simulação em State Local)"
+    },
+    "users": {
+      "titulo": "Usuários Globais",
+      "tabela": {
+        "usuario": "Usuário",
+        "email": "E-mail",
+        "nome_completo": "Nome Completo",
+        "nome_completo_desc": "Nome cadastrado do usuário na plataforma.",
+        "email_acesso": "E-mail de Acesso",
+        "email_acesso_desc": "E-mail utilizado no login.",
+        "organizacao": "Organização",
+        "org_tooltip": "Organização de Origem",
+        "org_desc": "Empresa/tenant ao qual este usuário está vinculado.",
+        "tipo": "Tipo",
+        "perfil_base": "Perfil Base",
+        "perfil_desc": "Nível de permissão principal do usuário.",
+        "status": "Status",
+        "status_operacional": "Status Operacional",
+        "status_desc": "Indica se o acesso está desbloqueado."
+      },
+      "tipos": {
+        "super_admin": "Super Admin",
+        "super_admin_desc": "Controle total global da plataforma (todas as orgs)",
+        "admin": "Admin",
+        "admin_desc": "Administrador da plataforma com permissões específicas",
+        "master": "Master",
+        "master_desc": "Gestor máximo da organização (acesso total no tenant)",
+        "standard": "Standard",
+        "standard_desc": "Usuário operacional vinculado a workspaces específicos",
+        "fornecedor": "Fornecedor",
+        "fornecedor_desc": "Acesso externo restrito para prestadores de serviço"
+      },
+      "children": {
+        "workspace": "Nome do Workspace",
+        "subdominio": "Subdomínio",
+        "status_ativa": "Ativa",
+        "plano_perfil": "Plano / Perfil"
+      }
+    },
+    "products": {
+      "titulo": "Catálogo de Produtos",
+      "status": {
+        "ativo": "Ativo",
+        "em_breve": "Em Breve",
+        "legado": "Legado",
+        "suspenso": "Suspenso"
+      },
+      "cobranca": {
+        "mensalidade": "Mensalidade",
+        "por_processo": "Por Processo",
+        "por_documento": "Por Documento",
+        "por_estimativa": "Por Estimativa",
+        "por_di_duimp": "Por DI/DUIMP",
+        "por_due": "Por DUE",
+        "por_produto": "Por Produto",
+        "por_fluxo": "Por Fluxo",
+        "por_lpco": "Por LPCO"
+      },
+      "tabela": {
+        "nome_produto": "Nome do Produto",
+        "o_que_e": "O que é",
+        "slug_modulo": "Slug / Módulo",
+        "valor_adicional": "Valor Adicional",
+        "ver_camadas": "Ver Camadas",
+        "a_partir_de": "A partir de",
+        "franquia_free": "Franquia Free"
+      }
+    },
+    "history": {
+      "titulo": "Histórico Global",
+      "subtitulo": "Registro cronológico completo de todas as alterações feitas na plataforma Gravity",
+      "tooltip_processamento": "Processamento Descentralizado",
+      "tooltip_processamento_desc": "Registros recentes podem levar alguns instantes para constar no histórico devido ao processamento assíncrono e análise temporal.",
+      "filtrar": "Filtrar",
+      "tabela": {
+        "quando": "QUANDO",
+        "quando_tooltip": "Timestamp (UTC)",
+        "quando_desc": "Registro de data/hora (ISO-8601) em que o evento foi gravado na tabela de auditoria.",
+        "quem": "QUEM",
+        "quem_tooltip": "Identity Context",
+        "quem_desc": "Usuário autenticado (actor_id), script nativo ou modelo IA que originou o request.",
+        "acao": "AÇÃO",
+        "acao_tooltip": "Event Type / CRUD",
+        "acao_desc": "Taxonomia da operação tratada e distribuída no barramento de eventos (message broker).",
+        "o_que_foi_feito": "O QUE FOI FEITO",
+        "o_que_foi_feito_tooltip": "Event Payload / State Diff",
+        "o_que_foi_feito_desc": "Dados imutáveis estruturados detalhando as entradas modificadas pelo controlador.",
+        "entidade": "ENTIDADE",
+        "entidade_tooltip": "Target Table/Entity",
+        "entidade_desc": "Referência ao escopo isolado no schema de dados que sofreu as mutações."
+      },
+      "acoes": {
+        "criacao": "CRIAÇÃO",
+        "alteracao": "ALTERAÇÃO",
+        "exclusao": "EXCLUSÃO",
+        "envio": "ENVIO",
+        "recebimento": "RECEBIMENTO",
+        "exportacao": "EXPORTAÇÃO",
+        "login": "LOGIN",
+        "configuracao": "CONFIGURAÇÃO",
+        "ia": "IA"
+      },
+      "diff": {
+        "campo": "Campo",
+        "antes": "Antes",
+        "depois": "Depois"
+      },
+      "vazio": "Nenhum detalhe de campo alterado registrado para essa ação.",
+      "valor_vazio": "vazio",
+      "erro_carregar": "Falha ao carregar registros do histórico:",
+      "exportar_csv": "Exportar CSV",
+      "exportar_backup": "Exportar Backup Log (.json)",
+      "filtro": {
+        "todos_responsaveis": "Todos os Responsáveis",
+        "usuarios_admin": "Usuários Administrativos",
+        "gabi_ai": "Gabi AI",
+        "sistema_rotinas": "Sistema / Rotinas",
+        "todas_acoes": "Todas as Ações",
+        "alteracoes": "Alterações",
+        "criacoes": "Criações",
+        "exclusoes": "Exclusões",
+        "logins": "Logins / Acessos",
+        "placeholder_responsavel": "Responsável...",
+        "placeholder_acao": "Ação...",
+        "placeholder_data": "Filtrar por data..."
+      },
+      "vazio_carregando": "Carregando registros...",
+      "vazio_filtros": "Nenhuma alteração encontrada para estes filtros.",
+      "vazio_sem_filtro": "Nenhuma atividade registrada no histórico global.",
+      "tooltip_busca": "Localizar registro por nome do responsável ou descrição da ação",
+      "tooltip_expandir": "Ver detalhes técnicos da alteração (diff do estado)",
+      "tooltip_recolher": "Recolher detalhes técnicos"
+    },
+    "tests": {
+      "titulo": "Log de Testes",
+      "tipo": {
+        "e2e": "E2E",
+        "funcional": "FUNCIONAL",
+        "unitario": "UNITÁRIO"
+      },
+      "resultado": {
+        "aprovado": "APROVADO",
+        "reprovado": "REPROVADO",
+        "erro_catastrofico": "ERRO_CATASTRÓFICO"
+      }
+    },
+    "deploy": {
+      "titulo": "Deploy Railway",
+      "subtitulo": "Histórico de versões, status de implantação e controle de CI/CD em todos os ambientes",
+      "vazio_filtros": "Nenhum deploy encontrado para estes filtros.",
+      "vazio_sem_filtro": "Nenhum histórico de deploy registrado ainda.",
+      "tooltip_busca": "Localizar deploy pela mensagem (PARA) ou responsável (QUEM)",
+      "tabela": {
+        "quando": "QUANDO",
+        "quando_tooltip": "Timestamp ISO",
+        "quando_desc": "Momento do gatilho de CI/CD gerado no webhook do Railway.",
+        "quem": "QUEM",
+        "quem_tooltip": "Assinatura do Autor",
+        "quem_desc": "Identidade associada ao payload de push do Github.",
+        "area": "ÁREA",
+        "area_tooltip": "Módulo de Contexto",
+        "area_desc": "Serviço do monorepo afetado resolvido no script de build.",
+        "de": "DE",
+        "de_tooltip": "Revisão Base",
+        "de_desc": "Ponto de restauração ou tag anterior anulada por esse deploy.",
+        "para": "PARA",
+        "para_tooltip": "Descrição da PR",
+        "para_desc": "Mensagem e metadados no head commit originado no repositório.",
+        "versao": "VERSÃO",
+        "versao_tooltip": "Git SHA",
+        "versao_desc": "Hash criptográfico (short) correspondente à árvore no controle de versão.",
+        "status": "STATUS",
+        "status_tooltip": "Health Check / Exit Code",
+        "status_desc": "Status do container retornado via integração com a Railway API."
+      },
+      "areas": {
+        "autenticacao": "Autenticação",
+        "infraestrutura": "Infraestrutura"
+      },
+      "status": {
+        "concluido": "Concluído",
+        "removido": "Removido",
+        "falhado": "Falhado"
+      },
+      "nao_existia": "— não existia"
+    }
+  },
+  "workspace": {
+    "layout": {
+      "organizacao": "Organização",
+      "workspaces": "Workspaces",
+      "usuarios": "Usuários",
+      "assinaturas": "Assinaturas",
+      "financeiro": "Financeiro",
+      "api_cockpit": "API Cockpit",
+      "conectores": "Conectores",
+      "modulo_nome": "Configurador",
+      "tenant_plano": "Plano Empresarial"
+    },
+    "connectors": {
+      "status": {
+        "conectado": "Conectado",
+        "configurando": "Configurando",
+        "disponivel": "Disponível",
+        "em_breve": "Em breve"
+      },
+      "secao_credenciais": "Credenciais OAuth 2.0 — ONESOURCE",
+      "info_criptografia": "Credenciais armazenadas com criptografia AES-256-GCM.",
+      "info_refresh": "O token de acesso é renovado automaticamente via refresh_token antes da expiração.",
+      "campo_client_id": "Client ID",
+      "campo_client_secret": "Client Secret",
+      "campo_token_url": "Token URL",
+      "campo_scope": "Scope",
+      "campo_api_base_url": "API Base URL",
+      "aba_depara": "Mapeamento De-Para",
+      "aba_teste": "Teste de Conexão"
+    },
+    "organization": {
+      "titulo": "Organização",
+      "campo_nome": "Nome da Empresa",
+      "campo_cnpj": "CNPJ",
+      "campo_estado": "Estado",
+      "campo_cidade": "Cidade",
+      "campo_segmento": "Segmento",
+      "campo_site": "Site",
+      "aguardando_estado": "Aguardando estado",
+      "msg_sucesso": "Organização salva com sucesso!",
+      "msg_erro": "Erro ao salvar organização."
+    },
+    "users": {
+      "titulo": "Usuários",
+      "tabela": {
+        "usuario": "Usuário",
+        "email": "E-mail",
+        "organizacao": "Organização",
+        "tipo": "Tipo",
+        "status": "Status"
+      }
+    },
+    "workspaces": {
+      "titulo": "Workspaces",
+      "tabela": {
+        "workspace": "Workspace",
+        "workspace_desc": "Nome do workspace cadastrado na sua conta",
+        "subdominio": "Subdomínio",
+        "usuarios": "Usuários",
+        "status": "Status",
+        "data_criacao": "Data de criação"
+      }
+    },
+    "subscriptions": {
+      "titulo": "Assinaturas",
+      "tabela": {
+        "produto": "Produto",
+        "cobranca": "Cobrança",
+        "cobranca_desc": "SaaS = mensalidade; Uso = por consumo; Setup = implantação.",
+        "valor": "Valor",
+        "renovacao": "Renovação",
+        "renovacao_desc": "Próxima data de cobrança ou renovação automática.",
+        "workspaces_habilitados": "Workspaces Habilitados",
+        "workspaces_desc": "Resumo das instâncias ativas para este serviço."
+      },
+      "vazio_workspaces": "Nenhum workspace habilitado",
+      "upsell": {
+        "helpdesk": "Helpdesk Premium",
+        "helpdesk_desc": "Tickets com SLA e relatórios para seus clientes.",
+        "nfe": "NF-e Automático",
+        "nfe_desc": "Emissão automática de notas fiscais via gateway.",
+        "bi": "BI Analytics Pro",
+        "bi_desc": "Dashboards avançados com drill-down e exportação."
+      }
+    },
+    "financial": {
+      "titulo": "Financeiro",
+      "aba_faturas": "Histórico de Faturas",
+      "aba_produtos": "Produtos & Valores",
+      "status": {
+        "pago": "Pago",
+        "pendente": "Pendente",
+        "atrasado": "Atrasado"
+      },
+      "proximo_vencimento": "Próximo Vencimento",
+      "valor_pagar": "Valor a Pagar",
+      "faturas_abertas": "Faturas em Aberto"
+    }
+  },
+  "simulacusto": {
+    "dashboard": {
+      "titulo": "Dashboard SimulaCusto",
+      "total_simulacoes": "Total de Simulações",
+      "custo_medio": "Custo Médio (BRL)",
+      "base_cif": "Base CIF Total (USD)",
+      "viabilidade": "Viabilidade Fiscal",
+      "viavel": "Viável",
+      "atencao": "Atenção",
+      "inviavel": "Inviável",
+      "projecao_fluxo": "Projeção de Fluxo de Caixa (Câmbio)",
+      "otimista": "Otimista",
+      "base": "Base",
+      "pessimista": "Pessimista",
+      "simulacoes_recentes": "Simulações Recentes",
+      "ver_todas": "Ver todas",
+      "sem_simulacoes": "Nenhuma simulação encontrada para este workspace.",
+      "filtrar_ncm_pais": "Filtrar por NCM ou País",
+      "alertas_cambio": "Alertas de Câmbio"
+    },
+    "periodos": {
+      "7_dias": "7 dias",
+      "30_dias": "30 dias",
+      "6_meses": "6 meses",
+      "1_ano": "1 ano",
+      "vs_semana": "vs semana anterior",
+      "vs_mes": "vs mês anterior",
+      "vs_semestre": "vs semestre anterior",
+      "vs_ano": "vs ano anterior"
+    },
+    "estimativas": {
+      "titulo": "Estimativas de Custo",
+      "subtitulo": "Gerencie suas simulações de Landed Cost",
+      "nova": "Nova Estimativa",
+      "nova_titulo": "Nova Estimativa de Custo",
+      "editar_titulo": "Editar Estimativa",
+      "nova_subtitulo": "Calcule o Landed Cost completo antes de fechar o negócio",
+      "total": "Total de Estimativas",
+      "em_criacao": "Em Criação",
+      "criadas": "Criadas",
+      "arquivadas": "Arquivadas",
+      "landed_cost_medio": "Landed Cost Médio",
+      "tabela": {
+        "numero": "Número",
+        "status": "Status",
+        "operacao": "Operação",
+        "referencia": "Referência",
+        "tributos": "Tributos",
+        "data": "Data"
+      },
+      "acoes": {
+        "ver_detalhes": "Ver detalhes",
+        "duplicar": "Duplicar estimativa",
+        "arquivar": "Arquivar"
+      },
+      "vazio": "Nenhuma estimativa encontrada",
+      "buscar": "Buscar por número, NCM ou referência"
+    },
+    "formulario": {
+      "operacao": "Operação",
+      "modalidade": "Modalidade",
+      "referencia": "Referência Interna",
+      "produto_origem": "Produto & Origem",
+      "ncm": "NCM (8 dígitos)",
+      "pais_origem": "País de Origem (ISO)",
+      "uf_desembaraco": "UF de Desembaraço",
+      "valores": "Valores",
+      "valor_produto": "Valor do Produto",
+      "frete_internacional": "Frete Internacional",
+      "seguro_internacional": "Seguro Internacional",
+      "aliquotas": "Alíquotas",
+      "reducao_ii": "Redução II — Acordos (%)",
+      "documentos": "Documentos Vinculados",
+      "portal_unico": "Portal Único",
+      "engine": "Gravity Cloud Engine",
+      "landed_cost": "Landed Cost Total",
+      "valor_aduaneiro": "Valor Aduaneiro (VA)",
+      "total_tributos": "Total de Tributos",
+      "salvar_estimativa": "Salvar Estimativa",
+      "calculando": "Calculando...",
+      "simular_custo": "Simular Custo"
+    },
+    "modal_simulacao": {
+      "titulo": "Simular Novo Custo",
+      "subtitulo": "Informe os dados do produto e alíquotas para cálculo de Landed Cost",
+      "secao_produto": "Produto & Operação"
+    },
+    "importar_massa": {
+      "titulo": "Importar em Massa",
+      "subtitulo": "Carregue múltiplas simulações via planilha Excel ou CSV",
+      "fase_2": "Funcionalidade disponível na Fase 2"
+    },
+    "relatorios": {
+      "titulo": "Financeiro Global",
+      "subtitulo": "Relatório consolidado por cliente, produto e data com acompanhamento de inadimplências.",
+      "tabela": {
+        "codigo": "Código",
+        "data": "Data",
+        "importador": "Importador",
+        "origem": "Origem",
+        "valor_total": "Valor Total",
+        "status": "Status"
+      },
+      "status": {
+        "concluido": "Concluído",
+        "processando": "Processando",
+        "pendente": "Pendente",
+        "atrasado": "Atrasado"
+      },
+      "kpi": {
+        "a_receber": "A RECEBER (ABERTO)",
+        "risco": "RISCO INADIMPLÊNCIA",
+        "performance": "PERFORMANCE"
+      },
+      "novo_relatorio": "Novo Relatório",
+      "vazio": "Nenhum relatório encontrado para o filtro selecionado.",
+      "info_atualizacao": "Relatórios consolidados são atualizados a cada 4 horas."
+    }
+  },
+  "bidfrete": {
+    "dashboard": {
+      "titulo": "Visão Geral",
+      "cotacoes_andamento": "Cotações em andamento",
+      "fornecedores_cadastrados": "Fornecedores cadastrados",
+      "buscar_frete": "Buscar frete",
+      "saving_estimado": "Saving estimado",
+      "cotacoes_aprovadas": "Cotações aprovadas",
+      "autorizadas_tempo": "Autorizadas em tempo",
+      "recusadas_tempo": "Recusadas em tempo",
+      "nao_respondidas": "Não respondidas",
+      "total_passadas": "Total de cotações passadas",
+      "principais_moedas": "Principais moedas",
+      "vazio": "Nenhuma cotação em andamento",
+      "buscar": "Buscar por número, origem ou destino"
+    },
+    "tabela": {
+      "processo": "Processo (DATI)",
+      "referencia": "Referência",
+      "data_cotacao": "Data da cotação",
+      "quem_gerou": "Quem gerou",
+      "origem": "Origem",
+      "destino": "Destino",
+      "modal": "Modal",
+      "modalidade": "Modalidade",
+      "peso": "Peso (Kg)",
+      "data_limite": "Data limite para resposta"
+    },
+    "cotacoes": {
+      "titulo": "Cotações em andamento",
+      "todas": "Todas as cotações",
+      "proximos_vencimento": "Próximos ao vencimento",
+      "falta_info": "Falta de informação para cotação",
+      "respondido_em": "Respondido em",
+      "vista_lista": "Visualização em lista",
+      "vista_kanban": "Visualização Kanban",
+      "buscar_frete": "Buscar frete",
+      "vazio": "Nenhuma cotação encontrada",
+      "respostas": "resposta(s)",
+      "kanban": {
+        "enviada": "Enviada ao fornecedor",
+        "aprovacao": "Aprovação pendente",
+        "falta_info": "Falta de informação",
+        "baixo_limite": "Baixo limite de resposta",
+        "fora_prazo": "Fora de prazo",
+        "encerradas": "Encerradas"
+      }
+    },
+    "nova_cotacao": {
+      "origem": "Origem",
+      "destino": "Destino",
+      "carga": "Carga",
+      "incoterm": "Incoterm",
+      "fornecedores": "Fornecedores",
+      "resumo": "Resumo",
+      "maritimo": "Marítimo",
+      "aereo": "Aéreo",
+      "rodoviario": "Rodoviário",
+      "prazo_respostas": "Prazo para respostas",
+      "valor_alvo": "Valor alvo (opcional)",
+      "moeda": "Moeda",
+      "tipo_aberta": "Aberta",
+      "tipo_direcionada": "Direcionada",
+      "tipo_anonima": "Anônima",
+      "criar": "Criar Cotação",
+      "criando": "Criando..."
+    },
+    "calendario": {
+      "ontem": "Ontem",
+      "hoje": "Hoje",
+      "amanha": "Amanhã"
+    }
+  },
+  "bidcambio": {
+    "dashboard": {
+      "titulo": "Visão Geral",
+      "sem_dados": "Nenhum dado disponível",
+      "primeiro_uso": "Crie sua primeira cotação de câmbio para visualizar o dashboard",
+      "comercial": "Comercial",
+      "parcelas_pendentes": "Parcelas Pendentes",
+      "parcelas_vencidas": "Parcelas Vencidas",
+      "economia_acumulada": "Economia Acumulada",
+      "corretoras_cadastradas": "Corretoras Cadastradas",
+      "cotacoes_andamento": "Cotações em Andamento",
+      "funil_cotacoes": "Funil de Cotações",
+      "calendario_vencimentos": "Calendário de Vencimentos",
+      "sem_vencimento": "Nenhum vencimento próximo",
+      "parcelas_vencidas_count": "parcela(s) vencida(s)",
+      "parcelas_pendentes_count": "parcela(s) pendente(s)",
+      "nao_respondidas": "Não respondidas",
+      "aprovacao": "Aprovação"
+    }
+  },
+  "pedido": {
+    "titulo": "Pedidos",
+    "subtitulo": "Gestão de pedidos de importação e exportação",
+    "total_pedidos": "Total Pedidos",
+    "itens_total": "itens no total",
+    "valor_total": "Valor Total",
+    "soma_pedidos": "Soma de todos os pedidos",
+    "qtd_total": "Quantidade Total",
+    "qtd_acumulada": "Quantidade acumulada",
+    "novo_pedido": "Novo Pedido",
+    "vazio": "Nenhum pedido cadastrado",
+    "criar_primeiro": "Criar primeiro pedido",
+    "buscar": "Buscar pedidos...",
+    "vazio_filtro": "Nenhum pedido encontrado para o filtro aplicado",
+    "tabela": {
+      "pedido_item": "Pedido/Item",
+      "po_tipo": "P.O Tipo",
+      "po_tipo_desc": "Tipo de Operação",
+      "po_tipo_tooltip": "Importação (Purchase Order) ou Exportação (Sales Order)",
+      "importador": "Importador",
+      "ref_importador": "Ref. Importador",
+      "exportador": "Exportador",
+      "ref_exportador": "Ref. Exportador",
+      "fabricante": "Fabricante",
+      "ref_fabricante": "Ref. Fabricante",
+      "numero_proforma": "Número Proforma",
+      "numero_invoice": "Número Invoice",
+      "data_po": "Data P.O",
+      "qtd_inicial": "Quantidade Inicial",
+      "qtd_atual": "Quantidade Atual",
+      "qtd_transferida": "Quantidade Transferida",
+      "qtd_pronta": "Quantidade Pronta",
+      "qtd_transferir": "Quantidade Para Transferir",
+      "desc_quantidade": "Descrição Quantidade",
+      "unidade_medida": "Unidade de Medida"
+    },
+    "acoes": {
+      "ver_detalhes": "Ver detalhes do pedido",
+      "editar": "Editar dados do pedido",
+      "duplicar": "Duplicar pedido",
+      "deletar": "Deletar pedido (somente Draft)"
+    }
+  },
+  "processo": {
+    "titulo": "Processo",
+    "status": {
+      "rascunho": "Rascunho",
+      "em_andamento": "Em Andamento",
+      "aguardando_docs": "Aguardando Docs",
+      "em_desembaraco": "Em Desembaraço",
+      "concluido": "Concluído",
+      "cancelado": "Cancelado"
+    },
+    "menu": {
+      "workflow": "Workflow",
+      "pedidos": "Pedidos",
+      "li": "LI",
+      "di": "DI",
+      "duimp": "DUIMP",
+      "retificacao": "Retificação",
+      "financeiro": "Financeiro",
+      "taxas": "Taxas",
+      "containers": "Containers",
+      "dados_tecnicos": "Dados Técnicos",
+      "dados_processo": "Dados do Processo",
+      "email": "Email",
+      "todo": "To Do"
+    },
+    "ref_cliente": "Ref. Cliente:",
+    "exportador": "Exportador:",
+    "voltar_processos": "Voltar para Processos",
+    "dados_tecnicos": {
+      "subtitulo": "Informações técnicas de transporte, despacho e seguro do processo",
+      "preenchimento": "Preenchimento",
+      "preenchidos": "Preenchidos",
+      "vazios": "Vazios",
+      "buscar": "Buscar nos dados técnicos...",
+      "importador": "Importador",
+      "importador_desc": "Dados do importador brasileiro responsável pela operação",
+      "endereco": "Endereço",
+      "endereco_placeholder": "Rua, número",
+      "cidade": "Cidade",
+      "exportador": "Exportador",
+      "exportador_desc": "Dados do fornecedor internacional que envia a mercadoria",
+      "nome_exportador": "Nome do exportador",
+      "endereco_exportador": "Endereço do exportador",
+      "cidade_exportador": "Cidade do exportador",
+      "transporte": "Transporte Internacional",
+      "transporte_desc": "Configurações da via de transporte e logística do embarque",
+      "nome_companhia": "Nome da companhia",
+      "numero_conhecimento": "Número do conhecimento",
+      "despacho": "Despacho Aduaneiro",
+      "despacho_desc": "Parâmetros fiscais e aduaneiros necessários para o desembaraço",
+      "incoterm": "Incoterm",
+      "nome_recinto": "Nome do recinto",
+      "seguro": "Seguro",
+      "seguro_desc": "Dados do seguro de transporte internacional da carga",
+      "seguradora": "Seguradora",
+      "nome_seguradora": "Nome da seguradora",
+      "numero_apolice": "Número da apólice"
+    }
+  },
+  "marketplace": {
+    "hero": {
+      "badge": "Product-Led Growth · 14 dias grátis",
+      "titulo": "Uma plataforma para todos os seus serviços",
+      "subtitulo": "Gravity é uma plataforma SaaS B2B multi-tenant modular para logística e comércio exterior"
+    },
+    "features": {
+      "dashboard": "Dashboard Unificado",
+      "dashboard_desc": "Métricas em tempo real para todas as suas operações",
+      "email": "Email Transacional",
+      "email_desc": "Envio de emails com Resend integrado",
+      "whatsapp": "WhatsApp Business",
+      "whatsapp_desc": "Integração nativa com Meta Cloud API",
+      "cronometro": "Cronômetro de Atividades",
+      "cronometro_desc": "Rastreie tempo por projeto e tarefa",
+      "automacoes": "Automações",
+      "automacoes_desc": "Gatilhos e ações automatizados",
+      "multi_tenant": "Multi-tenant Nativo",
+      "multi_tenant_desc": "Cada empresa tem seus dados isolados"
+    },
+    "social_proof": {
+      "confiado": "Confiado por empresas que crescem com inteligência"
+    },
+    "servicos": {
+      "titulo": "Serviços compartilhados, dados únicos",
+      "subtitulo": "Cada módulo existe uma vez por empresa"
+    },
+    "demo": {
+      "titulo": "Veja o sistema antes de assinar",
+      "subtitulo": "Explore o ambiente completo com dados reais"
+    },
+    "pricing": {
+      "titulo": "Preços simples e transparentes",
+      "subtitulo": "Comece grátis. Escale quando precisar.",
+      "demo_upgrade": "Demo: Ver como funciona o upgrade Pro",
+      "ver_planos": "Ver Todos os Planos"
+    },
+    "cta": {
+      "titulo": "Pronto para começar?",
+      "subtitulo": "14 dias gratuitos. Setup em 60 segundos. Cancele quando quiser.",
+      "trial": "Começar Trial Grátis",
+      "precos": "Ver Preços"
+    },
+    "kpi": {
+      "receita": "Receita",
+      "atividades": "Atividades",
+      "tickets": "Tickets"
+    }
+  },
+  "tenant_dashboard": {
+    "titulo": "Dashboard Consolidado",
+    "subtitulo": "O que precisa acontecer hoje — e quem é o responsável por fazer acontecer.",
+    "total_empresas": "Total de Empresas",
+    "clientes_ativos": "Clientes Ativos",
+    "leads_funil": "Leads no Funil",
+    "novos_mes": "Novos este Mês",
+    "este_mes": "Este mês",
+    "30_dias": "30 dias",
+    "funil_vendas": "Funil de Vendas",
+    "chamados": "Chamados & Help Desk",
+    "abertos": "Abertos",
+    "em_andamento": "Em Andamento",
+    "tempo_medio": "Tempo Médio",
+    "health_score": "Health Score",
+    "saude_base": "Saúde da Base",
+    "saudavel": "Saudável",
+    "atencao": "Atenção",
+    "risco": "Risco",
+    "alertas_criticos": "Alertas Críticos",
+    "sem_chamados_criticos": "Nenhum chamado crítico aberto no momento.",
+    "sincronizado": "Sincronizado agora",
+    "carregando": "Carregando visão geral..."
   }
 }

@@ -96,3 +96,9 @@
 .ws-fade-up-d1 { animation-delay: 0.07s; }
 .ws-fade-up-d2 { animation-delay: 0.14s; }
 .ws-fade-up-d3 { animation-delay: 0.21s; }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .gb-secao--card {
+  background: var(--ws-surface, var(--bg-surface, #ffffff));
+  border-color: var(--border-default, #cbd5e1);
+}

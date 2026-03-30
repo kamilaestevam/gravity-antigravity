@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Receipt, DownloadSimple, CalendarBlank, FileXls,
   ShoppingBagOpen, Tag, Users, CurrencyCircleDollar,
@@ -92,6 +93,7 @@ const ORG_ATUAL = 'Importas SA'
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export function Financeiro() {
+  const { t } = useTranslation()
   // === Faturas
   const vencimento = faturas.find(f => f.status === 'Pendente')
   const emAberto  = faturas.filter(f => f.status === 'Pendente' || f.status === 'Atrasado')
@@ -207,7 +209,14 @@ export function Financeiro() {
     {
       key: 'status', label: 'Status', tipo: 'texto',
       tooltipTitulo: 'Status da Fatura', tooltipDescricao: 'Qual a situação atual do boleto.',
-      render: (v) => <span className={`ws-badge ${statusBadge[v as FaturaStatus]}`}>{v}</span>
+      render: (v) => {
+        const statusMap: Record<string, string> = {
+          Pago: t('workspace.financial.status.pago'),
+          Pendente: t('workspace.financial.status.pendente'),
+          Atrasado: t('workspace.financial.status.atrasado'),
+        }
+        return <span className={`ws-badge ${statusBadge[v as FaturaStatus]}`}>{statusMap[v as string] ?? v}</span>
+      }
     }
   ]
 
@@ -359,7 +368,7 @@ export function Financeiro() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Financeiro"
+          titulo={t('workspace.financial.titulo')}
           subtitulo="Acompanhe faturas, boletos e notas fiscais da sua conta Gravity."
           icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
         />
@@ -367,7 +376,7 @@ export function Financeiro() {
       stats={
         <>
           <StatCardGlobal
-            titulo="Próximo Vencimento"
+            titulo={t('workspace.financial.proximo_vencimento')}
             icone={<CalendarBlank weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>{vencimento?.vencimento ?? '—'}</span>}
             subtexto={vencimento?.competencia ?? 'Sem faturas abertas'}
@@ -386,7 +395,7 @@ export function Financeiro() {
             }
           />
           <StatCardGlobal
-            titulo="Valor a Pagar"
+            titulo={t('workspace.financial.valor_pagar')}
             valor={<span style={{ fontSize: '1.5rem' }}>{emAberto.length ? `R$ ${valorAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}</span>}
             variante={emAberto.length ? 'aviso' : 'sucesso'}
             tooltip={
@@ -404,7 +413,7 @@ export function Financeiro() {
             }
           />
           <StatCardGlobal
-            titulo="Faturas em Aberto"
+            titulo={t('workspace.financial.faturas_abertas')}
             valor={<span style={{ fontSize: '1.75rem' }}>{emAberto.length}</span>}
             subtexto={emAberto.length === 0 ? 'Tudo em dia 🎉' : 'Requer atenção'}
             variante={emAberto.length > 0 ? 'perigo' : 'sucesso'}
@@ -427,10 +436,10 @@ export function Financeiro() {
       toolbar={
         <div className="ws-tabs" style={{ margin: 0 }}>
           <button className={`ws-tab${tabAtiva === 'faturas' ? ' active' : ''}`} onClick={() => setTabAtiva('faturas')}>
-            Histórico de Faturas
+            {t('workspace.financial.aba_faturas')}
           </button>
           <button className={`ws-tab${tabAtiva === 'produtos' ? ' active' : ''}`} onClick={() => setTabAtiva('produtos')}>
-            Produtos & Valores
+            {t('workspace.financial.aba_produtos')}
           </button>
         </div>
       }
@@ -441,7 +450,7 @@ export function Financeiro() {
         <div className="ws-fade-up">
           <p className="ws-section-title ws-fade-up ws-fade-up-d2" style={{ margin: 0, marginBottom: '16px' }}>
             <Receipt weight="duotone" size={14} color="#818cf8" />
-            Histórico de Faturas
+            {t('workspace.financial.aba_faturas')}
           </p>
           <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
             <TabelaGlobal<Fatura>

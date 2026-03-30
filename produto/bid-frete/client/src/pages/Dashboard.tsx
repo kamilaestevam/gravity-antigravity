@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -133,6 +134,7 @@ function TabsFiltro({ ativo, aoMudar, contadores }: TabFiltroProps) {
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function Dashboard() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
   const [calendario, setCalendario] = useState<CalendarioAlerta[]>([])
@@ -257,18 +259,18 @@ export default function Dashboard() {
       cabecalho={
         <CabecalhoGlobal
           icone={<ChartPieSlice weight="duotone" size={22} />}
-          titulo="Visão Geral"
+          titulo={t('bidfrete.dashboard.titulo')}
           acoes={
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <button className="btn btn-secondary" onClick={() => navigate('/cotacoes')}>
                 Cotações
               </button>
               <button className="btn btn-secondary" onClick={() => navigate('/fornecedores')}>
-                Fornecedores cadastrados
+                {t('bidfrete.dashboard.fornecedores_cadastrados')}
               </button>
               <button className="btn btn-primary" onClick={() => navigate('/cotacoes/nova')}>
                 <Truck weight="bold" size={16} />
-                Buscar frete
+                {t('bidfrete.dashboard.buscar_frete')}
               </button>
             </div>
           }
@@ -283,7 +285,7 @@ export default function Dashboard() {
           <div className="bf-kpi-section">
             <div className="bf-kpi-pair">
               <CardBasicoGlobal
-                titulo="Cotações em andamento"
+                titulo={t('bidfrete.dashboard.cotacoes_andamento')}
                 icone={<ClockCountdown weight="duotone" size={16} />}
                 valor={kpis?.cotacoes_andamento ?? 0}
                 className="bf-kpi-card"
@@ -300,7 +302,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="bf-kpi-saving">
-              <span className="bf-kpi-saving-label">Saving estimado</span>
+              <span className="bf-kpi-saving-label">{t('bidfrete.dashboard.saving_estimado')}</span>
               <span className="bf-kpi-saving-valor" style={{ color: 'var(--success)' }}>
                 {(kpis?.savings.media_saving_percentual ?? 0).toFixed(1)}%
               </span>
@@ -309,16 +311,16 @@ export default function Dashboard() {
 
           {/* Barra aprovação */}
           <div className="bf-aprovacao-section">
-            <p className="bf-section-label">Cotações aprovadas</p>
+            <p className="bf-section-label">{t('bidfrete.dashboard.cotacoes_aprovadas')}</p>
             <div className="bf-aprovacao-bar">
               <div className="bf-aprovacao-bar-fill" style={{ width: `${kpis?.aprovacao.percentual_em_tempo ?? 0}%` }}>
                 <span>{kpis?.aprovacao.percentual_em_tempo ?? 0}%</span>
               </div>
             </div>
             <div className="bf-aprovacao-legenda">
-              <span><span className="bf-dot bf-dot--green" /> Autorizadas em tempo</span>
-              <span><span className="bf-dot bf-dot--yellow" /> Recusadas em tempo</span>
-              <span><span className="bf-dot bf-dot--red" /> Não respondidas</span>
+              <span><span className="bf-dot bf-dot--green" /> {t('bidfrete.dashboard.autorizadas_tempo')}</span>
+              <span><span className="bf-dot bf-dot--yellow" /> {t('bidfrete.dashboard.recusadas_tempo')}</span>
+              <span><span className="bf-dot bf-dot--red" /> {t('bidfrete.dashboard.nao_respondidas')}</span>
             </div>
           </div>
 
@@ -326,7 +328,7 @@ export default function Dashboard() {
           <div className="bf-kpi-section">
             <div className="bf-kpi-pair">
               <CardBasicoGlobal
-                titulo="Total de cotações passadas"
+                titulo={t('bidfrete.dashboard.total_passadas')}
                 icone={<CheckCircle weight="duotone" size={16} />}
                 valor={kpis?.cotacoes_passadas ?? 0}
                 className="bf-kpi-card"
@@ -347,7 +349,7 @@ export default function Dashboard() {
           {/* Principais moedas */}
           {kpis?.moedas && kpis.moedas.length > 0 && (
             <div className="bf-moedas-section">
-              <p className="bf-section-label">Principais moedas</p>
+              <p className="bf-section-label">{t('bidfrete.dashboard.principais_moedas')}</p>
               <div className="bf-moedas-grid">
                 {kpis.moedas.map(m => (
                   <div key={m.codigo} className="bf-moeda-item">
@@ -369,7 +371,7 @@ export default function Dashboard() {
         {/* ── Donut Fornecedores + Calendário ── */}
         <div className="bf-dash-right">
           <CardGraficoGlobal
-            titulo="Fornecedores cadastrados"
+            titulo={t('bidfrete.dashboard.fornecedores_cadastrados')}
             icone={<Buildings weight="duotone" size={16} />}
             total={kpis?.fornecedores_cadastrados ?? 0}
             valorPrincipal={kpis?.fornecedores_cadastrados ?? 0}
@@ -385,14 +387,14 @@ export default function Dashboard() {
           <div className="bf-calendario">
             <div className="bf-calendario-header">
               <div className="bf-calendario-nav">
-                <span>Ontem</span>
+                <span>{t('bidfrete.calendario.ontem')}</span>
                 <button className="bf-cal-btn"><CaretLeft size={14} weight="bold" /></button>
                 <span className="bf-cal-hoje">
                   <CalendarBlank weight="duotone" size={16} />
-                  Hoje
+                  {t('bidfrete.calendario.hoje')}
                 </span>
                 <button className="bf-cal-btn"><CaretRight size={14} weight="bold" /></button>
-                <span>Amanhã</span>
+                <span>{t('bidfrete.calendario.amanha')}</span>
               </div>
             </div>
             <p className="bf-section-label" style={{ padding: '0 1rem' }}>Calendário</p>
@@ -418,7 +420,7 @@ export default function Dashboard() {
       {/* ════════ LINHA 2: Tabela de Cotações em Andamento ════════ */}
       <div className="bf-table-section">
         <div className="bf-table-header">
-          <h2 className="bf-table-title">Cotações em andamento</h2>
+          <h2 className="bf-table-title">{t('bidfrete.cotacoes.titulo')}</h2>
           <div className="bf-table-tools">
             <button className="bf-icon-btn" title="Modo de visualização">
               <Eye weight="duotone" size={18} />
@@ -443,8 +445,8 @@ export default function Dashboard() {
           acoes={acoes}
           idKey="id"
           carregando={carregando}
-          mensagemVazio="Nenhuma cotação em andamento"
-          tooltipBusca="Buscar por número, origem ou destino"
+          mensagemVazio={t('bidfrete.dashboard.vazio')}
+          tooltipBusca={t('bidfrete.dashboard.buscar')}
           aoClicarLinha={(item: Cotacao) => navigate(`/cotacoes/${item.id}`)}
         />
       </div>

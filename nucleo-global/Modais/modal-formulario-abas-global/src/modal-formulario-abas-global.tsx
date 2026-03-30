@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModalGlobal } from '@nucleo/modal-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
@@ -45,9 +46,12 @@ export function ModalFormularioAbasGlobal({
   abas,
   abaAtivaInicial,
   tipoAbas = 'pill',
-  textoSalvar = "Salvar Alterações",
-  textoCancelar = "Cancelar"
+  textoSalvar,
+  textoCancelar
 }: ModalFormularioAbasGlobalProps) {
+  const { t } = useTranslation()
+  const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
+  const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')
   return (
     <ModalGlobal
       aberto={aberto}
@@ -75,12 +79,12 @@ export function ModalFormularioAbasGlobal({
           <div className="botoes-footer-padrao">
             <BotaoCancelar
               dirty={dirty}
-              rotulo={textoCancelar}
+              rotulo={resolvedTextoCancelar}
               onClick={aoFechar}
             />
             <BotaoSalvar
               dirty={podesSalvar && dirty}
-              rotulo={textoSalvar}
+              rotulo={resolvedTextoSalvar}
               onClick={aoSalvar}
             />
           </div>

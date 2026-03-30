@@ -21,7 +21,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const app = express()
-const PORT = process.env.PORT ?? 8025
+const PORT = process.env.PORT ?? 8026
 
 // --- 0. Security Headers -------------------------------------------------------
 app.use(helmet({
@@ -52,8 +52,8 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
   ].filter(Boolean)
 
   const origin = _req.headers.origin ?? ''
-  if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*')
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
   }
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-internal-key, x-tenant-id')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')

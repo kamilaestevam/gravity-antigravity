@@ -42,6 +42,10 @@ const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeir
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
 
+// Core — tela pós-seleção de workspace (menu lateral + conteúdo)
+const Core = lazy(() => import('./pages/Core'), 'Core')
+const CoreDashboard = React.lazy(() => import('./pages/core/CoreDashboard'))
+
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
 const SimulaCustoApp = React.lazy(() => import('../../../produto/simula-custo/client/src/App'))
 const ProcessoApp = React.lazy(() => import('../../../produto/processo/client/src/App'))
@@ -82,7 +86,7 @@ function TenantDetailWrapper() {
   return <TenantDetail tenantId={id!} onBack={() => navigate('/admin/tenants')} />
 }
 
-/** Rota raiz: se logado → /selecionar-workspace, se não → AuthPage */
+/** Rota raiz: se logado → /hub, se não → AuthPage */
 function RootRedirect() {
   const { isLoaded, isSignedIn } = useAuth()
 
@@ -90,7 +94,7 @@ function RootRedirect() {
   if (!isLoaded) return null
 
   return isSignedIn ? (
-    <Navigate to="/selecionar-workspace" replace />
+    <Navigate to="/hub" replace />
   ) : (
     <AuthPage />
   )
@@ -103,7 +107,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (!isLoaded) return null
 
   return isSignedIn ? (
-    <Navigate to="/selecionar-workspace" replace />
+    <Navigate to="/hub" replace />
   ) : (
     <>{children}</>
   )
@@ -160,9 +164,20 @@ export default function App() {
         <Route path="/waitlist" element={<Waitlist />} />
 
         {/* Área autenticada */}
-        <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Hub /></React.Suspense></ProtectedRoute>} />
-        <Route path="/selecionar-workspace" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
+        <Route path="/hub" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
+
+        {/* Core — workspace selecionado (menu lateral + conteúdo) */}
+        <Route path="/core" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Core /></React.Suspense></ProtectedRoute>}>
+          <Route index element={<React.Suspense fallback={<ProductLoading />}><CoreDashboard /></React.Suspense>} />
+          <Route path="atividades" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Atividades — em desenvolvimento</div>} />
+          <Route path="email" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Email — em desenvolvimento</div>} />
+          <Route path="whatsapp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>WhatsApp — em desenvolvimento</div>} />
+          <Route path="notificacoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Notificações — em desenvolvimento</div>} />
+          <Route path="historico" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Histórico — em desenvolvimento</div>} />
+          <Route path="conector-erp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Conector ERP — em desenvolvimento</div>} />
+          <Route path="configuracoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Configurações — em desenvolvimento</div>} />
+        </Route>
 
         {/* Produtos — carregados como lazy routes dentro do Configurador */}
         <Route path="/produto/simula-custo/*" element={<ProtectedRoute><ProductErrorBoundary name="SimulaCusto"><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />

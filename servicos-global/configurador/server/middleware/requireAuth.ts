@@ -44,6 +44,7 @@ export async function requireAuth(
       }
     }
 
+
     if (!authHeader?.startsWith('Bearer ')) {
       throw new AppError('Token de autenticação ausente', 401, 'UNAUTHORIZED')
     }

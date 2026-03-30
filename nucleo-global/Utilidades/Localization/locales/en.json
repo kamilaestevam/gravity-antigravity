@@ -13,12 +13,41 @@
     "visualizar": "View",
     "carregando": "Loading...",
     "nenhum_resultado": "No results found",
-    "erro_inesperado": "An unexpected error occurred"
+    "erro_inesperado": "An unexpected error occurred",
+    "sim": "YES",
+    "nao": "NO",
+    "ativo": "Active",
+    "inativo": "Inactive",
+    "status": "Status",
+    "tipo": "Type",
+    "nome": "Name",
+    "email": "Email",
+    "organizacao": "Organization",
+    "valor": "Value",
+    "data": "Date",
+    "erro_carregar": "Error loading data",
+    "tentar_novamente": "Try again",
+    "atualizar": "Refresh",
+    "importar": "Import",
+    "exportar": "Export",
+    "selecione": "Select...",
+    "em_breve": "Coming soon",
+    "voltar": "Back",
+    "pago": "Paid",
+    "pendente": "Pending",
+    "atrasado": "Overdue",
+    "suspensa": "Suspended",
+    "funcionalidade_indisponivel": "feature available when the backend is connected."
   },
   "acoes": {
     "clique_aqui": "Click here",
     "voltar": "Back",
-    "continuar": "Continue"
+    "continuar": "Continue",
+    "ver_detalhes": "View details",
+    "duplicar": "Duplicate",
+    "arquivar": "Archive",
+    "adicionar": "Add",
+    "download": "Download"
   },
   "shell": {
     "alternar_menu": "Toggle sidebar",
@@ -43,6 +72,24 @@
     "conteudo_principal": "Main content",
     "carregando_modulo": "Loading module…",
     "pagina_nao_encontrada": "Page not found",
+    "fechar_notificacao": "Close notification",
+    "usuario_padrao": "User",
+    "email_padrao": "user@gravity.com.br",
+    "papel_membro": "Member",
+    "organizacao_padrao": "Organization",
+    "plano_padrao": "Professional Plan",
+    "voce": "You",
+    "sistema": "System",
+    "gravity": "Gravity",
+    "modulo": "Module",
+    "onda_3": "Wave 3",
+    "desconhecido": "Unknown",
+    "sair_processo": "Exit Process",
+    "processo_prefixo": "Process",
+    "resumo_di": "DI Summary",
+    "financeiro": "Financial",
+    "mensageria": "Messaging",
+    "deep_work": "Deep Work",
     "menu": {
       "dashboard": "Dashboard",
       "relatorios": "Reports",
@@ -56,7 +103,16 @@
       "helpdesk": "Helpdesk",
       "conector_erp": "ERP Connector",
       "configuracoes": "Settings",
-      "gravity_store": "Gravity Store"
+      "gravity_store": "Gravity Store",
+      "produtos_gravity": "Gravity Products",
+      "simula_custo": "SimulaCusto",
+      "bid_cambio": "BID Exchange",
+      "pedidos_compra": "Purchase Orders",
+      "exportador_duimp": "DUIMP Exporter",
+      "tracking_carga": "Cargo Tracking",
+      "meu_espaco": "My Space",
+      "minhas_atividades": "My Activities",
+      "emails": "Emails"
     },
     "secao": {
       "principal": "Main",
@@ -64,6 +120,17 @@
       "operacional": "Operations",
       "servicos": "Services",
       "sistema": "System"
+    },
+    "notificacoes_mock": {
+      "boas_vindas": "Welcome to SimulaCusto! Set up your cost parameters before getting started.",
+      "simulacao_concluida": "Your simulation #SC-042 has been completed successfully and is available for review."
+    },
+    "idioma": {
+      "titulo": "Language",
+      "portugues": "Português",
+      "ingles": "English",
+      "espanhol": "Español",
+      "trocar_idioma": "Change language"
     }
   },
   "modal": {
@@ -104,7 +171,14 @@
     "buscar": "Search…",
     "de": "of",
     "expandir_detalhes": "Expand to view more details and complementary information",
-    "recolher_detalhes": "Collapse detailed view"
+    "recolher_detalhes": "Collapse detailed view",
+    "nenhum_item": "No items found.",
+    "gerenciar_colunas": "Manage visible columns",
+    "paineis_visiveis": "Visible Panels",
+    "selecionar_tudo": "Select All",
+    "restaurar_padrao": "Restore Default",
+    "por_pagina_label": "Per page:",
+    "pesquisar_valores": "Search in the list of available values"
   },
   "campo": {
     "limpar": "Clear",
@@ -112,7 +186,12 @@
     "selecione_periodo": "Select a period...",
     "localizar_sistema": "Search in system...",
     "localizar_tela": "Search on Screen",
-    "localizar_tela_desc": "Quickly filter data and records visible on the current page"
+    "localizar_tela_desc": "Quickly filter data and records visible on the current page",
+    "carregando": "Loading...",
+    "nenhuma_opcao": "No options found",
+    "buscar_opcoes": "Search options",
+    "buscar_placeholder": "Search...",
+    "remover": "Remove {{label}}"
   },
   "calendario": {
     "hoje": "Today",
@@ -149,6 +228,911 @@
     "salvar": "Save",
     "salvando": "Saving…",
     "cancelar": "Cancel",
-    "alteracoes_nao_salvas": "Unsaved changes"
+    "alteracoes_nao_salvas": "Unsaved changes",
+    "salvar_tooltip": "Save pending changes",
+    "cancelar_tooltip": "Discard changes and revert to original state"
+  },
+  "feedback": {
+    "salvo": "Saved",
+    "alteracoes_pendentes": "Pending changes",
+    "salvando": "Saving...",
+    "salvo_sucesso": "Saved successfully",
+    "erro_salvar": "Error saving"
+  },
+  "usuario": {
+    "super_admin": "Super Admin",
+    "perfil_conta": "Profile & Account",
+    "perfil_conta_desc": "Manage access preferences and end your session",
+    "acesso_restrito": "Restricted Access",
+    "apenas_master_org": "Only Master users can manage the organization.",
+    "apenas_master_assinaturas": "Only Master users can manage subscriptions.",
+    "gerenciar_organizacao": "Manage Organization",
+    "assinaturas_recibos": "Subscriptions & Receipts",
+    "acesso_admin": "Admin Access",
+    "acesso_configurador": "Configurator Access",
+    "alternar_tema": "Switch to {{tema}} Theme",
+    "central_ajuda": "Help Center",
+    "novidades": "What's New",
+    "sair": "Sign Out",
+    "seguranca_acesso": "Security & Access",
+    "preferencias": "Preferences"
+  },
+  "login": {
+    "recuperar_senha_titulo": "Recover password",
+    "criar_conta_titulo": "Create your account",
+    "acessar_titulo": "Access the platform",
+    "recuperar_subtitulo": "Enter your email to receive the recovery link",
+    "criar_subtitulo": "Fill in your details and get started",
+    "acessar_subtitulo": "Sign in with your credentials to continue",
+    "esqueceu_senha": "Forgot your password?",
+    "entrar": "Sign in",
+    "registrar": "Sign up",
+    "sem_conta": "Don't have an account?",
+    "ja_conhece": "Already know the platform?",
+    "saiba_mais": "Learn more",
+    "conheca_plataforma": "Discover the platform",
+    "verificar_email_titulo": "Check your email",
+    "verificar_email_desc": "We sent recovery instructions to: ",
+    "voltar_login": "Back to login",
+    "placeholder_email": "Enter your email",
+    "erro_email_nao_encontrado": "We couldn't find any account with this email.",
+    "enviar_instrucoes": "Send instructions"
+  },
+  "admin": {
+    "layout": {
+      "visao_geral": "Overview",
+      "organizacoes": "Organizations",
+      "produtos": "Gravity Products",
+      "usuarios_globais": "Global Users",
+      "financeiro": "Financial",
+      "historico_global": "Global History",
+      "deploy_railway": "Deploy Railway",
+      "api_cockpit": "API Cockpit",
+      "seguranca": "Security",
+      "log_testes": "Tests",
+      "tenant_name": "Gravity HQ",
+      "tenant_plan": "Core Nucleus",
+      "module_name": "Admin Panel",
+      "dicas_titulo": "Tips and Explanations",
+      "habilitadas": "Enabled",
+      "habilitadas_desc": "tips appear on hover",
+      "desabilitadas": "Disabled",
+      "desabilitadas_desc": "no tips are displayed",
+      "agora": "Now:"
+    },
+    "monitor": {
+      "titulo": "Infrastructure Monitor",
+      "subtitulo": "Global administrative view of API health on Railway",
+      "apis_online": "APIs Online",
+      "requisicoes_24h": "Requests (24h)",
+      "alertas_ativos": "Active Alerts",
+      "aba_monitoramento": "Monitoring",
+      "aba_alertas": "Alerts",
+      "novo_alerta": "New Alert",
+      "vazio": {
+        "sem_servicos": "No services registered on Railway.",
+        "sem_trafego": "No traffic recorded in the last 24h.",
+        "sem_alertas": "No alert rules configured."
+      },
+      "tabela": {
+        "servico": "Service",
+        "organizacao": "Organization",
+        "status": "Status",
+        "consumo": "Usage",
+        "data": "Date",
+        "hora": "Time",
+        "org": "Org",
+        "metodo": "Method",
+        "endpoint": "Endpoint",
+        "grupo": "Group",
+        "canais": "Channels",
+        "ativo": "Active"
+      }
+    },
+    "overview": {
+      "titulo": "Platform Overview",
+      "subtitulo": "Global information about the Gravity Core",
+      "badge_nivel_super": "Super Level",
+      "badge_nivel_super_desc": "Unrestricted permission across all tenants",
+      "badge_hq_owner": "HQ Owner",
+      "badge_plano": "Backend Plan",
+      "badge_status_master": "Master operation status",
+      "secao_institucional": "Institutional Base",
+      "dados_registrados": "Registered Data",
+      "dados_registrados_desc": "Master fiscal identity of the platform",
+      "campo_empresa": "Company Name",
+      "campo_empresa_tooltip": "Organization Identity",
+      "campo_empresa_desc": "Official name of the organization holding master control of the Gravity platform.",
+      "campo_cnpj": "Tax ID",
+      "campo_cnpj_tooltip": "Tax Registration",
+      "campo_cnpj_desc": "National corporate tax ID of the company owning the Core Nucleus.",
+      "campo_estado": "State",
+      "campo_estado_tooltip": "State Location",
+      "campo_estado_desc": "Federal state where the organization headquarters is registered for tax purposes.",
+      "campo_cidade": "City",
+      "campo_cidade_tooltip": "Municipal Headquarters",
+      "campo_cidade_desc": "City where the master instance is physically based or legally headquartered.",
+      "campo_segmento": "Segment",
+      "campo_segmento_tooltip": "Business Vertical",
+      "campo_segmento_desc": "Main industry of the organization for theme and resource customization.",
+      "campo_site": "Website",
+      "campo_site_tooltip": "Official Page",
+      "campo_site_desc": "Institutional website address of the organization owning the nucleus.",
+      "secao_infra": "Infrastructure",
+      "instancia_atual": "Current instance",
+      "operando_desde": "Operating since",
+      "aguardando_estado": "Awaiting state",
+      "msg_sucesso": "Global settings saved successfully!",
+      "msg_erro": "Failed to save. Please try again."
+    },
+    "security": {
+      "titulo": "Security",
+      "subtitulo": "Real-time monitoring — updated",
+      "subtitulo_template": "Real-time monitoring — updated {{time}} (every {{interval}}s)",
+      "carregando": "Loading...",
+      "verificando": "CHECKING",
+      "status_geral": "Overall Status",
+      "protegido": "PROTECTED",
+      "criticos_24h": "Critical (24h)",
+      "alertas_24h": "Alerts (24h)",
+      "bloqueados_24h": "Blocked (24h)",
+      "aba_health": "Services & Health",
+      "aba_eventos": "Security Events",
+      "aba_rate_limit": "Rate Limiting",
+      "aba_secrets": "Secrets & Rotation",
+      "btn_atualizar": "Refresh",
+      "tabela": {
+        "horario": "Time",
+        "severidade": "Severity",
+        "tipo": "Type",
+        "tenant": "Tenant",
+        "ator": "Actor",
+        "descricao": "Description",
+        "ip": "IP",
+        "servico": "Service",
+        "status": "Status",
+        "latencia": "Latency",
+        "erro": "Error",
+        "requests": "Requests",
+        "bloqueado": "Blocked"
+      },
+      "health": {
+        "resumo": "Summary:",
+        "ok": "OK,",
+        "degradados": "degraded,",
+        "offline": "offline of",
+        "servicos": "services"
+      },
+      "vazio": {
+        "sem_servicos": "No services found",
+        "verificando": "Checking services...",
+        "erro_health": "Could not load health check.",
+        "backend_offline": "Check if the backend is running.",
+        "sem_eventos": "No security events recorded in the last 24h",
+        "carregando_eventos": "Loading events...",
+        "sem_rate_limit": "No active rate limits in the last hour"
+      },
+      "filtro": {
+        "severidade": "Severity",
+        "tipo": "Type",
+        "todas": "All",
+        "critica": "Critical",
+        "alerta": "Alert",
+        "info": "Info"
+      },
+      "rate_limit": {
+        "presets": "Active presets:",
+        "publico": "Public (30/min)",
+        "auth": "Auth (10/min)",
+        "webhook": "Webhook (100/min)",
+        "interno": "Internal (200/min)",
+        "bloqueados_hora": "Blocked in the last hour:"
+      },
+      "secrets": {
+        "configurada": "CONFIGURED",
+        "ausente": "MISSING",
+        "prefixo": "Prefix:",
+        "erro_carregar": "Could not load secrets status.",
+        "rotacao_instrucao": "To rotate keys, run:"
+      }
+    },
+    "financial": {
+      "titulo": "Global Financial",
+      "tabela": {
+        "numero": "#",
+        "cliente": "Client",
+        "competencia": "Period",
+        "valor": "Value",
+        "vencimento": "Date (Due)",
+        "status": "Status"
+      },
+      "status": {
+        "pago": "Paid",
+        "pendente": "Pending",
+        "atrasado": "Overdue"
+      },
+      "doc_tipo": {
+        "boleto": "Payment Slip",
+        "nota_fiscal": "Invoice",
+        "relatorio": "Report",
+        "outros": "Other"
+      },
+      "doc_status": {
+        "anexado": "Attached"
+      },
+      "entrada_manual": "Manual Entry",
+      "msg_salvo": "Invoice saved successfully! (Local State Simulation)"
+    },
+    "users": {
+      "titulo": "Global Users",
+      "tabela": {
+        "usuario": "User",
+        "email": "Email",
+        "nome_completo": "Full Name",
+        "nome_completo_desc": "User's registered name on the platform.",
+        "email_acesso": "Access Email",
+        "email_acesso_desc": "Email used for login.",
+        "organizacao": "Organization",
+        "org_tooltip": "Source Organization",
+        "org_desc": "Company/tenant this user is linked to.",
+        "tipo": "Type",
+        "perfil_base": "Base Profile",
+        "perfil_desc": "User's main permission level.",
+        "status": "Status",
+        "status_operacional": "Operational Status",
+        "status_desc": "Indicates whether access is unlocked."
+      },
+      "tipos": {
+        "super_admin": "Super Admin",
+        "super_admin_desc": "Full global platform control (all orgs)",
+        "admin": "Admin",
+        "admin_desc": "Platform administrator with specific permissions",
+        "master": "Master",
+        "master_desc": "Top organization manager (full tenant access)",
+        "standard": "Standard",
+        "standard_desc": "Operational user linked to specific workspaces",
+        "fornecedor": "Supplier",
+        "fornecedor_desc": "Restricted external access for service providers"
+      },
+      "children": {
+        "workspace": "Workspace Name",
+        "subdominio": "Subdomain",
+        "status_ativa": "Active",
+        "plano_perfil": "Plan / Profile"
+      }
+    },
+    "products": {
+      "titulo": "Product Catalog",
+      "status": {
+        "ativo": "Active",
+        "em_breve": "Coming Soon",
+        "legado": "Legacy",
+        "suspenso": "Suspended"
+      },
+      "cobranca": {
+        "mensalidade": "Monthly Fee",
+        "por_processo": "Per Process",
+        "por_documento": "Per Document",
+        "por_estimativa": "Per Estimate",
+        "por_di_duimp": "Per DI/DUIMP",
+        "por_due": "Per DUE",
+        "por_produto": "Per Product",
+        "por_fluxo": "Per Flow",
+        "por_lpco": "Per LPCO"
+      },
+      "tabela": {
+        "nome_produto": "Product Name",
+        "o_que_e": "What is it",
+        "slug_modulo": "Slug / Module",
+        "valor_adicional": "Additional Value",
+        "ver_camadas": "View Layers",
+        "a_partir_de": "Starting at",
+        "franquia_free": "Free Allowance"
+      }
+    },
+    "history": {
+      "titulo": "Global History",
+      "subtitulo": "Complete chronological record of all changes made on the Gravity platform",
+      "tooltip_processamento": "Decentralized Processing",
+      "tooltip_processamento_desc": "Recent records may take a few moments to appear in the history due to asynchronous processing and temporal analysis.",
+      "filtrar": "Filter",
+      "tabela": {
+        "quando": "WHEN",
+        "quando_tooltip": "Timestamp (UTC)",
+        "quando_desc": "Date/time record (ISO-8601) when the event was saved to the audit table.",
+        "quem": "WHO",
+        "quem_tooltip": "Identity Context",
+        "quem_desc": "Authenticated user (actor_id), native script or AI model that originated the request.",
+        "acao": "ACTION",
+        "acao_tooltip": "Event Type / CRUD",
+        "acao_desc": "Operation taxonomy handled and distributed on the event bus (message broker).",
+        "o_que_foi_feito": "WHAT WAS DONE",
+        "o_que_foi_feito_tooltip": "Event Payload / State Diff",
+        "o_que_foi_feito_desc": "Immutable structured data detailing the entries modified by the controller.",
+        "entidade": "ENTITY",
+        "entidade_tooltip": "Target Table/Entity",
+        "entidade_desc": "Reference to the isolated scope in the data schema that underwent mutations."
+      },
+      "acoes": {
+        "criacao": "CREATE",
+        "alteracao": "UPDATE",
+        "exclusao": "DELETE",
+        "envio": "SEND",
+        "recebimento": "RECEIVE",
+        "exportacao": "EXPORT",
+        "login": "LOGIN",
+        "configuracao": "CONFIGURATION",
+        "ia": "AI"
+      },
+      "diff": {
+        "campo": "Field",
+        "antes": "Before",
+        "depois": "After"
+      },
+      "vazio": "No field change details recorded for this action.",
+      "valor_vazio": "empty",
+      "erro_carregar": "Failed to load history records:",
+      "exportar_csv": "Export CSV",
+      "exportar_backup": "Export Backup Log (.json)",
+      "filtro": {
+        "todos_responsaveis": "All Responsible",
+        "usuarios_admin": "Administrative Users",
+        "gabi_ai": "Gabi AI",
+        "sistema_rotinas": "System / Routines",
+        "todas_acoes": "All Actions",
+        "alteracoes": "Updates",
+        "criacoes": "Creations",
+        "exclusoes": "Deletions",
+        "logins": "Logins / Access",
+        "placeholder_responsavel": "Responsible...",
+        "placeholder_acao": "Action...",
+        "placeholder_data": "Filter by date..."
+      },
+      "vazio_carregando": "Loading records...",
+      "vazio_filtros": "No changes found for these filters.",
+      "vazio_sem_filtro": "No activity recorded in the global history.",
+      "tooltip_busca": "Search record by responsible name or action description",
+      "tooltip_expandir": "View technical details of the change (state diff)",
+      "tooltip_recolher": "Collapse technical details"
+    },
+    "tests": {
+      "titulo": "Test Log",
+      "tipo": {
+        "e2e": "E2E",
+        "funcional": "FUNCTIONAL",
+        "unitario": "UNIT"
+      },
+      "resultado": {
+        "aprovado": "PASSED",
+        "reprovado": "FAILED",
+        "erro_catastrofico": "CATASTROPHIC_ERROR"
+      }
+    },
+    "deploy": {
+      "titulo": "Deploy Railway",
+      "subtitulo": "Version history, deployment status and CI/CD control across all environments",
+      "vazio_filtros": "No deploys found for these filters.",
+      "vazio_sem_filtro": "No deploy history recorded yet.",
+      "tooltip_busca": "Search deploy by message (TO) or responsible (WHO)",
+      "tabela": {
+        "quando": "WHEN",
+        "quando_tooltip": "Timestamp ISO",
+        "quando_desc": "Moment of the CI/CD trigger generated by the Railway webhook.",
+        "quem": "WHO",
+        "quem_tooltip": "Author Signature",
+        "quem_desc": "Identity associated with the GitHub push payload.",
+        "area": "AREA",
+        "area_tooltip": "Context Module",
+        "area_desc": "Monorepo service affected resolved in the build script.",
+        "de": "FROM",
+        "de_tooltip": "Base Revision",
+        "de_desc": "Restore point or previous tag overridden by this deploy.",
+        "para": "TO",
+        "para_tooltip": "PR Description",
+        "para_desc": "Message and metadata in the head commit from the repository.",
+        "versao": "VERSION",
+        "versao_tooltip": "Git SHA",
+        "versao_desc": "Cryptographic hash (short) corresponding to the tree in version control.",
+        "status": "STATUS",
+        "status_tooltip": "Health Check / Exit Code",
+        "status_desc": "Container status returned via Railway API integration."
+      },
+      "areas": {
+        "autenticacao": "Authentication",
+        "infraestrutura": "Infrastructure"
+      },
+      "status": {
+        "concluido": "Completed",
+        "removido": "Removed",
+        "falhado": "Failed"
+      },
+      "nao_existia": "— did not exist"
+    }
+  },
+  "workspace": {
+    "layout": {
+      "organizacao": "Organization",
+      "workspaces": "Workspaces",
+      "usuarios": "Users",
+      "assinaturas": "Subscriptions",
+      "financeiro": "Financial",
+      "api_cockpit": "API Cockpit",
+      "conectores": "Connectors",
+      "modulo_nome": "Configurator",
+      "tenant_plano": "Enterprise Plan"
+    },
+    "connectors": {
+      "status": {
+        "conectado": "Connected",
+        "configurando": "Configuring",
+        "disponivel": "Available",
+        "em_breve": "Coming soon"
+      },
+      "secao_credenciais": "OAuth 2.0 Credentials — ONESOURCE",
+      "info_criptografia": "Credentials stored with AES-256-GCM encryption.",
+      "info_refresh": "The access token is automatically renewed via refresh_token before expiration.",
+      "campo_client_id": "Client ID",
+      "campo_client_secret": "Client Secret",
+      "campo_token_url": "Token URL",
+      "campo_scope": "Scope",
+      "campo_api_base_url": "API Base URL",
+      "aba_depara": "De-Para Mapping",
+      "aba_teste": "Connection Test"
+    },
+    "organization": {
+      "titulo": "Organization",
+      "campo_nome": "Company Name",
+      "campo_cnpj": "Tax ID",
+      "campo_estado": "State",
+      "campo_cidade": "City",
+      "campo_segmento": "Segment",
+      "campo_site": "Website",
+      "aguardando_estado": "Awaiting state",
+      "msg_sucesso": "Organization saved successfully!",
+      "msg_erro": "Error saving organization."
+    },
+    "users": {
+      "titulo": "Users",
+      "tabela": {
+        "usuario": "User",
+        "email": "Email",
+        "organizacao": "Organization",
+        "tipo": "Type",
+        "status": "Status"
+      }
+    },
+    "workspaces": {
+      "titulo": "Workspaces",
+      "tabela": {
+        "workspace": "Workspace",
+        "workspace_desc": "Workspace name registered in your account",
+        "subdominio": "Subdomain",
+        "usuarios": "Users",
+        "status": "Status",
+        "data_criacao": "Creation date"
+      }
+    },
+    "subscriptions": {
+      "titulo": "Subscriptions",
+      "tabela": {
+        "produto": "Product",
+        "cobranca": "Billing",
+        "cobranca_desc": "SaaS = monthly; Usage = per consumption; Setup = implementation.",
+        "valor": "Value",
+        "renovacao": "Renewal",
+        "renovacao_desc": "Next billing or automatic renewal date.",
+        "workspaces_habilitados": "Enabled Workspaces",
+        "workspaces_desc": "Summary of active instances for this service."
+      },
+      "vazio_workspaces": "No enabled workspaces",
+      "upsell": {
+        "helpdesk": "Helpdesk Premium",
+        "helpdesk_desc": "SLA tickets and reports for your customers.",
+        "nfe": "Automatic Invoice",
+        "nfe_desc": "Automatic invoice issuance via gateway.",
+        "bi": "BI Analytics Pro",
+        "bi_desc": "Advanced dashboards with drill-down and export."
+      }
+    },
+    "financial": {
+      "titulo": "Financial",
+      "aba_faturas": "Invoice History",
+      "aba_produtos": "Products & Pricing",
+      "status": {
+        "pago": "Paid",
+        "pendente": "Pending",
+        "atrasado": "Overdue"
+      },
+      "proximo_vencimento": "Next Due Date",
+      "valor_pagar": "Amount Due",
+      "faturas_abertas": "Open Invoices"
+    }
+  },
+  "simulacusto": {
+    "dashboard": {
+      "titulo": "SimulaCusto Dashboard",
+      "total_simulacoes": "Total Simulations",
+      "custo_medio": "Average Cost (BRL)",
+      "base_cif": "Total CIF Base (USD)",
+      "viabilidade": "Tax Viability",
+      "viavel": "Viable",
+      "atencao": "Attention",
+      "inviavel": "Not Viable",
+      "projecao_fluxo": "Cash Flow Projection (Exchange)",
+      "otimista": "Optimistic",
+      "base": "Base",
+      "pessimista": "Pessimistic",
+      "simulacoes_recentes": "Recent Simulations",
+      "ver_todas": "View all",
+      "sem_simulacoes": "No simulations found for this workspace.",
+      "filtrar_ncm_pais": "Filter by NCM or Country",
+      "alertas_cambio": "Exchange Rate Alerts"
+    },
+    "periodos": {
+      "7_dias": "7 days",
+      "30_dias": "30 days",
+      "6_meses": "6 months",
+      "1_ano": "1 year",
+      "vs_semana": "vs last week",
+      "vs_mes": "vs last month",
+      "vs_semestre": "vs last semester",
+      "vs_ano": "vs last year"
+    },
+    "estimativas": {
+      "titulo": "Cost Estimates",
+      "subtitulo": "Manage your Landed Cost simulations",
+      "nova": "New Estimate",
+      "nova_titulo": "New Cost Estimate",
+      "editar_titulo": "Edit Estimate",
+      "nova_subtitulo": "Calculate the full Landed Cost before closing the deal",
+      "total": "Total Estimates",
+      "em_criacao": "In Progress",
+      "criadas": "Created",
+      "arquivadas": "Archived",
+      "landed_cost_medio": "Average Landed Cost",
+      "tabela": {
+        "numero": "Number",
+        "status": "Status",
+        "operacao": "Operation",
+        "referencia": "Reference",
+        "tributos": "Taxes",
+        "data": "Date"
+      },
+      "acoes": {
+        "ver_detalhes": "View details",
+        "duplicar": "Duplicate estimate",
+        "arquivar": "Archive"
+      },
+      "vazio": "No estimates found",
+      "buscar": "Search by number, NCM or reference"
+    },
+    "formulario": {
+      "operacao": "Operation",
+      "modalidade": "Modality",
+      "referencia": "Internal Reference",
+      "produto_origem": "Product & Origin",
+      "ncm": "NCM (8 digits)",
+      "pais_origem": "Country of Origin (ISO)",
+      "uf_desembaraco": "Clearance State",
+      "valores": "Values",
+      "valor_produto": "Product Value",
+      "frete_internacional": "International Freight",
+      "seguro_internacional": "International Insurance",
+      "aliquotas": "Tax Rates",
+      "reducao_ii": "Import Tax Reduction — Agreements (%)",
+      "documentos": "Linked Documents",
+      "portal_unico": "Single Portal",
+      "engine": "Gravity Cloud Engine",
+      "landed_cost": "Total Landed Cost",
+      "valor_aduaneiro": "Customs Value (CV)",
+      "total_tributos": "Total Taxes",
+      "salvar_estimativa": "Save Estimate",
+      "calculando": "Calculating...",
+      "simular_custo": "Simulate Cost"
+    },
+    "modal_simulacao": {
+      "titulo": "Simulate New Cost",
+      "subtitulo": "Enter product data and tax rates for Landed Cost calculation",
+      "secao_produto": "Product & Operation"
+    },
+    "importar_massa": {
+      "titulo": "Bulk Import",
+      "subtitulo": "Upload multiple simulations via Excel or CSV spreadsheet",
+      "fase_2": "Feature available in Phase 2"
+    },
+    "relatorios": {
+      "titulo": "Global Financial",
+      "subtitulo": "Consolidated report by client, product and date with delinquency tracking.",
+      "tabela": {
+        "codigo": "Code",
+        "data": "Date",
+        "importador": "Importer",
+        "origem": "Origin",
+        "valor_total": "Total Value",
+        "status": "Status"
+      },
+      "status": {
+        "concluido": "Completed",
+        "processando": "Processing",
+        "pendente": "Pending",
+        "atrasado": "Overdue"
+      },
+      "kpi": {
+        "a_receber": "RECEIVABLE (OPEN)",
+        "risco": "DELINQUENCY RISK",
+        "performance": "PERFORMANCE"
+      },
+      "novo_relatorio": "New Report",
+      "vazio": "No reports found for the selected filter.",
+      "info_atualizacao": "Consolidated reports are updated every 4 hours."
+    }
+  },
+  "bidfrete": {
+    "dashboard": {
+      "titulo": "Overview",
+      "cotacoes_andamento": "Quotes in progress",
+      "fornecedores_cadastrados": "Registered suppliers",
+      "buscar_frete": "Search freight",
+      "saving_estimado": "Estimated savings",
+      "cotacoes_aprovadas": "Approved quotes",
+      "autorizadas_tempo": "Authorized on time",
+      "recusadas_tempo": "Declined on time",
+      "nao_respondidas": "Unanswered",
+      "total_passadas": "Total past quotes",
+      "principais_moedas": "Main currencies",
+      "vazio": "No quotes in progress",
+      "buscar": "Search by number, origin or destination"
+    },
+    "tabela": {
+      "processo": "Process (DATI)",
+      "referencia": "Reference",
+      "data_cotacao": "Quote date",
+      "quem_gerou": "Created by",
+      "origem": "Origin",
+      "destino": "Destination",
+      "modal": "Modal",
+      "modalidade": "Modality",
+      "peso": "Weight (Kg)",
+      "data_limite": "Response deadline"
+    },
+    "cotacoes": {
+      "titulo": "Quotes in progress",
+      "todas": "All quotes",
+      "proximos_vencimento": "Near deadline",
+      "falta_info": "Missing information for quote",
+      "respondido_em": "Responded in",
+      "vista_lista": "List view",
+      "vista_kanban": "Kanban view",
+      "buscar_frete": "Search freight",
+      "vazio": "No quotes found",
+      "respostas": "response(s)",
+      "kanban": {
+        "enviada": "Sent to supplier",
+        "aprovacao": "Pending approval",
+        "falta_info": "Missing information",
+        "baixo_limite": "Low response limit",
+        "fora_prazo": "Past deadline",
+        "encerradas": "Closed"
+      }
+    },
+    "nova_cotacao": {
+      "origem": "Origin",
+      "destino": "Destination",
+      "carga": "Cargo",
+      "incoterm": "Incoterm",
+      "fornecedores": "Suppliers",
+      "resumo": "Summary",
+      "maritimo": "Maritime",
+      "aereo": "Air",
+      "rodoviario": "Road",
+      "prazo_respostas": "Response deadline",
+      "valor_alvo": "Target value (optional)",
+      "moeda": "Currency",
+      "tipo_aberta": "Open",
+      "tipo_direcionada": "Directed",
+      "tipo_anonima": "Anonymous",
+      "criar": "Create Quote",
+      "criando": "Creating..."
+    },
+    "calendario": {
+      "ontem": "Yesterday",
+      "hoje": "Today",
+      "amanha": "Tomorrow"
+    }
+  },
+  "bidcambio": {
+    "dashboard": {
+      "titulo": "Overview",
+      "sem_dados": "No data available",
+      "primeiro_uso": "Create your first exchange quote to view the dashboard",
+      "comercial": "Commercial",
+      "parcelas_pendentes": "Pending Installments",
+      "parcelas_vencidas": "Overdue Installments",
+      "economia_acumulada": "Accumulated Savings",
+      "corretoras_cadastradas": "Registered Brokers",
+      "cotacoes_andamento": "Quotes in Progress",
+      "funil_cotacoes": "Quote Funnel",
+      "calendario_vencimentos": "Due Date Calendar",
+      "sem_vencimento": "No upcoming due dates",
+      "parcelas_vencidas_count": "overdue installment(s)",
+      "parcelas_pendentes_count": "pending installment(s)",
+      "nao_respondidas": "Unanswered",
+      "aprovacao": "Approval"
+    }
+  },
+  "pedido": {
+    "titulo": "Orders",
+    "subtitulo": "Import and export order management",
+    "total_pedidos": "Total Orders",
+    "itens_total": "total items",
+    "valor_total": "Total Value",
+    "soma_pedidos": "Sum of all orders",
+    "qtd_total": "Total Quantity",
+    "qtd_acumulada": "Accumulated quantity",
+    "novo_pedido": "New Order",
+    "vazio": "No orders registered",
+    "criar_primeiro": "Create first order",
+    "buscar": "Search orders...",
+    "vazio_filtro": "No orders found for the applied filter",
+    "tabela": {
+      "pedido_item": "Order/Item",
+      "po_tipo": "P.O Type",
+      "po_tipo_desc": "Operation Type",
+      "po_tipo_tooltip": "Import (Purchase Order) or Export (Sales Order)",
+      "importador": "Importer",
+      "ref_importador": "Importer Ref.",
+      "exportador": "Exporter",
+      "ref_exportador": "Exporter Ref.",
+      "fabricante": "Manufacturer",
+      "ref_fabricante": "Manufacturer Ref.",
+      "numero_proforma": "Proforma Number",
+      "numero_invoice": "Invoice Number",
+      "data_po": "P.O Date",
+      "qtd_inicial": "Initial Quantity",
+      "qtd_atual": "Current Quantity",
+      "qtd_transferida": "Transferred Quantity",
+      "qtd_pronta": "Ready Quantity",
+      "qtd_transferir": "Quantity to Transfer",
+      "desc_quantidade": "Quantity Description",
+      "unidade_medida": "Unit of Measurement"
+    },
+    "acoes": {
+      "ver_detalhes": "View order details",
+      "editar": "Edit order data",
+      "duplicar": "Duplicate order",
+      "deletar": "Delete order (Draft only)"
+    }
+  },
+  "processo": {
+    "titulo": "Process",
+    "status": {
+      "rascunho": "Draft",
+      "em_andamento": "In Progress",
+      "aguardando_docs": "Awaiting Docs",
+      "em_desembaraco": "In Clearance",
+      "concluido": "Completed",
+      "cancelado": "Cancelled"
+    },
+    "menu": {
+      "workflow": "Workflow",
+      "pedidos": "Orders",
+      "li": "LI",
+      "di": "DI",
+      "duimp": "DUIMP",
+      "retificacao": "Rectification",
+      "financeiro": "Financial",
+      "taxas": "Fees",
+      "containers": "Containers",
+      "dados_tecnicos": "Technical Data",
+      "dados_processo": "Process Data",
+      "email": "Email",
+      "todo": "To Do"
+    },
+    "ref_cliente": "Client Ref.:",
+    "exportador": "Exporter:",
+    "voltar_processos": "Back to Processes",
+    "dados_tecnicos": {
+      "subtitulo": "Technical information about transport, clearance and insurance of the process",
+      "preenchimento": "Completion",
+      "preenchidos": "Filled",
+      "vazios": "Empty",
+      "buscar": "Search in technical data...",
+      "importador": "Importer",
+      "importador_desc": "Data of the Brazilian importer responsible for the operation",
+      "endereco": "Address",
+      "endereco_placeholder": "Street, number",
+      "cidade": "City",
+      "exportador": "Exporter",
+      "exportador_desc": "Data of the international supplier shipping the goods",
+      "nome_exportador": "Exporter name",
+      "endereco_exportador": "Exporter address",
+      "cidade_exportador": "Exporter city",
+      "transporte": "International Transport",
+      "transporte_desc": "Transport route and shipment logistics settings",
+      "nome_companhia": "Company name",
+      "numero_conhecimento": "Bill of lading number",
+      "despacho": "Customs Clearance",
+      "despacho_desc": "Tax and customs parameters required for clearance",
+      "incoterm": "Incoterm",
+      "nome_recinto": "Warehouse name",
+      "seguro": "Insurance",
+      "seguro_desc": "International cargo transport insurance data",
+      "seguradora": "Insurer",
+      "nome_seguradora": "Insurer name",
+      "numero_apolice": "Policy number"
+    }
+  },
+  "marketplace": {
+    "hero": {
+      "badge": "Product-Led Growth · 14 days free",
+      "titulo": "One platform for all your services",
+      "subtitulo": "Gravity is a modular multi-tenant B2B SaaS platform for logistics and foreign trade"
+    },
+    "features": {
+      "dashboard": "Unified Dashboard",
+      "dashboard_desc": "Real-time metrics for all your operations",
+      "email": "Transactional Email",
+      "email_desc": "Email sending with integrated Resend",
+      "whatsapp": "WhatsApp Business",
+      "whatsapp_desc": "Native integration with Meta Cloud API",
+      "cronometro": "Activity Timer",
+      "cronometro_desc": "Track time by project and task",
+      "automacoes": "Automations",
+      "automacoes_desc": "Automated triggers and actions",
+      "multi_tenant": "Native Multi-tenant",
+      "multi_tenant_desc": "Each company has isolated data"
+    },
+    "social_proof": {
+      "confiado": "Trusted by companies that grow with intelligence"
+    },
+    "servicos": {
+      "titulo": "Shared services, unique data",
+      "subtitulo": "Each module exists once per company"
+    },
+    "demo": {
+      "titulo": "See the system before subscribing",
+      "subtitulo": "Explore the full environment with real data"
+    },
+    "pricing": {
+      "titulo": "Simple and transparent pricing",
+      "subtitulo": "Start for free. Scale when you need to.",
+      "demo_upgrade": "Demo: See how the Pro upgrade works",
+      "ver_planos": "View All Plans"
+    },
+    "cta": {
+      "titulo": "Ready to get started?",
+      "subtitulo": "14 free days. Setup in 60 seconds. Cancel anytime.",
+      "trial": "Start Free Trial",
+      "precos": "View Pricing"
+    },
+    "kpi": {
+      "receita": "Revenue",
+      "atividades": "Activities",
+      "tickets": "Tickets"
+    }
+  },
+  "tenant_dashboard": {
+    "titulo": "Consolidated Dashboard",
+    "subtitulo": "What needs to happen today — and who is responsible for making it happen.",
+    "total_empresas": "Total Companies",
+    "clientes_ativos": "Active Clients",
+    "leads_funil": "Leads in Funnel",
+    "novos_mes": "New this Month",
+    "este_mes": "This month",
+    "30_dias": "30 days",
+    "funil_vendas": "Sales Funnel",
+    "chamados": "Tickets & Help Desk",
+    "abertos": "Open",
+    "em_andamento": "In Progress",
+    "tempo_medio": "Average Time",
+    "health_score": "Health Score",
+    "saude_base": "Base Health",
+    "saudavel": "Healthy",
+    "atencao": "Attention",
+    "risco": "At Risk",
+    "alertas_criticos": "Critical Alerts",
+    "sem_chamados_criticos": "No critical tickets open at the moment.",
+    "sincronizado": "Synced now",
+    "carregando": "Loading overview..."
   }
 }

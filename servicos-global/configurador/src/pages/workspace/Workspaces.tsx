@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -64,6 +65,7 @@ const mockWorkspaces: Empresa[] = [
 
 
 export function Workspaces() {
+  const { t } = useTranslation()
   const [empresas, setWorkspaces] = useState<Empresa[]>(() => {
     try {
       const salvo = localStorage.getItem('gravity:workspaces-dados')
@@ -144,9 +146,9 @@ export function Workspaces() {
 
   const COLUNAS: TabelaGlobalColuna<Empresa>[] = [
     {
-      key: 'nome', label: 'Workspace', tipo: 'texto',
-      tooltipTitulo: 'Workspace',
-      tooltipDescricao: 'Nome do workspace cadastrado na sua conta',
+      key: 'nome', label: t('workspace.workspaces.tabela.workspace'), tipo: 'texto',
+      tooltipTitulo: t('workspace.workspaces.tabela.workspace'),
+      tooltipDescricao: t('workspace.workspaces.tabela.workspace_desc'),
       render: (v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(129,140,248,0.12)', border: '1px solid rgba(129,140,248,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#818cf8' }}>
@@ -157,13 +159,13 @@ export function Workspaces() {
       )
     },
     {
-      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
+      key: 'subdominio', label: t('workspace.workspaces.tabela.subdominio'), tipo: 'texto',
       tooltipTitulo: 'Subdomínio', tooltipDescricao: 'Endereço exclusivo deste workspace na plataforma',
       render: (v, item) => (
         <a href={`https://${item.subdominio}.gravity.com.br`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', textDecoration: 'none' }} onClick={ev => ev.stopPropagation()}>
-          <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s, color 0.15s', cursor: 'pointer' }}
-            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.2)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
-            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(199,210,254,0.1)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
+          <code className="ws-subdominio-code"
+            onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.textDecoration = 'underline' }}
+            onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
           >
             {item.subdominio}.gravity.com.br
           </code>
@@ -171,12 +173,12 @@ export function Workspaces() {
       )
     },
     {
-      key: 'usuarios', label: 'Usuários', tipo: 'numero', align: 'center',
+      key: 'usuarios', label: t('workspace.workspaces.tabela.usuarios'), tipo: 'numero', align: 'center',
       tooltipTitulo: 'Usuários Ativos', tooltipDescricao: 'Total de usuários com acesso habilitado neste workspace',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('workspace.workspaces.tabela.status'), tipo: 'texto',
       tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se o workspace está operando ou com acesso suspenso',
       render: (v) => (
         <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativa' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativa' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativa' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
@@ -185,7 +187,7 @@ export function Workspaces() {
       )
     },
     {
-      key: 'criadaEm', label: 'Criado em', tipo: 'texto',
+      key: 'criadaEm', label: t('workspace.workspaces.tabela.data_criacao'), tipo: 'texto',
       tooltipTitulo: 'Data de Criação', tooltipDescricao: 'Data em que o workspace foi cadastrado no sistema',
       render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span>
     }
@@ -245,7 +247,7 @@ export function Workspaces() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Buildings weight="duotone" size={22} />}
-          titulo="Workspaces"
+          titulo={t('workspace.workspaces.titulo')}
           subtitulo="Gerencie todos os workspaces cadastrados na sua organização"
         />
       }

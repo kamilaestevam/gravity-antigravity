@@ -16,6 +16,7 @@ import {
   ChartBar,
   ChatCircleText,
   Plugs,
+  Headset,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import '../pages/workspace/workspace.css'

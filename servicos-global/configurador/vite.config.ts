@@ -33,6 +33,7 @@ export default defineConfig({
       '@nucleo/usuario-global': path.resolve(__dirname, '../../nucleo-global/Layout/usuario-global/src/index.ts'),
       '@nucleo/view-toggle-global': path.resolve(__dirname, '../../nucleo-global/Layout/view-toggle-global/src/index.ts'),
       '@nucleo/menu-lateral-global': path.resolve(__dirname, '../../nucleo-global/Layout/menu-lateral-global/src/index.ts'),
+      '@nucleo/language-switcher-global': path.resolve(__dirname, '../../nucleo-global/Layout/language-switcher-global/src/index.ts'),
       // ── Modais ──
       '@nucleo/modal-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-global/src/index.ts'),
       '@nucleo/modal-formulario-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-formulario-global/src/index.ts'),

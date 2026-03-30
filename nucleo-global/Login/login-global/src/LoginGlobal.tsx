@@ -1,6 +1,7 @@
 import { SignIn, SignUp } from '@clerk/clerk-react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Envelope, ArrowLeft, CheckCircle, WarningCircle, CircleNotch } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './login-global.css'
@@ -8,6 +9,7 @@ import './login-global.css'
 export function LoginGlobal() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const isSignUp = location.pathname.includes('/sign-up')
   const isForgotPassword = location.pathname.includes('/forgot-password')
 
@@ -86,14 +88,14 @@ export function LoginGlobal() {
     <div className="login-global-panel">
       <div className="login-global-header">
         <p className="login-global-title">
-          {isForgotPassword ? 'Recuperar senha' : isSignUp ? 'Criar sua conta' : 'Acessar a plataforma'}
+          {isForgotPassword ? t('login.recuperar_senha_titulo') : isSignUp ? t('login.criar_conta_titulo') : t('login.acessar_titulo')}
         </p>
         <p className="login-global-subtitle">
-          {isForgotPassword 
-            ? 'Informe seu e-mail para receber o link de recuperação' 
-            : isSignUp 
-              ? 'Preencha os dados e comece agora' 
-              : 'Entre com suas credenciais para continuar'}
+          {isForgotPassword
+            ? t('login.recuperar_subtitulo')
+            : isSignUp
+              ? t('login.criar_subtitulo')
+              : t('login.acessar_subtitulo')}
         </p>
       </div>
 
@@ -116,7 +118,7 @@ export function LoginGlobal() {
             appearance={clerkAppearance as any}
           />
           <div className="login-forgot-manual">
-            <Link to="/forgot-password">Esqueceu a senha?</Link>
+            <Link to="/forgot-password">{t('login.esqueceu_senha')}</Link>
           </div>
         </>
       )}
@@ -126,18 +128,18 @@ export function LoginGlobal() {
           <p className="login-footer-main">
             {isSignUp ? (
               <>
-                Possui uma conta? <Link to="/sign-in">Entrar</Link>
+                {t('login.ja_conhece', 'Possui uma conta?')} <Link to="/sign-in">{t('login.entrar')}</Link>
               </>
             ) : (
               <>
-                Não possui uma conta? <Link to="/sign-up">Registre-se</Link>
+                {t('login.sem_conta')} <Link to="/sign-up">{t('login.registrar')}</Link>
               </>
             )}
           </p>
           <p className="login-footer-secondary">
-            {isSignUp ? 'Já conhece a plataforma? ' : 'Novo por aqui? '}
-            <a href="http://localhost:8002" target="_blank" rel="noreferrer">
-              {isSignUp ? 'Saiba mais' : 'Conheça a plataforma'}
+            {isSignUp ? `${t('login.ja_conhece')} ` : `${t('login.sem_conta', 'Novo por aqui?')} `}
+            <a href={import.meta.env.VITE_MARKETPLACE_URL ?? '/marketplace'} target="_blank" rel="noreferrer">
+              {isSignUp ? t('login.saiba_mais') : t('login.conheca_plataforma')}
             </a>
           </p>
         </div>
@@ -147,6 +149,7 @@ export function LoginGlobal() {
 }
 
 function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const navigate = useNavigate()
@@ -157,14 +160,8 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
 
     setStatus('loading')
     
-    // Simulação de envio
-    setTimeout(() => {
-      if (email.includes('error')) {
-        setStatus('error')
-      } else {
-        setStatus('success')
-      }
-    }, 1500)
+    // TODO(daniel, 2026-03): integrar com endpoint real de reset de senha via Clerk
+    setStatus('success')
   }
 
   if (status === 'success') {
@@ -173,13 +170,13 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
         <div className="status-icon success">
           <CheckCircle size={48} weight="duotone" />
         </div>
-        <h2 className="forgot-title">Verifique seu e-mail</h2>
+        <h2 className="forgot-title">{t('login.verificar_email_titulo')}</h2>
         <p className="forgot-desc">
-          Enviamos as instruções de recuperação para: <br />
+          {t('login.verificar_email_desc')}<br />
           <strong>{email}</strong>
         </p>
         <Link className="forgot-button" to="/sign-in" onClick={onBack}>
-          Voltar para o login
+          {t('login.voltar_login')}
         </Link>
       </div>
     )
@@ -189,13 +186,13 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
     <div className="forgot-password-container">
       <form onSubmit={handleSubmit} className="forgot-form">
         <div className="forgot-field">
-          <label htmlFor="email">E-mail</label>
+          <label htmlFor="email">{t('comum.email')}</label>
           <div className="forgot-input-wrapper">
             <Envelope size={20} className="forgot-input-icon" />
             <input
               id="email"
               type="email"
-              placeholder="Digite seu e-mail"
+              placeholder={t('login.placeholder_email')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -207,7 +204,7 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
         {status === 'error' && (
           <div className="forgot-error-msg">
             <WarningCircle size={18} />
-            <span>Não encontramos nenhuma conta com este e-mail.</span>
+            <span>{t('login.erro_email_nao_encontrado')}</span>
           </div>
         )}
 
@@ -217,7 +214,7 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
             className={`forgot-button ${status === 'loading' ? 'loading' : ''}`}
             disabled={status === 'loading'}
           >
-            {status === 'loading' ? <CircleNotch size={20} className="spin" /> : 'Enviar instruções'}
+            {status === 'loading' ? <CircleNotch size={20} className="spin" /> : t('login.enviar_instrucoes')}
           </button>
         </TooltipGlobal>
       </form>
@@ -228,7 +225,7 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
         onClick={onBack}
       >
         <ArrowLeft size={16} />
-        Voltar para o login
+        {t('login.voltar_login')}
       </Link>
     </div>
   )

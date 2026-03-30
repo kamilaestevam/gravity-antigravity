@@ -24,13 +24,14 @@ button, input, select, textarea {
 
 /* ── Light theme overrides ─────────────────────────────────── */
 body.light-theme {
-  --ws-bg-body: #f8fafc;
-  --ws-surface: #ffffff;
-  --ws-surface-2: #f1f5f9;
-  --ws-text: #0f172a;
+  --ws-bg-body: #f1f5f9;
+  --ws-surface: #f8fafc;
+  --ws-surface-2: #ffffff;
+  --ws-text: #1e293b;
   --ws-muted: #475569;
-  --ws-accent-dim: rgba(129, 140, 248, 0.10);
-  --ws-accent-border: rgba(129, 140, 248, 0.25);
+  --ws-accent: #4f46e5;
+  --ws-accent-dim: #e0e7ff;
+  --ws-accent-border: #a5b4fc;
 }
 
 body.light-theme .ws-shell {
@@ -87,12 +88,33 @@ body.light-theme .ws-main::before {
   background: rgba(0, 0, 0, 0.08);
 }
 
-/* Badge ENTERPRISE — contraste OK no claro */
+/* Badge ENTERPRISE — contraste forte no claro */
 body.light-theme .ws-mae-card__badge,
 body.light-theme .em-tag {
-  color: #92620a;
-  background: rgba(251, 191, 36, 0.18);
-  border-color: rgba(251, 191, 36, 0.40);
+  color: #92400e;
+  background: rgba(251, 191, 36, 0.22);
+  border-color: rgba(217, 119, 6, 0.45);
+  font-weight: 700;
+}
+
+/* Card Organização — amarelo mais quente no claro */
+body.light-theme .em-identity {
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.08) 0%, var(--ws-surface) 55%);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+body.light-theme .em-identity__avatar {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.30);
+  color: #92400e;
+}
+
+body.light-theme .em-identity__badge {
+  color: #92400e;
+}
+
+body.light-theme .em-identity__name {
+  color: var(--ws-text, #1e293b);
 }
 
 /* Readonly field — fundo sutil no claro */
@@ -104,6 +126,30 @@ body.light-theme .em-readonly {
 /* Separador de meta no claro */
 body.light-theme .em-identity__sep {
   color: rgba(0, 0, 0, 0.25);
+}
+
+/* Subdomínio na tabela — visível no claro */
+.ws-subdominio-code {
+  font-size: 0.8125rem;
+  padding: 0.125rem 0.4rem;
+  border-radius: 4px;
+  color: #c7d2fe;
+  background: rgba(199, 210, 254, 0.1);
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+}
+
+.ws-subdominio-code:hover {
+  background: rgba(199, 210, 254, 0.2);
+}
+
+body.light-theme .ws-subdominio-code {
+  color: #4338ca;
+  background: rgba(79, 70, 229, 0.08);
+}
+
+body.light-theme .ws-subdominio-code:hover {
+  background: rgba(79, 70, 229, 0.14);
 }
 
 /* Tooltip no claro */
@@ -1163,7 +1209,7 @@ body.light-theme .ws-profile-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   left: 50%;
-  z-index: 500;
+  z-index: 9999;
 
   background: var(--ws-surface);
   border: 1px solid var(--ws-accent-border);
@@ -1601,7 +1647,7 @@ body.light-theme .ws-profile-dropdown {
   border: 1px solid var(--ws-accent-border);
   border-radius: 10px;
   padding: 1.25rem;
-  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-family: 'DM Mono', monospace;
   font-size: 0.8125rem;
   color: #a5b4fc;
   line-height: 1.7;
@@ -2373,7 +2419,7 @@ input[type="search"]::placeholder {
 .cw-xml-viewer {
   margin: 0;
   padding: 1.25rem 1.5rem;
-  font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  font-family: 'DM Mono', monospace;
   font-size: 0.78125rem;
   line-height: 1.65;
   color: #94a3b8;
@@ -2443,7 +2489,7 @@ input[type="search"]::placeholder {
   font-size: 0.75rem;
   color: var(--ws-muted);
   min-width: 100px;
-  font-family: 'Fira Code', monospace;
+  font-family: 'DM Mono', monospace;
 }
 
 .cw-mapping-status {
@@ -2645,4 +2691,194 @@ input[type="search"]::placeholder {
 
 .ws-spin {
   animation: spin 1s linear infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME — Additional overrides for missing components
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Badges — WCAG AA compliant colors for light backgrounds */
+body.light-theme .ws-badge-success {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.2);
+}
+
+body.light-theme .ws-badge-warning {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: rgba(180, 83, 9, 0.2);
+}
+
+body.light-theme .ws-badge-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+body.light-theme .ws-badge-info {
+  background: #cffafe;
+  color: #0e7490;
+  border-color: rgba(14, 116, 144, 0.2);
+}
+
+/* Profile dropdown items — light theme specific colors */
+body.light-theme .ws-profile-item--admin {
+  color: #047857;
+}
+
+body.light-theme .ws-profile-item--admin svg {
+  color: #047857;
+}
+
+body.light-theme .ws-profile-item--admin:hover {
+  background: rgba(4, 120, 87, 0.08);
+  color: #047857;
+}
+
+body.light-theme .ws-profile-item--configurador {
+  color: #4f46e5;
+}
+
+body.light-theme .ws-profile-item--configurador svg {
+  color: #4f46e5;
+}
+
+body.light-theme .ws-profile-item--configurador:hover {
+  background: rgba(79, 70, 229, 0.08);
+  color: #4f46e5;
+}
+
+body.light-theme .ws-profile-item--danger {
+  color: #dc2626;
+}
+
+body.light-theme .ws-profile-item--danger svg {
+  color: #dc2626;
+}
+
+body.light-theme .ws-profile-item--danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Sidebar tenant avatar — light theme */
+body.light-theme .ws-sidebar__tenant-avatar {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4f46e5;
+}
+
+/* User bar avatar — light theme */
+body.light-theme .ws-user-bar__avatar {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4f46e5;
+}
+
+/* Global user avatar — light theme */
+body.light-theme .ws-global-user__avatar {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4f46e5;
+}
+
+/* Global chip — light theme */
+body.light-theme .ws-global-chip {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
+body.light-theme .ws-global-chip__dot {
+  background: #4f46e5;
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.6), 0 0 3px rgba(79, 70, 229, 0.4);
+}
+
+body.light-theme .ws-global-chip__label {
+  color: #4f46e5;
+}
+
+/* Mini dash — light theme */
+body.light-theme .ws-mini-dash {
+  background: var(--ws-surface, var(--bg-base, #f8fafc));
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .ws-mini-dash:hover {
+  border-color: var(--ws-accent, #4f46e5);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.15), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .ws-mini-dash__tooltip {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+/* Success step dots — light theme */
+body.light-theme .cw-success-step__dot {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .cw-success-step__dot--done {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+/* Legend dots — light theme (darker for WCAG) */
+body.light-theme .dot.green  { background: #16a34a; }
+body.light-theme .dot.yellow { background: #b45309; }
+body.light-theme .dot.red    { background: #dc2626; }
+
+/* ConectorCargoWise — light theme overrides */
+body.light-theme .cw-step__circle {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .cw-step__circle--active {
+  background: #e0e7ff;
+  border-color: #4f46e5;
+  color: #4f46e5;
+}
+
+body.light-theme .cw-step__circle--done {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+body.light-theme .cw-step__connector {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .cw-step__connector--done {
+  background: #16a34a;
+}
+
+body.light-theme .cw-mapping-row {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .cw-mapping-row:hover {
+  background: rgba(79, 70, 229, 0.04);
+}
+
+body.light-theme .cw-upload-zone {
+  border-color: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .cw-upload-zone:hover {
+  border-color: #4f46e5;
+  background: rgba(79, 70, 229, 0.04);
+}
+
+body.light-theme .cw-xml-viewer {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.08);
 }

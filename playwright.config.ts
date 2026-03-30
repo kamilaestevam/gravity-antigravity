@@ -65,5 +65,13 @@ export default defineConfig({
         baseURL: 'http://localhost:5010',
       },
     },
+    {
+      name: 'i18n',
+      testDir: './testes/testes-e2e/i18n',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5010',
+      },
+    },
   ],
 })

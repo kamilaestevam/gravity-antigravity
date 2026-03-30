@@ -60,7 +60,7 @@ app.use('/api/v1/billing/webhook', express.raw({ type: 'application/json' }))
 
 app.use(express.json())
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:8003',
+  origin: process.env.FRONTEND_URL || ['http://localhost:8000', 'http://localhost:8003', 'http://localhost:5000'],
   credentials: true
 }))
 app.use(correlationMiddleware)

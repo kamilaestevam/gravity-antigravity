@@ -4,6 +4,7 @@
 // NÃO altera nem depende de tabela-global.
 
 import React, { useState, useMemo, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Columns } from '@phosphor-icons/react'
 import { useTablePersistence } from '../../tabela-global/src/hooks/useTablePersistence.js'
@@ -124,15 +125,19 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
     acoes = [],
     acoesFilhas = [],
     acoesExportacao = [],
-    placeholderBusca = 'Localizar',
+    placeholderBusca,
     campoBusca,
-    mensagemVazio = 'Nenhum item encontrado.',
+    mensagemVazio,
     carregando = false,
     expandidosPadrao = [],
     itemId = (item: T) => (item as any).id,
     itensPorPagina: itensPorPaginaInicial = 10,
     id: tableId
   } = props
+
+  const { t } = useTranslation()
+  const resolvedPlaceholderBusca = placeholderBusca ?? t('tabela.localizar')
+  const resolvedMensagemVazio = mensagemVazio ?? t('tabela.nenhum_item')
 
   // ─── Visibilidade de Colunas (Persistência) ───
   const colunasConfig = useMemo(() => colunas.map(c => ({ 
@@ -220,7 +225,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
             <input
               className="tcg-busca-input"
               type="text"
-              placeholder={placeholderBusca}
+              placeholder={resolvedPlaceholderBusca}
               value={busca}
               onChange={e => { setBusca(e.target.value); setPagina(1) }}
             />
@@ -230,7 +235,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
         <div className="tcg-toolbar-direita" style={{ display: 'flex', gap: '0.5rem' }}>
           {tableId && (
             <div style={{ position: 'relative' }}>
-              <TooltipGlobal descricao="Gerenciar colunas visíveis">
+              <TooltipGlobal descricao={t('tabela.gerenciar_colunas')}>
                 <button
                   ref={visibilidadeBtnRef}
                   type="button"
@@ -260,7 +265,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
             <div className="tcg-export-wrapper" ref={exportRef}>
               <button type="button" className="tcg-btn" onClick={() => setExportMenuAberto(v => !v)}>
                 <IconeExport />
-                Exportar
+                {t('tabela.exportar')}
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                   <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -305,7 +310,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                   </span>
                 </th>
               ))}
-              {temAcoes && <th className="tcg-th tcg-th--acoes">AÇÕES</th>}
+              {temAcoes && <th className="tcg-th tcg-th--acoes">{t('tabela.acoes')}</th>}
             </tr>
           </thead>
 
@@ -316,7 +321,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
             ) : dadosPagina.length === 0 ? (
               <tr>
                 <td colSpan={colunas.length + (temAcoes ? 2 : 1)} className="tcg-vazio">
-                  {mensagemVazio}
+                  {resolvedMensagemVazio}
                 </td>
               </tr>
             ) : (
@@ -429,7 +434,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
       <div className="tcg-paginacao">
         <span className="tcg-paginacao-info">
           {carregando
-            ? 'Carregando...'
+            ? t('comum.carregando')
             : `${inicio + 1}–${Math.min(inicio + itensPorPagina, dadosFiltrados.length)} de ${dadosFiltrados.length}`
           }
         </span>
@@ -447,7 +452,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
         </div>
 
         <div className="tcg-paginacao-tamanho">
-          <span>Por página:</span>
+          <span>{t('tabela.por_pagina_label')}</span>
           <select
             className="tcg-select-pagina"
             value={itensPorPagina}

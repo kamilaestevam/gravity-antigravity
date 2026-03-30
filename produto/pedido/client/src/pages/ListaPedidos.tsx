@@ -10,6 +10,7 @@
  */
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Package,
   Plus,
@@ -468,6 +469,7 @@ const acoesPai: TCGAcao<Pedido>[] = [
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function ListaPedidos() {
+  const { t } = useTranslation()
   const [carregando] = useState(false)
   const pedidos = PEDIDOS_MOCK
 
@@ -486,31 +488,31 @@ export default function ListaPedidos() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Package weight="duotone" size={22} />}
-          titulo="Pedidos"
-          subtitulo="Gestao de pedidos de importacao e exportacao"
+          titulo={t('pedido.titulo')}
+          subtitulo={t('pedido.subtitulo')}
         />
       }
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total Pedidos"
+            titulo={t('pedido.total_pedidos')}
             icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={totalPedidos}
-            subtexto={`${totalItens} itens no total`}
+            subtexto={`${totalItens} ${t('pedido.itens_total')}`}
           />
           <CardBasicoGlobal
-            titulo="Valor Total"
+            titulo={t('pedido.valor_total')}
             icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
             valor={fmtMoeda(valorTotal)}
             variante="sucesso"
-            subtexto="Soma de todos os pedidos"
+            subtexto={t('pedido.soma_pedidos')}
           />
           <CardBasicoGlobal
-            titulo="Quantidade Total"
+            titulo={t('pedido.qtd_total')}
             icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
             valor={fmtQuantidade(qtdTotal)}
             variante="aviso"
-            subtexto="Quantidade acumulada"
+            subtexto={t('pedido.qtd_acumulada')}
           />
         </>
       }
@@ -523,7 +525,7 @@ export default function ListaPedidos() {
               console.log('[Pedido] Importar arquivo')
             }}
           >
-            Importar
+            {t('comum.importar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="secundario"
@@ -532,7 +534,7 @@ export default function ListaPedidos() {
               console.log('[Pedido] Exportar')
             }}
           >
-            Exportar
+            {t('comum.exportar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="primario"
@@ -541,7 +543,7 @@ export default function ListaPedidos() {
               console.log('[Pedido] Novo pedido')
             }}
           >
-            Novo Pedido
+            {t('pedido.novo_pedido')}
           </BotaoGlobal>
         </div>
       }
@@ -560,9 +562,9 @@ export default function ListaPedidos() {
           }}
         >
           <Package weight="duotone" size={48} style={{ opacity: 0.4 }} />
-          <span style={{ fontSize: '0.875rem' }}>Nenhum pedido cadastrado</span>
+          <span style={{ fontSize: '0.875rem' }}>{t('pedido.vazio')}</span>
           <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
-            Criar primeiro pedido
+            {t('pedido.criar_primeiro')}
           </BotaoGlobal>
         </div>
       ) : (
@@ -574,9 +576,9 @@ export default function ListaPedidos() {
           filhos={(pedido) => pedido.itens ?? []}
           acoes={acoesPai}
           itemId={(pedido) => pedido.id}
-          placeholderBusca="Buscar pedidos..."
+          placeholderBusca={t('pedido.buscar')}
           campoBusca="numero_pedido"
-          mensagemVazio="Nenhum pedido encontrado para o filtro aplicado"
+          mensagemVazio={t('pedido.vazio_filtro')}
           carregando={carregando}
           itensPorPagina={20}
         />

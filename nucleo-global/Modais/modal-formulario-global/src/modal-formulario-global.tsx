@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModalSemSessoesGlobal } from '@nucleo/modal-sem-sessoes-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
@@ -34,9 +35,12 @@ export function ModalFormularioGlobal({
   tamanho = "lg",
   altura = "680px",
   children,
-  textoSalvar = "Salvar Alterações",
-  textoCancelar = "Cancelar"
+  textoSalvar,
+  textoCancelar
 }: ModalFormularioGlobalProps) {
+  const { t } = useTranslation()
+  const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
+  const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')
   return (
     <ModalSemSessoesGlobal
       aberto={aberto}
@@ -83,7 +87,7 @@ export function ModalFormularioGlobal({
               className="mg-btn-danger mg-btn-danger-fix"
               onClick={aoExcluir}
             >
-              Excluir
+              {t('modal.excluir')}
             </button>
           ) : (
             <div />
@@ -93,12 +97,12 @@ export function ModalFormularioGlobal({
             <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
             <BotaoCancelar
               dirty={dirty}
-              rotulo={textoCancelar}
+              rotulo={resolvedTextoCancelar}
               onClick={aoFechar}
             />
             <BotaoSalvar
               dirty={podesSalvar && dirty}
-              rotulo={textoSalvar}
+              rotulo={resolvedTextoSalvar}
               onClick={aoSalvar}
             />
           </div>

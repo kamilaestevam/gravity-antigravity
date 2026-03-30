@@ -10,10 +10,16 @@
 
 import axios from 'axios'
 
-const ATIVIDADES_URL = process.env.ATIVIDADES_SERVICE_URL ?? 'http://localhost:8012'
-const NOTIFICACOES_URL = process.env.NOTIFICACOES_SERVICE_URL ?? 'http://localhost:8013'
-const HISTORICO_URL = process.env.HISTORICO_SERVICE_URL ?? 'http://localhost:8014'
-const GABI_URL = process.env.GABI_SERVICE_URL ?? 'http://localhost:8015'
+function requireEnv(name: string): string {
+  const value = process.env[name]
+  if (!value) throw new Error(`[BidFrete] Variável de ambiente obrigatória não definida: ${name}`)
+  return value
+}
+
+const ATIVIDADES_URL = process.env.ATIVIDADES_SERVICE_URL ?? requireEnv('ATIVIDADES_SERVICE_URL')
+const NOTIFICACOES_URL = process.env.NOTIFICACOES_SERVICE_URL ?? requireEnv('NOTIFICACOES_SERVICE_URL')
+const HISTORICO_URL = process.env.HISTORICO_SERVICE_URL ?? requireEnv('HISTORICO_SERVICE_URL')
+const GABI_URL = process.env.GABI_SERVICE_URL ?? requireEnv('GABI_SERVICE_URL')
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 
 function s2sHeaders(tenantId: string, userId?: string) {
@@ -48,8 +54,8 @@ export const atividadesIntegration = {
         headers: s2sHeaders(tenantId, data.user_id),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidFrete→Atividades] Falha ao criar atividade:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Atividades] Falha ao criar atividade:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -123,8 +129,8 @@ export const notificacoesIntegration = {
         headers: s2sHeaders(tenantId, data.user_id),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidFrete→Notificações] Falha ao enviar:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Notificações] Falha ao enviar:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -186,8 +192,8 @@ export const historicoIntegration = {
         headers: s2sHeaders(tenantId, data.user_id),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidFrete→Histórico] Falha ao registrar:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Histórico] Falha ao registrar:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -297,8 +303,8 @@ export const gabiIntegration = {
       })
 
       return response.data?.reply ?? response.data?.message ?? null
-    } catch (err: any) {
-      console.warn(`[BidFrete→Gabi] Falha na análise:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Gabi] Falha na análise:`, err instanceof Error ? err.message : 'Erro desconhecido')
       return null
     }
   },

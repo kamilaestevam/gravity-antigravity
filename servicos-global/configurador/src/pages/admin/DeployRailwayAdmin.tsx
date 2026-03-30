@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { CloudArrowUp, User, GitCommit, CheckCircle, XCircle, Trash } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -57,15 +58,17 @@ function formatDate(iso: string) {
 }
 
 export function DeployRailwayAdmin() {
+  const { t } = useTranslation()
+
   const COLUNAS: TabelaGlobalColuna<DeployLog>[] = [
     {
-      key: 'quando', label: 'QUANDO', tipo: 'periodo',
-      tooltipTitulo: 'Timestamp ISO', tooltipDescricao: 'Momento do gatilho de CI/CD gerado no webhook do Railway.',
+      key: 'quando', label: t('admin.deploy.tabela.quando'), tipo: 'periodo',
+      tooltipTitulo: t('admin.deploy.tabela.quando_tooltip'), tooltipDescricao: t('admin.deploy.tabela.quando_desc'),
       render: (v) => <span style={{ color: '#cbd5e1' }}>{formatDate(v)}</span>
     },
     {
-      key: 'quem', label: 'QUEM', tipo: 'texto',
-      tooltipTitulo: 'Assinatura do Autor', tooltipDescricao: 'Identidade associada ao payload de push do Github.',
+      key: 'quem', label: t('admin.deploy.tabela.quem'), tipo: 'texto',
+      tooltipTitulo: t('admin.deploy.tabela.quem_tooltip'), tooltipDescricao: t('admin.deploy.tabela.quem_desc'),
       render: (v) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
@@ -76,8 +79,8 @@ export function DeployRailwayAdmin() {
       )
     },
     {
-      key: 'area', label: 'ÁREA', tipo: 'texto',
-      tooltipTitulo: 'Módulo de Contexto', tooltipDescricao: 'Serviço do monorepo afetado resolvido no script de build.',
+      key: 'area', label: t('admin.deploy.tabela.area'), tipo: 'texto',
+      tooltipTitulo: t('admin.deploy.tabela.area_tooltip'), tooltipDescricao: t('admin.deploy.tabela.area_desc'),
       render: (v) => {
         let corBg = 'rgba(148,163,184,0.12)'
         let corText = '#94a3b8'
@@ -98,8 +101,8 @@ export function DeployRailwayAdmin() {
       }
     },
     {
-      key: 'de', label: 'DE', tipo: 'texto',
-      tooltipTitulo: 'Revisão Base', tooltipDescricao: 'Ponto de restauração ou tag anterior anulada por esse deploy.',
+      key: 'de', label: t('admin.deploy.tabela.de'), tipo: 'texto',
+      tooltipTitulo: t('admin.deploy.tabela.de_tooltip'), tooltipDescricao: t('admin.deploy.tabela.de_desc'),
       render: (v) => {
         if (v === '— não existia') {
           return <span style={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.75rem' }}>{v}</span>
@@ -116,13 +119,13 @@ export function DeployRailwayAdmin() {
       }
     },
     {
-      key: 'para', label: 'PARA', tipo: 'texto',
-      tooltipTitulo: 'Descrição da PR', tooltipDescricao: 'Mensagem e metadados no head commit originado no repositório.',
+      key: 'para', label: t('admin.deploy.tabela.para'), tipo: 'texto',
+      tooltipTitulo: t('admin.deploy.tabela.para_tooltip'), tooltipDescricao: t('admin.deploy.tabela.para_desc'),
       render: (v) => <span style={{ color: '#f1f5f9', fontWeight: 500 }}>{v}</span>
     },
     {
-      key: 'versao', label: 'VERSÃO', tipo: 'texto',
-      tooltipTitulo: 'Git SHA', tooltipDescricao: 'Hash criptográfico (short) correspondente à árvore no controle de versão.',
+      key: 'versao', label: t('admin.deploy.tabela.versao'), tipo: 'texto',
+      tooltipTitulo: t('admin.deploy.tabela.versao_tooltip'), tooltipDescricao: t('admin.deploy.tabela.versao_desc'),
       render: (v) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#c084fc' }}>
           <GitCommit size={14} weight="bold" />
@@ -131,8 +134,8 @@ export function DeployRailwayAdmin() {
       )
     },
     {
-      key: 'status', label: 'STATUS', tipo: 'texto',
-      tooltipTitulo: 'Health Check / Exit Code', tooltipDescricao: 'Status do container retornado via integração com a Railway API.',
+      key: 'status', label: t('admin.deploy.tabela.status'), tipo: 'texto',
+      tooltipTitulo: t('admin.deploy.tabela.status_tooltip'), tooltipDescricao: t('admin.deploy.tabela.status_desc'),
       render: (v) => {
         let icone = <CheckCircle size={14} weight="bold" />
         let cor = { bg: 'rgba(52,211,153,0.12)', text: '#34d399', border: 'rgba(52,211,153,0.3)' }
@@ -167,8 +170,8 @@ export function DeployRailwayAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<CloudArrowUp weight="duotone" size={22} />}
-          titulo="Deploy Railway"
-          subtitulo="Histórico de versões, status de implantação e controle de CI/CD em todos os ambientes"
+          titulo={t('admin.deploy.titulo')}
+          subtitulo={t('admin.deploy.subtitulo')}
         />
       }
     >
@@ -178,9 +181,9 @@ export function DeployRailwayAdmin() {
           dados={mockDeploys}
           colunas={COLUNAS}
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
-          mensagemVazio="Nenhum deploy encontrado para estes filtros."
-          mensagemSemFiltro="Nenhum histórico de deploy registrado ainda."
-          tooltipBusca="Localizar deploy pela mensagem (PARA) ou responsável (QUEM)"
+          mensagemVazio={t('admin.deploy.vazio_filtros')}
+          mensagemSemFiltro={t('admin.deploy.vazio_sem_filtro')}
+          tooltipBusca={t('admin.deploy.tooltip_busca')}
         />
       </div>
     </PaginaGlobal>

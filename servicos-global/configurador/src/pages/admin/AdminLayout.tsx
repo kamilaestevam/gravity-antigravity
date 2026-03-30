@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
@@ -7,6 +8,7 @@ import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell 
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
+import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
   Buildings,
@@ -22,27 +24,29 @@ import {
   Bug,
   Info,
   ShieldCheck,
+  ArrowLeft,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
 import './admin.css'
 
-const navItems = [
-  { to: '/admin/visao-geral',  label: 'Visão Geral',      icon: <Crown           weight="duotone" size={18} /> },
-  { to: '/admin/tenants',      label: 'Organizações',     icon: <Buildings       weight="duotone" size={18} /> },
-  { to: '/admin/produtos',     label: 'Produtos Gravity',         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
-  { to: '/admin/usuarios',     label: 'Usuários Globais', icon: <Users           weight="duotone" size={18} /> },
-  { to: '/admin/financeiro',   label: 'Financeiro',       icon: <Receipt         weight="duotone" size={18} /> },
-  { to: '/admin/historico',    label: 'Histórico Global', icon: <Desktop         weight="duotone" size={18} /> },
-  { to: '/admin/deploy',       label: 'Deploy Railway',   icon: <CloudArrowUp    weight="duotone" size={18} /> },
-  { to: '/admin/apis',         label: 'API Cockpit',      icon: <Pulse           weight="duotone" size={18} /> },
-  { to: '/admin/seguranca',    label: 'Seguranca',        icon: <ShieldCheck     weight="duotone" size={18} /> },
-  { to: '/admin/testes',       label: 'Testes',    icon: <Bug             weight="duotone" size={18} /> },
-]
-
 export function AdminLayout() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useUser()
+
+  const navItems = [
+    { to: '/admin/visao-geral',  label: t('admin.layout.visao_geral'),      icon: <Crown           weight="duotone" size={18} /> },
+    { to: '/admin/tenants',      label: t('admin.layout.organizacoes'),     icon: <Buildings       weight="duotone" size={18} /> },
+    { to: '/admin/produtos',     label: t('admin.layout.produtos'),         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
+    { to: '/admin/usuarios',     label: t('admin.layout.usuarios_globais'), icon: <Users           weight="duotone" size={18} /> },
+    { to: '/admin/financeiro',   label: t('admin.layout.financeiro'),       icon: <Receipt         weight="duotone" size={18} /> },
+    { to: '/admin/historico',    label: t('admin.layout.historico_global'), icon: <Desktop         weight="duotone" size={18} /> },
+    { to: '/admin/deploy',       label: t('admin.layout.deploy_railway'),   icon: <CloudArrowUp    weight="duotone" size={18} /> },
+    { to: '/admin/apis',         label: t('admin.layout.api_cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
+    { to: '/admin/seguranca',    label: t('admin.layout.seguranca'),        icon: <ShieldCheck     weight="duotone" size={18} /> },
+    { to: '/admin/testes',       label: t('admin.layout.log_testes'),       icon: <Bug             weight="duotone" size={18} /> },
+  ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
 
   // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
@@ -86,10 +90,10 @@ export function AdminLayout() {
     <div className="ws-shell">
       {/* ── Sidebar ── */}
       <MenuLateralGlobal
-        tenantName="Gravity HQ"
-        tenantPlan="Núcleo Central"
+        tenantName={t('admin.layout.tenant_name')}
+        tenantPlan={t('admin.layout.tenant_plan')}
         navItems={navItems}
-        moduleName="Admin Panel"
+        moduleName={t('admin.layout.module_name')}
         moduleColor="#10b981"
         defaultCollapsed={false}
       />
@@ -98,7 +102,35 @@ export function AdminLayout() {
       <div className="ws-main">
         {/* ── Global Actions ── */}
         <div className="ws-global-actions">
-          <LocalizarExpandidoCampoGlobal 
+          <TooltipGlobal titulo={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} descricao={t('admin.layout.voltar_hub_desc', 'Retornar à tela principal do workspace')}>
+            <button
+              className="ws-global-btn ws-voltar-btn"
+              onClick={() => navigate('/hub')}
+              type="button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                padding: '0.375rem 0.875rem',
+                borderRadius: '9999px',
+                border: '1px solid rgba(16,185,129,0.25)',
+                background: 'rgba(16,185,129,0.08)',
+                color: '#10b981',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.15)'; e.currentTarget.style.borderColor = 'rgba(16,185,129,0.4)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.08)'; e.currentTarget.style.borderColor = 'rgba(16,185,129,0.25)' }}
+            >
+              <ArrowLeft size={16} weight="bold" />
+              Hub
+            </button>
+          </TooltipGlobal>
+
+          <LocalizarExpandidoCampoGlobal
               onBuscarNavigate={(term) => {
                 const termLower = term.toLowerCase()
                 const target = navItems.find(item => item.label.toLowerCase().includes(termLower))
@@ -110,20 +142,20 @@ export function AdminLayout() {
 
           {/* NOVO: Toggle de tooltips */}
           <TooltipGlobal
-            titulo="Dicas e Explicações"
+            titulo={t('admin.layout.dicas_titulo')}
             descricao={
               <span style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Info size={14} weight="fill" style={{ color: '#10b981', flexShrink: 0 }} />
-                  <span><strong style={{ color: '#f1f5f9' }}>Habilitadas</strong> — dicas aparecem ao passar o mouse</span>
+                  <span><strong style={{ color: '#f1f5f9' }}>{t('admin.layout.habilitadas')}</strong> — {t('admin.layout.habilitadas_desc')}</span>
                 </span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Info size={14} weight="regular" style={{ color: '#64748b', flexShrink: 0 }} />
-                  <span><strong style={{ color: '#f1f5f9' }}>Desabilitadas</strong> — nenhuma dica é exibida</span>
+                  <span><strong style={{ color: '#f1f5f9' }}>{t('admin.layout.desabilitadas')}</strong> — {t('admin.layout.desabilitadas_desc')}</span>
                 </span>
                 <span style={{ marginTop: '0.15rem', color: '#64748b', fontSize: '0.7rem' }}>
-                  Agora: <strong style={{ color: tooltipsDisabled ? '#f87171' : '#34d399' }}>
-                    {tooltipsDisabled ? 'desabilitadas' : 'habilitadas'}
+                  {t('admin.layout.agora')} <strong style={{ color: tooltipsDisabled ? '#f87171' : '#34d399' }}>
+                    {tooltipsDisabled ? t('admin.layout.desabilitadas').toLowerCase() : t('admin.layout.habilitadas').toLowerCase()}
                   </strong>
                 </span>
               </span>
@@ -138,6 +170,8 @@ export function AdminLayout() {
               <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
             </button>
           </TooltipGlobal>
+
+          <LanguageSwitcherGlobal />
 
           <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
 

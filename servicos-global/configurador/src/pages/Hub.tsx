@@ -191,7 +191,7 @@ export function Hub() {
                   { label: 'Workspaces', icon: <Buildings weight="duotone" size={16} />, path: '/workspace/workspaces' },
                   { label: 'Usuários', icon: <Users weight="duotone" size={16} />, path: '/workspace/usuarios' },
                   { label: 'Gravity Store', icon: <ShoppingBagOpen weight="duotone" size={16} />, path: '/store' },
-                  { label: 'Trocar Workspace', icon: <Buildings weight="duotone" size={16} />, path: '/selecionar-workspace' },
+                  { label: 'Trocar Workspace', icon: <Buildings weight="duotone" size={16} />, path: '/hub' },
                 ].map((item, idx) => (
                   <button
                     key={item.path}

@@ -11,6 +11,7 @@ import {
   FloppyDisk,
 } from '@phosphor-icons/react'
 import { useUser } from '@clerk/clerk-react'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -80,6 +81,7 @@ function storageKey(userId: string | undefined) {
 }
 
 export function Organizacao() {
+  const { t } = useTranslation()
   const { user, isLoaded: userLoaded } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
 
@@ -265,12 +267,12 @@ export function Organizacao() {
 
       addNotification({
         type: 'success',
-        message: 'Organização salva com sucesso!'
+        message: t('workspace.organization.msg_sucesso')
       })
     } catch (err) {
       addNotification({
         type: 'error',
-        message: 'Não foi possível salvar a organização. Tente novamente.'
+        message: t('workspace.organization.msg_erro')
       })
     } finally {
       setSalvando(false)
@@ -315,7 +317,7 @@ export function Organizacao() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Crown weight="duotone" size={22} />}
-          titulo="Organização"
+          titulo={t('workspace.organization.titulo')}
           subtitulo="Dados da empresa que contratou a plataforma Gravity"
         />
       }
@@ -353,9 +355,9 @@ export function Organizacao() {
         </p>
         <div className="em-grid">
           <GeralCampoGlobal
-            label="Nome da Empresa"
+            label={t('workspace.organization.campo_nome')}
             obrigatorio
-            tooltipTitulo="Nome da Empresa"
+            tooltipTitulo={t('workspace.organization.campo_nome')}
             tooltipDescricao="Razão social que aparece nos documentos e relatórios"
           >
             <div className="ws-input-icon-wrap">
@@ -368,8 +370,8 @@ export function Organizacao() {
             </div>
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label="CNPJ"
-            tooltipTitulo="CNPJ"
+            label={t('workspace.organization.campo_cnpj')}
+            tooltipTitulo={t('workspace.organization.campo_cnpj')}
             tooltipDescricao="Aparece em notas fiscais e documentos gerados na plataforma"
           >
             <div className="ws-input-icon-wrap">
@@ -384,8 +386,8 @@ export function Organizacao() {
         </div>
         <div className="em-grid em-grid--4">
           <GeralCampoGlobal
-            label="Estado"
-            tooltipTitulo="Estado"
+            label={t('workspace.organization.campo_estado')}
+            tooltipTitulo={t('workspace.organization.campo_estado')}
             tooltipDescricao="Estado onde a empresa tem sua sede principal"
           >
             <SelectGlobal
@@ -401,8 +403,8 @@ export function Organizacao() {
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label="Cidade"
-            tooltipTitulo="Cidade"
+            label={t('workspace.organization.campo_cidade')}
+            tooltipTitulo={t('workspace.organization.campo_cidade')}
             tooltipDescricao="A lista de cidades aparece após você escolher o estado"
           >
             <SelectGlobal
@@ -410,15 +412,15 @@ export function Organizacao() {
               opcoes={cidades}
               valor={dados.cidade || null}
               aoMudarValor={v => set('cidade', String(v ?? ''))}
-              placeholder={dados.estado ? "Selecione a cidade..." : "Selecione o estado..."}
+              placeholder={dados.estado ? "Selecione a cidade..." : t('workspace.organization.aguardando_estado')}
               buscavel
               desabilitado={!dados.estado}
               carregando={carregandoCidades}
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label="Segmento"
-            tooltipTitulo="Segmento"
+            label={t('workspace.organization.campo_segmento')}
+            tooltipTitulo={t('workspace.organization.campo_segmento')}
             tooltipDescricao="Usado para categorizar a empresa nos relatórios da plataforma"
           >
             <SelectGlobal
@@ -431,8 +433,8 @@ export function Organizacao() {
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label="Site"
-            tooltipTitulo="Site"
+            label={t('workspace.organization.campo_site')}
+            tooltipTitulo={t('workspace.organization.campo_site')}
             tooltipDescricao="Endereço público da empresa, exibido no perfil"
           >
             <div className="ws-input-icon-wrap">

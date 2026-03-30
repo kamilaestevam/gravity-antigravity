@@ -1,680 +1,722 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
-  ArrowLeft,
+  House,
+  SquaresFour,
+  ChartLine,
+  UsersThree,
+  GearSix,
+  Bell,
+  MagnifyingGlass,
+  CaretDown,
+  SignOut,
+  Plus,
+  Check,
   ArrowRight,
-  Buildings,
-  UserPlus,
-  Envelope,
+  Star,
+  Download,
   CheckCircle,
+  Clock,
   Sparkle,
-  ShieldCheck,
-  SpinnerGap,
+  Warning,
+  Envelope,
+  WhatsappLogo,
+  ShoppingBagOpen,
+  Folders,
+  FileText,
+  ClockCounterClockwise,
+  Plug,
+  Package,
+  ListChecks,
 } from '@phosphor-icons/react'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
-import { BotaoGlobal } from '@nucleo/botao-global'
-import './workspace/workspace.css'
+import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
+import './selecionar-workspace.css'
 
-interface Empresa {
+/* ── Tipos ── */
+interface Workspace {
   id: string
   nome: string
+  iniciais: string
+  plano: 'business' | 'starter' | 'pro'
+  role: string
+  modulos: number
+  membros: number
+  simulacoes: string
+  gradientFrom: string
+  gradientTo: string
 }
 
-type Step = 'loading' | 'select' | 'workspace' | 'usuario'
+interface ProdutoSugerido {
+  id: string
+  nome: string
+  descricao: string
+  badge: 'promo' | 'new' | 'trial'
+  badgeLabel: string
+  stat?: string
+  iconBg: string
+  iconColor: string
+  icon: 'star' | 'squares' | 'download' | 'check'
+}
 
+interface ProdutoAtivo {
+  id: string
+  slug: string
+  nome: string
+  rota: string
+}
+
+interface Atalho {
+  id: string
+  nome: string
+  descricao: string
+  iconBg: string
+  iconColor: string
+  icon: 'gear' | 'squares' | 'chart' | 'users'
+  admin?: boolean
+  rota: string
+}
+
+/* ── Dados mock (serão substituídos por API) ── */
+const MOCK_WORKSPACES: Workspace[] = [
+  {
+    id: 'ws-1',
+    nome: 'TESTE ABC',
+    iniciais: 'TA',
+    plano: 'business',
+    role: 'Admin',
+    modulos: 0,
+    membros: 1,
+    simulacoes: '847',
+    gradientFrom: '#4F63FF',
+    gradientTo: '#1ED8C8',
+  },
+  {
+    id: 'ws-2',
+    nome: 'Empresa Beta',
+    iniciais: 'CB',
+    plano: 'starter',
+    role: 'Editor',
+    modulos: 3,
+    membros: 5,
+    simulacoes: '1.2k',
+    gradientFrom: '#F6A832',
+    gradientTo: '#F04E42',
+  },
+  {
+    id: 'ws-3',
+    nome: 'XYZ Importações',
+    iniciais: 'XY',
+    plano: 'pro',
+    role: 'Visualizador',
+    modulos: 7,
+    membros: 12,
+    simulacoes: '4.7k',
+    gradientFrom: '#1ED8C8',
+    gradientTo: '#20C96A',
+  },
+]
+
+const MOCK_PRODUTOS_SUGERIDOS: ProdutoSugerido[] = [
+  {
+    id: 'p1',
+    nome: 'Classificação Fiscal IA',
+    descricao: 'NCMs automáticos com 98% de precisão',
+    badge: 'promo',
+    badgeLabel: '30% OFF',
+    stat: 'Base 80k NCMs',
+    iconBg: 'var(--sw-amber-dim)',
+    iconColor: 'var(--sw-amber)',
+    icon: 'star',
+  },
+  {
+    id: 'p2',
+    nome: 'Simulador de Drawback',
+    descricao: 'Exoneração tributária em tempo real',
+    badge: 'new',
+    badgeLabel: 'Novo',
+    iconBg: 'var(--sw-accent-dim)',
+    iconColor: 'var(--sw-accent-2)',
+    icon: 'squares',
+  },
+  {
+    id: 'p3',
+    nome: 'Monitor DI / LI',
+    descricao: 'Acompanhe declarações em tempo real',
+    badge: 'trial',
+    badgeLabel: 'Trial 14d',
+    iconBg: 'var(--sw-teal-dim)',
+    iconColor: 'var(--sw-teal)',
+    icon: 'download',
+  },
+  {
+    id: 'p4',
+    nome: 'Compliance Tributário',
+    descricao: 'SPED, EFD, ECF — auditoria automática',
+    badge: 'trial',
+    badgeLabel: 'Trial 14d',
+    iconBg: 'var(--sw-green-dim)',
+    iconColor: 'var(--sw-green)',
+    icon: 'check',
+  },
+]
+
+const MOCK_ATALHOS: Atalho[] = [
+  { id: 'a1', nome: 'Configurador', descricao: 'Workspace, CNPJ, regras fiscais e usuários', iconBg: 'var(--sw-amber-dim)', iconColor: 'var(--sw-amber)', icon: 'gear', admin: true, rota: '/workspace/organizacao' },
+  { id: 'a2', nome: 'Store de Módulos', descricao: 'Ative, desative e gerencie produtos', iconBg: 'var(--sw-accent-dim)', iconColor: 'var(--sw-accent-2)', icon: 'squares', rota: '/workspace/assinaturas' },
+  { id: 'a3', nome: 'Relatórios', descricao: 'Exportações, histórico e dashboards', iconBg: 'var(--sw-green-dim)', iconColor: 'var(--sw-green)', icon: 'chart', rota: '/workspace/financeiro' },
+  { id: 'a4', nome: 'Equipe', descricao: 'Convites, papéis e permissões', iconBg: 'var(--sw-surface-3)', iconColor: 'var(--sw-text-2)', icon: 'users', admin: true, rota: '/workspace/usuarios' },
+]
+
+/* ── Helpers ── */
+function planLabel(plano: string): string {
+  const map: Record<string, string> = { business: 'Business', starter: 'Starter', pro: 'Pro' }
+  return map[plano] ?? plano
+}
+
+function planClass(plano: string): string {
+  const map: Record<string, string> = { business: 'sw-plan-business', starter: 'sw-plan-starter', pro: 'sw-plan-pro' }
+  return map[plano] ?? ''
+}
+
+function badgeClass(badge: string): string {
+  const map: Record<string, string> = { promo: 'sw-b-promo', new: 'sw-b-new', trial: 'sw-b-trial', active: 'sw-b-active' }
+  return map[badge] ?? ''
+}
+
+function ProdIcon({ icon, color }: { icon: string; color: string }) {
+  const props = { size: 18, weight: 'regular' as const, style: { color } }
+  switch (icon) {
+    case 'star': return <Star {...props} />
+    case 'squares': return <SquaresFour {...props} />
+    case 'download': return <Download {...props} />
+    case 'check': return <CheckCircle {...props} />
+    default: return <Star {...props} />
+  }
+}
+
+function ShortcutIcon({ icon, color }: { icon: string; color: string }) {
+  const props = { size: 17, weight: 'regular' as const, style: { color } }
+  switch (icon) {
+    case 'gear': return <GearSix {...props} />
+    case 'squares': return <SquaresFour {...props} />
+    case 'chart': return <ChartLine {...props} />
+    case 'users': return <UsersThree {...props} />
+    default: return <GearSix {...props} />
+  }
+}
+
+/* ── Mapa de slug → rota e nome amigável ── */
+const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
+  'simula-custo': { nome: 'SimulaCusto', rota: '/produto/simula-custo' },
+  'bid-frete': { nome: 'BID Frete Internacional', rota: '/produto/bid-frete' },
+  'bid-cambio': { nome: 'BID Câmbio', rota: '/produto/bid-cambio' },
+  'smart-read': { nome: 'Smart Read', rota: '/produto/smart-read' },
+  'processo': { nome: 'Processo', rota: '/produto/processo' },
+}
+
+/* ══════════════════════════════════════════════════════
+   COMPONENTE PRINCIPAL — SelecionarWorkspace (Dashboard Core)
+══════════════════════════════════════════════════════ */
 export function SelecionarWorkspace() {
   const { signOut } = useClerk()
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
 
-  const [step, setStep] = useState<Step>('loading')
-  const [empresas, setEmpresas] = useState<Empresa[]>([])
-  const [workspaceName, setWorkspaceName] = useState('')
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [carregando, setCarregando] = useState(true)
+  const [entrando, setEntrando] = useState(false)
+  const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
 
-  const isAdmin = user?.publicMetadata?.role === 'gravity_admin'
+  const userName = user?.fullName ?? user?.firstName ?? 'Admin'
+  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const userRole = (user?.publicMetadata?.role as string) ?? 'Superadmin'
 
-  // Verifica se o user tem tenant e empresas
+  const selectedWs = workspaces.find(w => w.id === selectedId)
+  const tenantName = selectedWs?.nome ?? 'Gravity'
+  const tenantPlan = selectedWs ? planLabel(selectedWs.plano) : 'Business'
+
+  /* ── Carrega workspaces da API ── */
   useEffect(() => {
-    async function checkTenantAndCompanies() {
+    let cancelled = false
+
+    async function carregarWorkspaces() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/v1/tenants/companies', {
+        const response = await fetch('/api/v1/tenants/companies', {
           headers: { Authorization: `Bearer ${token}` },
         })
+        const data = await response.json()
 
-        // User sem tenant no DB → precisa fazer onboarding
-        if (res.status === 401) {
-          navigate('/trial', { replace: true })
-          return
-        }
-
-        if (res.ok) {
-          const data = await res.json()
-          const mapped = (data.companies || []).map((c: any) => ({
-            id: c.id,
-            nome: c.name,
+        if (!cancelled && data.companies && data.companies.length > 0) {
+          const mapeados: Workspace[] = data.companies.map((c: Record<string, unknown>, i: number) => ({
+            id: c.id as string,
+            nome: c.name as string,
+            iniciais: (c.name as string).substring(0, 2).toUpperCase(),
+            plano: 'business' as const,
+            role: 'Admin',
+            modulos: 0,
+            membros: 1,
+            simulacoes: '0',
+            gradientFrom: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientFrom,
+            gradientTo: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientTo,
           }))
-          setEmpresas(mapped)
-
-          if (mapped.length === 1) {
-            // Auto-seleciona se so tem 1 workspace
-            sessionStorage.setItem('gravity_company_id', mapped[0].id)
-            sessionStorage.setItem('gravity_company_name', mapped[0].nome)
-            navigate('/hub', { replace: true })
-            return
-          }
-
-          if (mapped.length > 1) {
-            setStep('select')
-          } else {
-            // Tenant existe mas sem companies (edge case)
-            setStep('workspace')
-          }
-        } else {
-          // Resposta nao-ok (500, 403, etc) — vai para onboarding
-          console.error('[SelecionarWorkspace] API retornou status', res.status)
-          setStep('workspace')
+          setWorkspaces(mapeados)
+          setSelectedId(mapeados[0].id)
+        } else if (!cancelled) {
+          setWorkspaces(MOCK_WORKSPACES)
+          setSelectedId(MOCK_WORKSPACES[0].id)
         }
-      } catch (err) {
-        console.error('[SelecionarWorkspace] Erro:', err)
-        setStep('workspace')
+      } catch {
+        if (!cancelled) {
+          setWorkspaces(MOCK_WORKSPACES)
+          setSelectedId(MOCK_WORKSPACES[0].id)
+        }
+      } finally {
+        if (!cancelled) setCarregando(false)
       }
     }
-    checkTenantAndCompanies()
-  }, [getToken, navigate])
 
-  async function handleCreateWorkspace(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    carregarWorkspaces()
+    return () => { cancelled = true }
+  }, [getToken])
 
-    try {
-      const token = await getToken()
-      const res = await fetch('/api/v1/tenants/companies', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: workspaceName }),
+  /* ── Carrega produtos ativos do catálogo ── */
+  useEffect(() => {
+    let cancelled = false
+
+    async function carregarProdutos() {
+      try {
+        const token = await getToken()
+        const response = await fetch('/api/v1/products', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const data = await response.json()
+
+        if (!cancelled && data.products) {
+          const ativos: ProdutoAtivo[] = data.products
+            .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
+            .map((p: Record<string, unknown>) => {
+              const slug = p.slug as string
+              const info = PRODUCT_ROUTE_MAP[slug]
+              return {
+                id: p.id as string,
+                slug,
+                nome: info?.nome ?? (p.name as string),
+                rota: info?.rota ?? `/produto/${slug}`,
+              }
+            })
+          setProdutosAtivos(ativos)
+        }
+      } catch {
+        // Sem produtos ativos — menu não mostrará seção de produtos Gravity
+      }
+    }
+
+    carregarProdutos()
+    return () => { cancelled = true }
+  }, [getToken])
+
+  /* ── Menu lateral: navItems ── */
+  const navItems: NavItem[] = useMemo(() => {
+    const items: NavItem[] = []
+
+    // ── Meu Espaço ──
+    items.push({
+      label: 'Meu Espaço',
+      icon: <House weight="duotone" size={18} />,
+      children: [
+        { to: '/hub', label: 'Dashboard', icon: <House weight="duotone" size={18} /> },
+        { to: '/hub', label: 'Atividades', icon: <ListChecks weight="duotone" size={18} /> },
+        { to: '/store', label: 'Produtos', icon: <Package weight="duotone" size={18} /> },
+        { to: '/workspace/financeiro', label: 'Email', icon: <Envelope weight="duotone" size={18} /> },
+        { to: '/workspace/usuarios', label: 'WhatsApp', icon: <WhatsappLogo weight="duotone" size={18} /> },
+      ],
+    })
+
+    // ── Produtos Gravity (dinâmico baseado em produtos ativos) ──
+    if (produtosAtivos.length > 0) {
+      items.push({
+        label: 'Produtos Gravity',
+        sectionDivider: true,
+        icon: <ShoppingBagOpen weight="duotone" size={18} />,
       })
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body?.message ?? 'Erro ao criar workspace')
-      }
-
-      const data = await res.json()
-      const id = data.company?.id || data.id
-      sessionStorage.setItem('gravity_company_id', id)
-      sessionStorage.setItem('gravity_company_name', workspaceName)
-
-      setStep('usuario')
-    } catch (err: any) {
-      setError(err.message || 'Erro inesperado')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  async function handleInviteUser(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-
-    try {
-      const token = await getToken()
-      const res = await fetch('/api/v1/users/invite', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          email: inviteEmail,
-          name: inviteEmail.split('@')[0],
-          role: 'STANDARD',
-        }),
+      produtosAtivos.forEach(prod => {
+        items.push({
+          to: prod.rota,
+          label: prod.nome,
+          icon: <Package weight="duotone" size={18} />,
+        })
       })
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body?.message ?? 'Erro ao convidar usuario')
-      }
-
-      navigate('/hub')
-    } catch (err: any) {
-      setError(err.message || 'Erro inesperado')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  function handleSkipInvite() {
-    navigate('/hub')
-  }
-
-  function handleVoltar() {
-    if (step === 'usuario') {
-      setStep('workspace')
-      setError('')
     } else {
-      signOut({ redirectUrl: '/sign-in' })
+      // Fallback: mostra seção com indicação de que não há produtos
+      items.push({
+        label: 'Produtos Gravity',
+        sectionDivider: true,
+        icon: <ShoppingBagOpen weight="duotone" size={18} />,
+      })
+      items.push({
+        to: '/store',
+        label: 'Explorar Catálogo',
+        icon: <ShoppingBagOpen weight="duotone" size={18} />,
+      })
     }
-  }
 
+    // ── Divisor ──
+    items.push({ label: '', sectionDivider: true, icon: null })
+
+    // ── Processo ──
+    items.push({
+      to: '/produto/processo',
+      label: 'Processo',
+      icon: <Folders weight="duotone" size={18} />,
+    })
+
+    // ── Relatórios ──
+    items.push({
+      to: '/workspace/financeiro',
+      label: 'Relatórios',
+      icon: <FileText weight="duotone" size={18} />,
+    })
+
+    // ── Histórico de Alterações ──
+    items.push({
+      to: '/workspace/organizacao',
+      label: 'Histórico de Alterações',
+      icon: <ClockCounterClockwise weight="duotone" size={18} />,
+    })
+
+    // ── Cockpit API ──
+    items.push({
+      to: '/workspace/api-cockpit',
+      label: 'Cockpit API',
+      icon: <Plug weight="duotone" size={18} />,
+    })
+
+    // ── Configurações ──
+    items.push({
+      to: '/workspace/organizacao',
+      label: 'Configurações',
+      icon: <GearSix weight="duotone" size={18} />,
+    })
+
+    return items
+  }, [produtosAtivos])
+
+  /* ── Handlers ── */
+  const handleSelectWs = useCallback((id: string) => {
+    setSelectedId(id)
+  }, [])
+
+  const handleEnterWs = useCallback(() => {
+    if (!selectedWs || entrando) return
+    setEntrando(true)
+    sessionStorage.setItem('gravity_company_id', selectedWs.id)
+    sessionStorage.setItem('gravity_company_name', selectedWs.nome)
+    setTimeout(() => navigate('/core'), 500)
+  }, [selectedWs, entrando, navigate])
+
+  const handleSair = useCallback(() => {
+    signOut(() => navigate('/'))
+  }, [signOut, navigate])
+
+  const handleCriarWorkspace = useCallback(() => {
+    navigate('/workspace/workspaces')
+  }, [navigate])
+
+  /* ══════════════════════════════════
+     RENDER
+  ══════════════════════════════════ */
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--color-bg)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'var(--font)',
-      padding: '1.5rem',
-      position: 'relative',
-    }}>
-
-      {/* Gradient orbs */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        <div style={{
-          position: 'absolute', top: '-15%', left: '-10%',
-          width: '50%', height: '50%',
-          background: 'radial-gradient(ellipse, rgba(129,140,248,0.07) 0%, transparent 70%)',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '-15%', right: '-10%',
-          width: '50%', height: '50%',
-          background: 'radial-gradient(ellipse, rgba(129,140,248,0.07) 0%, transparent 70%)',
-        }} />
-      </div>
-
-      {/* Card */}
-      <div style={{
-        background: 'var(--color-surface)',
-        border: '1px solid rgba(129,140,248,0.12)',
-        borderRadius: '20px',
-        padding: '2.5rem',
-        width: '100%',
-        maxWidth: '560px',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
-        position: 'relative',
-        animation: 'swFadeUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards',
-      }}>
-
-        {/* Botao voltar */}
-        <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
-          <TooltipGlobal descricao={step === 'usuario' ? 'Voltar para workspace' : 'Voltar para login'}>
-            <button
-              type="button"
-              onClick={handleVoltar}
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '10px',
-                border: '1px solid rgba(255,255,255,0.06)',
-                background: 'rgba(255,255,255,0.03)',
-                color: 'rgba(255,255,255,0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(99,102,241,0.1)'
-                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)'
-                e.currentTarget.style.color = '#818cf8'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
-                e.currentTarget.style.color = 'rgba(255,255,255,0.3)'
-              }}
-              aria-label="Voltar"
-            >
-              <ArrowLeft weight="bold" size={14} />
-            </button>
-          </TooltipGlobal>
-        </div>
-
-        {/* Step indicator */}
-        <div style={{
-          position: 'absolute', top: '1.25rem', right: '1.25rem',
-          display: 'flex', alignItems: 'center', gap: '0.375rem',
-        }}>
-          <div style={{
-            width: 24, height: 4, borderRadius: 2,
-            background: '#818cf8',
-            transition: 'all 0.3s',
-          }} />
-          <div style={{
-            width: 24, height: 4, borderRadius: 2,
-            background: step === 'usuario' ? '#818cf8' : 'rgba(255,255,255,0.08)',
-            transition: 'all 0.3s',
-          }} />
-        </div>
-
-        {/* ── LOADING ── */}
-        {step === 'loading' && (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4rem' }}>
-            <SpinnerGap size={28} className="hs-spin" color="#818cf8" />
-          </div>
-        )}
-
-        {/* ── SELECT: escolher entre workspaces existentes ── */}
-        {step === 'select' && (
-          <>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 48, height: 48, borderRadius: '14px',
-                background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)',
-                marginBottom: '1.25rem',
-              }}>
-                <Buildings weight="duotone" size={24} color="#818cf8" />
-              </div>
-
-              <h1 style={{
-                fontSize: '1.5rem', fontWeight: 700,
-                color: '#f1f5f9', marginBottom: '0.75rem', letterSpacing: '-0.02em',
-              }}>
-                Selecionar workspace
-              </h1>
-              <p style={{
-                fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6,
-                margin: '0 auto', maxWidth: '380px',
-              }}>
-                Escolha o workspace que deseja acessar
-              </p>
+    <div className="sw-shell sw-shell--no-sidebar">
+      {/* ── PAGE (Hub sem menu lateral) ── */}
+      <div className="sw-page sw-page--full">
+        {/* TOPBAR */}
+        <header className="sw-topbar">
+          <span className="sw-t-brand">Gravity<span>.</span></span>
+          <div className="sw-t-right">
+            <div className="sw-notif-wrap">
+              <button className="sw-t-icon" type="button" title="Notificações">
+                <Bell size={15} />
+              </button>
             </div>
+            <button className="sw-t-icon" type="button" title="Buscar">
+              <MagnifyingGlass size={15} />
+            </button>
+            <div className="sw-t-sep" />
+            <button className="sw-t-user" type="button">
+              <div className="sw-t-user-ava">{userInitials}</div>
+              <div>
+                <div className="sw-t-user-name">{userName}</div>
+                <div className="sw-t-user-role">{userRole}</div>
+              </div>
+              <CaretDown size={12} style={{ color: 'var(--sw-text-3)', marginLeft: 2 }} />
+            </button>
+            <button className="sw-t-exit" type="button" onClick={handleSair}>
+              <SignOut size={13} />
+              Sair
+            </button>
+          </div>
+        </header>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', marginBottom: '1.25rem' }}>
-              {empresas.map(emp => (
-                <button
-                  key={emp.id}
-                  type="button"
-                  onClick={() => {
-                    sessionStorage.setItem('gravity_company_id', emp.id)
-                    sessionStorage.setItem('gravity_company_name', emp.nome)
-                    navigate('/hub')
-                  }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '0.875rem',
-                    width: '100%', padding: '1rem 1.25rem',
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: '12px',
-                    color: '#f1f5f9', fontSize: '0.9375rem', fontWeight: 600,
-                    cursor: 'pointer', fontFamily: 'var(--font)',
-                    transition: 'all 0.15s', textAlign: 'left',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = 'rgba(129,140,248,0.07)'
-                    e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)'
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-                  }}
-                >
-                  <div style={{
-                    width: 36, height: 36, borderRadius: '10px',
-                    background: 'rgba(129,140,248,0.15)',
-                    color: '#818cf8', fontWeight: 700, fontSize: '0.8125rem',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {emp.nome.substring(0, 2).toUpperCase()}
+        {/* CONTENT */}
+        <div className="sw-content">
+          {carregando ? (
+            <div className="sw-loading">
+              <div className="sw-loading-spinner" />
+              <span>Carregando workspaces...</span>
+            </div>
+          ) : (
+            <>
+              {/* ════ BLOCO 1: WORKSPACES ════ */}
+              <section className="sw-ws-section sw-a0">
+                <h1 className="sw-ws-title">Acessar Workspace</h1>
+                <p className="sw-ws-sub">Selecione o workspace que deseja operar nesta sessão.</p>
+
+                <div className="sw-ws-grid">
+                  {workspaces.map(ws => (
+                    <div
+                      key={ws.id}
+                      className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}`}
+                      onClick={() => handleSelectWs(ws.id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleSelectWs(ws.id) }}
+                    >
+                      <div className="sw-ws-card-top">
+                        <div
+                          className="sw-ws-logo"
+                          style={{ background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)` }}
+                        >
+                          {ws.iniciais}
+                        </div>
+                        <div className="sw-ws-check">
+                          <Check size={12} color="white" weight="bold" />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="sw-ws-name">{ws.nome}</div>
+                        <div className="sw-ws-meta">
+                          <span className={`sw-ws-plan-tag ${planClass(ws.plano)}`}>
+                            {planLabel(ws.plano)}
+                          </span>
+                          <span className="sw-ws-role">· {ws.role}</span>
+                        </div>
+                      </div>
+
+                      <div className="sw-ws-stats">
+                        <div>
+                          <div className="sw-ws-stat-n">{ws.modulos}</div>
+                          <div className="sw-ws-stat-l">Módulos</div>
+                        </div>
+                        <div>
+                          <div className="sw-ws-stat-n">{ws.membros}</div>
+                          <div className="sw-ws-stat-l">Membros</div>
+                        </div>
+                        <div>
+                          <div className="sw-ws-stat-n">{ws.simulacoes}</div>
+                          <div className="sw-ws-stat-l">Simulações</div>
+                        </div>
+                      </div>
+
+                      <button
+                        className="sw-ws-enter-btn"
+                        type="button"
+                        onClick={e => { e.stopPropagation(); handleSelectWs(ws.id); setTimeout(() => { sessionStorage.setItem('gravity_company_id', ws.id); sessionStorage.setItem('gravity_company_name', ws.nome); navigate('/core') }, 300) }}
+                        disabled={entrando}
+                      >
+                        {entrando ? 'Entrando...' : 'Entrar no Workspace'}
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Criar novo workspace */}
+                  <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
+                    <Plus size={20} />
+                    <span className="sw-ws-add-label">Criar novo workspace</span>
+                  </button>
+                </div>
+              </section>
+
+              {/* DIVIDER */}
+              {selectedWs && (
+                <div className="sw-pill-divider sw-a1">
+                  <div className="sw-pill-divider-line" />
+                  <div className="sw-pill-divider-label">Workspace: {selectedWs.nome}</div>
+                  <div className="sw-pill-divider-line" />
+                </div>
+              )}
+
+              {/* ════ BLOCO 2: PRODUTOS ════ */}
+              <section className="sw-products-section sw-a1">
+                <div className="sw-sec-header">
+                  <div className="sw-sec-title-wrap">
+                    <div className="sw-sec-pip" style={{ background: 'var(--sw-accent-2)' }} />
+                    <span className="sw-sec-title">Produtos</span>
                   </div>
-                  {emp.nome}
-                </button>
-              ))}
-            </div>
-
-            <BotaoGlobal
-              variante="secundario"
-              blocoCompleto
-              centralizado
-              onClick={() => setStep('workspace')}
-              icone={<Buildings weight="bold" size={14} />}
-            >
-              Criar novo workspace
-            </BotaoGlobal>
-          </>
-        )}
-
-        {/* ── STEP 1: Criar workspace ── */}
-        {step === 'workspace' && (
-          <>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 48, height: 48, borderRadius: '14px',
-                background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)',
-                marginBottom: '1.25rem',
-              }}>
-                <Buildings weight="duotone" size={24} color="#818cf8" />
-              </div>
-
-              <h1 style={{
-                fontSize: '1.5rem', fontWeight: 700,
-                color: '#f1f5f9', marginBottom: '0.75rem', letterSpacing: '-0.02em',
-              }}>
-                Crie seu primeiro workspace
-              </h1>
-              <p style={{
-                fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6,
-                margin: '0 auto', maxWidth: '380px',
-              }}>
-                Digite o nome da sua empresa para comecar.
-                Seus dados, produtos e equipe ficam organizados dentro do workspace.
-              </p>
-            </div>
-
-            {error && (
-              <div style={{
-                background: 'rgba(239,68,68,0.12)',
-                border: '1px solid rgba(239,68,68,0.3)',
-                color: '#fca5a5',
-                padding: '0.75rem 1rem',
-                borderRadius: '10px',
-                marginBottom: '1.25rem',
-                fontSize: '0.8125rem',
-              }}>
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleCreateWorkspace} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <GeralCampoGlobal
-                label="Nome do workspace"
-                obrigatorio
-                tooltipTitulo="Workspace"
-                tooltipDescricao="Pode ser o nome da sua empresa, filial ou divisao. Voce pode criar mais workspaces depois."
-              >
-                <div className="ws-input-icon-wrap">
-                  <Buildings size={16} />
-                  <input
-                    type="text"
-                    required
-                    value={workspaceName}
-                    onChange={e => setWorkspaceName(e.target.value)}
-                    placeholder="Ex: Matriz Sao Paulo"
-                    autoFocus
-                  />
+                  <button className="sw-sec-link" type="button" onClick={() => navigate('/workspace/assinaturas')}>
+                    Ver catálogo completo
+                    <ArrowRight size={12} />
+                  </button>
                 </div>
-              </GeralCampoGlobal>
 
-              <BotaoGlobal
-                variante="primario"
-                blocoCompleto
-                centralizado
-                disabled={loading || !workspaceName.trim()}
-                type="submit"
-                icone={!loading ? <ArrowRight weight="bold" size={14} /> : undefined}
-              >
-                {loading ? 'Criando...' : 'Continuar'}
-              </BotaoGlobal>
-            </form>
+                <div className="sw-products-cols">
+                  {/* Contratados (empty state) */}
+                  <div className="sw-prod-panel">
+                    <div className="sw-prod-panel-head">
+                      <span className="sw-prod-panel-title contracted">Seus Produtos Contratados</span>
+                      <span className="sw-sec-count">0 ativos</span>
+                    </div>
+                    <div className="sw-prod-empty">
+                      <div className="sw-prod-empty-icon">
+                        <Clock size={20} />
+                      </div>
+                      <div className="sw-prod-empty-title">Nenhum produto ativo</div>
+                      <div className="sw-prod-empty-desc">
+                        Explore o catálogo e ative seu primeiro módulo para este workspace.
+                      </div>
+                      <button className="sw-btn-sm" type="button" onClick={() => navigate('/workspace/assinaturas')}>
+                        Explorar Catálogo
+                      </button>
+                    </div>
+                  </div>
 
-            <div style={{
-              display: 'flex', justifyContent: 'center', marginTop: '1.5rem',
-            }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
-                padding: '0.375rem 0.875rem',
-                borderRadius: 'var(--radius-pill, 9999px)',
-                background: 'rgba(99,102,241,0.08)',
-                border: '1px solid rgba(99,102,241,0.15)',
-                fontSize: '0.75rem', fontWeight: 500,
-                color: '#818cf8', letterSpacing: '0.01em',
-              }}>
-                <Sparkle weight="fill" size={12} />
-                Voce pode criar mais workspaces depois
-              </span>
-            </div>
-
-            {/* Gabi Insight Card */}
-            <button
-              type="button"
-              onClick={() => {
-                window.dispatchEvent(
-                  new CustomEvent('gabi:open', { detail: { message: 'O que e um workspace?' } })
-                )
-              }}
-              style={{
-                display: 'flex', flexDirection: 'column', gap: '0.75rem',
-                width: '100%', marginTop: '1.25rem',
-                padding: '1rem 1.25rem',
-                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #7c3aed 100%)',
-                border: 'none', borderRadius: '14px',
-                cursor: 'pointer', textAlign: 'left',
-                fontFamily: 'var(--font)',
-                transition: 'all 0.2s',
-                position: 'relative', overflow: 'hidden',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(99,102,241,0.3)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              {/* Background glow */}
-              <div style={{
-                position: 'absolute', top: '-50%', right: '-20%',
-                width: '60%', height: '200%',
-                background: 'radial-gradient(ellipse, rgba(255,255,255,0.08) 0%, transparent 70%)',
-                pointerEvents: 'none',
-              }} />
-
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem',
-                position: 'relative',
-              }}>
-                <Sparkle weight="fill" size={14} color="rgba(255,255,255,0.9)" />
-                <span style={{
-                  fontSize: '0.6875rem', fontWeight: 700,
-                  color: 'rgba(255,255,255,0.85)',
-                  textTransform: 'uppercase', letterSpacing: '0.08em',
-                }}>
-                  Gabi IA
-                </span>
-              </div>
-
-              <p style={{
-                fontSize: '0.8125rem', fontWeight: 500,
-                color: '#fff', lineHeight: 1.55,
-                margin: 0, position: 'relative',
-              }}>
-                Primeira vez na plataforma? Posso te explicar o que e um workspace,
-                como organizar sua empresa e por onde comecar.
-              </p>
-
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '0.375rem',
-                alignSelf: 'flex-end', position: 'relative',
-                padding: '0.3125rem 0.75rem',
-                background: 'rgba(255,255,255,0.15)',
-                borderRadius: '8px',
-                fontSize: '0.75rem', fontWeight: 600,
-                color: '#fff',
-              }}>
-                Me explica
-                <ArrowRight weight="bold" size={12} />
-              </div>
-            </button>
-          </>
-        )}
-
-        {/* ── STEP 2: Convidar usuario ── */}
-        {step === 'usuario' && (
-          <>
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 48, height: 48, borderRadius: '14px',
-                background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)',
-                marginBottom: '1.25rem',
-              }}>
-                <UserPlus weight="duotone" size={24} color="#34d399" />
-              </div>
-
-              <h1 style={{
-                fontSize: '1.5rem', fontWeight: 700,
-                color: '#f1f5f9', marginBottom: '0.75rem', letterSpacing: '-0.02em',
-              }}>
-                Convide alguem do time
-              </h1>
-              <p style={{
-                fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6,
-                margin: '0 auto', maxWidth: '380px',
-              }}>
-                Usuarios sao as pessoas que vao acessar o workspace com voce.
-                Cada um tem seu proprio login e permissoes.
-              </p>
-            </div>
-
-            {/* Workspace criado — feedback */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem',
-              padding: '0.75rem 1rem',
-              background: 'rgba(52,211,153,0.06)',
-              border: '1px solid rgba(52,211,153,0.15)',
-              borderRadius: '10px',
-              marginBottom: '1.5rem',
-              fontSize: '0.8125rem',
-              color: '#34d399',
-            }}>
-              <CheckCircle weight="fill" size={18} />
-              <span>
-                Workspace <strong>{workspaceName}</strong> criado com sucesso
-              </span>
-            </div>
-
-            {error && (
-              <div style={{
-                background: 'rgba(239,68,68,0.12)',
-                border: '1px solid rgba(239,68,68,0.3)',
-                color: '#fca5a5',
-                padding: '0.75rem 1rem',
-                borderRadius: '10px',
-                marginBottom: '1.25rem',
-                fontSize: '0.8125rem',
-              }}>
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleInviteUser} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <GeralCampoGlobal
-                label="E-mail do colega"
-                tooltipTitulo="Convite"
-                tooltipDescricao="Ele vai receber um e-mail para criar a conta e acessar o workspace"
-              >
-                <div className="ws-input-icon-wrap">
-                  <Envelope size={16} />
-                  <input
-                    type="email"
-                    value={inviteEmail}
-                    onChange={e => setInviteEmail(e.target.value)}
-                    placeholder="colega@empresa.com"
-                    autoFocus
-                  />
+                  {/* Sugeridos */}
+                  <div className="sw-prod-panel">
+                    <div className="sw-prod-panel-head">
+                      <span className="sw-prod-panel-title suggested">Sugeridos para Você</span>
+                      <span className="sw-sec-count" style={{ background: 'var(--sw-accent-dim)', color: 'var(--sw-accent-2)' }}>
+                        {MOCK_PRODUTOS_SUGERIDOS.length} novos
+                      </span>
+                    </div>
+                    <div className="sw-prod-list">
+                      {MOCK_PRODUTOS_SUGERIDOS.map(prod => (
+                        <div key={prod.id} className="sw-prod-item">
+                          <div className="sw-prod-icon" style={{ background: prod.iconBg }}>
+                            <ProdIcon icon={prod.icon} color={prod.iconColor} />
+                          </div>
+                          <div className="sw-prod-body">
+                            <div className="sw-prod-name">{prod.nome}</div>
+                            <div className="sw-prod-desc">{prod.descricao}</div>
+                          </div>
+                          <div className="sw-prod-right">
+                            <span className={`sw-badge ${badgeClass(prod.badge)}`}>{prod.badgeLabel}</span>
+                            {prod.stat && <span className="sw-prod-stat">{prod.stat}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              </GeralCampoGlobal>
+              </section>
 
-              <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <BotaoGlobal
-                  variante="secundario"
-                  blocoCompleto
-                  centralizado
-                  onClick={handleSkipInvite}
-                  type="button"
-                >
-                  Pular por agora
-                </BotaoGlobal>
+              {/* ════ BLOCO 3: ATALHOS + GABI AI ════ */}
+              <section className="sw-a2">
+                <div className="sw-sec-header" style={{ marginBottom: 16 }}>
+                  <div className="sw-sec-title-wrap">
+                    <div className="sw-sec-pip" style={{ background: 'var(--sw-text-3)' }} />
+                    <span className="sw-sec-title">Acesso Rápido</span>
+                  </div>
+                </div>
 
-                <BotaoGlobal
-                  variante="primario"
-                  blocoCompleto
-                  centralizado
-                  disabled={loading || !inviteEmail.trim()}
-                  type="submit"
-                  icone={!loading ? <UserPlus weight="bold" size={14} /> : undefined}
-                >
-                  {loading ? 'Enviando...' : 'Convidar e entrar'}
-                </BotaoGlobal>
-              </div>
-            </form>
+                <div className="sw-bottom-cols">
+                  {/* Shortcuts */}
+                  <div className="sw-shortcuts-panel">
+                    <div className="sw-shortcuts-head">
+                      <span className="sw-shortcuts-head-title">Atalhos</span>
+                    </div>
+                    <div className="sw-shortcuts-grid">
+                      {MOCK_ATALHOS.map(atalho => (
+                        <button
+                          key={atalho.id}
+                          className="sw-shortcut-item"
+                          type="button"
+                          onClick={() => navigate(atalho.rota)}
+                        >
+                          <div className="sw-sh-icon" style={{ background: atalho.iconBg }}>
+                            <ShortcutIcon icon={atalho.icon} color={atalho.iconColor} />
+                          </div>
+                          <div>
+                            <div className="sw-sh-name">{atalho.nome}</div>
+                            <div className="sw-sh-desc">{atalho.descricao}</div>
+                          </div>
+                          {atalho.admin && (
+                            <span className="sw-sh-tag sw-sh-admin">Admin</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-            <div style={{
-              display: 'flex', justifyContent: 'center', marginTop: '1.5rem',
-            }}>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
-                padding: '0.375rem 0.875rem',
-                borderRadius: 'var(--radius-pill, 9999px)',
-                background: 'rgba(99,102,241,0.08)',
-                border: '1px solid rgba(99,102,241,0.15)',
-                fontSize: '0.75rem', fontWeight: 500,
-                color: '#818cf8', letterSpacing: '0.01em',
-              }}>
-                <Sparkle weight="fill" size={12} />
-                Voce pode convidar mais pessoas depois nas configuracoes
-              </span>
-            </div>
-          </>
-        )}
+                  {/* GABI AI Insights */}
+                  <div className="sw-gabi-panel">
+                    <div className="sw-gabi-head">
+                      <div className="sw-gabi-icon-wrap">
+                        <Sparkle size={15} />
+                      </div>
+                      <div>
+                        <div className="sw-gabi-title">GABI AI · Insights</div>
+                        <div className="sw-gabi-sub">3 oportunidades esta semana</div>
+                      </div>
+                      <div className="sw-gabi-live">
+                        <div className="sw-gabi-live-dot" />
+                        ao vivo
+                      </div>
+                    </div>
 
-        {/* Admin access */}
-        {isAdmin && step === 'workspace' && (
-          <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid rgba(129,140,248,0.08)' }}>
-            <button
-              type="button"
-              onClick={() => navigate('/admin')}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                width: '100%', padding: '0.8125rem',
-                background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1))',
-                border: '1px solid rgba(16,185,129,0.3)',
-                borderRadius: '12px',
-                color: '#10b981', fontSize: '0.875rem', fontWeight: 700,
-                cursor: 'pointer', fontFamily: 'var(--font)',
-                transition: 'all 0.15s',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)'
-                e.currentTarget.style.transform = 'translateY(-1px)'
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'rgba(16,185,129,0.3)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}
-            >
-              <ShieldCheck weight="duotone" size={20} />
-              Acessar Painel Admin
-            </button>
-          </div>
-        )}
+                    <div className="sw-gabi-body">
+                      {/* Insight 1: Redução Tributária */}
+                      <div className="sw-insight-card">
+                        <div className="sw-i-type">
+                          <Download size={11} />
+                          Redução Tributária · NCM 8471
+                        </div>
+                        <div className="sw-i-text">
+                          <strong>40% das suas simulações</strong> recentes poderiam economizar até{' '}
+                          <strong>12% em ICMS</strong> com desembaraço via Santa Catarina.
+                        </div>
+                        <div className="sw-i-saving">
+                          <span className="sw-i-saving-label">Economia estimada</span>
+                          <span className="sw-i-saving-value">R$ 28.400/mês</span>
+                        </div>
+                        <div className="sw-i-footer">
+                          <button className="sw-i-action" type="button">
+                            Ver análise completa
+                            <ArrowRight size={11} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Insight 2: Alerta de Prazo */}
+                      <div className="sw-insight-card secondary">
+                        <div className="sw-i-type">
+                          <Warning size={11} />
+                          Alerta de Prazo · Drawback
+                        </div>
+                        <div className="sw-i-text">
+                          <strong>2 regimes de drawback</strong> vencem em menos de{' '}
+                          <strong>30 dias</strong>. Renove para não perder o benefício.
+                        </div>
+                        <div className="sw-i-footer">
+                          <button className="sw-i-action" type="button">
+                            Ver prazos
+                            <ArrowRight size={11} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+        </div>
       </div>
-
-      <style>{`
-        @keyframes swFadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   )
 }

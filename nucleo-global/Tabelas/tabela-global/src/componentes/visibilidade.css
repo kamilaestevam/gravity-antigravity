@@ -7,7 +7,7 @@
   border-radius: 12px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(12px);
-  font-family: var(--font, Plus Jakarta Sans);
+  font-family: var(--font, 'Plus Jakarta Sans');
   overflow: hidden;
   animation: vcg-fade-in 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -30,13 +30,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: var(--text-muted, #64748b);
 }
 
 .vcg-close-btn {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: var(--text-muted, #64748b);
   cursor: pointer;
   padding: 4px;
   line-height: 0;
@@ -45,8 +45,13 @@
 }
 
 .vcg-close-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #f1f5f9;
+  background: var(--bg-elevated, rgba(255, 255, 255, 0.05));
+  color: var(--text-primary, #f1f5f9);
+}
+
+.vcg-close-btn:focus-visible {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.4);
+  outline: none;
 }
 
 .vcg-bulk-actions {
@@ -67,7 +72,7 @@
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: #94a3b8;
+  color: var(--text-secondary, #94a3b8);
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -78,11 +83,11 @@
 
 .vcg-bulk-btn:hover {
   background: rgba(129, 140, 248, 0.08);
-  color: #818cf8;
+  color: var(--accent, #818cf8);
 }
 
 .vcg-bulk-btn--reset {
-  color: #64748b;
+  color: var(--text-muted, #64748b);
 }
 
 .vcg-bulk-btn--reset:hover {
@@ -116,7 +121,7 @@
 
 .vcg-item .sg-label {
   font-size: 0.8125rem;
-  color: #cbd5e1;
+  color: var(--text-secondary, #cbd5e1);
   font-weight: 500;
   flex: 1;
 }
@@ -133,4 +138,63 @@
 
 .vcg-item .sg-thumb--checked {
   transform: translateX(12px);
+}
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .vcg-popover {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .vcg-title {
+  color: #475569;
+}
+
+body.light-theme .vcg-close-btn {
+  color: #475569;
+}
+
+body.light-theme .vcg-close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1e293b;
+}
+
+body.light-theme .vcg-bulk-actions {
+  background: rgba(79, 70, 229, 0.02);
+  border-bottom-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .vcg-bulk-btn {
+  color: #475569;
+}
+
+body.light-theme .vcg-bulk-btn:hover {
+  background: rgba(79, 70, 229, 0.06);
+  color: #4f46e5;
+}
+
+body.light-theme .vcg-bulk-btn--reset {
+  color: #94a3b8;
+}
+
+body.light-theme .vcg-bulk-btn--reset:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.05);
+}
+
+body.light-theme .vcg-list {
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
+
+body.light-theme .vcg-item:hover {
+  background: rgba(79, 70, 229, 0.04);
+}
+
+body.light-theme .vcg-item .sg-label {
+  color: #334155;
+}
+
+body.light-theme .vcg-header {
+  border-bottom-color: var(--border-default, #cbd5e1);
 }

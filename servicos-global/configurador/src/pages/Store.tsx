@@ -12,6 +12,10 @@ import {
   ArrowRight,
   ShoppingBagOpen,
   Sparkle,
+  ChartBar,
+  ChatCircleText,
+  Plugs,
+  Headset,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import { BotaoGlobal } from '@nucleo/botao-global'

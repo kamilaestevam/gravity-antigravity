@@ -111,14 +111,12 @@ export function ProdutosAdmin() {
   const [slugsDisponiveis, setSlugsDisponiveis] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(true)
 
-  // Configurar token Clerk para todas as chamadas API
-  React.useEffect(() => {
-    setAuthTokenProvider(() => getToken())
-  }, [getToken])
-
   const [carregando, setCarregando] = React.useState(true)
 
   const carregarDados = React.useCallback(async () => {
+    // Garantir que o token Clerk está configurado ANTES de qualquer chamada API
+    setAuthTokenProvider(() => getToken())
+
     setLoading(true)
     setCarregando(true)
     try {
@@ -136,7 +134,7 @@ export function ProdutosAdmin() {
       setLoading(false)
       setCarregando(false)
     }
-  }, [])
+  }, [getToken])
 
   React.useEffect(() => {
     carregarDados()

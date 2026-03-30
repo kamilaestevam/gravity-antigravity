@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { ContextualSidebar } from './ContextualSidebar'
 import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
@@ -35,6 +36,7 @@ export function Layout({
   tenantName,
   tenantPlan
 }: LayoutProps) {
+  const { t, i18n } = useTranslation()
   const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser } = useShellStore()
   const location = useLocation()
   
@@ -61,32 +63,35 @@ export function Layout({
     }
   }, [tooltipsDisabled])
 
-  // Detecta e persiste idioma salvo pelo usuário
+  // Detecta e persiste idioma salvo pelo usuário, sincroniza com i18next
   React.useEffect(() => {
     const saved = localStorage.getItem('gravity:language')
     const detected = navigator.language.split('-')[0]
     const language = saved ?? detected ?? 'pt'
     document.documentElement.setAttribute('lang', language)
-  }, [])
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language)
+    }
+  }, [i18n])
 
   return (
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>
       {isProcessoRoute ? (
         <ContextualSidebar
-          tenantName={tenantName ?? currentUser.tenantName ?? 'Organização'}
-          tenantPlan={tenantPlan ?? 'Plano Profissional'}
+          tenantName={tenantName ?? currentUser.tenantName ?? t('shell.organizacao_padrao')}
+          tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
         />
       ) : (
-        <Sidebar 
+        <Sidebar
           navItems={navItems}
           moduleName={moduleName}
           moduleColor={moduleColor}
-          tenantName={tenantName ?? currentUser.tenantName ?? 'Organização'}
-          tenantPlan={tenantPlan ?? 'Plano Profissional'}
+          tenantName={tenantName ?? currentUser.tenantName ?? t('shell.organizacao_padrao')}
+          tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
         />
       )}
       <Header />
-      <main className="shell-main" role="main" aria-label="Conteúdo principal">
+      <main className="shell-main" role="main" aria-label={t('shell.conteudo_principal')}>
         <Suspense
           fallback={
             <div
@@ -99,7 +104,7 @@ export function Layout({
                 fontSize: '0.875rem',
               }}
             >
-              Carregando módulo…
+              {t('shell.carregando_modulo')}
             </div>
           }
         >

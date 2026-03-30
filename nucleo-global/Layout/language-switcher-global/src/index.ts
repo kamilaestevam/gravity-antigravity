@@ -1,0 +1,1 @@
+export { LanguageSwitcherGlobal } from './LanguageSwitcherGlobal'

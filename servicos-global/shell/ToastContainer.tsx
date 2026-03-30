@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
   XCircle,
@@ -23,6 +24,7 @@ const ICON_MAP: Record<NotificationType, React.ReactNode> = {
  * Todo toast entra via useShellStore().addNotification().
  */
 export function ToastContainer() {
+  const { t } = useTranslation()
   const { notifications, removeNotification } = useShellStore()
 
   if (notifications.length === 0) return null
@@ -31,7 +33,7 @@ export function ToastContainer() {
     <div
       className="shell-toast-container"
       role="region"
-      aria-label="Notificações"
+      aria-label={t('shell.notificacoes')}
       aria-live="polite"
       aria-atomic="false"
     >
@@ -54,7 +56,7 @@ export function ToastContainer() {
           <button
             className="shell-toast__close"
             onClick={() => removeNotification(notif.id)}
-            aria-label="Fechar notificação"
+            aria-label={t('shell.fechar_notificacao')}
             type="button"
           >
             <X size={14} weight="bold" />

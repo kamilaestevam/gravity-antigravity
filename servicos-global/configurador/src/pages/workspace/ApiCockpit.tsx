@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { 
   CheckCircle, 
   Warning, 
@@ -47,6 +48,7 @@ interface ApiLog {
 }
 
 export function ApiCockpit() {
+  const { t } = useTranslation()
   const [servicos, setServicos] = useState<ApiService[]>([])
   const [logs, setLogs] = useState<ApiLog[]>([])
   const [abaAtiva, setAbaAtiva] = useState<'geral' | 'logs' | 'config'>('geral')
@@ -68,37 +70,37 @@ export function ApiCockpit() {
   }, [])
 
   const colunasServicos: TabelaGlobalColuna<ApiService>[] = [
-    { key: 'name', label: 'Serviço', tipo: 'texto' },
-    { key: 'type', label: 'Tipo', tipo: 'texto', render: (val) => <span style={{ textTransform: 'capitalize' }}>{val as string}</span> },
-    { key: 'status', label: 'Status', tipo: 'texto', render: (val) => (
+    { key: 'name', label: t('admin.cockpit.tabela.servico'), tipo: 'texto' },
+    { key: 'type', label: t('admin.cockpit.tabela.tipo'), tipo: 'texto', render: (val) => <span style={{ textTransform: 'capitalize' }}>{val as string}</span> },
+    { key: 'status', label: t('admin.cockpit.tabela.status'), tipo: 'texto', render: (val) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: val === 'online' ? '#10b981' : '#f59e0b' }}>
         {val === 'online' ? <CheckCircle size={16} weight="fill" /> : <WarningCircle size={16} weight="fill" />}
         {(val as string).toUpperCase()}
       </div>
     )},
-    { key: 'latency', label: 'Latência', tipo: 'texto' },
-    { key: 'version', label: 'Versão', tipo: 'texto' },
-    { key: 'lastCheck', label: 'Último Check', tipo: 'texto' },
+    { key: 'latency', label: t('admin.cockpit.tabela.latencia'), tipo: 'texto' },
+    { key: 'version', label: t('admin.cockpit.tabela.versao'), tipo: 'texto' },
+    { key: 'lastCheck', label: t('admin.cockpit.tabela.ultimo_check'), tipo: 'texto' },
   ]
 
   const colunasLogs: TabelaGlobalColuna<ApiLog>[] = [
-    { key: 'timestamp', label: 'Data/Hora', tipo: 'texto' },
-    { key: 'method', label: 'Método', tipo: 'texto', render: (val) => <strong style={{ color: 'var(--brand-primary)' }}>{val as string}</strong> },
-    { key: 'path', label: 'Endpoint', tipo: 'texto' },
-    { key: 'statusCode', label: 'Status', tipo: 'texto', render: (val) => (
+    { key: 'timestamp', label: t('admin.cockpit.tabela.data_hora'), tipo: 'texto' },
+    { key: 'method', label: t('admin.cockpit.tabela.metodo'), tipo: 'texto', render: (val) => <strong style={{ color: 'var(--brand-primary)' }}>{val as string}</strong> },
+    { key: 'path', label: t('admin.cockpit.tabela.endpoint'), tipo: 'texto' },
+    { key: 'statusCode', label: t('admin.cockpit.tabela.status'), tipo: 'texto', render: (val) => (
       <span style={{ color: (val as number) < 400 ? '#10b981' : '#ef4444' }}>{val as number}</span>
     )},
-    { key: 'organizacao', label: 'Organização', tipo: 'texto' },
-    { key: 'produto', label: 'Produto', tipo: 'texto' },
-    { key: 'duracao', label: 'Duração', tipo: 'texto' },
+    { key: 'organizacao', label: t('admin.cockpit.tabela.organizacao'), tipo: 'texto' },
+    { key: 'produto', label: t('admin.cockpit.tabela.produto'), tipo: 'texto' },
+    { key: 'duracao', label: t('admin.cockpit.tabela.duracao'), tipo: 'texto' },
   ]
 
   return (
     <PaginaGlobal
       cabecalho={
-        <CabecalhoGlobal 
-          titulo="API Cockpit" 
-          subtitulo="Monitoramento em tempo real da infraestrutura no Railway"
+        <CabecalhoGlobal
+          titulo={t('admin.cockpit.titulo')}
+          subtitulo={t('admin.cockpit.subtitulo')}
           icone={<Pulse size={32} weight="duotone" />}
         />
       }
@@ -106,9 +108,9 @@ export function ApiCockpit() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', marginTop: '1.5rem' }}>
         {/* KPI Row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem' }}>
-          <StatCardGlobal titulo="Status Geral" valor="Operacional" variante="sucesso" />
-          <StatCardGlobal titulo="Uptime (24h)" valor="100%" variante="primario" />
-          <StatCardGlobal titulo="Latência Média" valor="24ms" variante="padrao" />
+          <StatCardGlobal titulo={t('admin.cockpit.status_geral')} valor={t('admin.cockpit.operacional')} variante="sucesso" />
+          <StatCardGlobal titulo={t('admin.cockpit.uptime_24h')} valor="100%" variante="primario" />
+          <StatCardGlobal titulo={t('admin.cockpit.latencia_media')} valor="24ms" variante="padrao" />
         </div>
 
         {/* Tabs Control */}
@@ -128,7 +130,7 @@ export function ApiCockpit() {
               gap: '0.5rem'
             }}
           >
-            <Monitor size={20} /> Inventário de Serviços
+            <Monitor size={20} /> {t('admin.cockpit.aba_inventario')}
           </button>
           <button 
             onClick={() => setAbaAtiva('logs')}
@@ -145,7 +147,7 @@ export function ApiCockpit() {
               gap: '0.5rem'
             }}
           >
-            <TerminalWindow size={20} /> Logs de Requisições
+            <TerminalWindow size={20} /> {t('admin.cockpit.aba_logs')}
           </button>
         </div>
 
@@ -156,14 +158,14 @@ export function ApiCockpit() {
               id="cockpit-services"
               colunas={colunasServicos}
               dados={servicos}
-              mensagemVazio="Nenhum serviço registrado no momento."
+              mensagemVazio={t('admin.cockpit.vazio.sem_servicos')}
             />
           ) : (
             <TabelaGlobal 
               id="cockpit-logs"
               colunas={colunasLogs}
               dados={logs}
-              mensagemVazio="Nenhuma requisição processada nas últimas 24h."
+              mensagemVazio={t('admin.cockpit.vazio.sem_requisicoes')}
             />
           )}
         </div>

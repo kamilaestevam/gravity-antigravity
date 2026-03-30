@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, ArrowsCounterClockwise, CheckSquare, Square } from '@phosphor-icons/react'
 import { SwitchGlobal } from '@nucleo/switch-global'
 import './visibilidade.css'
@@ -30,6 +31,7 @@ export function VisibilidadeColunasGlobal({
   onFechar,
   triggerRef
 }: VisibilidadeColunasGlobalProps) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export function VisibilidadeColunasGlobal({
       onClick={e => e.stopPropagation()}
     >
       <div className="vcg-header">
-        <span className="vcg-title">Painéis Visíveis</span>
+        <span className="vcg-title">{t('tabela.paineis_visiveis')}</span>
         <button onClick={onFechar} className="vcg-close-btn">
           <X size={14} weight="bold" />
         </button>
@@ -60,10 +62,10 @@ export function VisibilidadeColunasGlobal({
 
       <div className="vcg-bulk-actions">
         <button className="vcg-bulk-btn" onClick={onShowAll}>
-          <CheckSquare size={14} weight="fill" /> Selecionar Tudo
+          <CheckSquare size={14} weight="fill" /> {t('tabela.selecionar_tudo')}
         </button>
         <button className="vcg-bulk-btn vcg-bulk-btn--reset" onClick={onReset}>
-          <ArrowsCounterClockwise size={14} weight="bold" /> Restaurar Padrão
+          <ArrowsCounterClockwise size={14} weight="bold" /> {t('tabela.restaurar_padrao')}
         </button>
       </div>
 

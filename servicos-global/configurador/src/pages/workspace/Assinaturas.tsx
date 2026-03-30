@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CreditCard, FileXls, FileCsv, FileText, FilePdf, Code, PencilSimple, Trash, PauseCircle, PlayCircle, Package, CurrencyDollar, WarningCircle, TreeStructure } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/card-global'
@@ -40,13 +41,14 @@ export const mockProdutos: Produto[] = [
   { id: 'simcusto', nome: 'SimulaCusto',           status: 'Ativo',   billing: 'Uso',   valor: 'R$ 10,99/est', renovacao: 'Variável',  workspacesHabilitados: ['Importes SA', 'Filial Sul'], workspacesVinculados: ['Importes SA', 'Filial Sul', 'Filial Rio'] },
 ]
 
-const upsellProducts = [
-  { id: 'help', nome: 'Helpdesk Premium', desc: 'Tickets com SLA e relatórios para seus clientes.',    valor: 'R$ 249/mês', billing: 'SaaS' as BillingType },
-  { id: 'nfe',  nome: 'NF-e Automático',  desc: 'Emissão automática de notas fiscais via gateway.',     valor: 'R$ 159/mês', billing: 'Uso'  as BillingType },
-  { id: 'bi',   nome: 'BI Analytics Pro', desc: 'Dashboards avançados com drill-down e exportação.',    valor: 'R$ 399/mês', billing: 'SaaS' as BillingType },
-]
-
 export function Assinaturas() {
+  const { t } = useTranslation()
+
+  const upsellProducts = [
+    { id: 'help', nome: t('workspace.subscriptions.upsell.helpdesk'), desc: t('workspace.subscriptions.upsell.helpdesk_desc'),    valor: 'R$ 249/mês', billing: 'SaaS' as BillingType },
+    { id: 'nfe',  nome: t('workspace.subscriptions.upsell.nfe'),  desc: t('workspace.subscriptions.upsell.nfe_desc'),     valor: 'R$ 159/mês', billing: 'Uso'  as BillingType },
+    { id: 'bi',   nome: t('workspace.subscriptions.upsell.bi'), desc: t('workspace.subscriptions.upsell.bi_desc'),    valor: 'R$ 399/mês', billing: 'SaaS' as BillingType },
+  ]
   const [produtos, setProdutos]         = useState<Produto[]>(mockProdutos)
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null)
   const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null)
@@ -93,7 +95,7 @@ export function Assinaturas() {
   // ── Colunas da TabelaGlobal ───────────────────────────────────────────────────
   const COLUNAS: TabelaGlobalColuna<Produto>[] = [
     {
-      key: 'nome', label: 'Produto', tipo: 'texto',
+      key: 'nome', label: t('workspace.subscriptions.tabela.produto'), tipo: 'texto',
       tooltipTitulo: 'Produto Contratado',
       tooltipDescricao: 'Nome do módulo ou serviço ativo na plataforma.',
       render: (v) => (
@@ -101,9 +103,9 @@ export function Assinaturas() {
       )
     },
     {
-      key: 'billing', label: 'Cobrança', tipo: 'texto',
+      key: 'billing', label: t('workspace.subscriptions.tabela.cobranca'), tipo: 'texto',
       tooltipTitulo: 'Modelo de Cobrança',
-      tooltipDescricao: 'SaaS = mensalidade; Uso = por consumo; Setup = implantação.',
+      tooltipDescricao: t('workspace.subscriptions.tabela.cobranca_desc'),
       render: (v) => {
         const cor = billingColor[v as BillingType] ?? '#94a3b8'
         return (
@@ -120,24 +122,24 @@ export function Assinaturas() {
       }
     },
     {
-      key: 'valor', label: 'Valor', tipo: 'texto',
+      key: 'valor', label: t('workspace.subscriptions.tabela.valor'), tipo: 'texto',
       tooltipTitulo: 'Valor do Produto',
       tooltipDescricao: 'Preço cobrado por ciclo ou unidade de consumo.',
       render: (v) => <span style={{ fontFamily: 'monospace', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>{v}</span>
     },
     {
-      key: 'renovacao', label: 'Renovação', tipo: 'texto',
+      key: 'renovacao', label: t('workspace.subscriptions.tabela.renovacao'), tipo: 'texto',
       tooltipTitulo: 'Data de Renovação',
-      tooltipDescricao: 'Próxima data de cobrança ou renovação automática.',
+      tooltipDescricao: t('workspace.subscriptions.tabela.renovacao_desc'),
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'workspacesHabilitados', label: 'Workspaces Habilitados', tipo: 'texto',
+      key: 'workspacesHabilitados', label: t('workspace.subscriptions.tabela.workspaces_habilitados'), tipo: 'texto',
       tooltipTitulo: 'Distribuição por Workspace',
-      tooltipDescricao: 'Resumo das instâncias ativas para este serviço.',
+      tooltipDescricao: t('workspace.subscriptions.tabela.workspaces_desc'),
       render: (v) => {
         const list = v as string[]
-        if (!list || list.length === 0) return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>Nenhum workspace habilitado</span>
+        if (!list || list.length === 0) return <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>{t('workspace.subscriptions.vazio_workspaces')}</span>
         
         const show = list.slice(0, 2)
         const rest = list.length - show.length
@@ -285,7 +287,7 @@ export function Assinaturas() {
       cabecalho={
         <CabecalhoGlobal
           icone={<CreditCard weight="duotone" size={22} color="#818cf8" />}
-          titulo="Assinaturas & Planos"
+          titulo={t('workspace.subscriptions.titulo')}
           subtitulo="Gerencie seus planos, produtos contratados e upgrades"
         />
       }

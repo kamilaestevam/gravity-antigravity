@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
+import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
+import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
@@ -35,16 +37,18 @@ import GabiChat from '@tenant/gabi/src/Gabi'
 import './workspace.css'
 import './gabi.css'
 
-const navItems = [
-  { to: '/workspace/organizacao',  label: 'Organização',    icon: <Crown       weight="duotone" size={18} /> },
-  { to: '/workspace/workspaces',     label: 'Workspaces', icon: <Buildings   weight="duotone" size={18} /> },
-  { to: '/workspace/usuarios',     label: 'Usuários',        icon: <Users       weight="duotone" size={18} /> },
-  { to: '/workspace/assinaturas',  label: 'Assinaturas',     icon: <CreditCard  weight="duotone" size={18} /> },
-  { to: '/workspace/financeiro',   label: 'Financeiro',      icon: <Receipt     weight="duotone" size={18} /> },
-  { to: '/workspace/api-cockpit',  label: 'API Cockpit',     icon: <PlugsConnected weight="duotone" size={18} /> },
-]
-
 export function WorkspaceLayout() {
+  const { t } = useTranslation()
+
+  const navItems = [
+    { to: '/workspace/organizacao',  label: t('workspace.layout.organizacao'),    icon: <Crown       weight="duotone" size={18} /> },
+    { to: '/workspace/workspaces',     label: t('workspace.layout.workspaces'), icon: <Buildings   weight="duotone" size={18} /> },
+    { to: '/workspace/usuarios',     label: t('workspace.layout.usuarios'),        icon: <Users       weight="duotone" size={18} /> },
+    { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
+    { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
+    { to: '/workspace/api-cockpit',  label: t('workspace.layout.api_cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
+  ]
+
   const navigate = useNavigate()
   const { user } = useUser()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
@@ -91,7 +95,7 @@ export function WorkspaceLayout() {
         tenantName={tenantName}
         tenantPlan={tenantPlan}
         navItems={navItems}
-        moduleName="Configurador"
+        moduleName={t('workspace.layout.modulo_nome')}
         moduleColor="#818cf8"
         defaultCollapsed={false}
       />
@@ -142,6 +146,8 @@ export function WorkspaceLayout() {
               <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
             </button>
           </TooltipGlobal>
+
+          <LanguageSwitcherGlobal />
 
           <Notificacoes tenantId="importes-sa" userId={user?.id ?? 'mock-user'} />
 

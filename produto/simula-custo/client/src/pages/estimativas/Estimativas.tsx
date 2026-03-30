@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Calculator, ArrowLeft, FloppyDisk, Play, Plus, Trash } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -71,6 +72,7 @@ const MOEDAS = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'BRL']
 // ─── Componente ──────────────────────────────────────────────────────────────
 
 export default function Estimativas() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const isEdicao = Boolean(id)
@@ -195,15 +197,15 @@ export default function Estimativas() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Calculator weight="duotone" size={22} color="#818cf8" />}
-          titulo={isEdicao ? 'Editar Estimativa' : 'Nova Estimativa de Custo'}
-          subtitulo="Calcule o Landed Cost completo antes de fechar o negocio"
+          titulo={isEdicao ? t('simulacusto.estimativas.editar_titulo') : t('simulacusto.estimativas.nova_titulo')}
+          subtitulo={t('simulacusto.estimativas.nova_subtitulo')}
           acoes={
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button className="sc-btn sc-btn--ghost" onClick={() => navigate('/estimativas')}>
-                <ArrowLeft weight="bold" size={16} /> Voltar
+                <ArrowLeft weight="bold" size={16} /> {t('comum.voltar')}
               </button>
               <button className="sc-btn sc-btn--secondary" onClick={handleSalvar} disabled={salvando}>
-                <FloppyDisk weight="duotone" size={16} /> {salvando ? 'Salvando...' : 'Salvar'}
+                <FloppyDisk weight="duotone" size={16} /> {salvando ? t('botoes.salvando') : t('comum.salvar')}
               </button>
             </div>
           }
@@ -223,10 +225,10 @@ export default function Estimativas() {
         <form className="sc-form" onSubmit={handleSimularForm}>
 
           {/* Secao: Operacao */}
-          <div className="sc-section-title">Operacao</div>
+          <div className="sc-section-title">{t('simulacusto.formulario.operacao')}</div>
           <div className="sc-row sc-row--4">
             <div className="sc-field">
-              <label>Tipo de Operacao</label>
+              <label>{t('simulacusto.formulario.operacao')}</label>
               <select value={form.operacao} onChange={e => update('operacao', e.target.value as OperacaoTipo)}>
                 {(Object.keys(OPERACAO_LABELS) as OperacaoTipo[]).map(k => (
                   <option key={k} value={k}>{OPERACAO_LABELS[k]}</option>
@@ -234,7 +236,7 @@ export default function Estimativas() {
               </select>
             </div>
             <div className="sc-field">
-              <label>Modalidade</label>
+              <label>{t('simulacusto.formulario.modalidade')}</label>
               <select value={form.tipo_operacao} onChange={e => update('tipo_operacao', e.target.value as TipoOperacaoDetalhe)}>
                 {(Object.keys(TIPO_OPERACAO_LABELS) as TipoOperacaoDetalhe[]).map(k => (
                   <option key={k} value={k}>{TIPO_OPERACAO_LABELS[k]}</option>
@@ -248,7 +250,7 @@ export default function Estimativas() {
               </select>
             </div>
             <div className="sc-field">
-              <label>Referencia Interna</label>
+              <label>{t('simulacusto.formulario.referencia')}</label>
               <input
                 type="text"
                 maxLength={30}
@@ -260,10 +262,10 @@ export default function Estimativas() {
           </div>
 
           {/* Secao: Produto */}
-          <div className="sc-section-title">Produto & Origem</div>
+          <div className="sc-section-title">{t('simulacusto.formulario.produto_origem')}</div>
           <div className="sc-row sc-row--4">
             <div className="sc-field">
-              <label>NCM (8 digitos)</label>
+              <label>{t('simulacusto.formulario.ncm')}</label>
               <input
                 type="text"
                 maxLength={8}
@@ -274,7 +276,7 @@ export default function Estimativas() {
               />
             </div>
             <div className="sc-field">
-              <label>Pais de Origem (ISO)</label>
+              <label>{t('simulacusto.formulario.pais_origem')}</label>
               <input
                 type="text"
                 maxLength={2}
@@ -285,7 +287,7 @@ export default function Estimativas() {
               />
             </div>
             <div className="sc-field">
-              <label>UF de Desembaraco</label>
+              <label>{t('simulacusto.formulario.uf_desembaraco')}</label>
               <input
                 type="text"
                 maxLength={2}
@@ -309,10 +311,10 @@ export default function Estimativas() {
           </div>
 
           {/* Secao: Valores */}
-          <div className="sc-section-title">Valores</div>
+          <div className="sc-section-title">{t('simulacusto.formulario.valores')}</div>
           <div className="sc-row">
             <div className="sc-field">
-              <label>Valor do Produto</label>
+              <label>{t('simulacusto.formulario.valor_produto')}</label>
               <div className="sc-input-group">
                 <input
                   type="number"
@@ -329,7 +331,7 @@ export default function Estimativas() {
               </div>
             </div>
             <div className="sc-field">
-              <label>Frete Internacional</label>
+              <label>{t('simulacusto.formulario.frete_internacional')}</label>
               <div className="sc-input-group">
                 <input
                   type="number"
@@ -345,7 +347,7 @@ export default function Estimativas() {
               </div>
             </div>
             <div className="sc-field">
-              <label>Seguro Internacional</label>
+              <label>{t('simulacusto.formulario.seguro_internacional')}</label>
               <div className="sc-input-group">
                 <input
                   type="number"
@@ -363,7 +365,7 @@ export default function Estimativas() {
           </div>
 
           {/* Secao: Aliquotas */}
-          <div className="sc-section-title">Aliquotas</div>
+          <div className="sc-section-title">{t('simulacusto.formulario.aliquotas')}</div>
           <div className="sc-row sc-row--4">
             <div className="sc-field">
               <label>II (%)</label>
@@ -399,7 +401,7 @@ export default function Estimativas() {
                 onChange={e => update('aliquotaICMS', (parseFloat(e.target.value) || 0) / 100)} />
             </div>
             <div className="sc-field">
-              <label>Reducao II -- Acordos (%)</label>
+              <label>{t('simulacusto.formulario.reducao_ii')}</label>
               <input type="number" min={0} max={100} step="0.01" placeholder="0.00"
                 value={((form.reducaoII ?? 0) * 100) || ''}
                 onChange={e => update('reducaoII', (parseFloat(e.target.value) || 0) / 100)} />
@@ -408,9 +410,9 @@ export default function Estimativas() {
 
           {/* Secao: Documentos Vinculados */}
           <div className="sc-section-title">
-            Documentos Vinculados
+            {t('simulacusto.formulario.documentos')}
             <button type="button" className="sc-btn-inline" onClick={addDocumento}>
-              <Plus weight="bold" size={14} /> Adicionar
+              <Plus weight="bold" size={14} /> {t('acoes.adicionar')}
             </button>
           </div>
           {form.documentos.map((doc, i) => (
@@ -443,7 +445,7 @@ export default function Estimativas() {
 
           <button type="submit" className="sc-btn-simular" disabled={loading}>
             <Play weight="fill" size={16} />
-            {loading ? 'Calculando...' : 'Simular Custo'}
+            {loading ? t('simulacusto.formulario.calculando') : t('simulacusto.formulario.simular_custo')}
           </button>
         </form>
 
@@ -455,13 +457,13 @@ export default function Estimativas() {
               onClick={() => setModalAberto(true)}
             >
               <Plus weight="bold" />
-              Nova Simulacao
+              {t('simulacusto.estimativas.nova')}
             </button>
           </div>
 
           <div className="sc-empty-state">
             <Calculator weight="duotone" size={48} />
-            <h3>Nenhuma simulacao recente</h3>
+            <h3>{t('simulacusto.estimativas.vazio')}</h3>
             <p>Clique no botao acima para iniciar um novo calculo de Landed Cost.</p>
           </div>
         </div>
@@ -471,19 +473,19 @@ export default function Estimativas() {
           <div className="sc-result">
             <div className="sc-result-header">
               <span className="sc-result-badge">
-                {resultado.source === 'siscomex' ? 'Portal Unico' : 'Gravity Cloud Engine'}
+                {resultado.source === 'siscomex' ? t('simulacusto.formulario.portal_unico') : t('simulacusto.formulario.engine')}
               </span>
               <span className="sc-ptax">PTAX: R$ {resultado.ptaxUtilizada?.toFixed(4)}</span>
             </div>
 
             <div className="sc-landed-cost">
-              <span className="sc-lc-label">Landed Cost Total</span>
+              <span className="sc-lc-label">{t('simulacusto.formulario.landed_cost')}</span>
               <span className="sc-lc-value">{brl(resultado.landedCostBRL)}</span>
             </div>
 
             <div className="sc-breakdown">
               <div className="sc-bk-row">
-                <span>Valor Aduaneiro (VA)</span>
+                <span>{t('simulacusto.formulario.valor_aduaneiro')}</span>
                 <span>{brl(resultado.vAduaneiroBRL)}</span>
               </div>
               <div className="sc-bk-sep" />
@@ -495,14 +497,14 @@ export default function Estimativas() {
               ))}
               <div className="sc-bk-sep" />
               <div className="sc-bk-row sc-bk-row--total">
-                <span>Total de Tributos</span>
+                <span>{t('simulacusto.formulario.total_tributos')}</span>
                 <span>{brl(resultado.totalTributos)}</span>
               </div>
             </div>
 
             <button type="button" className="sc-btn-salvar" onClick={handleSalvar} disabled={salvando}>
               <FloppyDisk weight="duotone" size={16} />
-              {salvando ? 'Salvando...' : 'Salvar Estimativa'}
+              {salvando ? t('botoes.salvando') : t('simulacusto.formulario.salvar_estimativa')}
             </button>
           </div>
         )}

@@ -5,7 +5,12 @@
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/tenant/prisma/schema.prisma",
     "db:migrate:deploy": "npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/tenant/prisma/schema.prisma",
     "db:seed:staging": "npx ts-node scripts/seed-staging.ts",
-    "db:apply-rls": "railway run psql $TENANT_DATABASE_URL -f scripts/apply-rls.sql"
+    "db:apply-rls": "railway run psql $TENANT_DATABASE_URL -f scripts/apply-rls.sql",
+    "translate": "npx tsx scripts/translate.ts",
+    "translate:check": "npx tsx scripts/translate.ts --dry-run",
+    "test": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts",
+    "test:e2e": "playwright test --project=i18n",
+    "test:all": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts && playwright test --project=i18n"
   },
   "dependencies": {
     "@clerk/localizations": "^4.2.3",
@@ -16,15 +21,23 @@
     "react-i18next": "^17.0.1"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/express": "^5.0.6",
     "@types/supertest": "^7.2.0",
+    "@vitejs/plugin-react": "^6.0.1",
     "@vitest/ui": "^4.1.2",
     "concurrently": "^9.2.1",
     "express": "^5.2.1",
+    "jsdom": "^29.0.1",
     "playwright": "^1.58.2",
     "prisma": "^5.22.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "supertest": "^7.2.2",
     "svix": "^1.89.0",
+    "vite": "^8.0.3",
     "vitest": "^4.1.2",
     "zod": "^3.25.76"
   }

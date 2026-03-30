@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import {
   Lightning,
@@ -18,14 +19,23 @@ import { OnboardingPreview } from '../components/flows/OnboardingPreview'
 import { PaywallDrawer } from '../components/flows/PaywallDrawer'
 import '../styles/home.css'
 
-const FEATURES = [
-  { icon: <ChartBar size={24} weight="duotone" />, title: 'Dashboard Unificado', desc: 'Métricas em tempo real de todos os módulos em um único lugar.' },
-  { icon: <EnvelopeSimple size={24} weight="duotone" />, title: 'Email Transacional', desc: 'Envio de emails com Resend — logs, templates e rastreamento.' },
-  { icon: <WhatsappLogo size={24} weight="duotone" />, title: 'WhatsApp Business', desc: 'Integração nativa com Meta Cloud API. Sem custo extra.' },
-  { icon: <Clock size={24} weight="duotone" />, title: 'Cronômetro de Atividades', desc: 'Rastreie tempo por projeto, cliente e colaborador.' },
-  { icon: <Lightning size={24} weight="duotone" />, title: 'Automações', desc: 'Gatilhos e ações entre módulos sem código.' },
-  { icon: <Globe size={24} weight="duotone" />, title: 'Multi-tenant Nativo', desc: 'Cada empresa tem seus dados isolados por design.' },
+const FEATURE_ICONS = [
+  <ChartBar size={24} weight="duotone" />,
+  <EnvelopeSimple size={24} weight="duotone" />,
+  <WhatsappLogo size={24} weight="duotone" />,
+  <Clock size={24} weight="duotone" />,
+  <Lightning size={24} weight="duotone" />,
+  <Globe size={24} weight="duotone" />,
 ]
+
+const FEATURE_KEYS = [
+  'dashboard',
+  'email',
+  'whatsapp',
+  'cronometro',
+  'automacoes',
+  'multi_tenant',
+] as const
 
 const TESTIMONIALS = [
   { name: 'Ana Paula M.', role: 'Head de Ops, Logística BR', text: 'Reduzimos 40% do tempo de importação com o Simulador Comex. O suporte foi incrível na implantação.' },
@@ -36,6 +46,7 @@ const TESTIMONIALS = [
 const LOGOS = ['Logística BR', 'TechStart', 'Agência Digital', 'ComexPro', 'DataFlow', 'NovaBiz']
 
 export function Home() {
+  const { t } = useTranslation()
   const [onboardingOpen, setOnboardingOpen] = useState(false)
   const [paywallOpen, setPaywallOpen] = useState(false)
 
@@ -52,18 +63,15 @@ export function Home() {
           <div className="hero__content">
             <div className="badge badge-accent" style={{ display: 'inline-flex', marginBottom: '1.5rem' }}>
               <Star size={12} weight="fill" />
-              <span>Product-Led Growth · 14 dias grátis</span>
+              <span>{t('marketplace.hero.badge')}</span>
             </div>
 
             <h1 className="hero__title text-display">
-              Uma plataforma para{' '}
-              <span className="gradient-text">todos os seus serviços</span>
+              {t('marketplace.hero.titulo')}
             </h1>
 
             <p className="hero__subtitle">
-              Gravity é uma plataforma SaaS B2B multi-tenant modular. Email, WhatsApp,
-              dashboard, atividades — compartilhados entre todos os seus produtos.
-              Sem duplicar dados. Sem duplicar custo.
+              {t('marketplace.hero.subtitulo')}
             </p>
 
             <div className="hero__ctas">
@@ -103,9 +111,9 @@ export function Home() {
               <div className="dashboard-preview__body">
                 <div className="dashboard-preview__kpis">
                   {[
-                    { label: 'Receita', value: 'R$ 284k', color: 'var(--success)' },
-                    { label: 'Atividades', value: '47', color: 'var(--accent)' },
-                    { label: 'Tickets', value: '12', color: 'var(--warning)' },
+                    { label: t('marketplace.kpi.receita'), value: 'R$ 284k', color: 'var(--success)' },
+                    { label: t('marketplace.kpi.atividades'), value: '47', color: 'var(--accent)' },
+                    { label: t('marketplace.kpi.tickets'), value: '12', color: 'var(--warning)' },
                   ].map(k => (
                     <div key={k.label} style={{ background: 'var(--bg-elevated)', borderRadius: '10px', padding: '0.875rem' }}>
                       <p style={{ fontSize: '0.625rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', fontWeight: 600 }}>{k.label}</p>
@@ -145,7 +153,7 @@ export function Home() {
       <section className="logos-section section-sm">
         <div className="container">
           <p className="text-micro" style={{ textAlign: 'center', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-            Confiado por empresas que crescem com inteligência
+            {t('marketplace.social_proof.confiado')}
           </p>
           <div className="logos-grid">
             {LOGOS.map(logo => (
@@ -162,16 +170,16 @@ export function Home() {
       <section className="section">
         <div className="container">
           <div className="section-title">
-            <h2>Serviços compartilhados, <span className="gradient-text">dados únicos</span></h2>
-            <p>Cada módulo existe uma vez por empresa. Seus produtos consomem os mesmos serviços sem duplicar infraestrutura.</p>
+            <h2>{t('marketplace.servicos.titulo')}</h2>
+            <p>{t('marketplace.servicos.subtitulo')}</p>
           </div>
           <div className="features-grid">
-            {FEATURES.map(f => (
-              <div key={f.title} className="card" style={{ display: 'flex', gap: '1rem' }}>
-                <div style={{ color: 'var(--accent)', flexShrink: 0 }}>{f.icon}</div>
+            {FEATURE_KEYS.map((key, idx) => (
+              <div key={key} className="card" style={{ display: 'flex', gap: '1rem' }}>
+                <div style={{ color: 'var(--accent)', flexShrink: 0 }}>{FEATURE_ICONS[idx]}</div>
                 <div>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.375rem' }}>{f.title}</h3>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{f.desc}</p>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.375rem' }}>{t(`marketplace.features.${key}`)}</h3>
+                  <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{t(`marketplace.features.${key}_desc`)}</p>
                 </div>
               </div>
             ))}
@@ -183,8 +191,8 @@ export function Home() {
       <section className="section" style={{ background: 'var(--bg-base)' }}>
         <div className="container">
           <div className="section-title">
-            <h2>Veja o sistema <span className="gradient-text">antes de assinar</span></h2>
-            <p>Explore o ambiente completo com dados reais de demonstração. Sem pedir cartão.</p>
+            <h2>{t('marketplace.demo.titulo')}</h2>
+            <p>{t('marketplace.demo.subtitulo')}</p>
           </div>
           <div style={{ textAlign: 'center' }}>
             <button
@@ -234,8 +242,8 @@ export function Home() {
       <section className="section" style={{ background: 'var(--bg-base)' }}>
         <div className="container container-narrow">
           <div className="section-title">
-            <h2>Preços <span className="gradient-text">simples e transparentes</span></h2>
-            <p>Começe grátis. Escale quando precisar.</p>
+            <h2>{t('marketplace.pricing.titulo')}</h2>
+            <p>{t('marketplace.pricing.subtitulo')}</p>
           </div>
 
           {/* Botão paywall demo */}
@@ -247,13 +255,13 @@ export function Home() {
               style={{ fontSize: '0.8125rem' }}
             >
               <LogoGlobal iconOnly iconSize={16} />
-              Demo: Ver como funciona o upgrade Pro
+              {t('marketplace.pricing.demo_upgrade')}
             </button>
           </div>
 
           <div style={{ textAlign: 'center' }}>
             <Link to="/precos" className="btn btn-primary btn-lg">
-              Ver Todos os Planos
+              {t('marketplace.pricing.ver_planos')}
               <ArrowRight size={16} />
             </Link>
           </div>
@@ -264,10 +272,10 @@ export function Home() {
       <section className="section" style={{ background: 'var(--bg-surface)' }}>
         <div className="container container-narrow" style={{ textAlign: 'center' }}>
           <h2 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1rem' }}>
-            Pronto para <span className="gradient-text">começar?</span>
+            {t('marketplace.cta.titulo')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '1.0625rem' }}>
-            14 dias gratuitos. Setup em 60 segundos. Cancele quando quiser.
+            {t('marketplace.cta.subtitulo')}
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a
@@ -276,10 +284,10 @@ export function Home() {
               id="home-final-cta-trial"
             >
               <Rocket size={18} weight="duotone" />
-              Começar Trial Grátis
+              {t('marketplace.cta.trial')}
             </a>
             <Link to="/precos" className="btn btn-secondary btn-lg">
-              Ver Preços
+              {t('marketplace.cta.precos')}
             </Link>
           </div>
         </div>

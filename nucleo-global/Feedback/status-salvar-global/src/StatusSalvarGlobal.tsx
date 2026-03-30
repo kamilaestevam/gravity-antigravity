@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
   Clock,
@@ -67,16 +68,22 @@ const ICON_MAP = {
 
 export function StatusSalvarGlobal({
   status: propStatus,
-  textIdle = 'Salvo',
-  textDirty = 'Alterações pendentes',
-  textSaving = 'Salvando...',
-  textSuccess = 'Salvo com sucesso',
-  textError = 'Erro ao salvar',
+  textIdle,
+  textDirty,
+  textSaving,
+  textSuccess,
+  textError,
   autoResetMs = 3000,
   onAutoReset,
   className = '',
   hideOnIdle = true,
 }: StatusSalvarGlobalProps) {
+  const { t } = useTranslation()
+  const resolvedTextIdle = textIdle ?? t('feedback.salvo')
+  const resolvedTextDirty = textDirty ?? t('feedback.alteracoes_pendentes')
+  const resolvedTextSaving = textSaving ?? t('feedback.salvando')
+  const resolvedTextSuccess = textSuccess ?? t('feedback.salvo_sucesso')
+  const resolvedTextError = textError ?? t('feedback.erro_salvar')
   const [internalStatus, setInternalStatus] = useState<StatusSalvar>(propStatus)
 
   // Sincroniza estado interno com a propriedade externa
@@ -97,11 +104,11 @@ export function StatusSalvarGlobal({
 
   const getText = () => {
     switch (internalStatus) {
-      case 'idle': return textIdle
-      case 'dirty': return textDirty
-      case 'saving': return textSaving
-      case 'success': return textSuccess
-      case 'error': return textError
+      case 'idle': return resolvedTextIdle
+      case 'dirty': return resolvedTextDirty
+      case 'saving': return resolvedTextSaving
+      case 'success': return resolvedTextSuccess
+      case 'error': return resolvedTextError
       default: return ''
     }
   }

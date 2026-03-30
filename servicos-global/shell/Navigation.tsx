@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 
 // Placeholder enquanto módulos da Onda 3 não estão disponíveis
 function ModulePlaceholder({ name }: { name: string }) {
+  const { t } = useTranslation()
   return (
     <div
       style={{
@@ -44,7 +45,7 @@ function ModulePlaceholder({ name }: { name: string }) {
       </div>
       <p style={{ fontSize: '0.875rem' }}>
         {/* TODO(daniel, 2026-03): substituir pelo módulo real na Onda 3 */}
-        Módulo <strong style={{ color: 'var(--text-secondary)' }}>{name}</strong> — Onda 3
+        {t('shell.modulo')} <strong style={{ color: 'var(--text-secondary)' }}>{name}</strong> — {t('shell.onda_3')}
       </p>
     </div>
   )

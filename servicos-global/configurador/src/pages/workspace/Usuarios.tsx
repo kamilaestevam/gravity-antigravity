@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Users, UserCircleCheck, UserCircleMinus, PauseCircle, PlayCircle, PencilSimple, FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, User, EnvelopeSimple, ShieldCheck, Crown, Buildings } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -228,6 +229,7 @@ const OPCOES_TIPO: SelectOpcao[] = [
 ]
 
 export function Usuarios() {
+  const { t } = useTranslation()
   const [users, setUsers]     = useState<TenantUser[]>(mockUsers)
   const [espacos, setFiliais] = useState<EspacoTrabalho[]>(mockEspacos)
 
@@ -272,7 +274,7 @@ export function Usuarios() {
 
   const COLUNAS: TabelaGlobalColuna<TenantUser>[] = [
     {
-      key: 'nome', label: 'Usuário', tipo: 'texto',
+      key: 'nome', label: t('workspace.users.tabela.usuario'), tipo: 'texto',
       tooltipTitulo: 'Nome Completo', tooltipDescricao: 'Nome cadastrado do usuário.',
       render: (v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
@@ -289,17 +291,17 @@ export function Usuarios() {
       )
     },
     {
-      key: 'email', label: 'E-mail', tipo: 'texto',
+      key: 'email', label: t('workspace.users.tabela.email'), tipo: 'texto',
       tooltipTitulo: 'E-mail de Acesso', tooltipDescricao: 'E-mail utilizado no login.',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'tipo', label: 'Tipo', tipo: 'texto',
+      key: 'tipo', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
       tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Nível de permissão principal do usuário na plataforma',
       render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('workspace.users.tabela.status'), tipo: 'texto',
       tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se o acesso está desbloqueado.',
       render: (v) => <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
     },
@@ -432,7 +434,7 @@ export function Usuarios() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Users weight="duotone" size={22} />}
-          titulo="Usuários & Permissões"
+          titulo={t('workspace.users.titulo')}
           subtitulo="Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada"
         />
       }

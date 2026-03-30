@@ -17,6 +17,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { FloppyDisk, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -27,12 +28,14 @@ import './botoes-salvar.css'
 
 export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>(
   function BotaoSalvar(
-    { dirty = false, carregando = false, rotulo = 'Salvar', onClick, type = 'button', tooltipDescricao },
+    { dirty = false, carregando = false, rotulo, onClick, type = 'button', tooltipDescricao },
     ref,
   ) {
+    const { t } = useTranslation()
+    const label = rotulo ?? t('botoes.salvar')
     return (
       <div className={dirty && !carregando ? 'bs-btn-pulse' : ''} style={{ display: 'inline-flex' }}>
-        <TooltipGlobal descricao={tooltipDescricao || 'Salvar alterações pendentes'}>
+        <TooltipGlobal descricao={tooltipDescricao || t('botoes.salvar_tooltip')}>
           <BotaoGlobal
             ref={ref}
             variante="primario"
@@ -41,7 +44,7 @@ export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>
             onClick={onClick}
             icone={<FloppyDisk size={14} weight="bold" />}
           >
-            {carregando ? 'Salvando…' : rotulo}
+            {carregando ? t('botoes.salvando') : label}
           </BotaoGlobal>
         </TooltipGlobal>
       </div>
@@ -53,11 +56,13 @@ export const BotaoSalvar = React.forwardRef<HTMLButtonElement, BotaoSalvarProps>
 
 export const BotaoCancelar = React.forwardRef<HTMLButtonElement, BotaoCancelarProps>(
   function BotaoCancelar(
-    { dirty = false, rotulo = 'Cancelar', onClick, type = 'button', tooltipDescricao },
+    { dirty = false, rotulo, onClick, type = 'button', tooltipDescricao },
     ref,
   ) {
+    const { t } = useTranslation()
+    const label = rotulo ?? t('botoes.cancelar')
     return (
-      <TooltipGlobal descricao={tooltipDescricao || 'Descartar alterações e reverter para o estado original'}>
+      <TooltipGlobal descricao={tooltipDescricao || t('botoes.cancelar_tooltip')}>
         <BotaoGlobal
           ref={ref}
           variante="fantasma"
@@ -66,7 +71,7 @@ export const BotaoCancelar = React.forwardRef<HTMLButtonElement, BotaoCancelarPr
           onClick={onClick}
           icone={<X size={14} weight="bold" />}
         >
-          {rotulo}
+          {label}
         </BotaoGlobal>
       </TooltipGlobal>
     )
@@ -82,6 +87,7 @@ export function BotoesSalvarGlobal({
   onCancelar,
   alinhamento = 'direita',
 }: BotoesSalvarGlobalProps) {
+  const { t } = useTranslation()
   const isVisible = dirty || salvando;
 
   return (
@@ -98,7 +104,7 @@ export function BotoesSalvarGlobal({
       {alinhamento !== 'esquerda' && (
         <span className="bs-hint">
           <span className="bs-hint__dot" />
-          Alterações não salvas
+          {t('botoes.alteracoes_nao_salvas')}
         </span>
       )}
 

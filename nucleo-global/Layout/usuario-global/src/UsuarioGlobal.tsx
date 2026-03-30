@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { CaretDown, ShieldCheck, Gear, Buildings, CreditCard, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './usuario-global.css'
@@ -34,6 +35,7 @@ export function UsuarioGlobal({
   onNavigateAdmin,
   onNavigateConfigurador,
 }: UsuarioGlobalProps) {
+  const { t } = useTranslation()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
@@ -43,7 +45,7 @@ export function UsuarioGlobal({
   const isSuperAdminUser = SUPER_ADMIN_EMAILS.includes(userEmail)
   
   // O papel exibido e o acesso administrativo são calculados aqui
-  const displayRole = isSuperAdminUser ? 'Super Admin' : userRole
+  const displayRole = isSuperAdminUser ? t('usuario.super_admin') : userRole
   const hasAdminPrivileges = isSuperAdminUser || isAdmin
 
   // Estilos específicos para Super Admin (Verde Platinum)
@@ -60,7 +62,7 @@ export function UsuarioGlobal({
 
   return (
     <div className="ws-global-user-wrap" ref={profileRef}>
-      <TooltipGlobal titulo="Perfil e Conta" descricao="Gerencie preferências de acesso e encerre sua sessão">
+      <TooltipGlobal titulo={t('usuario.perfil_conta')} descricao={t('usuario.perfil_conta_desc')}>
         <button 
           className={`ws-global-user ${isSuperAdminUser ? 'ws-global-user--super-admin' : ''}`} 
           type="button"
@@ -95,16 +97,16 @@ export function UsuarioGlobal({
               type="button"
               disabled
             > 
-              <ShieldCheck weight="duotone" size={16} /> Segurança e Acesso
-              <span className="ws-profile-badge-soon">Em breve</span>
+              <ShieldCheck weight="duotone" size={16} /> {t('admin.security.titulo', 'Segurança e Acesso')}
+              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
             <button 
               className="ws-profile-item" 
               type="button"
               disabled
             > 
-              <Gear weight="duotone" size={16} /> Preferências
-              <span className="ws-profile-badge-soon">Em breve</span>
+              <Gear weight="duotone" size={16} /> {t('shell.menu.configuracoes', 'Preferências')}
+              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
           </div>
 
@@ -114,49 +116,49 @@ export function UsuarioGlobal({
             {!isAdminPanel && (
               <>
                 {displayRole !== 'Master' && !isSuperAdminUser ? (
-                  <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar a organização.">
-                    <button 
-                      className="ws-profile-item disabled-item" 
+                  <TooltipGlobal titulo={t('usuario.acesso_restrito')} descricao={t('usuario.apenas_master_org')}>
+                    <button
+                      className="ws-profile-item disabled-item"
                       type="button"
                       style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
-                    > 
-                      <Buildings weight="duotone" size={16} /> Gerenciar Organização
+                    >
+                      <Buildings weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
                     </button>
                   </TooltipGlobal>
                 ) : (
-                  <button 
-                    className="ws-profile-item" 
+                  <button
+                    className="ws-profile-item"
                     type="button"
                     onClick={() => {
                       onNavigateOrganizacao()
                       setIsProfileOpen(false)
                     }}
-                  > 
-                    <Buildings weight="duotone" size={16} /> Gerenciar Organização
+                  >
+                    <Buildings weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
                   </button>
                 )}
 
                 {displayRole !== 'Master' && !isSuperAdminUser ? (
-                  <TooltipGlobal titulo="Acesso Restrito" descricao="Apenas usuários Master podem gerenciar assinaturas.">
-                    <button 
-                      className="ws-profile-item disabled-item" 
+                  <TooltipGlobal titulo={t('usuario.acesso_restrito')} descricao={t('usuario.apenas_master_assinaturas')}>
+                    <button
+                      className="ws-profile-item disabled-item"
                       type="button"
                       style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed', marginTop: '0.125rem' }}
-                    > 
-                      <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
+                    >
+                      <CreditCard weight="duotone" size={16} /> {t('usuario.assinaturas_recibos')}
                     </button>
                   </TooltipGlobal>
                 ) : (
-                  <button 
-                    className="ws-profile-item" 
+                  <button
+                    className="ws-profile-item"
                     type="button"
                     style={{ marginTop: '0.125rem' }}
                     onClick={() => {
                       onNavigateAssinaturas()
                       setIsProfileOpen(false)
                     }}
-                  > 
-                    <CreditCard weight="duotone" size={16} /> Assinaturas e Recibos
+                  >
+                    <CreditCard weight="duotone" size={16} /> {t('usuario.assinaturas_recibos')}
                   </button>
                 )}
               </>
@@ -172,7 +174,7 @@ export function UsuarioGlobal({
                   setIsProfileOpen(false)
                 }}
               > 
-                <Crown weight="duotone" size={16} /> Acesso ao Admin
+                <Crown weight="duotone" size={16} /> {t('usuario.acesso_admin')}
               </button>
             )}
 
@@ -186,7 +188,7 @@ export function UsuarioGlobal({
                   setIsProfileOpen(false)
                 }}
               > 
-                <Gear weight="duotone" size={16} /> Acesso ao Configurador
+                <Gear weight="duotone" size={16} /> {t('usuario.acesso_configurador')}
               </button>
             )}
           </div>
@@ -202,24 +204,24 @@ export function UsuarioGlobal({
                 setIsProfileOpen(false)
               }}
             > 
-              {isLight ? <Moon weight="duotone" size={16} /> : <Sun weight="duotone" size={16} />} 
-              Alternar para Tema {isLight ? 'Escuro' : 'Claro'}
+              {isLight ? <Moon weight="duotone" size={16} /> : <Sun weight="duotone" size={16} />}
+              {t('usuario.alternar_tema', { tema: isLight ? t('shell.label_tema_escuro') : t('shell.label_tema_claro') })}
             </button>
             <button 
               className="ws-profile-item" 
               type="button"
               disabled
             > 
-              <Robot weight="duotone" size={16} /> Central de Ajuda
-              <span className="ws-profile-badge-soon">Em breve</span>
+              <Robot weight="duotone" size={16} /> {t('usuario.central_ajuda', 'Central de Ajuda')}
+              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
-            <button 
-              className="ws-profile-item" 
+            <button
+              className="ws-profile-item"
               type="button"
               disabled
-            > 
-              <Sparkle weight="duotone" size={16} /> Novidades
-              <span className="ws-profile-badge-soon">Em breve</span>
+            >
+              <Sparkle weight="duotone" size={16} /> {t('usuario.novidades', 'Novidades')}
+              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
           </div>
 
@@ -231,7 +233,7 @@ export function UsuarioGlobal({
               type="button"
               onClick={onSignOut}
             > 
-              <SignOut weight="duotone" size={16} /> Sair do Sistema
+              <SignOut weight="duotone" size={16} /> {t('usuario.sair', 'Sair do Sistema')}
             </button>
           </div>
         </div>

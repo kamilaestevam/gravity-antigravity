@@ -221,8 +221,10 @@ export const catalogApiService = {
   async getSlugsDisponiveis(): Promise<string[]> {
     try {
       const { available } = await adminProductsApi.getAvailableSlugs()
+      console.log('[catalogAdapter] slugs disponíveis:', available)
       return available
-    } catch {
+    } catch (err) {
+      console.error('[catalogAdapter] ERRO ao buscar slugs disponíveis:', err)
       return []
     }
   },

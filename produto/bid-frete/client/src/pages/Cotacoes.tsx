@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -102,6 +103,7 @@ const dataBR = (iso: string) =>
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function Cotacoes() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [cotacoes, setCotacoes] = useState<Cotacao[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -248,7 +250,7 @@ export default function Cotacoes() {
           <span>{dataBR(cotacao.created_at)}</span>
           {cotacao.bid_responses && cotacao.bid_responses.length > 0 && (
             <span style={{ color: 'var(--success)' }}>
-              {cotacao.bid_responses.length} resposta(s)
+              {cotacao.bid_responses.length} {t('bidfrete.cotacoes.respostas')}
             </span>
           )}
         </div>
@@ -272,7 +274,7 @@ export default function Cotacoes() {
               </div>
               <div className="bf-kanban-col-body">
                 {cards.length === 0 ? (
-                  <div className="bf-kanban-empty">Nenhuma cotação</div>
+                  <div className="bf-kanban-empty">{t('bidfrete.cotacoes.vazio')}</div>
                 ) : (
                   cards.map(c => <KanbanCard key={c.id} cotacao={c} />)
                 )}
@@ -292,31 +294,31 @@ export default function Cotacoes() {
       cabecalho={
         <CabecalhoGlobal
           icone={<FileText weight="duotone" size={22} />}
-          titulo="Cotações em andamento"
+          titulo={t('bidfrete.cotacoes.titulo')}
           acoes={
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <button
                 className={`bf-toggle-btn ${visao === 'lista' ? 'bf-toggle-btn--ativo' : ''}`}
                 onClick={() => setVisao('lista')}
-                title="Visualização em lista"
+                title={t('bidfrete.cotacoes.vista_lista')}
               >
                 <ListBullets weight="duotone" size={18} />
               </button>
               <button
                 className={`bf-toggle-btn ${visao === 'kanban' ? 'bf-toggle-btn--ativo' : ''}`}
                 onClick={() => setVisao('kanban')}
-                title="Visualização Kanban"
+                title={t('bidfrete.cotacoes.vista_kanban')}
               >
                 <Kanban weight="duotone" size={18} />
               </button>
               <div style={{ width: 1, height: 24, background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />
               <button className="btn btn-secondary" onClick={() => navigate('/cotacoes/importar')}>
                 <Upload weight="bold" size={14} />
-                Importar
+                {t('comum.importar')}
               </button>
               <button className="btn btn-primary" onClick={() => navigate('/cotacoes/nova')}>
                 <Truck weight="bold" size={16} />
-                Buscar frete
+                {t('bidfrete.cotacoes.buscar_frete')}
               </button>
             </div>
           }
@@ -351,8 +353,8 @@ export default function Cotacoes() {
             acoes={acoes}
             idKey="id"
             carregando={carregando}
-            mensagemVazio="Nenhuma cotação encontrada"
-            tooltipBusca="Buscar por número, origem ou destino"
+            mensagemVazio={t('bidfrete.cotacoes.vazio')}
+            tooltipBusca={t('bidfrete.dashboard.buscar')}
             aoClicarLinha={(item: Cotacao) => navigate(`/cotacoes/${item.id}`)}
           />
         </div>

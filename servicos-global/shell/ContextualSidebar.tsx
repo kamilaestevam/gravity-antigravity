@@ -30,23 +30,23 @@ export function ContextualSidebar({
   const navigate = useNavigate()
 
   // Extrai o ID do processo da URL (ex: /processo/1234 -> 1234)
-  const processId = location.pathname.split('/')[2] || 'Desconhecido'
+  const processId = location.pathname.split('/')[2] || t('shell.desconhecido')
 
   const customNavItems: NavItem[] = [
     {
        // O item de 'Voltar' funciona como um escape hatch do Deep Work.
-       label: 'Sair do Processo',
+       label: t('shell.sair_processo'),
        icon: <ArrowLeft weight="bold" size={20} color="#f87171" />,
-       to: '/dashboard', 
+       to: '/dashboard',
        // Nós usamos 'to' para a Rota via Link, mas poderíamos interceptar o clique se necessário.
     },
     {
-      label: `Processo #${processId.substring(0, 6)}...`,
+      label: `${t('shell.processo_prefixo')} #${processId.substring(0, 6)}...`,
       icon: <Briefcase weight="duotone" size={20} />,
       children: [
-        { to: `/processo/${processId}/resumo`, label: 'Resumo da D.I.', icon: <FileText weight="duotone" size={18} /> },
-        { to: `/processo/${processId}/faturas`, label: 'Financeiro', icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
-        { to: `/processo/${processId}/chat`, label: 'Mensageria', icon: <ChatCircle weight="duotone" size={18} /> },
+        { to: `/processo/${processId}/resumo`, label: t('shell.resumo_di'), icon: <FileText weight="duotone" size={18} /> },
+        { to: `/processo/${processId}/faturas`, label: t('shell.financeiro'), icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
+        { to: `/processo/${processId}/chat`, label: t('shell.mensageria'), icon: <ChatCircle weight="duotone" size={18} /> },
       ]
     }
   ]
@@ -56,7 +56,7 @@ export function ContextualSidebar({
       tenantName={tenantName}
       tenantPlan={tenantPlan}
       navItems={customNavItems}
-      moduleName="Deep Work"
+      moduleName={t('shell.deep_work')}
       moduleColor="#10b981" // Um verde ou cor destacada para simbolizar "foco interno"
       isCollapsed={!sidebarOpen}
       onToggleCollapse={toggleSidebar}

@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutDashboard,
   DollarSign,
@@ -99,6 +100,7 @@ function SkeletonCard() {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function Dashboard() {
+  const { t } = useTranslation()
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -126,7 +128,7 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <LayoutDashboard size={22} style={{ color: 'var(--accent, #6366f1)' }} />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary, #f1f5f9)', margin: 0 }}>
-            Visao Geral
+            {t('bidcambio.dashboard.titulo')}
           </h1>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1rem' }}>
@@ -148,7 +150,7 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <LayoutDashboard size={22} style={{ color: 'var(--accent, #6366f1)' }} />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary, #f1f5f9)', margin: 0 }}>
-            Visao Geral
+            {t('bidcambio.dashboard.titulo')}
           </h1>
         </div>
         <div style={{
@@ -159,7 +161,7 @@ export default function Dashboard() {
         }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger, #ef4444)', marginBottom: '0.75rem' }} />
           <p style={{ color: 'var(--text-primary, #f1f5f9)', fontWeight: 600, margin: '0 0 0.5rem' }}>
-            Erro ao carregar dados
+            {t('comum.erro_carregar')}
           </p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1rem' }}>
             {error}
@@ -182,7 +184,7 @@ export default function Dashboard() {
             }}
           >
             <RefreshCw size={14} />
-            Tentar novamente
+            {t('comum.tentar_novamente')}
           </button>
         </div>
       </div>
@@ -200,7 +202,7 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <LayoutDashboard size={22} style={{ color: 'var(--accent, #6366f1)' }} />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary, #f1f5f9)', margin: 0 }}>
-            Visao Geral
+            {t('bidcambio.dashboard.titulo')}
           </h1>
         </div>
         <div style={{
@@ -211,10 +213,10 @@ export default function Dashboard() {
         }}>
           <DollarSign size={40} style={{ color: 'var(--text-muted, #64748b)', marginBottom: '0.75rem' }} />
           <p style={{ color: 'var(--text-primary, #f1f5f9)', fontWeight: 600, margin: '0 0 0.5rem' }}>
-            Nenhum dado disponivel
+            {t('bidcambio.dashboard.sem_dados')}
           </p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            Crie sua primeira cotacao de cambio para visualizar o dashboard.
+            {t('bidcambio.dashboard.primeiro_uso')}
           </p>
         </div>
       </div>
@@ -253,7 +255,7 @@ export default function Dashboard() {
           }}
         >
           <RefreshCw size={14} />
-          Atualizar
+          {t('comum.atualizar')}
         </button>
       </div>
 
@@ -290,7 +292,7 @@ export default function Dashboard() {
                 {tm.moeda}
               </span>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>Comercial</span>
+                <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.dashboard.comercial')}</span>
                 <span style={{ fontSize: '0.9375rem', fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>
                   R$ {fmtRate(tm.taxa_comercial)}
                 </span>
@@ -324,7 +326,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <Clock size={16} style={{ color: 'var(--warning, #f59e0b)' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted, #64748b)' }}>
-              Parcelas Pendentes
+              {t('bidcambio.dashboard.parcelas_pendentes')}
             </span>
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{kpis.parcelas.pendentes}</div>
@@ -343,7 +345,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <AlertTriangle size={16} style={{ color: 'var(--danger, #ef4444)' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted, #64748b)' }}>
-              Parcelas Vencidas
+              {t('bidcambio.dashboard.parcelas_vencidas')}
             </span>
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 700, color: kpis.parcelas.vencidas > 0 ? 'var(--danger, #ef4444)' : undefined }}>
@@ -364,7 +366,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <TrendingUp size={16} style={{ color: 'var(--success, #22c55e)' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted, #64748b)' }}>
-              Economia Acumulada
+              {t('bidcambio.dashboard.economia_acumulada')}
             </span>
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--success, #22c55e)' }}>
@@ -384,7 +386,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <Building2 size={16} style={{ color: 'var(--accent, #6366f1)' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted, #64748b)' }}>
-              Corretoras Cadastradas
+              {t('bidcambio.dashboard.corretoras_cadastradas')}
             </span>
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{kpis.corretoras_cadastradas}</div>
@@ -416,7 +418,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <ArrowLeftRight size={16} style={{ color: 'var(--accent, #6366f1)' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted, #64748b)' }}>
-              Cotacoes em Andamento
+              {t('bidcambio.dashboard.cotacoes_andamento')}
             </span>
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{kpis.cotacoes_andamento}</div>
@@ -434,12 +436,12 @@ export default function Dashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <CheckCircle2 size={16} style={{ color: 'var(--success, #22c55e)' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted, #64748b)' }}>
-              Aprovacao
+              {t('bidcambio.dashboard.aprovacao')}
             </span>
           </div>
           <div style={{ fontSize: '1.75rem', fontWeight: 700 }}>{fmtPercent(kpis.aprovacao.percentual_em_tempo)}</div>
           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', marginTop: '0.25rem' }}>
-            Nao respondidas: {kpis.aprovacao.nao_respondidas}
+            {t('bidcambio.dashboard.nao_respondidas')}: {kpis.aprovacao.nao_respondidas}
           </div>
         </div>
       </div>
@@ -453,7 +455,7 @@ export default function Dashboard() {
           marginBottom: '1.5rem',
         }}>
           <h2 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 1rem', color: 'var(--text-primary, #f1f5f9)' }}>
-            Funil de Cotacoes
+            {t('bidcambio.dashboard.funil_cotacoes')}
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {kpis.funil.map((f) => {
@@ -492,13 +494,13 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
           <CalendarClock size={16} style={{ color: 'var(--accent, #6366f1)' }} />
           <h2 style={{ fontSize: '0.875rem', fontWeight: 600, margin: 0 }}>
-            Calendario de Vencimentos
+            {t('bidcambio.dashboard.calendario_vencimentos')}
           </h2>
         </div>
 
         {kpis.parcelas.pendentes === 0 && kpis.parcelas.vencidas === 0 ? (
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            Nenhum vencimento proximo.
+            {t('bidcambio.dashboard.sem_vencimento')}
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -514,7 +516,7 @@ export default function Dashboard() {
               }}>
                 <AlertTriangle size={16} style={{ color: 'var(--danger, #ef4444)' }} />
                 <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--danger, #ef4444)' }}>
-                  {kpis.parcelas.vencidas} parcela(s) vencida(s)
+                  {kpis.parcelas.vencidas} {t('bidcambio.dashboard.parcelas_vencidas_count')}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', marginLeft: 'auto' }}>
                   R$ {fmtMoney(kpis.parcelas.valor_vencido_brl)}
@@ -533,7 +535,7 @@ export default function Dashboard() {
               }}>
                 <Clock size={16} style={{ color: 'var(--warning, #f59e0b)' }} />
                 <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--warning, #f59e0b)' }}>
-                  {kpis.parcelas.pendentes} parcela(s) pendente(s)
+                  {kpis.parcelas.pendentes} {t('bidcambio.dashboard.parcelas_pendentes_count')}
                 </span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', marginLeft: 'auto' }}>
                   R$ {fmtMoney(kpis.parcelas.valor_pendente_brl)}

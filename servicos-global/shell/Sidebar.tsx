@@ -60,25 +60,25 @@ export function Sidebar({
   const defaultNavItems: NavItem[] = [
     // -- Produtos Gravity (primeiro) --
     {
-      label: 'Produtos Gravity',
+      label: t('shell.menu.produtos_gravity'),
       icon: <Star weight="duotone" size={20} />,
       children: [
-        { to: '/simulacusto', label: 'SimulaCusto', icon: <Calculator weight="duotone" size={18} /> },
-        { to: '/bid-cambio', label: 'BID Cambio', icon: <CurrencyDollar weight="duotone" size={18} />, disabled: !hasBidCambio },
-        { to: '/pedidos', label: 'Pedidos de Compra', icon: <Package weight="duotone" size={18} />, disabled: !hasPedidos },
-        { to: '/duimp', label: 'Exportador DUIMP', icon: <FileArchive weight="duotone" size={18} />, disabled: !hasDuimp },
-        { to: '/tracking', label: 'Tracking de Carga', icon: <Anchor weight="duotone" size={18} />, disabled: !hasTracking }
+        { to: '/simulacusto', label: t('shell.menu.simula_custo'), icon: <Calculator weight="duotone" size={18} /> },
+        { to: '/bid-cambio', label: t('shell.menu.bid_cambio'), icon: <CurrencyDollar weight="duotone" size={18} />, disabled: !hasBidCambio },
+        { to: '/pedidos', label: t('shell.menu.pedidos_compra'), icon: <Package weight="duotone" size={18} />, disabled: !hasPedidos },
+        { to: '/duimp', label: t('shell.menu.exportador_duimp'), icon: <FileArchive weight="duotone" size={18} />, disabled: !hasDuimp },
+        { to: '/tracking', label: t('shell.menu.tracking_carga'), icon: <Anchor weight="duotone" size={18} />, disabled: !hasTracking }
       ]
     },
 
     // ── Meu Espaço (grupo expansível) ───────────────────────────────────
     {
-      label: 'Meu Espaço',
+      label: t('shell.menu.meu_espaco'),
       icon: <House weight="duotone" size={20} />,
       children: [
         { to: '/meu-espaco',          label: t('shell.menu.dashboard', 'Dashboard'),         icon: <House weight="duotone" size={18} /> },
-        { to: '/meu-espaco/atividades', label: t('shell.menu.atividades', 'Minhas Atividades'), icon: <BookOpen weight="duotone" size={18} /> },
-        { to: '/meu-espaco/email',      label: t('shell.menu.email', 'E-mails'),               icon: <Envelope weight="duotone" size={18} /> },
+        { to: '/meu-espaco/atividades', label: t('shell.menu.minhas_atividades', 'Minhas Atividades'), icon: <BookOpen weight="duotone" size={18} /> },
+        { to: '/meu-espaco/email',      label: t('shell.menu.emails', 'E-mails'),               icon: <Envelope weight="duotone" size={18} /> },
         { to: '/meu-espaco/whatsapp',   label: t('shell.menu.whatsapp', 'WhatsApp'),            icon: <ChatCircle weight="duotone" size={18} /> },
       ]
     },

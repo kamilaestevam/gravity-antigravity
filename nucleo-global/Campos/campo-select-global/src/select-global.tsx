@@ -18,6 +18,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactDOM from 'react-dom'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import type { SelectProps, SelectOpcao } from './tipos.js'
@@ -52,6 +53,7 @@ function Chip({
   aoRemover: () => void
   desabilitado?: boolean
 }) {
+  const { t } = useTranslation()
   return (
     <span className="sg-chip">
       {opcao.rotulo}
@@ -63,7 +65,7 @@ function Chip({
             e.stopPropagation()
             aoRemover()
           }}
-          aria-label={`Remover ${opcao.rotulo}`}
+          aria-label={t('campo.remover', { label: opcao.rotulo })}
         >
           ✕
         </button>
@@ -143,6 +145,7 @@ export function SelectGlobal({
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedby,
 }: SelectProps) {
+  const { t } = useTranslation()
   const idGerado = useId()
   const id = idExterno ?? idGerado
   const idLista = `${id}-lista`
@@ -310,7 +313,7 @@ export function SelectGlobal({
 
   function renderizarGatilho() {
     if (carregando) {
-      return <span className="sg-placeholder sg-loading">Carregando...</span>
+      return <span className="sg-placeholder sg-loading">{t('campo.carregando')}</span>
     }
 
     if (opcoesSelecionadas.length === 0) {
@@ -367,7 +370,7 @@ export function SelectGlobal({
 
     if (listaParaRenderizar.length === 0) {
       return (
-        <li className="sg-vazio">Nenhuma opção encontrada</li>
+        <li className="sg-vazio">{t('campo.nenhuma_opcao')}</li>
       )
     }
 
@@ -420,12 +423,12 @@ export function SelectGlobal({
             ref={buscaRef}
             className="sg-busca-input"
             type="text"
-            placeholder="Buscar..."
+            placeholder={t('campo.buscar_placeholder')}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
-            aria-label="Buscar opções"
+            aria-label={t('campo.buscar_opcoes')}
             autoComplete="off"
           />
         </div>
@@ -484,7 +487,7 @@ export function SelectGlobal({
               type="button"
               className="sg-btn-limpar"
               onClick={handleLimpar}
-              aria-label="Limpar seleção"
+              aria-label={t('campo.limpar_selecao')}
               tabIndex={-1}
             >
               ✕

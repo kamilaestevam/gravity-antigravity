@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
   ChartBar,
@@ -47,6 +48,7 @@ interface DashboardKPIs {
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 export const Dashboard: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
   const [loading, setLoading] = useState(true)
@@ -69,37 +71,37 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => { fetchDashboard() }, [fetchDashboard])
 
-  if (loading) return <div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Carregando visão geral...</div>
+  if (loading) return <div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>{t('tenant_dashboard.carregando')}</div>
 
   const crm = kpis?.crm
 
   const statsContent = (
     <>
       <CardBasicoGlobal
-        titulo="Total de Empresas"
+        titulo={t('tenant_dashboard.total_empresas')}
         icone={<Warehouse weight="duotone" size={16} />}
         valor={crm?.totalEmpresas ?? 0}
-        periodos={[{ periodo: '30d', rotulo: 'Este mês', valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
+        periodos={[{ periodo: '30d', rotulo: t('tenant_dashboard.este_mes'), valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
       />
       <CardBasicoGlobal
-        titulo="Clientes Ativos"
+        titulo={t('tenant_dashboard.clientes_ativos')}
         icone={<Users weight="duotone" size={16} />}
         valor={crm?.clientesAtivos ?? 0}
         variante="sucesso"
-        periodos={[{ periodo: '30d', rotulo: 'Este mês', valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
+        periodos={[{ periodo: '30d', rotulo: t('tenant_dashboard.este_mes'), valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
       />
       <CardBasicoGlobal
-        titulo="Leads no Funil"
+        titulo={t('tenant_dashboard.leads_funil')}
         icone={<Target weight="duotone" size={16} />}
         valor={crm?.leadsFunil ?? 0}
         variante="aviso"
-        periodos={[{ periodo: '30d', rotulo: 'Este mês', valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
+        periodos={[{ periodo: '30d', rotulo: t('tenant_dashboard.este_mes'), valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
       />
       <CardBasicoGlobal
-        titulo="Novos este Mês"
+        titulo={t('tenant_dashboard.novos_mes')}
         icone={<Briefcase weight="duotone" size={16} />}
         valor={crm?.novosEsteMes ?? 0}
-        periodos={[{ periodo: '30d', rotulo: '30 dias', valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
+        periodos={[{ periodo: '30d', rotulo: t('tenant_dashboard.30_dias'), valor: '+0%', direcao: 'up' }] as PeriodoTendencia[]}
       />
     </>
   )
@@ -109,15 +111,15 @@ export const Dashboard: React.FC = () => {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Dashboard Consolidado"
-          subtitulo="O que precisa acontecer hoje — e quem é o responsável por fazer acontecer."
+          titulo={t('tenant_dashboard.titulo')}
+          subtitulo={t('tenant_dashboard.subtitulo')}
           icone={<ChartBar weight="duotone" size={22} color="#818cf8" />}
         />
       }
       stats={statsContent}
       acoes={
         <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<ArrowsClockwise />} onClick={fetchDashboard}>
-          Atualizar
+          {t('comum.atualizar')}
         </BotaoGlobal>
       }
     >
@@ -126,7 +128,7 @@ export const Dashboard: React.FC = () => {
         <div className="db-col db-col-main">
           <div className="db-panel">
             <div className="db-panel-header">
-              <span className="db-panel-title"><Target weight="duotone" size={18} /> Funil de Vendas</span>
+              <span className="db-panel-title"><Target weight="duotone" size={18} /> {t('tenant_dashboard.funil_vendas')}</span>
             </div>
             <div className="db-funnel-container">
               {crm?.funil.map((item, idx) => (
@@ -151,20 +153,20 @@ export const Dashboard: React.FC = () => {
 
           <div className="db-panel">
             <div className="db-panel-header">
-              <span className="db-panel-title"><Headset weight="duotone" size={18} /> Chamados & Help Desk</span>
+              <span className="db-panel-title"><Headset weight="duotone" size={18} /> {t('tenant_dashboard.chamados')}</span>
             </div>
             <div className="db-helpdesk-grid">
                <div className="db-hd-card hd-danger">
                   <span className="hd-value">{crm?.helpDesk.abertos}</span>
-                  <span className="hd-label">Abertos</span>
+                  <span className="hd-label">{t('tenant_dashboard.abertos')}</span>
                </div>
                <div className="db-hd-card hd-warning">
                   <span className="hd-value">{crm?.helpDesk.emAndamento}</span>
-                  <span className="hd-label">Em Andamento</span>
+                  <span className="hd-label">{t('tenant_dashboard.em_andamento')}</span>
                </div>
                <div className="db-hd-card hd-info">
                   <span className="hd-value">{crm?.helpDesk.tempoMedio}</span>
-                  <span className="hd-label">Tempo Médio</span>
+                  <span className="hd-label">{t('tenant_dashboard.tempo_medio')}</span>
                </div>
             </div>
           </div>
@@ -174,28 +176,28 @@ export const Dashboard: React.FC = () => {
         <div className="db-col db-col-side">
           <div className="db-panel">
             <div className="db-panel-header">
-              <span className="db-panel-title"><ChartPieSlice weight="duotone" size={18} /> Health Score</span>
+              <span className="db-panel-title"><ChartPieSlice weight="duotone" size={18} /> {t('tenant_dashboard.health_score')}</span>
             </div>
             <CardGraficoGlobal
-              titulo="Saúde da Base"
+              titulo={t('tenant_dashboard.saude_base')}
               total={crm?.healthScore.total ?? 0}
               valorPrincipal={crm?.healthScore.saudavel ?? 0}
               corGauge="#10b981"
               legenda={[
-                { label: 'Saudável', valor: crm?.healthScore.saudavel ?? 0, cor: '#10b981' },
-                { label: 'Atenção', valor: crm?.healthScore.atencao ?? 0, cor: '#fbbf24' },
-                { label: 'Risco', valor: crm?.healthScore.risco ?? 0, cor: '#ef4444' },
+                { label: t('tenant_dashboard.saudavel'), valor: crm?.healthScore.saudavel ?? 0, cor: '#10b981' },
+                { label: t('tenant_dashboard.atencao'), valor: crm?.healthScore.atencao ?? 0, cor: '#fbbf24' },
+                { label: t('tenant_dashboard.risco'), valor: crm?.healthScore.risco ?? 0, cor: '#ef4444' },
               ]}
             />
           </div>
 
           <div className="db-panel db-panel-warning">
             <div className="db-panel-header">
-              <span className="db-panel-title"><WarningCircle weight="fill" size={16} /> Alertas Críticos</span>
+              <span className="db-panel-title"><WarningCircle weight="fill" size={16} /> {t('tenant_dashboard.alertas_criticos')}</span>
             </div>
             <div className="db-warning-content">
-              <p>Nenhum chamado crítico aberto no momento.</p>
-              <span className="db-time"><Clock weight="bold" /> Sincronizado agora</span>
+              <p>{t('tenant_dashboard.sem_chamados_criticos')}</p>
+              <span className="db-time"><Clock weight="bold" /> {t('tenant_dashboard.sincronizado')}</span>
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ShieldCheck, ShieldWarning, ShieldSlash,
   Lock, Eye, Warning, Key, Timer,
@@ -124,6 +125,7 @@ function statusColor(status: ServiceStatus) {
 const POLL_INTERVAL = 15_000 // 15 segundos
 
 export function SegurancaAdmin() {
+  const { t } = useTranslation()
   const [abaAtiva, setAbaAtiva] = useState<'health' | 'events' | 'ratelimit' | 'secrets'>('health')
   const [filtroSeveridade, setFiltroSeveridade] = useState<string>('TODOS')
   const [filtroAction, setFiltroAction] = useState<string>('TODOS')
@@ -172,11 +174,11 @@ export function SegurancaAdmin() {
 
   const colunasEventos: TabelaGlobalColuna<SecurityEvent>[] = [
     {
-      key: 'created_at', label: 'Horario', width: '140px',
+      key: 'created_at', label: t('admin.security.tabela.horario'), width: '140px',
       render: (row) => new Date(row.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit' }),
     },
     {
-      key: 'severity', label: 'Severidade', width: '100px',
+      key: 'severity', label: t('admin.security.tabela.severidade'), width: '100px',
       render: (row) => (
         <span style={{ ...getSeveridadeStyle(row.severity), padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
           {row.severity}
@@ -184,23 +186,23 @@ export function SegurancaAdmin() {
       ),
     },
     {
-      key: 'status', label: 'Status', width: '90px',
+      key: 'status', label: t('admin.security.tabela.status'), width: '90px',
       render: (row) => (
         <span style={{ ...getStatusStyle(row.status), padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
           {row.status}
         </span>
       ),
     },
-    { key: 'action', label: 'Tipo', width: '200px' },
-    { key: 'tenant_id', label: 'Tenant', width: '120px' },
-    { key: 'actor_id', label: 'Ator', width: '110px' },
-    { key: 'description', label: 'Descricao', render: (row) => <span title={row.description || ''}>{(row.description || '').slice(0, 80)}</span> },
-    { key: 'ip', label: 'IP', width: '120px' },
+    { key: 'action', label: t('admin.security.tabela.tipo'), width: '200px' },
+    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), width: '120px' },
+    { key: 'actor_id', label: t('admin.security.tabela.ator'), width: '110px' },
+    { key: 'description', label: t('admin.security.tabela.descricao'), render: (row) => <span title={row.description || ''}>{(row.description || '').slice(0, 80)}</span> },
+    { key: 'ip', label: t('admin.security.tabela.ip'), width: '120px' },
   ]
 
   const colunasHealth: TabelaGlobalColuna<ServiceHealthEntry>[] = [
     {
-      key: 'service', label: 'Servico', width: '180px',
+      key: 'service', label: t('admin.security.tabela.servico'), width: '180px',
       render: (row) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {getCamadaIcon(row.status)} {row.service}
@@ -208,22 +210,22 @@ export function SegurancaAdmin() {
       ),
     },
     {
-      key: 'status', label: 'Status', width: '100px',
+      key: 'status', label: t('admin.security.tabela.status'), width: '100px',
       render: (row) => <span style={{ color: statusColor(row.status), fontWeight: 700 }}>{row.status}</span>,
     },
     {
-      key: 'latency_ms', label: 'Latencia', width: '100px',
+      key: 'latency_ms', label: t('admin.security.tabela.latencia'), width: '100px',
       render: (row) => <span style={{ color: row.latency_ms > 2000 ? '#fbbf24' : '#34d399' }}>{row.latency_ms}ms</span>,
     },
-    { key: 'error', label: 'Erro', render: (row) => row.error || '-' },
+    { key: 'error', label: t('admin.security.tabela.erro'), render: (row) => row.error || '-' },
   ]
 
   const colunasRateLimit: TabelaGlobalColuna<RateLimitEntry>[] = [
-    { key: 'tenant_id', label: 'Tenant', width: '140px', render: (row) => row.tenant_id || 'anonymous' },
-    { key: 'ip', label: 'IP', width: '130px', render: (row) => row.ip || '-' },
+    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), width: '140px', render: (row) => row.tenant_id || 'anonymous' },
+    { key: 'ip', label: t('admin.security.tabela.ip'), width: '130px', render: (row) => row.ip || '-' },
     { key: 'endpoint', label: 'Endpoint' },
     {
-      key: 'count', label: 'Requests', width: '100px',
+      key: 'count', label: t('admin.security.tabela.requests'), width: '100px',
       render: (row) => (
         <span style={{ color: row.blocked ? '#f87171' : '#34d399', fontWeight: 600 }}>
           {row.count}/{row.limit_max}
@@ -231,10 +233,10 @@ export function SegurancaAdmin() {
       ),
     },
     {
-      key: 'blocked', label: 'Bloqueado', width: '100px',
+      key: 'blocked', label: t('admin.security.tabela.bloqueado'), width: '100px',
       render: (row) => row.blocked
-        ? <span style={{ color: '#f87171', fontWeight: 600 }}>SIM</span>
-        : <span style={{ color: '#64748b' }}>Nao</span>,
+        ? <span style={{ color: '#f87171', fontWeight: 600 }}>{t('comum.sim')}</span>
+        : <span style={{ color: '#64748b' }}>{t('comum.nao')}</span>,
     },
   ]
 
@@ -243,10 +245,10 @@ export function SegurancaAdmin() {
   return (
     <PaginaGlobal>
       <CabecalhoGlobal
-        titulo="Seguranca"
+        titulo={t('admin.security.titulo')}
         subtitulo={
-          loading ? 'Carregando...' :
-          `Monitoramento em tempo real — atualizado ${lastUpdate} (a cada ${POLL_INTERVAL / 1000}s)`
+          loading ? t('admin.security.carregando') :
+          t('admin.security.subtitulo_template', { time: lastUpdate, interval: POLL_INTERVAL / 1000 })
         }
         icone={<ShieldCheck weight="duotone" size={24} />}
       />
@@ -254,25 +256,25 @@ export function SegurancaAdmin() {
       {/* ── Stat Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
         <StatCardGlobal
-          titulo="Status Geral"
-          valor={loading ? '...' : (overallOk ? 'PROTEGIDO' : health?.overall || 'VERIFICANDO')}
+          titulo={t('admin.security.status_geral')}
+          valor={loading ? '...' : (overallOk ? t('admin.security.protegido') : health?.overall || t('admin.security.verificando'))}
           icone={overallOk ? <ShieldCheck weight="fill" size={22} /> : <ShieldWarning weight="fill" size={22} />}
           cor={overallOk ? '#10b981' : '#f59e0b'}
         />
         <StatCardGlobal
-          titulo="Criticos (24h)"
+          titulo={t('admin.security.criticos_24h')}
           valor={String(stats.criticalCount)}
           icone={<Warning weight="fill" size={22} />}
           cor={stats.criticalCount > 0 ? '#ef4444' : '#10b981'}
         />
         <StatCardGlobal
-          titulo="Alertas (24h)"
+          titulo={t('admin.security.alertas_24h')}
           valor={String(stats.warningCount)}
           icone={<ShieldWarning weight="fill" size={22} />}
           cor={stats.warningCount > 0 ? '#f59e0b' : '#10b981'}
         />
         <StatCardGlobal
-          titulo="Bloqueados (24h)"
+          titulo={t('admin.security.bloqueados_24h')}
           valor={String(stats.blockedCount)}
           icone={<Lock weight="fill" size={22} />}
           cor="#6366f1"
@@ -282,10 +284,10 @@ export function SegurancaAdmin() {
       {/* ── Abas ── */}
       <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--ws-border, #334155)' }}>
         {[
-          { key: 'health' as const, label: 'Servicos & Health', icon: <ShieldCheck size={16} /> },
-          { key: 'events' as const, label: 'Eventos de Seguranca', icon: <Eye size={16} /> },
-          { key: 'ratelimit' as const, label: 'Rate Limiting', icon: <Timer size={16} /> },
-          { key: 'secrets' as const, label: 'Secrets & Rotacao', icon: <Key size={16} /> },
+          { key: 'health' as const, label: t('admin.security.aba_health'), icon: <ShieldCheck size={16} /> },
+          { key: 'events' as const, label: t('admin.security.aba_eventos'), icon: <Eye size={16} /> },
+          { key: 'ratelimit' as const, label: t('admin.security.aba_rate_limit'), icon: <Timer size={16} /> },
+          { key: 'secrets' as const, label: t('admin.security.aba_secrets'), icon: <Key size={16} /> },
         ].map(tab => (
           <button
             key={tab.key}
@@ -315,7 +317,7 @@ export function SegurancaAdmin() {
           }}
         >
           <ArrowsClockwise size={14} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />
-          Atualizar
+          {t('admin.security.btn_atualizar')}
         </button>
       </div>
 
@@ -329,14 +331,14 @@ export function SegurancaAdmin() {
               border: '1px solid var(--ws-border, #334155)',
               fontSize: '0.82rem', color: 'var(--ws-muted, #94a3b8)',
             }}>
-              <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>Resumo:</strong>{' '}
-              {health.summary.ok} OK, {health.summary.degraded} degradados, {health.summary.down} offline de {health.summary.total} servicos
+              <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>{t('admin.security.health.resumo')}</strong>{' '}
+              {health.summary.ok} {t('admin.security.health.ok')} {health.summary.degraded} {t('admin.security.health.degradados')} {health.summary.down} {t('admin.security.health.offline')} {health.summary.total} {t('admin.security.health.servicos')}
             </div>
-            <TabelaGlobal dados={health.services} colunas={colunasHealth} keyField="service" mensagemVazio="Nenhum servico encontrado" />
+            <TabelaGlobal dados={health.services} colunas={colunasHealth} keyField="service" mensagemVazio={t('admin.security.vazio.sem_servicos')} />
           </>
         ) : (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
-            {loading ? 'Verificando servicos...' : 'Nao foi possivel carregar o health check. Verifique se o backend esta rodando.'}
+            {loading ? t('admin.security.vazio.verificando') : `${t('admin.security.vazio.erro_health')} ${t('admin.security.vazio.backend_offline')}`}
           </div>
         )
       )}
@@ -346,18 +348,18 @@ export function SegurancaAdmin() {
         <>
           <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
             <SelectGlobal
-              label="Severidade"
+              label={t('admin.security.filtro.severidade')}
               value={filtroSeveridade}
               onChange={(e) => setFiltroSeveridade(e.target.value)}
               options={[
-                { value: 'TODOS', label: 'Todas' },
-                { value: 'CRITICAL', label: 'Critica' },
-                { value: 'WARNING', label: 'Alerta' },
-                { value: 'INFO', label: 'Info' },
+                { value: 'TODOS', label: t('admin.security.filtro.todas') },
+                { value: 'CRITICAL', label: t('admin.security.filtro.critica') },
+                { value: 'WARNING', label: t('admin.security.filtro.alerta') },
+                { value: 'INFO', label: t('admin.security.filtro.info') },
               ]}
             />
             <SelectGlobal
-              label="Tipo"
+              label={t('admin.security.filtro.tipo')}
               value={filtroAction}
               onChange={(e) => setFiltroAction(e.target.value)}
               options={actionsUnicos.map(t => ({ value: t, label: t.replace(/_/g, ' ') }))}
@@ -367,7 +369,7 @@ export function SegurancaAdmin() {
             dados={events}
             colunas={colunasEventos}
             keyField="id"
-            mensagemVazio={loading ? 'Carregando eventos...' : 'Nenhum evento de seguranca registrado nas ultimas 24h'}
+            mensagemVazio={loading ? t('admin.security.vazio.carregando_eventos') : t('admin.security.vazio.sem_eventos')}
           />
         </>
       )}
@@ -381,11 +383,11 @@ export function SegurancaAdmin() {
             border: '1px solid var(--ws-border, #334155)',
             fontSize: '0.82rem', color: 'var(--ws-muted, #94a3b8)',
           }}>
-            <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>Presets ativos:</strong>{' '}
-            Publico (30/min) | Auth (10/min) | Webhook (100/min) | Interno (200/min)
+            <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>{t('admin.security.rate_limit.presets')}</strong>{' '}
+            {t('admin.security.rate_limit.publico')} | {t('admin.security.rate_limit.auth')} | {t('admin.security.rate_limit.webhook')} | {t('admin.security.rate_limit.interno')}
             <br />
             <span style={{ fontSize: '0.75rem' }}>
-              Bloqueados na ultima hora: <strong style={{ color: rateMetrics.filter(m => m.blocked).length > 0 ? '#f87171' : '#34d399' }}>
+              {t('admin.security.rate_limit.bloqueados_hora')} <strong style={{ color: rateMetrics.filter(m => m.blocked).length > 0 ? '#f87171' : '#34d399' }}>
                 {rateMetrics.filter(m => m.blocked).length}
               </strong>
             </span>
@@ -394,7 +396,7 @@ export function SegurancaAdmin() {
             dados={rateMetrics}
             colunas={colunasRateLimit}
             keyField="id"
-            mensagemVazio={loading ? 'Carregando...' : 'Nenhum rate limit ativo na ultima hora'}
+            mensagemVazio={loading ? t('comum.carregando') : t('admin.security.vazio.sem_rate_limit')}
           />
         </>
       )}
@@ -404,7 +406,7 @@ export function SegurancaAdmin() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {secrets.length === 0 && !loading && (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
-              Nao foi possivel carregar status dos secrets.
+              {t('admin.security.secrets.erro_carregar')}
             </div>
           )}
           {secrets.map((secret, idx) => (
@@ -424,7 +426,7 @@ export function SegurancaAdmin() {
                   {secret.name}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px' }}>
-                  Prefixo: <code>{secret.prefix}</code>
+                  {t('admin.security.secrets.prefixo')} <code>{secret.prefix}</code>
                 </div>
               </div>
               <div style={{
@@ -432,7 +434,7 @@ export function SegurancaAdmin() {
                 background: secret.configured ? '#14532d' : '#7f1d1d',
                 color: secret.configured ? '#86efac' : '#fca5a5',
               }}>
-                {secret.configured ? 'CONFIGURADA' : 'AUSENTE'}
+                {secret.configured ? t('admin.security.secrets.configurada') : t('admin.security.secrets.ausente')}
               </div>
             </div>
           ))}
@@ -443,7 +445,7 @@ export function SegurancaAdmin() {
             border: '1px solid var(--ws-border, #334155)',
             fontSize: '0.8rem', color: 'var(--ws-muted, #94a3b8)',
           }}>
-            Para rotacionar chaves, execute: <code style={{ color: '#10b981' }}>npx tsx scripts/rotate-internal-key.ts</code>
+            {t('admin.security.secrets.rotacao_instrucao')} <code style={{ color: '#10b981' }}>npx tsx scripts/rotate-internal-key.ts</code>
           </div>
         </div>
       )}

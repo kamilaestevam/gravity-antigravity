@@ -26,20 +26,25 @@ function getContractsSlugs(): string[] {
     join(process.cwd(), '..', 'contracts.json'),                   // cwd = servicos-global/configurador -> servicos-global/
   ]
 
+  console.log('[adminProducts] __dirname:', __dirname)
+  console.log('[adminProducts] cwd:', process.cwd())
+  console.log('[adminProducts] Tentando paths:', possiblePaths)
+
   for (const contractsPath of possiblePaths) {
     try {
       const raw = readFileSync(contractsPath, 'utf-8')
       const contracts = JSON.parse(raw)
       const slugs = Object.keys(contracts.services ?? {})
       if (slugs.length > 0) {
+        console.log(`[adminProducts] contracts.json encontrado em: ${contractsPath} (${slugs.length} slugs)`)
         return slugs
       }
-    } catch {
-      // Tentar proximo path
+    } catch (err) {
+      console.log(`[adminProducts] Falhou: ${contractsPath} ->`, (err as Error).message)
     }
   }
 
-  console.warn('[adminProducts] contracts.json não encontrado em nenhum path')
+  console.warn('[adminProducts] contracts.json NÃO ENCONTRADO em nenhum dos paths acima!')
   return []
 }
 
@@ -105,15 +110,20 @@ const UpdateProductSchema = CreateProductSchema.partial()
 adminProductsRouter.get('/available-slugs', async (_req, res, next) => {
   try {
     const allSlugs = getContractsSlugs()
+    console.log('[available-slugs] allSlugs from contracts.json:', allSlugs)
     const existingProducts = await productCatalogService.list({ limit: 1000 })
+    console.log('[available-slugs] existing products count:', existingProducts.products.length)
     const usedSlugs = new Set(
       existingProducts.products
         .map((p: { slug?: string; backend_module?: string | null }) => p.backend_module ?? p.slug)
         .filter(Boolean)
     )
+    console.log('[available-slugs] usedSlugs:', [...usedSlugs])
     const available = allSlugs.filter(slug => !usedSlugs.has(slug))
+    console.log('[available-slugs] available:', available)
     res.json({ available, all: allSlugs })
   } catch (err) {
+    console.error('[available-slugs] ERROR:', err)
     next(err)
   }
 })

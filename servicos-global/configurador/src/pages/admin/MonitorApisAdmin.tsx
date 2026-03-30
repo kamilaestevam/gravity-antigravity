@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { 
   PlugsConnected, 
   Plus, 
@@ -53,6 +54,7 @@ interface AlertaConfig {
 }
 
 export function MonitorApisAdmin() {
+  const { t } = useTranslation()
   const [tab, setTab] = useState<'cockpit' | 'alertas'>('cockpit')
   const [servicos, setServicos] = useState<ApiService[]>([])
   const [logs, setLogs] = useState<ApiLog[]>([])
@@ -77,25 +79,25 @@ export function MonitorApisAdmin() {
   }, [])
 
   const colunasInventario: TabelaGlobalColuna<ApiService>[] = [
-    { key: 'produto', label: 'Serviço', tipo: 'texto' },
-    { key: 'organizacao', label: 'Organização', tipo: 'texto' },
-    { key: 'status', label: 'Status', tipo: 'texto' },
-    { key: 'consumoAtual', label: 'Consumo', tipo: 'texto' },
+    { key: 'produto', label: t('admin.monitor.tabela.servico'), tipo: 'texto' },
+    { key: 'organizacao', label: t('admin.monitor.tabela.organizacao'), tipo: 'texto' },
+    { key: 'status', label: t('admin.monitor.tabela.status'), tipo: 'texto' },
+    { key: 'consumoAtual', label: t('admin.monitor.tabela.consumo'), tipo: 'texto' },
   ]
 
   const colunasLogs: TabelaGlobalColuna<ApiLog>[] = [
-    { key: 'data', label: 'Data', tipo: 'texto' },
-    { key: 'hora', label: 'Hora', tipo: 'texto' },
-    { key: 'organizacao', label: 'Org', tipo: 'texto' },
-    { key: 'metodo', label: 'Método', tipo: 'texto' },
-    { key: 'endpoint', label: 'Endpoint', tipo: 'texto' },
-    { key: 'statusCode', label: 'Status', tipo: 'texto' },
+    { key: 'data', label: t('admin.monitor.tabela.data'), tipo: 'texto' },
+    { key: 'hora', label: t('admin.monitor.tabela.hora'), tipo: 'texto' },
+    { key: 'organizacao', label: t('admin.monitor.tabela.org'), tipo: 'texto' },
+    { key: 'metodo', label: t('admin.monitor.tabela.metodo'), tipo: 'texto' },
+    { key: 'endpoint', label: t('admin.monitor.tabela.endpoint'), tipo: 'texto' },
+    { key: 'statusCode', label: t('admin.monitor.tabela.status'), tipo: 'texto' },
   ]
 
   const colunasAlertas: TabelaGlobalColuna<AlertaConfig>[] = [
-    { key: 'nome', label: 'Grupo', tipo: 'texto' },
-    { key: 'canais', label: 'Canais', tipo: 'texto', render: (v: any) => (v as string[]).join(', ') },
-    { key: 'ativo', label: 'Ativo', tipo: 'texto', render: (v: any) => v ? 'SIM' : 'NÃO' },
+    { key: 'nome', label: t('admin.monitor.tabela.grupo'), tipo: 'texto' },
+    { key: 'canais', label: t('admin.monitor.tabela.canais'), tipo: 'texto', render: (v: any) => (v as string[]).join(', ') },
+    { key: 'ativo', label: t('admin.monitor.tabela.ativo'), tipo: 'texto', render: (v: any) => v ? t('comum.sim') : t('comum.nao') },
   ]
 
   return (
@@ -103,15 +105,15 @@ export function MonitorApisAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<PlugsConnected weight="duotone" size={24} />}
-          titulo="Monitor de Infraestrutura"
-          subtitulo="Visão administrativa global da saúde das APIs no Railway"
+          titulo={t('admin.monitor.titulo')}
+          subtitulo={t('admin.monitor.subtitulo')}
         />
       }
       stats={
         <>
-          <StatCardGlobal titulo="APIs Online" valor={String(servicos.filter(s => s.status === 'Online').length)} variante="sucesso" />
-          <StatCardGlobal titulo="Requisições (24h)" valor={String(logs.length)} variante="primario" />
-          <StatCardGlobal titulo="Alertas Ativos" valor={String(alertas.filter(a => a.ativo).length)} variante="padrao" />
+          <StatCardGlobal titulo={t('admin.monitor.apis_online')} valor={String(servicos.filter(s => s.status === 'Online').length)} variante="sucesso" />
+          <StatCardGlobal titulo={t('admin.monitor.requisicoes_24h')} valor={String(logs.length)} variante="primario" />
+          <StatCardGlobal titulo={t('admin.monitor.alertas_ativos')} valor={String(alertas.filter(a => a.ativo).length)} variante="padrao" />
         </>
       }
       toolbar={
@@ -127,10 +129,10 @@ export function MonitorApisAdmin() {
             }}
             onClick={() => setTab('cockpit')}
           >
-            Monitoramento
+            {t('admin.monitor.aba_monitoramento')}
           </button>
-          <button 
-            style={{ 
+          <button
+            style={{
               background: tab === 'alertas' ? 'var(--brand-primary)' : 'transparent',
               color: tab === 'alertas' ? '#fff' : 'var(--text-secondary)',
               border: '1px solid var(--border-color)',
@@ -140,7 +142,7 @@ export function MonitorApisAdmin() {
             }}
             onClick={() => setTab('alertas')}
           >
-            Alertas
+            {t('admin.monitor.aba_alertas')}
           </button>
         </div>
       }
@@ -151,13 +153,13 @@ export function MonitorApisAdmin() {
             id="admin-inventory"
             colunas={colunasInventario}
             dados={servicos}
-            mensagemVazio="Nenhum serviço registrado no Railway."
+            mensagemVazio={t('admin.monitor.vazio.sem_servicos')}
           />
           <TabelaGlobal
             id="admin-telemetry"
             colunas={colunasLogs}
             dados={logs}
-            mensagemVazio="Nenhum registro de tráfego nas últimas 24h."
+            mensagemVazio={t('admin.monitor.vazio.sem_trafego')}
           />
         </div>
       ) : (
@@ -174,14 +176,14 @@ export function MonitorApisAdmin() {
                 cursor: 'pointer' 
               }}
             >
-              Novo Alerta
+              {t('admin.monitor.novo_alerta')}
             </button>
           </div>
           <TabelaGlobal
             id="admin-alerts"
             colunas={colunasAlertas}
             dados={alertas}
-            mensagemVazio="Nenhuma regra de alerta configurada."
+            mensagemVazio={t('admin.monitor.vazio.sem_alertas')}
           />
         </div>
       )}

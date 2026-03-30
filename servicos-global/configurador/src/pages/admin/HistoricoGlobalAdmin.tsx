@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Desktop, User, Robot, Export, DownloadSimple, HardDrives, Info, Funnel } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -78,6 +79,7 @@ function renderDiffTable(diffs: DiffObj[]) {
 }
 
 export function HistoricoGlobalAdmin() {
+  const { t } = useTranslation()
   const [logs, setLogs] = useState<LogHistorico[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -112,13 +114,13 @@ export function HistoricoGlobalAdmin() {
 
   const COLUNAS: TabelaGlobalColuna<LogHistorico>[] = [
     {
-      key: 'quando', label: 'QUANDO', tipo: 'periodo',
-      tooltipTitulo: 'Timestamp (UTC)', tooltipDescricao: 'Registro de data/hora (ISO-8601) em que o evento foi gravado na tabela de auditoria.',
+      key: 'quando', label: t('admin.history.tabela.quando'), tipo: 'periodo',
+      tooltipTitulo: t('admin.history.tabela.quando_tooltip'), tooltipDescricao: t('admin.history.tabela.quando_desc'),
       render: (v) => <span style={{ color: '#cbd5e1' }}>{formatDate(v)}</span>
     },
     {
-      key: 'quemNome', label: 'QUEM', tipo: 'texto',
-      tooltipTitulo: 'Identity Context', tooltipDescricao: 'Usuário autenticado (actor_id), script nativo ou modelo IA que originou o request.',
+      key: 'quemNome', label: t('admin.history.tabela.quem'), tipo: 'texto',
+      tooltipTitulo: t('admin.history.tabela.quem_tooltip'), tooltipDescricao: t('admin.history.tabela.quem_desc'),
       render: (v, item) => {
         let ico = <User size={14} weight="bold" />
         if (item.quemTipo === 'gabi') ico = <Robot size={14} weight="bold" />
@@ -133,8 +135,8 @@ export function HistoricoGlobalAdmin() {
       }
     },
     {
-      key: 'acao', label: 'AÇÃO', tipo: 'texto',
-      tooltipTitulo: 'Event Type / CRUD', tooltipDescricao: 'Taxonomia da operação tratada e distribuída no barramento de eventos (message broker).',
+      key: 'acao', label: t('admin.history.tabela.acao'), tipo: 'texto',
+      tooltipTitulo: t('admin.history.tabela.acao_tooltip'), tooltipDescricao: t('admin.history.tabela.acao_desc'),
       render: (v) => {
         const cor = corAcao[v as string] || corAcao['CRIAÇÃO']
         return (
@@ -149,8 +151,8 @@ export function HistoricoGlobalAdmin() {
       }
     },
     {
-      key: 'oQueFoiFeito', label: 'O QUE FOI FEITO', tipo: 'texto',
-      tooltipTitulo: 'Event Payload / State Diff', tooltipDescricao: 'Dados imutáveis estruturados detalhando as entradas modificadas pelo controlador.',
+      key: 'oQueFoiFeito', label: t('admin.history.tabela.o_que_foi_feito'), tipo: 'texto',
+      tooltipTitulo: t('admin.history.tabela.o_que_foi_feito_tooltip'), tooltipDescricao: t('admin.history.tabela.o_que_foi_feito_desc'),
       render: (v, item) => {
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -175,30 +177,30 @@ export function HistoricoGlobalAdmin() {
       }
     },
     {
-      key: 'entidade', label: 'ENTIDADE', tipo: 'texto',
-      tooltipTitulo: 'Target Table/Entity', tooltipDescricao: 'Referência ao escopo isolado no schema de dados que sofreu as mutações.',
+      key: 'entidade', label: t('admin.history.tabela.entidade'), tipo: 'texto',
+      tooltipTitulo: t('admin.history.tabela.entidade_tooltip'), tooltipDescricao: t('admin.history.tabela.entidade_desc'),
       render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span>
     }
   ]
 
   const acoesExportacao: TabelaExportAcao<LogHistorico>[] = [
-    { label: 'Exportar CSV', icone: <Export size={14} />, onClick: () => {} },
-    { label: 'Exportar Backup Log (.json)', icone: <DownloadSimple size={14} />, onClick: () => {} }
+    { label: t('admin.history.exportar_csv'), icone: <Export size={14} />, onClick: () => {} },
+    { label: t('admin.history.exportar_backup'), icone: <DownloadSimple size={14} />, onClick: () => {} }
   ]
 
   const opcoesResponsavel = [
-    { valor: 'todos', rotulo: 'Todos os Responsáveis' },
-    { valor: 'user', rotulo: 'Usuários Administrativos' },
-    { valor: 'gabi', rotulo: 'Gabi AI' },
-    { valor: 'system', rotulo: 'Sistema / Rotinas' },
+    { valor: 'todos', rotulo: t('admin.history.filtro.todos_responsaveis') },
+    { valor: 'user', rotulo: t('admin.history.filtro.usuarios_admin') },
+    { valor: 'gabi', rotulo: t('admin.history.filtro.gabi_ai') },
+    { valor: 'system', rotulo: t('admin.history.filtro.sistema_rotinas') },
   ]
 
   const opcoesAcao = [
-    { valor: 'todas', rotulo: 'Todas as Ações' },
-    { valor: 'alteracao', rotulo: 'Alterações' },
-    { valor: 'criacao', rotulo: 'Criações' },
-    { valor: 'exclusao', rotulo: 'Exclusões' },
-    { valor: 'login', rotulo: 'Logins / Acessos' },
+    { valor: 'todas', rotulo: t('admin.history.filtro.todas_acoes') },
+    { valor: 'alteracao', rotulo: t('admin.history.filtro.alteracoes') },
+    { valor: 'criacao', rotulo: t('admin.history.filtro.criacoes') },
+    { valor: 'exclusao', rotulo: t('admin.history.filtro.exclusoes') },
+    { valor: 'login', rotulo: t('admin.history.filtro.logins') },
   ]
 
   const [filtroResponsavel, setFiltroResponsavel] = useState<string | null>('todos')
@@ -211,13 +213,13 @@ export function HistoricoGlobalAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Desktop weight="duotone" size={22} />}
-          titulo="Histórico Global"
-          subtitulo="Registro cronológico completo de todas as alterações feitas na plataforma Gravity"
+          titulo={t('admin.history.titulo')}
+          subtitulo={t('admin.history.subtitulo')}
           acoes={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <TooltipGlobal 
-                titulo="Processamento Descentralizado" 
-                descricao="Registros recentes podem levar alguns instantes para constar no histórico devido ao processamento assíncrono e análise temporal."
+              <TooltipGlobal
+                titulo={t('admin.history.tooltip_processamento')}
+                descricao={t('admin.history.tooltip_processamento_desc')}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '6px', borderRadius: '6px', cursor: 'help' }}>
                   <Info size={18} weight="duotone" color="#3b82f6" />
@@ -241,7 +243,7 @@ export function HistoricoGlobalAdmin() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', marginRight: '4px' }}>
             <Funnel size={14} weight="bold" />
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Filtrar</span>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{t('admin.history.filtrar')}</span>
           </div>
 
           <div style={{ width: '220px' }}>
@@ -249,7 +251,7 @@ export function HistoricoGlobalAdmin() {
               opcoes={opcoesResponsavel} 
               valor={filtroResponsavel} 
               aoMudarValor={(v) => setFiltroResponsavel(v as string)} 
-              placeholder="Responsável..." 
+              placeholder={t('admin.history.filtro.placeholder_responsavel')} 
             />
           </div>
 
@@ -258,13 +260,13 @@ export function HistoricoGlobalAdmin() {
               opcoes={opcoesAcao} 
               valor={filtroAcao} 
               aoMudarValor={(v) => setFiltroAcao(v as string)} 
-              placeholder="Ação..." 
+              placeholder={t('admin.history.filtro.placeholder_acao')} 
             />
           </div>
 
           <div style={{ width: '220px' }}>
             <CalendarioCampoGlobal
-              placeholder="Filtrar por data..."
+              placeholder={t('admin.history.filtro.placeholder_data')}
             />
           </div>
         </div>
@@ -275,11 +277,11 @@ export function HistoricoGlobalAdmin() {
             dados={logs}
             colunas={COLUNAS}
             acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
-            mensagemVazio={loading ? "Carregando registros..." : "Nenhuma alteração encontrada para estes filtros."}
-            mensagemSemFiltro="Nenhuma atividade registrada no histórico global."
-            tooltipBusca="Localizar registro por nome do responsável ou descrição da ação"
-            tooltipExpandir="Ver detalhes técnicos da alteração (diff do estado)"
-            tooltipRecolher="Recolher detalhes técnicos"
+            mensagemVazio={loading ? t('admin.history.vazio_carregando') : t('admin.history.vazio_filtros')}
+            mensagemSemFiltro={t('admin.history.vazio_sem_filtro')}
+            tooltipBusca={t('admin.history.tooltip_busca')}
+            tooltipExpandir={t('admin.history.tooltip_expandir')}
+            tooltipRecolher={t('admin.history.tooltip_recolher')}
             renderExpandido={(item) => renderDiffTable(item.diff || [])}
           />
       </div>

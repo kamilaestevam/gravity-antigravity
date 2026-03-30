@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CloudArrowUp, User, GitCommit, CheckCircle, XCircle, Trash } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { adminDeploysApi, type DeployLogApi } from '../../services/apiClient'
 
 
 type DeployLog = {
@@ -18,38 +19,19 @@ type DeployLog = {
   status: 'Concluído' | 'Removido' | 'Falhado'
 }
 
-const mockDeploys: DeployLog[] = [
-  {
-    id: 'd1',
-    quando: '2026-03-24T22:52:00',
-    quem: 'dmmltda',
-    area: 'Autenticação',
-    de: 'Pendente / acumulado',
-    para: 'add playwright auth state to gitignore + test fixtures update',
-    versao: '8460213',
-    status: 'Concluído'
-  },
-  {
-    id: 'd2',
-    quando: '2026-03-24T19:24:00',
-    quem: 'dmmltda',
-    area: 'Infraestrutura',
-    de: 'Pendente / acumulado',
-    para: 'trigger deploy — aplica 6 migrations pendentes em produção',
-    versao: 'cc439d0',
-    status: 'Removido'
-  },
-  {
-    id: 'd3',
-    quando: '2026-03-24T18:51:00',
-    quem: 'dmmltda',
-    area: 'Infraestrutura',
-    de: '— não existia',
-    para: 'adiciona startup-check de variáveis de ambiente e atualiza workflow de deploy',
-    versao: '6fceda7',
-    status: 'Removido'
+// Helper: mapeia deploy do backend para formato do frontend
+function mapDeployToLocal(d: DeployLogApi): DeployLog {
+  return {
+    id: d.id,
+    quando: d.created_at,
+    quem: d.user || 'N/A',
+    area: d.area || 'N/A',
+    de: d.from_state || 'N/A',
+    para: d.to_state || 'N/A',
+    versao: d.version || 'N/A',
+    status: (d.status as DeployLog['status']) || 'Concluído',
   }
-]
+}
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -59,6 +41,23 @@ function formatDate(iso: string) {
 
 export function DeployRailwayAdmin() {
   const { t } = useTranslation()
+  const [deploys, setDeploys] = useState<DeployLog[]>([])
+  const [carregando, setCarregando] = useState(true)
+
+  useEffect(() => {
+    async function loadDeploys() {
+      try {
+        setCarregando(true)
+        const res = await adminDeploysApi.list()
+        setDeploys(res.deploys.map(mapDeployToLocal))
+      } catch {
+        console.warn('Falha ao carregar deploys')
+      } finally {
+        setCarregando(false)
+      }
+    }
+    loadDeploys()
+  }, [])
 
   const COLUNAS: TabelaGlobalColuna<DeployLog>[] = [
     {
@@ -178,7 +177,7 @@ export function DeployRailwayAdmin() {
       <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10, marginTop: '32px' }}>
         <TabelaGlobal<DeployLog>
           id="admin-deploys"
-          dados={mockDeploys}
+          dados={deploys}
           colunas={COLUNAS}
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           mensagemVazio={t('admin.deploy.vazio_filtros')}

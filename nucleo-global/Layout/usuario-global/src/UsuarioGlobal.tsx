@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CaretDown, ShieldCheck, Gear, Buildings, Storefront, CreditCard, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
+import { CaretDown, ShieldCheck, Gear, Storefront, CreditCard, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './usuario-global.css'
 
@@ -122,7 +122,7 @@ export function UsuarioGlobal({
                       type="button"
                       style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
                     >
-                      <Buildings weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
+                      <Gear weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
                     </button>
                   </TooltipGlobal>
                 ) : (
@@ -134,7 +134,7 @@ export function UsuarioGlobal({
                       setIsProfileOpen(false)
                     }}
                   >
-                    <Buildings weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
+                    <Gear weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
                   </button>
                 )}
 

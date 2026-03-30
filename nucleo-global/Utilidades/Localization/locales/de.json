@@ -139,7 +139,9 @@
     "dia_qua": "Mi",
     "dia_qui": "Do",
     "dia_sex": "Fr",
-    "dia_sab": "Sa"
+    "dia_sab": "Sa",
+    "inicio": "Beginn",
+    "fim": "Ende"
   },
   "botoes": {
     "salvar": "Speichern",

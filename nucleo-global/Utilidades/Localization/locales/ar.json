@@ -139,7 +139,9 @@
     "dia_qua": "الار",
     "dia_qui": "الخم",
     "dia_sex": "الجم",
-    "dia_sab": "الست"
+    "dia_sab": "الست",
+    "inicio": "بداية",
+    "fim": "نهاية"
   },
   "botoes": {
     "salvar": "حفظ",

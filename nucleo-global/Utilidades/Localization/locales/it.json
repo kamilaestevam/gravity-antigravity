@@ -139,7 +139,9 @@
     "dia_qua": "Mer",
     "dia_qui": "Gio",
     "dia_sex": "Ven",
-    "dia_sab": "Sab"
+    "dia_sab": "Sab",
+    "inicio": "Inizio",
+    "fim": "Fine"
   },
   "botoes": {
     "salvar": "Salva",

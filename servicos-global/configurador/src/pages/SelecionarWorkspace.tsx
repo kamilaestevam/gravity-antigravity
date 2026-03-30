@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -9,8 +9,6 @@ import {
   GearSix,
   Bell,
   MagnifyingGlass,
-  CaretDown,
-  SignOut,
   Plus,
   Check,
   ArrowRight,
@@ -30,7 +28,7 @@ import {
   Package,
   ListChecks,
 } from '@phosphor-icons/react'
-import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
+import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import './selecionar-workspace.css'
 
@@ -39,25 +37,27 @@ interface Workspace {
   id: string
   nome: string
   iniciais: string
-  plano: 'business' | 'starter' | 'pro'
+  plano: 'enterprise' | 'professional' | 'starter'
   role: string
   modulos: number
   membros: number
-  simulacoes: string
   gradientFrom: string
   gradientTo: string
 }
 
-interface ProdutoSugerido {
-  id: string
+interface ProdutoContratado {
+  product_key: string
+  is_active: boolean
   nome: string
   descricao: string
-  badge: 'promo' | 'new' | 'trial'
-  badgeLabel: string
-  stat?: string
-  iconBg: string
-  iconColor: string
-  icon: 'star' | 'squares' | 'download' | 'check'
+}
+
+interface ProdutoCatalogo {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  status: string
 }
 
 interface ProdutoAtivo {
@@ -78,91 +78,17 @@ interface Atalho {
   rota: string
 }
 
-/* ── Dados mock (serão substituídos por API) ── */
-const MOCK_WORKSPACES: Workspace[] = [
-  {
-    id: 'ws-1',
-    nome: 'TESTE ABC',
-    iniciais: 'TA',
-    plano: 'business',
-    role: 'Admin',
-    modulos: 0,
-    membros: 1,
-    simulacoes: '847',
-    gradientFrom: '#4F63FF',
-    gradientTo: '#1ED8C8',
-  },
-  {
-    id: 'ws-2',
-    nome: 'Empresa Beta',
-    iniciais: 'CB',
-    plano: 'starter',
-    role: 'Editor',
-    modulos: 3,
-    membros: 5,
-    simulacoes: '1.2k',
-    gradientFrom: '#F6A832',
-    gradientTo: '#F04E42',
-  },
-  {
-    id: 'ws-3',
-    nome: 'XYZ Importações',
-    iniciais: 'XY',
-    plano: 'pro',
-    role: 'Visualizador',
-    modulos: 7,
-    membros: 12,
-    simulacoes: '4.7k',
-    gradientFrom: '#1ED8C8',
-    gradientTo: '#20C96A',
-  },
+/* ── Paleta de gradientes para workspace cards ── */
+const WORKSPACE_GRADIENTS = [
+  { from: '#4F63FF', to: '#1ED8C8' },
+  { from: '#F6A832', to: '#F04E42' },
+  { from: '#1ED8C8', to: '#20C96A' },
+  { from: '#A855F7', to: '#6366F1' },
+  { from: '#EC4899', to: '#F43F5E' },
 ]
 
-const MOCK_PRODUTOS_SUGERIDOS: ProdutoSugerido[] = [
-  {
-    id: 'p1',
-    nome: 'Classificação Fiscal IA',
-    descricao: 'NCMs automáticos com 98% de precisão',
-    badge: 'promo',
-    badgeLabel: '30% OFF',
-    stat: 'Base 80k NCMs',
-    iconBg: 'var(--sw-amber-dim)',
-    iconColor: 'var(--sw-amber)',
-    icon: 'star',
-  },
-  {
-    id: 'p2',
-    nome: 'Simulador de Drawback',
-    descricao: 'Exoneração tributária em tempo real',
-    badge: 'new',
-    badgeLabel: 'Novo',
-    iconBg: 'var(--sw-accent-dim)',
-    iconColor: 'var(--sw-accent-2)',
-    icon: 'squares',
-  },
-  {
-    id: 'p3',
-    nome: 'Monitor DI / LI',
-    descricao: 'Acompanhe declarações em tempo real',
-    badge: 'trial',
-    badgeLabel: 'Trial 14d',
-    iconBg: 'var(--sw-teal-dim)',
-    iconColor: 'var(--sw-teal)',
-    icon: 'download',
-  },
-  {
-    id: 'p4',
-    nome: 'Compliance Tributário',
-    descricao: 'SPED, EFD, ECF — auditoria automática',
-    badge: 'trial',
-    badgeLabel: 'Trial 14d',
-    iconBg: 'var(--sw-green-dim)',
-    iconColor: 'var(--sw-green)',
-    icon: 'check',
-  },
-]
-
-const MOCK_ATALHOS: Atalho[] = [
+/* ── Atalhos (estáticos — navegação interna) ── */
+const ATALHOS: Atalho[] = [
   { id: 'a1', nome: 'Configurador', descricao: 'Workspace, CNPJ, regras fiscais e usuários', iconBg: 'var(--sw-amber-dim)', iconColor: 'var(--sw-amber)', icon: 'gear', admin: true, rota: '/workspace/organizacao' },
   { id: 'a2', nome: 'Store de Módulos', descricao: 'Ative, desative e gerencie produtos', iconBg: 'var(--sw-accent-dim)', iconColor: 'var(--sw-accent-2)', icon: 'squares', rota: '/workspace/assinaturas' },
   { id: 'a3', nome: 'Relatórios', descricao: 'Exportações, histórico e dashboards', iconBg: 'var(--sw-green-dim)', iconColor: 'var(--sw-green)', icon: 'chart', rota: '/workspace/financeiro' },
@@ -171,29 +97,13 @@ const MOCK_ATALHOS: Atalho[] = [
 
 /* ── Helpers ── */
 function planLabel(plano: string): string {
-  const map: Record<string, string> = { business: 'Business', starter: 'Starter', pro: 'Pro' }
+  const map: Record<string, string> = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' }
   return map[plano] ?? plano
 }
 
 function planClass(plano: string): string {
-  const map: Record<string, string> = { business: 'sw-plan-business', starter: 'sw-plan-starter', pro: 'sw-plan-pro' }
+  const map: Record<string, string> = { starter: 'sw-plan-starter', professional: 'sw-plan-business', enterprise: 'sw-plan-pro' }
   return map[plano] ?? ''
-}
-
-function badgeClass(badge: string): string {
-  const map: Record<string, string> = { promo: 'sw-b-promo', new: 'sw-b-new', trial: 'sw-b-trial', active: 'sw-b-active' }
-  return map[badge] ?? ''
-}
-
-function ProdIcon({ icon, color }: { icon: string; color: string }) {
-  const props = { size: 18, weight: 'regular' as const, style: { color } }
-  switch (icon) {
-    case 'star': return <Star {...props} />
-    case 'squares': return <SquaresFour {...props} />
-    case 'download': return <Download {...props} />
-    case 'check': return <CheckCircle {...props} />
-    default: return <Star {...props} />
-  }
 }
 
 function ShortcutIcon({ icon, color }: { icon: string; color: string }) {
@@ -230,90 +140,175 @@ export function SelecionarWorkspace() {
   const [carregando, setCarregando] = useState(true)
   const [entrando, setEntrando] = useState(false)
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
+  const [produtosContratados, setProdutosContratados] = useState<ProdutoContratado[]>([])
+  const [catalogoProdutos, setCatalogoProdutos] = useState<ProdutoCatalogo[]>([])
 
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userRole = (user?.publicMetadata?.role as string) ?? 'Superadmin'
+  const rawRole = (user?.publicMetadata?.role as string) ?? ''
+  const ROLE_LABELS: Record<string, string> = {
+    gravity_admin: 'Admin',
+    SUPER_ADMIN: 'Admin',
+    ADMIN: 'Admin',
+    MASTER: 'Master',
+    STANDARD: 'Usuário',
+    SUPPLIER: 'Fornecedor',
+  }
+  const userRole = ROLE_LABELS[rawRole] ?? (rawRole || 'Admin')
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
-  const tenantName = selectedWs?.nome ?? 'Gravity'
-  const tenantPlan = selectedWs ? planLabel(selectedWs.plano) : 'Business'
 
-  /* ── Carrega workspaces da API ── */
+  // Produtos contratados ativos
+  const contratadosAtivos = produtosContratados.filter(p => p.is_active)
+
+  // Produtos sugeridos = catálogo que o tenant ainda não contratou (inclui Em Breve)
+  const slugsContratados = new Set(produtosContratados.map(p => p.product_key))
+  const HIDDEN_STATUSES = new Set(['INACTIVE', 'LEGACY', 'SUSPENDED', 'Inativo', 'Legado', 'Suspenso'])
+  const produtosSugeridos = catalogoProdutos.filter(
+    p => !HIDDEN_STATUSES.has(p.status) && !slugsContratados.has(p.slug)
+  )
+
+  /* ── Carrega workspaces + tenant info da API ── */
   useEffect(() => {
     let cancelled = false
 
-    async function carregarWorkspaces() {
+    async function carregarDados() {
       try {
         const token = await getToken()
-        const response = await fetch('/api/v1/tenants/companies', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        const data = await response.json()
+        const headers = { Authorization: `Bearer ${token}` }
 
-        if (!cancelled && data.companies && data.companies.length > 0) {
-          const mapeados: Workspace[] = data.companies.map((c: Record<string, unknown>, i: number) => ({
-            id: c.id as string,
-            nome: c.name as string,
-            iniciais: (c.name as string).substring(0, 2).toUpperCase(),
-            plano: 'business' as const,
-            role: 'Admin',
-            modulos: 0,
-            membros: 1,
-            simulacoes: '0',
-            gradientFrom: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientFrom,
-            gradientTo: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientTo,
-          }))
+        // Busca em paralelo: companies + tenant info
+        const [companiesRes, tenantRes] = await Promise.all([
+          fetch('/api/v1/tenants/companies', { headers }),
+          fetch('/api/v1/tenants/me', { headers }),
+        ])
+
+        const companiesData = await companiesRes.json()
+        const tenantData = await tenantRes.json()
+
+        if (cancelled) return
+
+        // Extrai plano da subscription do tenant
+        const subscription = tenantData.tenant?.subscriptions?.[0]
+        const planMap: Record<string, Workspace['plano']> = {
+          STARTER: 'starter',
+          PROFESSIONAL: 'professional',
+          ENTERPRISE: 'enterprise',
+        }
+        const tenantPlano = planMap[subscription?.plan] ?? 'starter'
+
+        // Extrai role do usuário no tenant
+        const tenantUserCount = tenantData.tenant?._count?.users ?? 0
+
+        if (companiesData.companies && companiesData.companies.length > 0) {
+          interface CompanyApi {
+            id: string
+            name: string
+            cnpj: string | null
+            status: string
+            _count?: { memberships: number }
+          }
+
+          const mapeados: Workspace[] = companiesData.companies.map((c: CompanyApi, i: number) => {
+            const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
+            const membros = (c._count?.memberships || 0) > 0 ? c._count!.memberships : tenantUserCount
+            return {
+              id: c.id,
+              nome: c.name,
+              iniciais: c.name.substring(0, 2).toUpperCase(),
+              plano: tenantPlano,
+              role: userRole,
+              modulos: 0, // será atualizado após carregar produtos
+              membros,
+              gradientFrom: grad.from,
+              gradientTo: grad.to,
+            }
+          })
           setWorkspaces(mapeados)
           setSelectedId(mapeados[0].id)
-        } else if (!cancelled) {
-          setWorkspaces(MOCK_WORKSPACES)
-          setSelectedId(MOCK_WORKSPACES[0].id)
         }
       } catch {
-        if (!cancelled) {
-          setWorkspaces(MOCK_WORKSPACES)
-          setSelectedId(MOCK_WORKSPACES[0].id)
-        }
+        // API indisponível — mostra estado vazio
       } finally {
         if (!cancelled) setCarregando(false)
       }
     }
 
-    carregarWorkspaces()
+    carregarDados()
     return () => { cancelled = true }
-  }, [getToken])
+  }, [getToken, userRole])
 
-  /* ── Carrega produtos ativos do catálogo ── */
+  /* ── Carrega produtos contratados pelo tenant + catálogo completo ── */
   useEffect(() => {
     let cancelled = false
 
     async function carregarProdutos() {
       try {
         const token = await getToken()
-        const response = await fetch('/api/v1/products', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        const data = await response.json()
+        const headers = { Authorization: `Bearer ${token}` }
 
-        if (!cancelled && data.products) {
-          const ativos: ProdutoAtivo[] = data.products
-            .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
-            .map((p: Record<string, unknown>) => {
-              const slug = p.slug as string
-              const info = PRODUCT_ROUTE_MAP[slug]
+        // Busca produtos contratados + catálogo real (ProductCatalog via admin API)
+        const [contratadosRes, catalogoRes] = await Promise.all([
+          fetch('/api/v1/tenants/products', { headers }),
+          fetch('/api/admin/products', { headers }).catch(() => null),
+        ])
+
+        const contratadosData = await contratadosRes.json()
+        const catalogoData = catalogoRes ? await catalogoRes.json() : { products: [] }
+
+        if (cancelled) return
+
+        // Catálogo completo (ProductCatalog — fonte real)
+        const catalogo: ProdutoCatalogo[] = (catalogoData.products ?? []).map(
+          (p: { id: string; name: string; slug: string; description?: string | null; status: string }) => ({
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            description: p.description ?? null,
+            status: p.status,
+          })
+        )
+        setCatalogoProdutos(catalogo)
+
+        // Mapa slug → nome/descrição do catálogo para enriquecer contratados
+        const catalogMap = new Map(catalogo.map(p => [p.slug, p]))
+
+        // Produtos contratados pelo tenant
+        if (contratadosData.products) {
+          const contratados: ProdutoContratado[] = contratadosData.products.map(
+            (p: { product_key: string; is_active: boolean; catalog?: { name?: string; description?: string } }) => {
+              const catInfo = catalogMap.get(p.product_key)
               return {
-                id: p.id as string,
-                slug,
-                nome: info?.nome ?? (p.name as string),
-                rota: info?.rota ?? `/produto/${slug}`,
+                product_key: p.product_key,
+                is_active: p.is_active,
+                nome: catInfo?.name ?? p.catalog?.name ?? p.product_key,
+                descricao: catInfo?.description ?? p.catalog?.description ?? '',
+              }
+            }
+          )
+          setProdutosContratados(contratados)
+
+          // Atualiza contagem de módulos nos workspaces
+          const totalAtivos = contratados.filter(c => c.is_active).length
+          setWorkspaces(prev => prev.map(ws => ({ ...ws, modulos: totalAtivos })))
+
+          // Produtos ativos para o menu lateral
+          const ativos: ProdutoAtivo[] = contratados
+            .filter(c => c.is_active)
+            .map(c => {
+              const info = PRODUCT_ROUTE_MAP[c.product_key]
+              return {
+                id: c.product_key,
+                slug: c.product_key,
+                nome: info?.nome ?? c.nome,
+                rota: info?.rota ?? `/produto/${c.product_key}`,
               }
             })
           setProdutosAtivos(ativos)
         }
       } catch {
-        // Sem produtos ativos — menu não mostrará seção de produtos Gravity
+        // Sem dados de produtos — seções ficarão vazias
       }
     }
 
@@ -325,7 +320,6 @@ export function SelecionarWorkspace() {
   const navItems: NavItem[] = useMemo(() => {
     const items: NavItem[] = []
 
-    // ── Meu Espaço ──
     items.push({
       label: 'Meu Espaço',
       icon: <House weight="duotone" size={18} />,
@@ -338,14 +332,12 @@ export function SelecionarWorkspace() {
       ],
     })
 
-    // ── Produtos Gravity (dinâmico baseado em produtos ativos) ──
     if (produtosAtivos.length > 0) {
       items.push({
         label: 'Produtos Gravity',
         sectionDivider: true,
         icon: <ShoppingBagOpen weight="duotone" size={18} />,
       })
-
       produtosAtivos.forEach(prod => {
         items.push({
           to: prod.rota,
@@ -354,7 +346,6 @@ export function SelecionarWorkspace() {
         })
       })
     } else {
-      // Fallback: mostra seção com indicação de que não há produtos
       items.push({
         label: 'Produtos Gravity',
         sectionDivider: true,
@@ -367,43 +358,12 @@ export function SelecionarWorkspace() {
       })
     }
 
-    // ── Divisor ──
     items.push({ label: '', sectionDivider: true, icon: null })
-
-    // ── Processo ──
-    items.push({
-      to: '/produto/processo',
-      label: 'Processo',
-      icon: <Folders weight="duotone" size={18} />,
-    })
-
-    // ── Relatórios ──
-    items.push({
-      to: '/workspace/financeiro',
-      label: 'Relatórios',
-      icon: <FileText weight="duotone" size={18} />,
-    })
-
-    // ── Histórico de Alterações ──
-    items.push({
-      to: '/workspace/organizacao',
-      label: 'Histórico de Alterações',
-      icon: <ClockCounterClockwise weight="duotone" size={18} />,
-    })
-
-    // ── Cockpit API ──
-    items.push({
-      to: '/workspace/api-cockpit',
-      label: 'Cockpit API',
-      icon: <Plug weight="duotone" size={18} />,
-    })
-
-    // ── Configurações ──
-    items.push({
-      to: '/workspace/organizacao',
-      label: 'Configurações',
-      icon: <GearSix weight="duotone" size={18} />,
-    })
+    items.push({ to: '/produto/processo', label: 'Processo', icon: <Folders weight="duotone" size={18} /> })
+    items.push({ to: '/workspace/financeiro', label: 'Relatórios', icon: <FileText weight="duotone" size={18} /> })
+    items.push({ to: '/workspace/organizacao', label: 'Histórico de Alterações', icon: <ClockCounterClockwise weight="duotone" size={18} /> })
+    items.push({ to: '/workspace/api-cockpit', label: 'Cockpit API', icon: <Plug weight="duotone" size={18} /> })
+    items.push({ to: '/workspace/organizacao', label: 'Configurações', icon: <GearSix weight="duotone" size={18} /> })
 
     return items
   }, [produtosAtivos])
@@ -412,14 +372,6 @@ export function SelecionarWorkspace() {
   const handleSelectWs = useCallback((id: string) => {
     setSelectedId(id)
   }, [])
-
-  const handleEnterWs = useCallback(() => {
-    if (!selectedWs || entrando) return
-    setEntrando(true)
-    sessionStorage.setItem('gravity_company_id', selectedWs.id)
-    sessionStorage.setItem('gravity_company_name', selectedWs.nome)
-    setTimeout(() => navigate('/core'), 500)
-  }, [selectedWs, entrando, navigate])
 
   const handleSair = useCallback(() => {
     signOut(() => navigate('/'))
@@ -520,10 +472,6 @@ export function SelecionarWorkspace() {
                           <div className="sw-ws-stat-n">{ws.membros}</div>
                           <div className="sw-ws-stat-l">Membros</div>
                         </div>
-                        <div>
-                          <div className="sw-ws-stat-n">{ws.simulacoes}</div>
-                          <div className="sw-ws-stat-l">Simulações</div>
-                        </div>
                       </div>
 
                       <button
@@ -569,51 +517,85 @@ export function SelecionarWorkspace() {
                 </div>
 
                 <div className="sw-products-cols">
-                  {/* Contratados (empty state) */}
+                  {/* Contratados */}
                   <div className="sw-prod-panel">
                     <div className="sw-prod-panel-head">
                       <span className="sw-prod-panel-title contracted">Seus Produtos Contratados</span>
-                      <span className="sw-sec-count">0 ativos</span>
+                      <span className="sw-sec-count">{contratadosAtivos.length} ativos</span>
                     </div>
-                    <div className="sw-prod-empty">
-                      <div className="sw-prod-empty-icon">
-                        <Clock size={20} />
+                    {contratadosAtivos.length === 0 ? (
+                      <div className="sw-prod-empty">
+                        <div className="sw-prod-empty-icon">
+                          <Clock size={20} />
+                        </div>
+                        <div className="sw-prod-empty-title">Nenhum produto ativo</div>
+                        <div className="sw-prod-empty-desc">
+                          Explore o catálogo e ative seu primeiro módulo para este workspace.
+                        </div>
+                        <button className="sw-btn-sm" type="button" onClick={() => navigate('/workspace/assinaturas')}>
+                          Explorar Catálogo
+                        </button>
                       </div>
-                      <div className="sw-prod-empty-title">Nenhum produto ativo</div>
-                      <div className="sw-prod-empty-desc">
-                        Explore o catálogo e ative seu primeiro módulo para este workspace.
+                    ) : (
+                      <div className="sw-prod-list">
+                        {contratadosAtivos.map(prod => (
+                          <div key={prod.product_key} className="sw-prod-item">
+                            <div className="sw-prod-icon" style={{ background: 'var(--sw-green-dim)' }}>
+                              <CheckCircle size={18} weight="regular" style={{ color: 'var(--sw-green)' }} />
+                            </div>
+                            <div className="sw-prod-body">
+                              <div className="sw-prod-name">{prod.nome}</div>
+                              <div className="sw-prod-desc">{prod.descricao}</div>
+                            </div>
+                            <div className="sw-prod-right">
+                              <span className="sw-badge sw-b-active">Ativo</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <button className="sw-btn-sm" type="button" onClick={() => navigate('/workspace/assinaturas')}>
-                        Explorar Catálogo
-                      </button>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Sugeridos */}
+                  {/* Sugeridos (do catálogo, excluindo contratados) */}
                   <div className="sw-prod-panel">
                     <div className="sw-prod-panel-head">
                       <span className="sw-prod-panel-title suggested">Sugeridos para Você</span>
                       <span className="sw-sec-count" style={{ background: 'var(--sw-accent-dim)', color: 'var(--sw-accent-2)' }}>
-                        {MOCK_PRODUTOS_SUGERIDOS.length} novos
+                        {produtosSugeridos.length} novos
                       </span>
                     </div>
-                    <div className="sw-prod-list">
-                      {MOCK_PRODUTOS_SUGERIDOS.map(prod => (
-                        <div key={prod.id} className="sw-prod-item">
-                          <div className="sw-prod-icon" style={{ background: prod.iconBg }}>
-                            <ProdIcon icon={prod.icon} color={prod.iconColor} />
-                          </div>
-                          <div className="sw-prod-body">
-                            <div className="sw-prod-name">{prod.nome}</div>
-                            <div className="sw-prod-desc">{prod.descricao}</div>
-                          </div>
-                          <div className="sw-prod-right">
-                            <span className={`sw-badge ${badgeClass(prod.badge)}`}>{prod.badgeLabel}</span>
-                            {prod.stat && <span className="sw-prod-stat">{prod.stat}</span>}
-                          </div>
+                    {produtosSugeridos.length === 0 ? (
+                      <div className="sw-prod-empty">
+                        <div className="sw-prod-empty-icon">
+                          <CheckCircle size={20} />
                         </div>
-                      ))}
-                    </div>
+                        <div className="sw-prod-empty-title">Tudo contratado!</div>
+                        <div className="sw-prod-empty-desc">
+                          Você já contratou todos os produtos disponíveis.
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="sw-prod-list">
+                        {produtosSugeridos.slice(0, 5).map(prod => (
+                          <div key={prod.id} className="sw-prod-item">
+                            <div className="sw-prod-icon" style={{ background: 'var(--sw-accent-dim)' }}>
+                              <Star size={18} weight="regular" style={{ color: 'var(--sw-accent-2)' }} />
+                            </div>
+                            <div className="sw-prod-body">
+                              <div className="sw-prod-name">{prod.name}</div>
+                              <div className="sw-prod-desc">{prod.description ?? ''}</div>
+                            </div>
+                            <div className="sw-prod-right">
+                              {(prod.status === 'ACTIVE' || prod.status === 'Ativo') ? (
+                                <span className="sw-badge sw-b-new">Disponível</span>
+                              ) : (
+                                <span className="sw-badge sw-b-trial">Em Breve</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
@@ -634,7 +616,7 @@ export function SelecionarWorkspace() {
                       <span className="sw-shortcuts-head-title">Atalhos</span>
                     </div>
                     <div className="sw-shortcuts-grid">
-                      {MOCK_ATALHOS.map(atalho => (
+                      {ATALHOS.map(atalho => (
                         <button
                           key={atalho.id}
                           className="sw-shortcut-item"

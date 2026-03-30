@@ -13,6 +13,7 @@ import { SecaoFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
+import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 import { catalogApiService } from '../../services/catalogAdapter'
 import { setAuthTokenProvider } from '../../services/apiClient'
@@ -105,6 +106,7 @@ function mascaraMoeda(valor: string): string {
 
 export function ProdutosAdmin() {
   const { getToken } = useAuth()
+  const addNotification = useShellStore((s) => s.addNotification)
   const { logEvent } = useHistoricoLogger()
   const [produtos, setProdutos] = React.useState<ProdutoCatalogo[]>([])
   const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
@@ -150,6 +152,11 @@ export function ProdutosAdmin() {
       await catalogApiService.toggleProdutoStatus(id)
       await carregarDados()
 
+      addNotification({
+        type: 'success',
+        message: `Status de "${produto.nome}" alterado para ${novoStatus}.`
+      })
+
       logEvent({
         acao: 'ALTERAÇÃO',
         entidade: 'Produtos (Catálogo)',
@@ -157,7 +164,10 @@ export function ProdutosAdmin() {
         diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }]
       })
     } catch (err) {
-      alert('Erro ao atualizar status: ' + (err instanceof Error ? err.message : 'Desconhecido'))
+      addNotification({
+        type: 'error',
+        message: 'Erro ao atualizar status: ' + (err instanceof Error ? err.message : 'Desconhecido')
+      })
     }
   }
 
@@ -562,10 +572,18 @@ export function ProdutosAdmin() {
               // Em breve integrar com a nova tabela de negociações no banco
             }
 
-            await carregarDados()
             handleFecharModal()
+            addNotification({
+              type: 'success',
+              message: produtoEditando ? `Produto "${formNome}" atualizado com sucesso!` : `Produto "${formNome}" criado com sucesso!`
+            })
+            carregarDados()
           } catch (err) {
             console.error('[ProdutosAdmin] Erro ao salvar produto:', err)
+            addNotification({
+              type: 'error',
+              message: 'Falha ao salvar produto. Tente novamente.'
+            })
           }
         }}
         icone={<ShoppingBagOpen weight="duotone" size={24} />}
@@ -1085,11 +1103,16 @@ export function ProdutosAdmin() {
       aoConfirmar={async () => {
         if (!produtoParaExcluir) return
         try {
+          const nome = produtoParaExcluir.nome
           await catalogApiService.deleteProduto(produtoParaExcluir.id)
-          await carregarDados()
           setProdutoParaExcluir(null)
+          addNotification({ type: 'success', message: `Produto "${nome}" excluído com sucesso.` })
+          carregarDados()
         } catch (err) {
-          alert('Erro ao excluir: ' + (err instanceof Error ? err.message : 'Desconhecido'))
+          addNotification({
+            type: 'error',
+            message: 'Erro ao excluir: ' + (err instanceof Error ? err.message : 'Desconhecido')
+          })
         }
       }}
       titulo="Excluir Produto do Catálogo"

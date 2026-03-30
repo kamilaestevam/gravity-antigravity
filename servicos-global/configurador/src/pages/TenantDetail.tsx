@@ -1,7 +1,7 @@
 // src/pages/TenantDetail.tsx
 // Painel de Auditoria de um Tenant — visão forense completa: dados + logs de atividade
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   ArrowLeft, Buildings, TreeStructure, UsersThree, ShieldCheck,
   User, Robot, HardDrives, Desktop, Export, DownloadSimple, Funnel,
@@ -14,6 +14,7 @@ import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@n
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
+import { adminTenantsApi, type TenantApi } from '../services/apiClient'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -54,159 +55,12 @@ type LogAuditoria = {
 
 type TabKey = 'auditoria' | 'workspaces' | 'usuarios' | 'billing'
 
-// ─── Mock de Tenants (espelho do AdminPanel) ──────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const MOCK_TENANTS: TenantMock[] = [
-  {
-    id: 't_1', name: 'Gravity Headquarters', slug: 'admin', status: 'Ativa',
-    created_at: '2025-01-01', _count: { users: 12, companies: 1 },
-    subscriptions: [{ plan: 'Enterprise (Admin)', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_1_1', nome: 'Núcleo Central', subdominio: 'admin', status: 'Ativa', usuarios: 12, plano: 'Enterprise (Admin)', criadaEm: '01/01/2025' },
-    ]
-  },
-  {
-    id: 't_2', name: 'Acme Corp LTDA', slug: 'acme-ltda', status: 'Ativa',
-    created_at: '2025-02-14', _count: { users: 48, companies: 3 },
-    subscriptions: [{ plan: 'Pro', status: 'ACTIVE' }, { plan: 'SimulaCusto', status: 'ACTIVE' }, { plan: 'Smart Read', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_2_1', nome: 'Acme São Paulo', subdominio: 'acme-sp', status: 'Ativa', usuarios: 22, plano: 'Pro, SimulaCusto', criadaEm: '14/02/2025' },
-      { id: 'ws_2_2', nome: 'Acme Rio de Janeiro', subdominio: 'acme-rj', status: 'Ativa', usuarios: 18, plano: 'Pro, Smart Read', criadaEm: '20/02/2025' },
-      { id: 'ws_2_3', nome: 'Acme Campinas', subdominio: 'acme-cps', status: 'Suspensa', usuarios: 8, plano: 'Pro', criadaEm: '01/03/2025' },
-    ]
-  },
-  {
-    id: 't_3', name: 'Stark Industries', slug: 'stark-global', status: 'Ativa',
-    created_at: '2025-02-28', _count: { users: 120, companies: 5 },
-    subscriptions: [{ plan: 'Enterprise', status: 'ACTIVE' }, { plan: 'SimulaCusto', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_3_1', nome: 'Stark NY', subdominio: 'stark-ny', status: 'Ativa', usuarios: 40, plano: 'Enterprise, SimulaCusto', criadaEm: '28/02/2025' },
-      { id: 'ws_3_2', nome: 'Stark Malibu', subdominio: 'stark-ml', status: 'Ativa', usuarios: 30, plano: 'Enterprise', criadaEm: '02/03/2025' },
-      { id: 'ws_3_3', nome: 'Stark Europe', subdominio: 'stark-eu', status: 'Ativa', usuarios: 25, plano: 'Enterprise', criadaEm: '05/03/2025' },
-    ]
-  },
-  {
-    id: 't_4', name: 'Wayne Enterprises', slug: 'wayne-corp', status: 'Suspensa',
-    created_at: '2025-03-01', _count: { users: 5, companies: 2 },
-    subscriptions: [{ plan: 'Free', status: 'PAST_DUE' }],
-    workspaces: [
-      { id: 'ws_4_1', nome: 'Wayne Corp HQ', subdominio: 'wayne-hq', status: 'Suspensa', usuarios: 3, plano: 'Free', criadaEm: '01/03/2025' },
-      { id: 'ws_4_2', nome: 'Wayne Foundation', subdominio: 'wayne-fnd', status: 'Suspensa', usuarios: 2, plano: 'Free', criadaEm: '05/03/2025' },
-    ]
-  },
-  {
-    id: 't_5', name: 'Oscorp', slug: 'oscorp-labs', status: 'Ativa',
-    created_at: '2025-03-15', _count: { users: 1, companies: 1 },
-    subscriptions: [{ plan: 'Trial', status: 'ACTIVE' }],
-    workspaces: [{ id: 'ws_5_1', nome: 'Oscorp Labs', subdominio: 'oscorp-labs', status: 'Ativa', usuarios: 1, plano: 'Trial', criadaEm: '15/03/2025' }]
-  },
-  {
-    id: 't_7', name: 'Tyrell Corp', slug: 'tyrell', status: 'Ativa',
-    created_at: '2025-03-18', _count: { users: 34, companies: 7 },
-    subscriptions: [{ plan: 'Pro', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_7_1', nome: 'Tyrell Corp HQ', subdominio: 'tyrell-hq', status: 'Ativa', usuarios: 10, plano: 'Pro', criadaEm: '18/03/2025' },
-      { id: 'ws_7_2', nome: 'Tyrell Nexus 6', subdominio: 'tyrell-n6', status: 'Ativa', usuarios: 8, plano: 'Pro', criadaEm: '20/03/2025' },
-    ]
-  },
-  {
-    id: 't_10', name: 'Globex Corporation', slug: 'globex', status: 'Ativa',
-    created_at: '2025-03-23', _count: { users: 77, companies: 4 },
-    subscriptions: [{ plan: 'Enterprise', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_10_1', nome: 'Globex HQ', subdominio: 'globex-hq', status: 'Ativa', usuarios: 30, plano: 'Enterprise', criadaEm: '23/03/2025' },
-      { id: 'ws_10_2', nome: 'Globex West', subdominio: 'globex-w', status: 'Ativa', usuarios: 22, plano: 'Enterprise', criadaEm: '24/03/2025' },
-    ]
-  },
-  {
-    id: 't_12', name: 'Umbrella Corp', slug: 'umbrella-hub', status: 'Ativa',
-    created_at: '2025-02-05', _count: { users: 210, companies: 12 },
-    subscriptions: [{ plan: 'Enterprise', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_12_1', nome: 'Umbrella HQ', subdominio: 'umbrella-hq', status: 'Ativa', usuarios: 40, plano: 'Enterprise', criadaEm: '05/02/2025' },
-      { id: 'ws_12_2', nome: 'Umbrella Europe', subdominio: 'umbrella-eu', status: 'Ativa', usuarios: 35, plano: 'Enterprise', criadaEm: '10/02/2025' },
-    ]
-  },
-]
-
-// ─── Mock de logs de auditoria por tenant ─────────────────────────────────────
-
-function gerarLogsMock(tenantName: string): LogAuditoria[] {
-  const base = [
-    {
-      id: 'log_1', quando: '2026-03-26T12:30:00Z', quemNome: 'Daniel Martins', quemTipo: 'user' as const,
-      acao: 'ALTERAÇÃO', oQueFoiFeito: `Editou configurações da organização ${tenantName}`,
-      entidade: 'Organização',
-      diff: [{ campo: 'Status', antes: 'Suspensa', depois: 'Ativa' }]
-    },
-    {
-      id: 'log_2', quando: '2026-03-26T11:45:00Z', quemNome: 'Gabi AI', quemTipo: 'gabi' as const,
-      acao: 'IA', oQueFoiFeito: 'Gerou relatório mensal de consumo automaticamente',
-      entidade: 'Relatórios',
-      diff: []
-    },
-    {
-      id: 'log_3', quando: '2026-03-26T10:20:00Z', quemNome: 'João Silva', quemTipo: 'user' as const,
-      acao: 'CRIAÇÃO', oQueFoiFeito: 'Criou nova estimativa de custo — NCM 8471.30.19',
-      entidade: 'SimulaCusto',
-      diff: [{ campo: 'NCM', antes: '', depois: '8471.30.19' }, { campo: 'Valor FOB', antes: '', depois: 'USD 12.500,00' }]
-    },
-    {
-      id: 'log_4', quando: '2026-03-25T16:40:00Z', quemNome: 'Sistema', quemTipo: 'system' as const,
-      acao: 'CONFIGURAÇÃO', oQueFoiFeito: 'Rotina de verificação de integridade de dados concluída',
-      entidade: 'Sistema',
-      diff: []
-    },
-    {
-      id: 'log_5', quando: '2026-03-25T15:10:00Z', quemNome: 'Maria Souza', quemTipo: 'user' as const,
-      acao: 'ENVIO', oQueFoiFeito: 'Enviou email para fornecedor — Proposta Comercial Q1/2026',
-      entidade: 'Email',
-      diff: [{ campo: 'Destinatário', antes: '', depois: 'fornecedor@example.com' }, { campo: 'Template', antes: '', depois: 'Proposta Comercial' }]
-    },
-    {
-      id: 'log_6', quando: '2026-03-25T14:00:00Z', quemNome: 'Daniel Martins', quemTipo: 'user' as const,
-      acao: 'ALTERAÇÃO', oQueFoiFeito: 'Alterou permissão de usuário para Administrador',
-      entidade: 'Usuários',
-      diff: [{ campo: 'Role', antes: 'Membro', depois: 'Administrador' }]
-    },
-    {
-      id: 'log_7', quando: '2026-03-25T09:30:00Z', quemNome: 'Gabi AI', quemTipo: 'gabi' as const,
-      acao: 'IA', oQueFoiFeito: 'Respondeu pergunta sobre alíquota de IPI para NCM 8471',
-      entidade: 'Gabi',
-      diff: []
-    },
-    {
-      id: 'log_8', quando: '2026-03-24T18:15:00Z', quemNome: 'Carlos Ferreira', quemTipo: 'user' as const,
-      acao: 'EXCLUSÃO', oQueFoiFeito: 'Removeu estimativa de custo duplicada #EST-2026-142',
-      entidade: 'SimulaCusto',
-      diff: [{ campo: 'ID', antes: 'EST-2026-142', depois: '' }, { campo: 'Status', antes: 'Rascunho', depois: '' }]
-    },
-    {
-      id: 'log_9', quando: '2026-03-24T14:00:00Z', quemNome: 'Daniel Martins', quemTipo: 'user' as const,
-      acao: 'LOGIN', oQueFoiFeito: 'Acesso ao sistema via SSO Clerk',
-      entidade: 'Autenticação',
-      diff: []
-    },
-    {
-      id: 'log_10', quando: '2026-03-24T10:30:00Z', quemNome: 'Sistema', quemTipo: 'system' as const,
-      acao: 'RECEBIMENTO', oQueFoiFeito: 'Recebeu webhook do Stripe — fatura paga',
-      entidade: 'Financeiro',
-      diff: [{ campo: 'Invoice ID', antes: '', depois: 'inv_2026_0324' }, { campo: 'Valor', antes: '', depois: 'R$ 2.490,00' }]
-    },
-    {
-      id: 'log_11', quando: '2026-03-23T17:45:00Z', quemNome: 'Ana Costa', quemTipo: 'user' as const,
-      acao: 'EXPORTAÇÃO', oQueFoiFeito: 'Exportou relatório de estimativas em PDF',
-      entidade: 'Relatórios',
-      diff: []
-    },
-    {
-      id: 'log_12', quando: '2026-03-23T11:20:00Z', quemNome: 'Gabi AI', quemTipo: 'gabi' as const,
-      acao: 'IA', oQueFoiFeito: 'Sugeriu correção de alíquota de ICMS para operação interestadual SP→RJ',
-      entidade: 'SimulaCusto',
-      diff: [{ campo: 'ICMS (%)', antes: '18%', depois: '12%' }, { campo: 'Motivo', antes: '', depois: 'Interestadual SP→RJ' }]
-    },
-  ]
-  return base
+function mapStatus(status: string): string {
+  if (status === 'ACTIVE') return 'Ativa'
+  if (status === 'SUSPENDED') return 'Suspensa'
+  return status
 }
 
 // ─── Cores de ação ────────────────────────────────────────────────────────────
@@ -268,14 +122,66 @@ function renderDiffTable(diffs: DiffObj[]) {
 export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: () => void }) {
   const [tab, setTab] = useState<TabKey>('auditoria')
   const [loading, setLoading] = useState(true)
-
-  const tenant = useMemo(() => MOCK_TENANTS.find(t => t.id === tenantId), [tenantId])
-  const logs = useMemo(() => tenant ? gerarLogsMock(tenant.name) : [], [tenant])
+  const [tenant, setTenant] = useState<TenantMock | null>(null)
+  const [logs, setLogs] = useState<LogAuditoria[]>([])
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 400)
-    return () => clearTimeout(timer)
-  }, [])
+    async function loadTenant() {
+      setLoading(true)
+      try {
+        const res = await adminTenantsApi.getById(tenantId)
+        const t = res.tenant
+        const mapped: TenantMock = {
+          id: t.id,
+          name: t.name,
+          slug: t.slug,
+          status: mapStatus(t.status),
+          created_at: t.created_at,
+          _count: t._count ?? { users: 0, companies: 0 },
+          subscriptions: (t.subscriptions ?? []).map((s: { plan: string; status: string }) => ({
+            plan: s.plan,
+            status: s.status,
+          })),
+          workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string }) => ({
+            id: c.id,
+            nome: c.name,
+            subdominio: c.subdomain ?? t.slug,
+            status: mapStatus(c.status),
+            usuarios: 0,
+            plano: (t.subscriptions ?? []).map((s: { plan: string }) => s.plan).join(', ') || 'N/A',
+            criadaEm: new Date(t.created_at).toLocaleDateString('pt-BR'),
+          })),
+        }
+        setTenant(mapped)
+
+        // Tentar carregar logs de auditoria do histórico global
+        try {
+          const logsRes = await fetch(`/api/tenant/historico-global/logs?tenant_id=${tenantId}`)
+          if (logsRes.ok) {
+            const logsData = await logsRes.json()
+            const mappedLogs: LogAuditoria[] = (logsData.data || []).map((dbLog: Record<string, unknown>) => ({
+              id: dbLog.id as string,
+              quando: dbLog.created_at as string,
+              quemNome: dbLog.actor_id as string,
+              quemTipo: dbLog.actor_type === 'GABI_IA' ? 'gabi' : dbLog.actor_type === 'SYSTEM' ? 'system' : 'user',
+              acao: dbLog.action as string,
+              oQueFoiFeito: (dbLog.metadata as Record<string, string>)?.oQueFoiFeito || dbLog.action as string,
+              entidade: (dbLog.metadata as Record<string, string>)?.entidade || dbLog.product_id as string || 'Sistema',
+              diff: (dbLog.metadata as Record<string, DiffObj[]>)?.diff || [],
+            }))
+            setLogs(mappedLogs)
+          }
+        } catch {
+          // Logs not available yet
+        }
+      } catch {
+        setTenant(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadTenant()
+  }, [tenantId])
 
   if (loading) {
     return (
@@ -571,7 +477,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
         <div className="ws-fade-up" style={{ padding: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#94a3b8', fontSize: '0.8125rem' }}>
             <Info size={16} weight="duotone" color="#3b82f6" />
-            Em modo de demonstração — dados de usuários individuais não disponíveis no mock.
+            Dados agregados do tenant. Listagem individual de usuários disponível na seção Usuários Globais.
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
             {[

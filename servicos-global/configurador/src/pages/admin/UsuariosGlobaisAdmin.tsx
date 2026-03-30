@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Users, UserCircleCheck, UserCircleMinus,
   PauseCircle, PlayCircle, PencilSimple, TreeStructure,
@@ -18,6 +18,7 @@ import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exp
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
+import { adminUsersApi, type GlobalUserApi } from '../../services/apiClient'
 
 // ─── Tipos globais ─────────────────────────────────────────────────────────────
 // Documentação central em src/types/niveis-acesso.ts
@@ -40,65 +41,34 @@ interface GlobalUser {
   espacos: GlobalUserSpace[]
 }
 
-// ─── Mock de organizações ───────────────────────────────────────────────────────
-const ORGS = [
-  'Gravity HQ',
-  'Importes SA', 'Acme Logística', 'TechVision Ltda', 'Prime Distribuidora',
-  'Global Commerce', 'NovaTech', 'Alpha Supply', 'Beta Serviços',
-  'Gamma Soluções', 'Delta Empresas',
-]
+// ─── Helper: mapeia role do backend para NivelAcesso do frontend ────────────────
 
-// ─── Mock: todos os usuários da plataforma (somatória de todas as orgs) ─────────
-const mockAllUsers: GlobalUser[] = [
-  // ── Gravity HQ — Super Admins da plataforma ──────────────────────────────────
-  { id: 'sa01', nome: 'Daniel Martins Mendes', email: 'dmmltda@gmail.com',          tipo: 'Super Admin', status: 'Ativo',   organizacao: 'Gravity HQ', espacos: [{ id: 'e1', nome: 'Núcleo Central', subdominio: 'admin', perfil: 'Super Admin' }] },
-  { id: 'sa02', nome: 'Lucas Ferreira',        email: 'lucas@gravity.com.br',       tipo: 'Super Admin', status: 'Ativo',   organizacao: 'Gravity HQ', espacos: [{ id: 'e1', nome: 'Núcleo Central', subdominio: 'admin', perfil: 'Super Admin' }] },
-  { id: 'sa03', nome: 'Mariana Costa',         email: 'mariana@gravity.com.br',     tipo: 'Super Admin', status: 'Ativo',   organizacao: 'Gravity HQ', espacos: [{ id: 'e1', nome: 'Núcleo Central', subdominio: 'admin', perfil: 'Super Admin' }] },
-  // ── Importes SA ──────────────────────────────────────────────────────────────
-  { id: 'g01', nome: 'Daniel Marques',      email: 'daniel@importes.com.br',    tipo: 'Master',     status: 'Ativo',   organizacao: 'Importes SA', espacos: Array.from({ length: 50 }, (_, i) => ({ id: `e01-${i}`, nome: `Importes Filial ${i + 1}`, subdominio: `importes-f${i+1}`, perfil: i % 5 === 0 ? 'Master' : 'Standard' })) },
-  { id: 'g02', nome: 'Carla Souza',         email: 'carla@importes.com.br',     tipo: 'Master',     status: 'Ativo',   organizacao: 'Importes SA', espacos: [{ id: 'e2', nome: 'Importes Matriz', subdominio: 'importes', perfil: 'Master' }] },
-  { id: 'g03', nome: 'Felipe Lima',         email: 'felipe@importes.com.br',    tipo: 'Standard',   status: 'Inativo', organizacao: 'Importes SA', espacos: [{ id: 'e2', nome: 'Importes Matriz', subdominio: 'importes', perfil: 'Standard' }] },
-  { id: 'g04', nome: 'Rodrigo Faria',       email: 'rodrigo@importes.com.br',   tipo: 'Standard',   status: 'Ativo',   organizacao: 'Importes SA', espacos: [{ id: 'e2', nome: 'Importes Matriz', subdominio: 'importes', perfil: 'Standard' }] },
-  { id: 'g05', nome: 'Ana Beatriz Costa',   email: 'ana@importes.com.br',       tipo: 'Standard',   status: 'Ativo',   organizacao: 'Importes SA', espacos: [{ id: 'e2', nome: 'Importes Matriz', subdominio: 'importes', perfil: 'Standard' }, { id: 'e3', nome: 'Importes Filial', subdominio: 'importes-rj', perfil: 'Standard' }] },
-  // Acme Logística
-  { id: 'g06', nome: 'Paulo Henrique',      email: 'paulo@acme.com.br',         tipo: 'Master',     status: 'Ativo',   organizacao: 'Acme Logística', espacos: [{ id: 'e4', nome: 'Acme SP', subdominio: 'acme-sp', perfil: 'Master' }] },
-  { id: 'g07', nome: 'Juliana Martins',     email: 'juliana@acme.com.br',       tipo: 'Standard',   status: 'Inativo', organizacao: 'Acme Logística', espacos: [{ id: 'e4', nome: 'Acme SP', subdominio: 'acme-sp', perfil: 'Standard' }] },
-  { id: 'g08', nome: 'Marcos Oliveira',     email: 'marcos@acme.com.br',        tipo: 'Standard',   status: 'Ativo',   organizacao: 'Acme Logística', espacos: [{ id: 'e4', nome: 'Acme SP', subdominio: 'acme-sp', perfil: 'Standard' }] },
-  { id: 'g09', nome: 'Fernanda Rocha',      email: 'fernanda@acme.com.br',      tipo: 'Fornecedor', status: 'Ativo',   organizacao: 'Acme Logística', espacos: [{ id: 'e4', nome: 'Acme SP', subdominio: 'acme-sp', perfil: 'Fornecedor' }] },
-  // TechVision
-  { id: 'g10', nome: 'Gustavo Almeida',     email: 'gustavo@techvision.com',    tipo: 'Master',     status: 'Ativo',   organizacao: 'TechVision Ltda', espacos: [{ id: 'e5', nome: 'TechVision', subdominio: 'techv', perfil: 'Master' }] },
-  { id: 'g11', nome: 'Tatiane Ferreira',    email: 'tatiane@techvision.com',    tipo: 'Standard',   status: 'Inativo', organizacao: 'TechVision Ltda', espacos: [{ id: 'e5', nome: 'TechVision', subdominio: 'techv', perfil: 'Standard' }] },
-  { id: 'g12', nome: 'Bruno Cardoso',       email: 'bruno@techvision.com',      tipo: 'Standard',   status: 'Ativo',   organizacao: 'TechVision Ltda', espacos: [{ id: 'e5', nome: 'TechVision', subdominio: 'techv', perfil: 'Standard' }] },
-  { id: 'g13', nome: 'Larissa Mendes',      email: 'larissa@techvision.com',    tipo: 'Standard',   status: 'Ativo',   organizacao: 'TechVision Ltda', espacos: [{ id: 'e5', nome: 'TechVision', subdominio: 'techv', perfil: 'Standard' }] },
-  // Prime Distribuidora
-  { id: 'g14', nome: 'Thiago Nascimento',   email: 'thiago@prime.com.br',       tipo: 'Master',     status: 'Ativo',   organizacao: 'Prime Distribuidora', espacos: [{ id: 'e6', nome: 'Prime HQ', subdominio: 'prime', perfil: 'Master' }] },
-  { id: 'g15', nome: 'Patrícia Lopes',      email: 'patricia@prime.com.br',     tipo: 'Standard',   status: 'Ativo',   organizacao: 'Prime Distribuidora', espacos: [{ id: 'e6', nome: 'Prime HQ', subdominio: 'prime', perfil: 'Standard' }] },
-  { id: 'g16', nome: 'Eduardo Silva',       email: 'eduardo@prime.com.br',      tipo: 'Standard',   status: 'Inativo', organizacao: 'Prime Distribuidora', espacos: [{ id: 'e6', nome: 'Prime HQ', subdominio: 'prime', perfil: 'Standard' }] },
-  // Global Commerce
-  { id: 'g17', nome: 'Camila Santos',       email: 'camila@globalcommerce.com', tipo: 'Master',     status: 'Ativo',   organizacao: 'Global Commerce', espacos: [{ id: 'e7', nome: 'Global Hub', subdominio: 'global', perfil: 'Master' }] },
-  { id: 'g18', nome: 'Leandro Pereira',     email: 'leandro@globalcommerce.com',tipo: 'Standard',   status: 'Ativo',   organizacao: 'Global Commerce', espacos: [{ id: 'e7', nome: 'Global Hub', subdominio: 'global', perfil: 'Standard' }] },
-  { id: 'g19', nome: 'Vanessa Ribeiro',     email: 'vanessa@globalcommerce.com',tipo: 'Standard',   status: 'Ativo',   organizacao: 'Global Commerce', espacos: [{ id: 'e7', nome: 'Global Hub', subdominio: 'global', perfil: 'Standard' }] },
-  { id: 'g20', nome: 'Ricardo Gomes',       email: 'ricardo@globalcommerce.com',tipo: 'Fornecedor', status: 'Inativo', organizacao: 'Global Commerce', espacos: [{ id: 'e7', nome: 'Global Hub', subdominio: 'global', perfil: 'Fornecedor' }] },
-  // NovaTech
-  { id: 'g21', nome: 'Aline Correia',       email: 'aline@novatech.io',         tipo: 'Master',     status: 'Ativo',   organizacao: 'NovaTech', espacos: [{ id: 'e8', nome: 'NovaTech', subdominio: 'nova', perfil: 'Master' }] },
-  { id: 'g22', nome: 'Vinicius Carvalho',   email: 'vinicius@novatech.io',      tipo: 'Standard',   status: 'Ativo',   organizacao: 'NovaTech', espacos: [{ id: 'e8', nome: 'NovaTech', subdominio: 'nova', perfil: 'Standard' }] },
-  { id: 'g23', nome: 'Renata Barbosa',      email: 'renata@novatech.io',        tipo: 'Standard',   status: 'Ativo',   organizacao: 'NovaTech', espacos: [{ id: 'e8', nome: 'NovaTech', subdominio: 'nova', perfil: 'Standard' }] },
-  // Alpha Supply
-  { id: 'g24', nome: 'Sérgio Moraes',       email: 'sergio@alphasupply.com.br', tipo: 'Master',     status: 'Ativo',   organizacao: 'Alpha Supply', espacos: [{ id: 'e9', nome: 'Alpha Sup', subdominio: 'alpha', perfil: 'Master' }] },
-  { id: 'g25', nome: 'Isabela Teixeira',    email: 'isabela@alphasupply.com.br',tipo: 'Standard',   status: 'Inativo', organizacao: 'Alpha Supply', espacos: [{ id: 'e9', nome: 'Alpha Sup', subdominio: 'alpha', perfil: 'Standard' }] },
-  // Beta Serviços
-  { id: 'g26', nome: 'Diego Cunha',         email: 'diego@beta.com.br',         tipo: 'Master',     status: 'Ativo',   organizacao: 'Beta Serviços', espacos: [{ id: 'e10', nome: 'Beta HQ', subdominio: 'beta', perfil: 'Master' }] },
-  { id: 'g27', nome: 'Priscila Vieira',     email: 'priscila@beta.com.br',      tipo: 'Standard',   status: 'Ativo',   organizacao: 'Beta Serviços', espacos: [{ id: 'e10', nome: 'Beta HQ', subdominio: 'beta', perfil: 'Standard' }] },
-  // Gamma Soluções
-  { id: 'g28', nome: 'Fábio Araújo',        email: 'fabio@gamma.io',            tipo: 'Master',     status: 'Ativo',   organizacao: 'Gamma Soluções', espacos: [{ id: 'e11', nome: 'Gamma Hub', subdominio: 'gamma', perfil: 'Master' }] },
-  { id: 'g29', nome: 'Monique Dias',        email: 'monique@gamma.io',          tipo: 'Standard',   status: 'Ativo',   organizacao: 'Gamma Soluções', espacos: [{ id: 'e11', nome: 'Gamma Hub', subdominio: 'gamma', perfil: 'Standard' }] },
-  { id: 'g30', nome: 'Henrique Cavalcanti', email: 'henrique@gamma.io',         tipo: 'Fornecedor', status: 'Inativo', organizacao: 'Gamma Soluções', espacos: [{ id: 'e11', nome: 'Gamma Hub', subdominio: 'gamma', perfil: 'Fornecedor' }] },
-  // Delta Empresas
-  { id: 'g31', nome: 'Sabrina Pinto',       email: 'sabrina@delta.com.br',      tipo: 'Master',     status: 'Ativo',   organizacao: 'Delta Empresas', espacos: [{ id: 'e12', nome: 'Delta Group', subdominio: 'delta', perfil: 'Master' }] },
-  { id: 'g32', nome: 'Caio Rezende',        email: 'caio@delta.com.br',         tipo: 'Standard',   status: 'Ativo',   organizacao: 'Delta Empresas', espacos: [{ id: 'e12', nome: 'Delta Group', subdominio: 'delta', perfil: 'Standard' }] },
-  { id: 'g33', nome: 'Letícia Castro',      email: 'leticia@delta.com.br',      tipo: 'Standard',   status: 'Ativo',   organizacao: 'Delta Empresas', espacos: [{ id: 'e12', nome: 'Delta Group', subdominio: 'delta', perfil: 'Standard' }] },
-  { id: 'g34', nome: 'Omar Khalil',         email: 'omar@delta.com.br',         tipo: 'Standard',   status: 'Inativo', organizacao: 'Delta Empresas', espacos: [{ id: 'e12', nome: 'Delta Group', subdominio: 'delta', perfil: 'Standard' }] },
-]
+function mapRole(role: string): NivelAcesso {
+  switch (role) {
+    case 'GRAVITY_ADMIN': return 'Super Admin'
+    case 'MASTER': return 'Master'
+    case 'STANDARD': return 'Standard'
+    case 'SUPPLIER': return 'Fornecedor'
+    default: return 'Standard'
+  }
+}
+
+function mapApiUserToGlobal(u: GlobalUserApi): GlobalUser {
+  return {
+    id: u.id,
+    nome: u.name,
+    email: u.email,
+    tipo: mapRole(u.role),
+    status: 'Ativo',
+    organizacao: u.tenant?.name ?? 'N/A',
+    espacos: u.memberships.map(m => ({
+      id: m.id,
+      nome: m.company?.name ?? 'N/A',
+      subdominio: m.company?.subdomain ?? '',
+      perfil: mapRole(m.role),
+    })),
+  }
+}
 
 // ─── Badge de organização ───────────────────────────────────────────────────────
 function OrgBadge({ nome }: { nome: string }) {
@@ -129,13 +99,36 @@ export function UsuariosGlobaisAdmin() {
   // Mock do usuário logado — No futuro, recuperar de um AuthContext
   const [perfilLogado] = useState<NivelAcesso>('Super Admin')
 
-  const [users, setUsers] = useState<GlobalUser[]>(mockAllUsers)
+  const [users, setUsers] = useState<GlobalUser[]>([])
+  const [carregando, setCarregando] = useState(true)
 
   const [showForm, setShowForm]   = useState(false)
   const [fNome, setFNome]         = useState('')
   const [fEmail, setFEmail]       = useState('')
   const [fTipo, setFTipo]         = useState<NivelAcesso>('Standard')
-  const [fOrg, setFOrg]           = useState(ORGS[0])
+  const [fOrg, setFOrg]           = useState('')
+
+  // Organizações extraídas dos dados reais
+  const ORGS = useMemo(() => {
+    const orgs = new Set(users.map(u => u.organizacao))
+    return Array.from(orgs).sort()
+  }, [users])
+
+  // Carregar usuários da API
+  useEffect(() => {
+    async function loadUsers() {
+      try {
+        setCarregando(true)
+        const res = await adminUsersApi.list()
+        setUsers(res.users.map(mapApiUserToGlobal))
+      } catch {
+        console.warn('Falha ao carregar usuários globais')
+      } finally {
+        setCarregando(false)
+      }
+    }
+    loadUsers()
+  }, [])
 
   const [usuarioEditando, setUsuarioEditando] = useState<GlobalUser | null>(null)
   const [usuarioPermissoes, setUsuarioPermissoes] = useState<GlobalUser | null>(null)
@@ -160,7 +153,7 @@ export function UsuariosGlobaisAdmin() {
       espacos: [{ id: String(Date.now() + 1), nome: fOrg + ' Principal', subdominio: fOrg.toLowerCase().replace(/\s/g, ''), perfil: fTipo }]
     }
     setUsers(prev => [...prev, newUser])
-    setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0]); setShowForm(false)
+    setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
   }
 
   function handleToggleStatus(u: GlobalUser) {

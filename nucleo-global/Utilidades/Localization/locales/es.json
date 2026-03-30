@@ -222,7 +222,9 @@
     "dia_qua": "Mie",
     "dia_qui": "Jue",
     "dia_sex": "Vie",
-    "dia_sab": "Sab"
+    "dia_sab": "Sab",
+    "inicio": "Inicio",
+    "fim": "Fin"
   },
   "botoes": {
     "salvar": "Guardar",
@@ -246,7 +248,7 @@
     "acesso_restrito": "Acceso Restringido",
     "apenas_master_org": "Solo los usuarios Master pueden gestionar la organización.",
     "apenas_master_assinaturas": "Solo los usuarios Master pueden gestionar las suscripciones.",
-    "gerenciar_organizacao": "Gestionar Organización",
+    "gerenciar_organizacao": "Configurador",
     "assinaturas_recibos": "Suscripciones y Recibos",
     "acesso_admin": "Acceso Admin",
     "acesso_configurador": "Acceso al Configurador",

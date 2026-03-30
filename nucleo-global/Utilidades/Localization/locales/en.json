@@ -222,7 +222,9 @@
     "dia_qua": "Wed",
     "dia_qui": "Thu",
     "dia_sex": "Fri",
-    "dia_sab": "Sat"
+    "dia_sab": "Sat",
+    "inicio": "Start",
+    "fim": "End"
   },
   "botoes": {
     "salvar": "Save",
@@ -246,7 +248,7 @@
     "acesso_restrito": "Restricted Access",
     "apenas_master_org": "Only Master users can manage the organization.",
     "apenas_master_assinaturas": "Only Master users can manage subscriptions.",
-    "gerenciar_organizacao": "Manage Organization",
+    "gerenciar_organizacao": "Configurator",
     "assinaturas_recibos": "Subscriptions & Receipts",
     "acesso_admin": "Admin Access",
     "acesso_configurador": "Configurator Access",

@@ -124,6 +124,53 @@ body.light-theme .ws-calendario-selectors .sg-campo:hover {
   display: none; /* Esconder para ficar igual ao original nativo que não tinha chevron ou tinha chevron via background no OS, mas aqui fica mais limpo e minimalista */
 }
 
+.ws-calendario-range-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.625rem 0.75rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--ws-border, #334155);
+  border-radius: 0.5rem;
+}
+body.light-theme .ws-calendario-range-display {
+  background: rgba(0,0,0,0.02);
+}
+.ws-calendario-range-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+.ws-calendario-range-item--ativo {
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+}
+body.light-theme .ws-calendario-range-item--ativo {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+.ws-calendario-range-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ws-muted, #94a3b8);
+}
+.ws-calendario-range-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text, #f8fafc);
+}
+.ws-calendario-range-separator {
+  color: var(--ws-muted, #94a3b8);
+  font-size: 0.875rem;
+}
+
 .ws-calendario-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

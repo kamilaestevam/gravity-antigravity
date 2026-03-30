@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { 
   Receipt, Buildings, DownloadSimple, CalendarBlank, FileXls, ChartLineUp, 
   Plus, FilePdf, Paperclip, Trash
@@ -47,67 +47,33 @@ type FaturaGlobal = {
   documentos: DocumentoFatura[]
 }
 
-const faturasGlobais: FaturaGlobal[] = [
-  {
-    id: 'g1', num: '#0412', cliente: 'Importas SA', produto: 'Gravity Journey', competencia: 'Mar/2025', valor: 'R$ 3.247,00', vencimento: '05/04/2025', status: 'Pendente',
-    documentos: [
-      { id: 'd1', nome: 'Boleto_Importas_Mar25.pdf', tipo: 'Boleto', status: 'Anexado' },
-      { id: 'd2', nome: 'Pendente', tipo: 'Nota Fiscal', status: 'Pendente' },
-    ],
-    composicao: [
-      { item: 'Plano Enterprise', valor: 'R$ 2.499,00', tipo: 'base' },
-      { item: 'Journey — 68 jornadas ativas', valor: 'R$ 637,32', tipo: 'adicional' },
-      { item: 'Smart Read — 45 documentos', valor: 'R$ 269,55', tipo: 'adicional' },
-      { item: 'Desconto Fidelidade 5%', valor: '- R$ 158,87', tipo: 'desconto' },
-    ]
-  },
-  {
-    id: 'g2', num: '#0411', cliente: 'TechCorp Brasil', produto: 'Gravity Flow', competencia: 'Mar/2025', valor: 'R$ 1.500,00', vencimento: '10/04/2025', status: 'Pendente',
+import { adminBillingApi, type InvoiceApi } from '../../services/apiClient'
+
+// Helper para mapear assinaturas do backend para o formato de fatura do frontend
+function mapSubscriptionToFatura(inv: InvoiceApi, index: number): FaturaGlobal {
+  const statusMap: Record<string, FaturaStatus> = {
+    ACTIVE: 'Pago',
+    TRIALING: 'Pendente',
+    PAST_DUE: 'Atrasado',
+    CANCELED: 'Pago',
+    INCOMPLETE: 'Pendente',
+  }
+  const created = new Date(inv.created_at)
+  const competencia = `${created.toLocaleString('pt-BR', { month: 'short' })}/${created.getFullYear()}`
+
+  return {
+    id: inv.id,
+    num: `#${String(index + 1).padStart(4, '0')}`,
+    cliente: inv.tenant?.name ?? 'N/A',
+    produto: inv.plan ?? 'N/A',
+    competencia,
+    valor: 'N/A',
+    vencimento: inv.current_period_end ? new Date(inv.current_period_end).toLocaleDateString('pt-BR') : 'N/A',
+    status: statusMap[inv.status] ?? 'Pendente',
+    composicao: [{ item: `Plano ${inv.plan}`, valor: 'N/A', tipo: 'base' as const }],
     documentos: [],
-    composicao: [
-      { item: 'Plano Professional', valor: 'R$ 999,00', tipo: 'base' },
-      { item: 'Flow — 12 automações', valor: 'R$ 501,00', tipo: 'adicional' },
-    ]
-  },
-  {
-    id: 'g3', num: '#0410', cliente: 'Mega Retail', produto: 'Gravity Sales', competencia: 'Fev/2025', valor: 'R$ 4.900,00', vencimento: '05/03/2025', status: 'Pago',
-    documentos: [
-      { id: 'd3', nome: 'Boleto_Mega_Fev.pdf', tipo: 'Boleto', status: 'Anexado' },
-      { id: 'd4', nome: 'NFe_Mega_Fev.pdf', tipo: 'Nota Fiscal', status: 'Anexado' },
-    ],
-    composicao: [
-      { item: 'Plano Enterprise', valor: 'R$ 2.499,00', tipo: 'base' },
-      { item: 'Sales — 320 leads processados', valor: 'R$ 1.920,00', tipo: 'adicional' },
-      { item: '15 usuários adicionais', valor: 'R$ 750,00', tipo: 'adicional' },
-      { item: 'Desconto volume 5%', valor: '- R$ 269,00', tipo: 'desconto' },
-    ]
-  },
-  {
-    id: 'g4', num: '#0409', cliente: 'Importas SA', produto: 'Plano Enterprise', competencia: 'Fev/2025', valor: 'R$ 2.499,00', vencimento: '05/03/2025', status: 'Pago',
-    documentos: [
-      { id: 'd5', nome: 'Boleto_Importas_Fev.pdf', tipo: 'Boleto', status: 'Anexado' },
-      { id: 'd6', nome: 'NFe_Importas_Fev.pdf', tipo: 'Nota Fiscal', status: 'Anexado' },
-    ],
-    composicao: [
-      { item: 'Plano Enterprise', valor: 'R$ 2.499,00', tipo: 'base' },
-    ]
-  },
-  {
-    id: 'g5', num: '#0408', cliente: 'Logistics Pro', produto: 'Plano Starter', competencia: 'Jan/2025', valor: 'R$ 500,00', vencimento: '05/02/2025', status: 'Atrasado',
-    documentos: [],
-    composicao: [
-      { item: 'Plano Starter', valor: 'R$ 500,00', tipo: 'base' },
-    ]
-  },
-  {
-    id: 'g6', num: '#0407', cliente: 'Alpha Solutions', produto: 'Gravity Analytics', competencia: 'Mar/2025', valor: 'R$ 1.200,00', vencimento: '15/04/2025', status: 'Pendente',
-    documentos: [],
-    composicao: [
-      { item: 'Plano Professional', valor: 'R$ 999,00', tipo: 'base' },
-      { item: 'Analytics — dashboards premium', valor: 'R$ 201,00', tipo: 'adicional' },
-    ]
-  },
-]
+  }
+}
 
 const statusBadge: Record<FaturaStatus, string> = {
   Pago:     'ws-badge-success',
@@ -116,7 +82,23 @@ const statusBadge: Record<FaturaStatus, string> = {
 }
 
 export function AdminFinanceiro() {
-  const [faturasLocal, setFaturasLocal] = useState<FaturaGlobal[]>(faturasGlobais)
+  const [faturasLocal, setFaturasLocal] = useState<FaturaGlobal[]>([])
+  const [carregando, setCarregando] = useState(true)
+
+  useEffect(() => {
+    async function loadInvoices() {
+      try {
+        setCarregando(true)
+        const res = await adminBillingApi.listInvoices()
+        setFaturasLocal(res.invoices.map((inv, i) => mapSubscriptionToFatura(inv, i)))
+      } catch {
+        console.warn('Falha ao carregar faturas globais')
+      } finally {
+        setCarregando(false)
+      }
+    }
+    loadInvoices()
+  }, [])
   
   const faturasAbertas = faturasLocal.filter(f => f.status === 'Pendente' || f.status === 'Atrasado')
   const inadimplencias = faturasLocal.filter(f => f.status === 'Atrasado')

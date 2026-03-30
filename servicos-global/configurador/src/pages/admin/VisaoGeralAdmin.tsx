@@ -18,6 +18,7 @@ import { BotoesSalvarGlobal, useDirty } from '@nucleo/botoes-salvar-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { adminPlatformApi } from '../../services/apiClient'
 
 import '../workspace/workspace.css'
 
@@ -33,16 +34,16 @@ type DadosAdmin = {
   criadaEm:   string
 }
 
-const dadosIniciais: DadosAdmin = {
-  nome:       'Gravity Headquarters',
-  cnpj:       '00.000.000/0001-00',
-  estado:     'SP',
-  cidade:     'São Paulo',
-  segmento:   'Tecnologia',
-  site:       'https://gravity.com.br',
-  plano:      'Núcleo Central',
-  subdominio: 'admin',
-  criadaEm:   '01/01/2026',
+const dadosVazios: DadosAdmin = {
+  nome:       '',
+  cnpj:       '',
+  estado:     '',
+  cidade:     '',
+  segmento:   '',
+  site:       '',
+  plano:      '',
+  subdominio: '',
+  criadaEm:   '',
 }
 
 const ESTADOS_BR = [
@@ -69,13 +70,47 @@ export function VisaoGeralAdmin() {
   const { user } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
 
-  const [dados, setDados] = useState<DadosAdmin>(dadosIniciais)
+  const [dados, setDados] = useState<DadosAdmin>(dadosVazios)
+  const [dadosIniciais, setDadosIniciais] = useState<DadosAdmin>(dadosVazios)
   const { dirty, resetDirty } = useDirty(dadosIniciais, dados)
-  
+
   const [salvando, setSalvando] = useState(false)
+  const [carregando, setCarregando] = useState(true)
 
   const [cidades, setCidades] = useState<SelectOpcao[]>([])
   const [carregandoCidades, setCarregandoCidades] = useState(false)
+
+  // Carregar dados da plataforma do backend
+  useEffect(() => {
+    async function loadConfig() {
+      try {
+        setCarregando(true)
+        const res = await adminPlatformApi.getConfig()
+        if (res.config) {
+          const c = res.config
+          const loaded: DadosAdmin = {
+            nome: c.name || '',
+            cnpj: c.cnpj || '',
+            estado: c.state || '',
+            cidade: c.city || '',
+            segmento: c.segment || '',
+            site: c.website || '',
+            plano: c.subscriptions?.[0]?.plan || 'N/A',
+            subdominio: c.slug || '',
+            criadaEm: c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '',
+          }
+          setDados(loaded)
+          setDadosIniciais(loaded)
+          resetDirty(loaded)
+        }
+      } catch {
+        addNotification({ type: 'error', message: 'Falha ao carregar dados da plataforma.' })
+      } finally {
+        setCarregando(false)
+      }
+    }
+    loadConfig()
+  }, [])
 
   useEffect(() => {
     if (!dados.estado) {
@@ -107,14 +142,22 @@ export function VisaoGeralAdmin() {
   async function handleSalvar() {
     try {
       setSalvando(true)
-      await new Promise(res => setTimeout(res, 1200))
+      await adminPlatformApi.updateConfig({
+        name: dados.nome,
+        cnpj: dados.cnpj,
+        state: dados.estado,
+        city: dados.cidade,
+        segment: dados.segmento,
+        website: dados.site,
+      })
 
+      setDadosIniciais(dados)
       resetDirty(dados)
       addNotification({
         type: 'success',
         message: 'Configurações globais salvas com sucesso!'
       })
-    } catch (err) {
+    } catch {
       addNotification({
         type: 'error',
         message: 'Falha ao salvar. Tente novamente.'

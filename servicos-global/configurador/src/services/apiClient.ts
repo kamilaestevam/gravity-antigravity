@@ -207,9 +207,10 @@ export const adminProductsApi = {
 // ─── Admin: Tenants ─────────────────────────────────────────────────────────
 
 export const adminTenantsApi = {
-  async list(params?: { page?: number; search?: string }) {
+  async list(params?: { page?: number; limit?: number; search?: string }) {
     const query = new URLSearchParams()
     if (params?.page) query.set('page', String(params.page))
+    if (params?.limit) query.set('limit', String(params.limit))
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
     return request<{ tenants: TenantApi[]; pagination: PaginationApi }>(
@@ -237,6 +238,135 @@ export const adminTenantsApi = {
         totalUsers: number
       }
     }>('/admin/stats')
+  },
+}
+
+// ─── Admin: Usuários Globais ────────────────────────────────────────────────
+
+export interface GlobalUserApi {
+  id: string
+  name: string
+  email: string
+  role: string
+  created_at: string
+  tenant_id: string
+  tenant: { name: string; slug: string }
+  memberships: Array<{
+    id: string
+    company_id: string
+    role: string
+    is_active: boolean
+    company: { name: string; subdomain: string | null }
+  }>
+}
+
+export const adminUsersApi = {
+  async list(params?: { page?: number; search?: string }) {
+    const query = new URLSearchParams()
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.search) query.set('search', params.search)
+    const qs = query.toString()
+    return request<{ users: GlobalUserApi[]; pagination: PaginationApi }>(
+      `/admin/users${qs ? `?${qs}` : ''}`
+    )
+  },
+}
+
+// ─── Admin: Billing / Faturas ───────────────────────────────────────────────
+
+export interface InvoiceApi {
+  id: string
+  plan: string
+  status: string
+  stripe_subscription_id: string | null
+  current_period_start: string | null
+  current_period_end: string | null
+  created_at: string
+  tenant: { id: string; name: string; slug: string; stripe_customer_id: string | null }
+}
+
+export const adminBillingApi = {
+  async listInvoices(params?: { page?: number }) {
+    const query = new URLSearchParams()
+    if (params?.page) query.set('page', String(params.page))
+    const qs = query.toString()
+    return request<{ invoices: InvoiceApi[]; pagination: PaginationApi }>(
+      `/admin/billing/invoices${qs ? `?${qs}` : ''}`
+    )
+  },
+}
+
+// ─── Admin: Deploy Logs ─────────────────────────────────────────────────────
+
+export interface DeployLogApi {
+  id: string
+  created_at: string
+  user: string
+  area: string
+  from_state: string
+  to_state: string
+  version: string
+  status: string
+}
+
+export const adminDeploysApi = {
+  async list() {
+    return request<{ deploys: DeployLogApi[] }>('/admin/deploys')
+  },
+}
+
+// ─── Admin: Test Logs ───────────────────────────────────────────────────────
+
+export interface TestLogApi {
+  id: string
+  created_at: string
+  type: string
+  module: string
+  test_name: string
+  result: string
+  duration: string
+  error_log: string | null
+  ai_analysis: Record<string, unknown> | null
+}
+
+export const adminTestLogsApi = {
+  async list() {
+    return request<{ logs: TestLogApi[] }>('/admin/test-logs')
+  },
+}
+
+// ─── Admin: Platform Config (Visão Geral) ───────────────────────────────────
+
+export interface PlatformConfigApi {
+  id: string
+  name: string
+  slug: string
+  cnpj: string | null
+  state: string | null
+  city: string | null
+  segment: string | null
+  website: string | null
+  created_at: string
+  subscriptions?: Array<{ plan: string }>
+}
+
+export const adminPlatformApi = {
+  async getConfig() {
+    return request<{ config: PlatformConfigApi | null }>('/admin/platform-config')
+  },
+
+  async updateConfig(data: {
+    name?: string
+    cnpj?: string
+    state?: string
+    city?: string
+    segment?: string
+    website?: string
+  }) {
+    return request<{ config: PlatformConfigApi }>('/admin/platform-config', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
   },
 }
 

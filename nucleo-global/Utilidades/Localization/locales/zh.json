@@ -139,7 +139,9 @@
     "dia_qua": "三",
     "dia_qui": "四",
     "dia_sex": "五",
-    "dia_sab": "六"
+    "dia_sab": "六",
+    "inicio": "开始",
+    "fim": "结束"
   },
   "botoes": {
     "salvar": "保存",

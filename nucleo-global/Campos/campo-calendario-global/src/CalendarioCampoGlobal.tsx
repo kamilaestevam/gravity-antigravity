@@ -65,12 +65,28 @@ export function CalendarioCampoGlobal({
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      if (containerRef.current && !containerRef.current.contains(target)) {
+        // Não fechar se o clique foi dentro de um portal do SelectGlobal (dropdown de mês/ano)
+        const portal = (target as Element).closest?.('[id$="-portal"]')
+        if (portal) return
         setIsOpen(false)
       }
     }
-    // Fechar calendário ao scroll do pai (evita painel flutuante desalinhado)
-    function handleScroll() { setIsOpen(false) }
+    // Fechar calendário ao scroll da página (evita painel flutuante desalinhado)
+    // Ignora scroll interno de componentes (dropdown mês/ano, lista do calendário, etc.)
+    function handleScroll(e: Event) {
+      const target = e.target
+      if (target === document || target === document.documentElement) {
+        setIsOpen(false)
+        return
+      }
+      // Scroll de elementos internos do calendário ou portais de selects — não fechar
+      if (target instanceof Element) {
+        if (target.closest('.ws-calendario-panel') || target.closest('[id$="-portal"]') || target.closest('.sg-dropdown')) return
+      }
+      setIsOpen(false)
+    }
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside)
       window.addEventListener('scroll', handleScroll, true)
@@ -322,6 +338,18 @@ export function CalendarioCampoGlobal({
                 </div>
 
                 <button className="ws-calendario-nav-btn" onClick={() => mudaMes(1)}><CaretRight size={16} weight="bold" /></button>
+              </div>
+
+              <div className="ws-calendario-range-display">
+                <div className={`ws-calendario-range-item ${etapa === 'inicio' ? 'ws-calendario-range-item--ativo' : ''}`}>
+                  <span className="ws-calendario-range-label">{t('calendario.inicio')}</span>
+                  <span className="ws-calendario-range-value">{inicio ? formatarDataBR(inicio) : '—'}</span>
+                </div>
+                <span className="ws-calendario-range-separator">→</span>
+                <div className={`ws-calendario-range-item ${etapa === 'fim' ? 'ws-calendario-range-item--ativo' : ''}`}>
+                  <span className="ws-calendario-range-label">{t('calendario.fim')}</span>
+                  <span className="ws-calendario-range-value">{fim ? formatarDataBR(fim) : '—'}</span>
+                </div>
               </div>
 
               <div className="ws-calendario-grid">

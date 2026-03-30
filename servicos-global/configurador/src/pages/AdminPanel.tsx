@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react'
 import type { Page } from '../App'
 import { HardDrives, Buildings, TreeStructure, ChartPieSlice, WarningCircle, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, ShieldCheck, PencilSimple, Trash } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
+import { adminTenantsApi, type TenantApi } from '../services/apiClient'
 
 import { BotaoNovoAdminGlobal } from '@nucleo/botao-novo-admin-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -64,149 +65,15 @@ const STATUS_LABEL: Record<string, string> = {
 
 const API = '/api/admin'
 
-// ─── Mock ─────────────────────────────────────────────────────────────────────
+// ─── Helper: mapeia status do backend para pt-BR ──────────────────────────────
 
-const MOCK_TENANTS: Tenant[] = [
-  {
-    id: 't_1', name: 'Gravity Headquarters', slug: 'admin', status: 'Ativa',
-    created_at: '2025-01-01', _count: { users: 12, companies: 1 },
-    subscriptions: [{ plan: 'Enterprise (Admin)', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_1_1', nome: 'Núcleo Central', subdominio: 'admin', status: 'Ativa', usuarios: 12, plano: 'Enterprise (Admin)', criadaEm: '01/01/2025' },
-    ]
-  },
-  {
-    id: 't_2', name: 'Acme Corp LTDA', slug: 'acme-ltda', status: 'Ativa',
-    created_at: '2025-02-14', _count: { users: 48, companies: 3 },
-    subscriptions: [
-      { plan: 'Pro', status: 'ACTIVE' },
-      { plan: 'SimulaCusto', status: 'ACTIVE' },
-      { plan: 'Smart Read', status: 'ACTIVE' }
-    ],
-    workspaces: [
-      { id: 'ws_2_1', nome: 'Acme São Paulo',     subdominio: 'acme-sp',     status: 'Ativa',    usuarios: 22, plano: 'Pro, SimulaCusto', criadaEm: '14/02/2025' },
-      { id: 'ws_2_2', nome: 'Acme Rio de Janeiro', subdominio: 'acme-rj',    status: 'Ativa',    usuarios: 18, plano: 'Pro, Smart Read', criadaEm: '20/02/2025' },
-      { id: 'ws_2_3', nome: 'Acme Campinas',       subdominio: 'acme-cps',   status: 'Suspensa', usuarios: 8,  plano: 'Pro', criadaEm: '01/03/2025' },
-    ]
-  },
-  {
-    id: 't_3', name: 'Stark Industries', slug: 'stark-global', status: 'Ativa',
-    created_at: '2025-02-28', _count: { users: 120, companies: 5 },
-    subscriptions: [
-      { plan: 'Enterprise', status: 'ACTIVE' },
-      { plan: 'SimulaCusto', status: 'ACTIVE' },
-      { plan: 'Smart Read', status: 'ACTIVE' },
-      { plan: 'Gestão Atividades', status: 'ACTIVE' }
-    ],
-    workspaces: [
-      { id: 'ws_3_1', nome: 'Stark NY',    subdominio: 'stark-ny',   status: 'Ativa',        usuarios: 40, plano: 'Enterprise, SimulaCusto', criadaEm: '28/02/2025' },
-      { id: 'ws_3_2', nome: 'Stark Malibu', subdominio: 'stark-ml',  status: 'Ativa',        usuarios: 30, plano: 'Enterprise', criadaEm: '02/03/2025' },
-      { id: 'ws_3_3', nome: 'Stark Europe', subdominio: 'stark-eu',  status: 'Ativa',        usuarios: 25, plano: 'Enterprise', criadaEm: '05/03/2025' },
-      { id: 'ws_3_4', nome: 'Stark Asia',   subdominio: 'stark-as',  status: 'Ativa',        usuarios: 20, plano: 'Enterprise', criadaEm: '10/03/2025' },
-      { id: 'ws_3_5', nome: 'Stark Labs',   subdominio: 'stark-labs', status: 'Ativa', usuarios: 5,  plano: 'Enterprise', criadaEm: '20/03/2025' },
-    ]
-  },
-  {
-    id: 't_4', name: 'Wayne Enterprises', slug: 'wayne-corp', status: 'Suspensa',
-    created_at: '2025-03-01', _count: { users: 5, companies: 2 },
-    subscriptions: [{ plan: 'Free', status: 'PAST_DUE' }],
-    workspaces: [
-      { id: 'ws_4_1', nome: 'Wayne Corp HQ',    subdominio: 'wayne-hq',  status: 'Suspensa', usuarios: 3, plano: 'Free', criadaEm: '01/03/2025' },
-      { id: 'ws_4_2', nome: 'Wayne Foundation',  subdominio: 'wayne-fnd', status: 'Suspensa', usuarios: 2, plano: 'Free', criadaEm: '05/03/2025' },
-    ]
-  },
-  {
-    id: 't_5', name: 'Oscorp', slug: 'oscorp-labs', status: 'Ativa',
-    created_at: '2025-03-15', _count: { users: 1, companies: 1 },
-    subscriptions: [{ plan: 'Trial', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_5_1', nome: 'Oscorp Labs', subdominio: 'oscorp-labs', status: 'Ativa', usuarios: 1, plano: 'Trial', criadaEm: '15/03/2025' },
-    ]
-  },
-  {
-    id: 't_6', name: 'Cyberdyne Systems', slug: 'cyberdyne', status: 'Ativa',
-    created_at: '2024-11-10', _count: { users: 0, companies: 0 },
-    subscriptions: [{ plan: 'Pro', status: 'CANCELED' }],
-    workspaces: []
-  },
-  {
-    id: 't_7', name: 'Tyrell Corp', slug: 'tyrell', status: 'Ativa',
-    created_at: '2025-03-18', _count: { users: 34, companies: 7 },
-    subscriptions: [{ plan: 'Pro', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_7_1', nome: 'Tyrell Corp HQ',  subdominio: 'tyrell-hq',  status: 'Ativa',        usuarios: 10, plano: 'Pro', criadaEm: '18/03/2025' },
-      { id: 'ws_7_2', nome: 'Tyrell Nexus 6',  subdominio: 'tyrell-n6',  status: 'Ativa',        usuarios: 8,  plano: 'Pro', criadaEm: '20/03/2025' },
-      { id: 'ws_7_3', nome: 'Tyrell Biodev',   subdominio: 'tyrell-bio', status: 'Ativa',        usuarios: 6,  plano: 'Pro', criadaEm: '22/03/2025' },
-      { id: 'ws_7_4', nome: 'Tyrell Androide', subdominio: 'tyrell-and', status: 'Ativa',        usuarios: 5,  plano: 'Pro', criadaEm: '24/03/2025' },
-      { id: 'ws_7_5', nome: 'Tyrell Export',   subdominio: 'tyrell-exp', status: 'Ativa',        usuarios: 3,  plano: 'Pro', criadaEm: '25/03/2025' },
-      { id: 'ws_7_6', nome: 'Tyrell R&D',      subdominio: 'tyrell-rd',  status: 'Ativa', usuarios: 1,  plano: 'Pro', criadaEm: '26/03/2025' },
-      { id: 'ws_7_7', nome: 'Tyrell Security', subdominio: 'tyrell-sec', status: 'Ativa',        usuarios: 1,  plano: 'Pro', criadaEm: '27/03/2025' },
-    ]
-  },
-  {
-    id: 't_8', name: 'Massive Dynamic', slug: 'massive', status: 'Ativa',
-    created_at: '2025-03-20', _count: { users: 15, companies: 1 },
-    subscriptions: [{ plan: 'Startup', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_8_1', nome: 'Massive Dynamic HQ', subdominio: 'massive-hq', status: 'Ativa', usuarios: 15, plano: 'Startup', criadaEm: '20/03/2025' },
-    ]
-  },
-  {
-    id: 't_9', name: 'InGen', slug: 'ingen-bio', status: 'Ativa',
-    created_at: '2025-03-22', _count: { users: 2, companies: 1 },
-    subscriptions: [{ plan: 'Free', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_9_1', nome: 'InGen Biotech', subdominio: 'ingen-bio', status: 'Ativa', usuarios: 2, plano: 'Free', criadaEm: '22/03/2025' },
-    ]
-  },
-  {
-    id: 't_10', name: 'Globex Corporation', slug: 'globex', status: 'Ativa',
-    created_at: '2025-03-23', _count: { users: 77, companies: 4 },
-    subscriptions: [{ plan: 'Enterprise', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_10_1', nome: 'Globex HQ',   subdominio: 'globex-hq', status: 'Ativa',        usuarios: 30, plano: 'Enterprise', criadaEm: '23/03/2025' },
-      { id: 'ws_10_2', nome: 'Globex West', subdominio: 'globex-w',  status: 'Ativa',        usuarios: 22, plano: 'Enterprise', criadaEm: '24/03/2025' },
-      { id: 'ws_10_3', nome: 'Globex East', subdominio: 'globex-e',  status: 'Ativa',        usuarios: 15, plano: 'Enterprise', criadaEm: '25/03/2025' },
-      { id: 'ws_10_4', nome: 'Globex Labs', subdominio: 'globex-l',  status: 'Ativa', usuarios: 10, plano: 'Enterprise', criadaEm: '26/03/2025' },
-    ]
-  },
-  {
-    id: 't_11', name: 'Soylent Corporation', slug: 'soylent', status: 'Suspensa',
-    created_at: '2025-01-15', _count: { users: 3, companies: 1 },
-    subscriptions: [{ plan: 'Startup', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_11_1', nome: 'Soylent HQ', subdominio: 'soylent-hq', status: 'Suspensa', usuarios: 3, plano: 'Startup', criadaEm: '15/01/2025' },
-    ]
-  },
-  {
-    id: 't_12', name: 'Umbrella Corp', slug: 'umbrella-hub', status: 'Ativa',
-    created_at: '2025-02-05', _count: { users: 210, companies: 12 },
-    subscriptions: [{ plan: 'Enterprise', status: 'ACTIVE' }],
-    workspaces: [
-      { id: 'ws_12_1',  nome: 'Umbrella HQ',      subdominio: 'umbrella-hq',  status: 'Ativa',        usuarios: 40, plano: 'Enterprise', criadaEm: '05/02/2025' },
-      { id: 'ws_12_2',  nome: 'Umbrella Europe',   subdominio: 'umbrella-eu',  status: 'Ativa',        usuarios: 35, plano: 'Enterprise', criadaEm: '10/02/2025' },
-      { id: 'ws_12_3',  nome: 'Umbrella Asia',     subdominio: 'umbrella-as',  status: 'Ativa',        usuarios: 30, plano: 'Enterprise', criadaEm: '12/02/2025' },
-      { id: 'ws_12_4',  nome: 'Umbrella Americas', subdominio: 'umbrella-am',  status: 'Ativa',        usuarios: 25, plano: 'Enterprise', criadaEm: '15/02/2025' },
-      { id: 'ws_12_5',  nome: 'Umbrella Pharma',   subdominio: 'umbrella-ph',  status: 'Ativa',        usuarios: 20, plano: 'Enterprise', criadaEm: '18/02/2025' },
-      { id: 'ws_12_6',  nome: 'Umbrella Research', subdominio: 'umbrella-rs',  status: 'Ativa',        usuarios: 18, plano: 'Enterprise', criadaEm: '20/02/2025' },
-      { id: 'ws_12_7',  nome: 'Umbrella Security', subdominio: 'umbrella-sc',  status: 'Ativa',        usuarios: 15, plano: 'Enterprise', criadaEm: '22/02/2025' },
-      { id: 'ws_12_8',  nome: 'Umbrella Labs',     subdominio: 'umbrella-lb',  status: 'Ativa',        usuarios: 12, plano: 'Enterprise', criadaEm: '25/02/2025' },
-      { id: 'ws_12_9',  nome: 'Umbrella Defense',  subdominio: 'umbrella-df',  status: 'Ativa',        usuarios: 8,  plano: 'Enterprise', criadaEm: '28/02/2025' },
-      { id: 'ws_12_10', nome: 'Umbrella Arctic',   subdominio: 'umbrella-ar',  status: 'Ativa', usuarios: 3,  plano: 'Enterprise', criadaEm: '01/03/2025' },
-      { id: 'ws_12_11', nome: 'Umbrella T-Virus',  subdominio: 'umbrella-tv',  status: 'Suspensa',     usuarios: 2,  plano: 'Enterprise', criadaEm: '05/03/2025' },
-      { id: 'ws_12_12', nome: 'Umbrella Wesker',   subdominio: 'umbrella-wk',  status: 'Ativa',        usuarios: 2,  plano: 'Enterprise', criadaEm: '10/03/2025' },
-    ]
-  },
-]
+function mapTenantStatus(status: string): EmpresaStatus {
+  if (status === 'ACTIVE' || status === 'Ativa') return 'Ativa'
+  return 'Suspensa'
+}
 
-const MOCK_STATS: Stats = {
-  totalTenants: 154,
-  activeTenants: 145,
-  suspendedTenants: 9,
-  totalWorkspaces: 240,
-  activeWorkspaces: 212,
-  suspendedWorkspaces: 28,
-  totalUsers: 4832
+function mapStatusToBackend(status: EmpresaStatus): string {
+  return status === 'Ativa' ? 'ACTIVE' : 'SUSPENDED'
 }
 
 // ─── Componente ───────────────────────────────────────────────────────────────
@@ -226,9 +93,49 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
   async function fetchData() {
     setLoading(true)
     try {
-      await new Promise(r => setTimeout(r, 600))
-      setTenants(MOCK_TENANTS)
-      setStats(MOCK_STATS)
+      const [tenantsRes, statsRes] = await Promise.all([
+        adminTenantsApi.list({ page: 1, limit: 100 }),
+        adminTenantsApi.getStats(),
+      ])
+
+      // Mapeia dados do backend para formato do frontend
+      const mapped: Tenant[] = tenantsRes.tenants.map((t: TenantApi) => ({
+        id: t.id,
+        name: t.name,
+        slug: t.slug,
+        status: mapTenantStatus(t.status),
+        created_at: t.created_at,
+        _count: t._count ?? { users: 0, companies: 0 },
+        subscriptions: (t.subscriptions ?? []).map((s: { plan: string; status: string }) => ({
+          plan: s.plan,
+          status: s.status,
+        })),
+        workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string }) => ({
+          id: c.id,
+          nome: c.name,
+          subdominio: c.subdomain ?? t.slug,
+          status: mapTenantStatus(c.status),
+          usuarios: 0,
+          plano: (t.subscriptions ?? []).map((s: { plan: string }) => s.plan).join(', ') || 'N/A',
+          criadaEm: new Date(t.created_at).toLocaleDateString('pt-BR'),
+        })),
+      }))
+
+      setTenants(mapped)
+
+      const s = statsRes.stats
+      const allWorkspaces = mapped.reduce((sum, t) => sum + t.workspaces.length, 0)
+      const activeWs = mapped.reduce((sum, t) => sum + t.workspaces.filter(ws => ws.status === 'Ativa').length, 0)
+
+      setStats({
+        totalTenants: s.totalTenants,
+        activeTenants: s.activeTenants,
+        suspendedTenants: s.suspendedTenants,
+        totalWorkspaces: allWorkspaces,
+        activeWorkspaces: activeWs,
+        suspendedWorkspaces: allWorkspaces - activeWs,
+        totalUsers: s.totalUsers,
+      })
     } catch {
       setError('Erro ao carregar os metadados do servidor. Painel rodando em read-only fallback.')
     } finally {
@@ -239,13 +146,18 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
   useEffect(() => { fetchData() }, [])
 
   async function updateStatus(id: string, status: EmpresaStatus) {
-    setTenants(prev => prev.map(t => t.id === id ? { ...t, status } : t))
-    if (status === 'Suspensa') {
-      setStats(prev => prev ? { ...prev, activeTenants: prev.activeTenants - 1, suspendedTenants: prev.suspendedTenants + 1 } : null)
-      addNotification({ type: 'warning', message: `Organização suspensa com sucesso.` })
-    } else {
-      setStats(prev => prev ? { ...prev, activeTenants: prev.activeTenants + 1, suspendedTenants: prev.suspendedTenants - 1 } : null)
-      addNotification({ type: 'success', message: `Organização reativada com sucesso.` })
+    try {
+      await adminTenantsApi.updateStatus(id, mapStatusToBackend(status))
+      setTenants(prev => prev.map(t => t.id === id ? { ...t, status } : t))
+      if (status === 'Suspensa') {
+        setStats(prev => prev ? { ...prev, activeTenants: prev.activeTenants - 1, suspendedTenants: prev.suspendedTenants + 1 } : null)
+        addNotification({ type: 'warning', message: `Organização suspensa com sucesso.` })
+      } else {
+        setStats(prev => prev ? { ...prev, activeTenants: prev.activeTenants + 1, suspendedTenants: prev.suspendedTenants - 1 } : null)
+        addNotification({ type: 'success', message: `Organização reativada com sucesso.` })
+      }
+    } catch {
+      addNotification({ type: 'error', message: 'Falha ao atualizar status da organização.' })
     }
   }
 

@@ -222,7 +222,9 @@
     "dia_qua": "Qua",
     "dia_qui": "Qui",
     "dia_sex": "Sex",
-    "dia_sab": "Sab"
+    "dia_sab": "Sab",
+    "inicio": "Início",
+    "fim": "Fim"
   },
   "botoes": {
     "salvar": "Salvar",
@@ -246,7 +248,7 @@
     "acesso_restrito": "Acesso Restrito",
     "apenas_master_org": "Apenas usuários Master podem gerenciar a organização.",
     "apenas_master_assinaturas": "Apenas usuários Master podem gerenciar assinaturas.",
-    "gerenciar_organizacao": "Gerenciar Organização",
+    "gerenciar_organizacao": "Configurador",
     "assinaturas_recibos": "Assinaturas e Recibos",
     "acesso_admin": "Acesso ao Admin",
     "acesso_configurador": "Acesso ao Configurador",

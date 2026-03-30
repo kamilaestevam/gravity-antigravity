@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Bug, Sparkle, XCircle, CheckCircle, Warning, Code, Wrench, PlayCircle, CalendarBlank, Clock } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -7,6 +7,7 @@ import { CardBasicoGlobal } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalAgendamentoTestes'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { adminTestLogsApi, type TestLogApi } from '../../services/apiClient'
 
 
 type TipoTeste = 'E2E' | 'FUNCIONAL' | 'UNITARIO'
@@ -32,144 +33,50 @@ interface LogTeste {
   }
 }
 
-const DADOS_MOCK: LogTeste[] = [
-  {
-    id: 't-pd-ok-001',
-    data: '25/03/2026',
-    hora: '21:35:10',
-    tipo: 'E2E',
-    modulo: 'Admin',
-    teste: 'Produtos: Cadastro e Modal com Abas',
-    resultado: 'APROVADO',
-    duracao: '12.4s',
-    aiAnalise: {
-      erroResumo: 'Navegação de abas validada',
-      motivo: 'O fluxo de cadastro de novos produtos, incluindo a troca entre as 5 abas de configuração, está operando sem perdas de estado ou erros de script.',
-      sugestaoCorrecao: 'Apenas inconsistência menor nos nomes das colunas da tabela em relação ao script de teste.',
-      arquivo: 'servicos-global/configurador/src/pages/admin/ProdutosAdmin.tsx',
-      provaVisual: '/print-e2e-produtos.png'
-    }
-  },
-  {
-    id: 't-vg-ok-001',
-    data: '25/03/2026',
-    hora: '20:45:10',
-    tipo: 'E2E',
-    modulo: 'Admin',
-    teste: 'Visão Geral: Reteste de UX e Animação',
-    resultado: 'APROVADO',
-    duracao: '6.8s',
-    aiAnalise: {
-      erroResumo: 'Interface sincronizada com sucesso',
-      motivo: 'A barra de ações agora obedece rigorosamente ao estado do formulário. A ocultação via CSS (opacity/visibility) removeu o conflito visual detectado anteriormente.',
-      sugestaoCorrecao: 'Nenhuma ação necessária. Validação final concluída com prova visual anexada.',
-      arquivo: 'servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx',
-      provaVisual: '/print-e2e-sucesso.png'
-    }
-  },
-  {
-    id: 't-vg-001',
-    data: '25/03/2026',
-    hora: '19:43:10',
-    tipo: 'E2E',
-    modulo: 'Admin',
-    teste: 'Visão Geral: CRUD e Persistência',
-    resultado: 'REPROVADO',
-    duracao: '4.2s',
-    erroLog: 'AssertionError: expected footer buttons to be hidden after save/cancel.\n    at validateDirtyState (testes/admin/e2e/visao-geral.spec.ts:145:32)',
-    aiAnalise: {
-      erroResumo: 'Botões de salvar continuam visíveis após o sucesso',
-      motivo: 'O sistema salvou as informações, mas a interface não foi avisada de que o formulário não tem mais alterações pendentes. Isso faz com que os botões de "Salvar" e "Cancelar" continuem aparecendo mesmo sem necessidade.',
-      sugestaoCorrecao: 'Garantir que a função de "limpar estado" (resetDirty) seja disparada corretamente após o aviso de sucesso, forçando o rodapé a se esconder automaticamente.',
-      arquivo: 'servicos-global/configurador/src/pages/admin/VisaoGeralAdmin.tsx',
-      provaVisual: '/print-e2e-visao-geral.png'
-    }
-  },
-  {
-    id: 't-vg-002',
-    data: '25/03/2026',
-    hora: '20:15:00',
-    tipo: 'E2E',
-    modulo: 'Produtos',
-    teste: 'Criação de Produto Complexo',
-    resultado: 'APROVADO',
-    duracao: '3.8s'
-  },
-  {
-    id: 't-vg-003',
-    data: '25/03/2026',
-    hora: '20:30:15',
-    tipo: 'UNITARIO',
-    modulo: 'Configurador',
-    teste: 'Validação de CPF/CNPJ Global',
-    resultado: 'APROVADO',
-    duracao: '45ms'
-  },
-  {
-    id: 't1',
-    data: '24/03/2026',
-    hora: '21:30:07',
-    tipo: 'E2E',
-    modulo: 'Gabi AI',
-    teste: 'Health Check Gemini API',
-    resultado: 'APROVADO',
-    duracao: '821ms'
-  },
-  {
-    id: 't2',
-    data: '24/03/2026',
-    hora: '21:00:10',
-    tipo: 'E2E',
-    modulo: 'Gabi AI',
-    teste: 'Health Check Gemini API',
-    resultado: 'APROVADO',
-    duracao: '760ms'
-  },
-  {
-    id: 't3',
-    data: '24/03/2026',
-    hora: '14:00:09',
-    tipo: 'E2E',
-    modulo: 'Gabi AI',
-    teste: 'Health Check Gemini API',
-    resultado: 'REPROVADO',
-    duracao: '309ms',
-    erroLog: 'Falha nos modelos. Último erro: HTTP 400 - {"error":{"code":400,"message":"API key not valid. Please pass a valid API key.","status":"INVALID_ARGUMENT", "details": [{"@type":"type.googleapis.com/google.rpc.ErrorInfo", "reason":"API_KEY_INVALID"}]}}',
-    aiAnalise: {
-      erroResumo: 'Chave de API do Gemini inválida',
-      motivo: 'O ambiente não possui a variável GEMINI_API_KEY corretamente configurada, ou o valor no .env foi expirado ou revogado no painel do Google Cloud.',
-      sugestaoCorrecao: 'A correção deve carregar a chave dinamicamente ou verificar o cofre de segredos antes de instanciar o provedor do Gemini. Além disso, a chave mock precisa ser atualizada.',
-      arquivo: 'servicos/gabi/api_manager.ts',
-      codigoDiff: {
-        old: "const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);",
-        new: "const apiKey = await getSecret('GEMINI_API_KEY')\nif (!apiKey) throw new Error('Chave de API do Gemini ausente no Vault.')\nconst genAI = new GoogleGenerativeAI(apiKey);"
-      }
-    }
-  },
-  {
-    id: 't4',
-    data: '23/03/2026',
-    hora: '08:15:00',
-    tipo: 'UNITARIO',
-    modulo: 'Relatórios',
-    teste: 'Cálculo de Receita Total',
-    resultado: 'REPROVADO',
-    duracao: '15ms',
-    erroLog: 'AssertionError: expected 1500 to exactly equal 1500.5\n    at assertEqual (testes-unitarios/.../receita.test.ts:45:10)',
-    aiAnalise: {
-      erroResumo: 'Perda de precisão no cálculo decimal',
-      motivo: 'O Math.floor ou Math.round está sendo aplicado precocemente na agregação das faturas diárias, perdendo os centavos na soma final.',
-      sugestaoCorrecao: 'Utilizar a biblioteca de precisão decimal ou somar os valores usando inteiros (multiplicando por 100) e dividindo apenas no resultado final.',
-      arquivo: 'servicos-tenant/relatorios/calculo.ts'
-    }
+// Helper: mapeia dados do backend para o formato do frontend
+function mapTestLogToLocal(log: TestLogApi): LogTeste {
+  const created = new Date(log.created_at)
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return {
+    id: log.id,
+    data: `${pad(created.getDate())}/${pad(created.getMonth() + 1)}/${created.getFullYear()}`,
+    hora: `${pad(created.getHours())}:${pad(created.getMinutes())}:${pad(created.getSeconds())}`,
+    tipo: (log.type as TipoTeste) || 'E2E',
+    modulo: log.module || 'N/A',
+    teste: log.test_name || 'N/A',
+    resultado: (log.result as Resultado) || 'APROVADO',
+    duracao: log.duration || 'N/A',
+    erroLog: log.error_log ?? undefined,
+    aiAnalise: log.ai_analysis ? {
+      erroResumo: (log.ai_analysis as Record<string, string>).erroResumo ?? '',
+      motivo: (log.ai_analysis as Record<string, string>).motivo ?? '',
+      sugestaoCorrecao: (log.ai_analysis as Record<string, string>).sugestaoCorrecao ?? '',
+      arquivo: (log.ai_analysis as Record<string, string>).arquivo ?? '',
+    } : undefined,
   }
-]
+}
 
 export function LogTestes() {
-  const [dados, setDados] = useState<LogTeste[]>(DADOS_MOCK)
+  const [dados, setDados] = useState<LogTeste[]>([])
+  const [carregando, setCarregando] = useState(true)
   const [loadingCode, setLoadingCode] = useState<string | null>(null)
   const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
+
+  useEffect(() => {
+    async function loadLogs() {
+      try {
+        setCarregando(true)
+        const res = await adminTestLogsApi.list()
+        setDados(res.logs.map(mapTestLogToLocal))
+      } catch {
+        console.warn('Falha ao carregar logs de teste')
+      } finally {
+        setCarregando(false)
+      }
+    }
+    loadLogs()
+  }, [])
 
   const aprovadosCount = dados.filter(d => d.resultado === 'APROVADO').length
   const reprovadosCount = dados.filter(d => d.resultado === 'REPROVADO').length

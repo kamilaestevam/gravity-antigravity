@@ -92,3 +92,18 @@ body.tooltips-disabled .tg-card {
   color: #94a3b8;
   line-height: 2;
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .tg-card {
+  background: #1e293b;
+  border-color: rgba(79, 70, 229, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme .tg-titulo {
+  color: #f1f5f9;
+}
+
+body.light-theme .tg-descricao {
+  color: #cbd5e1;
+}

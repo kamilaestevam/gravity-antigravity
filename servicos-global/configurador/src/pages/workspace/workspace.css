@@ -24,13 +24,14 @@ button, input, select, textarea {
 
 /* ── Light theme overrides ─────────────────────────────────── */
 body.light-theme {
-  --ws-bg-body: #f8fafc;
-  --ws-surface: #ffffff;
-  --ws-surface-2: #f1f5f9;
-  --ws-text: #0f172a;
+  --ws-bg-body: #f1f5f9;
+  --ws-surface: #f8fafc;
+  --ws-surface-2: #ffffff;
+  --ws-text: #1e293b;
   --ws-muted: #475569;
-  --ws-accent-dim: rgba(129, 140, 248, 0.10);
-  --ws-accent-border: rgba(129, 140, 248, 0.25);
+  --ws-accent: #4f46e5;
+  --ws-accent-dim: #e0e7ff;
+  --ws-accent-border: #a5b4fc;
 }
 
 body.light-theme .ws-shell {

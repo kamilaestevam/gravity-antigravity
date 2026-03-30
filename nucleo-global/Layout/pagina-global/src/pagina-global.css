@@ -47,7 +47,7 @@
 
 /* Ajuste p/ modo claro */
 body.light-theme .pg-contexto-row {
-  background: var(--ws-bg-body, #0f172a);
+  background: var(--ws-bg-body, #f1f5f9);
 }
 
 .pg-contexto-row.pg-no-stats {

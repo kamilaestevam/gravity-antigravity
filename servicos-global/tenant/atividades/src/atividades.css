@@ -682,3 +682,109 @@
 .ativ-page-btn:hover { background: var(--bg-surface); color: var(--text-primary); }
 .ativ-page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .ativ-page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ========================================================================= */
+/* LIGHT THEME OVERRIDES                                                      */
+/* ========================================================================= */
+
+body.light-theme .ativ-filters {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-search-wrap {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-select {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-date-range input[type=date] {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-kanban-col {
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-kanban-col__header {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+body.light-theme .ativ-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+body.light-theme .ativ-card:hover {
+  background: #f8fafc;
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .ativ-card__footer {
+  border-top: 1px solid #e2e8f0;
+}
+
+body.light-theme .ativ-table-wrap {
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-table th {
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-table td {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+body.light-theme .ativ-table tbody tr:hover {
+  background: rgba(79, 70, 229, 0.04);
+}
+
+body.light-theme .ativ-modal {
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+}
+
+body.light-theme .ativ-modal-overlay {
+  background: rgba(15, 23, 42, 0.3);
+}
+
+body.light-theme .ativ-field input,
+body.light-theme .ativ-field select,
+body.light-theme .ativ-field textarea {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-sessoes-table td {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+body.light-theme .ativ-view-toggle {
+  background: rgba(241, 245, 249, 0.6);
+  border: 1px solid #cbd5e1;
+}
+
+body.light-theme .ativ-view-btn:hover {
+  background: rgba(226, 232, 240, 0.6);
+}
+
+body.light-theme .ativ-sticky-header.is-stuck {
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .ativ-kanban-dropzone.drag-over {
+  background: rgba(99, 102, 241, 0.04);
+}
+
+body.light-theme .ativ-empty-col {
+  border: 1px dashed #cbd5e1;
+}

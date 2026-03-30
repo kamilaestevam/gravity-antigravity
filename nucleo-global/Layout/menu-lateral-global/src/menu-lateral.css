@@ -319,3 +319,29 @@
 .mlg-sidebar.collapsed .mlg-nav-item.active {
   box-shadow: inset 3px 0 0 var(--mlg-accent, #818cf8);
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .mlg-sidebar {
+  background: linear-gradient(180deg, rgba(79, 70, 229, 0.04) 0%, var(--ws-surface, #f8fafc) 120px);
+  border-right-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .mlg-toggle-btn {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .mlg-toggle-btn:hover {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.3);
+}
+
+body.light-theme .mlg-logo-area {
+  border-bottom-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .mlg-submenu-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}

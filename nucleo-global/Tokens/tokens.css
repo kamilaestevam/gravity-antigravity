@@ -145,16 +145,40 @@
    ═══════════════════════════════════════════════════════════════ */
 
 body.light-theme {
-  --bg-body:          #f8fafc;
-  --bg-base:          #ffffff;
-  --bg-surface:       #f1f5f9;
+  /* --- Backgrounds (4 níveis de hierarquia) --- */
+  --bg-body:          #f1f5f9;
+  --bg-base:          #f8fafc;
+  --bg-surface:       #ffffff;
   --bg-elevated:      #e2e8f0;
 
-  --text-primary:     #0f172a;
-  --text-secondary:   #475569;
-  --text-muted:       #94a3b8;
+  /* --- Acento (Indigo-600/700 para contraste WCAG AA) --- */
+  --accent:           #4f46e5;
+  --accent-hover:     #4338ca;
+  --accent-dim:       #e0e7ff;
+  --accent-soft:      #eef2ff;
 
-  --shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md:        0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-lg:        0 8px 24px rgba(0, 0, 0, 0.2);
+  /* --- Texto (todos passam WCAG AA 4.5:1 em todos os fundos) --- */
+  --text-primary:     #1e293b;
+  --text-secondary:   #334155;
+  --text-muted:       #475569;
+
+  /* --- Status (escurecidos para WCAG AA 3:1+) --- */
+  --success:          #16a34a;
+  --success-soft:     #dcfce7;
+  --warning:          #b45309;
+  --warning-soft:     #fef3c7;
+  --danger:           #dc2626;
+  --danger-soft:      #fee2e2;
+
+  /* --- Bordas --- */
+  --border-default:   #cbd5e1;
+  --border-accent:    #a5b4fc;
+
+  /* --- Sombras (cool-toned, suaves) --- */
+  --shadow-sm:        0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md:        0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg:        0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+
+  /* --- Focus --- */
+  --focus-ring:       0 0 0 3px rgba(79, 70, 229, 0.35);
 }

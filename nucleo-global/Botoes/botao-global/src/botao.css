@@ -200,3 +200,61 @@
   width: 2rem;     /* 32px */
   height: 2rem;
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .gb-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35);
+}
+
+body.light-theme .gb-btn--secundario {
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-primary, #1e293b);
+  border-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .gb-btn--secundario:hover:not(:disabled) {
+  background: var(--bg-elevated, #e2e8f0);
+  border-color: var(--accent, #4f46e5);
+}
+
+body.light-theme .gb-btn--secundario .gb-btn__icon-badge {
+  background: rgba(79, 70, 229, 0.08);
+  color: var(--accent, #4f46e5);
+}
+
+body.light-theme .gb-btn--fantasma {
+  color: var(--text-secondary, #334155);
+  border-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .gb-btn--fantasma:hover:not(:disabled) {
+  color: var(--text-primary, #1e293b);
+  border-color: var(--accent, #4f46e5);
+  background: rgba(79, 70, 229, 0.04);
+}
+
+body.light-theme .gb-btn--fantasma .gb-btn__icon-badge {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+body.light-theme .gb-btn--fantasma:hover:not(:disabled) .gb-btn__icon-badge {
+  background: rgba(79, 70, 229, 0.08);
+  color: var(--accent, #4f46e5);
+}
+
+body.light-theme .gb-btn--perigo {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.25);
+}
+
+body.light-theme .gb-btn--perigo:hover:not(:disabled) {
+  background: #fecaca;
+  border-color: rgba(220, 38, 38, 0.4);
+  color: #b91c1c;
+}
+
+body.light-theme .gb-btn--perigo .gb-btn__icon-badge {
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+}

@@ -735,3 +735,23 @@
   border: 1px solid rgba(129, 140, 248, 0.2);
   margin-left: 0.5rem;
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .tg-container {
+  --tg-bg:           var(--ws-surface, var(--bg-base, #f8fafc));
+  --tg-bg-alt:       var(--ws-bg-body, var(--bg-body, #f1f5f9));
+  --tg-bg-hover:     rgba(79, 70, 229, 0.04);
+  --tg-bg-selected:  #e0e7ff;
+  --tg-border:       var(--border-default, #cbd5e1);
+  --tg-border-solid: var(--border-default, #cbd5e1);
+  --tg-accent:       #4f46e5;
+  --tg-text:         var(--ws-text, #1e293b);
+  --tg-text-muted:   var(--ws-muted, #475569);
+  --tg-danger:       #dc2626;
+  --tg-focus-ring:   0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+
+body.light-theme .tg-badge-filhos {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}

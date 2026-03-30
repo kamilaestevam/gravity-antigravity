@@ -227,3 +227,49 @@
   color: #818cf8;
   background: rgba(129, 140, 248, 0.05);
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .ws-global-user {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .ws-global-user:hover {
+  background: var(--bg-elevated, #e2e8f0) !important;
+  border-color: var(--accent, #4f46e5);
+}
+
+body.light-theme .ws-profile-dropdown {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .ws-profile-avatar-lg {
+  color: #ffffff;
+}
+
+body.light-theme .ws-profile-item--admin {
+  color: #047857;
+  background: rgba(4, 120, 87, 0.05);
+}
+
+body.light-theme .ws-profile-item--configurador {
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.05);
+}
+
+body.light-theme .ws-profile-item--danger:hover:not(:disabled) {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+body.light-theme .ws-global-user--super-admin .ws-global-user__avatar {
+  color: #047857;
+  background: #dcfce7;
+  border-color: rgba(4, 120, 87, 0.3);
+}
+
+body.light-theme .ws-global-user--super-admin .ws-global-user__role {
+  color: #047857;
+}

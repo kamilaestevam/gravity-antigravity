@@ -365,3 +365,129 @@ a[href="https://clerk.com?utm_source=clerk&utm_medium=components"] {
   }
 }
 
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .login-global-panel {
+  background: rgba(255, 255, 255, 0.8);
+  border-left-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .login-global-title {
+  color: #1e293b;
+}
+
+body.light-theme .login-global-subtitle {
+  color: #475569;
+}
+
+body.light-theme .login-global-footer,
+body.light-theme .login-footer-secondary {
+  color: #475569;
+}
+
+body.light-theme .login-footer-main {
+  color: #334155;
+}
+
+body.light-theme .login-global-footer a {
+  color: #4f46e5;
+}
+
+body.light-theme .login-global-footer a:hover {
+  color: #4338ca;
+}
+
+body.light-theme .login-forgot-manual a {
+  color: #4f46e5;
+}
+
+body.light-theme .login-forgot-manual a:hover {
+  color: #4338ca;
+}
+
+body.light-theme .login-global-panel .cl-formFieldInput {
+  background: var(--bg-surface, #ffffff) !important;
+  border-color: var(--border-default, #cbd5e1) !important;
+  color: #1e293b !important;
+}
+
+body.light-theme .login-global-panel .cl-formFieldInput:focus,
+body.light-theme .login-global-panel .cl-formFieldInput:focus-visible {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35) !important;
+}
+
+body.light-theme .login-global-panel .cl-formFieldLabel {
+  color: #475569 !important;
+}
+
+body.light-theme .login-global-panel .cl-card {
+  border-top-color: var(--border-default, #cbd5e1) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .forgot-title {
+  color: #1e293b;
+}
+
+body.light-theme .forgot-desc {
+  color: #475569;
+}
+
+body.light-theme .forgot-field label {
+  color: #475569;
+}
+
+body.light-theme .forgot-input-icon {
+  color: #94a3b8;
+}
+
+body.light-theme .forgot-input-wrapper input {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  color: #1e293b;
+}
+
+body.light-theme .forgot-input-wrapper input:focus {
+  border-color: #4f46e5;
+  background: var(--bg-surface, #ffffff);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+
+body.light-theme .forgot-input-wrapper input:focus + .forgot-input-icon {
+  color: #4f46e5;
+}
+
+body.light-theme .forgot-button {
+  background: #4f46e5;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+}
+
+body.light-theme .forgot-button:hover:not(:disabled) {
+  background: #4338ca;
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
+}
+
+body.light-theme .forgot-error-msg {
+  background: #fee2e2;
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+}
+
+body.light-theme .forgot-back-link {
+  color: #475569;
+}
+
+body.light-theme .forgot-back-link:hover {
+  color: #1e293b;
+}
+
+body.light-theme .forgot-password-container.success .status-icon {
+  background: #dcfce7;
+  color: #16a34a;
+  box-shadow: 0 0 20px rgba(22, 163, 74, 0.15);
+}
+
+body.light-theme .forgot-password-container.success .forgot-desc strong {
+  color: #1e293b;
+}
+

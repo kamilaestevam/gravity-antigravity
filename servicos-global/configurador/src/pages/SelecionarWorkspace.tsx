@@ -526,7 +526,7 @@ export function SelecionarWorkspace() {
                       <button
                         className="sw-ws-enter-btn"
                         type="button"
-                        onClick={e => { e.stopPropagation(); handleEnterWs() }}
+                        onClick={e => { e.stopPropagation(); handleSelectWs(ws.id); setTimeout(() => { sessionStorage.setItem('gravity_company_id', ws.id); sessionStorage.setItem('gravity_company_name', ws.nome); navigate('/core') }, 300) }}
                         disabled={entrando}
                       >
                         {entrando ? 'Entrando...' : 'Entrar no Workspace'}

@@ -31,7 +31,7 @@ import {
   ListChecks,
 } from '@phosphor-icons/react'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
-import './hub.css'
+import './selecionar-workspace.css'
 
 /* ── Tipos ── */
 interface Workspace {

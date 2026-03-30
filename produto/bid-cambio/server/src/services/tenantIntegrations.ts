@@ -52,8 +52,8 @@ export const atividadesIntegration = {
         headers: s2sHeaders(tenantId, data.user_id),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidCambio->Atividades] Falha:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidCambio->Atividades] Falha:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -119,8 +119,8 @@ export const notificacoesIntegration = {
         headers: s2sHeaders(tenantId, userId),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidCambio->Notificacoes] Falha:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidCambio->Notificacoes] Falha:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -176,8 +176,8 @@ export const historicoIntegration = {
         headers: s2sHeaders(tenantId, userId),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidCambio->Historico] Falha:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidCambio->Historico] Falha:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 }
@@ -199,8 +199,8 @@ export const emailIntegration = {
         headers: s2sHeaders(tenantId),
         timeout: 15000,
       })
-    } catch (err: any) {
-      console.warn(`[BidCambio->Email] Falha:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidCambio->Email] Falha:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 }

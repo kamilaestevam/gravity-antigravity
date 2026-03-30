@@ -65,7 +65,7 @@
       "pathPrefix": "/api/v1/bid-cambio"
     },
     "pedido": {
-      "baseUrl": "http://localhost:8025",
+      "baseUrl": "http://localhost:8026",
       "pathPrefix": "/api/v1/pedidos"
     }
   }

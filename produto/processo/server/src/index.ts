@@ -21,7 +21,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const app = express()
-const PORT = process.env.PORT ?? 8025
+const PORT = process.env.PORT ?? 8026
 
 // --- 0. Security Headers -------------------------------------------------------
 app.use(helmet({

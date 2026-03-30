@@ -54,8 +54,8 @@ export const atividadesIntegration = {
         headers: s2sHeaders(tenantId, data.user_id),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidFrete→Atividades] Falha ao criar atividade:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Atividades] Falha ao criar atividade:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -129,8 +129,8 @@ export const notificacoesIntegration = {
         headers: s2sHeaders(tenantId, data.user_id),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidFrete→Notificações] Falha ao enviar:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Notificações] Falha ao enviar:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -192,8 +192,8 @@ export const historicoIntegration = {
         headers: s2sHeaders(tenantId, data.user_id),
         timeout: 10000,
       })
-    } catch (err: any) {
-      console.warn(`[BidFrete→Histórico] Falha ao registrar:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Histórico] Falha ao registrar:`, err instanceof Error ? err.message : 'Erro desconhecido')
     }
   },
 
@@ -303,8 +303,8 @@ export const gabiIntegration = {
       })
 
       return response.data?.reply ?? response.data?.message ?? null
-    } catch (err: any) {
-      console.warn(`[BidFrete→Gabi] Falha na análise:`, err.message)
+    } catch (err: unknown) {
+      console.warn(`[BidFrete→Gabi] Falha na análise:`, err instanceof Error ? err.message : 'Erro desconhecido')
       return null
     }
   },

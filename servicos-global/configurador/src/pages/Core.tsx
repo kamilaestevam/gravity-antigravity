@@ -39,8 +39,8 @@ import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
 import GabiChat from '@tenant/gabi/src/Gabi'
-import '../pages/workspace/workspace.css'
-import '../pages/workspace/gabi.css'
+import './workspace/workspace.css'
+import './workspace/gabi.css'
 
 interface ProdutoAtivo {
   nome: string
@@ -184,9 +184,13 @@ export function Core() {
     return items
   }, [produtosAtivos])
 
-  // Theme sync
+  // Theme sync — força o tema correto ao montar
   useEffect(() => {
-    document.body.classList.toggle('light-theme', isLight)
+    if (isLight) {
+      document.body.classList.add('light-theme')
+    } else {
+      document.body.classList.remove('light-theme')
+    }
   }, [isLight])
 
   useEffect(() => {

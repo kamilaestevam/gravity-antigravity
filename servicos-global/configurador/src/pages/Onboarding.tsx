@@ -1,17 +1,20 @@
 import { useState } from 'react'
-import { useUser, SignIn, useAuth } from '@clerk/clerk-react'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { useUser, SignIn, useAuth, useClerk } from '@clerk/clerk-react'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { ArrowRight, Buildings } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { Storefront, Buildings, ArrowLeft } from '@phosphor-icons/react'
+import { GabiOnboardingWidget } from '../components/GabiOnboardingWidget'
 import './workspace/workspace.css'
 
 export function Onboarding() {
   const { isLoaded, isSignedIn, user } = useUser()
   const { getToken } = useAuth()
+  const { signOut } = useClerk()
   const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [abrirTrial, setAbrirTrial] = useState(false)
 
   if (!isLoaded) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>Carregando...</div>
 
@@ -108,6 +111,40 @@ export function Onboarding() {
         animation: 'onbFadeUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards',
       }}>
 
+        <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
+          <TooltipGlobal descricao="Voltar para login">
+            <button
+              onClick={() => signOut({ redirectUrl: '/sign-in' })}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(255,255,255,0.03)',
+                color: 'rgba(255,255,255,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(99,102,241,0.1)'
+                e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)'
+                e.currentTarget.style.color = '#818cf8'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+                e.currentTarget.style.color = 'rgba(255,255,255,0.3)'
+              }}
+              aria-label="Voltar para login"
+            >
+              <ArrowLeft weight="bold" size={14} />
+            </button>
+          </TooltipGlobal>
+        </div>
+
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h1 style={{
             fontSize: '1.5rem', fontWeight: 700,
@@ -157,35 +194,67 @@ export function Onboarding() {
             </div>
           </GeralCampoGlobal>
 
-          <TooltipGlobal descricao="Criar sua organizacao e explorar os modulos disponiveis na Gravity Store">
-            <div style={{ width: '100%' }}>
-              <BotaoGlobal
-                variante="primario"
-                blocoCompleto
-                centralizado
-                disabled={loading || !companyName.trim()}
-                type="submit"
-              >
-                {loading ? 'Criando...' : (
-                  <>
-                    Ir para Gravity Store <ArrowRight weight="bold" size={16} />
-                  </>
-                )}
-              </BotaoGlobal>
-            </div>
-          </TooltipGlobal>
+          <BotaoGlobal
+            variante="primario"
+            blocoCompleto
+            centralizado
+            disabled={loading || !companyName.trim()}
+            type="submit"
+            icone={!loading ? <Storefront weight="duotone" size={14} /> : undefined}
+          >
+            {loading ? 'Criando...' : 'Ir para Gravity Store'}
+          </BotaoGlobal>
         </form>
 
-        <p style={{
-          textAlign: 'center',
-          fontSize: '0.75rem',
-          color: '#475569',
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
           marginTop: '1.5rem',
-          lineHeight: 1.5,
         }}>
-          14 dias gratis para explorar. Sem compromisso.
-        </p>
+          <button
+            type="button"
+            onClick={() => setAbrirTrial(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              padding: '0.375rem 0.875rem',
+              borderRadius: 'var(--radius-pill)',
+              background: 'rgba(99,102,241,0.08)',
+              border: '1px solid rgba(99,102,241,0.15)',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: '#818cf8',
+              letterSpacing: '0.01em',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              fontFamily: 'inherit',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(99,102,241,0.15)'
+              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'
+              e.currentTarget.style.color = '#a5b4fc'
+              e.currentTarget.style.boxShadow = '0 0 16px rgba(99,102,241,0.2)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(99,102,241,0.08)'
+              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.15)'
+              e.currentTarget.style.color = '#818cf8'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            ✦ 14 dias gratis para explorar — sem compromisso
+          </button>
+        </div>
+
       </div>
+
+      <GabiOnboardingWidget
+        userName={user.firstName ?? 'Usuario'}
+        contexto="onboarding"
+        abrirComTrial={abrirTrial}
+        onTrialHandled={() => setAbrirTrial(false)}
+      />
 
       <style>{`
         @keyframes onbFadeUp {

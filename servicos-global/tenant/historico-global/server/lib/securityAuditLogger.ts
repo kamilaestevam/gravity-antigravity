@@ -47,15 +47,53 @@ async function logSecurityEvent(event: SecurityEvent): Promise<void> {
     console.info(`[SECURITY-AUDIT] ${logLine}`)
   }
 
-  // Em producao: enviar para servico de historico
+  // Persistir no banco do Configurador (tabela SecurityEvent)
+  // e tambem no servico de historico para audit trail completo
+  const configuradorUrl = process.env.CONFIGURADOR_URL || process.env.CONFIGURADOR_SERVICE_URL
   const historicoUrl = process.env.HISTORICO_SERVICE_URL
-  if (historicoUrl && process.env.NODE_ENV === 'production') {
-    try {
-      await fetch(`${historicoUrl}/api/v1/historico/logs`, {
+  const internalKey = process.env.INTERNAL_SERVICE_KEY || ''
+
+  const promises: Promise<void>[] = []
+
+  // 1. Persistir na tabela SecurityEvent (alimenta painel Admin)
+  if (configuradorUrl) {
+    promises.push(
+      fetch(`${configuradorUrl}/api/admin/security/events`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-internal-key': process.env.INTERNAL_SERVICE_KEY || '',
+          'Authorization': `Bearer internal`,
+          'x-internal-key': internalKey,
+        },
+        body: JSON.stringify({
+          tenant_id: event.tenant_id,
+          actor_id: event.actor_id,
+          actor_type: event.actor_type,
+          action: event.action,
+          severity: event.severity,
+          status: (event.metadata as any)?.blocked ? 'BLOCKED' : 'DETECTED',
+          description: `${event.action}: ${JSON.stringify(event.metadata)}`.slice(0, 500),
+          ip: (event.metadata as any)?.ip,
+          endpoint: (event.metadata as any)?.endpoint,
+          user_id: event.user_id,
+          product_id: event.product_id,
+          correlation_id: event.correlation_id,
+          metadata: event.metadata,
+        }),
+      }).then(() => {}).catch(() => {
+        console.error('[SECURITY-AUDIT] Falha ao persistir no Configurador DB')
+      })
+    )
+  }
+
+  // 2. Enviar para servico de historico (audit trail imutavel)
+  if (historicoUrl) {
+    promises.push(
+      fetch(`${historicoUrl}/api/v1/historico/logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-key': internalKey,
           'x-tenant-id': event.tenant_id,
           'x-correlation-id': event.correlation_id || randomUUID(),
         },
@@ -65,17 +103,17 @@ async function logSecurityEvent(event: SecurityEvent): Promise<void> {
           action: event.action,
           user_id: event.user_id,
           product_id: event.product_id,
-          metadata: {
-            ...event.metadata,
-            severity: event.severity,
-            security_event: true,
-          },
+          metadata: { ...event.metadata, severity: event.severity, security_event: true },
         }),
+      }).then(() => {}).catch(() => {
+        console.error('[SECURITY-AUDIT] Falha ao enviar para servico de historico')
       })
-    } catch {
-      // Nao bloquear a operacao se o log falhar
-      console.error('[SECURITY-AUDIT] Falha ao enviar para servico de historico')
-    }
+    )
+  }
+
+  // Nao bloquear a operacao — fire and forget
+  if (promises.length > 0) {
+    Promise.all(promises).catch(() => {})
   }
 }
 

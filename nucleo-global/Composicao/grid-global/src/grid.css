@@ -1,0 +1,37 @@
+/**
+ * grid-global.css — Estilos do GridGlobal
+ * Match com .em-grid do Configurador
+ */
+
+.gb-grid {
+  margin-bottom: 1.25rem;
+}
+
+.gb-grid:last-child {
+  margin-bottom: 0;
+}
+
+/* ─── Responsivo — match com @media do Configurador ─── */
+
+@media (max-width: 900px) {
+  /* Grids de 3+ colunas colapsa para 2 */
+  .gb-grid--cols-3,
+  .gb-grid--cols-4,
+  .gb-grid--cols-5,
+  .gb-grid--cols-6,
+  .gb-grid--cols-12 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Tudo colapsa para 1 coluna em mobile */
+  .gb-grid--cols-2,
+  .gb-grid--cols-3,
+  .gb-grid--cols-4,
+  .gb-grid--cols-5,
+  .gb-grid--cols-6,
+  .gb-grid--cols-12 {
+    grid-template-columns: 1fr !important;
+  }
+}

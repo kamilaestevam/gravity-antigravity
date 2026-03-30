@@ -20,6 +20,8 @@ interface RateLimiterOptions {
   message?: string
   /** Funcao para extrair a chave de identificacao (default: IP + x-tenant-id) */
   keyGenerator?: (req: Request) => string
+  /** Callback chamado quando um request e bloqueado (para metricas/audit) */
+  onBlocked?: (key: string, req: Request) => void
 }
 
 interface RateLimiterEntry {
@@ -33,6 +35,7 @@ export function createRateLimiter(options: RateLimiterOptions = {}) {
     max = 100,
     message = 'Too many requests. Please try again later.',
     keyGenerator = defaultKeyGenerator,
+    onBlocked,
   } = options
 
   const store = new Map<string, RateLimiterEntry>()
@@ -72,6 +75,12 @@ export function createRateLimiter(options: RateLimiterOptions = {}) {
 
     if (entry.count > max) {
       res.setHeader('Retry-After', Math.ceil((entry.resetTime - now) / 1000))
+
+      // Callback de metricas (fire-and-forget)
+      if (onBlocked) {
+        try { onBlocked(key, req) } catch { /* nao bloquear response */ }
+      }
+
       return res.status(429).json({
         error: 'TOO_MANY_REQUESTS',
         message,
@@ -90,15 +99,35 @@ function defaultKeyGenerator(req: Request): string {
 }
 
 /**
+ * Callback padrao para reportar bloqueios ao securityAuditLogger.
+ * Importacao lazy para evitar circular dependency.
+ */
+function defaultOnBlocked(key: string, req: Request): void {
+  const tenantId = (req.headers['x-tenant-id'] as string) || 'anonymous'
+  const ip = req.ip || req.socket?.remoteAddress || 'unknown'
+  const endpoint = req.originalUrl || req.url || 'unknown'
+
+  // Import dinamico para evitar dependencia circular no boot
+  import('../../../tenant/historico-global/server/lib/securityAuditLogger.js')
+    .then(({ securityAudit }) => {
+      securityAudit.rateLimitHit(tenantId, { ip, endpoint, count: 0 })
+    })
+    .catch(() => {
+      // Fallback: log simples se o import falhar
+      console.warn(`[RATE-LIMIT] Blocked: ${key} on ${endpoint}`)
+    })
+}
+
+/**
  * Presets comuns de rate limiting
  */
 export const rateLimitPresets = {
   /** Endpoints publicos: 30 req/min por IP */
-  public: () => createRateLimiter({ windowMs: 60_000, max: 30 }),
+  public: () => createRateLimiter({ windowMs: 60_000, max: 30, onBlocked: defaultOnBlocked }),
   /** Login/auth: 10 req/min por IP (anti brute-force) */
-  auth: () => createRateLimiter({ windowMs: 60_000, max: 10, message: 'Too many login attempts. Please wait.' }),
+  auth: () => createRateLimiter({ windowMs: 60_000, max: 10, message: 'Too many login attempts. Please wait.', onBlocked: defaultOnBlocked }),
   /** Webhooks: 100 req/min por IP */
-  webhook: () => createRateLimiter({ windowMs: 60_000, max: 100 }),
+  webhook: () => createRateLimiter({ windowMs: 60_000, max: 100, onBlocked: defaultOnBlocked }),
   /** API interna: 200 req/min por tenant */
-  internal: () => createRateLimiter({ windowMs: 60_000, max: 200 }),
+  internal: () => createRateLimiter({ windowMs: 60_000, max: 200, onBlocked: defaultOnBlocked }),
 }

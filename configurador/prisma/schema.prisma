@@ -502,6 +502,78 @@ model SupplierTenantAccess {
 }
 
 // ---------------------------------------------------------------------------
+// SECURITY EVENT
+// Eventos de segurança registrados pelo securityAuditLogger.
+// Alimenta o painel /admin/seguranca em tempo real.
+// ---------------------------------------------------------------------------
+
+model SecurityEvent {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  actor_id        String
+  actor_type      String   // USER | SYSTEM | GABI_IA | ADMIN
+  action          String   // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
+  severity        String   // CRITICAL | WARNING | INFO
+  status          String   @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
+  description     String?
+  ip              String?
+  endpoint        String?
+  user_id         String?
+  product_id      String?
+  correlation_id  String?
+  metadata        Json?    @default("{}")
+  created_at      DateTime @default(now())
+
+  @@index([created_at])
+  @@index([severity])
+  @@index([action])
+  @@index([tenant_id, created_at])
+  @@index([severity, created_at])
+}
+
+// ---------------------------------------------------------------------------
+// RATE LIMIT METRIC
+// Metricas agregadas do rate limiter para monitoramento no painel.
+// ---------------------------------------------------------------------------
+
+model RateLimitMetric {
+  id          String   @id @default(cuid())
+  key         String   // tenant:ip combo
+  tenant_id   String?
+  ip          String?
+  endpoint    String
+  count       Int
+  limit_max   Int
+  blocked     Boolean  @default(false)
+  window_start DateTime
+  created_at  DateTime @default(now())
+
+  @@index([created_at])
+  @@index([blocked, created_at])
+  @@index([tenant_id])
+}
+
+// ---------------------------------------------------------------------------
+// SERVICE HEALTH
+// Snapshot do ultimo health check de cada servico.
+// ---------------------------------------------------------------------------
+
+model ServiceHealth {
+  id          String   @id @default(cuid())
+  service     String   @unique // ex: "configurador", "bid-frete"
+  url         String   // health check URL
+  status      String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
+  latency_ms  Int?
+  last_error  String?
+  checked_at  DateTime @default(now())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([status])
+  @@index([checked_at])
+}
+
+// ---------------------------------------------------------------------------
 // GLOBAL PRODUCT
 // Catálogo oficial de produtos da plataforma Gravity.
 // ---------------------------------------------------------------------------

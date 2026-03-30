@@ -1,3 +1,7 @@
+---
+description: Ler uma skill específica pelo nome
+---
+
 Leia e apresente a skill solicitada: $ARGUMENTS
 
 Busque o arquivo SKILL.md correspondente no diretório `skills/`. Use o nome fornecido para localizar a skill correta nas subpastas:

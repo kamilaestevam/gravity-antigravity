@@ -1,3 +1,7 @@
+---
+description: Fluxo para criar novo produto no Gravity
+---
+
 Você vai criar um **novo produto** no Gravity.
 
 Antes de qualquer ação:

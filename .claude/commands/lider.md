@@ -1,3 +1,7 @@
+---
+description: Ativar modo Líder (análise + distribuição de tarefas)
+---
+
 Você está operando como **Líder** do projeto Gravity.
 
 Antes de qualquer ação:

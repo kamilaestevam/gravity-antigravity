@@ -22,6 +22,7 @@ import {
   Anchor,
   FileArchive,
   CaretDown,
+  CurrencyDollar,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
 import { MenuLateralGlobal, NavItem } from '@nucleo/menu-lateral-global'
@@ -49,10 +50,11 @@ export function Sidebar({
 
   const { isProductAllowed } = useShellStore()
 
-  // Mock de Permissões: Numa etapa futura, leremos "company_products" do contexto global.
-  const hasPedidos = false;
-  const hasDuimp = false;
-  const hasTracking = false;
+  // Permissoes de produtos — usar isProductAllowed quando backend estiver conectado
+  const hasBidCambio = isProductAllowed('bid-cambio') || true // habilitado por padrao para demo
+  const hasPedidos = false
+  const hasDuimp = false
+  const hasTracking = false
 
   // Se o produto não proveu itens customizados, usamos o padrão da plataforma
   const defaultNavItems: NavItem[] = [
@@ -62,6 +64,7 @@ export function Sidebar({
       icon: <Star weight="duotone" size={20} />,
       children: [
         { to: '/simulacusto', label: 'SimulaCusto', icon: <Calculator weight="duotone" size={18} /> },
+        { to: '/bid-cambio', label: 'BID Cambio', icon: <CurrencyDollar weight="duotone" size={18} />, disabled: !hasBidCambio },
         { to: '/pedidos', label: 'Pedidos de Compra', icon: <Package weight="duotone" size={18} />, disabled: !hasPedidos },
         { to: '/duimp', label: 'Exportador DUIMP', icon: <FileArchive weight="duotone" size={18} />, disabled: !hasDuimp },
         { to: '/tracking', label: 'Tracking de Carga', icon: <Anchor weight="duotone" size={18} />, disabled: !hasTracking }

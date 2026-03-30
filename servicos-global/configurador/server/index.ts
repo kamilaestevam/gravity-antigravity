@@ -116,6 +116,9 @@ app.use('/api/admin', adminRouter)
 app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)
 app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)
 
+import { adminSecurityRouter } from './routes/adminSecurity.js'
+app.use('/api/admin/security', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
+
 // ─── Catálogo público (sem auth — usado pelo Store/Marketplace) ─────────────
 
 app.use('/api/v1/catalog', publicCatalogRouter)

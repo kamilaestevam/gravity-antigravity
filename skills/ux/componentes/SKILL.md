@@ -17,6 +17,13 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 
 | Preciso de... | Usar |
 |:---|:---|
+| Página de listagem com tabela completa | **PaginaTabelaGlobal** (template) |
+| Página de formulário com salvar/cancelar | **PaginaFormularioGlobal** (template) |
+| Página de dashboard com KPIs | **PaginaDashboardGlobal** (template) |
+| Empilhar elementos verticalmente | **StackGlobal** (composição) |
+| Layout horizontal com alinhamento | **FlexGlobal** (composição) |
+| Grid responsivo de cards/campos | **GridGlobal** (composição) |
+| Agrupar conteúdo com título | **SecaoGlobal** (composição) |
 | Tabela com filtros, busca, paginação, CRUD | **TabelaGlobal** |
 | Modal com abas, header, footer | **ModalGlobal** |
 | Confirmação antes de ação destrutiva | **ConfirmarGlobal** |
@@ -232,6 +239,89 @@ navigation: [{ id: 'activities', label: 'Atividades', icon: 'check-circle', sour
 
 ### helpdesk
 **Usar quando:** suporte com tickets e SLA configurável por produto.
+
+---
+
+## Tokens Centralizados
+
+**Quando usar:** em todo entry point da aplicação para injetar as variáveis CSS globais.
+
+```typescript
+import '@nucleo/tokens'
+```
+
+Fornece todas as variáveis CSS do design system: cores, espaçamento, tipografia, raios, sombras. Inclui aliases de compatibilidade para variáveis `--ws-*` e `--color-*` legadas.
+
+---
+
+## Composição — Primitivos de Layout
+
+### StackGlobal
+**Quando usar:** empilhar elementos verticalmente com espaçamento consistente.
+
+```typescript
+import { StackGlobal } from '@nucleo/composicao'
+```
+
+**Quando NÃO usar:** para layout horizontal — usar FlexGlobal.
+
+### FlexGlobal
+**Quando usar:** layout horizontal com alinhamento e distribuição.
+
+```typescript
+import { FlexGlobal } from '@nucleo/composicao'
+```
+
+**Quando NÃO usar:** para empilhar vertical — usar StackGlobal.
+
+### GridGlobal
+**Quando usar:** grid de cards, formulários em colunas, layouts responsivos.
+
+```typescript
+import { GridGlobal } from '@nucleo/composicao'
+```
+
+Dois modos: fixo (`colunas={3}`) ou responsivo (`colunas="auto"` com `larguraMin`).
+
+### SecaoGlobal
+**Quando usar:** agrupar conteúdo com título, subtítulo e ações opcionais.
+
+```typescript
+import { SecaoGlobal } from '@nucleo/composicao'
+```
+
+Ideal para dividir formulários e dashboards em blocos visuais. Prop `card` adiciona background surface.
+
+---
+
+## Templates — Páginas Prontas
+
+### PaginaTabelaGlobal
+**Quando usar:** toda página de listagem com tabela CRUD.
+
+```typescript
+import { PaginaTabelaGlobal } from '@nucleo/templates'
+```
+
+Compõe automaticamente: CabecalhoGlobal + Stats + Toolbar + TabelaGlobal. Passa as props da tabela diretamente via prop `tabela`.
+
+### PaginaFormularioGlobal
+**Quando usar:** toda página de criação/edição com formulário.
+
+```typescript
+import { PaginaFormularioGlobal } from '@nucleo/templates'
+```
+
+Compõe automaticamente: CabecalhoGlobal + conteúdo centralizado + barra cancelar/salvar. Combine com SecaoGlobal + GridGlobal para organizar campos.
+
+### PaginaDashboardGlobal
+**Quando usar:** toda página de dashboard com KPIs e gráficos.
+
+```typescript
+import { PaginaDashboardGlobal } from '@nucleo/templates'
+```
+
+Compõe automaticamente: CabecalhoGlobal + grid de KPIs + conteúdo flexível.
 
 ---
 

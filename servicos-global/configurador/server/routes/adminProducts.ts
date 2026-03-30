@@ -4,10 +4,28 @@
 
 import { Router } from 'express'
 import { z } from 'zod'
+import { readFileSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { productCatalogService } from '../services/productCatalogService.js'
 import { AppError } from '../lib/appError.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+/** Lê os slugs registrados em contracts.json */
+function getContractsSlugs(): string[] {
+  try {
+    const contractsPath = join(__dirname, '..', '..', '..', 'contracts.json')
+    const raw = readFileSync(contractsPath, 'utf-8')
+    const contracts = JSON.parse(raw)
+    return Object.keys(contracts.services ?? {})
+  } catch {
+    return []
+  }
+}
 
 export const adminProductsRouter = Router()
 
@@ -65,6 +83,26 @@ const UpdateProductSchema = CreateProductSchema.partial()
 // ─── Rotas ─────────────────────────────────────────────────────────────────
 
 /**
+ * GET /api/admin/products/available-slugs
+ * Retorna slugs de contracts.json que ainda não têm produto cadastrado
+ */
+adminProductsRouter.get('/available-slugs', async (_req, res, next) => {
+  try {
+    const allSlugs = getContractsSlugs()
+    const existingProducts = await productCatalogService.list({ limit: 1000 })
+    const usedSlugs = new Set(
+      existingProducts.products
+        .map((p: { slug?: string; backend_module?: string | null }) => p.backend_module ?? p.slug)
+        .filter(Boolean)
+    )
+    const available = allSlugs.filter(slug => !usedSlugs.has(slug))
+    res.json({ available, all: allSlugs })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/admin/products
  * Lista todos os produtos do catálogo com paginação
  */
@@ -116,6 +154,19 @@ adminProductsRouter.post('/', async (req, res, next) => {
     const existing = await productCatalogService.getBySlug(parsed.data.slug)
     if (existing) {
       throw new AppError('Já existe um produto com este slug', 409, 'CONFLICT')
+    }
+
+    // Se status ACTIVE, o slug deve existir em contracts.json (tem infraestrutura)
+    if (parsed.data.status === 'ACTIVE') {
+      const contractsSlugs = getContractsSlugs()
+      const moduleSlug = parsed.data.backend_module ?? parsed.data.slug
+      if (!contractsSlugs.includes(moduleSlug)) {
+        throw new AppError(
+          `Produto ativo requer infraestrutura. O slug "${moduleSlug}" não existe em contracts.json.`,
+          400,
+          'MISSING_INFRASTRUCTURE'
+        )
+      }
     }
 
     const product = await productCatalogService.create(parsed.data as Parameters<typeof productCatalogService.create>[0])
@@ -207,8 +258,16 @@ adminProductsRouter.delete('/:id', async (req, res, next) => {
  */
 adminProductsRouter.post('/seed', async (req, res, next) => {
   try {
-    const result = await productCatalogService.seedInitialProducts()
-    res.json(result)
+    const catalogResult = await productCatalogService.seedInitialProducts()
+
+    // Ativar produtos para o tenant demo (dmmltda@gmail.com → tenant-1)
+    const DEMO_TENANT_ID = 'tenant-1'
+    const activateResult = await productCatalogService.activateProductsForTenant(
+      DEMO_TENANT_ID,
+      ['simula-custo', 'bid-cambio', 'bid-frete'],
+    )
+
+    res.json({ catalog: catalogResult, activation: activateResult })
   } catch (err) {
     next(err)
   }

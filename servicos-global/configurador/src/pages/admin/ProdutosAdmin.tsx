@@ -107,6 +107,7 @@ export function ProdutosAdmin() {
   const { logEvent } = useHistoricoLogger()
   const [produtos, setProdutos] = React.useState<ProdutoCatalogo[]>([])
   const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
+  const [slugsDisponiveis, setSlugsDisponiveis] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(true)
 
   const [carregando, setCarregando] = React.useState(true)
@@ -115,12 +116,14 @@ export function ProdutosAdmin() {
     setLoading(true)
     setCarregando(true)
     try {
-      const [prods, negs] = await Promise.all([
+      const [prods, negs, slugs] = await Promise.all([
         catalogApiService.getProdutos(),
         catalogApiService.getNegociacoes(),
+        catalogApiService.getSlugsDisponiveis(),
       ])
       setProdutos(prods)
       setNegociacoes(negs)
+      setSlugsDisponiveis(slugs)
     } catch (err) {
       console.error('[ProdutosAdmin] Erro ao carregar dados:', err)
     } finally {
@@ -161,11 +164,11 @@ export function ProdutosAdmin() {
   const [formDirty, setFormDirty] = useState(false)
 
   // 01. Dados Básicos
-  // 01. Dados Básicos
   const [formNome, setFormNome] = React.useState('')
   const [formDescricao, setFormDescricao] = React.useState('')
   const [formDataLancamento, setFormDataLancamento] = React.useState('')
-  const [formStatus, setFormStatus] = React.useState<'ativo' | 'inativo'>('ativo')
+  const [formStatus, setFormStatus] = React.useState<'ativo' | 'em-breve'>('ativo')
+  const [formSlugSelecionado, setFormSlugSelecionado] = React.useState<string | null>(null)
 
   // 02. Setup
   const [temSetup, setTemSetup] = React.useState<'sim' | 'nao'>('nao')
@@ -205,7 +208,7 @@ export function ProdutosAdmin() {
     setModalAberto(false)
     setProdutoEditando(null)
     setFormDirty(false)
-    setFormNome(''); setFormDescricao(''); setFormDataLancamento(''); setFormStatus('ativo')
+    setFormNome(''); setFormDescricao(''); setFormDataLancamento(''); setFormStatus('ativo'); setFormSlugSelecionado(null)
     setTemSetup('nao'); setMoedaSetup('BRL'); setValorSetup('')
     setTipoCobranca(''); setMoedaProduto('BRL'); setValorUnitario(''); setValorMinimo(''); setValorTotal('')
     setLimiteUsuarios('limitada'); setQtdUsuarios(''); setMoedaUsuario('BRL'); setValorUsuarioAdicional('')
@@ -220,7 +223,8 @@ export function ProdutosAdmin() {
     setFormNome(item.nome)
     setFormDescricao(item.descricao)
     setFormDataLancamento(item.dataLancamento || '')
-    setFormStatus(item.status === 'Ativo' ? 'ativo' : 'inativo')
+    setFormStatus(item.status === 'Ativo' ? 'ativo' : 'em-breve')
+    setFormSlugSelecionado(item.moduloBackend ?? item.slug ?? null)
     setTemSetup(item.temSetup ? 'sim' : 'nao')
     setMoedaSetup(item.precoSetup?.moeda || 'BRL')
     setValorSetup(item.precoSetup?.valor || '')
@@ -521,12 +525,17 @@ export function ProdutosAdmin() {
         aoSalvar={async () => {
           const prodId = produtoEditando?.id ?? `p${Date.now()}`
 
+          const slugResolve = formStatus === 'ativo' && formSlugSelecionado
+            ? formSlugSelecionado
+            : (produtoEditando?.slug ?? formNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
+
           const novoProduto: ProdutoCatalogo = {
             id: produtoEditando?.id ?? '',
             nome: formNome,
             descricao: formDescricao,
-            slug: produtoEditando?.slug ?? formNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-            status: formStatus === 'ativo' ? 'Ativo' : 'Inativo',
+            slug: slugResolve,
+            status: formStatus === 'ativo' ? 'Ativo' : 'Em Breve',
+            moduloBackend: formStatus === 'ativo' ? formSlugSelecionado ?? undefined : undefined,
             dataLancamento: formDataLancamento,
             temSetup: temSetup === 'sim',
             precoSetup: temSetup === 'sim' ? { valor: valorSetup, moeda: moedaSetup } : undefined,
@@ -560,7 +569,7 @@ export function ProdutosAdmin() {
         subtitulo={produtoEditando ? 'Edite os dados do produto selecionado.' : 'Preencha os dados básicos para adicionar um novo produto.'}
         tamanho="lg"
         dirty={formDirty}
-        podesSalvar={formDirty && formNome.trim().length > 0}
+        podesSalvar={formDirty && formNome.trim().length > 0 && (formStatus === 'em-breve' || !!formSlugSelecionado)}
         abas={[
           {
             id: 'dados-basicos',
@@ -619,13 +628,46 @@ export function ProdutosAdmin() {
                     />
                   </GeralCampoGlobal>
 
-                  <GeralCampoGlobal label="Status">
+                  <GeralCampoGlobal
+                    label="Status"
+                    tooltipTitulo="DISPONIBILIDADE"
+                    tooltipDescricao="Ativo: produto com infraestrutura pronta (requer slug). Em Breve: produto em desenvolvimento."
+                  >
                     <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                      <TogBtn val="ativo" cur={formStatus} set={v => setFormStatus(v as 'ativo' | 'inativo')} label="Ativo" />
-                      <TogBtn val="inativo" cur={formStatus} set={v => setFormStatus(v as 'ativo' | 'inativo')} label="Inativo" />
+                      <TogBtn val="ativo" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label="Ativo" />
+                      <TogBtn val="em-breve" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label="Em Breve" />
                     </div>
                   </GeralCampoGlobal>
                 </div>
+
+                {formStatus === 'ativo' && (
+                  <GeralCampoGlobal
+                    label="Módulo Backend (Slug)"
+                    obrigatorio
+                    tooltipTitulo="VÍNCULO TÉCNICO"
+                    tooltipDescricao="Selecione o slug do produto que já existe em contracts.json. Apenas produtos com infraestrutura pronta aparecem aqui."
+                  >
+                    {slugsDisponiveis.length > 0 || formSlugSelecionado ? (
+                      <SelectGlobal
+                        opcoes={[
+                          ...(formSlugSelecionado && !slugsDisponiveis.includes(formSlugSelecionado)
+                            ? [{ valor: formSlugSelecionado, rotulo: formSlugSelecionado + ' (atual)' }]
+                            : []),
+                          ...slugsDisponiveis.map(s => ({ valor: s, rotulo: s })),
+                        ]}
+                        valor={formSlugSelecionado}
+                        aoMudarValor={v => dirty(() => setFormSlugSelecionado(v ? String(v) : null))}
+                        iconeEsquerda={<Tag size={16} />}
+                        placeholder="Selecione o produto..."
+                        buscavel
+                      />
+                    ) : (
+                      <div style={{ padding: '0.625rem 0.875rem', borderRadius: '0.375rem', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', color: '#fbbf24', fontSize: '0.8125rem' }}>
+                        Nenhum slug disponível. Todos os produtos de contracts.json já estão cadastrados.
+                      </div>
+                    )}
+                  </GeralCampoGlobal>
+                )}
               </div>
             )
           },

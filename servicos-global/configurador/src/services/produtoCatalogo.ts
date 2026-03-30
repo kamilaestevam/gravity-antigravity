@@ -468,6 +468,119 @@ export const CATALOGO_PRODUTOS: ProdutoDoc[] = [
       },
     ],
   },
+
+  // ─── BID Cambio ──────────────────────────────────────────────────────────
+  {
+    id: 'bid-cambio',
+    nome: 'BID Cambio',
+    descricao: 'Gestão e cotação de câmbio comercial para operações de COMEX',
+    baseUrl: 'https://api.gravity.com.br/bid-cambio/v1',
+    versao: 'v1',
+    cor: '#22c55e',
+    endpoints: [
+      {
+        method: 'GET',
+        path: '/cambios',
+        titulo: 'Listar Parcelas de Câmbio',
+        descricao: 'Lista parcelas com filtros por status, moeda e data de vencimento',
+        params: [
+          { nome: 'status', tipo: 'string', descricao: 'PENDENTE | AGENDADO | PAGO', obrigatorio: false },
+          { nome: 'moeda', tipo: 'string', descricao: 'USD | EUR | GBP | CHF | CNY | JPY', obrigatorio: false },
+          { nome: 'page', tipo: 'number', descricao: 'Página (default: 1)', obrigatorio: false },
+          { nome: 'limit', tipo: 'number', descricao: 'Itens por página (default: 50, max: 100)', obrigatorio: false },
+        ],
+      },
+      {
+        method: 'POST',
+        path: '/cambios/agendar',
+        titulo: 'Agendar Parcelas',
+        descricao: 'Agenda uma ou mais parcelas pendentes para pagamento',
+        requestBody: `{
+  "parcela_ids": ["clx...abc", "clx...def"],
+  "data_agendamento": "2026-04-20"
+}`,
+      },
+      {
+        method: 'POST',
+        path: '/cambios/pagar',
+        titulo: 'Registrar Pagamento',
+        descricao: 'Registra pagamento com taxa e banco. Ajusta próxima parcela se valor diferente.',
+        requestBody: `{
+  "parcela_id": "clx...abc",
+  "valor_pago": 50000,
+  "taxa_fechamento": 5.2345,
+  "banco_corretora": "Banco XYZ",
+  "numero_contrato": "CONT-2026-001"
+}`,
+      },
+      {
+        method: 'POST',
+        path: '/cotacoes',
+        titulo: 'Criar Cotação de Câmbio',
+        descricao: 'Cria nova cotação para envio a corretoras',
+        requestBody: `{
+  "moeda": "USD",
+  "valor": 50000,
+  "tipo_operacao": "IMPORTACAO",
+  "modalidade": "PRONTO",
+  "liquidacao": "D2"
+}`,
+      },
+      {
+        method: 'POST',
+        path: '/bids/disparar',
+        titulo: 'Disparar Cotação para Corretoras',
+        descricao: 'Envia cotação para corretoras selecionadas via email com link público',
+        requestBody: `{
+  "cotacao_id": "clx...abc",
+  "corretora_ids": ["clx...c1", "clx...c2"]
+}`,
+      },
+      {
+        method: 'GET',
+        path: '/comparativo/:cotacaoId',
+        titulo: 'Ranking de Propostas',
+        descricao: 'Retorna respostas ordenadas com tags automáticas (MELHOR_TAXA, MELHOR_SPREAD)',
+      },
+      {
+        method: 'POST',
+        path: '/comparativo/:cotacaoId/aprovar',
+        titulo: 'Aprovar Melhor Taxa',
+        descricao: 'Aprova uma resposta e reprova automaticamente as demais. Calcula economia.',
+        requestBody: `{
+  "bid_response_id": "clx...resp1"
+}`,
+      },
+      {
+        method: 'GET',
+        path: '/dashboard',
+        titulo: 'Dashboard KPIs',
+        descricao: 'Métricas agregadas: parcelas, financeiro, marketplace',
+        responseBody: `{
+  "parcelas": { "total": 45, "pendentes": 12, "agendadas": 8, "pagas_mes": 5 },
+  "financeiro": { "valor_em_aberto": 350000, "economia_acumulada_mes": 12500 },
+  "marketplace": { "corretoras_ativas": 8, "cotacoes_abertas": 3 }
+}`,
+      },
+      {
+        method: 'GET',
+        path: '/master-data/ptax',
+        titulo: 'PTAX do Dia (BCB)',
+        descricao: 'Consulta PTAX atual via API OLINDA do Banco Central (cache 5 min)',
+        params: [
+          { nome: 'moeda', tipo: 'string', descricao: 'Código da moeda (default: USD)', obrigatorio: false },
+        ],
+        responseBody: `{
+  "moeda": "USD",
+  "data": "2026-03-28",
+  "compra": 5.2000,
+  "venda": 5.2100,
+  "hora": "13:05",
+  "fonte": "BCB/PTAX"
+}`,
+      },
+    ],
+  },
 ]
 
 /** Busca um produto pelo ID no catálogo */

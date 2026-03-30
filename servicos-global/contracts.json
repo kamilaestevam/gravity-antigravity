@@ -59,6 +59,14 @@
     "bid-frete": {
       "baseUrl": "http://localhost:8023",
       "pathPrefix": "/api/v1/bid-frete"
+    },
+    "bid-cambio": {
+      "baseUrl": "http://localhost:8025",
+      "pathPrefix": "/api/v1/bid-cambio"
+    },
+    "pedido": {
+      "baseUrl": "http://localhost:8025",
+      "pathPrefix": "/api/v1/pedidos"
     }
   }
 }

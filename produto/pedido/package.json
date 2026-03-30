@@ -1,0 +1,9 @@
+{
+  "name": "@gravity/pedido",
+  "private": true,
+  "workspaces": ["client"],
+  "scripts": {
+    "dev": "cd client && npm run dev",
+    "build": "cd client && npm run build"
+  }
+}

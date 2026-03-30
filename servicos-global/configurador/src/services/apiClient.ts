@@ -157,6 +157,10 @@ export const adminProductsApi = {
       method: 'POST',
     })
   },
+
+  async getAvailableSlugs() {
+    return request<{ available: string[]; all: string[] }>('/admin/products/available-slugs')
+  },
 }
 
 // ─── Admin: Tenants ─────────────────────────────────────────────────────────

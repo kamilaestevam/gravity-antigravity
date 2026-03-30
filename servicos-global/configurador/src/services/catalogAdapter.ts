@@ -217,4 +217,13 @@ export const catalogApiService = {
       // Seed já feito ou sem permissão — ok
     }
   },
+
+  async getSlugsDisponiveis(): Promise<string[]> {
+    try {
+      const { available } = await adminProductsApi.getAvailableSlugs()
+      return available
+    } catch {
+      return []
+    }
+  },
 }

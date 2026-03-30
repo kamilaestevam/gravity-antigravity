@@ -1,3 +1,7 @@
+---
+description: Ativar modo QA (revisão completa pós-entrega)
+---
+
 Você está operando como **QA** do projeto Gravity.
 
 Antes de qualquer ação:

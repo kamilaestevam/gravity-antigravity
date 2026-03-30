@@ -1,0 +1,576 @@
+/**
+ * ModalPagamento.tsx — Modal de pagamento de cambio em 3 etapas
+ * Step 1: Selecionar parcelas + valor
+ * Step 2: Contrato, banco/corretora, taxa, valor em R$
+ * Step 3: Upload comprovante
+ *
+ * Design System: Solid Slate, Plus Jakarta Sans, Lucide React icons
+ */
+
+import React, { useState, useCallback, useMemo } from 'react'
+import {
+  CreditCard,
+  X,
+  ChevronRight,
+  ChevronLeft,
+  Upload,
+  FileText,
+  CheckCircle2,
+  Loader2,
+  AlertTriangle,
+  Building2,
+  DollarSign,
+} from 'lucide-react'
+
+import type { ParcelaCambio, MoedaCambio } from '../shared/types'
+import { STATUS_PARCELA_LABELS } from '../shared/types'
+
+// ─── Formatacao ────────────────────────────────────────────────────────────
+
+const fmtMoney = (val: number) =>
+  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)
+
+const fmtRate = (val: number) =>
+  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 }).format(val)
+
+const dataBR = (iso: string | null | undefined) =>
+  iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'
+
+// ─── Props ─────────────────────────────────────────────────────────────────
+
+interface ModalPagamentoProps {
+  open: boolean
+  onClose: () => void
+  parcelas: ParcelaCambio[]
+  moeda: MoedaCambio
+  onSave: (data: PagamentoData) => Promise<void>
+  disabled?: boolean
+}
+
+export interface PagamentoData {
+  parcela_ids: string[]
+  valor_a_pagar: number
+  contrato_cambio: string
+  banco_corretora: string
+  taxa_fechamento: number
+  valor_brl: number
+  comprovante_file: File | null
+  comprovante_nome: string
+}
+
+// ─── Componente Principal ──────────────────────────────────────────────────
+
+export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave, disabled = false }: ModalPagamentoProps) {
+  const [step, setStep] = useState(1)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  // Step 1
+  const [selectedParcelas, setSelectedParcelas] = useState<Set<string>>(new Set())
+  const [valoresEditados, setValoresEditados] = useState<Record<string, string>>({})
+
+  // Step 2
+  const [contratoCambio, setContratoCambio] = useState('')
+  const [bancoCorretora, setBancoCorretora] = useState('')
+  const [taxaFechamento, setTaxaFechamento] = useState('')
+  const [valorBrl, setValorBrl] = useState('')
+
+  // Step 3
+  const [comprovanteFile, setComprovanteFile] = useState<File | null>(null)
+  const [comprovanteNome, setComprovanteNome] = useState('')
+
+  // ── Computed ───────────────────────────────────────────────────────────
+
+  const parcelasDisponiveis = useMemo(() =>
+    parcelas.filter(p => p.status === 'PENDENTE' || p.status === 'AGENDADA'),
+    [parcelas]
+  )
+
+  const totalSelecionado = useMemo(() => {
+    return parcelasDisponiveis
+      .filter(p => selectedParcelas.has(p.id))
+      .reduce((sum, p) => {
+        const editado = valoresEditados[p.id]
+        return sum + (editado != null ? Number(editado) || 0 : p.valor_moeda_estrangeira)
+      }, 0)
+  }, [parcelasDisponiveis, selectedParcelas, valoresEditados])
+
+  // ── Handlers ───────────────────────────────────────────────────────────
+
+  const toggleParcela = useCallback((id: string) => {
+    setSelectedParcelas(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [])
+
+  const handleValorEdit = useCallback((id: string, valor: string, limiteMax: number) => {
+    const num = Number(valor)
+    if (valor === '' || (num >= 0 && num <= limiteMax)) {
+      setValoresEditados(prev => ({ ...prev, [id]: valor }))
+    }
+  }, [])
+
+  const canGoStep2 = selectedParcelas.size > 0 && totalSelecionado > 0
+  const canGoStep3 = contratoCambio.trim() !== '' && bancoCorretora.trim() !== '' && Number(taxaFechamento) > 0 && Number(valorBrl) > 0
+
+  const handleSave = useCallback(async () => {
+    setError(null)
+    setSaving(true)
+    try {
+      await onSave({
+        parcela_ids: Array.from(selectedParcelas),
+        valor_a_pagar: totalSelecionado,
+        contrato_cambio: contratoCambio,
+        banco_corretora: bancoCorretora,
+        taxa_fechamento: Number(taxaFechamento),
+        valor_brl: Number(valorBrl),
+        comprovante_file: comprovanteFile,
+        comprovante_nome: comprovanteNome || comprovanteFile?.name || '',
+      })
+      setSuccess(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao salvar pagamento')
+    } finally {
+      setSaving(false)
+    }
+  }, [selectedParcelas, totalSelecionado, contratoCambio, bancoCorretora, taxaFechamento, valorBrl, comprovanteFile, comprovanteNome, onSave])
+
+  const reset = useCallback(() => {
+    setStep(1)
+    setSelectedParcelas(new Set())
+    setValoresEditados({})
+    setContratoCambio('')
+    setBancoCorretora('')
+    setTaxaFechamento('')
+    setValorBrl('')
+    setComprovanteFile(null)
+    setComprovanteNome('')
+    setError(null)
+    setSuccess(false)
+  }, [])
+
+  // ── Styles ─────────────────────────────────────────────────────────────
+
+  if (!open) return null
+
+  const overlayStyle: React.CSSProperties = {
+    position: 'fixed', inset: 0, zIndex: 200,
+    background: 'rgba(0,0,0,0.65)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontFamily: "'Plus Jakarta Sans', sans-serif",
+  }
+
+  const modalStyle: React.CSSProperties = {
+    background: 'var(--bg-surface, #334155)',
+    borderRadius: 16, padding: '1.5rem',
+    width: 520, maxHeight: '85vh', overflowY: 'auto',
+    border: '1px solid var(--bg-elevated, #475569)',
+    color: 'var(--text-primary, #f1f5f9)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+  }
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: '0.75rem', fontWeight: 600,
+    textTransform: 'uppercase', letterSpacing: '0.05em',
+    color: 'var(--text-muted, #64748b)', marginBottom: '0.35rem',
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '0.6rem 0.75rem', borderRadius: 8,
+    border: '1px solid var(--bg-elevated, #475569)',
+    background: 'var(--bg-base, #1e293b)', color: 'var(--text-primary, #f1f5f9)',
+    fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+  }
+
+  const btnPrimary: React.CSSProperties = {
+    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+    padding: '0.5rem 1.25rem', borderRadius: 9999,
+    fontSize: '0.875rem', fontWeight: 600, border: 'none',
+    background: 'var(--accent, #6366f1)', color: '#fff',
+    cursor: 'pointer', fontFamily: 'inherit',
+  }
+
+  const btnSecondary: React.CSSProperties = {
+    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+    padding: '0.5rem 1.25rem', borderRadius: 9999,
+    fontSize: '0.875rem', fontWeight: 600,
+    border: '1px solid var(--bg-elevated, #475569)', background: 'transparent',
+    color: 'var(--text-secondary, #94a3b8)', cursor: 'pointer', fontFamily: 'inherit',
+  }
+
+  // ── Step Indicator ─────────────────────────────────────────────────────
+
+  const stepIndicator = (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+      {[1, 2, 3].map((s) => (
+        <React.Fragment key={s}>
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '0.75rem', fontWeight: 700,
+            background: step >= s ? 'var(--accent, #6366f1)' : 'var(--bg-elevated, #475569)',
+            color: step >= s ? '#fff' : 'var(--text-muted, #64748b)',
+            transition: 'all 0.2s',
+          }}>
+            {s}
+          </div>
+          {s < 3 && (
+            <div style={{
+              width: 32, height: 2,
+              background: step > s ? 'var(--accent, #6366f1)' : 'var(--bg-elevated, #475569)',
+              transition: 'background 0.2s',
+            }} />
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  )
+
+  // ─── Success ───────────────────────────────────────────────────────────
+
+  if (success) {
+    return (
+      <div style={overlayStyle} onClick={onClose}>
+        <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+          <div style={{ textAlign: 'center', padding: '2rem 0' }}>
+            <CheckCircle2 size={48} style={{ color: 'var(--success, #22c55e)', marginBottom: '1rem' }} />
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>Pagamento registrado</h3>
+            <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1.5rem' }}>
+              {selectedParcelas.size} parcela(s) marcada(s) como paga(s).
+            </p>
+            <button onClick={() => { reset(); onClose() }} style={btnPrimary}>Fechar</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── Modal Content ─────────────────────────────────────────────────────
+
+  return (
+    <div style={overlayStyle} onClick={onClose}>
+      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <CreditCard size={18} style={{ color: 'var(--accent, #6366f1)' }} />
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>
+              Registrar Pagamento
+            </h3>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {stepIndicator}
+
+        {/* Error */}
+        {error && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.65rem 0.75rem', borderRadius: 8, marginBottom: '1rem',
+            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+          }}>
+            <AlertTriangle size={14} style={{ color: 'var(--danger, #ef4444)' }} />
+            <span style={{ fontSize: '0.8125rem', color: 'var(--danger, #ef4444)' }}>{error}</span>
+          </div>
+        )}
+
+        {/* Step 1: Selecionar Parcelas */}
+        {step === 1 && (
+          <div>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
+              Selecionar parcela(s) para pagamento
+            </h4>
+
+            {parcelasDisponiveis.length === 0 ? (
+              <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem' }}>
+                Nenhuma parcela disponivel para pagamento.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+                {parcelasDisponiveis.map((p) => {
+                  const selected = selectedParcelas.has(p.id)
+                  const editedVal = valoresEditados[p.id]
+                  return (
+                    <div
+                      key={p.id}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.75rem',
+                        padding: '0.65rem 0.75rem', borderRadius: 8,
+                        background: selected ? 'rgba(99,102,241,0.1)' : 'var(--bg-base, #1e293b)',
+                        border: `1px solid ${selected ? 'var(--accent, #6366f1)' : 'var(--bg-elevated, #475569)'}`,
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                        opacity: disabled ? 0.5 : 1,
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() => toggleParcela(p.id)}
+                        disabled={disabled}
+                        style={{ accentColor: 'var(--accent, #6366f1)' }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
+                          Parcela {p.numero_parcela} — Vencimento: {dataBR(p.data_vencimento)}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
+                          {STATUS_PARCELA_LABELS[p.status]} — {moeda} {fmtMoney(p.valor_moeda_estrangeira)}
+                        </div>
+                      </div>
+                      {selected && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                          <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>{moeda}</span>
+                          <input
+                            type="number"
+                            value={editedVal ?? String(p.valor_moeda_estrangeira)}
+                            onChange={(e) => handleValorEdit(p.id, e.target.value, p.valor_moeda_estrangeira)}
+                            step={0.01}
+                            min={0}
+                            max={p.valor_moeda_estrangeira}
+                            disabled={disabled}
+                            style={{
+                              width: 100, padding: '0.3rem 0.5rem', borderRadius: 6,
+                              border: '1px solid var(--bg-elevated, #475569)',
+                              background: 'var(--bg-surface, #334155)',
+                              color: 'var(--text-primary, #f1f5f9)',
+                              fontFamily: "'DM Mono', monospace", fontSize: '0.8125rem',
+                              textAlign: 'right', outline: 'none',
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {selectedParcelas.size > 0 && (
+              <div style={{
+                padding: '0.75rem', borderRadius: 8,
+                background: 'var(--bg-base, #1e293b)',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                marginBottom: '1rem',
+              }}>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                  {selectedParcelas.size} parcela(s) selecionada(s)
+                </span>
+                <span style={{ fontSize: '1rem', fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>
+                  {moeda} {fmtMoney(totalSelecionado)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Step 2: Dados do Pagamento */}
+        {step === 2 && (
+          <div>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
+              Dados do contrato de cambio
+            </h4>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div>
+                <label style={labelStyle}>Contrato de Cambio</label>
+                <input
+                  type="text"
+                  value={contratoCambio}
+                  onChange={(e) => setContratoCambio(e.target.value)}
+                  placeholder="Numero do contrato"
+                  style={inputStyle}
+                  disabled={disabled}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Banco / Corretora</label>
+                <input
+                  type="text"
+                  value={bancoCorretora}
+                  onChange={(e) => setBancoCorretora(e.target.value)}
+                  placeholder="Nome do banco ou corretora"
+                  style={inputStyle}
+                  disabled={disabled}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div>
+                <label style={labelStyle}>Taxa de Fechamento</label>
+                <input
+                  type="number"
+                  value={taxaFechamento}
+                  onChange={(e) => setTaxaFechamento(e.target.value)}
+                  placeholder="0.0000"
+                  step={0.0001}
+                  min={0}
+                  style={{ ...inputStyle, fontFamily: "'DM Mono', monospace" }}
+                  disabled={disabled}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Valor em R$</label>
+                <input
+                  type="number"
+                  value={valorBrl}
+                  onChange={(e) => setValorBrl(e.target.value)}
+                  placeholder="0.00"
+                  step={0.01}
+                  min={0}
+                  style={{ ...inputStyle, fontFamily: "'DM Mono', monospace" }}
+                  disabled={disabled}
+                />
+              </div>
+            </div>
+
+            {/* Summary */}
+            <div style={{
+              padding: '0.75rem', borderRadius: 8,
+              background: 'var(--bg-base, #1e293b)',
+              marginBottom: '1rem',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Valor ME</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>{moeda} {fmtMoney(totalSelecionado)}</span>
+              </div>
+              {Number(taxaFechamento) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Taxa</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>{fmtRate(Number(taxaFechamento))}</span>
+                </div>
+              )}
+              {Number(valorBrl) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Valor BRL</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 700, color: 'var(--accent, #6366f1)' }}>R$ {fmtMoney(Number(valorBrl))}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Upload */}
+        {step === 3 && (
+          <div>
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
+              Comprovante (opcional)
+            </h4>
+
+            <div
+              style={{
+                border: '2px dashed var(--bg-elevated, #475569)',
+                borderRadius: 12, padding: '2rem', textAlign: 'center',
+                marginBottom: '1rem', cursor: 'pointer',
+                background: comprovanteFile ? 'rgba(99,102,241,0.05)' : undefined,
+              }}
+              onClick={() => {
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = '.pdf,.jpg,.jpeg,.png'
+                input.onchange = (e) => {
+                  const file = (e.target as HTMLInputElement).files?.[0]
+                  if (file) {
+                    setComprovanteFile(file)
+                    setComprovanteNome(file.name)
+                  }
+                }
+                input.click()
+              }}
+            >
+              {comprovanteFile ? (
+                <>
+                  <FileText size={28} style={{ color: 'var(--accent, #6366f1)', marginBottom: '0.5rem' }} />
+                  <p style={{ fontWeight: 600, margin: '0 0 0.25rem', fontSize: '0.875rem' }}>{comprovanteFile.name}</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
+                    {(comprovanteFile.size / 1024).toFixed(0)} KB — Clique para trocar
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Upload size={28} style={{ color: 'var(--text-muted, #64748b)', marginBottom: '0.5rem' }} />
+                  <p style={{ fontWeight: 600, margin: '0 0 0.25rem', fontSize: '0.875rem' }}>
+                    Clique para enviar comprovante
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
+                    PDF, JPG ou PNG
+                  </p>
+                </>
+              )}
+            </div>
+
+            {comprovanteFile && (
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={labelStyle}>Nome do arquivo (opcional)</label>
+                <input
+                  type="text"
+                  value={comprovanteNome}
+                  onChange={(e) => setComprovanteNome(e.target.value)}
+                  placeholder={comprovanteFile.name}
+                  style={inputStyle}
+                  disabled={disabled}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--bg-elevated, #475569)' }}>
+          <div>
+            {step > 1 && (
+              <button
+                onClick={() => setStep(s => s - 1)}
+                style={btnSecondary}
+                disabled={disabled || saving}
+              >
+                <ChevronLeft size={14} /> Voltar
+              </button>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={onClose} style={btnSecondary} disabled={saving}>
+              Cancelar
+            </button>
+            {step < 3 ? (
+              <button
+                onClick={() => setStep(s => s + 1)}
+                disabled={disabled || (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3)}
+                style={{
+                  ...btnPrimary,
+                  opacity: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 0.5 : 1,
+                  cursor: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Proximo <ChevronRight size={14} />
+              </button>
+            ) : (
+              <button
+                onClick={handleSave}
+                disabled={disabled || saving}
+                style={{
+                  ...btnPrimary,
+                  background: 'var(--success, #22c55e)',
+                  opacity: (disabled || saving) ? 0.5 : 1,
+                  cursor: (disabled || saving) ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle2 size={14} />}
+                {saving ? 'Salvando...' : 'Salvar Pagamento'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+}

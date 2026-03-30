@@ -4,12 +4,18 @@
  * Skill: antigravity-autenticacao-s2s
  */
 import { Request, Response, NextFunction } from 'express'
+import { timingSafeEqual } from 'crypto'
+
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b))
+}
 
 export function requireInternalKey(req: Request, res: Response, next: NextFunction) {
   // Health check e master-data (dados públicos) não precisam de autenticação
   if (req.path === '/health' || req.path.startsWith('/api/v1/master-data')) return next()
 
-  const key = req.headers['x-internal-key']
+  const key = req.headers['x-internal-key'] as string | undefined
   const expected = process.env.INTERNAL_SERVICE_KEY
 
   if (!expected) {
@@ -17,7 +23,7 @@ export function requireInternalKey(req: Request, res: Response, next: NextFuncti
     return res.status(500).json({ error: 'Serviço mal configurado' })
   }
 
-  if (key !== expected) {
+  if (!key || !safeCompare(key, expected)) {
     return res.status(401).json({ error: 'Chave interna inválida', code: 'UNAUTHORIZED' })
   }
 

@@ -7,8 +7,8 @@ import { AppError } from '../lib/errors.js'
 export type PermissionChecker = (userId: string, action: string, resource: string, tenantId: string) => Promise<boolean>
 
 const defaultPermissionChecker: PermissionChecker = async (_userId, _action, _resource, _tenantId) => {
-  // Stub temporário: Para o escopo deste teste, retorna true (ou implementar chamada real)
-  return true
+  // Seguro por padrão: negar acesso até que o checker real seja implementado
+  return false
 }
 
 // ---------------------------------------------------------------------------

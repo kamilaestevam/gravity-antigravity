@@ -12,12 +12,6 @@ export async function requireGravityAdmin(
   next: NextFunction
 ): Promise<void> {
   try {
-    // DEMO_MODE: bypass admin check em desenvolvimento local
-    if (process.env.DEMO_MODE === 'true' && req.auth?.clerkUserId === 'demo-user') {
-      console.log('[requireGravityAdmin] DEMO_MODE: bypass admin check para', req.path)
-      return next()
-    }
-
     if (!req.auth?.clerkUserId) {
       throw new AppError('Autenticação necessária', 401, 'UNAUTHORIZED')
     }

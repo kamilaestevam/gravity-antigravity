@@ -28,6 +28,7 @@ const mockProductCatalogService = vi.hoisted(() => ({
   toggleStatus: vi.fn(),
   delete: vi.fn(),
   seedInitialProducts: vi.fn(),
+  activateProductsForTenant: vi.fn().mockResolvedValue({ activated: 3 }),
   listPublic: vi.fn(),
 }))
 
@@ -399,8 +400,9 @@ describe('POST /api/admin/products/seed — seed de produtos', () => {
     const res = await request(app).post('/api/admin/products/seed')
 
     expect(res.status).toBe(200)
-    expect(res.body.seeded).toBe(true)
-    expect(res.body.count).toBe(3)
+    expect(res.body.catalog.seeded).toBe(true)
+    expect(res.body.catalog.count).toBe(3)
+    expect(res.body.activation).toBeDefined()
   })
 
   it('200 — seed idempotente (ja existem produtos)', async () => {
@@ -412,6 +414,6 @@ describe('POST /api/admin/products/seed — seed de produtos', () => {
     const res = await request(app).post('/api/admin/products/seed')
 
     expect(res.status).toBe(200)
-    expect(res.body.seeded).toBe(false)
+    expect(res.body.catalog.seeded).toBe(false)
   })
 })

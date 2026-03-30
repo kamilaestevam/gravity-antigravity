@@ -15,6 +15,7 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 import { catalogApiService } from '../../services/catalogAdapter'
+import { setAuthTokenProvider } from '../../services/apiClient'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 
@@ -109,6 +110,11 @@ export function ProdutosAdmin() {
   const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
   const [slugsDisponiveis, setSlugsDisponiveis] = React.useState<string[]>([])
   const [loading, setLoading] = React.useState(true)
+
+  // Configurar token Clerk para todas as chamadas API
+  React.useEffect(() => {
+    setAuthTokenProvider(() => getToken())
+  }, [getToken])
 
   const [carregando, setCarregando] = React.useState(true)
 

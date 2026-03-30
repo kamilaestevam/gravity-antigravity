@@ -4,13 +4,29 @@
 
 const BASE_URL = '/api'
 
+// ─── Auth token provider (Clerk JWT) ──────────────────────────────────────
+
+let _getToken: (() => Promise<string | null>) | null = null
+
+/** Configura o provider de token Clerk para todas as chamadas API */
+export function setAuthTokenProvider(getToken: () => Promise<string | null>) {
+  _getToken = getToken
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const authHeaders: Record<string, string> = {}
+  if (_getToken) {
+    const token = await _getToken()
+    if (token) authHeaders['Authorization'] = `Bearer ${token}`
+  }
+
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...options.headers,
     },
     ...options,

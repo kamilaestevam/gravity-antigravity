@@ -1,10 +1,5 @@
-<<<<<<< Updated upstream
-import React, { useState, useEffect } from 'react'
-import { useAuth } from '@clerk/clerk-react'
-=======
 import React, { useEffect, useState } from 'react'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
->>>>>>> Stashed changes
 import { useNavigate } from 'react-router-dom'
 import {
   Package,
@@ -22,9 +17,6 @@ import {
 import './hub-store.css'
 import '../pages/workspace/workspace.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
-<<<<<<< Updated upstream
-import { publicCatalogApi, type ProductApi } from '../services/apiClient'
-=======
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
@@ -32,7 +24,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
->>>>>>> Stashed changes
+import { type ProductApi } from '../services/apiClient'
 
 const API_URL = '/api/v1'
 

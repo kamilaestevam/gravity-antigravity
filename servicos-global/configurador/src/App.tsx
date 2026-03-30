@@ -1,7 +1,8 @@
 import React from 'react'
-import { Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom'
-import { SignedIn, SignedOut, RedirectToSignIn, useAuth } from '@clerk/clerk-react'
+import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
+import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
 import { AuthPage } from './pages/AuthPage'
+import { GabiOnboardingWidget } from './components/GabiOnboardingWidget'
 
 export type Page =
   | { name: 'admin' }
@@ -94,6 +95,19 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   )
 }
 
+/** Gabi IA global — aparece em todas as telas autenticadas */
+function GabiGlobal() {
+  const { user } = useUser()
+  const location = useLocation()
+
+  return (
+    <GabiOnboardingWidget
+      userName={user?.firstName ?? 'Usuario'}
+      pathname={location.pathname}
+    />
+  )
+}
+
 export default function App() {
   const routerNavigate = useNavigate()
 
@@ -163,6 +177,11 @@ export default function App() {
           </div>
         } />
       </Routes>
+
+      {/* Gabi IA — presente em todas as telas pos-login */}
+      <SignedIn>
+        <GabiGlobal />
+      </SignedIn>
     </div>
   )
 }

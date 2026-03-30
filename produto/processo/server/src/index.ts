@@ -12,6 +12,8 @@ import { dirname, join } from 'path'
 import { processosRouter } from './routes/processos.js'
 import { followUpRouter } from './routes/followup.js'
 import { documentosRouter } from './routes/documentos.js'
+import { pedidosRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
+import { importacaoRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/importacao.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 
@@ -88,6 +90,8 @@ app.use(tenantIsolationMiddleware)
 app.use('/api/v1/processos', processosRouter)
 app.use('/api/v1/follow-up', followUpRouter)
 app.use('/api/v1/documentos', documentosRouter)
+app.use('/api/v1/pedidos', pedidosRouter)
+app.use('/api/v1/pedidos', importacaoRouter)
 
 // --- 9. SPA Fallback (serve o client React para qualquer rota nao-API) --------
 app.get('*', (_req: Request, res: Response) => {

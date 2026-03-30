@@ -4,7 +4,6 @@ import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Storefront, Buildings, ArrowLeft } from '@phosphor-icons/react'
-import { GabiOnboardingWidget } from '../components/GabiOnboardingWidget'
 import './workspace/workspace.css'
 
 export function Onboarding() {
@@ -14,8 +13,6 @@ export function Onboarding() {
   const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [abrirTrial, setAbrirTrial] = useState(false)
-
   if (!isLoaded) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>Carregando...</div>
 
   if (!isSignedIn || !user) {
@@ -211,10 +208,7 @@ export function Onboarding() {
           justifyContent: 'center',
           marginTop: '1.5rem',
         }}>
-          <button
-            type="button"
-            onClick={() => setAbrirTrial(true)}
-            style={{
+          <span style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.375rem',
@@ -226,35 +220,12 @@ export function Onboarding() {
               fontWeight: 500,
               color: '#818cf8',
               letterSpacing: '0.01em',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              fontFamily: 'inherit',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(99,102,241,0.15)'
-              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'
-              e.currentTarget.style.color = '#a5b4fc'
-              e.currentTarget.style.boxShadow = '0 0 16px rgba(99,102,241,0.2)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'rgba(99,102,241,0.08)'
-              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.15)'
-              e.currentTarget.style.color = '#818cf8'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-          >
+            }}>
             ✦ 14 dias gratis para explorar — sem compromisso
-          </button>
+          </span>
         </div>
 
       </div>
-
-      <GabiOnboardingWidget
-        userName={user.firstName ?? 'Usuario'}
-        contexto="onboarding"
-        abrirComTrial={abrirTrial}
-        onTrialHandled={() => setAbrirTrial(false)}
-      />
 
       <style>{`
         @keyframes onbFadeUp {

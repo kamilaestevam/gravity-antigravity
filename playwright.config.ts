@@ -49,5 +49,21 @@ export default defineConfig({
         baseURL: 'http://localhost:5180',
       },
     },
+    {
+      name: 'bid-cambio',
+      testDir: './testes/testes-e2e/bid-cambio',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5002',
+      },
+    },
+    {
+      name: 'configurador',
+      testDir: './testes/testes-e2e/configurador',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5010',
+      },
+    },
   ],
 })

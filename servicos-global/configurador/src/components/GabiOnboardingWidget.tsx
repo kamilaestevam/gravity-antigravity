@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   Sparkle,
   X,
@@ -8,41 +8,151 @@ import {
   ShoppingBagOpen,
   Question,
   ArrowRight,
+  Minus,
+  CornersOut,
+  CornersIn,
 } from '@phosphor-icons/react'
 
 interface Message {
   id: string
   role: 'user' | 'assistant'
   content: string
+  suggestions?: string[]
 }
 
 interface GabiOnboardingWidgetProps {
   userName: string
-  contexto: 'onboarding' | 'store'
-  /** Se true, abre o widget automaticamente com mensagem de trial */
-  abrirComTrial?: boolean
-  onTrialHandled?: () => void
+  pathname: string
 }
 
-const ONBOARDING_WELCOME = `Oi! Sou a **Gabi**, sua assistente de IA na Gravity.
+// ── Contexto por tela ────────────────────────────────────────────────────
 
-Estou aqui para te guiar nos primeiros passos. Pode me perguntar qualquer coisa sobre a plataforma!`
+interface ScreenContext {
+  welcome: string
+  actions: { label: string; icon: React.ReactNode }[]
+}
 
-const STORE_WELCOME = `Bem-vindo a **Gravity Store**!
+function getScreenContext(path: string): ScreenContext {
+  // /trial — onboarding inicial
+  if (path.includes('/trial'))
+    return {
+      welcome: 'Estou aqui para te guiar nos primeiros passos. Crie sua empresa e explore a plataforma!',
+      actions: [
+        { label: 'O que e a Gravity Store?', icon: <ShoppingBagOpen size={16} /> },
+        { label: 'Qual o proximo passo?', icon: <ArrowRight size={16} /> },
+        { label: 'Como funciona o trial?', icon: <RocketLaunch size={16} /> },
+      ],
+    }
 
-Posso te ajudar a escolher os modulos ideais para sua operacao. Me conta: qual e o foco da sua empresa?`
+  // /store — loja de produtos
+  if (path.includes('/store'))
+    return {
+      welcome: 'Aqui voce encontra todos os modulos da Gravity. Posso te ajudar a escolher o ideal para sua operacao!',
+      actions: [
+        { label: 'Qual produto comecar?', icon: <RocketLaunch size={16} /> },
+        { label: 'O que e o SimulaCusto?', icon: <Question size={16} /> },
+        { label: 'Me ajude a escolher', icon: <Sparkle size={16} /> },
+      ],
+    }
 
-const QUICK_ACTIONS_ONBOARDING = [
-  { label: 'O que e a Gravity Store?', icon: <ShoppingBagOpen size={16} /> },
-  { label: 'Qual o proximo passo?', icon: <ArrowRight size={16} /> },
-  { label: 'Como funciona o trial?', icon: <RocketLaunch size={16} /> },
-]
+  // /workspace/organizacao
+  if (path.includes('/organizacao'))
+    return {
+      welcome: 'Aqui voce gerencia os dados da sua empresa. Posso te ajudar com qualquer configuracao!',
+      actions: [
+        { label: 'Como editar dados da empresa?', icon: <Question size={16} /> },
+        { label: 'O que e o plano Enterprise?', icon: <Sparkle size={16} /> },
+        { label: 'Como mudar de plano?', icon: <ArrowRight size={16} /> },
+      ],
+    }
 
-const QUICK_ACTIONS_STORE = [
-  { label: 'Qual produto comecar?', icon: <RocketLaunch size={16} /> },
-  { label: 'O que e o SimulaCusto?', icon: <Question size={16} /> },
-  { label: 'Me ajude a escolher', icon: <Sparkle size={16} /> },
-]
+  // /workspace/workspaces
+  if (path.includes('/workspaces'))
+    return {
+      welcome: 'Workspaces permitem organizar equipes e projetos. Cada workspace pode ter seus proprios produtos!',
+      actions: [
+        { label: 'O que e um workspace?', icon: <Question size={16} /> },
+        { label: 'Como criar um workspace?', icon: <ArrowRight size={16} /> },
+        { label: 'Posso ter varios workspaces?', icon: <Sparkle size={16} /> },
+      ],
+    }
+
+  // /workspace/usuarios
+  if (path.includes('/usuarios'))
+    return {
+      welcome: 'Gerencie quem tem acesso a plataforma. Cada usuario pode ter permissoes diferentes!',
+      actions: [
+        { label: 'Como convidar usuarios?', icon: <ArrowRight size={16} /> },
+        { label: 'Quais roles existem?', icon: <Question size={16} /> },
+        { label: 'Como restringir acesso?', icon: <Sparkle size={16} /> },
+      ],
+    }
+
+  // /workspace/assinaturas
+  if (path.includes('/assinaturas'))
+    return {
+      welcome: 'Aqui voce ve todos os modulos contratados e pode gerenciar suas assinaturas.',
+      actions: [
+        { label: 'Como contratar um modulo?', icon: <ShoppingBagOpen size={16} /> },
+        { label: 'Como cancelar assinatura?', icon: <Question size={16} /> },
+        { label: 'O que esta incluso no trial?', icon: <RocketLaunch size={16} /> },
+      ],
+    }
+
+  // /workspace/financeiro
+  if (path.includes('/financeiro'))
+    return {
+      welcome: 'Acompanhe faturas, pagamentos e o historico financeiro da sua conta.',
+      actions: [
+        { label: 'Como funciona a cobranca?', icon: <Question size={16} /> },
+        { label: 'Onde vejo minhas faturas?', icon: <ArrowRight size={16} /> },
+        { label: 'Quais formas de pagamento?', icon: <Sparkle size={16} /> },
+      ],
+    }
+
+  // /workspace/api-cockpit
+  if (path.includes('/api-cockpit'))
+    return {
+      welcome: 'O API Cockpit mostra o consumo da Gabi IA, status dos servicos e custos de API.',
+      actions: [
+        { label: 'Como funciona o custo da IA?', icon: <Question size={16} /> },
+        { label: 'O que e o fallback chain?', icon: <Sparkle size={16} /> },
+        { label: 'Como ver meu consumo?', icon: <ArrowRight size={16} /> },
+      ],
+    }
+
+  // /admin/*
+  if (path.includes('/admin'))
+    return {
+      welcome: 'Area administrativa. Posso te ajudar a navegar pelas configuracoes globais da plataforma.',
+      actions: [
+        { label: 'Como gerenciar tenants?', icon: <Question size={16} /> },
+        { label: 'Onde vejo metricas globais?', icon: <ArrowRight size={16} /> },
+        { label: 'Como funciona o deploy?', icon: <RocketLaunch size={16} /> },
+      ],
+    }
+
+  // /produto/* — dentro de um produto
+  if (path.includes('/produto'))
+    return {
+      welcome: 'Voce esta dentro de um produto. Posso te ajudar a usar os recursos disponiveis!',
+      actions: [
+        { label: 'Como usar este produto?', icon: <Question size={16} /> },
+        { label: 'Onde vejo meus dados?', icon: <ArrowRight size={16} /> },
+        { label: 'Como exportar relatorios?', icon: <Sparkle size={16} /> },
+      ],
+    }
+
+  // /hub, /selecionar-workspace, ou qualquer outra
+  return {
+    welcome: 'Estou aqui para te guiar nos primeiros passos. Pode me perguntar qualquer coisa sobre a plataforma!',
+    actions: [
+      { label: 'O que e a Gravity Store?', icon: <ShoppingBagOpen size={16} /> },
+      { label: 'Como funciona a plataforma?', icon: <Question size={16} /> },
+      { label: 'Me ajude a comecar', icon: <RocketLaunch size={16} /> },
+    ],
+  }
+}
 
 const MOCK_RESPONSES: Record<string, string> = {
   'O que e a Gravity Store?':
@@ -59,57 +169,179 @@ const MOCK_RESPONSES: Record<string, string> = {
     'Claro! Me conta um pouco:\n\n* Sua empresa trabalha com **importacao**, **exportacao** ou ambos?\n* Qual o principal desafio hoje — **custos**, **documentos** ou **logistica**?\n\nCom essas infos consigo recomendar os modulos ideais para voce.',
 }
 
-const TRIAL_CTA_RESPONSE = `Pode ficar tranquilo! O trial da Gravity e **100% sem compromisso**:
-
-* **Sem cartao de credito** — nao pedimos nenhum dado de pagamento
-* **Sem contrato** — cancela quando quiser, sem burocracia
-* **Acesso completo** — todos os recursos liberados por 14 dias
-* **Sem pegadinha** — se nao gostar, nao paga nada
-
-So cria sua empresa e comeca a explorar. Simples assim! 🚀`
-
 const DEFAULT_RESPONSE =
   'Entendi! Ainda estou aprendendo sobre esse assunto, mas posso te ajudar com duvidas sobre a plataforma, produtos disponiveis e como comecar.\n\nTente perguntar sobre um dos nossos modulos!'
 
-export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTrialHandled }: GabiOnboardingWidgetProps) {
+// Sugestoes contextuais baseadas na pergunta anterior
+const FOLLOW_UP_SUGGESTIONS: Record<string, string[]> = {
+  'O que e a Gravity Store?': [
+    'Qual produto comecar?',
+    'Como funciona o trial?',
+    'O que e o SimulaCusto?',
+  ],
+  'Qual o proximo passo?': [
+    'O que e a Gravity Store?',
+    'Me ajude a escolher',
+    'Como funciona o trial?',
+  ],
+  'Como funciona o trial?': [
+    'O que e a Gravity Store?',
+    'Qual produto comecar?',
+    'E se eu nao gostar?',
+  ],
+  'Qual produto comecar?': [
+    'O que e o SimulaCusto?',
+    'Quais outros produtos tem?',
+    'Me ajude a escolher',
+  ],
+  'O que e o SimulaCusto?': [
+    'Como ativar o SimulaCusto?',
+    'Quanto custa o SimulaCusto?',
+    'Quais outros produtos tem?',
+  ],
+  'Me ajude a escolher': [
+    'Trabalho com importacao',
+    'Trabalho com exportacao',
+    'Trabalho com ambos',
+  ],
+}
+
+const DEFAULT_SUGGESTIONS = [
+  'O que e a Gravity Store?',
+  'Me ajude a escolher',
+  'Como funciona o trial?',
+]
+
+const MIN_W = 340
+const MIN_H = 400
+const DEFAULT_W = 420
+const DEFAULT_H = 560
+
+export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidgetProps) {
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputVal, setInputVal] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [pulse, setPulse] = useState(true)
+  const [maximized, setMaximized] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
-  const welcomeMsg = contexto === 'onboarding' ? ONBOARDING_WELCOME : STORE_WELCOME
-  const quickActions = contexto === 'onboarding' ? QUICK_ACTIONS_ONBOARDING : QUICK_ACTIONS_STORE
+  // Position & size state
+  const [size, setSize] = useState({ w: DEFAULT_W, h: DEFAULT_H })
+  const [pos, setPos] = useState({ x: -1, y: -1 }) // -1 = use default (bottom-right)
+
+  // Dragging state
+  const dragRef = useRef<{ startX: number; startY: number; startPosX: number; startPosY: number } | null>(null)
+  // Resizing state
+  const resizeRef = useRef<{
+    startX: number; startY: number; startW: number; startH: number; startPosX: number; startPosY: number
+    edge: string
+  } | null>(null)
+
+  // Pre-maximize snapshot
+  const preMaxRef = useRef({ w: DEFAULT_W, h: DEFAULT_H, x: -1, y: -1 })
+
+  const screen = getScreenContext(pathname)
+  const welcomeMsg = `Oi! Sou a **Gabi**, sua assistente de IA na Gravity.\n\n${screen.welcome}`
+  const quickActions = screen.actions
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isTyping])
 
-  // Stop pulse after 8s
   useEffect(() => {
     const t = setTimeout(() => setPulse(false), 8000)
     return () => clearTimeout(t)
   }, [])
 
-  // Abrir com mensagem de trial quando badge clicado
-  useEffect(() => {
-    if (abrirComTrial) {
-      setOpen(true)
-      setPulse(false)
-      const userMsg: Message = { id: Date.now().toString(), role: 'user', content: 'O trial e realmente gratis?' }
-      setMessages([userMsg])
-      setIsTyping(true)
-      setTimeout(() => {
-        setMessages(prev => [
-          ...prev,
-          { id: (Date.now() + 1).toString(), role: 'assistant', content: TRIAL_CTA_RESPONSE },
-        ])
-        setIsTyping(false)
-      }, 1000)
-      onTrialHandled?.()
+  // Compute actual position (default = bottom-right with 2rem margin)
+  const getActualPos = useCallback(() => {
+    if (pos.x >= 0 && pos.y >= 0) return pos
+    return {
+      x: window.innerWidth - size.w - 32,
+      y: window.innerHeight - size.h - 32,
     }
-  }, [abrirComTrial])
+  }, [pos, size])
+
+  // ── Drag (move) ──
+  const onDragStart = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return
+    e.preventDefault()
+    const actual = getActualPos()
+    dragRef.current = { startX: e.clientX, startY: e.clientY, startPosX: actual.x, startPosY: actual.y }
+
+    const onMove = (ev: MouseEvent) => {
+      if (!dragRef.current) return
+      const dx = ev.clientX - dragRef.current.startX
+      const dy = ev.clientY - dragRef.current.startY
+      setPos({
+        x: Math.max(0, Math.min(window.innerWidth - size.w, dragRef.current.startPosX + dx)),
+        y: Math.max(0, Math.min(window.innerHeight - size.h, dragRef.current.startPosY + dy)),
+      })
+    }
+    const onUp = () => {
+      dragRef.current = null
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }
+
+  // ── Resize ──
+  const onResizeStart = (e: React.MouseEvent, edge: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const actual = getActualPos()
+    resizeRef.current = {
+      startX: e.clientX, startY: e.clientY,
+      startW: size.w, startH: size.h,
+      startPosX: actual.x, startPosY: actual.y,
+      edge,
+    }
+
+    const onMove = (ev: MouseEvent) => {
+      if (!resizeRef.current) return
+      const r = resizeRef.current
+      const dx = ev.clientX - r.startX
+      const dy = ev.clientY - r.startY
+
+      let newW = r.startW
+      let newH = r.startH
+      let newX = r.startPosX
+      let newY = r.startPosY
+
+      if (r.edge.includes('e')) newW = Math.max(MIN_W, r.startW + dx)
+      if (r.edge.includes('w')) { newW = Math.max(MIN_W, r.startW - dx); newX = r.startPosX + (r.startW - newW) }
+      if (r.edge.includes('s')) newH = Math.max(MIN_H, r.startH + dy)
+      if (r.edge.includes('n')) { newH = Math.max(MIN_H, r.startH - dy); newY = r.startPosY + (r.startH - newH) }
+
+      setSize({ w: newW, h: newH })
+      setPos({ x: newX, y: newY })
+    }
+    const onUp = () => {
+      resizeRef.current = null
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }
+
+  // ── Maximize / Restore ──
+  const toggleMaximize = () => {
+    if (maximized) {
+      setSize({ w: preMaxRef.current.w, h: preMaxRef.current.h })
+      setPos({ x: preMaxRef.current.x, y: preMaxRef.current.y })
+      setMaximized(false)
+    } else {
+      preMaxRef.current = { w: size.w, h: size.h, x: getActualPos().x, y: getActualPos().y }
+      setSize({ w: window.innerWidth - 64, h: window.innerHeight - 64 })
+      setPos({ x: 32, y: 32 })
+      setMaximized(true)
+    }
+  }
 
   const handleSend = async (text?: string) => {
     const msg = text || inputVal.trim()
@@ -119,6 +351,8 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
     setMessages(prev => [...prev, userMsg])
     setInputVal('')
     setIsTyping(true)
+
+    const suggestions = FOLLOW_UP_SUGGESTIONS[msg] || DEFAULT_SUGGESTIONS
 
     try {
       const res = await fetch('/api/v1/gabi/chat', {
@@ -137,14 +371,13 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
       const data = await res.json()
       setMessages(prev => [
         ...prev,
-        { id: (Date.now() + 1).toString(), role: 'assistant', content: data.response },
+        { id: (Date.now() + 1).toString(), role: 'assistant', content: data.response, suggestions },
       ])
     } catch {
-      // Fallback para mock se API nao estiver rodando
       const response = MOCK_RESPONSES[msg] || DEFAULT_RESPONSE
       setMessages(prev => [
         ...prev,
-        { id: (Date.now() + 1).toString(), role: 'assistant', content: response },
+        { id: (Date.now() + 1).toString(), role: 'assistant', content: response, suggestions },
       ])
     } finally {
       setIsTyping(false)
@@ -181,6 +414,13 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
       )
     })
   }
+
+  const actualPos = getActualPos()
+
+  // Edge handles for resize
+  const edgeStyle = (cursor: string, extra: React.CSSProperties): React.CSSProperties => ({
+    position: 'absolute', zIndex: 10, ...extra, cursor,
+  })
 
   return (
     <>
@@ -221,88 +461,120 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
         </button>
       )}
 
-      {/* Chat Panel */}
+      {/* Resizable + Draggable Chat Window */}
       {open && (
-        <div style={{
-          position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
-          width: 400,
-          maxWidth: 'calc(100vw - 2rem)',
-          height: 560,
-          maxHeight: 'calc(100vh - 4rem)',
-          borderRadius: 20,
-          background: '#0f111a',
-          border: '1px solid rgba(99,102,241,0.2)',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
-          display: 'flex',
-          flexDirection: 'column',
-          zIndex: 9999,
-          animation: 'gabiSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards',
-          overflow: 'hidden',
-          fontFamily: 'var(--font, Inter, sans-serif)',
-        }}>
-          {/* Header */}
-          <div style={{
+        <div
+          ref={panelRef}
+          style={{
+            position: 'fixed',
+            left: actualPos.x,
+            top: actualPos.y,
+            width: size.w,
+            height: size.h,
+            borderRadius: maximized ? 12 : 20,
+            background: '#0f111a',
+            border: '1px solid rgba(99,102,241,0.2)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '1rem 1.25rem',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            flexDirection: 'column',
+            zIndex: 9999,
+            animation: 'gabiSlideUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards',
+            overflow: 'hidden',
+            fontFamily: 'var(--font, Inter, sans-serif)',
+          }}
+        >
+          {/* Resize handles (8 edges) */}
+          {!maximized && (<>
+            <div onMouseDown={e => onResizeStart(e, 'n')}  style={edgeStyle('ns-resize',  { top: 0, left: 8, right: 8, height: 6 })} />
+            <div onMouseDown={e => onResizeStart(e, 's')}  style={edgeStyle('ns-resize',  { bottom: 0, left: 8, right: 8, height: 6 })} />
+            <div onMouseDown={e => onResizeStart(e, 'w')}  style={edgeStyle('ew-resize',  { left: 0, top: 8, bottom: 8, width: 6 })} />
+            <div onMouseDown={e => onResizeStart(e, 'e')}  style={edgeStyle('ew-resize',  { right: 0, top: 8, bottom: 8, width: 6 })} />
+            <div onMouseDown={e => onResizeStart(e, 'nw')} style={edgeStyle('nwse-resize', { top: 0, left: 0, width: 12, height: 12 })} />
+            <div onMouseDown={e => onResizeStart(e, 'ne')} style={edgeStyle('nesw-resize', { top: 0, right: 0, width: 12, height: 12 })} />
+            <div onMouseDown={e => onResizeStart(e, 'sw')} style={edgeStyle('nesw-resize', { bottom: 0, left: 0, width: 12, height: 12 })} />
+            <div onMouseDown={e => onResizeStart(e, 'se')} style={edgeStyle('nwse-resize', { bottom: 0, right: 0, width: 12, height: 12 })} />
+          </>)}
+
+          {/* Header — draggable */}
+          <div
+            onMouseDown={onDragStart}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.75rem 1rem',
+              borderBottom: '1px solid rgba(255,255,255,0.06)',
+              cursor: 'grab',
+              userSelect: 'none',
+              flexShrink: 0,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
               <div style={{
-                width: 42,
-                height: 42,
+                width: 36,
+                height: 36,
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 4px 16px rgba(99,102,241,0.3)',
+                flexShrink: 0,
               }}>
-                <Sparkle weight="fill" size={22} color="#fff" />
+                <Sparkle weight="fill" size={18} color="#fff" />
               </div>
               <div>
-                <div style={{ fontSize: '1rem', fontWeight: 600, color: '#f1f5f9' }}>Gabi</div>
-                <div style={{ fontSize: '0.75rem', color: '#818cf8', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
-                  Assistente de Onboarding
+                <div style={{ fontSize: '0.9375rem', fontWeight: 600, color: '#f1f5f9', lineHeight: 1.2 }}>Gabi</div>
+                <div style={{ fontSize: '0.6875rem', color: '#818cf8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981' }} />
+                  Assistente IA
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setOpen(false)}
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#9ca3af',
-                cursor: 'pointer',
-              }}
-              type="button"
-            >
-              <X size={16} weight="bold" />
-            </button>
+            <div style={{ display: 'flex', gap: '0.25rem' }}>
+              {/* Minimize */}
+              <button
+                onClick={() => setOpen(false)}
+                style={headerBtnStyle}
+                type="button"
+                title="Minimizar"
+              >
+                <Minus size={14} weight="bold" />
+              </button>
+              {/* Maximize / Restore */}
+              <button
+                onClick={toggleMaximize}
+                style={headerBtnStyle}
+                type="button"
+                title={maximized ? 'Restaurar' : 'Maximizar'}
+              >
+                {maximized ? <CornersIn size={14} weight="bold" /> : <CornersOut size={14} weight="bold" />}
+              </button>
+              {/* Close */}
+              <button
+                onClick={() => { setOpen(false); setMessages([]) }}
+                style={{ ...headerBtnStyle, ':hover': undefined }}
+                type="button"
+                title="Fechar conversa"
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; e.currentTarget.style.color = '#f87171' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#9ca3af' }}
+              >
+                <X size={14} weight="bold" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
           <div style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '1.25rem',
+            padding: '1rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
+            gap: '0.875rem',
           }}>
             {messages.length === 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {/* Welcome */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
                 <div style={{
                   background: '#1c2233',
                   border: '1px solid #272d42',
@@ -321,7 +593,6 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
                   {renderContent(welcomeMsg)}
                 </div>
 
-                {/* Quick Actions */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {quickActions.map(action => (
                     <button
@@ -331,7 +602,7 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
                         background: 'rgba(99,102,241,0.08)',
                         border: '1px solid rgba(99,102,241,0.15)',
                         borderRadius: 12,
-                        padding: '0.75rem 1rem',
+                        padding: '0.625rem 0.875rem',
                         fontSize: '0.8125rem',
                         color: '#c7d2fe',
                         cursor: 'pointer',
@@ -362,27 +633,74 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
                 </div>
               </div>
             ) : (
-              messages.map(msg => (
-                <div
-                  key={msg.id}
-                  style={{
-                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    maxWidth: '85%',
-                  }}
-                >
-                  <div style={{
-                    padding: '0.75rem 1rem',
-                    borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
-                    fontSize: '0.875rem',
-                    lineHeight: 1.6,
-                    color: msg.role === 'user' ? '#e2dcf2' : '#e5e7eb',
-                    background: msg.role === 'user' ? '#3c2373' : '#1c2233',
-                    border: msg.role === 'user' ? '1px solid #483183' : '1px solid #272d42',
-                  }}>
-                    {renderContent(msg.content)}
+              messages.map((msg, idx) => {
+                const isLastAssistant = msg.role === 'assistant' && idx === messages.length - 1
+                return (
+                  <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div
+                      style={{
+                        alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                        maxWidth: '85%',
+                      }}
+                    >
+                      <div style={{
+                        padding: '0.75rem 1rem',
+                        borderRadius: msg.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                        fontSize: '0.875rem',
+                        lineHeight: 1.6,
+                        color: msg.role === 'user' ? '#e2dcf2' : '#e5e7eb',
+                        background: msg.role === 'user' ? '#3c2373' : '#1c2233',
+                        border: msg.role === 'user' ? '1px solid #483183' : '1px solid #272d42',
+                      }}>
+                        {renderContent(msg.content)}
+                      </div>
+                    </div>
+
+                    {/* Sugestoes contextuais — so na ultima resposta da Gabi */}
+                    {isLastAssistant && msg.suggestions && !isTyping && (
+                      <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '0.375rem',
+                        paddingLeft: '0.25rem',
+                        animation: 'gabiSlideUp 0.25s ease forwards',
+                      }}>
+                        {msg.suggestions.map(s => (
+                          <button
+                            key={s}
+                            onClick={() => handleSend(s)}
+                            style={{
+                              background: 'rgba(99,102,241,0.06)',
+                              border: '1px solid rgba(99,102,241,0.15)',
+                              borderRadius: 20,
+                              padding: '0.3rem 0.75rem',
+                              fontSize: '0.75rem',
+                              color: '#a5b4fc',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s',
+                              fontFamily: 'inherit',
+                              whiteSpace: 'nowrap',
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background = 'rgba(99,102,241,0.15)'
+                              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'
+                              e.currentTarget.style.color = '#fff'
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background = 'rgba(99,102,241,0.06)'
+                              e.currentTarget.style.borderColor = 'rgba(99,102,241,0.15)'
+                              e.currentTarget.style.color = '#a5b4fc'
+                            }}
+                            type="button"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
 
             {isTyping && (
@@ -413,20 +731,22 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
 
           {/* Input */}
           <div style={{
-            padding: '0.75rem 1rem 1rem',
+            padding: '0.625rem 1rem 0.75rem',
             borderTop: '1px solid rgba(255,255,255,0.06)',
+            flexShrink: 0,
           }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              background: 'rgba(0,0,0,0.2)',
-              border: '1px solid #292a43',
-              borderRadius: 14,
-              padding: '0.375rem 0.5rem',
-              transition: 'border-color 0.2s',
-            }}
-            onFocus={e => { e.currentTarget.style.borderColor = '#6366f1' }}
-            onBlur={e => { e.currentTarget.style.borderColor = '#292a43' }}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                background: 'rgba(0,0,0,0.2)',
+                border: '1px solid #292a43',
+                borderRadius: 14,
+                padding: '0.375rem 0.5rem',
+                transition: 'border-color 0.2s',
+              }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#6366f1' }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#292a43' }}
             >
               <input
                 type="text"
@@ -470,11 +790,11 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
             </div>
             <div style={{
               textAlign: 'center',
-              fontSize: '0.65rem',
+              fontSize: '0.6rem',
               color: '#4b5563',
-              marginTop: '0.5rem',
+              marginTop: '0.375rem',
             }}>
-              Gabi IA · Assistente Gravity
+              Gabi IA · Arraste as bordas para redimensionar
             </div>
           </div>
         </div>
@@ -497,4 +817,18 @@ export function GabiOnboardingWidget({ userName, contexto, abrirComTrial, onTria
       `}</style>
     </>
   )
+}
+
+const headerBtnStyle: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  width: 28,
+  height: 28,
+  borderRadius: 6,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: '#9ca3af',
+  cursor: 'pointer',
+  transition: 'all 0.15s',
 }

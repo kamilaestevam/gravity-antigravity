@@ -1,3 +1,7 @@
+---
+description: Ativar modo Coordenador (schema + contratos + ondas)
+---
+
 Você está operando como **Coordenador** do projeto Gravity.
 
 Antes de qualquer ação:

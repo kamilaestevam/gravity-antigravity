@@ -228,8 +228,40 @@ export const productCatalogService = {
           target_audience: 'Importadores, exportadores e despachantes aduaneiros',
         },
       }),
+      prisma.product.create({
+        data: {
+          name: 'BID Cambio',
+          slug: 'bid-cambio',
+          description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
+          status: 'ACTIVE',
+          billing_type: 'PER_PROCESS',
+          has_setup: false,
+          unit_price: 2.99,
+          minimum_price: 199,
+          user_limit_type: 'UNLIMITED',
+          backend_module: 'bid-cambio',
+          target_audience: 'Importadores, exportadores, tradings, agentes de carga e despachantes aduaneiros',
+        },
+      }),
     ])
 
     return { seeded: true, count: products.length }
+  },
+
+  /**
+   * Ativa produtos para um tenant especifico (idempotente)
+   * Usado no seed inicial para habilitar produtos demo
+   */
+  async activateProductsForTenant(tenantId: string, productKeys: string[]) {
+    const results = await Promise.all(
+      productKeys.map(key =>
+        prisma.productConfig.upsert({
+          where: { tenant_id_product_key: { tenant_id: tenantId, product_key: key } },
+          create: { tenant_id: tenantId, product_key: key, config: {}, is_active: true },
+          update: { is_active: true },
+        })
+      )
+    )
+    return { activated: results.length, tenant_id: tenantId, products: productKeys }
   },
 }

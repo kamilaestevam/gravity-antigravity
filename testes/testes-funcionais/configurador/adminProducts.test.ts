@@ -104,6 +104,7 @@ const CREATE_BODY = {
   name: 'Novo Produto',
   slug: 'novo-produto',
   description: 'Descricao do novo produto teste',
+  status: 'COMING_SOON',
   billing_type: 'MONTHLY',
   unit_price: 99.99,
 }

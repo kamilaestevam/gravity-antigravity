@@ -417,7 +417,7 @@ export function ProdutosAdmin() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Produtos"
+          titulo="Produtos Gravity"
           subtitulo="Toda a gestão de produtos, catálogos e negociações da plataforma Gravity é realizada por aqui."
           icone={<ShoppingBagOpen weight="duotone" size={22} color="#818cf8" />}
         />

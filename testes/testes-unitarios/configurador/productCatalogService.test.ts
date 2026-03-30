@@ -571,9 +571,9 @@ describe('productCatalogService.seedInitialProducts', () => {
 
     await productCatalogService.seedInitialProducts()
 
-    // $transaction recebe um array com 3 product.create
+    // $transaction recebe um array com 4 product.create (SimulaCusto, Smart Read, BID Frete, BID Cambio)
     const transactionArg = mockPrisma.$transaction.mock.calls[0][0]
-    expect(transactionArg).toHaveLength(3)
+    expect(transactionArg).toHaveLength(4)
   })
 
   it('nao deve criar produtos duplicados em chamadas consecutivas', async () => {

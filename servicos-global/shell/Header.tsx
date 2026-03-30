@@ -7,6 +7,7 @@ import {
   Moon,
   MagnifyingGlass,
   Info,
+  ArrowLeft,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
@@ -119,6 +120,34 @@ export function Header() {
     <header className="shell-header" role="banner">
       {/* DIREITA: ações + usuário (Floating Header) */}
       <div className="shell-header__right">
+        {/* Botão Voltar ao Hub */}
+        <button
+          className="shell-header__icon-btn shell-voltar-btn"
+          onClick={() => { window.location.href = '/hub' }}
+          type="button"
+          title={t('shell.voltar_hub', 'Voltar ao Hub')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.375rem',
+            padding: '0.375rem 0.875rem',
+            borderRadius: '9999px',
+            border: '1px solid rgba(129,140,248,0.25)',
+            background: 'rgba(129,140,248,0.08)',
+            color: '#818cf8',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.15s',
+            whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
+        >
+          <ArrowLeft size={16} weight="bold" />
+          Hub
+        </button>
+
         {/* Busca global — dispara evento, sem lógica de produto */}
         <button
           className="shell-header__icon-btn"

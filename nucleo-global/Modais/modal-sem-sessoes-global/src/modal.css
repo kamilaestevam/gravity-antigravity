@@ -178,7 +178,7 @@
   width: 100%;
   padding: 1.25rem 1.5rem;
   background: var(--bg-base);
-  border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-top: 1px solid var(--border-default, var(--bg-elevated, rgba(255, 255, 255, 0.08)));
 }
 
 .botoes-footer-padrao {

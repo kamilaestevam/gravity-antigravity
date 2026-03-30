@@ -89,3 +89,18 @@
   background: var(--ws-accent-border, rgba(129, 140, 248, 0.2));
   margin: 0 0 0.75rem;
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .scg-card__tooltip {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .scg-card__tooltip::after {
+  border-bottom-color: var(--border-default, #cbd5e1);
+}
+
+body.light-theme .scg-tooltip__divider {
+  background: var(--border-default, #cbd5e1);
+}

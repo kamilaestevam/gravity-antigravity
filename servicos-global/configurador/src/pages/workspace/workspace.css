@@ -2692,3 +2692,143 @@ input[type="search"]::placeholder {
 .ws-spin {
   animation: spin 1s linear infinite;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME — Additional overrides for missing components
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Badges — WCAG AA compliant colors for light backgrounds */
+body.light-theme .ws-badge-success {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.2);
+}
+
+body.light-theme .ws-badge-warning {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: rgba(180, 83, 9, 0.2);
+}
+
+body.light-theme .ws-badge-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+body.light-theme .ws-badge-info {
+  background: #cffafe;
+  color: #0e7490;
+  border-color: rgba(14, 116, 144, 0.2);
+}
+
+/* Profile dropdown items — light theme specific colors */
+body.light-theme .ws-profile-item--admin {
+  color: #047857;
+}
+
+body.light-theme .ws-profile-item--admin svg {
+  color: #047857;
+}
+
+body.light-theme .ws-profile-item--admin:hover {
+  background: rgba(4, 120, 87, 0.08);
+  color: #047857;
+}
+
+body.light-theme .ws-profile-item--configurador {
+  color: #4f46e5;
+}
+
+body.light-theme .ws-profile-item--configurador svg {
+  color: #4f46e5;
+}
+
+body.light-theme .ws-profile-item--configurador:hover {
+  background: rgba(79, 70, 229, 0.08);
+  color: #4f46e5;
+}
+
+body.light-theme .ws-profile-item--danger {
+  color: #dc2626;
+}
+
+body.light-theme .ws-profile-item--danger svg {
+  color: #dc2626;
+}
+
+body.light-theme .ws-profile-item--danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Sidebar tenant avatar — light theme */
+body.light-theme .ws-sidebar__tenant-avatar {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4f46e5;
+}
+
+/* User bar avatar — light theme */
+body.light-theme .ws-user-bar__avatar {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4f46e5;
+}
+
+/* Global user avatar — light theme */
+body.light-theme .ws-global-user__avatar {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4f46e5;
+}
+
+/* Global chip — light theme */
+body.light-theme .ws-global-chip {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
+body.light-theme .ws-global-chip__dot {
+  background: #4f46e5;
+  box-shadow: 0 0 8px rgba(79, 70, 229, 0.6), 0 0 3px rgba(79, 70, 229, 0.4);
+}
+
+body.light-theme .ws-global-chip__label {
+  color: #4f46e5;
+}
+
+/* Mini dash — light theme */
+body.light-theme .ws-mini-dash {
+  background: var(--ws-surface, var(--bg-base, #f8fafc));
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .ws-mini-dash:hover {
+  border-color: var(--ws-accent, #4f46e5);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.15), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .ws-mini-dash__tooltip {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+/* Success step dots — light theme */
+body.light-theme .cw-success-step__dot {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .cw-success-step__dot--done {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+/* Legend dots — light theme (darker for WCAG) */
+body.light-theme .dot.green  { background: #16a34a; }
+body.light-theme .dot.yellow { background: #b45309; }
+body.light-theme .dot.red    { background: #dc2626; }

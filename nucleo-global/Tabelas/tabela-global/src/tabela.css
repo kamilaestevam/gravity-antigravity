@@ -266,7 +266,7 @@
 }
 
 .tg-filtro-select option {
-  background: #1e293b;
+  background: var(--tg-bg, #1e293b);
   color: var(--tg-text);
 }
 
@@ -773,4 +773,41 @@ body.light-theme .tg-export-menu-item:hover {
 
 body.light-theme .tg-export-menu-icon {
   color: #4f46e5;
+}
+
+body.light-theme .tg-tr-filho {
+  background: rgba(79, 70, 229, 0.03);
+}
+
+body.light-theme .tg-tr-filho:hover {
+  background: rgba(79, 70, 229, 0.06);
+}
+
+body.light-theme .tg-filtro-select option {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+body.light-theme .badge-success {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.2);
+}
+
+body.light-theme .badge-warning {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: rgba(180, 83, 9, 0.2);
+}
+
+body.light-theme .badge-danger {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+body.light-theme .badge-default {
+  background: rgba(0, 0, 0, 0.05);
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.08);
 }

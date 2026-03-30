@@ -75,3 +75,35 @@
 .lang-switcher__label {
   line-height: 1;
 }
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .lang-switcher__trigger {
+  border-color: var(--border-default, #cbd5e1);
+  color: var(--text-secondary, #334155);
+}
+
+body.light-theme .lang-switcher__trigger:hover {
+  background: rgba(79, 70, 229, 0.04);
+  color: var(--text-primary, #1e293b);
+  border-color: var(--accent, #4f46e5);
+}
+
+body.light-theme .lang-switcher__dropdown {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+body.light-theme .lang-switcher__option {
+  color: var(--text-secondary, #334155);
+}
+
+body.light-theme .lang-switcher__option:hover {
+  background: rgba(79, 70, 229, 0.04);
+  color: var(--text-primary, #1e293b);
+}
+
+body.light-theme .lang-switcher__option--active {
+  background: #e0e7ff;
+  color: #4f46e5;
+}

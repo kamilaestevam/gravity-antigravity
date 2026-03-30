@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -20,8 +20,18 @@ import {
   Clock,
   Sparkle,
   Warning,
+  Envelope,
+  WhatsappLogo,
+  ShoppingBagOpen,
+  Folders,
+  FileText,
+  ClockCounterClockwise,
+  Plug,
+  Package,
+  ListChecks,
 } from '@phosphor-icons/react'
-import './selecionar-workspace.css'
+import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
+import './hub.css'
 
 /* ── Tipos ── */
 interface Workspace {
@@ -47,6 +57,13 @@ interface ProdutoSugerido {
   iconBg: string
   iconColor: string
   icon: 'star' | 'squares' | 'download' | 'check'
+}
+
+interface ProdutoAtivo {
+  id: string
+  slug: string
+  nome: string
+  rota: string
 }
 
 interface Atalho {
@@ -189,6 +206,15 @@ function ShortcutIcon({ icon, color }: { icon: string; color: string }) {
   }
 }
 
+/* ── Mapa de slug → rota e nome amigável ── */
+const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
+  'simula-custo': { nome: 'SimulaCusto', rota: '/produto/simula-custo' },
+  'bid-frete': { nome: 'BID Frete Internacional', rota: '/produto/bid-frete' },
+  'bid-cambio': { nome: 'BID Câmbio', rota: '/produto/bid-cambio' },
+  'smart-read': { nome: 'Smart Read', rota: '/produto/smart-read' },
+  'processo': { nome: 'Processo', rota: '/produto/processo' },
+}
+
 /* ══════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL — SelecionarWorkspace (Dashboard Core)
 ══════════════════════════════════════════════════════ */
@@ -202,12 +228,15 @@ export function SelecionarWorkspace() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [entrando, setEntrando] = useState(false)
+  const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
 
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userRole = (user?.publicMetadata?.role as string) ?? 'Superadmin'
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
+  const tenantName = selectedWs?.nome ?? 'Gravity'
+  const tenantPlan = selectedWs ? planLabel(selectedWs.plano) : 'Business'
 
   /* ── Carrega workspaces da API ── */
   useEffect(() => {
@@ -237,7 +266,6 @@ export function SelecionarWorkspace() {
           setWorkspaces(mapeados)
           setSelectedId(mapeados[0].id)
         } else if (!cancelled) {
-          // Fallback: mock data para demonstração
           setWorkspaces(MOCK_WORKSPACES)
           setSelectedId(MOCK_WORKSPACES[0].id)
         }
@@ -254,6 +282,129 @@ export function SelecionarWorkspace() {
     carregarWorkspaces()
     return () => { cancelled = true }
   }, [getToken])
+
+  /* ── Carrega produtos ativos do catálogo ── */
+  useEffect(() => {
+    let cancelled = false
+
+    async function carregarProdutos() {
+      try {
+        const token = await getToken()
+        const response = await fetch('/api/v1/products', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const data = await response.json()
+
+        if (!cancelled && data.products) {
+          const ativos: ProdutoAtivo[] = data.products
+            .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
+            .map((p: Record<string, unknown>) => {
+              const slug = p.slug as string
+              const info = PRODUCT_ROUTE_MAP[slug]
+              return {
+                id: p.id as string,
+                slug,
+                nome: info?.nome ?? (p.name as string),
+                rota: info?.rota ?? `/produto/${slug}`,
+              }
+            })
+          setProdutosAtivos(ativos)
+        }
+      } catch {
+        // Sem produtos ativos — menu não mostrará seção de produtos Gravity
+      }
+    }
+
+    carregarProdutos()
+    return () => { cancelled = true }
+  }, [getToken])
+
+  /* ── Menu lateral: navItems ── */
+  const navItems: NavItem[] = useMemo(() => {
+    const items: NavItem[] = []
+
+    // ── Meu Espaço ──
+    items.push({
+      label: 'Meu Espaço',
+      icon: <House weight="duotone" size={18} />,
+      children: [
+        { to: '/hub', label: 'Dashboard', icon: <House weight="duotone" size={18} /> },
+        { to: '/hub', label: 'Atividades', icon: <ListChecks weight="duotone" size={18} /> },
+        { to: '/store', label: 'Produtos', icon: <Package weight="duotone" size={18} /> },
+        { to: '/workspace/financeiro', label: 'Email', icon: <Envelope weight="duotone" size={18} /> },
+        { to: '/workspace/usuarios', label: 'WhatsApp', icon: <WhatsappLogo weight="duotone" size={18} /> },
+      ],
+    })
+
+    // ── Produtos Gravity (dinâmico baseado em produtos ativos) ──
+    if (produtosAtivos.length > 0) {
+      items.push({
+        label: 'Produtos Gravity',
+        sectionDivider: true,
+        icon: <ShoppingBagOpen weight="duotone" size={18} />,
+      })
+
+      produtosAtivos.forEach(prod => {
+        items.push({
+          to: prod.rota,
+          label: prod.nome,
+          icon: <Package weight="duotone" size={18} />,
+        })
+      })
+    } else {
+      // Fallback: mostra seção com indicação de que não há produtos
+      items.push({
+        label: 'Produtos Gravity',
+        sectionDivider: true,
+        icon: <ShoppingBagOpen weight="duotone" size={18} />,
+      })
+      items.push({
+        to: '/store',
+        label: 'Explorar Catálogo',
+        icon: <ShoppingBagOpen weight="duotone" size={18} />,
+      })
+    }
+
+    // ── Divisor ──
+    items.push({ label: '', sectionDivider: true, icon: null })
+
+    // ── Processo ──
+    items.push({
+      to: '/produto/processo',
+      label: 'Processo',
+      icon: <Folders weight="duotone" size={18} />,
+    })
+
+    // ── Relatórios ──
+    items.push({
+      to: '/workspace/financeiro',
+      label: 'Relatórios',
+      icon: <FileText weight="duotone" size={18} />,
+    })
+
+    // ── Histórico de Alterações ──
+    items.push({
+      to: '/workspace/organizacao',
+      label: 'Histórico de Alterações',
+      icon: <ClockCounterClockwise weight="duotone" size={18} />,
+    })
+
+    // ── Cockpit API ──
+    items.push({
+      to: '/workspace/api-cockpit',
+      label: 'Cockpit API',
+      icon: <Plug weight="duotone" size={18} />,
+    })
+
+    // ── Configurações ──
+    items.push({
+      to: '/workspace/organizacao',
+      label: 'Configurações',
+      icon: <GearSix weight="duotone" size={18} />,
+    })
+
+    return items
+  }, [produtosAtivos])
 
   /* ── Handlers ── */
   const handleSelectWs = useCallback((id: string) => {
@@ -281,39 +432,15 @@ export function SelecionarWorkspace() {
   ══════════════════════════════════ */
   return (
     <div className="sw-shell">
-      {/* ── SIDEBAR ── */}
-      <aside className="sw-sidebar">
-        <div className="sw-logo-mark">
-          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
-            <path d="M10 2L17.5 6.5V13.5L10 18L2.5 13.5V6.5L10 2Z" stroke="white" strokeWidth="1.4" strokeLinejoin="round"/>
-            <path d="M10 7V11L13 13" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
-        </div>
-
-        <nav className="sw-s-nav">
-          <button className="sw-s-btn on" type="button" title="Home">
-            <House size={16} />
-          </button>
-          <button className="sw-s-btn" type="button" title="Módulos">
-            <SquaresFour size={16} />
-          </button>
-          <button className="sw-s-btn" type="button" title="Relatórios">
-            <ChartLine size={16} />
-          </button>
-          <button className="sw-s-btn" type="button" title="Equipe">
-            <UsersThree size={16} />
-          </button>
-        </nav>
-
-        <div className="sw-s-foot">
-          <button className="sw-s-btn" type="button" title="Configurações">
-            <GearSix size={16} />
-          </button>
-          <button className="sw-ava" type="button" title={userName}>
-            {userInitials}
-          </button>
-        </div>
-      </aside>
+      {/* ── MENU LATERAL ── */}
+      <MenuLateralGlobal
+        tenantName={tenantName}
+        tenantPlan={tenantPlan}
+        navItems={navItems}
+        moduleName="Gravity"
+        moduleColor="#4F63FF"
+        defaultCollapsed={false}
+      />
 
       {/* ── PAGE ── */}
       <div className="sw-page">

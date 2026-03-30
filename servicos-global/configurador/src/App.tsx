@@ -57,7 +57,7 @@ function TenantDetailWrapper() {
   return <TenantDetail tenantId={id!} onBack={() => navigate('/admin/tenants')} />
 }
 
-/** Rota raiz: se logado → /selecionar-workspace, se não → AuthPage */
+/** Rota raiz: se logado → /hub, se não → AuthPage */
 function RootRedirect() {
   const { isLoaded, isSignedIn } = useAuth()
 
@@ -65,7 +65,7 @@ function RootRedirect() {
   if (!isLoaded) return null
 
   return isSignedIn ? (
-    <Navigate to="/selecionar-workspace" replace />
+    <Navigate to="/hub" replace />
   ) : (
     <AuthPage />
   )
@@ -78,7 +78,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (!isLoaded) return null
 
   return isSignedIn ? (
-    <Navigate to="/selecionar-workspace" replace />
+    <Navigate to="/hub" replace />
   ) : (
     <>{children}</>
   )
@@ -117,8 +117,7 @@ export default function App() {
         <Route path="/waitlist" element={<Waitlist />} />
 
         {/* Área autenticada */}
-        <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Hub /></React.Suspense></ProtectedRoute>} />
-        <Route path="/selecionar-workspace" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
+        <Route path="/hub" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
 
         {/* Produtos — carregados como lazy routes dentro do Configurador */}

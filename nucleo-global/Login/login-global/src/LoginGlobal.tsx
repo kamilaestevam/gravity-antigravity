@@ -138,7 +138,7 @@ export function LoginGlobal() {
           </p>
           <p className="login-footer-secondary">
             {isSignUp ? `${t('login.ja_conhece')} ` : `${t('login.sem_conta', 'Novo por aqui?')} `}
-            <a href="http://localhost:8002" target="_blank" rel="noreferrer">
+            <a href={import.meta.env.VITE_MARKETPLACE_URL ?? '/marketplace'} target="_blank" rel="noreferrer">
               {isSignUp ? t('login.saiba_mais') : t('login.conheca_plataforma')}
             </a>
           </p>
@@ -160,14 +160,8 @@ function ForgotPasswordFlow({ onBack }: { onBack: () => void }) {
 
     setStatus('loading')
     
-    // Simulação de envio
-    setTimeout(() => {
-      if (email.includes('error')) {
-        setStatus('error')
-      } else {
-        setStatus('success')
-      }
-    }, 1500)
+    // TODO(daniel, 2026-03): integrar com endpoint real de reset de senha via Clerk
+    setStatus('success')
   }
 
   if (status === 'success') {

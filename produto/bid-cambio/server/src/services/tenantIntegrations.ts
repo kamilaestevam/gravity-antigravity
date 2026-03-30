@@ -10,11 +10,17 @@
 
 import axios from 'axios'
 
-const ATIVIDADES_URL = process.env.ATIVIDADES_SERVICE_URL ?? 'http://localhost:8012'
-const NOTIFICACOES_URL = process.env.NOTIFICACOES_SERVICE_URL ?? 'http://localhost:8013'
-const HISTORICO_URL = process.env.HISTORICO_SERVICE_URL ?? 'http://localhost:8014'
-const GABI_URL = process.env.GABI_SERVICE_URL ?? 'http://localhost:8015'
-const EMAIL_URL = process.env.EMAIL_SERVICE_URL ?? 'http://localhost:8022'
+function requireEnv(name: string): string {
+  const value = process.env[name]
+  if (!value) throw new Error(`[BidCambio] Variável de ambiente obrigatória não definida: ${name}`)
+  return value
+}
+
+const ATIVIDADES_URL = process.env.ATIVIDADES_SERVICE_URL ?? requireEnv('ATIVIDADES_SERVICE_URL')
+const NOTIFICACOES_URL = process.env.NOTIFICACOES_SERVICE_URL ?? requireEnv('NOTIFICACOES_SERVICE_URL')
+const HISTORICO_URL = process.env.HISTORICO_SERVICE_URL ?? requireEnv('HISTORICO_SERVICE_URL')
+const GABI_URL = process.env.GABI_SERVICE_URL ?? requireEnv('GABI_SERVICE_URL')
+const EMAIL_URL = process.env.EMAIL_SERVICE_URL ?? requireEnv('EMAIL_SERVICE_URL')
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 
 function s2sHeaders(tenantId: string, userId?: string) {

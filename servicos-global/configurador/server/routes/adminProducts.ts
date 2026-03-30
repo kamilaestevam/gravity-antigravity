@@ -26,21 +26,16 @@ function getContractsSlugs(): string[] {
     join(process.cwd(), '..', 'contracts.json'),                   // cwd = servicos-global/configurador -> servicos-global/
   ]
 
-  console.log('[adminProducts] __dirname:', __dirname)
-  console.log('[adminProducts] cwd:', process.cwd())
-  console.log('[adminProducts] Tentando paths:', possiblePaths)
-
   for (const contractsPath of possiblePaths) {
     try {
       const raw = readFileSync(contractsPath, 'utf-8')
       const contracts = JSON.parse(raw)
       const slugs = Object.keys(contracts.services ?? {})
       if (slugs.length > 0) {
-        console.log(`[adminProducts] contracts.json encontrado em: ${contractsPath} (${slugs.length} slugs)`)
         return slugs
       }
-    } catch (err) {
-      console.log(`[adminProducts] Falhou: ${contractsPath} ->`, (err as Error).message)
+    } catch {
+      // Tenta o proximo path
     }
   }
 

@@ -20,8 +20,8 @@ usersRouter.use(requireAuth)
 // ─── Schemas ────────────────────────────────────────────────────────────────
 
 const InviteUserSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1),
+  email: z.string().email().max(255),
+  name: z.string().min(1).max(200),
   role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
 })
 

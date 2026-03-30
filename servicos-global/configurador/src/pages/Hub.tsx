@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useClerk, useAuth } from '@clerk/clerk-react'
+import { useClerk, useAuth, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
   Package,
@@ -12,6 +12,14 @@ import {
   Buildings,
   Users,
   Gear,
+  Plugs,
+  Headset,
+  Rocket,
+  Lightning,
+  CheckCircle,
+  ShieldCheck,
+  Sparkle,
+  CaretRight,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -37,7 +45,9 @@ export function Hub() {
   const [loading, setLoading] = useState(true)
   const { signOut } = useClerk()
   const { getToken } = useAuth()
+  const { user } = useUser()
   const navigate = useNavigate()
+  const isAdmin = user?.publicMetadata?.role === 'gravity_admin'
   const menuRef = useRef<HTMLDivElement>(null)
 
   // companyId vem da URL ou do sessionStorage (salvo na seleção do workspace)
@@ -194,6 +204,19 @@ export function Hub() {
                     {item.label}
                   </button>
                 ))}
+                {isAdmin && (
+                  <>
+                    <div style={{ borderTop: '1px solid rgba(99, 102, 241, 0.15)', margin: '0.5rem 0.25rem 0.25rem' }} />
+                    <button
+                      className="hs-menu-item hs-menu-item-admin"
+                      type="button"
+                      onClick={() => { navigate('/admin'); setShowWorkspaceMenu(false) }}
+                    >
+                      <span className="hs-menu-icon"><ShieldCheck weight="duotone" size={16} color="#818cf8" /></span>
+                      Painel Admin
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -228,18 +251,99 @@ export function Hub() {
             <p>Carregando ecossistema...</p>
           </div>
         ) : products.length === 0 ? (
-          <div className="hs-empty-state">
-            <div className="hs-empty-icon-wrap">
-              <Package weight="duotone" size={48} />
+          <>
+            {/* Onboarding Steps */}
+            <div className="hs-onboard-steps">
+              {[
+                { icon: <Gear weight="duotone" size={22} />, label: 'Configure', desc: 'Personalize seu workspace', path: '/workspace', color: '#818cf8' },
+                { icon: <ShoppingBagOpen weight="duotone" size={22} />, label: 'Ative Módulos', desc: 'Explore o catálogo Gravity', path: '/store', color: '#a78bfa' },
+                { icon: <Users weight="duotone" size={22} />, label: 'Convide', desc: 'Adicione sua equipe', path: '/workspace/usuarios', color: '#6ee7b7' },
+              ].map((step, idx) => (
+                <button
+                  key={step.path}
+                  className={`hs-onboard-card hs-fade-up hs-fade-up-d${idx + 1}`}
+                  type="button"
+                  onClick={() => navigate(step.path)}
+                >
+                  <div className="hs-onboard-step-number">{idx + 1}</div>
+                  <div className="hs-onboard-icon" style={{ color: step.color }}>
+                    {step.icon}
+                  </div>
+                  <div className="hs-onboard-text">
+                    <strong>{step.label}</strong>
+                    <span>{step.desc}</span>
+                  </div>
+                  <ArrowUpRight weight="bold" size={14} className="hs-onboard-arrow" />
+                </button>
+              ))}
             </div>
-            <h3>O seu Workspace está vazio</h3>
-            <p>Acesse a Gravity Store para descobrir e habilitar os módulos de que você precisa para escalar sua operação.</p>
-            <div style={{ marginTop: '1rem' }}>
-              <BotaoGlobal variante="primario" onClick={() => navigate('/store')}>
-                <ShoppingBagOpen weight="fill" size={18} /> Explorar Catálogo
-              </BotaoGlobal>
+
+            {/* Empty State Central */}
+            <div className="hs-empty-state">
+              <div className="hs-empty-icon-wrap">
+                <Rocket weight="duotone" size={48} />
+              </div>
+              <h3>Pronto para decolar</h3>
+              <p>Seu workspace <strong>{companyName}</strong> está configurado. Ative seu primeiro módulo na Store e comece a operar.</p>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+                <BotaoGlobal variante="primario" onClick={() => navigate('/store')}>
+                  <ShoppingBagOpen weight="fill" size={18} /> Explorar Catálogo
+                </BotaoGlobal>
+              </div>
             </div>
-          </div>
+
+            {/* Gabi AI Insight */}
+            <div className="hs-gabi-insight hs-fade-up hs-fade-up-d2" style={{ marginTop: '2.5rem', maxWidth: '560px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <div className="hs-gabi-watermark">
+                <Sparkle weight="fill" size={120} />
+              </div>
+              <div className="hs-gabi-header">
+                <div className="hs-gabi-avatar">
+                  <Sparkle weight="fill" size={14} color="#fff" />
+                </div>
+                <span className="hs-gabi-title">GABI AI &bull; INSIGHT</span>
+              </div>
+              <p className="hs-gabi-text">
+                Identificamos que 40% das suas simulações recentes para NCM 8471 poderiam economizar até 12% em ICMS se o desembaraço fosse feito via Santa Catarina.
+              </p>
+              <div className="hs-gabi-footer">
+                <button className="hs-gabi-btn" type="button">
+                  Ver Detalhes <CaretRight size={12} />
+                </button>
+              </div>
+            </div>
+
+            {/* Recommended Products */}
+            <div className="hs-fade-up hs-fade-up-d3" style={{ marginTop: '3rem' }}>
+              <h2 className="hs-section-title" style={{ fontSize: '0.8125rem' }}>
+                <Lightning weight="fill" size={16} color="#f59e0b" />
+                Recomendados para você
+              </h2>
+              <div className="hs-upsell-grid">
+                {upsellProducts.map(up => (
+                  <div
+                    key={up.id}
+                    className="hs-upsell-card"
+                    onClick={() => navigate('/store')}
+                    onMouseEnter={() => setHoveredUpsell(up.id)}
+                    onMouseLeave={() => setHoveredUpsell(null)}
+                  >
+                    <div className="hs-upsell-header">
+                      <div className="hs-upsell-icon">{up.icon}</div>
+                      <div className="hs-upsell-info">
+                        <strong>{up.name}</strong>
+                        <span>{up.desc}</span>
+                      </div>
+                    </div>
+                    <div className={`hs-upsell-cta ${hoveredUpsell === up.id ? 'hs-upsell-cta-visible' : ''}`}>
+                      <span>Ver na Store</span>
+                      <ArrowUpRight weight="bold" size={12} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         ) : (
           <div className="hs-product-grid">
             {products.map((p, idx) => (

@@ -110,7 +110,7 @@ export function LoginGlobal() {
         <>
           <SignIn
             routing="hash"
-            afterSignInUrl="/hub"
+            afterSignInUrl="/selecionar-workspace"
             signUpUrl="/sign-up"
             forgotPasswordUrl="/forgot-password"
             appearance={clerkAppearance as any}

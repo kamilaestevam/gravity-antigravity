@@ -45,12 +45,36 @@ const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
 const SimulaCustoApp = React.lazy(() => import('../../../produto/simula-custo/client/src/App'))
 const ProcessoApp = React.lazy(() => import('../../../produto/processo/client/src/App'))
+const BidFreteApp = React.lazy(() => import('../../../produto/bid-frete/client/src/App'))
+const BidCambioApp = React.lazy(() => import('../../../produto/bid-cambio/client/src/App'))
+const PedidoApp = React.lazy(() => import('../../../produto/pedido/client/src/App'))
 
 const ProductLoading = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', color: 'var(--color-text-muted)' }}>
     Carregando produto...
   </div>
 )
+
+class ProductErrorBoundary extends React.Component<
+  { children: React.ReactNode; name: string },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null }
+  static getDerivedStateFromError(error: Error) { return { error } }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{ padding: '2rem', color: '#f87171', background: '#1e293b', borderRadius: '8px', margin: '2rem' }}>
+          <h2>Erro ao carregar: {this.props.name}</h2>
+          <pre style={{ whiteSpace: 'pre-wrap', fontSize: '0.8rem', marginTop: '1rem' }}>
+            {this.state.error.message}
+          </pre>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function TenantDetailWrapper() {
   const { id } = useParams()
@@ -87,6 +111,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 /** Wrapper para rotas que exigem autenticação */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  // DEMO_MODE: bypass de auth Clerk em dev local
+  if (import.meta.env.VITE_DEMO_MODE === 'true') {
+    return <>{children}</>
+  }
+
   return (
     <>
       <SignedIn>{children}</SignedIn>
@@ -136,8 +165,11 @@ export default function App() {
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
 
         {/* Produtos — carregados como lazy routes dentro do Configurador */}
-        <Route path="/produto/simula-custo/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProtectedRoute>} />
-        <Route path="/produto/processo/*" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProtectedRoute>} />
+        <Route path="/produto/simula-custo/*" element={<ProtectedRoute><ProductErrorBoundary name="SimulaCusto"><React.Suspense fallback={<ProductLoading />}><SimulaCustoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/produto/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/produto/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/produto/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/produto/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
 
         {/* Admin — área interna restrita */}
         <Route path="/admin" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></ProtectedRoute>}>

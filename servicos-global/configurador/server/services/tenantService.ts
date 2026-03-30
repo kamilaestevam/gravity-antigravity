@@ -104,6 +104,23 @@ export const tenantService = {
   },
 
   /**
+   * Atualiza dados cadastrais do tenant
+   */
+  async updateTenant(tenantId: string, data: {
+    name?: string
+    cnpj?: string
+    state?: string
+    city?: string
+    segment?: string
+    website?: string
+  }) {
+    return prisma.tenant.update({
+      where: { id: tenantId },
+      data,
+    })
+  },
+
+  /**
    * Lista empresas filhas do tenant
    */
   async getCompanies(tenantId: string) {

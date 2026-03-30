@@ -13,6 +13,9 @@ import {
   ShoppingBagOpen,
   Sparkle,
   Info,
+  ChartBar,
+  ChatCircleText,
+  Plugs,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import '../pages/workspace/workspace.css'

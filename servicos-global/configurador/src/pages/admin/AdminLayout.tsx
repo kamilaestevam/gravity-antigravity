@@ -30,14 +30,14 @@ import './admin.css'
 const navItems = [
   { to: '/admin/visao-geral',  label: 'Visão Geral',      icon: <Crown           weight="duotone" size={18} /> },
   { to: '/admin/tenants',      label: 'Organizações',     icon: <Buildings       weight="duotone" size={18} /> },
-  { to: '/admin/produtos',     label: 'Produtos',         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
+  { to: '/admin/produtos',     label: 'Produtos Gravity',         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
   { to: '/admin/usuarios',     label: 'Usuários Globais', icon: <Users           weight="duotone" size={18} /> },
   { to: '/admin/financeiro',   label: 'Financeiro',       icon: <Receipt         weight="duotone" size={18} /> },
   { to: '/admin/historico',    label: 'Histórico Global', icon: <Desktop         weight="duotone" size={18} /> },
   { to: '/admin/deploy',       label: 'Deploy Railway',   icon: <CloudArrowUp    weight="duotone" size={18} /> },
   { to: '/admin/apis',         label: 'API Cockpit',      icon: <Pulse           weight="duotone" size={18} /> },
   { to: '/admin/seguranca',    label: 'Seguranca',        icon: <ShieldCheck     weight="duotone" size={18} /> },
-  { to: '/admin/testes',       label: 'Log de Testes',    icon: <Bug             weight="duotone" size={18} /> },
+  { to: '/admin/testes',       label: 'Testes',    icon: <Bug             weight="duotone" size={18} /> },
 ]
 
 export function AdminLayout() {

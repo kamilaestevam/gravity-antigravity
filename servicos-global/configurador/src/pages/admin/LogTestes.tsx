@@ -417,7 +417,7 @@ export function LogTestes() {
               )}
             </div>
           }
-          titulo="Log de Testes"
+          titulo="Testes"
           subtitulo="Acompanhamento e correção automatizada de testes vitest e playwright"
         />
       }

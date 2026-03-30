@@ -28,6 +28,15 @@ const CreateTenantSchema = z.object({
   }),
 })
 
+const UpdateTenantSchema = z.object({
+  name: z.string().min(2).optional(),
+  cnpj: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  segment: z.string().optional(),
+  website: z.string().optional(),
+})
+
 const CreateCompanySchema = z.object({
   name: z.string().min(2),
   subdomain: z.string().optional(),
@@ -69,6 +78,27 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
     if (!tenant) {
       throw new AppError('Tenant não encontrado', 404, 'NOT_FOUND')
     }
+    res.json({ tenant })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PATCH /api/v1/tenants/me
+ * Atualiza dados cadastrais do tenant autenticado
+ */
+tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
+  try {
+    const parsed = UpdateTenantSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Dados inválidos',
+        400,
+        'VALIDATION_ERROR'
+      )
+    }
+    const tenant = await tenantService.updateTenant(req.auth.tenantId, parsed.data)
     res.json({ tenant })
   } catch (err) {
     next(err)

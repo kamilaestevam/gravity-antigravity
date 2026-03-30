@@ -66,7 +66,7 @@ export default defineConfig({
     include: ['react-i18next', 'i18next', 'zustand', '@clerk/clerk-react', '@phosphor-icons/react'],
   },
   server: {
-    port: 5000,
+    port: 8000,
     fs: {
       allow: ['../..'],
     },

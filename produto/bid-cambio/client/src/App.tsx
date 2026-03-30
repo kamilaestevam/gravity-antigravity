@@ -53,32 +53,32 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* Rotas do Comprador */}
-          <Route path="/" element={<Navigate to="/visao-geral" replace />} />
-          <Route path="/visao-geral" element={<Dashboard />} />
-          <Route path="/cambios" element={<ListaCambios />} />
-          <Route path="/cambios/:id/pagar" element={<ModalPagamento />} />
-          <Route path="/cotacoes" element={<NovaCotacao />} />
-          <Route path="/cotacoes/nova" element={<NovaCotacao />} />
-          <Route path="/cotacoes/:id" element={<DetalheCotacao />} />
-          <Route path="/cotacoes/:id/comparativo" element={<Comparativo />} />
-          <Route path="/corretoras" element={<Corretoras />} />
-          <Route path="/corretoras/:id" element={<DetalheCorretora />} />
-          <Route path="/configuracoes" element={<Configuracoes />} />
+          <Route path="/" element={<Navigate to="visao-geral" replace />} />
+          <Route path="visao-geral" element={<Dashboard />} />
+          <Route path="cambios" element={<ListaCambios />} />
+          <Route path="cambios/:id/pagar" element={<ModalPagamento />} />
+          <Route path="cotacoes" element={<NovaCotacao />} />
+          <Route path="cotacoes/nova" element={<NovaCotacao />} />
+          <Route path="cotacoes/:id" element={<DetalheCotacao />} />
+          <Route path="cotacoes/:id/comparativo" element={<Comparativo />} />
+          <Route path="corretoras" element={<Corretoras />} />
+          <Route path="corretoras/:id" element={<DetalheCorretora />} />
+          <Route path="configuracoes" element={<Configuracoes />} />
 
           {/* Portal da Corretora (logado) */}
-          <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
-          <Route path="/portal/dashboard" element={<PortalDashboard />} />
-          <Route path="/portal/pendentes" element={<CotacoesPendentes />} />
-          <Route path="/portal/respostas" element={<MinhasRespostas />} />
-          <Route path="/portal/desempenho" element={<MeuDesempenho />} />
-          <Route path="/portal/responder/:bidRequestId" element={<ResponderCotacao />} />
-          <Route path="/portal/configuracoes" element={<ConfigCorretora />} />
+          <Route path="portal" element={<Navigate to="portal/dashboard" replace />} />
+          <Route path="portal/dashboard" element={<PortalDashboard />} />
+          <Route path="portal/pendentes" element={<CotacoesPendentes />} />
+          <Route path="portal/respostas" element={<MinhasRespostas />} />
+          <Route path="portal/desempenho" element={<MeuDesempenho />} />
+          <Route path="portal/responder/:bidRequestId" element={<ResponderCotacao />} />
+          <Route path="portal/configuracoes" element={<ConfigCorretora />} />
 
           {/* Portal Publico */}
-          <Route path="/portal/public/responder/:token" element={<ResponderPublico />} />
+          <Route path="portal/public/responder/:token" element={<ResponderPublico />} />
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/visao-geral" replace />} />
+          <Route path="*" element={<Navigate to="visao-geral" replace />} />
         </Routes>
       </Suspense>
     </Layout>

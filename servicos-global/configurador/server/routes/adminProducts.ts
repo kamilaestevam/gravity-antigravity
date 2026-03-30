@@ -17,14 +17,33 @@ const __dirname = dirname(__filename)
 
 /** Lê os slugs registrados em contracts.json */
 function getContractsSlugs(): string[] {
-  try {
-    const contractsPath = join(__dirname, '..', '..', '..', 'contracts.json')
-    const raw = readFileSync(contractsPath, 'utf-8')
-    const contracts = JSON.parse(raw)
-    return Object.keys(contracts.services ?? {})
-  } catch {
-    return []
+  const possiblePaths = [
+    join(__dirname, '..', '..', '..', 'contracts.json'),
+    join(__dirname, '..', '..', '..', '..', 'servicos-global', 'contracts.json'),
+    join(process.cwd(), 'servicos-global', 'contracts.json'),
+    join(process.cwd(), 'contracts.json'),
+    join(process.cwd(), '..', 'contracts.json'),
+  ]
+
+  console.log('[getContractsSlugs] __dirname:', __dirname)
+  console.log('[getContractsSlugs] cwd:', process.cwd())
+
+  for (const p of possiblePaths) {
+    try {
+      const raw = readFileSync(p, 'utf-8')
+      const contracts = JSON.parse(raw)
+      const slugs = Object.keys(contracts.services ?? {})
+      if (slugs.length > 0) {
+        console.log(`[getContractsSlugs] ENCONTRADO: ${p} (${slugs.length} slugs)`)
+        return slugs
+      }
+    } catch {
+      console.log(`[getContractsSlugs] não encontrado: ${p}`)
+    }
   }
+
+  console.warn('[getContractsSlugs] contracts.json NÃO ENCONTRADO em nenhum path!')
+  return []
 }
 
 export const adminProductsRouter = Router()
@@ -89,15 +108,20 @@ const UpdateProductSchema = CreateProductSchema.partial()
 adminProductsRouter.get('/available-slugs', async (_req, res, next) => {
   try {
     const allSlugs = getContractsSlugs()
+    console.log('[available-slugs] allSlugs:', allSlugs)
     const existingProducts = await productCatalogService.list({ limit: 1000 })
+    console.log('[available-slugs] produtos existentes:', existingProducts.products.length)
     const usedSlugs = new Set(
       existingProducts.products
         .map((p: { slug?: string; backend_module?: string | null }) => p.backend_module ?? p.slug)
         .filter(Boolean)
     )
+    console.log('[available-slugs] usados:', [...usedSlugs])
     const available = allSlugs.filter(slug => !usedSlugs.has(slug))
+    console.log('[available-slugs] disponíveis:', available)
     res.json({ available, all: allSlugs })
   } catch (err) {
+    console.error('[available-slugs] ERRO:', err)
     next(err)
   }
 })

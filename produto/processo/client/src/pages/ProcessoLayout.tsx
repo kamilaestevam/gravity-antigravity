@@ -11,6 +11,7 @@
  */
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Outlet, useSearchParams, useNavigate } from 'react-router-dom'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -99,6 +100,7 @@ const buildNavItems = (processoId: string, tenantId: string) => {
 // ─── Componente ─────────────────────────────────────────────────────────────
 
 export default function ProcessoLayout() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const processoId = searchParams.get('id') ?? ''
@@ -183,14 +185,14 @@ export default function ProcessoLayout() {
                   descricao="Codigo de referencia usado pelo importador"
                 >
                   <div className="proc-info-ref">
-                    <span className="proc-info-ref-label">Ref. Cliente:</span>
+                    <span className="proc-info-ref-label">{t('processo.ref_cliente')}</span>
                     <span>{processo.referencia_cliente}</span>
                   </div>
                 </TooltipGlobal>
               )}
               {processo.exportador_nome && (
                 <div className="proc-info-exportador">
-                  <span className="proc-info-ref-label">Exportador:</span>
+                  <span className="proc-info-ref-label">{t('processo.exportador')}</span>
                   <span>{processo.exportador_nome}</span>
                 </div>
               )}
@@ -199,8 +201,8 @@ export default function ProcessoLayout() {
 
           {/* Menu Lateral */}
           <MenuLateralGlobal
-            tenantName={processo?.importador_nome ?? 'Processo'}
-            tenantPlan={STATUS_LABELS[processo?.status ?? ''] ?? 'Carregando'}
+            tenantName={processo?.importador_nome ?? t('processo.titulo')}
+            tenantPlan={STATUS_LABELS[processo?.status ?? ''] ?? t('comum.carregando')}
             navItems={navItems}
             moduleName="Processo"
             moduleColor="#6366f1"
@@ -219,7 +221,7 @@ export default function ProcessoLayout() {
                 onClick={() => navigate(-1)}
                 className="proc-back-btn"
               >
-                Voltar para Processos
+                {t('processo.voltar_processos')}
               </BotaoGlobal>
             </TooltipGlobal>
           </div>
@@ -253,7 +255,7 @@ export default function ProcessoLayout() {
                 tamanho="pequeno"
                 onClick={fetchProcesso}
               >
-                Tentar novamente
+                {t('comum.tentar_novamente')}
               </BotaoGlobal>
             </div>
           )}

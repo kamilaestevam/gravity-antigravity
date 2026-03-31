@@ -85,9 +85,9 @@ export default defineConfig({
       allow: ['../..'],
     },
     proxy: {
-      // Gabi IA API (porta 8015) — deve vir antes do /api generico
+      // Gabi IA API (porta 8000) — deve vir antes do /api generico
       '/api/v1/gabi': {
-        target: 'http://localhost:8015',
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
       // Configurador API

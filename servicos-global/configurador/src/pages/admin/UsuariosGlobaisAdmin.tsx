@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Users, UserCircleCheck, UserCircleMinus,
   PauseCircle, PlayCircle, PencilSimple, TreeStructure,
@@ -97,6 +98,7 @@ const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
 ]
 
 export function UsuariosGlobaisAdmin() {
+  const { t } = useTranslation()
   // Mock do usuário logado — No futuro, recuperar de um AuthContext
   const addNotification = useShellStore((s) => s.addNotification)
   const [perfilLogado] = useState<NivelAcesso>('Super Admin')
@@ -124,7 +126,7 @@ export function UsuariosGlobaisAdmin() {
         const res = await adminUsersApi.list()
         setUsers(res.users.map(mapApiUserToGlobal))
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar usuários globais.' })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.users.msg_erro_carregar') })
       } finally {
         setCarregando(false)
       }
@@ -155,7 +157,7 @@ export function UsuariosGlobaisAdmin() {
       espacos: [{ id: String(Date.now() + 1), nome: fOrg + ' Principal', subdominio: fOrg.toLowerCase().replace(/\s/g, ''), perfil: fTipo }]
     }
     setUsers(prev => [...prev, newUser])
-    addNotification({ type: 'success', message: `Usuário "${fNome.trim()}" adicionado com sucesso!` })
+    addNotification({ type: 'success', message: t('admin.users.msg_usuario_adicionado', { nome: fNome.trim() }) })
     setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
   }
 
@@ -166,8 +168,8 @@ export function UsuariosGlobaisAdmin() {
   // ─── Colunas ────────────────────────────────────────────────────────────────
   const COLUNAS: TabelaGlobalColuna<GlobalUser>[] = [
     {
-      key: 'nome', label: 'Usuário', tipo: 'texto',
-      tooltipTitulo: 'Nome Completo', tooltipDescricao: 'Nome cadastrado do usuário na plataforma.',
+      key: 'nome', label: t('admin.users.tabela.usuario'), tipo: 'texto',
+      tooltipTitulo: t('admin.users.tabela.nome_completo'), tooltipDescricao: t('admin.users.tabela.nome_completo_desc'),
       render: (_, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
@@ -183,18 +185,18 @@ export function UsuariosGlobaisAdmin() {
       )
     },
     {
-      key: 'email', label: 'E-mail', tipo: 'texto',
-      tooltipTitulo: 'E-mail de Acesso', tooltipDescricao: 'E-mail utilizado no login.',
+      key: 'email', label: t('admin.users.tabela.email'), tipo: 'texto',
+      tooltipTitulo: t('admin.users.tabela.email_acesso'), tooltipDescricao: t('admin.users.tabela.email_acesso_desc'),
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'organizacao', label: 'Organização', tipo: 'texto',
-      tooltipTitulo: 'Organização de Origem', tooltipDescricao: 'Empresa/tenant ao qual este usuário está vinculado.',
+      key: 'organizacao', label: t('admin.users.tabela.organizacao'), tipo: 'texto',
+      tooltipTitulo: t('admin.users.tabela.org_tooltip'), tooltipDescricao: t('admin.users.tabela.org_desc'),
       render: (v) => <OrgBadge nome={v as string} />
     },
     {
-      key: 'tipo', label: 'Tipo', tipo: 'texto',
-      tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Nível de permissão principal do usuário.',
+      key: 'tipo', label: t('admin.users.tabela.tipo'), tipo: 'texto',
+      tooltipTitulo: t('admin.users.tabela.perfil_base'), tooltipDescricao: t('admin.users.tabela.perfil_desc'),
       render: (v) => (
         <span style={{
           padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em',
@@ -211,8 +213,8 @@ export function UsuariosGlobaisAdmin() {
       )
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
-      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se o acesso está desbloqueado.',
+      key: 'status', label: t('admin.users.tabela.status'), tipo: 'texto',
+      tooltipTitulo: t('admin.users.tabela.status_operacional'), tooltipDescricao: t('admin.users.tabela.status_desc'),
       render: (v) => (
         <span style={{
           display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px',
@@ -227,7 +229,7 @@ export function UsuariosGlobaisAdmin() {
 
   const COLUNAS_FILHAS: TabelaGlobalColuna<GlobalUserSpace>[] = [
     {
-      key: 'nome', label: 'Nome do Workspace', tipo: 'texto',
+      key: 'nome', label: t('admin.users.children.workspace'), tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
@@ -248,7 +250,7 @@ export function UsuariosGlobaisAdmin() {
       )
     },
     {
-      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
+      key: 'subdominio', label: t('admin.users.children.subdominio'), tipo: 'texto',
       render: (_v, item) => (
         <a 
           href={`http://localhost:8010/workspace/${item.subdominio}`}
@@ -282,11 +284,11 @@ export function UsuariosGlobaisAdmin() {
           display: 'inline-flex', padding: '0.15rem 0.5rem', borderRadius: '4px',
           fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em',
           background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.2)'
-        }}>Ativa</span>
+        }}>{t('admin.users.children.status_ativa')}</span>
       )
     },
     {
-      key: 'perfil', label: 'Plano / Perfil', tipo: 'texto',
+      key: 'perfil', label: t('admin.users.children.plano_perfil'), tipo: 'texto',
       render: (v) => (
         <span style={{ 
           fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 600, 
@@ -367,14 +369,14 @@ export function UsuariosGlobaisAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Users weight="duotone" size={22} />}
-          titulo="Usuários Globais"
-          subtitulo="Somatória de todos os usuários cadastrados em todas as organizações da plataforma"
+          titulo={t('admin.users.titulo')}
+          subtitulo={t('admin.users.subtitulo')}
         />
       }
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total de Usuários"
+            titulo={t('admin.users.card_total')}
             valor={totalUsers}
             icone={<Users weight="duotone" size={18} />}
             periodos={[
@@ -393,7 +395,7 @@ export function UsuariosGlobaisAdmin() {
             }
           />
           <CardBasicoGlobal
-            titulo="Usuários Ativos"
+            titulo={t('admin.users.card_ativos')}
             valor={ativos}
             icone={<UserCircleCheck weight="duotone" size={18} />}
             variante="sucesso"
@@ -411,7 +413,7 @@ export function UsuariosGlobaisAdmin() {
             }
           />
           <CardBasicoGlobal
-            titulo="Usuários Inativos"
+            titulo={t('admin.users.card_inativos')}
             valor={inativos}
             icone={<UserCircleMinus weight="duotone" size={18} />}
             variante="perigo"
@@ -430,7 +432,7 @@ export function UsuariosGlobaisAdmin() {
           />
           <CardGraficoGlobal
             className="cg-card--reduced-2px"
-            titulo="Organizações com Usuários"
+            titulo={t('admin.users.card_orgs')}
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
             total={ORGS.length}
             valorPrincipal={orgsAtivas}
@@ -453,13 +455,13 @@ export function UsuariosGlobaisAdmin() {
       }
       toolbar={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', transform: 'translateY(-7px)' }}>
-          <TooltipGlobal titulo="Convidar Usuário" descricao="Iniciar processo de convite para novo usuário na plataforma">
+          <TooltipGlobal titulo={t('admin.users.btn_convidar')} descricao={t('admin.users.btn_convidar_desc')}>
             <BotaoGlobal
               variante="primario"
               onClick={() => setShowForm(true)}
               icone={<User size={18} />}
             >
-              Convidar Usuário
+              {t('admin.users.btn_convidar')}
             </BotaoGlobal>
           </TooltipGlobal>
         </div>
@@ -523,8 +525,8 @@ export function UsuariosGlobaisAdmin() {
         aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0]) }}
         aoSalvar={handleInvite}
         icone={<User size={20} weight="duotone" />}
-        titulo="Convidar Usuário"
-        subtitulo="Preencha os dados para convidar um novo usuário globalmente"
+        titulo={t('admin.users.btn_convidar')}
+        subtitulo={t('admin.users.modal_convidar_subtitulo')}
         tamanho="md"
         altura="560px"
         dirty={!!(fNome || fEmail)}
@@ -532,10 +534,10 @@ export function UsuariosGlobaisAdmin() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <GeralCampoGlobal
-            label="NOME COMPLETO"
+            label={t('admin.users.tabela.nome_completo')}
             obrigatorio
-            tooltipTitulo="Nome do Usuário"
-            tooltipDescricao="Nome completo do usuário que aparecerá na plataforma e nos relatórios"
+            tooltipTitulo={t('admin.users.tabela.nome_completo')}
+            tooltipDescricao={t('admin.users.tabela.nome_completo_desc')}
           >
             <div className="ws-input-icon-wrap">
               <User size={16} />
@@ -549,10 +551,10 @@ export function UsuariosGlobaisAdmin() {
           </GeralCampoGlobal>
 
           <GeralCampoGlobal
-            label="E-MAIL"
+            label={t('admin.users.tabela.email')}
             obrigatorio
-            tooltipTitulo="E-mail de Acesso"
-            tooltipDescricao="Identidade única de acesso — será usado para envio do convite e login na plataforma"
+            tooltipTitulo={t('admin.users.tabela.email_acesso')}
+            tooltipDescricao={t('admin.users.tabela.email_acesso_desc')}
           >
             <div className="ws-input-icon-wrap">
               <EnvelopeSimple size={16} />
@@ -566,7 +568,7 @@ export function UsuariosGlobaisAdmin() {
             </div>
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="TIPO DE USUÁRIO">
+          <GeralCampoGlobal label={t('admin.users.tabela.tipo')}>
             <SelectGlobal
               opcoes={opcoesDisponiveis}
               valor={fTipo}
@@ -592,7 +594,7 @@ export function UsuariosGlobaisAdmin() {
             />
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label="ORGANIZAÇÃO">
+          <GeralCampoGlobal label={t('admin.users.tabela.organizacao')}>
             <SelectGlobal
               opcoes={ORGS.map(o => ({ valor: o, rotulo: o }))}
               valor={fOrg}

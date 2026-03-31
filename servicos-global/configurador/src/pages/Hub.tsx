@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useClerk, useAuth, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -40,6 +41,7 @@ interface CompanyProduct {
 }
 
 export function Hub() {
+  const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const [hoveredUpsell, setHoveredUpsell] = useState<string | null>(null)
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Truck,
   CheckCircle,
@@ -123,6 +124,7 @@ function HighlightedXML({ xml }: { xml: string }) {
 
 /* ─── Component ─────────────────────────────────────────────────── */
 export function ConectorCargoWise() {
+  const { t } = useTranslation()
   const [step, setStep] = useState<StepId>(0)
   const [copied, setCopied] = useState(false)
   const [fileUploaded, setFileUploaded] = useState<string | null>(null)
@@ -197,14 +199,14 @@ export function ConectorCargoWise() {
           />
           <StatCardGlobal
             titulo="Ambiente Ativo"
-            valor={env === 'uat' ? 'UAT' : 'Produção'}
-            subtexto={env === 'uat' ? 'Homologação' : 'Go-Live'}
+            valor={env === 'uat' ? 'UAT' : t('workspace.cargowise.producao')}
+            subtexto={env === 'uat' ? t('workspace.cargowise.homologacao') : t('workspace.cargowise.go_live')}
             variante={env === 'uat' ? 'aviso' : 'sucesso'}
           />
           <StatCardGlobal
             titulo="Documentação"
-            valor={docSent ? 'Enviada' : fileUploaded ? 'Aguardando envio' : 'Pendente'}
-            subtexto={docSent ? 'PDF recebido pela equipe' : 'Certificado de implantação'}
+            valor={docSent ? t('workspace.cargowise.doc_enviada') : fileUploaded ? t('workspace.cargowise.aguardando_envio') : t('comum.pendente')}
+            subtexto={docSent ? t('workspace.cargowise.pdf_recebido') : t('workspace.cargowise.certificado_implantacao')}
             variante={docSent ? 'sucesso' : 'padrao'}
           />
         </>
@@ -407,7 +409,7 @@ export function ConectorCargoWise() {
                   icone={<Eye weight="bold" size={13} />}
                   onClick={() => setXmlExpanded(v => !v)}
                 >
-                  {xmlExpanded ? 'Colapsar' : 'Expandir'}
+                  {xmlExpanded ? t('workspace.cargowise.colapsar') : t('workspace.cargowise.expandir')}
                 </BotaoGlobal>
                 <BotaoGlobal
                   variante="fantasma"
@@ -415,7 +417,7 @@ export function ConectorCargoWise() {
                   icone={copied ? <CheckCircle weight="fill" size={13} color="#34d399" /> : <Copy weight="bold" size={13} />}
                   onClick={handleCopyXML}
                 >
-                  {copied ? 'Copiado!' : 'Copiar XML'}
+                  {copied ? t('workspace.cargowise.copiado') : t('workspace.cargowise.copiar_xml')}
                 </BotaoGlobal>
                 <BotaoGlobal
                   variante="fantasma"
@@ -631,7 +633,7 @@ export function ConectorCargoWise() {
                     onClick={handleSendDoc}
                     disabled={!fileUploaded || sendingDoc}
                   >
-                    {sendingDoc ? 'Enviando...' : 'Enviar Documentação'}
+                    {sendingDoc ? t('workspace.cargowise.enviando') : t('workspace.cargowise.enviar_documentacao')}
                   </BotaoGlobal>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -123,6 +124,7 @@ const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
    COMPONENTE PRINCIPAL — SelecionarWorkspace (Dashboard Core)
 ══════════════════════════════════════════════════════ */
 export function SelecionarWorkspace() {
+  const { t } = useTranslation()
   const { signOut } = useClerk()
   const { user } = useUser()
   const { getToken } = useAuth()

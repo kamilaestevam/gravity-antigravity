@@ -1,0 +1,134 @@
+[
+  {
+    "rota": "/",
+    "nome": "Login / AuthPage",
+    "tempoTotal": 3093,
+    "domContentLoaded": 1180,
+    "firstPaint": 2264,
+    "largestContentfulPaint": 2308,
+    "transferSize": 8944,
+    "numRequests": 65,
+    "status": "LENTO"
+  },
+  {
+    "rota": "/sign-in",
+    "nome": "Sign In",
+    "tempoTotal": 1088,
+    "domContentLoaded": 157,
+    "firstPaint": 560,
+    "largestContentfulPaint": 1360,
+    "transferSize": 8940,
+    "numRequests": 64,
+    "status": "OK"
+  },
+  {
+    "rota": "/trial",
+    "nome": "Onboarding Trial",
+    "tempoTotal": 987,
+    "domContentLoaded": 136,
+    "firstPaint": 172,
+    "largestContentfulPaint": 172,
+    "transferSize": 8944,
+    "numRequests": 64,
+    "status": "OK"
+  },
+  {
+    "rota": "/contato",
+    "nome": "Contato",
+    "tempoTotal": 989,
+    "domContentLoaded": 128,
+    "firstPaint": 244,
+    "largestContentfulPaint": 244,
+    "transferSize": 8036,
+    "numRequests": 62,
+    "status": "OK"
+  },
+  {
+    "rota": "/waitlist",
+    "nome": "Waitlist",
+    "tempoTotal": 929,
+    "domContentLoaded": 65,
+    "firstPaint": 108,
+    "largestContentfulPaint": 108,
+    "transferSize": 8036,
+    "numRequests": 62,
+    "status": "OK"
+  },
+  {
+    "rota": "/hub",
+    "nome": "HUB (SelecionarWorkspace)",
+    "tempoTotal": 3424,
+    "domContentLoaded": 1163,
+    "firstPaint": 1888,
+    "largestContentfulPaint": 1888,
+    "transferSize": 8650,
+    "numRequests": 91,
+    "status": "LENTO"
+  },
+  {
+    "rota": "/core",
+    "nome": "Core (Workspace)",
+    "tempoTotal": 2111,
+    "domContentLoaded": 535,
+    "firstPaint": 976,
+    "largestContentfulPaint": 976,
+    "transferSize": 9515,
+    "numRequests": 90,
+    "status": "OK"
+  },
+  {
+    "rota": "/store",
+    "nome": "Store",
+    "tempoTotal": 1995,
+    "domContentLoaded": 455,
+    "firstPaint": 920,
+    "largestContentfulPaint": 920,
+    "transferSize": 9515,
+    "numRequests": 90,
+    "status": "OK"
+  },
+  {
+    "rota": "/admin",
+    "nome": "Admin Panel",
+    "tempoTotal": 2041,
+    "domContentLoaded": 593,
+    "firstPaint": 932,
+    "largestContentfulPaint": 932,
+    "transferSize": 9515,
+    "numRequests": 90,
+    "status": "OK"
+  },
+  {
+    "rota": "/workspace/organizacao",
+    "nome": "Workspace Organização",
+    "tempoTotal": 1997,
+    "domContentLoaded": 444,
+    "firstPaint": 896,
+    "largestContentfulPaint": 896,
+    "transferSize": 9515,
+    "numRequests": 90,
+    "status": "OK"
+  },
+  {
+    "rota": "/produto/simula-custo",
+    "nome": "Produto SimulaCusto",
+    "tempoTotal": 2139,
+    "domContentLoaded": 433,
+    "firstPaint": 912,
+    "largestContentfulPaint": 912,
+    "transferSize": 9515,
+    "numRequests": 90,
+    "status": "OK"
+  },
+  {
+    "rota": "/produto/processo",
+    "nome": "Produto Processo",
+    "tempoTotal": 1989,
+    "domContentLoaded": 482,
+    "firstPaint": 932,
+    "largestContentfulPaint": 932,
+    "transferSize": 9515,
+    "numRequests": 90,
+    "status": "OK"
+  }
+]

@@ -2,6 +2,7 @@
 // Painel de Auditoria de um Tenant — visão forense completa: dados + logs de atividade
 
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ArrowLeft, Buildings, TreeStructure, UsersThree, ShieldCheck,
   User, Robot, HardDrives, Desktop, Export, DownloadSimple, Funnel,
@@ -120,6 +121,7 @@ function renderDiffTable(diffs: DiffObj[]) {
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
 export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: () => void }) {
+  const { t } = useTranslation()
   const [tab, setTab] = useState<TabKey>('auditoria')
   const [loading, setLoading] = useState(true)
   const [tenant, setTenant] = useState<TenantMock | null>(null)

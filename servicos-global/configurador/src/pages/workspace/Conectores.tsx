@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Database, Plugs, PlugsConnected, CheckCircle, ShieldCheck,
   ArrowLeft, Key, Lightning, ArrowsLeftRight, Gear, Play,
@@ -55,11 +56,14 @@ const CONECTORES: Conector[] = [
   },
 ]
 
-const statusMap: Record<ConectorStatus, { label: string; cls: string; icon: React.ReactNode }> = {
-  conectado:     { label: 'Conectado',    cls: 'ws-badge-success', icon: <CloudCheck weight="bold" size={11}/> },
-  configurando:  { label: 'Configurando', cls: 'ws-badge-warning', icon: <Gear weight="bold" size={11}/> },
-  desconectado:  { label: 'Disponível',   cls: 'ws-badge-surface', icon: <Plugs weight="bold" size={11}/> },
-  indisponivel:  { label: 'Em breve',     cls: 'ws-badge-surface', icon: <Lock weight="bold" size={11}/> },
+// statusMap is built inside the component to access t()
+function buildStatusMap(t: (key: string) => string): Record<ConectorStatus, { label: string; cls: string; icon: React.ReactNode }> {
+  return {
+    conectado:    { label: t('workspace.connectors.status.conectado'),   cls: 'ws-badge-success', icon: <CloudCheck weight="bold" size={11}/> },
+    configurando: { label: t('workspace.connectors.status.configurando'), cls: 'ws-badge-warning', icon: <Gear weight="bold" size={11}/> },
+    desconectado: { label: t('workspace.connectors.status.disponivel'),   cls: 'ws-badge-surface', icon: <Plugs weight="bold" size={11}/> },
+    indisponivel: { label: t('workspace.connectors.status.em_breve'),     cls: 'ws-badge-surface', icon: <Lock weight="bold" size={11}/> },
+  }
 }
 
 /* ── De-Para Rows (ONESOURCE) ──────────────────────────── */
@@ -75,6 +79,7 @@ const INITIAL_DEPARA: DeParaRow[] = [
 
 /* ── ONESOURCE Config Panel ────────────────────────────── */
 function OnesourceConfig({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation()
   const [subTab, setSubTab] = useState<'oauth' | 'depara' | 'teste'>('oauth')
   const [depara, setDepara] = useState<DeParaRow[]>(INITIAL_DEPARA)
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
@@ -130,7 +135,7 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
           </div>
         </div>
         <span className="ws-badge ws-badge-warning" style={{ gap: '0.375rem' }}>
-          <Gear weight="bold" size={11}/> Configurando
+          <Gear weight="bold" size={11}/> {t('workspace.connectors.status.configurando')}
         </span>
       </div>
 
@@ -143,12 +148,12 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
         </button>
         <button className={`ws-tab${subTab === 'depara' ? ' active' : ''}`} onClick={() => setSubTab('depara')}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <ArrowsLeftRight weight="bold" size={13}/> Mapeamento De-Para
+            <ArrowsLeftRight weight="bold" size={13}/> {t('workspace.connectors.aba_depara')}
           </span>
         </button>
         <button className={`ws-tab${subTab === 'teste' ? ' active' : ''}`} onClick={() => setSubTab('teste')}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <Play weight="bold" size={13}/> Teste de Conexão
+            <Play weight="bold" size={13}/> {t('workspace.connectors.aba_teste')}
           </span>
         </button>
       </div>
@@ -157,7 +162,7 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
       {subTab === 'oauth' && (
         <div className="ws-form-card ws-fade-up" style={{ marginBottom: 0 }}>
           <p className="ws-section-title" style={{ margin: 0 }}>
-            <Lock weight="duotone" size={14} color="#ff6900"/> Credenciais OAuth 2.0 — ONESOURCE
+            <Lock weight="duotone" size={14} color="#ff6900"/> {t('workspace.connectors.secao_credenciais')}
           </p>
           <div style={{
             background: 'rgba(255,105,0,0.06)', border: '1px solid rgba(255,105,0,0.15)',
@@ -165,17 +170,16 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
             color: 'var(--ws-muted)', lineHeight: 1.55, display: 'flex', alignItems: 'flex-start', gap: '0.625rem',
           }}>
             <ShieldCheck weight="duotone" size={20} color="#ff6900" style={{ flexShrink: 0, marginTop: 2 }}/>
-            Credenciais armazenadas com criptografia AES-256-GCM. O token de acesso é renovado automaticamente
-            via refresh_token antes da expiração.
+            {t('workspace.connectors.info_criptografia')} {t('workspace.connectors.info_refresh')}
           </div>
 
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Client ID</label>
+              <label>{t('workspace.connectors.campo_client_id')}</label>
               <input type="text" placeholder="Ex: gravity-prod-client-id" defaultValue="gv_onesource_prod_xxxx"/>
             </div>
             <div className="ws-field">
-              <label>Client Secret</label>
+              <label>{t('workspace.connectors.campo_client_secret')}</label>
               <div style={{ position: 'relative' }}>
                 <input type="password" placeholder="••••••••••••••" defaultValue="secretvalue" style={{ paddingRight: '2.5rem' }}/>
                 <ShieldCheck size={18} color="#10b981" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)' }}/>
@@ -185,18 +189,18 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
 
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Token URL</label>
+              <label>{t('workspace.connectors.campo_token_url')}</label>
               <input type="text" placeholder="https://auth.onesource.com/oauth2/token" defaultValue="https://auth.thomsonreuters.com/oauth2/v1/token"/>
             </div>
             <div className="ws-field">
-              <label>Scope</label>
+              <label>{t('workspace.connectors.campo_scope')}</label>
               <input type="text" placeholder="tax.calc tax.compliance" defaultValue="tax.calc tax.compliance tax.returns"/>
             </div>
           </div>
 
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>API Base URL</label>
+              <label>{t('workspace.connectors.campo_api_base_url')}</label>
               <input type="text" placeholder="https://api.onesource.com/v2" defaultValue="https://api.onesourcetax.com/tax/v2"/>
             </div>
             <div className="ws-field">
@@ -495,12 +499,12 @@ function SapConfig({ onBack }: { onBack: () => void }) {
         </button>
         <button className={`ws-tab${subTab === 'depara' ? ' active' : ''}`} onClick={() => setSubTab('depara')}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <ArrowsLeftRight weight="bold" size={13}/> Mapeamento De-Para
+            <ArrowsLeftRight weight="bold" size={13}/> {t('workspace.connectors.aba_depara')}
           </span>
         </button>
         <button className={`ws-tab${subTab === 'teste' ? ' active' : ''}`} onClick={() => setSubTab('teste')}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <Play weight="bold" size={13}/> Teste de Conexão
+            <Play weight="bold" size={13}/> {t('workspace.connectors.aba_teste')}
           </span>
         </button>
       </div>
@@ -729,6 +733,8 @@ function SapConfig({ onBack }: { onBack: () => void }) {
 
 /* ── Connector Card ────────────────────────────────────── */
 function ConnectorCard({ c, onClick }: { c: Conector; onClick: () => void }) {
+  const { t } = useTranslation()
+  const statusMap = buildStatusMap(t)
   const st = statusMap[c.status]
   return (
     <div
@@ -802,6 +808,7 @@ function ConnectorCard({ c, onClick }: { c: Conector; onClick: () => void }) {
 
 /* ── Main Export ────────────────────────────────────────── */
 export function Conectores() {
+  const { t } = useTranslation()
   const [selected, setSelected] = useState<ConectorId | null>(null)
 
   if (selected === 'sap') {

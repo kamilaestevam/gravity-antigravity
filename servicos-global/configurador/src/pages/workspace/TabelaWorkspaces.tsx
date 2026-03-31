@@ -6,6 +6,7 @@
  * Design System Gravity: Sky 400, Plus Jakarta Sans, dark mode.
  */
 import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, PauseCircle, PlayCircle, PencilSimple, Trash, CaretDown, FileCsv, FileText, FilePdf, FileXls, Code } from '@phosphor-icons/react'
@@ -360,6 +361,7 @@ function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.R
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
 export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorkspacesProps) {
+  const { t } = useTranslation()
   const [busca, setBusca] = useState('')
   const [ordenacao, setOrdenacao] = useState<OrdenacaoState | null>(null)
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIAIS)
@@ -410,13 +412,13 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
 
     // Busca global
     if (busca.trim()) {
-      const t = busca.toLowerCase()
+      const buscaLower = busca.toLowerCase()
       r = r.filter(e =>
-        e.nome.toLowerCase().includes(t) ||
-        e.subdominio.toLowerCase().includes(t) ||
-        e.status.toLowerCase().includes(t) ||
-        String(e.usuarios).includes(t) ||
-        e.criadaEm.includes(t)
+        e.nome.toLowerCase().includes(buscaLower) ||
+        e.subdominio.toLowerCase().includes(buscaLower) ||
+        e.status.toLowerCase().includes(buscaLower) ||
+        String(e.usuarios).includes(buscaLower) ||
+        e.criadaEm.includes(buscaLower)
       )
     }
 
@@ -596,37 +598,37 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
                 <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
               <Th
-                label="Workspace" coluna="nome" tipo="texto"
+                label={t('workspace.workspaces.tabela.workspace')} coluna="nome" tipo="texto"
                 temFiltroAtivo={temFiltro('nome')}
-                tooltipTitulo="Workspace"
-                tooltipDescricao="Nome do workspace cadastrado neste tenant."
+                tooltipTitulo={t('workspace.workspaces.tabela.workspace')}
+                tooltipDescricao={t('workspace.workspaces.tabela.workspace_desc')}
                 {...thProps}
               />
               <Th
-                label="Subdomínio" coluna="subdominio" tipo="texto"
+                label={t('workspace.workspaces.tabela.subdominio')} coluna="subdominio" tipo="texto"
                 temFiltroAtivo={temFiltro('subdominio')}
-                tooltipTitulo="Subdomínio"
+                tooltipTitulo={t('workspace.workspaces.tabela.subdominio')}
                 tooltipDescricao="Endereço exclusivo deste workspace na plataforma."
                 {...thProps}
               />
               <Th
-                label="Usuários" coluna="usuarios" tipo="numero"
+                label={t('workspace.workspaces.tabela.usuarios')} coluna="usuarios" tipo="numero"
                 temFiltroAtivo={temFiltro('usuarios')}
-                tooltipTitulo="Usuários Ativos"
+                tooltipTitulo={t('workspace.workspaces.tabela.usuarios')}
                 tooltipDescricao="Total de acessos habilitados neste workspace."
                 {...thProps} style={{ textAlign: 'center' }}
               />
               <Th
-                label="Status" coluna="status" tipo="texto"
+                label={t('workspace.workspaces.tabela.status')} coluna="status" tipo="texto"
                 temFiltroAtivo={temFiltro('status')}
-                tooltipTitulo="Status Operacional"
+                tooltipTitulo={t('workspace.workspaces.tabela.status')}
                 tooltipDescricao="Indica se o workspace está ativo ou com acesso suspenso."
                 {...thProps}
               />
               <Th
-                label="Criado em" coluna="criadaEm" tipo="texto"
+                label={t('workspace.workspaces.tabela.data_criacao')} coluna="criadaEm" tipo="texto"
                 temFiltroAtivo={temFiltro('criadaEm')}
-                tooltipTitulo="Data de Criação"
+                tooltipTitulo={t('workspace.workspaces.tabela.data_criacao')}
                 tooltipDescricao="Data em que o workspace foi cadastrado no sistema."
                 {...thProps}
               />

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -120,6 +121,7 @@ interface SubscribedProduct {
 }
 
 export function Store() {
+  const { t } = useTranslation()
   const { getToken } = useAuth()
   const navigate = useNavigate()
   const canBuy = true // Qualquer usuário logado pode contratar. Master pode restringir via permissões.

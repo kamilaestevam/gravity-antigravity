@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   GearSix,
   Buildings,
@@ -170,6 +171,7 @@ const TODOS_CAMPOS = Object.values(CAMPOS_POR_ABA).flat()
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function DadosTecnicosPage() {
+  const { t } = useTranslation()
   const addNotification = useShellStore((state) => state.addNotification)
 
   const [dadosIniciaisLocal, setDadosIniciaisLocal] = useState<DadosTecnicosForm>(dadosIniciais)
@@ -228,8 +230,8 @@ export default function DadosTecnicosPage() {
       cabecalho={
         <CabecalhoGlobal
           icone={<GearSix weight="duotone" size={22} />}
-          titulo="Dados Tecnicos"
-          subtitulo="Informacoes tecnicas de transporte, despacho e seguro do processo"
+          titulo={t('processo.menu.dados_tecnicos')}
+          subtitulo={t('processo.dados_tecnicos.subtitulo')}
         />
       }
     >
@@ -237,23 +239,23 @@ export default function DadosTecnicosPage() {
       {/* ── Top bar: Gauge + Search + Tabs ─────────────────────────────────── */}
       <div className="dt-top-bar ws-fade-up">
         <CardGraficoGlobal
-          titulo="Preenchimento"
+          titulo={t('processo.dados_tecnicos.preenchimento')}
           icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
           total={total}
           valorPrincipal={preenchidos}
           corGauge={preenchidos === total ? '#34d399' : preenchidos >= total * 0.5 ? '#fbbf24' : '#f87171'}
           legenda={[
-            { label: 'Preenchidos', valor: preenchidos, cor: 'green' },
-            { label: 'Vazios',      valor: vazios,      cor: 'red' },
+            { label: t('processo.dados_tecnicos.preenchidos'), valor: preenchidos, cor: 'green' },
+            { label: t('processo.dados_tecnicos.vazios'),      valor: vazios,      cor: 'red' },
           ]}
           tooltip={
             <>
               <div className="cg-tooltip__row">
-                <span>Preenchidos</span>
+                <span>{t('processo.dados_tecnicos.preenchidos')}</span>
                 <strong style={{ color: '#34d399' }}>{preenchidos}</strong>
               </div>
               <div className="cg-tooltip__row">
-                <span>Vazios</span>
+                <span>{t('processo.dados_tecnicos.vazios')}</span>
                 <strong style={{ color: '#f87171' }}>{vazios}</strong>
               </div>
               <div className="cg-tooltip__row">
@@ -267,7 +269,7 @@ export default function DadosTecnicosPage() {
         <div className="dt-top-right">
           <div className="dt-search-row">
             <LocalizarExpandidoCampoGlobal
-              placeholder="Buscar nos dados tecnicos..."
+              placeholder={t('processo.dados_tecnicos.buscar')}
               disableGlobalDOMFilter={false}
             />
           </div>
@@ -293,10 +295,10 @@ export default function DadosTecnicosPage() {
           {/* Importador */}
           <div className="dt-section ws-fade-up ws-fade-up-d1">
             <p className="ws-section-title" style={{ width: 'max-content' }}>
-              <TooltipGlobal titulo="Importador" descricao="Dados do importador brasileiro responsavel pela operacao">
+              <TooltipGlobal titulo={t('processo.dados_tecnicos.importador')} descricao={t('processo.dados_tecnicos.importador_desc')}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                   <Buildings weight="duotone" size={14} color="var(--ws-accent)" />
-                  Importador
+                  {t('processo.dados_tecnicos.importador')}
                 </span>
               </TooltipGlobal>
             </p>
@@ -382,10 +384,10 @@ export default function DadosTecnicosPage() {
           {/* Exportador */}
           <div className="dt-section ws-fade-up ws-fade-up-d1">
             <p className="ws-section-title" style={{ width: 'max-content' }}>
-              <TooltipGlobal titulo="Exportador" descricao="Dados do fornecedor internacional que envia a mercadoria">
+              <TooltipGlobal titulo={t('processo.dados_tecnicos.exportador')} descricao={t('processo.dados_tecnicos.exportador_desc')}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                   <Globe weight="duotone" size={14} color="var(--ws-accent)" />
-                  Exportador
+                  {t('processo.dados_tecnicos.exportador')}
                 </span>
               </TooltipGlobal>
             </p>
@@ -459,10 +461,10 @@ export default function DadosTecnicosPage() {
       {abaAtiva === 'transporte' && (
         <div className="dt-section ws-fade-up ws-fade-up-d1">
           <p className="ws-section-title" style={{ width: 'max-content' }}>
-            <TooltipGlobal titulo="Transporte Internacional" descricao="Configuracoes da via de transporte e logistica do embarque">
+            <TooltipGlobal titulo={t('processo.dados_tecnicos.transporte')} descricao={t('processo.dados_tecnicos.transporte_desc')}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                 <Airplane weight="duotone" size={14} color="var(--ws-accent)" />
-                Transporte Internacional
+                {t('processo.dados_tecnicos.transporte')}
               </span>
             </TooltipGlobal>
           </p>
@@ -561,10 +563,10 @@ export default function DadosTecnicosPage() {
       {abaAtiva === 'despacho' && (
         <div className="dt-section ws-fade-up ws-fade-up-d1">
           <p className="ws-section-title" style={{ width: 'max-content' }}>
-            <TooltipGlobal titulo="Despacho Aduaneiro" descricao="Parametros fiscais e aduaneiros necessarios para o desembaraco">
+            <TooltipGlobal titulo={t('processo.dados_tecnicos.despacho')} descricao={t('processo.dados_tecnicos.despacho_desc')}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                 <Scales weight="duotone" size={14} color="var(--ws-accent)" />
-                Despacho Aduaneiro
+                {t('processo.dados_tecnicos.despacho')}
               </span>
             </TooltipGlobal>
           </p>
@@ -648,10 +650,10 @@ export default function DadosTecnicosPage() {
       {abaAtiva === 'seguro' && (
         <div className="dt-section ws-fade-up ws-fade-up-d1">
           <p className="ws-section-title" style={{ width: 'max-content' }}>
-            <TooltipGlobal titulo="Seguro" descricao="Dados do seguro de transporte internacional da carga">
+            <TooltipGlobal titulo={t('processo.dados_tecnicos.seguro')} descricao={t('processo.dados_tecnicos.seguro_desc')}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                 <ShieldCheck weight="duotone" size={14} color="var(--ws-accent)" />
-                Seguro
+                {t('processo.dados_tecnicos.seguro')}
               </span>
             </TooltipGlobal>
           </p>

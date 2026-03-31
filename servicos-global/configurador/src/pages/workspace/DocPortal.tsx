@@ -11,6 +11,7 @@
  * (IDs dos produtos com status Ativo ou Trial em Assinaturas.tsx).
  */
 import React, { useState, useRef, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   BookBookmark, Target, Copy, CheckCircle,
   CaretRight, ArrowSquareOut, SealCheck,
@@ -64,6 +65,7 @@ function CodeBlock({ code, label, maxHeight, editable, onChange, id }: {
   onChange?: (v: string) => void
   id?: string
 }) {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   function copy() {
     navigator.clipboard.writeText(code).then(() => {
@@ -97,8 +99,8 @@ function CodeBlock({ code, label, maxHeight, editable, onChange, id }: {
           }}
         >
           {copied
-            ? <><CheckCircle weight="fill" size={12} /> Copiado!</>
-            : <><Copy weight="bold" size={12} /> Copiar</>}
+            ? <><CheckCircle weight="fill" size={12} /> {t('workspace.docportal.copiado')}</>
+            : <><Copy weight="bold" size={12} /> {t('workspace.docportal.copiar')}</>}
         </button>
       </div>
       {editable ? (
@@ -573,6 +575,7 @@ interface DocPortalProps {
 }
 
 export function DocPortal({ produtosAssinados }: DocPortalProps) {
+  const { t } = useTranslation()
   const assinadosIds = new Set(
     produtosAssinados
       .filter(p => p.status === 'Ativo' || p.status === 'Trial')

@@ -7,6 +7,7 @@
 // ============================================================================
 
 import React, { useEffect, useState, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import '../atividades.css'
 
 // ─── Constantes (espelham o Journey) ─────────────────────────────────────────
@@ -192,6 +193,7 @@ function applyFilters(list: Atividade[], f: Filters): Atividade[] {
 // ─── Componente principal ────────────────────────────────────────────────────
 
 export default function AtividadesView(): React.ReactElement {
+  const { t } = useTranslation()
   const [atividades, setAtividades]   = useState<Atividade[]>([])
   const [loading, setLoading]         = useState(true)
   const [view, setView]               = useState<ViewMode>('kanban')
@@ -245,14 +247,14 @@ export default function AtividadesView(): React.ReactElement {
         <div className="ativ-title-row">
           <div>
             <h1 className="ativ-title">
-              <span style={{ color: '#6366f1' }}>◈</span> Minhas Atividades
+              <span style={{ color: '#6366f1' }}>◈</span> {t('atividades.titulo')}
             </h1>
             <p className="ativ-subtitle">
-              Todas as atividades atribuídas a você — por criação ou responsabilidade.
+              {t('atividades.subtitulo')}
             </p>
           </div>
           <button className="ativ-btn-primary" onClick={() => setShowNewModal(true)}>
-            + Nova Atividade
+            {t('atividades.nova_atividade')}
           </button>
         </div>
 
@@ -263,7 +265,7 @@ export default function AtividadesView(): React.ReactElement {
             <div className="ativ-search-wrap">
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>🔍</span>
               <input
-                placeholder="Localizar em atividades..."
+                placeholder={t('atividades.localizar')}
                 value={filters.search}
                 onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
               />
@@ -275,7 +277,7 @@ export default function AtividadesView(): React.ReactElement {
               value={filters.status}
               onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
             >
-              <option value="">Status</option>
+              <option value="">{t('atividades.status')}</option>
               {KANBAN_COLS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
             </select>
 
@@ -285,11 +287,11 @@ export default function AtividadesView(): React.ReactElement {
               value={filters.prazo}
               onChange={e => setFilters(f => ({ ...f, prazo: e.target.value }))}
             >
-              <option value="">Prazo</option>
-              <option value="atrasado">Atrasadas</option>
-              <option value="hoje">Hoje</option>
-              <option value="futuro">Próximos dias</option>
-              <option value="sem_prazo">Sem prazo</option>
+              <option value="">{t('atividades.prazo')}</option>
+              <option value="atrasado">{t('atividades.prazo_atrasado')}</option>
+              <option value="hoje">{t('atividades.prazo_hoje')}</option>
+              <option value="futuro">{t('atividades.prazo_futuro')}</option>
+              <option value="sem_prazo">{t('atividades.prazo_sem_prazo')}</option>
             </select>
 
             {/* Prioridade */}
@@ -298,7 +300,7 @@ export default function AtividadesView(): React.ReactElement {
               value={filters.prioridade}
               onChange={e => setFilters(f => ({ ...f, prioridade: e.target.value }))}
             >
-              <option value="">Prioridade</option>
+              <option value="">{t('atividades.prioridade')}</option>
               {PRIOS.map(p => <option key={p} value={p}>{PRIO_LABEL[p]}</option>)}
             </select>
 
@@ -308,19 +310,19 @@ export default function AtividadesView(): React.ReactElement {
                 type="date"
                 value={filters.dateFrom}
                 onChange={e => setFilters(f => ({ ...f, dateFrom: e.target.value }))}
-                title="Data inicial"
+                title={t('atividades.data_inicial')}
               />
               <span>até</span>
               <input
                 type="date"
                 value={filters.dateTo}
                 onChange={e => setFilters(f => ({ ...f, dateTo: e.target.value }))}
-                title="Data final"
+                title={t('atividades.data_final')}
               />
             </div>
 
             {/* Limpar */}
-            <button className="ativ-btn-ghost" onClick={clearFilters}>✕ Limpar</button>
+            <button className="ativ-btn-ghost" onClick={clearFilters}>{t('atividades.limpar_filtros')}</button>
           </div>
 
           {/* Toggle Kanban / Lista */}
@@ -328,11 +330,11 @@ export default function AtividadesView(): React.ReactElement {
             <button
               className={`ativ-view-btn${view === 'kanban' ? ' active' : ''}`}
               onClick={() => setView('kanban')}
-            >⊞ Kanban</button>
+            >{t('atividades.kanban')}</button>
             <button
               className={`ativ-view-btn${view === 'lista' ? ' active' : ''}`}
               onClick={() => { setView('lista'); setPage(1) }}
-            >☰ Lista</button>
+            >{t('atividades.lista')}</button>
           </div>
         </div>
       </div>
@@ -342,7 +344,7 @@ export default function AtividadesView(): React.ReactElement {
         {loading ? (
           <div className="ativ-empty-state">
             <span className="ativ-spin" style={{ fontSize: '2rem' }}>↻</span>
-            <p>Carregando atividades...</p>
+            <p>{t('atividades.carregando_atividades')}</p>
           </div>
         ) : view === 'kanban' ? (
           <KanbanBoard
@@ -419,6 +421,7 @@ interface KanbanBoardProps {
 }
 
 function KanbanBoard({ atividades, onOpen, onStatusChange }: KanbanBoardProps) {
+  const { t } = useTranslation()
   const [draggingId, setDraggingId] = useState<string | null>(null)
   const [dragOverCol, setDragOverCol] = useState<string | null>(null)
 
@@ -454,7 +457,7 @@ function KanbanBoard({ atividades, onOpen, onStatusChange }: KanbanBoardProps) {
               {cards.length === 0 ? (
                 <div className="ativ-empty-col">
                   <div style={{ fontSize: '1.4rem', marginBottom: '0.4rem' }}>🗃</div>
-                  Nenhuma atividade
+                  {t('atividades.nenhuma_atividade')}
                 </div>
               ) : (
                 cards.map(a => (
@@ -487,6 +490,7 @@ interface KanbanCardProps {
 }
 
 function KanbanCard({ atividade: a, onOpen, onDragStart, onDragEnd, isDragging }: KanbanCardProps) {
+  const { t } = useTranslation()
   const pc     = a.prioridade ? PRIORITY_COLORS[a.prioridade] ?? '#64748b' : null
   const tc     = TYPE_CONFIG[a.tipo]?.color ?? '#64748b'
   const overdue = isOverdue(a)
@@ -509,19 +513,19 @@ function KanbanCard({ atividade: a, onOpen, onDragStart, onDragEnd, isDragging }
         </span>
       )}
       <div className="ativ-card__company">
-        🏢 {a.processo_id ? `Processo #${a.processo_id.slice(-6)}` : 'Sem vínculo'}
+        🏢 {a.processo_id ? `${t('atividades.processo_prefixo')}${a.processo_id.slice(-6)}` : t('atividades.sem_vinculo')}
       </div>
       <div className="ativ-card__title">{a.titulo}</div>
       {a.data_atividade && (
         <div className="ativ-card__date" style={{ color: overdue ? '#ef4444' : 'var(--text-muted)' }}>
-          📅 {fmtDateShort(a.data_atividade)}{overdue ? ' · atrasada!' : ''}
+          📅 {fmtDateShort(a.data_atividade)}{overdue ? ` · ${t('atividades.atrasada')}` : ''}
         </div>
       )}
       <div className="ativ-card__footer">
         <span className="ativ-card__type" style={{ color: tc }}>
           {a.tipo}
         </span>
-        <span className="ativ-card__edit">✏ editar</span>
+        <span className="ativ-card__edit">✏ {t('atividades.editar')}</span>
       </div>
     </div>
   )
@@ -539,6 +543,7 @@ interface ListaViewProps {
 }
 
 function ListaView({ atividades, page, pageSize, onPage, onOpen, onDelete }: ListaViewProps) {
+  const { t } = useTranslation()
   const total   = atividades.length
   const pages   = Math.max(1, Math.ceil(total / pageSize))
   const start   = (page - 1) * pageSize
@@ -549,14 +554,14 @@ function ListaView({ atividades, page, pageSize, onPage, onOpen, onDelete }: Lis
       <table className="ativ-table">
         <thead>
           <tr>
-            <th>Tipo</th>
-            <th>Título</th>
-            <th>Status</th>
-            <th>Prioridade</th>
-            <th>Data</th>
-            <th>Tempo</th>
-            <th>Participantes</th>
-            <th style={{ textAlign: 'right' }}>Ações</th>
+            <th>{t('atividades.tabela.tipo')}</th>
+            <th>{t('atividades.tabela.titulo_col')}</th>
+            <th>{t('atividades.tabela.status')}</th>
+            <th>{t('atividades.tabela.prioridade')}</th>
+            <th>{t('atividades.tabela.data')}</th>
+            <th>{t('atividades.tabela.tempo')}</th>
+            <th>{t('atividades.tabela.participantes')}</th>
+            <th style={{ textAlign: 'right' }}>{t('atividades.tabela.acoes')}</th>
           </tr>
         </thead>
         <tbody>
@@ -565,8 +570,8 @@ function ListaView({ atividades, page, pageSize, onPage, onOpen, onDelete }: Lis
               <td colSpan={8}>
                 <div className="ativ-empty-state">
                   <div className="ativ-empty-state__icon">📭</div>
-                  <div className="ativ-empty-state__title">Nenhuma atividade encontrada</div>
-                  <div className="ativ-empty-state__desc">Ajuste os filtros ou crie uma nova atividade.</div>
+                  <div className="ativ-empty-state__title">{t('atividades.vazio.titulo')}</div>
+                  <div className="ativ-empty-state__desc">{t('atividades.vazio.desc')}</div>
                 </div>
               </td>
             </tr>
@@ -619,7 +624,7 @@ function ListaView({ atividades, page, pageSize, onPage, onOpen, onDelete }: Lis
                   <button
                     className="ativ-btn-danger"
                     style={{ display: 'inline-flex', padding: '0.25rem 0.6rem', fontSize: '0.75rem' }}
-                    onClick={() => { if (confirm('Excluir esta atividade?')) onDelete(a.id) }}
+                    onClick={() => { if (confirm(t('atividades.modal.confirmar_excluir'))) onDelete(a.id) }}
                   >🗑</button>
                 </td>
               </tr>
@@ -631,7 +636,7 @@ function ListaView({ atividades, page, pageSize, onPage, onOpen, onDelete }: Lis
       {/* Paginação */}
       {pages > 1 && (
         <div className="ativ-pagination">
-          <span>{start + 1}–{Math.min(start + pageSize, total)} de {total} registros</span>
+          <span>{start + 1}–{Math.min(start + pageSize, total)} {t('atividades.paginacao.de')} {total} {t('atividades.paginacao.registros')}</span>
           <div className="ativ-pagination-btns">
             <button className="ativ-page-btn" disabled={page <= 1} onClick={() => onPage(page - 1)}>‹</button>
             {Array.from({ length: pages }, (_, i) => i + 1).map(p => (
@@ -656,6 +661,7 @@ interface AtividadeModalProps {
 }
 
 function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: AtividadeModalProps) {
+  const { t } = useTranslation()
   const isNew = !atividade
 
   const [tab, setTab] = useState<ModalTab>('informacoes')
@@ -729,7 +735,7 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
   }
 
   async function handleSave() {
-    if (!titulo.trim()) { alert('Informe um título para a atividade.'); return }
+    if (!titulo.trim()) { alert(t('atividades.modal.titulo_obrigatorio')); return }
     setSaving(true)
     try {
       await onSave({
@@ -760,13 +766,13 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
         {/* Topo */}
         <div className="ativ-modal__head">
           <div className="ativ-modal__meta">
-            <span>🏢 {atividade?.processo_id ? `Processo #${atividade.processo_id.slice(-6)}` : 'Sem vínculo'}</span>
+            <span>🏢 {atividade?.processo_id ? `${t('atividades.processo_prefixo')}${atividade.processo_id.slice(-6)}` : t('atividades.modal.sem_vinculo')}</span>
             <span>·</span>
-            {atividade && <span>Criado {fmtDateShort(atividade.created_at)}</span>}
+            {atividade && <span>{t('atividades.modal.criado')} {fmtDateShort(atividade.created_at)}</span>}
           </div>
           <button className="ativ-modal__close" onClick={onClose}>✕</button>
           <div className="ativ-modal__title-text">
-            {isNew ? 'Nova Atividade' : atividade?.titulo}
+            {isNew ? t('atividades.modal.nova') : atividade?.titulo}
           </div>
           {!isNew && (
             <div className="ativ-modal__badges">
@@ -785,16 +791,16 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
         {/* Tabs */}
         <div className="ativ-modal__tabs">
           {([
-            { id: 'informacoes',    label: '≡ Informações' },
-            { id: 'tempo',          label: '⏱ Tempo' },
-            { id: 'proximo-passo',  label: '→ Próximo Passo' },
-            { id: 'lembrete',       label: '🔔 Lembrete' },
-          ] as const).map(t => (
+            { id: 'informacoes',    labelKey: 'atividades.modal.informacoes' },
+            { id: 'tempo',          labelKey: 'atividades.modal.tempo' },
+            { id: 'proximo-passo',  labelKey: 'atividades.modal.proximo_passo' },
+            { id: 'lembrete',       labelKey: 'atividades.modal.lembrete' },
+          ] as const).map(tabItem => (
             <button
-              key={t.id}
-              className={`ativ-modal__tab${tab === t.id ? ' active' : ''}`}
-              onClick={() => setTab(t.id)}
-            >{t.label}</button>
+              key={tabItem.id}
+              className={`ativ-modal__tab${tab === tabItem.id ? ' active' : ''}`}
+              onClick={() => setTab(tabItem.id)}
+            >{t(tabItem.labelKey)}</button>
           ))}
         </div>
 
@@ -804,16 +810,16 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Informações ─────────────────────────────────── */}
           {tab === 'informacoes' && (
             <>
-              <p className="ativ-section-label">⚙ Configurações</p>
+              <p className="ativ-section-label">{t('atividades.modal.configuracoes')}</p>
               <div className="ativ-grid-2">
                 <div className="ativ-field">
-                  <label>Tipo de Atividade</label>
+                  <label>{t('atividades.modal.tipo_atividade')}</label>
                   <select value={tipo} onChange={e => setTipo(e.target.value)}>
-                    {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
+                    {TIPOS.map(tp => <option key={tp} value={tp}>{tp}</option>)}
                   </select>
                 </div>
                 <div className="ativ-field">
-                  <label>Fase da Atividade</label>
+                  <label>{t('atividades.modal.fase_atividade')}</label>
                   <select value={status} onChange={e => setStatus(e.target.value as KanbanStatus)}>
                     {KANBAN_COLS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
                   </select>
@@ -821,48 +827,48 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
               </div>
               <div className="ativ-grid-2">
                 <div className="ativ-field">
-                  <label>Prioridade</label>
+                  <label>{t('atividades.modal.prioridade')}</label>
                   <select value={prioridade} onChange={e => setPrioridade(e.target.value)}>
-                    <option value="">Sem prioridade</option>
+                    <option value="">{t('atividades.modal.sem_prioridade')}</option>
                     {PRIOS.map(p => <option key={p} value={p}>{PRIO_LABEL[p]}</option>)}
                   </select>
                 </div>
                 <div className="ativ-field">
-                  <label>Data e Horário</label>
+                  <label>{t('atividades.modal.data_horario')}</label>
                   <input type="datetime-local" value={dataAtvStr} onChange={e => setDataAtvStr(e.target.value)} />
                 </div>
               </div>
 
-              <p className="ativ-section-label" style={{ marginTop: '1rem' }}>📝 Conteúdo</p>
+              <p className="ativ-section-label" style={{ marginTop: '1rem' }}>{t('atividades.modal.conteudo')}</p>
               <div className="ativ-field" style={{ marginBottom: '0.85rem' }}>
-                <label>Título *</label>
+                <label>{t('atividades.modal.titulo_label')}</label>
                 <input
-                  placeholder="Título da atividade"
+                  placeholder={t('atividades.modal.titulo_placeholder')}
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
                 />
               </div>
               <div className="ativ-field" style={{ marginBottom: '1rem' }}>
-                <label>Descrição</label>
+                <label>{t('atividades.modal.descricao_label')}</label>
                 <textarea
-                  placeholder="Descreva a atividade..."
+                  placeholder={t('atividades.modal.descricao_placeholder')}
                   value={descricao}
                   onChange={e => setDescricao(e.target.value)}
                   rows={4}
                 />
               </div>
 
-              <p className="ativ-section-label">👥 Participantes</p>
+              <p className="ativ-section-label">{t('atividades.modal.participantes')}</p>
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input
                   className="ativ-field"
                   style={{ flex: 1 }}
-                  placeholder="Nome ou e-mail do participante"
+                  placeholder={t('atividades.modal.participante_placeholder')}
                   value={newPart}
                   onChange={e => setNewPart(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addParticipant() } }}
                 />
-                <button className="ativ-btn-secondary" onClick={addParticipant}>+ Adicionar</button>
+                <button className="ativ-btn-secondary" onClick={addParticipant}>{t('atividades.modal.adicionar_participante')}</button>
               </div>
               <div className="ativ-chips">
                 {participantes.map(p => (
@@ -878,44 +884,49 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Tempo ──────────────────────────────────────── */}
           {tab === 'tempo' && (
             <>
-              <p className="ativ-section-label">⏱ Cronômetro</p>
+              <p className="ativ-section-label">{t('atividades.modal.cronometro')}</p>
               <div style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '1.25rem', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Tempo Trabalhado</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>{t('atividades.modal.tempo_trabalhado')}</div>
                     <div className={`ativ-timer-display${timerRunning ? ' ativ-timer-running' : ''}`}>
                       {fmtTimerHMS(timerSec)}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     {!timerRunning ? (
-                      <button className="ativ-btn-primary" onClick={startTimer}>▷ Iniciar</button>
+                      <button className="ativ-btn-primary" onClick={startTimer}>{t('atividades.modal.iniciar')}</button>
                     ) : (
                       <>
-                        <button className="ativ-btn-secondary" onClick={pauseTimer}>⏸ Pausar</button>
-                        <button className="ativ-btn-danger" onClick={stopTimer}>⏹ Finalizar</button>
+                        <button className="ativ-btn-secondary" onClick={pauseTimer}>{t('atividades.modal.pausar')}</button>
+                        <button className="ativ-btn-danger" onClick={stopTimer}>{t('atividades.modal.finalizar')}</button>
                       </>
                     )}
                   </div>
                 </div>
                 <div className="ativ-field" style={{ marginTop: '0.85rem' }}>
-                  <label>Assunto da sessão (opcional)</label>
-                  <input placeholder="Ex: Analisei a documentação..." value={timerAssunto} onChange={e => setTimerAssunto(e.target.value)} />
+                  <label>{t('atividades.modal.assunto_sessao')}</label>
+                  <input placeholder={t('atividades.modal.assunto_placeholder')} value={timerAssunto} onChange={e => setTimerAssunto(e.target.value)} />
                 </div>
               </div>
 
-              <p className="ativ-section-label">Sessões Registradas</p>
+              <p className="ativ-section-label">{t('atividades.modal.sessoes_registradas')}</p>
               {atividade && (
                 <div style={{ marginBottom: '0.75rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
-                  Total acumulado: <strong>{fmtMin(atividade.tempo_gasto_minutos)}</strong>
+                  {t('atividades.modal.total_acumulado')} <strong>{fmtMin(atividade.tempo_gasto_minutos)}</strong>
                 </div>
               )}
               {sessoes.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Nenhuma sessão registrada ainda.</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>{t('atividades.modal.nenhuma_sessao')}</p>
               ) : (
                 <table className="ativ-sessoes-table">
                   <thead>
-                    <tr><th>Data</th><th>Hora</th><th>Duração</th><th>Assunto</th></tr>
+                    <tr>
+                      <th>{t('atividades.modal.sessao_data')}</th>
+                      <th>{t('atividades.modal.sessao_hora')}</th>
+                      <th>{t('atividades.modal.sessao_duracao')}</th>
+                      <th>{t('atividades.modal.sessao_assunto')}</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {sessoes.map(s => (
@@ -939,33 +950,33 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Próximo Passo ───────────────────────────────── */}
           {tab === 'proximo-passo' && (
             <>
-              <p className="ativ-section-label">→ Próximo Passo</p>
+              <p className="ativ-section-label">{t('atividades.modal.proximo_passo')}</p>
               <div className="ativ-grid-2" style={{ marginBottom: '0.85rem' }}>
                 <div className="ativ-field">
-                  <label>Título do Próximo Passo</label>
-                  <input placeholder="O que fazer a seguir?" value={pPassoTit} onChange={e => setPPassoTit(e.target.value)} />
+                  <label>{t('atividades.modal.proximo_passo_titulo_label')}</label>
+                  <input placeholder={t('atividades.modal.proximo_passo_placeholder')} value={pPassoTit} onChange={e => setPPassoTit(e.target.value)} />
                 </div>
                 <div className="ativ-field">
-                  <label>Data do Próximo Passo</label>
+                  <label>{t('atividades.modal.proximo_passo_data_label')}</label>
                   <input type="date" value={pPassoData} onChange={e => setPPassoData(e.target.value)} />
                 </div>
               </div>
               {pPassoData && (
                 <div className="ativ-field" style={{ marginBottom: '0.85rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
-                    <input type="checkbox" /> Lembrar por e-mail (1 dia antes)
+                    <input type="checkbox" /> {t('atividades.modal.proximo_passo_email')}
                   </label>
                 </div>
               )}
               {pPassoTit || pPassoData ? (
                 <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 'var(--radius-md)', padding: '0.85rem', fontSize: '0.83rem', color: '#10b981' }}>
-                  ✓ Próximo passo configurado:{' '}
+                  {t('atividades.modal.proximo_passo_configurado')}{' '}
                   <strong>{pPassoTit}</strong>
                   {pPassoData && ` · ${fmtDateShort(pPassoData + 'T00:00:00')}`}
                 </div>
               ) : (
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-                  Nenhum próximo passo definido. Adicione um título e data para ajudar na gestão das atividades.
+                  {t('atividades.modal.nenhum_proximo_passo')}
                 </p>
               )}
             </>
@@ -974,32 +985,32 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Lembrete ────────────────────────────────────── */}
           {tab === 'lembrete' && (
             <>
-              <p className="ativ-section-label">🔔 Lembrete</p>
+              <p className="ativ-section-label">{t('atividades.modal.lembrete')}</p>
               <div className="ativ-grid-2" style={{ marginBottom: '1rem' }}>
                 <div className="ativ-field">
-                  <label>Data e hora do lembrete</label>
+                  <label>{t('atividades.modal.lembrete_data_hora')}</label>
                   <input type="datetime-local" value={lembreteEm} onChange={e => setLembreteEm(e.target.value)} />
                 </div>
                 <div className="ativ-field" style={{ justifyContent: 'flex-end', gap: '0.6rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                     <input type="checkbox" checked={lemEmail} onChange={e => setLemEmail(e.target.checked)} />
-                    Por e-mail
+                    {t('atividades.modal.lembrete_email')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                     <input type="checkbox" checked={lemWpp} onChange={e => setLemWpp(e.target.checked)} />
-                    Por WhatsApp
+                    {t('atividades.modal.lembrete_whatsapp')}
                   </label>
                 </div>
               </div>
               {lembreteEm ? (
                 <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 'var(--radius-md)', padding: '0.85rem', fontSize: '0.83rem', color: '#f59e0b' }}>
-                  🔔 Lembrete agendado para{' '}
+                  {t('atividades.modal.lembrete_agendado')}{' '}
                   <strong>{fmtDate(lembreteEm + ':00')}</strong>
                   {lemEmail && ' · E-mail'}{lemWpp && ' · WhatsApp'}
                 </div>
               ) : (
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-                  Nenhum lembrete configurado. Defina uma data/hora acima para receber uma notificação.
+                  {t('atividades.modal.nenhum_lembrete')}
                 </p>
               )}
             </>
@@ -1008,14 +1019,14 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* Ações do Modal */}
           <div className="ativ-modal-actions">
             {!isNew ? (
-              <button className="ativ-btn-danger" onClick={async () => { if (confirm('Excluir esta atividade?')) await onDelete() }}>
-                🗑 Excluir
+              <button className="ativ-btn-danger" onClick={async () => { if (confirm(t('atividades.modal.confirmar_excluir'))) await onDelete() }}>
+                {t('atividades.modal.excluir')}
               </button>
             ) : <div />}
             <div className="ativ-modal-actions__right">
-              <button className="ativ-btn-secondary" onClick={onClose}>Cancelar</button>
+              <button className="ativ-btn-secondary" onClick={onClose}>{t('atividades.modal.cancelar')}</button>
               <button className="ativ-btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? '...' : '💾 Salvar Alterações'}
+                {saving ? t('atividades.modal.salvando') : t('atividades.modal.salvar')}
               </button>
             </div>
           </div>

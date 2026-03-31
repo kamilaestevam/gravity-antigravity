@@ -198,7 +198,7 @@ export const productCatalogService = {
       }),
       prisma.product.create({
         data: {
-          name: 'Bid Frete Internacional',
+          name: 'Bid Frete',
           slug: 'bid-frete',
           description: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
           status: 'ACTIVE',
@@ -213,7 +213,7 @@ export const productCatalogService = {
       }),
       prisma.product.create({
         data: {
-          name: 'Bid Câmbio',
+          name: 'Bid Cambio',
           slug: 'bid-cambio',
           description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
           status: 'ACTIVE',
@@ -241,6 +241,21 @@ export const productCatalogService = {
           target_audience: 'Importadores, exportadores e despachantes aduaneiros',
         },
       }),
+      prisma.product.create({
+        data: {
+          name: 'NF Import',
+          slug: 'nf-importacao',
+          description: 'Gestão completa de notas fiscais de importação com DI, rateio de despesas e exportação contábil',
+          status: 'ACTIVE',
+          billing_type: 'PER_PROCESS',
+          has_setup: false,
+          unit_price: 1.99,
+          minimum_price: 0,
+          user_limit_type: 'UNLIMITED',
+          backend_module: 'nf-importacao',
+          target_audience: 'Importadores, despachantes aduaneiros e contadores',
+        },
+      }),
     ])
 
     return { seeded: true, count: products.length }
@@ -251,7 +266,7 @@ export const productCatalogService = {
    * Roda como upsert — cria apenas os que não existem.
    */
   async ensureMissingProducts() {
-    // Produtos que devem existir no catálogo
+    // Produtos que devem existir no catálogo — lista canônica (exatamente esses)
     const expectedProducts = [
       {
         name: 'Simula Custo',
@@ -267,7 +282,7 @@ export const productCatalogService = {
         target_audience: 'Importadores, exportadores e despachantes aduaneiros',
       },
       {
-        name: 'Bid Frete Internacional',
+        name: 'Bid Frete',
         slug: 'bid-frete',
         description: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
         status: 'ACTIVE',
@@ -279,7 +294,7 @@ export const productCatalogService = {
         target_audience: 'Importadores, exportadores e despachantes aduaneiros',
       },
       {
-        name: 'Bid Câmbio',
+        name: 'Bid Cambio',
         slug: 'bid-cambio',
         description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
         status: 'ACTIVE',
@@ -302,7 +317,21 @@ export const productCatalogService = {
         backend_module: 'pedido',
         target_audience: 'Importadores, exportadores e despachantes aduaneiros',
       },
+      {
+        name: 'NF Import',
+        slug: 'nf-importacao',
+        description: 'Gestão completa de notas fiscais de importação com DI, rateio de despesas e exportação contábil',
+        status: 'ACTIVE',
+        billing_type: 'PER_PROCESS',
+        unit_price: 1.99,
+        minimum_price: 0,
+        user_limit_type: 'UNLIMITED',
+        backend_module: 'nf-importacao',
+        target_audience: 'Importadores, despachantes aduaneiros e contadores',
+      },
     ]
+
+    const expectedSlugs = expectedProducts.map(p => p.slug)
 
     let created = 0
     let updated = 0
@@ -319,14 +348,19 @@ export const productCatalogService = {
       }
     }
 
-    // Remover Smart Read do catálogo de produtos (é um serviço, não produto)
-    const smartRead = await prisma.product.findFirst({ where: { slug: 'smart-read' } })
-    if (smartRead) {
-      await prisma.product.delete({ where: { id: smartRead.id } })
-      console.log(`[seed] Smart Read removido do catálogo de produtos`)
+    // Remover produtos que não pertencem ao catálogo canônico
+    const toRemove = await prisma.product.findMany({
+      where: { slug: { notIn: expectedSlugs } },
+      select: { id: true, name: true, slug: true },
+    })
+    for (const p of toRemove) {
+      await prisma.product.delete({ where: { id: p.id } })
+      console.log(`[seed] Produto '${p.name}' (${p.slug}) removido do catálogo`)
     }
 
-    if (created > 0 || updated > 0) console.log(`[seed] ${created} criado(s), ${updated} atualizado(s)`)
+    if (created > 0 || updated > 0 || toRemove.length > 0) {
+      console.log(`[seed] ${created} criado(s), ${updated} atualizado(s), ${toRemove.length} removido(s)`)
+    }
   },
 
   /**

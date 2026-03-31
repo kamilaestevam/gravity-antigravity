@@ -11,12 +11,13 @@ const MAX_MESSAGE_LENGTH = 10_000
 const chatSchema = z.object({
   conversationId: z.string().max(255),
   message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
+  page: z.string().max(255).optional(),
 })
 
 // Requisicao sincrona (usada pelo widget)
 chatRouter.post('/api/v1/gabi/chat', async (req, res, next) => {
   try {
-    const { conversationId, message: rawMessage } = chatSchema.parse(req.body)
+    const { conversationId, message: rawMessage, page } = chatSchema.parse(req.body)
     const message = sanitizeUserInput(rawMessage)
 
     // tenant/user DEVEM vir do JWT autenticado (req.auth), não dos headers/query
@@ -32,6 +33,7 @@ chatRouter.post('/api/v1/gabi/chat', async (req, res, next) => {
       userRole: (req as any).auth?.role ?? 'user',
       tenantName: tenantId,
       activeServices: ['Gabi IA'],
+      currentPage: page,
     })
 
     const result = await generateContentWithFallback(
@@ -39,8 +41,11 @@ chatRouter.post('/api/v1/gabi/chat', async (req, res, next) => {
       history
     )
 
+    const { cleanText, suggestions } = extractSuggestions(result.text)
+
     res.json({
-      response: result.text,
+      response: cleanText,
+      suggestions,
       model: result.modelUsed,
       tokens: { input: result.tokensInput, output: result.tokensOutput },
       cost_usd: result.costUsd,
@@ -53,6 +58,7 @@ chatRouter.post('/api/v1/gabi/chat', async (req, res, next) => {
 const streamQuerySchema = z.object({
   conversationId: z.string().max(255),
   message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
+  page: z.string().max(255).optional(),
 })
 
 function sanitizeUserInput(input: string): string {
@@ -60,6 +66,18 @@ function sanitizeUserInput(input: string): string {
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
     .trim()
+}
+
+function extractSuggestions(text: string): { cleanText: string; suggestions: string[] } {
+  const match = text.match(/<!--FOLLOW_UP:\[(.+?)\]-->/)
+  if (!match) return { cleanText: text.trim(), suggestions: [] }
+  try {
+    const suggestions: string[] = JSON.parse(`[${match[1]}]`)
+    const cleanText = text.replace(/<!--FOLLOW_UP:\[.+?\]-->/, '').trim()
+    return { cleanText, suggestions }
+  } catch {
+    return { cleanText: text.trim(), suggestions: [] }
+  }
 }
 
 // SSE Streaming
@@ -81,6 +99,7 @@ chatRouter.get('/api/v1/gabi/chat/stream', async (req, res) => {
   const parsed = streamQuerySchema.safeParse({
     conversationId: req.query.conversationId,
     message: req.query.message,
+    page: req.query.page,
   })
 
   if (!parsed.success) {
@@ -89,7 +108,7 @@ chatRouter.get('/api/v1/gabi/chat/stream', async (req, res) => {
     return
   }
 
-  const { conversationId, message: rawMessage } = parsed.data
+  const { conversationId, message: rawMessage, page } = parsed.data
   const message = sanitizeUserInput(rawMessage)
 
   // Indicador ... obrigatório antes do 1o token
@@ -105,6 +124,7 @@ chatRouter.get('/api/v1/gabi/chat/stream', async (req, res) => {
       userRole: (req as any).auth?.role ?? 'user',
       tenantName: tenantId,
       activeServices: ['Gabi IA'],
+      currentPage: page,
     })
 
     const result = await generateContentWithFallback(
@@ -112,7 +132,8 @@ chatRouter.get('/api/v1/gabi/chat/stream', async (req, res) => {
       history
     )
 
-    res.write(`data: ${JSON.stringify({ type: 'message', content: result.text, model: result.modelUsed, cost: result.costUsd })}\n\n`)
+    const { cleanText: streamClean, suggestions: streamSuggestions } = extractSuggestions(result.text)
+    res.write(`data: ${JSON.stringify({ type: 'message', content: streamClean, suggestions: streamSuggestions, model: result.modelUsed, cost: result.costUsd })}\n\n`)
     res.write(`data: [DONE]\n\n`)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erro interno'

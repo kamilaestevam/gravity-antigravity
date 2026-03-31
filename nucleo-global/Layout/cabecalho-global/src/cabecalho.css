@@ -64,7 +64,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: 1.625rem !important; /* Impacto total UX 10 */
   font-weight: 700 !important;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary, #0f172a);
   line-height: 1.1;
   margin: 0;
   letter-spacing: -0.015em;

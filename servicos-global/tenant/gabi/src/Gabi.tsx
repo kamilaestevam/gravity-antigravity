@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, DragEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   PaperPlaneRight, 
   Image as ImageIcon,
@@ -56,6 +57,7 @@ const renderMessageContent = (content: string): React.ReactNode => {
 };
 
 export default function GabiChat({ onClose }: { onClose?: () => void }) {
+  const { t } = useTranslation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -159,7 +161,7 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
       {isHoveringDrop && (
         <div className="gabi-drop-overlay">
           <DownloadSimple size={48} weight="duotone" />
-          <p>Solte suas imagens aqui</p>
+          <p>{t('gabi.solte_imagens')}</p>
         </div>
       )}
 
@@ -171,21 +173,21 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
             <div className="gabi-status-led" />
           </div>
           <div className="gabi-header-info">
-            <h2>Gabi</h2>
+            <h2>{t('gabi.titulo')}</h2>
             <p>
               <div style={{width: 6, height: 6, borderRadius: '50%', background: '#10b981'}} />
-              Assistente de IA · Journey
+              {t('gabi.subtitulo')}
             </p>
           </div>
         </div>
         
         <div className="gabi-header-actions">
           {messages.length > 0 && (
-            <button className="gabi-icon-btn" onClick={handleClear} title="Limpar conversa">
+            <button className="gabi-icon-btn" onClick={handleClear} title={t('gabi.limpar_conversa')}>
               <Eraser size={18} weight="bold" />
             </button>
           )}
-          <button className="gabi-icon-btn" onClick={onClose} title="Fechar">
+          <button className="gabi-icon-btn" onClick={onClose} title={t('gabi.fechar')}>
             <X size={18} weight="bold" />
           </button>
         </div>
@@ -198,16 +200,16 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
             <div className="gabi-welcome-avatar">
               <Sparkle size={40} weight="fill" />
             </div>
-            <h3>Olá! Como posso ajudar você hoje?</h3>
+            <h3>{t('gabi.boas_vindas')}</h3>
             <div className="gabi-quick-actions">
-              <button className="gabi-quick-btn" onClick={() => handleSend('Resuma o CRM de hoje')}>
-                <ChartBar size={18} /> Resuma o CRM de hoje
+              <button className="gabi-quick-btn" onClick={() => handleSend(t('gabi.acao_resumo_crm'))}>
+                <ChartBar size={18} /> {t('gabi.acao_resumo_crm')}
               </button>
-              <button className="gabi-quick-btn" onClick={() => handleSend('Explique como criar atividades')}>
-                <Sparkle size={18} /> Explicar Atividades
+              <button className="gabi-quick-btn" onClick={() => handleSend(t('gabi.acao_explicar_atividades'))}>
+                <Sparkle size={18} /> {t('gabi.acao_explicar_atividades')}
               </button>
-              <button className="gabi-quick-btn" onClick={() => handleSend('Listar clientes em risco')}>
-                <Users size={18} /> Clientes em Risco
+              <button className="gabi-quick-btn" onClick={() => handleSend(t('gabi.acao_clientes_risco'))}>
+                <Users size={18} /> {t('gabi.acao_clientes_risco')}
               </button>
             </div>
           </div>
@@ -229,7 +231,7 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
 
         {isTyping && (
           <div className="gabi-thinking-badge">
-            <Spinner className="gabi-spin" size={14} /> Analisando... 
+            <Spinner className="gabi-spin" size={14} /> {t('gabi.analisando')}
             <div className="gabi-typing-indicator">
               <span /><span /><span />
             </div>
@@ -253,13 +255,13 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
         )}
 
         <div className="gabi-input-wrapper">
-          <button className="gabi-attach-btn" title="Anexar imagem (Ctrl+V ou Arrastar)">
+          <button className="gabi-attach-btn" title={t('gabi.anexar_imagem')}>
             <ImageSquare size={20} weight="light" />
           </button>
-          
+
           <textarea
             className="gabi-textarea-new"
-            placeholder="Pergunte qualquer coisa ou cole uma imagem"
+            placeholder={t('gabi.textarea_placeholder')}
             rows={1}
             value={inputVal}
             onChange={(e) => {
@@ -281,11 +283,11 @@ export default function GabiChat({ onClose }: { onClose?: () => void }) {
 
         <div className="gabi-footer-note">
           <span className="gabi-footer-note-item">
-            <span className="key">Enter</span> para enviar
+            <span className="key">Enter</span> {t('gabi.enter_enviar')}
           </span>
           <span className="gabi-footer-note-item">·</span>
           <span className="gabi-footer-note-item">
-            <ImageIcon size={12} /> Cole com Ctrl+V
+            <ImageIcon size={12} /> {t('gabi.cole_imagem')}
           </span>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Bug, Sparkle, XCircle, CheckCircle, Warning, Code, Wrench, PlayCircle, CalendarBlank, Clock } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -58,6 +59,7 @@ function mapTestLogToLocal(log: TestLogApi): LogTeste {
 }
 
 export function LogTestes() {
+  const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const [dados, setDados] = useState<LogTeste[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -72,7 +74,7 @@ export function LogTestes() {
         const res = await adminTestLogsApi.list()
         setDados(res.logs.map(mapTestLogToLocal))
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar logs de teste.' })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.tests.msg_erro_carregar') })
       } finally {
         setCarregando(false)
       }
@@ -326,8 +328,8 @@ export function LogTestes() {
               )}
             </div>
           }
-          titulo="Testes"
-          subtitulo="Acompanhamento e correção automatizada de testes vitest e playwright"
+          titulo={t('admin.tests.titulo')}
+          subtitulo={t('admin.tests.subtitulo')}
         />
       }
       acoes={
@@ -380,21 +382,21 @@ export function LogTestes() {
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Aprovados"
+            titulo={t('admin.tests.card_aprovados')}
             valor={aprovadosCount}
             icone={<CheckCircle weight="duotone" size={18} />}
             variante="sucesso"
             tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>Quantidade de suítes de teste (unitários, integração e e2e) que completaram toda asserção sem falhas ou gargalos e cumpriram a pipeline de CI.</span>}
           />
           <CardBasicoGlobal
-            titulo="Reprovados"
+            titulo={t('admin.tests.card_reprovados')}
             valor={reprovadosCount}
             icone={<XCircle weight="duotone" size={18} />}
             variante="perigo"
             tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>Conjunto de testes que não atenderam às premissas de asserção definidas, retornando códigos de erro de validação ou timeouts durante a execução.</span>}
           />
           <CardBasicoGlobal
-            titulo="Erro de Teste Em Execução"
+            titulo={t('admin.tests.card_erro')}
             valor={erroCount}
             icone={<Warning weight="duotone" size={18} />}
             variante="aviso"

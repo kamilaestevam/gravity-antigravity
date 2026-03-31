@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Sparkle,
   X,
@@ -136,7 +137,29 @@ function getScreenContext(path: string): ScreenContext {
       ],
     }
 
-  // /produto/* — dentro de um produto
+  // /produto/nf-importacao
+  if (path.includes('/nf-importacao'))
+    return {
+      welcome: 'Voce esta na gestao de NF de Importacao. Posso te ajudar com emissao, vinculacao de DI, calculo de impostos e mais!',
+      actions: [
+        { label: 'Como emitir uma NF de importacao?', icon: <Question size={16} /> },
+        { label: 'Como vincular a Declaracao de Importacao?', icon: <ArrowRight size={16} /> },
+        { label: 'Como calcular os impostos da NF?', icon: <Sparkle size={16} /> },
+      ],
+    }
+
+  // /produto/lpco
+  if (path.includes('/lpco'))
+    return {
+      welcome: 'Voce esta no modulo LPCO — Licencas, Permissoes, Certificados e Outros. Posso te ajudar com o fluxo de autorizacoes!',
+      actions: [
+        { label: 'O que e o LPCO?', icon: <Question size={16} /> },
+        { label: 'Como solicitar uma licenca?', icon: <ArrowRight size={16} /> },
+        { label: 'Quais documentos sao exigidos?', icon: <Sparkle size={16} /> },
+      ],
+    }
+
+  // /produto/* — dentro de um produto generico
   if (path.includes('/produto'))
     return {
       welcome: 'Voce esta dentro de um produto. Posso te ajudar a usar os recursos disponiveis!',
@@ -385,6 +408,7 @@ const DEFAULT_W = 420
 const DEFAULT_H = 560
 
 export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidgetProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputVal, setInputVal] = useState('')
@@ -611,11 +635,11 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
     setInputVal('')
     setIsTyping(true)
 
-    const suggestions = FOLLOW_UP_SUGGESTIONS[msg] || DEFAULT_SUGGESTIONS
     const assistantId = (Date.now() + 1).toString()
 
     // Phase 1: Show thinking shimmer (isTyping=true, no streaming message yet)
     let fullText = ''
+    let suggestions = FOLLOW_UP_SUGGESTIONS[msg] || DEFAULT_SUGGESTIONS
     try {
       const res = await fetch('/api/v1/gabi/chat', {
         method: 'POST',
@@ -625,12 +649,15 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
           'x-user-id': userName,
           'x-internal-key': 'gravity-internal',
         },
-        body: JSON.stringify({ conversationId: 'new', message: msg }),
+        body: JSON.stringify({ conversationId: 'new', message: msg, page: pathname }),
       })
 
       if (!res.ok) throw new Error('API indisponivel')
       const data = await res.json()
       fullText = data.response
+      if (Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+        suggestions = data.suggestions
+      }
     } catch {
       fullText = MOCK_RESPONSES[msg] || DEFAULT_RESPONSE
     }

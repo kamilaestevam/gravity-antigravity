@@ -11,6 +11,7 @@
  */
 
 import React, { useMemo, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Outlet, useNavigate, Navigate } from 'react-router-dom'
 import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import {
@@ -51,6 +52,7 @@ interface ProdutoAtivo {
 }
 
 export function Core() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useUser()
   const { signOut } = useClerk()

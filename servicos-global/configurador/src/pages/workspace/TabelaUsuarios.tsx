@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
+import { useTranslation } from 'react-i18next'
 import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, PauseCircle, PlayCircle, PencilSimple, CaretDown, FileCsv, FileText, FilePdf, FileXls, Code } from '@phosphor-icons/react'
@@ -67,6 +68,7 @@ function PopoverFiltro({
   triggerRef,
   onOrdenar, onToggleValor, onLimpar, onFechar,
 }: PopoverProps) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   const [buscaLocal, setBuscaLocal] = useState('')
   const [pos, setPos] = useState({ top: 0, left: 0 })
@@ -139,9 +141,9 @@ function PopoverFiltro({
       </div>
 
       <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
-        <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
+        <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>{t('tabela.ordenar')}</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
-          {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [Direcao, string, React.ReactNode][]).map(([dir, rot, ico]) => {
+          {([['asc', t('tabela.crescente'), <ArrowUp key="u" size={12} weight="bold" />], ['desc', t('tabela.decrescente'), <ArrowDown key="d" size={12} weight="bold" />]] as [Direcao, string, React.ReactNode][]).map(([dir, rot, ico]) => {
             const ativo = sortAtivo && ordenacao?.direcao === dir
             return (
               <button key={dir} type="button" onClick={() => { onOrdenar(coluna, dir); onFechar() }} style={pillStyle(ativo)}
@@ -155,14 +157,14 @@ function PopoverFiltro({
       </div>
 
       <div style={{ borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
-        <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
+        <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>{t('tabela.filtrar_por')}</p>
 
         {valoresDisponiveis.length > 5 && (
           <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
             <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
               <MagnifyingGlass size={11} weight="bold" />
             </span>
-            <input type="text" placeholder="Buscar…" value={buscaLocal}
+            <input type="text" placeholder={t('tabela.buscar')} value={buscaLocal}
               onChange={e => setBuscaLocal(e.target.value)}
               style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
               onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
@@ -304,6 +306,7 @@ function ExportMenuItem({ label, icon, onClick }: { label: string; icon: React.R
 }
 
 export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
+  const { t } = useTranslation()
   const [busca, setBusca] = useState('')
   const [ordenacao, setOrdenacao] = useState<OrdenacaoState | null>(null)
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIAIS)
@@ -342,12 +345,12 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
     let r = [...dados]
 
     if (busca.trim()) {
-      const t = busca.toLowerCase()
+      const buscaLower = busca.toLowerCase()
       r = r.filter(e =>
-        e.nome.toLowerCase().includes(t) ||
-        e.email.toLowerCase().includes(t) ||
-        e.tipo.toLowerCase().includes(t) ||
-        e.status.toLowerCase().includes(t)
+        e.nome.toLowerCase().includes(buscaLower) ||
+        e.email.toLowerCase().includes(buscaLower) ||
+        e.tipo.toLowerCase().includes(buscaLower) ||
+        e.status.toLowerCase().includes(buscaLower)
       )
     }
 
@@ -487,31 +490,31 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
                 <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
               </th>
               <Th
-                label="Usuário" coluna="nome" tipo="texto"
+                label={t('workspace.users.tabela.usuario')} coluna="nome" tipo="texto"
                 temFiltroAtivo={temFiltro('nome')}
-                tooltipTitulo="Nome Completo"
-                tooltipDescricao="Nome cadastrado do usuário."
+                tooltipTitulo={t('workspace.users.tabela.usuario')}
+                tooltipDescricao="Nome completo e identificação visual do usuário"
                 {...thProps}
               />
               <Th
-                label="E-mail" coluna="email" tipo="texto"
+                label={t('workspace.users.tabela.email')} coluna="email" tipo="texto"
                 temFiltroAtivo={temFiltro('email')}
-                tooltipTitulo="E-mail de Acesso"
-                tooltipDescricao="E-mail utilizado no login."
+                tooltipTitulo={t('workspace.users.tabela.email')}
+                tooltipDescricao="E-mail de acesso utilizado no login da plataforma"
                 {...thProps}
               />
               <Th
-                label="Tipo" coluna="tipo" tipo="texto"
+                label={t('workspace.users.tabela.tipo')} coluna="tipo" tipo="texto"
                 temFiltroAtivo={temFiltro('tipo')}
-                tooltipTitulo="Perfil Base"
-                tooltipDescricao="Tipo de usuário global no tenant."
+                tooltipTitulo={t('workspace.users.tabela.tipo')}
+                tooltipDescricao="Define as permissões base: Master, Standard ou Fornecedor"
                 {...thProps}
               />
               <Th
-                label="Status" coluna="status" tipo="texto"
+                label={t('workspace.users.tabela.status')} coluna="status" tipo="texto"
                 temFiltroAtivo={temFiltro('status')}
-                tooltipTitulo="Status Operacional"
-                tooltipDescricao="Indica se o acesso está desbloqueado."
+                tooltipTitulo="Status"
+                tooltipDescricao="Indica se o usuário pode acessar a plataforma"
                 {...thProps}
               />
               <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
@@ -567,7 +570,7 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
                 </td>
                 <td style={{ padding: '0.875rem 1rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <TooltipGlobal descricao={u.status === 'Ativo' ? 'Desativar' : 'Reativar'}>
+                    <TooltipGlobal descricao={u.status === 'Ativo' ? 'Bloqueia o acesso deste usuário à plataforma' : 'Restaura o acesso deste usuário à plataforma'}>
                       <button
                         type="button"
                         onClick={() => onDeactivate(u.id)}
@@ -580,7 +583,7 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
                           : <PlayCircle size={16} weight="bold" />}
                       </button>
                     </TooltipGlobal>
-                    <TooltipGlobal descricao="Editar">
+                    <TooltipGlobal descricao="Editar dados e permissões deste usuário">
                       <button
                         type="button"
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}

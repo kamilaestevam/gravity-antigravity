@@ -272,7 +272,7 @@ export function Usuarios() {
   const COLUNAS: TabelaGlobalColuna<TenantUser>[] = [
     {
       key: 'nome', label: t('workspace.users.tabela.usuario'), tipo: 'texto',
-      tooltipTitulo: 'Nome Completo', tooltipDescricao: 'Nome cadastrado do usuário.',
+      tooltipTitulo: 'Usuário', tooltipDescricao: 'Nome completo e identificação visual do usuário',
       render: (v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
@@ -289,22 +289,22 @@ export function Usuarios() {
     },
     {
       key: 'email', label: t('workspace.users.tabela.email'), tipo: 'texto',
-      tooltipTitulo: 'E-mail de Acesso', tooltipDescricao: 'E-mail utilizado no login.',
+      tooltipTitulo: 'E-mail', tooltipDescricao: 'E-mail de acesso utilizado no login da plataforma',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
       key: 'tipo', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
-      tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Nível de permissão principal do usuário na plataforma',
+      tooltipTitulo: 'Tipo', tooltipDescricao: 'Define as permissões base: Master, Standard ou Fornecedor',
       render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
     },
     {
       key: 'status', label: t('workspace.users.tabela.status'), tipo: 'texto',
-      tooltipTitulo: 'Status Operacional', tooltipDescricao: 'Indica se o acesso está desbloqueado.',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o usuário pode acessar a plataforma',
       render: (v) => <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
     },
     {
       key: 'id', label: 'Acesso', tipo: 'texto',
-      tooltipTitulo: 'Empresas Vinculadas', tooltipDescricao: 'Resumo dos workspaces onde o usuário tem permissão.',
+      tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Workspaces às quais este usuário tem acesso liberado',
       render: (_, item) => {
         const isMaster = item.tipo === 'Master'
         const empresas = isMaster ? espacos : espacosDoUsuario(item.id)
@@ -373,7 +373,7 @@ export function Usuarios() {
   const COLUNAS_FILIAIS: TabelaGlobalColuna<TenantUser>[] = [
     {
       key: 'nome', label: 'Usuário', tipo: 'texto',
-      tooltipTitulo: 'Usuário', tooltipDescricao: 'Identificação principal do usuário na plataforma',
+      tooltipTitulo: 'Usuário', tooltipDescricao: 'Nome completo e identificação visual do usuário',
       render: (_, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
@@ -390,17 +390,17 @@ export function Usuarios() {
     },
     {
       key: 'email', label: 'E-mail', tipo: 'texto',
-      tooltipTitulo: 'E-mail de Acesso', tooltipDescricao: 'E-mail utilizado no login.',
+      tooltipTitulo: 'E-mail', tooltipDescricao: 'E-mail de acesso utilizado no login da plataforma',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
       key: 'tipo', label: 'Tipo', tipo: 'texto',
-      tooltipTitulo: 'Perfil Base', tooltipDescricao: 'Tipo de acesso do usuário.',
+      tooltipTitulo: 'Tipo', tooltipDescricao: 'Define as permissões base: Master, Standard ou Fornecedor',
       render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
     },
     {
       key: 'id', label: 'Empresas vinculadas', tipo: 'texto',
-      tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Empresas filhas às quais este usuário tem acesso.',
+      tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Workspaces às quais este usuário tem acesso liberado',
       render: (_, item) => {
         const isMaster = item.tipo === 'Master'
         const empresas = isMaster ? espacos : espacosDoUsuario(item.id)

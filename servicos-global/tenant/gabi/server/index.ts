@@ -17,7 +17,7 @@ import { chatRouter } from './routes/chat.js'
 import { acoesRouter } from './routes/acoes.js'
 
 const app = express()
-const PORT = Number(process.env.PORT ?? 8015)
+const PORT = Number(process.env.PORT ?? 8000)
 
 // ---------------------------------------------------------------------------
 // Middlewares globais

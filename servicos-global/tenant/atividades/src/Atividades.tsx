@@ -3,12 +3,14 @@
 // Carregado via lazy loading: import('@tenant/atividades/src/Atividades')
 
 import React, { Suspense, lazy } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const AtividadesView = lazy(() => import('./views/AtividadesView.js'))
 
 export default function Atividades(): React.ReactElement {
+  const { t } = useTranslation()
   return (
-    <Suspense fallback={<div className="loading">Carregando Atividades...</div>}>
+    <Suspense fallback={<div className="loading">{t('atividades.carregando')}</div>}>
       <AtividadesView />
     </Suspense>
   )

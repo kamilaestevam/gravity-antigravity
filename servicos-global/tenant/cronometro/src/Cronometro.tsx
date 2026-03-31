@@ -8,6 +8,7 @@
 // - Comunica eventos via event bus (@nucleo/shell)
 
 import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // ---------------------------------------------------------------------------
 // Tipos locais
@@ -93,6 +94,8 @@ export function Cronometro({
   productId,
   apiBase = '/api/v1/timers',
 }: CronometroProps) {
+  const { t } = useTranslation()
+
   // --- Estado do timer ativo ---
   const [activeTimer, setActiveTimer] = useState<ActiveTimer>({ active: false })
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
@@ -248,11 +251,11 @@ export function Cronometro({
     const minutes = parseInt(manualMinutes, 10)
 
     if (!Number.isInteger(minutes) || minutes <= 0) {
-      setManualError('Informe um número positivo de minutos.')
+      setManualError(t('cronometro.erro_minutos'))
       return
     }
     if (!manualSubject.trim()) {
-      setManualError('Assunto é obrigatório para lançamentos manuais.')
+      setManualError(t('cronometro.erro_assunto'))
       return
     }
 
@@ -289,7 +292,7 @@ export function Cronometro({
   // ---------------------------------------------------------------------------
 
   const handleDelete = async (sessionId: string) => {
-    if (!window.confirm('Deseja remover esta sessão de tempo?')) return
+    if (!window.confirm(t('cronometro.confirmar_remover'))) return
     await apiFetch(`${apiBase}/sessions/${sessionId}`, 'DELETE', tenantId, userId)
     await loadSessions()
   }
@@ -305,8 +308,8 @@ export function Cronometro({
     <div className="cronometro">
       {/* ─── Seção CRONÔMETRO ─────────────────────────────── */}
       <section className="cronometro__section">
-        <h3 className="cronometro__section-title">⏱ CRONÔMETRO</h3>
-        <p className="cronometro__label">TEMPO TRABALHADO</p>
+        <h3 className="cronometro__section-title">{t('cronometro.titulo')}</h3>
+        <p className="cronometro__label">{t('cronometro.tempo_trabalhado')}</p>
 
         <div className="cronometro__display">
           <span className="cronometro__time">{formatDuration(elapsedSeconds)}</span>
@@ -315,26 +318,26 @@ export function Cronometro({
         <div className="cronometro__controls">
           {!activeTimer.active && (
             <button className="cronometro__btn cronometro__btn--primary" onClick={handleStart}>
-              ▶ Iniciar
+              {t('cronometro.iniciar')}
             </button>
           )}
           {isRunning && (
             <>
               <button className="cronometro__btn cronometro__btn--secondary" onClick={handlePause}>
-                ⏸ Pausar
+                {t('cronometro.pausar')}
               </button>
               <button className="cronometro__btn cronometro__btn--danger" onClick={handleStop}>
-                ⏹ Parar e Salvar
+                {t('cronometro.parar_salvar')}
               </button>
             </>
           )}
           {isPaused && (
             <>
               <button className="cronometro__btn cronometro__btn--primary" onClick={handleResume}>
-                ▶ Retomar
+                {t('cronometro.retomar')}
               </button>
               <button className="cronometro__btn cronometro__btn--danger" onClick={handleStop}>
-                ⏹ Parar e Salvar
+                {t('cronometro.parar_salvar')}
               </button>
             </>
           )}
@@ -343,21 +346,21 @@ export function Cronometro({
 
       {/* ─── Seção LANÇAMENTO MANUAL ──────────────────────── */}
       <section className="cronometro__section">
-        <h3 className="cronometro__section-title">✏️ OU INFORME MANUALMENTE</h3>
-        <p className="cronometro__label">Tempo em minutos — ex: 90 = 1h30min</p>
+        <h3 className="cronometro__section-title">{t('cronometro.lancar_manual')}</h3>
+        <p className="cronometro__label">{t('cronometro.manual_desc')}</p>
 
         <input
           type="number"
           min={1}
           className="cronometro__input"
-          placeholder="Minutos"
+          placeholder={t('cronometro.minutos_placeholder')}
           value={manualMinutes}
           onChange={(e) => setManualMinutes(e.target.value)}
         />
         <input
           type="text"
           className="cronometro__input"
-          placeholder="Assunto (obrigatório)"
+          placeholder={t('cronometro.assunto_placeholder')}
           value={manualSubject}
           onChange={(e) => setManualSubject(e.target.value)}
         />
@@ -371,28 +374,28 @@ export function Cronometro({
         )}
 
         <button className="cronometro__btn cronometro__btn--ghost" onClick={handleManual}>
-          + Adicionar sessão manual
+          {t('cronometro.adicionar_sessao')}
         </button>
       </section>
 
       {/* ─── Seção SESSÕES REGISTRADAS ────────────────────── */}
       <section className="cronometro__section">
         <h3 className="cronometro__section-title">
-          SESSÕES REGISTRADAS
-          <span className="cronometro__total">Total: {formatMinutes(totalMinutes)}</span>
+          {t('cronometro.sessoes_registradas')}
+          <span className="cronometro__total">{t('cronometro.total')} {formatMinutes(totalMinutes)}</span>
         </h3>
 
         {sessions.length === 0 ? (
-          <p className="cronometro__empty">Nenhuma sessão registrada para esta atividade.</p>
+          <p className="cronometro__empty">{t('cronometro.nenhuma_sessao')}</p>
         ) : (
           <table className="cronometro__table">
             <thead>
               <tr>
-                <th>DATA</th>
-                <th>HORA</th>
-                <th>DURAÇÃO</th>
-                <th>ASSUNTO</th>
-                <th>AÇÕES</th>
+                <th>{t('cronometro.tabela.data')}</th>
+                <th>{t('cronometro.tabela.hora')}</th>
+                <th>{t('cronometro.tabela.duracao')}</th>
+                <th>{t('cronometro.tabela.assunto')}</th>
+                <th>{t('cronometro.tabela.acoes')}</th>
               </tr>
             </thead>
             <tbody>
@@ -423,6 +426,7 @@ type SessionRowProps = {
 }
 
 function SessionRow({ session, onPatchSubject, onDelete }: SessionRowProps) {
+  const { t } = useTranslation()
   const [editingSubject, setEditingSubject] = useState(session.subject ?? '')
   const [isEditing, setIsEditing] = useState(false)
 
@@ -458,16 +462,16 @@ function SessionRow({ session, onPatchSubject, onDelete }: SessionRowProps) {
           <span
             className="cronometro__subject"
             onClick={() => setIsEditing(true)}
-            title="Clique para editar"
+            title={t('cronometro.editar_assunto')}
           >
-            {editingSubject || 'Adicionar assunto...'}
+            {editingSubject || t('cronometro.adicionar_assunto')}
           </span>
         )}
       </td>
       <td>
         <button
           className="cronometro__btn-icon"
-          title="Remover sessão"
+          title={t('cronometro.remover_sessao')}
           onClick={() => onDelete(session.id)}
         >
           🗑️

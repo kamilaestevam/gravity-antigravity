@@ -57,7 +57,7 @@
 
 .dt-tab.active {
   background: var(--ws-accent, #818cf8);
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   font-weight: 700;
 }
 

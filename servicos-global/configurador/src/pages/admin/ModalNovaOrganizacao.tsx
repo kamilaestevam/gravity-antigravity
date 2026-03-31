@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
@@ -61,6 +62,7 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
 ]
 
 export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOrganizacaoProps) {
+  const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [subdominio, setSubdominio] = useState('')
   const [plano, setPlano] = useState(PLANOS[0])
@@ -138,17 +140,17 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   const abas: AbaFormulario[] = useMemo(() => [
     {
       id: 'geral',
-      rotulo: 'Dados Gerais',
-      tooltipTitulo: 'IDENTIFICAÇÃO JURÍDICA',
-      tooltipDescricao: 'Dados principais e registro fiscal da organização no cluster.',
+      rotulo: t('admin.tests.org.aba_dados_gerais'),
+      tooltipTitulo: t('admin.tests.org.aba_dados_gerais_tooltip'),
+      tooltipDescricao: t('admin.tests.org.aba_dados_gerais_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid">
-            <GeralCampoGlobal 
-              label="Nome da Organização" 
+            <GeralCampoGlobal
+              label={t('admin.tests.org.campo_nome')}
               obrigatorio
-              tooltipTitulo="NOME COMERCIAL"
-              tooltipDescricao="Razão social ou nome de fantasia que aparecerá nas faturas e contratos."
+              tooltipTitulo={t('admin.tests.org.campo_nome_tooltip')}
+              tooltipDescricao={t('admin.tests.org.campo_nome_desc')}
             >
               <div className="ws-input-icon-wrap">
                 <Buildings size={16} />
@@ -167,10 +169,10 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               </div>
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal 
-              label="CNPJ"
-              tooltipTitulo="REGISTRO FISCAL"
-              tooltipDescricao="Número de identificação da empresa para fins de tributação e compliance."
+            <GeralCampoGlobal
+              label={t('admin.overview.campo_cnpj')}
+              tooltipTitulo={t('admin.tests.org.campo_cnpj_tooltip')}
+              tooltipDescricao={t('admin.tests.org.campo_cnpj_desc')}
             >
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
@@ -184,11 +186,11 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
             </GeralCampoGlobal>
           </div>
 
-          <GeralCampoGlobal 
-            label="Subdomínio / Endpoint DNS" 
+          <GeralCampoGlobal
+            label={t('admin.tests.org.campo_subdominio_dns')}
             obrigatorio
-            tooltipTitulo="ENDEREÇO DE ACESSO"
-            tooltipDescricao="Prefixo exclusivo que será usado na URL de acesso à plataforma (ex: empresa.gravity.com.br)."
+            tooltipTitulo={t('admin.tests.org.campo_subdominio_tooltip')}
+            tooltipDescricao={t('admin.tests.org.campo_subdominio_desc')}
           >
             <div className="ws-input-icon-wrap">
               <Globe size={16} />
@@ -201,7 +203,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               <span style={{ position: 'absolute', right: '1rem', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>.gravity.com.br</span>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', marginTop: '0.5rem' }}>
-              Este endereço será usado para acessar o painel administrativo da organização.
+              {t('admin.tests.org.subdominio_hint')}
             </p>
           </GeralCampoGlobal>
         </div>
@@ -209,13 +211,13 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     },
     {
       id: 'localizacao',
-      rotulo: 'Localização & Web',
-      tooltipTitulo: 'GEOGRAFIA & MERCADO',
-      tooltipDescricao: 'Dados de localização física e segmento de atuação da empresa.',
+      rotulo: t('admin.tests.org.aba_localizacao'),
+      tooltipTitulo: t('admin.tests.org.aba_localizacao_tooltip'),
+      tooltipDescricao: t('admin.tests.org.aba_localizacao_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label="Estado">
+            <GeralCampoGlobal label={t('admin.overview.campo_estado')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={OPCOES_ESTADOS}
@@ -229,7 +231,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               />
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label="Cidade">
+            <GeralCampoGlobal label={t('admin.overview.campo_cidade')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={cidades}
@@ -244,7 +246,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           </div>
 
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label="Segmento">
+            <GeralCampoGlobal label={t('admin.overview.campo_segmento')}>
               <SelectGlobal
                 iconeEsquerda={<Archive size={16} />}
                 opcoes={OPCOES_SEGMENTOS}
@@ -255,7 +257,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               />
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label="Site">
+            <GeralCampoGlobal label={t('admin.overview.campo_site')}>
               <div className="ws-input-icon-wrap">
                 <Globe size={16} />
                 <input
@@ -272,12 +274,12 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     },
     {
       id: 'plano',
-      rotulo: 'Plano & Acesso',
-      tooltipTitulo: 'NÍVEL DE SERVIÇO',
-      tooltipDescricao: 'Definições de contrato, plano inicial e provisionamento de recursos.',
+      rotulo: t('admin.tests.org.aba_plano'),
+      tooltipTitulo: t('admin.tests.org.aba_plano_tooltip'),
+      tooltipDescricao: t('admin.tests.org.aba_plano_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <GeralCampoGlobal label="Plano Inicial">
+          <GeralCampoGlobal label={t('admin.tests.org.plano_inicial')}>
             <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
               <select
                 value={plano}
@@ -290,10 +292,10 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
             </div>
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal 
-            label="Acesso Padrão"
-            tooltipTitulo="Workspace Padrão"
-            tooltipDescricao="Define qual ambiente será carregado automaticamente ao entrar na plataforma."
+          <GeralCampoGlobal
+            label={t('admin.tests.org.acesso_padrao')}
+            tooltipTitulo={t('admin.tests.org.acesso_padrao_tooltip')}
+            tooltipDescricao={t('admin.tests.org.acesso_padrao_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<CheckCircle size={16} />}
@@ -316,9 +318,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           }}>
             <Package size={20} weight="duotone" color="#38bdf8" style={{ marginTop: '2px' }} />
             <div>
-              <p style={{ color: '#bae6fd', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>Resumo da Provisão</p>
+              <p style={{ color: '#bae6fd', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>{t('admin.tests.org.resumo_provisao')}</p>
               <p style={{ color: 'var(--ws-muted)', fontSize: '0.75rem', lineHeight: '1.4' }}>
-                Ao criar esta instância, o sistema irá configurar um banco de dados isolado e prepará-la para o plano <strong>{plano}</strong>.
+                {t('admin.tests.org.resumo_provisao_desc', { plano })}
               </p>
             </div>
           </div>
@@ -333,13 +335,13 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       aoFechar={handleFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings size={24} weight="duotone" />}
-      titulo="Nova Organização (Tenant)"
-      subtitulo="Provisione uma nova instância isolada no cluster com as configurações completas."
+      titulo={t('admin.tests.org.nova_titulo')}
+      subtitulo={t('admin.tests.org.nova_subtitulo')}
       tamanho="lg"
       altura="600px"
       dirty={dirty}
       podesSalvar={podesSalvar}
-      textoSalvar="Criar Instância"
+      textoSalvar={t('admin.tests.org.criar_instancia')}
       abas={abas}
       tipoAbas="pill"
     />

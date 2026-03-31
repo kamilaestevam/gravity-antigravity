@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Buildings,
   Globe,
@@ -87,6 +88,7 @@ function AbaInformacoes({
   cidades: SelectOpcao[]
   carregandoCidades: boolean
 }) {
+  const { t } = useTranslation()
   const ehNovo = !empresa.id
 
   return (
@@ -97,7 +99,7 @@ function AbaInformacoes({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <SecaoFormularioGlobal
             icone={<IdentificationCard size={16} weight="duotone" />}
-            titulo="Identidade"
+            titulo={t('workspace.workspaces.secao_identidade')}
             tooltip="Nome e identificação visual do workspace na plataforma"
             marginBottom={0}
           />
@@ -131,7 +133,7 @@ function AbaInformacoes({
         </div>
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
-            <GeralCampoGlobal label="Nome da Empresa" obrigatorio>
+            <GeralCampoGlobal label={t('workspace.organization.campo_nome')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <Buildings size={16} />
                 <input
@@ -146,7 +148,7 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <GeralCampoGlobal label="CNPJ">
+            <GeralCampoGlobal label={t('workspace.organization.campo_cnpj')}>
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
@@ -160,7 +162,7 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <GeralCampoGlobal label="Segmento">
+            <GeralCampoGlobal label={t('workspace.organization.campo_segmento')}>
               <SelectGlobal
                 iconeEsquerda={<Package size={16} />}
                 opcoes={OPCOES_SEGMENTOS}
@@ -173,7 +175,7 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <GeralCampoGlobal label="Estado">
+            <GeralCampoGlobal label={t('workspace.organization.campo_estado')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={OPCOES_ESTADOS}
@@ -189,7 +191,7 @@ function AbaInformacoes({
           </div>
 
           <div>
-            <GeralCampoGlobal label="Cidade">
+            <GeralCampoGlobal label={t('workspace.organization.campo_cidade')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={cidades}
@@ -209,11 +211,11 @@ function AbaInformacoes({
       <div>
         <SecaoFormularioGlobal
           icone={<Globe size={16} weight="duotone" />}
-          titulo="Acesso e Web"
+          titulo={t('workspace.workspaces.secao_acesso_web')}
         />
         <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
-            <GeralCampoGlobal label="Site">
+            <GeralCampoGlobal label={t('workspace.organization.campo_site')}>
               <div className="ws-input-icon-wrap">
                 <Link size={16} />
                 <input
@@ -227,7 +229,7 @@ function AbaInformacoes({
           </div>
 
           <div style={{ gridColumn: '1 / -1' }}>
-            <GeralCampoGlobal label="Subdominio" obrigatorio>
+            <GeralCampoGlobal label={t('workspace.workspaces.campo_subdominio')} obrigatorio>
               <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
                 <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
                   <Globe size={16} />
@@ -305,6 +307,7 @@ export function ModalEditarWorkspace({
   aoFechar,
   aoSalvar,
 }: ModalEditarWorkspaceProps) {
+  const { t } = useTranslation()
   const [nome, setNome]         = useState('')
   const [sub, setSub]           = useState('')
   const [erroSub, setErroSub]   = useState('')
@@ -396,7 +399,7 @@ export function ModalEditarWorkspace({
   const abas = useMemo(() => [
     {
       id: 'geral',
-      rotulo: 'Informações Gerais',
+      rotulo: t('workspace.workspaces.aba_informacoes_gerais'),
       conteudo: (
         <AbaInformacoes
           empresa={{...extendData, id: empresa?.id, nome, subdominio: sub}}
@@ -428,8 +431,8 @@ export function ModalEditarWorkspace({
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings weight="duotone" size={24} />}
-      titulo={ehNovo ? (nome || "Novo Workspace") : (empresa?.nome ?? '')}
-      subtitulo={ehNovo ? "Cadastre um novo workspace na plataforma" : "Edite as informações e configurações do workspace"}
+      titulo={ehNovo ? (nome || t('workspace.workspaces.novo_workspace')) : (empresa?.nome ?? '')}
+      subtitulo={ehNovo ? t('workspace.workspaces.modal_novo_subtitulo') : t('workspace.workspaces.modal_editar_subtitulo')}
       dirty={!!dirty}
       podesSalvar={podesSalvar}
       tamanho="lg"

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useUser, SignIn, useAuth, useClerk } from '@clerk/clerk-react'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -7,13 +8,14 @@ import { Storefront, Buildings, ArrowLeft } from '@phosphor-icons/react'
 import './workspace/workspace.css'
 
 export function Onboarding() {
+  const { t } = useTranslation()
   const { isLoaded, isSignedIn, user } = useUser()
   const { getToken } = useAuth()
   const { signOut } = useClerk()
   const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  if (!isLoaded) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>Carregando...</div>
+  if (!isLoaded) return <div style={{ color: 'white', padding: 40, textAlign: 'center' }}>{t('comum.carregando')}</div>
 
   if (!isSignedIn || !user) {
     return (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -85,10 +86,11 @@ function PermissaoCheckbox({ label, selecionado, onChange, desabilitado }: { lab
 }
 
 function AbaDados({ nome, email, tipo, onValoresChange }: any) {
+  const { t } = useTranslation()
   return (
     <div style={{ padding: '0 0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-        <GeralCampoGlobal label="Nome Completo" obrigatorio>
+        <GeralCampoGlobal label={t('workspace.users.tabela.nome_completo')} obrigatorio>
           <div className="ws-input-icon-wrap">
             <User size={16} />
             <input
@@ -99,8 +101,8 @@ function AbaDados({ nome, email, tipo, onValoresChange }: any) {
             />
           </div>
         </GeralCampoGlobal>
-        
-        <GeralCampoGlobal label="E-mail" obrigatorio>
+
+        <GeralCampoGlobal label={t('comum.email')} obrigatorio>
           <div className="ws-input-icon-wrap">
             <EnvelopeSimple size={16} />
             <input
@@ -113,15 +115,15 @@ function AbaDados({ nome, email, tipo, onValoresChange }: any) {
           </div>
         </GeralCampoGlobal>
 
-        <GeralCampoGlobal label="Tipo de Usuário">
+        <GeralCampoGlobal label={t('workspace.users.tabela.tipo')}>
           <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
             <select
               value={tipo}
               onChange={e => onValoresChange('tipo', e.target.value)}
-              style={{ 
-                width: '100%', 
-                background: 'transparent', 
-                border: 'none', 
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
                 color: 'var(--ws-text)',
                 padding: '0 1rem 0 2.5rem',
                 appearance: 'none',
@@ -136,7 +138,7 @@ function AbaDados({ nome, email, tipo, onValoresChange }: any) {
           </div>
         </GeralCampoGlobal>
 
-        <GeralCampoGlobal label="Empresa Vinculada (Exemplo)">
+        <GeralCampoGlobal label={t('workspace.users.empresa_vinculada')}>
           <div className="ws-input-icon-wrap">
             <Buildings size={16} />
             <input
@@ -152,6 +154,7 @@ function AbaDados({ nome, email, tipo, onValoresChange }: any) {
 }
 
 function AbaEspacos() {
+  const { t } = useTranslation()
   const mockTenants = [
     {
       id: 'org_1', name: 'Acme Logística', subdominio: 'acme', status: 'Ativa', plano: 'Enterprise',
@@ -170,7 +173,7 @@ function AbaEspacos() {
 
   const COLUNAS_PAI: TabelaGlobalColuna<any>[] = [
     {
-      key: 'name', label: 'Organização', tipo: 'texto',
+      key: 'name', label: t('comum.organizacao'), tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#6366f1' }}>
@@ -181,7 +184,7 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
+      key: 'subdominio', label: t('workspace.workspaces.tabela.subdominio'), tipo: 'texto',
       render: (_v, item) => (
         <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>
           {item.subdominio}.gravity.com.br
@@ -189,18 +192,18 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('comum.status'), tipo: 'texto',
       render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
     },
     {
-      key: 'plano', label: 'Plano', tipo: 'texto',
+      key: 'plano', label: t('workspace.users.plano'), tipo: 'texto',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>
     }
   ]
 
   const COLUNAS_FILHAS: TabelaGlobalColuna<any>[] = [
     {
-      key: 'nome', label: 'Workspace', tipo: 'texto',
+      key: 'nome', label: t('workspace.workspaces.titulo'), tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
@@ -211,7 +214,7 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
+      key: 'subdominio', label: t('workspace.workspaces.tabela.subdominio'), tipo: 'texto',
       render: (_v, item) => (
         <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
           {item.subdominio}.gravity.com.br
@@ -219,11 +222,11 @@ function AbaEspacos() {
       )
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('comum.status'), tipo: 'texto',
       render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
     },
     {
-      key: 'perfil', label: 'Perfil no Workspace', tipo: 'texto',
+      key: 'perfil', label: t('workspace.users.perfil_workspace'), tipo: 'texto',
       render: (v) => (
         <span style={{ color: '#818cf8', fontWeight: 600, fontSize: '0.8125rem' }}>{v as string}</span>
       )
@@ -246,11 +249,12 @@ function AbaEspacos() {
 }
 
 function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: any) {
+  const { t } = useTranslation()
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Selecionar:</span>
+          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>{t('workspace.users.selecionar')}:</span>
           <button
             type="button"
             onClick={() => onSelecionarTudo(true)}
@@ -262,7 +266,7 @@ function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: any) {
               opacity: master ? 0.5 : 1
             }}
           >
-            <CheckSquare size={14} weight="bold" /> Todas
+            <CheckSquare size={14} weight="bold" /> {t('workspace.users.todas')}
           </button>
           <button
             type="button"
@@ -275,7 +279,7 @@ function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: any) {
               opacity: master ? 0.5 : 1
             }}
           >
-            <Square size={14} weight="bold" /> Nenhuma
+            <Square size={14} weight="bold" /> {t('workspace.users.nenhuma')}
           </button>
         </div>
       </div>
@@ -306,6 +310,7 @@ function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: any) {
 }
 
 export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
+  const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [tipo, setTipo] = useState('')
@@ -348,19 +353,19 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
   const abas = useMemo(() => [
     {
       id: 'dados',
-      rotulo: 'Dados do Usuário',
+      rotulo: t('workspace.users.aba_dados'),
       icone: 'user',
       conteudo: <AbaDados nome={nome} email={email} tipo={tipo} onValoresChange={handleValoresChange} />
     },
     {
       id: 'permissoes',
-      rotulo: `Permissões (${countPermissoes}/${TOTAL_PERMISSOES_DISPONIVEIS})`,
+      rotulo: `${t('workspace.users.aba_permissoes')} (${countPermissoes}/${TOTAL_PERMISSOES_DISPONIVEIS})`,
       icone: 'shield-check',
       conteudo: <AbaPermissoes master={tipo === 'Master'} valores={permissoesAtivas} onToggle={handleTogglePermissao} onSelecionarTudo={handleSelecionarTudo} />
     },
     {
       id: 'espacos',
-      rotulo: 'Workspaces Vinculados',
+      rotulo: t('workspace.users.aba_espacos'),
       icone: 'buildings',
       conteudo: <AbaEspacos />
     }
@@ -394,8 +399,8 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
       icone={<User size={20} weight="duotone" />}
-      titulo="Editar Usuário"
-      subtitulo="Ajuste dados básicos e permissões de acesso aos módulos"
+      titulo={t('workspace.users.modal_editar_titulo')}
+      subtitulo={t('workspace.users.modal_editar_subtitulo')}
       tamanho="lg"
       altura="650px"
       tipoAbas="pill"

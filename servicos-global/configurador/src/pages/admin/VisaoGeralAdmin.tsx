@@ -9,6 +9,7 @@ import {
   CalendarBlank,
   RocketLaunch,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -67,6 +68,7 @@ const OPCOES_SEGMENTOS: SelectOpcao[] = [
 ]
 
 export function VisaoGeralAdmin() {
+  const { t } = useTranslation()
   const { user } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
 
@@ -104,7 +106,7 @@ export function VisaoGeralAdmin() {
           resetDirty(loaded)
         }
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar dados da plataforma.' })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.overview.msg_erro_carregar') })
       } finally {
         setCarregando(false)
       }
@@ -155,12 +157,12 @@ export function VisaoGeralAdmin() {
       resetDirty(dados)
       addNotification({
         type: 'success',
-        message: 'Configurações globais salvas com sucesso!'
+        message: t('admin.overview.msg_sucesso')
       })
     } catch (err) {
       addNotification({
         type: 'error',
-        message: err instanceof Error ? err.message : 'Falha ao salvar. Tente novamente.'
+        message: err instanceof Error ? err.message : t('admin.overview.msg_erro')
       })
     } finally {
       setSalvando(false)
@@ -179,8 +181,8 @@ export function VisaoGeralAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Crown weight="duotone" size={22} />}
-          titulo="Visão Geral da Plataforma"
-          subtitulo="Informações globais do Núcleo Gravity"
+          titulo={t('admin.overview.titulo')}
+          subtitulo={t('admin.overview.subtitulo')}
         />
       }
     >
@@ -191,12 +193,12 @@ export function VisaoGeralAdmin() {
             <RocketLaunch weight="duotone" size={32} />
           </div>
           <div className="em-identity__text">
-            <TooltipGlobal titulo="Nível Super" descricao="Permissão irrestrita e abrangência em todos os tenants">
-              <span className="em-identity__badge" style={{ cursor: 'help', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>HQ Owner</span>
+            <TooltipGlobal titulo={t('admin.overview.badge_nivel_super')} descricao={t('admin.overview.badge_nivel_super_desc')}>
+              <span className="em-identity__badge" style={{ cursor: 'help', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>{t('admin.overview.badge_hq_owner')}</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome}</h2>
             <p className="em-identity__sub">
-              <TooltipGlobal titulo="Plano do Backend" descricao="Status de operação Master">
+              <TooltipGlobal titulo={t('admin.overview.badge_plano')} descricao={t('admin.overview.badge_status_master')}>
                 <span className="em-tag" style={{ cursor: 'help', borderColor: '#10b981', color: '#10b981' }}>{dados.plano}</span>
               </TooltipGlobal>
               <span className="em-identity__sep">·</span>
@@ -209,28 +211,28 @@ export function VisaoGeralAdmin() {
       {/* ── Dados Básicos ── */}
       <div className="em-section ws-fade-up ws-fade-up-d1">
         <p className="ws-section-title" style={{ width: 'max-content' }}>
-          <TooltipGlobal titulo="Dados Registrados" descricao="Identidade fiscal master da plataforma">
+          <TooltipGlobal titulo={t('admin.overview.dados_registrados')} descricao={t('admin.overview.dados_registrados_desc')}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
               <Buildings weight="duotone" size={14} color="#10b981" />
-              Institucional Base
+              {t('admin.overview.secao_institucional')}
             </span>
           </TooltipGlobal>
         </p>
         <div className="em-grid">
-          <GeralCampoGlobal 
-            label="Nome da Empresa" obrigatorio
-            tooltipTitulo="Identidade da Organização"
-            tooltipDescricao="Nome oficial da organização que detém o controle master da plataforma Gravity."
+          <GeralCampoGlobal
+            label={t('admin.overview.campo_empresa')} obrigatorio
+            tooltipTitulo={t('admin.overview.campo_empresa_tooltip')}
+            tooltipDescricao={t('admin.overview.campo_empresa_desc')}
           >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <Buildings size={16} />
               <input value={dados.nome} onChange={e => set('nome', e.target.value)} />
             </div>
           </GeralCampoGlobal>
-          <GeralCampoGlobal 
-            label="CNPJ"
-            tooltipTitulo="Registro Fiscal"
-            tooltipDescricao="Cadastro Nacional da Pessoa Jurídica da empresa proprietária do Núcleo Central."
+          <GeralCampoGlobal
+            label={t('admin.overview.campo_cnpj')}
+            tooltipTitulo={t('admin.overview.campo_cnpj_tooltip')}
+            tooltipDescricao={t('admin.overview.campo_cnpj_desc')}
           >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <IdentificationCard size={16} />
@@ -239,10 +241,10 @@ export function VisaoGeralAdmin() {
           </GeralCampoGlobal>
         </div>
         <div className="em-grid em-grid--4">
-          <GeralCampoGlobal 
-            label="Estado"
-            tooltipTitulo="Localização Estadual"
-            tooltipDescricao="Unidade federativa onde a sede da organização está registrada para fins fiscais."
+          <GeralCampoGlobal
+            label={t('admin.overview.campo_estado')}
+            tooltipTitulo={t('admin.overview.campo_estado_tooltip')}
+            tooltipDescricao={t('admin.overview.campo_estado_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
@@ -252,24 +254,24 @@ export function VisaoGeralAdmin() {
               buscavel
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal 
-            label="Cidade"
-            tooltipTitulo="Sede Municipal"
-            tooltipDescricao="Cidade onde a instância master está fisicamente baseada ou legalmente sediada."
+          <GeralCampoGlobal
+            label={t('admin.overview.campo_cidade')}
+            tooltipTitulo={t('admin.overview.campo_cidade_tooltip')}
+            tooltipDescricao={t('admin.overview.campo_cidade_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={cidades}
               valor={dados.cidade || null}
               aoMudarValor={v => set('cidade', String(v ?? ''))}
-              placeholder={dados.estado ? "Selecione..." : "Aguardando estado"}
+              placeholder={dados.estado ? t('comum.selecione') : t('admin.overview.aguardando_estado')}
               buscavel desabilitado={!dados.estado} carregando={carregandoCidades}
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal 
-            label="Segmento"
-            tooltipTitulo="Vertical de Negócio"
-            tooltipDescricao="Ramo de atuação principal da organização para personalização de temas e recursos."
+          <GeralCampoGlobal
+            label={t('admin.overview.campo_segmento')}
+            tooltipTitulo={t('admin.overview.campo_segmento_tooltip')}
+            tooltipDescricao={t('admin.overview.campo_segmento_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<Package size={16} />}
@@ -279,10 +281,10 @@ export function VisaoGeralAdmin() {
               buscavel
             />
           </GeralCampoGlobal>
-          <GeralCampoGlobal 
-            label="Site"
-            tooltipTitulo="Página Oficial"
-            tooltipDescricao="Endereço da página institucional da organização proprietária do núcleo."
+          <GeralCampoGlobal
+            label={t('admin.overview.campo_site')}
+            tooltipTitulo={t('admin.overview.campo_site_tooltip')}
+            tooltipDescricao={t('admin.overview.campo_site_desc')}
           >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <Globe size={16} />
@@ -297,7 +299,7 @@ export function VisaoGeralAdmin() {
         <p className="ws-section-title" style={{ width: 'max-content' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
             <Package weight="duotone" size={14} color="#10b981" />
-            Infraestrutura
+            {t('admin.overview.secao_infra')}
           </span>
         </p>
         <div className="em-plan-row">
@@ -306,7 +308,7 @@ export function VisaoGeralAdmin() {
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <div className="em-plan-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}><Package weight="duotone" size={22} /></div>
                 <div>
-                  <p className="em-plan-label">Instância atual</p>
+                  <p className="em-plan-label">{t('admin.overview.instancia_atual')}</p>
                   <p className="em-plan-name">{dados.plano}</p>
                 </div>
               </div>
@@ -323,7 +325,7 @@ export function VisaoGeralAdmin() {
             <div className="em-plan-meta-item">
               <TooltipGlobal descricao="Data histórica de ativação desta infraestrutura master">
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
-                  <CalendarBlank size={14} weight="duotone" /> <span>Operando desde {dados.criadaEm}</span>
+                  <CalendarBlank size={14} weight="duotone" /> <span>{t('admin.overview.operando_desde')} {dados.criadaEm}</span>
                 </span>
               </TooltipGlobal>
             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { CheckSquare, Square, ShieldCheck, Crown, Warning, Lightning, Info } from '@phosphor-icons/react'
 import type { TenantUser } from './Usuarios'
@@ -347,6 +348,7 @@ interface ModalPermissoesProps {
 }
 
 export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAdmin = false }: ModalPermissoesProps) {
+  const { t } = useTranslation()
   const [permissoesAtivas, setPermissoesAtivas] = useState<string[]>([])
 
   useEffect(() => {
@@ -446,22 +448,22 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
           {bannerDescricao}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Ações Rápidas:</span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>{t('workspace.users.selecionar')}:</span>
               <button
                 type="button" onClick={() => handleSelecionarTudoCategoria(true, allPermsInTab)} disabled={desabilitado}
                 style={{ padding: '0.25rem 0.625rem', borderRadius: '6px', background: 'transparent', border: '1px solid #10b981', color: '#10b981', fontSize: '0.75rem', fontWeight: 600, cursor: desabilitado ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', opacity: desabilitado ? 0.5 : 1 }}
               >
-                <CheckSquare size={13} weight="bold" /> Selecionar Tudo
+                <CheckSquare size={13} weight="bold" /> {t('tabela.selecionar_tudo')}
               </button>
               <button
                 type="button" onClick={() => handleSelecionarTudoCategoria(false, allPermsInTab)} disabled={desabilitado}
                 style={{ padding: '0.25rem 0.625rem', borderRadius: '6px', background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', fontSize: '0.75rem', fontWeight: 600, cursor: desabilitado ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', opacity: desabilitado ? 0.5 : 1 }}
               >
-                <Square size={13} weight="bold" /> Limpar
+                <Square size={13} weight="bold" /> {t('tabela.limpar')}
               </button>
             </div>
             <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
-              {activeInTab}/{totalInTab} ativas nesta aba
+              {activeInTab}/{totalInTab}
             </span>
           </div>
 
@@ -479,15 +481,15 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
     }
 
     const abasCliente = [
-      { id: 'configurador', rotulo: 'Configurador', icone: 'gear',       conteudo: renderSecoesDaAba(MODULOS_UNIVERSAIS.filter(s => s.aba === 'configurador')) },
-      { id: 'menu',         rotulo: 'Módulos',      icone: 'list',       conteudo: renderSecoesDaAba(MODULOS_UNIVERSAIS.filter(s => s.aba === 'menu')) },
-      { id: 'comunicacao',  rotulo: 'Comunicação',  icone: 'chats',      conteudo: renderSecoesDaAba(MODULOS_UNIVERSAIS.filter(s => s.aba === 'comunicacao')) },
-      { id: 'produtos',     rotulo: 'Produtos DATI',icone: 'cubes',      conteudo: renderSecoesDaAba(PRODUTOS_CONTRATADOS.filter(s => s.aba === 'produtos')) },
+      { id: 'configurador', rotulo: t('workspace.layout.organizacao'), icone: 'gear',       conteudo: renderSecoesDaAba(MODULOS_UNIVERSAIS.filter(s => s.aba === 'configurador')) },
+      { id: 'menu',         rotulo: t('admin.layout.module_name'),     icone: 'list',       conteudo: renderSecoesDaAba(MODULOS_UNIVERSAIS.filter(s => s.aba === 'menu')) },
+      { id: 'comunicacao',  rotulo: t('shell.secao.comunicacao'),      icone: 'chats',      conteudo: renderSecoesDaAba(MODULOS_UNIVERSAIS.filter(s => s.aba === 'comunicacao')) },
+      { id: 'produtos',     rotulo: t('admin.layout.produtos'),        icone: 'cubes',      conteudo: renderSecoesDaAba(PRODUTOS_CONTRATADOS.filter(s => s.aba === 'produtos')) },
     ].filter(aba => aba.conteudo.props.children[1].props.children > 0 || aba.conteudo.props.children[0] !== null || aba.id !== 'configurador')
 
     if (isGravityUser) {
       return [
-        { id: 'admin',      rotulo: 'Painel Admin', icone: 'shield-check', conteudo: renderSecoesDaAba(SECOES_ADMIN_GRAVITY) },
+        { id: 'admin',      rotulo: t('admin.layout.module_name'), icone: 'shield-check', conteudo: renderSecoesDaAba(SECOES_ADMIN_GRAVITY) },
         ...abasCliente
       ]
     } else {
@@ -514,8 +516,8 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
       aoFechar={aoFechar}
       aoSalvar={() => aoSalvar(permissoesAtivas)}
       icone={<ShieldCheck size={20} weight="duotone" />}
-      titulo={`Permissões: ${usuario.nome}`}
-      subtitulo={isGravityUser ? 'Permissões administrativas na plataforma' : 'Permissões e acessos a módulos e produtos'}
+      titulo={`${t('workspace.users.aba_permissoes')}: ${usuario.nome}`}
+      subtitulo={isGravityUser ? t('workspace.users.permissoes_admin_subtitulo') : t('workspace.users.permissoes_cliente_subtitulo')}
       tamanho="lg"
       altura="680px"
       tipoAbas="pill"

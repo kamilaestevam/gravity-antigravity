@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { EnvelopeSimple, ArrowLeft, PaperPlaneTilt } from '@phosphor-icons/react'
 
 export function Contato() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const plano = searchParams.get('plano') ?? ''
@@ -30,16 +32,16 @@ export function Contato() {
           style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}
         >
           <ArrowLeft size={14} />
-          Voltar
+          {t('acoes.voltar')}
         </button>
 
         <div style={{ background: 'var(--bg-surface)', borderRadius: '16px', padding: '2rem', border: '1px solid var(--bg-elevated)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <EnvelopeSimple size={28} weight="duotone" color="var(--accent)" />
             <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Fale com Vendas</h1>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{t('contato.titulo')}</h1>
               <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-                {plano === 'enterprise' ? 'Plano Enterprise — atendimento personalizado' : 'Entre em contato com nossa equipe'}
+                {plano === 'enterprise' ? t('contato.subtitulo_enterprise') : t('contato.subtitulo_padrao')}
               </p>
             </div>
           </div>
@@ -47,15 +49,15 @@ export function Contato() {
           {enviado ? (
             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
               <PaperPlaneTilt size={48} weight="duotone" color="var(--success)" style={{ marginBottom: '1rem' }} />
-              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>Mensagem enviada</h2>
+              <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem' }}>{t('contato.mensagem_enviada')}</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
-                Nossa equipe entrara em contato em ate 24 horas uteis.
+                {t('contato.confirmacao_retorno')}
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>Nome</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>{t('comum.nome')}</label>
                 <input
                   type="text"
                   required

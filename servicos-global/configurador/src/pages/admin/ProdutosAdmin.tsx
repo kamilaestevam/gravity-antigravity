@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus, Stack } from '@phosphor-icons/react'
 import { ModalExclusao } from '../workspace/ModalExclusao'
@@ -30,16 +31,6 @@ const getStatusBadge = (status: StatusGlobal) => {
     case 'Legado': return 'ws-badge-danger'
     case 'Suspenso': return 'ws-badge-warning'
     default: return 'ws-badge-neutral'
-  }
-}
-
-const getStatusLabel = (status: StatusGlobal) => {
-  switch (status) {
-    case 'Ativo': return 'ATIVO'
-    case 'Em Breve': return 'EM BREVE'
-    case 'Legado': return 'LEGADO'
-    case 'Suspenso': return 'SUSPENSO'
-    default: return status
   }
 }
 
@@ -105,8 +96,19 @@ function mascaraMoeda(valor: string): string {
 }
 
 export function ProdutosAdmin() {
+  const { t } = useTranslation()
   const { getToken } = useAuth()
   const addNotification = useShellStore((s) => s.addNotification)
+
+  const getStatusLabel = (status: StatusGlobal): string => {
+    switch (status) {
+      case 'Ativo': return t('admin.products.status.ativo').toUpperCase()
+      case 'Em Breve': return t('admin.products.status.em_breve').toUpperCase()
+      case 'Legado': return t('admin.products.status.legado').toUpperCase()
+      case 'Suspenso': return t('admin.products.status.suspenso').toUpperCase()
+      default: return status
+    }
+  }
   const { logEvent } = useHistoricoLogger()
   const [produtos, setProdutos] = React.useState<ProdutoCatalogo[]>([])
   const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
@@ -121,15 +123,15 @@ export function ProdutosAdmin() {
 
     setLoading(true)
     setCarregando(true)
+    // Slugs carregados independentemente — não devem bloquear a lista de produtos
+    catalogApiService.getSlugsDisponiveis().then(setSlugsDisponiveis)
     try {
-      const [prods, negs, slugs] = await Promise.all([
+      const [prods, negs] = await Promise.all([
         catalogApiService.getProdutos(),
         catalogApiService.getNegociacoes(),
-        catalogApiService.getSlugsDisponiveis(),
       ])
       setProdutos(prods)
       setNegociacoes(negs)
-      setSlugsDisponiveis(slugs)
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar produtos.' })
     } finally {
@@ -270,33 +272,33 @@ export function ProdutosAdmin() {
 
   const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoCatalogo>[] = [
     {
-      key: 'nome', label: 'Nome do Produto', tipo: 'texto',
+      key: 'nome', label: t('admin.products.tabela.nome_produto'), tipo: 'texto',
       tooltipTitulo: 'NOME COMERCIAL',
       tooltipDescricao: 'Identificação do serviço no catálogo e no marketplace',
       render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>
     },
     {
-      key: 'descricao', label: 'O que é', tipo: 'texto',
+      key: 'descricao', label: t('admin.products.tabela.o_que_e'), tipo: 'texto',
       tooltipTitulo: 'DESCRIÇÃO',
       tooltipDescricao: 'Resumo das funcionalidades principais exibido para o cliente',
       render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
     },
     {
-      key: 'moduloBackend', label: 'Slug / Módulo', tipo: 'texto',
+      key: 'moduloBackend', label: t('admin.products.tabela.slug_modulo'), tipo: 'texto',
       tooltipTitulo: 'VÍNCULO TÉCNICO',
       tooltipDescricao: 'Identificador do sistema para ativação automática das funções',
       render: (v) => <code style={{ color: '#8b5cf6', fontSize: '0.75rem' }}>{v}</code>
     },
     {
-      key: 'precoUnitario', label: 'Valor Adicional', tipo: 'texto',
+      key: 'precoUnitario', label: t('admin.products.tabela.valor_adicional'), tipo: 'texto',
       tooltipTitulo: 'CUSTO EXCEDENTE',
       tooltipDescricao: 'Custo aplicado ao consumo que ultrapassa o limite da franquia',
       render: (v, item) => {
         if (item.faixasPreco && item.faixasPreco.length > 0) {
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.8125rem' }}>Ver Camadas ({item.faixasPreco.length})</span>
-              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>A partir de {getSimboloMoeda(item.faixasPreco[0].moeda)} {item.faixasPreco[item.faixasPreco.length - 1].valor}</span>
+              <span style={{ fontWeight: 700, color: 'var(--color-primary)', fontSize: '0.8125rem' }}>{t('admin.products.tabela.ver_camadas')} ({item.faixasPreco.length})</span>
+              <span style={{ color: 'var(--ws-muted)', fontSize: '0.75rem' }}>{t('admin.products.tabela.a_partir_de')} {getSimboloMoeda(item.faixasPreco[0].moeda)} {item.faixasPreco[item.faixasPreco.length - 1].valor}</span>
             </div>
           )
         }
@@ -305,7 +307,7 @@ export function ProdutosAdmin() {
       }
     },
     {
-      key: 'qtdUsuariosBase', label: 'Franquia Free', tipo: 'texto',
+      key: 'qtdUsuariosBase', label: t('admin.products.tabela.franquia_free'), tipo: 'texto',
       tooltipTitulo: 'COTA INCLUÍDA',
       tooltipDescricao: 'Volume de uso liberado sem custo adicional em cada ciclo',
       render: (v, item) => (
@@ -427,15 +429,15 @@ export function ProdutosAdmin() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Produtos Gravity"
-          subtitulo="Toda a gestão de produtos, catálogos e negociações da plataforma Gravity é realizada por aqui."
+          titulo={t('admin.products.titulo')}
+          subtitulo={t('admin.products.subtitulo')}
           icone={<ShoppingBagOpen weight="duotone" size={22} color="#818cf8" />}
         />
       }
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total de Produtos"
+            titulo={t('admin.products.card_total')}
             icone={<BoxArrowUp weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={produtos.length}
             subtexto="No catálogo oficial"
@@ -448,7 +450,7 @@ export function ProdutosAdmin() {
             }
           />
           <CardBasicoGlobal
-            titulo="Produtos Ativos"
+            titulo={t('admin.products.card_ativos')}
             icone={<Tag weight="duotone" size={16} style={{ color: '#34d399' }} />}
             valor={produtos.filter(p => p.status === 'Ativo').length}
             subtexto="Disponíveis para assinatura"
@@ -462,7 +464,7 @@ export function ProdutosAdmin() {
             }
           />
           <CardBasicoGlobal
-            titulo="Negociações Ativas"
+            titulo={t('admin.products.card_negociacoes')}
             icone={<Users weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
             valor={negociacoes.length}
             subtexto="Condições exclusivas de clientes"
@@ -480,10 +482,10 @@ export function ProdutosAdmin() {
       toolbar={
         <div className="ws-tabs" style={{ margin: 0 }}>
           <button className={`ws-tab${tab === 'catalogo' ? ' active' : ''}`} onClick={() => setTab('catalogo')}>
-            Catálogo Geral
+            {t('admin.products.tab_catalogo')}
           </button>
           <button className={`ws-tab${tab === 'negociacoes' ? ' active' : ''}`} onClick={() => setTab('negociacoes')}>
-            Negociações Especiais
+            {t('admin.products.tab_negociacoes')}
           </button>
         </div>
       }
@@ -492,11 +494,11 @@ export function ProdutosAdmin() {
         <div className="ws-fade-up">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
-              <Tag weight="duotone" size={14} color="#818cf8" /> Catálogo Geral
+              <Tag weight="duotone" size={14} color="#818cf8" /> {t('admin.products.secao_catalogo')}
             </p>
-            <BotaoNovoAdminGlobal 
-              rotulo="Novo Produto" 
-              onClick={() => setModalAberto(true)} 
+            <BotaoNovoAdminGlobal
+              rotulo={t('admin.products.btn_novo')}
+              onClick={() => setModalAberto(true)}
             />
           </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
@@ -505,8 +507,8 @@ export function ProdutosAdmin() {
               dados={produtos}
               colunas={COLUNAS_PRODUTOS}
               acoes={ACOES_PRODUTOS}
-              mensagemVazio="Nenhum produto cadastrado no catálogo."
-              tooltipBusca="Localizar produto por nome, ID ou descrição"
+              mensagemVazio={t('admin.products.vazio_catalogo')}
+              tooltipBusca={t('admin.products.tooltip_busca_catalogo')}
               acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_PRODUTOS, 'dados_tabela', 'Exportação de Dados')}
             />
           </div>
@@ -517,7 +519,7 @@ export function ProdutosAdmin() {
         <div className="ws-fade-up">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
-              <CurrencyCircleDollar weight="duotone" size={14} color="#f59e0b" /> Negociações Especiais
+              <CurrencyCircleDollar weight="duotone" size={14} color="#f59e0b" /> {t('admin.products.secao_negociacoes')}
             </p>
           </div>
           <div style={{ position: 'relative', zIndex: 10 }}>
@@ -525,8 +527,8 @@ export function ProdutosAdmin() {
               id="admin-products-negotiations"
               dados={negociacoes}
               colunas={COLUNAS_NEGOCIACOES}
-              mensagemVazio="Nenhuma negociação especial registrada."
-              tooltipBusca="Localizar negociação por cliente ou produto"
+              mensagemVazio={t('admin.products.vazio_negociacoes')}
+              tooltipBusca={t('admin.products.tooltip_busca_negociacoes')}
               acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_NEGOCIACOES, 'dados_tabela', 'Exportação de Dados')}
             />
           </div>
@@ -581,28 +583,28 @@ export function ProdutosAdmin() {
           } catch (err) {
             addNotification({
               type: 'error',
-              message: err instanceof Error ? err.message : 'Falha ao salvar produto. Tente novamente.'
+              message: err instanceof Error ? err.message : t('admin.products.modal_falha_salvar')
             })
           }
         }}
         icone={<ShoppingBagOpen weight="duotone" size={24} />}
-        titulo={produtoEditando ? `Editar: ${produtoEditando.nome}` : 'Novo Produto'}
-        subtitulo={produtoEditando ? 'Edite os dados do produto selecionado.' : 'Preencha os dados básicos para adicionar um novo produto.'}
+        titulo={produtoEditando ? `${t('admin.products.modal_editar_prefixo')}${produtoEditando.nome}` : t('admin.products.modal_novo_titulo')}
+        subtitulo={produtoEditando ? t('admin.products.modal_editar_subtitulo') : t('admin.products.modal_novo_subtitulo')}
         tamanho="lg"
         dirty={formDirty}
         podesSalvar={formDirty && formNome.trim().length > 0 && (formStatus === 'em-breve' || !!formSlugSelecionado)}
         abas={[
           {
             id: 'dados-basicos',
-            rotulo: 'Dados Básicos',
+            rotulo: t('admin.products.aba_dados_basicos'),
             tooltipTitulo: 'IDENTIFICAÇÃO',
             tooltipDescricao: 'Dados principais e categoria do produto no catálogo.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo="Dados Básicos" tooltip="Identificação e configuração geral do produto" />
+                <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo={t('admin.products.aba_dados_basicos')} tooltip="Identificação e configuração geral do produto" />
 
-                <GeralCampoGlobal 
-                  label="Nome do Produto" 
+                <GeralCampoGlobal
+                  label={t('admin.products.campo_nome_produto')}
                   obrigatorio
                   tooltipTitulo="IDENTIFICAÇÃO PRINCIPAL"
                   tooltipDescricao="Nome comercial que aparecerá no catálogo e no faturamento"
@@ -613,8 +615,8 @@ export function ProdutosAdmin() {
                   </div>
                 </GeralCampoGlobal>
 
-                <GeralCampoGlobal 
-                  label="Descrição Curta" 
+                <GeralCampoGlobal
+                  label={t('admin.products.campo_descricao')}
                   obrigatorio
                   tooltipTitulo="RESUMO COMERCIAL"
                   tooltipDescricao="Breve explicação das funcionalidades para exibição rápida no marketplace"
@@ -626,8 +628,8 @@ export function ProdutosAdmin() {
                 </GeralCampoGlobal>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal 
-                    label="Data de Lançamento"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_data_lancamento')}
                     tooltipTitulo="VIGÊNCIA INICIAL"
                     tooltipDescricao="Define quando o produto estará disponível para comercialização geral"
                   >
@@ -650,20 +652,20 @@ export function ProdutosAdmin() {
                   </GeralCampoGlobal>
 
                   <GeralCampoGlobal
-                    label="Status"
+                    label={t('admin.products.campo_status_label')}
                     tooltipTitulo="DISPONIBILIDADE"
                     tooltipDescricao="Ativo: produto com infraestrutura pronta (requer slug). Em Breve: produto em desenvolvimento."
                   >
                     <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                      <TogBtn val="ativo" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label="Ativo" />
-                      <TogBtn val="em-breve" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label="Em Breve" />
+                      <TogBtn val="ativo" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label={t('admin.products.campo_status_ativo')} />
+                      <TogBtn val="em-breve" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label={t('admin.products.campo_status_em_breve')} />
                     </div>
                   </GeralCampoGlobal>
                 </div>
 
                 {formStatus === 'ativo' && (
                   <GeralCampoGlobal
-                    label="Módulo Backend (Slug)"
+                    label={t('admin.products.campo_slug')}
                     obrigatorio
                     tooltipTitulo="VÍNCULO TÉCNICO"
                     tooltipDescricao="Selecione o slug do produto que já existe em contracts.json. Apenas produtos com infraestrutura pronta aparecem aqui."
@@ -672,9 +674,18 @@ export function ProdutosAdmin() {
                       <SelectGlobal
                         opcoes={[
                           ...(formSlugSelecionado && !slugsDisponiveis.includes(formSlugSelecionado)
-                            ? [{ valor: formSlugSelecionado, rotulo: formSlugSelecionado + ' (atual)' }]
+                            ? [{ valor: formSlugSelecionado, rotulo: formSlugSelecionado + ` ${t('admin.products.campo_slug_atual_sufixo')}` }]
                             : []),
-                          ...slugsDisponiveis.map(s => ({ valor: s, rotulo: s })),
+                          ...slugsDisponiveis.map(s => ({
+                            valor: s,
+                            rotulo: ({
+                              'simula-custo': 'Simula Custo',
+                              'bid-frete': 'Bid Frete',
+                              'bid-cambio': 'Bid Cambio',
+                              'pedido': 'Pedido',
+                              'nf-importacao': 'NF Import',
+                            } as Record<string, string>)[s] ?? s,
+                          })),
                         ]}
                         valor={formSlugSelecionado}
                         aoMudarValor={v => dirty(() => setFormSlugSelecionado(v ? String(v) : null))}
@@ -813,8 +824,8 @@ export function ProdutosAdmin() {
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorMinimo} onChange={e => dirty(() => setValorMinimo(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal 
-                    label="Valor Total"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_valor_total_produto')}
                     tooltipTitulo="PREÇO DO PACOTE"
                     tooltipDescricao="Custo fixo do serviço independentemente do volume consumido"
                   >
@@ -829,7 +840,7 @@ export function ProdutosAdmin() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                     <TooltipGlobal titulo="TABELA DE FAIXAS" descricao="Estrutura de precificação progressiva por volume de unidades.">
                       <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                        <Stack size={18} weight="duotone" color="var(--color-primary)" /> Configuração de Camadas (Tiers)
+                        <Stack size={18} weight="duotone" color="var(--color-primary)" /> {t('admin.products.tiers_titulo')}
                       </p>
                     </TooltipGlobal>
                     <button 
@@ -839,7 +850,7 @@ export function ProdutosAdmin() {
                       onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.15)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)' }}
                       onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.25)' }}
                     >
-                      <Plus size={14} weight="bold" /> Adicionar Faixa
+                      <Plus size={14} weight="bold" /> {t('admin.products.tiers_btn_adicionar')}
                     </button>
                   </div>
 
@@ -852,7 +863,7 @@ export function ProdutosAdmin() {
 
                         return (
                           <div key={f.id} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 1fr) minmax(120px, 1fr) 1.5fr 44px', gap: '12px', alignItems: 'end', background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <GeralCampoGlobal label="De">
+                            <GeralCampoGlobal label={t('admin.products.tier_de')}>
                               <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
                                 <button type="button" onClick={() => updateFaixa({ de: Math.max(0, f.de - 1) })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
                                 <input 
@@ -870,7 +881,7 @@ export function ProdutosAdmin() {
                               </div>
                             </GeralCampoGlobal>
 
-                            <GeralCampoGlobal label="Até">
+                            <GeralCampoGlobal label={t('admin.products.tier_ate')}>
                               <div className="ws-input-icon-wrap" style={{ display: 'flex', alignItems: 'center', padding: '0 4px' }}>
                                 <button type="button" onClick={() => updateFaixa({ ate: f.ate ? Math.max(0, f.ate - 1) : undefined })} style={{ background: 'transparent', border: 'none', color: 'var(--ws-muted)', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center' }}><Minus size={12} weight="bold" /></button>
                                 <input 

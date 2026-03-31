@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Warning, Trash } from '@phosphor-icons/react'
 import { ModalGlobal } from '@nucleo/modal-global'
 
@@ -19,6 +20,7 @@ export function ModalExclusao({
   aoConfirmar,
   aoCancelar
 }: ModalExclusaoProps) {
+  const { t } = useTranslation()
   return (
     <ModalGlobal
       aberto={aberto}
@@ -139,27 +141,27 @@ export function ModalExclusao({
             }}
             onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
-            Cancelar
+            {t('comum.cancelar')}
           </button>
-          
+
           {/* Botão Excluir */}
-          <button 
+          <button
             type="button"
-            style={{ 
-              width: '180px', 
-              height: '38px', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              gap: '0.5rem', 
-              background: 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)', 
-              color: '#ffffff', 
-              border: '1px solid #b91c1c', 
+            style={{
+              width: '180px',
+              height: '38px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)',
+              color: '#ffffff',
+              border: '1px solid #b91c1c',
               borderTopColor: '#ef4444',
-              borderRadius: '8px', 
-              fontWeight: 600, 
+              borderRadius: '8px',
+              fontWeight: 600,
               fontSize: '0.875rem',
-              cursor: 'pointer', 
+              cursor: 'pointer',
               transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
               boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)'
             }}
@@ -177,7 +179,7 @@ export function ModalExclusao({
             onMouseDown={e => e.currentTarget.style.transform = 'translateY(0)'}
           >
             <Trash size={16} weight="bold" />
-            Excluir
+            {t('comum.excluir')}
           </button>
         </div>
       )}

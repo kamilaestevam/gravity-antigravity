@@ -708,7 +708,12 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                     onClick={() => onOrdenar(col.key, ordenacao?.direcao === 'asc' ? 'desc' : 'asc')}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start' }}>
-                      <span style={{ color: sortAtivo ? '#818cf8' : undefined }}>{col.label}</span>
+                      {col.tooltipDescricao
+                        ? <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>
+                            <span style={{ color: sortAtivo ? '#818cf8' : undefined }}>{col.label}</span>
+                          </TooltipGlobal>
+                        : <span style={{ color: sortAtivo ? '#818cf8' : undefined }}>{col.label}</span>
+                      }
                       {sortAtivo && (ordenacao.direcao === 'asc' ? <ArrowUp size={10} weight="bold" /> : <ArrowDown size={10} weight="bold" />)}
                       <Funnel size={10} color="#475569" weight="bold" style={{ opacity: 0.5 }} />
                     </div>

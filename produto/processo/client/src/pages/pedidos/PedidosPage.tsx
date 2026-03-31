@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Package,
   Plus,
@@ -244,6 +245,7 @@ const acoesPai: TCGAcao<Pedido>[] = [
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function PedidosPage() {
+  const { t } = useTranslation()
   const [carregando] = useState(false)
   const pedidos = PEDIDOS_MOCK
 
@@ -262,37 +264,37 @@ export default function PedidosPage() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Package weight="duotone" size={22} />}
-          titulo="Pedidos"
-          subtitulo="Pedidos de compra vinculados ao processo"
+          titulo={t('processo.menu.pedidos')}
+          subtitulo={t('pedido.subtitulo_processo', 'Pedidos de compra vinculados ao processo')}
         />
       }
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total Pedidos"
+            titulo={t('pedido.total_pedidos')}
             icone={<Cube weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={totalPedidos}
-            subtexto={`${pedidos.reduce((a, p) => a + p.itens.length, 0)} itens no total`}
+            subtexto={`${pedidos.reduce((a, p) => a + p.itens.length, 0)} ${t('pedido.itens_total')}`}
           />
           <CardBasicoGlobal
-            titulo="Valor FOB Total"
+            titulo={t('pedido.valor_total')}
             icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
             valor={fmtUSD(valorFobTotal)}
             variante="sucesso"
-            subtexto="Soma de todos os pedidos"
+            subtexto={t('pedido.soma_pedidos')}
           />
           <CardBasicoGlobal
-            titulo="Peso Total"
+            titulo={t('pedido.peso_total', 'Peso Total')}
             icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
             valor={`${fmtPeso(pesoTotal)} kg`}
             variante="aviso"
-            subtexto="Peso bruto acumulado"
+            subtexto={t('pedido.peso_acumulado', 'Peso bruto acumulado')}
           />
         </>
       }
       acoes={
         <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
-          Novo Pedido
+          {t('pedido.novo_pedido')}
         </BotaoGlobal>
       }
     >
@@ -310,7 +312,7 @@ export default function PedidosPage() {
           }}
         >
           <Package weight="duotone" size={48} style={{ opacity: 0.4 }} />
-          <span style={{ fontSize: '0.875rem' }}>Nenhum pedido cadastrado para este processo</span>
+          <span style={{ fontSize: '0.875rem' }}>{t('pedido.vazio_processo', 'Nenhum pedido cadastrado para este processo')}</span>
         </div>
       ) : (
         <TabelaCamadasGlobal<Pedido, PedidoItem>
@@ -320,9 +322,9 @@ export default function PedidosPage() {
           filhos={(pedido) => pedido.itens ?? []}
           acoes={acoesPai}
           itemId={(pedido) => pedido.id}
-          placeholderBusca="Buscar pedidos..."
+          placeholderBusca={t('pedido.buscar')}
           campoBusca="numero"
-          mensagemVazio="Nenhum pedido encontrado para o filtro aplicado"
+          mensagemVazio={t('pedido.vazio_filtro')}
           carregando={carregando}
           itensPorPagina={10}
         />

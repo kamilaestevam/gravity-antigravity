@@ -147,6 +147,7 @@
 body.light-theme {
   /* --- Backgrounds (4 níveis de hierarquia) --- */
   --bg-body:          #f1f5f9;
+  --bg-body-dark:     #f1f5f9;
   --bg-base:          #f8fafc;
   --bg-surface:       #ffffff;
   --bg-elevated:      #e2e8f0;

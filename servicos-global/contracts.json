@@ -1,4 +1,11 @@
 {
+  "products": [
+    "simula-custo",
+    "bid-frete",
+    "bid-cambio",
+    "pedido",
+    "nf-importacao"
+  ],
   "services": {
     "dashboard": {
       "baseUrl": "http://localhost:8010",
@@ -21,7 +28,7 @@
       "pathPrefix": "/api/v1/agendamento"
     },
     "gabi": {
-      "baseUrl": "http://localhost:8015",
+      "baseUrl": "http://localhost:8000",
       "pathPrefix": "/api/v1/gabi"
     },
     "api-cockpit": {
@@ -71,6 +78,10 @@
     "lpco": {
       "baseUrl": "http://localhost:8027",
       "pathPrefix": "/api/v1/lpcos"
+    },
+    "nf-importacao": {
+      "baseUrl": "http://localhost:8028",
+      "pathPrefix": "/api/v1/nf-importacao"
     }
   }
 }

@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -184,6 +185,7 @@ function EmailDetailSkeleton() {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function EmailPage() {
+  const { t } = useTranslation()
   const addNotification = useShellStore((state) => state.addNotification)
 
   const [emails] = useState<EmailItem[]>(MOCK_EMAILS)
@@ -246,8 +248,8 @@ export default function EmailPage() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Envelope weight="duotone" size={22} />}
-          titulo="E-mail"
-          subtitulo="Comunicação do processo"
+          titulo={t('processo.menu.email')}
+          subtitulo={t('processo.email.subtitulo', 'Comunicação do processo')}
         />
       }
     >
@@ -260,7 +262,7 @@ export default function EmailPage() {
             <input
               className="em-search-input"
               type="text"
-              placeholder="Buscar por assunto ou remetente..."
+              placeholder={t('tabela.buscar')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               aria-label="Buscar e-mails"
@@ -275,7 +277,7 @@ export default function EmailPage() {
               className={`em-cat-pill ${!filterCategory ? 'em-cat-pill--active' : ''}`}
               onClick={() => setFilterCategory(null)}
             >
-              Todos
+              {t('common.todos', 'Todos')}
             </button>
             {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
               <button
@@ -298,9 +300,9 @@ export default function EmailPage() {
               {filteredEmails.length === 0 && (
                 <div className="em-list-empty">
                   <EnvelopeOpen weight="duotone" size={40} color="var(--text-muted)" />
-                  <p>Nenhum e-mail encontrado</p>
+                  <p>{t('tabela.sem_resultado')}</p>
                   <span style={{ fontSize: '0.75rem' }}>
-                    Tente ajustar os filtros ou a busca
+                    {t('tabela.limpar_filtros')}
                   </span>
                 </div>
               )}
@@ -366,14 +368,14 @@ export default function EmailPage() {
               {/* De / Para */}
               <div className="em-detail-addresses ws-fade-up ws-fade-up-d1">
                 <div className="em-detail-addr-row">
-                  <span className="em-detail-addr-label">De:</span>
+                  <span className="em-detail-addr-label">{t('common.de', 'De')}:</span>
                   <span className="em-detail-addr-name">{selectedEmail.from}</span>
                   <span className="em-detail-addr-email">
                     &lt;{selectedEmail.fromEmail}&gt;
                   </span>
                 </div>
                 <div className="em-detail-addr-row">
-                  <span className="em-detail-addr-label">Para:</span>
+                  <span className="em-detail-addr-label">{t('common.para', 'Para')}:</span>
                   <span className="em-detail-addr-name">{selectedEmail.to}</span>
                   <span className="em-detail-addr-email">
                     &lt;{selectedEmail.toEmail}&gt;
@@ -396,7 +398,7 @@ export default function EmailPage() {
                 <div className="em-detail-attachments ws-fade-up ws-fade-up-d2">
                   <div className="em-detail-attach-title">
                     <Paperclip size={14} weight="duotone" />
-                    Anexos ({selectedEmail.attachments.length})
+                    {t('processo.email.anexos', 'Anexos')} ({selectedEmail.attachments.length})
                   </div>
                   <div className="em-detail-attach-list">
                     {selectedEmail.attachments.map((att, idx) => (
@@ -424,33 +426,33 @@ export default function EmailPage() {
               {/* Ações */}
               <div className="em-detail-actions ws-fade-up ws-fade-up-d3">
                 <TooltipGlobal
-                  titulo="Responder"
-                  descricao="Abre o editor de resposta para este e-mail"
+                  titulo={t('processo.email.responder', 'Responder')}
+                  descricao={t('processo.email.responder_desc', 'Abre o editor de resposta para este e-mail')}
                 >
                   <BotaoGlobal
-                    label="Responder"
+                    label={t('processo.email.responder', 'Responder')}
                     variante="secundario"
                     icone={<ArrowBendUpLeft size={16} weight="duotone" />}
                     onClick={handleResponder}
                   />
                 </TooltipGlobal>
                 <TooltipGlobal
-                  titulo="Encaminhar"
-                  descricao="Encaminha este e-mail para outro destinatário"
+                  titulo={t('processo.email.encaminhar', 'Encaminhar')}
+                  descricao={t('processo.email.encaminhar_desc', 'Encaminha este e-mail para outro destinatário')}
                 >
                   <BotaoGlobal
-                    label="Encaminhar"
+                    label={t('processo.email.encaminhar', 'Encaminhar')}
                     variante="secundario"
                     icone={<ArrowBendUpRight size={16} weight="duotone" />}
                     onClick={handleEncaminhar}
                   />
                 </TooltipGlobal>
                 <TooltipGlobal
-                  titulo="Vincular ao Follow-up"
-                  descricao="Associa este e-mail a uma tarefa de acompanhamento"
+                  titulo={t('processo.email.vincular', 'Vincular ao Follow-up')}
+                  descricao={t('processo.email.vincular_desc', 'Associa este e-mail a uma tarefa de acompanhamento')}
                 >
                   <BotaoGlobal
-                    label="Vincular ao Follow-up"
+                    label={t('processo.email.vincular', 'Vincular ao Follow-up')}
                     variante="primario"
                     icone={<LinkIcon size={16} weight="duotone" />}
                     onClick={handleVincular}
@@ -461,7 +463,7 @@ export default function EmailPage() {
           ) : (
             <div className="em-detail-empty ws-fade-up">
               <Envelope weight="duotone" size={48} color="var(--text-muted)" />
-              <p>Selecione um e-mail para visualizar</p>
+              <p>{t('processo.email.selecione', 'Selecione um e-mail para visualizar')}</p>
             </div>
           )}
         </div>

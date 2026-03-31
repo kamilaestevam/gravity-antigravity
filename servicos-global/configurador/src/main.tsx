@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { ModalProvider } from '@nucleo/modal-global'
 import '@nucleo/Utilidades/localization/i18n'
+import '../../shell/shell.css'
 import App from './App'
 
 import { ptBR } from './ptBR'

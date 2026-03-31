@@ -141,8 +141,13 @@
 
 .mg-tab-pill.active {
   background: var(--color-primary);
-  color: #0f172a;
+  color: var(--text-primary);
   font-weight: 700;
+}
+
+/* ─── Light theme ────────────────────────────────────────────────────────── */
+body.light-theme .mg-tab-pill.active {
+  color: #ffffff;
 }
 
 /* ─── Body ───────────────────────────────────────────────────────────────────── */

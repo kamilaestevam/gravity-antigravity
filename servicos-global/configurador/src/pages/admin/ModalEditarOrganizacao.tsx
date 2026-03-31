@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Buildings,
   Globe,
@@ -80,6 +81,7 @@ function formatarCNPJ(v: string) {
 }
 
 export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar }: ModalEditarOrganizacaoProps) {
+  const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [subdominio, setSubdominio] = useState('')
   const [erroSub, setErroSub] = useState('')
@@ -127,7 +129,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
     const clean = slugify(v)
     setSubdominio(clean)
     if (clean && !/^[a-z][a-z0-9-]*$/.test(clean)) {
-      setErroSub('Use apenas letras minúsculas e hífens.')
+      setErroSub(t('admin.tests.org.erro_subdominio'))
     } else {
       setErroSub('')
     }
@@ -157,13 +159,13 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings size={24} weight="duotone" />}
-      titulo="Editar Organização"
-      subtitulo="Dados da empresa que contratou a plataforma Gravity"
+      titulo={t('admin.tests.org.editar_titulo')}
+      subtitulo={t('admin.tests.org.editar_subtitulo')}
       tamanho="lg"
       altura="680px"
       dirty={dirty}
       podesSalvar={podesSalvar}
-      textoSalvar="Salvar Organização"
+      textoSalvar={t('admin.tests.org.salvar_organizacao')}
     >
       <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
@@ -173,7 +175,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             <SecaoFormularioGlobal
               icone={<IdentificationCard size={16} weight="duotone" />}
               titulo="Identidade"
-              tooltip="Nome e identificação da organização na plataforma"
+              tooltip={t('admin.tests.org.secao_identidade_tooltip')}
               marginBottom={0}
             />
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -194,7 +196,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
                 <CalendarBlank size={14} />
-                <span>Criado em {organizacao?.created_at}</span>
+                <span>{t('admin.tests.org.criado_em')} {organizacao?.created_at}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-muted, #94a3b8)', fontSize: '0.75rem' }}>
                 <Ticket size={14} />
@@ -205,7 +207,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
 
           <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <GeralCampoGlobal label="Nome da Empresa" obrigatorio>
+              <GeralCampoGlobal label={t('admin.overview.campo_empresa')} obrigatorio>
                 <div className="ws-input-icon-wrap">
                   <Buildings size={16} />
                   <input
@@ -219,7 +221,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div>
-              <GeralCampoGlobal label="CNPJ">
+              <GeralCampoGlobal label={t('admin.overview.campo_cnpj')}>
                 <div className="ws-input-icon-wrap">
                   <IdentificationCard size={16} />
                   <input
@@ -233,7 +235,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div>
-              <GeralCampoGlobal label="Segmento">
+              <GeralCampoGlobal label={t('admin.overview.campo_segmento')}>
                 <SelectGlobal
                   iconeEsquerda={<Package size={16} />}
                   opcoes={OPCOES_SEGMENTOS}
@@ -246,7 +248,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div>
-              <GeralCampoGlobal label="Estado">
+              <GeralCampoGlobal label={t('admin.overview.campo_estado')}>
                 <SelectGlobal
                   iconeEsquerda={<MapPin size={16} />}
                   opcoes={OPCOES_ESTADOS}
@@ -262,7 +264,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div>
-              <GeralCampoGlobal label="Cidade">
+              <GeralCampoGlobal label={t('admin.overview.campo_cidade')}>
                 <SelectGlobal
                   iconeEsquerda={<MapPin size={16} />}
                   opcoes={cidades}
@@ -282,11 +284,11 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
         <div>
           <SecaoFormularioGlobal
             icone={<Globe size={16} weight="duotone" />}
-            titulo="Acesso e Web"
+            titulo={t('admin.tests.org.secao_acesso_web')}
           />
           <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <GeralCampoGlobal label="Site">
+              <GeralCampoGlobal label={t('admin.overview.campo_site')}>
                 <div className="ws-input-icon-wrap">
                   <Link size={16} />
                   <input
@@ -300,7 +302,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
-              <GeralCampoGlobal label="Subdomínio" obrigatorio>
+              <GeralCampoGlobal label={t('admin.tests.org.campo_subdominio')} obrigatorio>
                 <div style={{ display: 'flex', gap: '0', alignItems: 'stretch' }}>
                   <div className="ws-input-icon-wrap" style={{ flex: 1, height: '40px' }}>
                     <Globe size={16} />
@@ -355,7 +357,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div>
-              <GeralCampoGlobal label="Plano Contratado">
+              <GeralCampoGlobal label={t('admin.tests.org.plano_contratado')}>
                 <SelectGlobal
                   iconeEsquerda={<Ticket size={16} />}
                   opcoes={PLANOS.map(p => ({ valor: p, rotulo: p }))}

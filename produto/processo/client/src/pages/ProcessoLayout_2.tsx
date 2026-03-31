@@ -11,6 +11,7 @@
  */
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Outlet, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -183,6 +184,7 @@ const fmtDate = (iso: string) =>
 // ─── Componente ─────────────────────────────────────────────────────────────
 
 export default function ProcessoLayout_2() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -283,7 +285,7 @@ export default function ProcessoLayout_2() {
                 type="button"
               >
                 <ArrowLeft weight="bold" size={14} />
-                <span>Processos</span>
+                <span>{t('processo.titulo')}</span>
               </button>
             </TooltipGlobal>
             <CaretRight size={12} className="p2-breadcrumb-sep" />
@@ -313,13 +315,13 @@ export default function ProcessoLayout_2() {
 
               {processo.exportador_nome && (
                 <div className="p2-info-row">
-                  <span className="p2-info-label">Exportador</span>
+                  <span className="p2-info-label">{t('processo.dados_tecnicos.exportador')}</span>
                   <span className="p2-info-value">{processo.exportador_nome}</span>
                 </div>
               )}
               {processo.referencia_cliente && (
                 <div className="p2-info-row">
-                  <span className="p2-info-label">Ref. Cliente</span>
+                  <span className="p2-info-label">{t('processo.ref_cliente')}</span>
                   <span className="p2-info-value">{processo.referencia_cliente}</span>
                 </div>
               )}
@@ -328,7 +330,7 @@ export default function ProcessoLayout_2() {
               {etapasTotal > 0 && (
                 <div className="p2-progress">
                   <div className="p2-progress-header">
-                    <span className="p2-progress-label">Progresso</span>
+                    <span className="p2-progress-label">{t('processo.dados_tecnicos.preenchimento')}</span>
                     <span className="p2-progress-value">{etapasConcluidas}/{etapasTotal}</span>
                   </div>
                   <div className="p2-progress-bar">
@@ -404,7 +406,7 @@ export default function ProcessoLayout_2() {
 
           {/* Toggle Collapse */}
           <div className="p2-sidebar-footer">
-            <TooltipGlobal titulo="Colapsar menu" descricao="Recolher ou expandir o menu lateral">
+            <TooltipGlobal titulo={t('shell.recolher_menu')} descricao="Recolher ou expandir o menu lateral">
               <button
                 className="p2-collapse-btn"
                 onClick={() => setSidebarCollapsed(prev => !prev)}
@@ -467,7 +469,7 @@ export default function ProcessoLayout_2() {
                 tamanho="pequeno"
                 onClick={fetchProcesso}
               >
-                Tentar novamente
+                {t('comum.tentar_novamente')}
               </BotaoGlobal>
             </div>
           )}

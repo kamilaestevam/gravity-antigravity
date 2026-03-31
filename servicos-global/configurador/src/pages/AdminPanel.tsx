@@ -2,6 +2,7 @@
 // Painel exclusivo para gravity_admin — gestão de todos os tenants da plataforma
 
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Page } from '../App'
 import { HardDrives, Buildings, TreeStructure, ChartPieSlice, WarningCircle, UsersThree, MagnifyingGlass, PauseCircle, PlayCircle, FileXls, FileCsv, Database, ShieldCheck, PencilSimple, Trash } from '@phosphor-icons/react'
 import { useShellStore } from '@gravity/shell'
@@ -79,6 +80,7 @@ function mapStatusToBackend(status: EmpresaStatus): string {
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
+  const { t } = useTranslation()
   const [tenants, setTenants] = useState<Tenant[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)

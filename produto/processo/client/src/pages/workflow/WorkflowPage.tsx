@@ -16,6 +16,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
@@ -94,6 +95,7 @@ const CUSTO_ICONS: Record<string, React.ReactNode> = {
 // ─── Componente ─────────────────────────────────────────────────────────────
 
 export default function WorkflowPage() {
+  const { t } = useTranslation()
   const { processo, loading, refetch } = useProcesso()
   const addNotification = useShellStore((state) => state.addNotification)
 
@@ -198,8 +200,8 @@ export default function WorkflowPage() {
     return (
       <div className="wf-empty-state ws-fade-up">
         <FlowArrow weight="duotone" size={48} className="wf-empty-icon" />
-        <p className="wf-empty-title">Nenhum processo selecionado</p>
-        <p className="wf-empty-desc">Selecione um processo para visualizar o workflow</p>
+        <p className="wf-empty-title">{t('processo.workflow.sem_processo', 'Nenhum processo selecionado')}</p>
+        <p className="wf-empty-desc">{t('processo.workflow.sem_processo_desc', 'Selecione um processo para visualizar o workflow')}</p>
       </div>
     )
   }
@@ -220,15 +222,15 @@ export default function WorkflowPage() {
           subtitulo={`${processo.importador_nome} | ${processo.exportador_nome}`}
           acoes={
             <TooltipGlobal
-              titulo="Atualizar dados"
-              descricao="Recarregar informacoes do workflow"
+              titulo={t('processo.workflow.atualizar', 'Atualizar dados')}
+              descricao={t('processo.workflow.atualizar_desc', 'Recarregar informações do workflow')}
             >
               <BotaoGlobal
                 variante="secundario"
                 tamanho="pequeno"
                 onClick={refetch}
               >
-                Atualizar
+                {t('comum.atualizar', 'Atualizar')}
               </BotaoGlobal>
             </TooltipGlobal>
           }
@@ -255,10 +257,10 @@ export default function WorkflowPage() {
                   titulo={etapa.nome}
                   descricao={
                     isDone
-                      ? `Concluida em ${etapa.data_conclusao ? formatDate(etapa.data_conclusao) : '—'}`
+                      ? `${t('processo.workflow.concluida_em', 'Concluída em')} ${etapa.data_conclusao ? formatDate(etapa.data_conclusao) : '—'}`
                       : isActive
-                        ? 'Etapa em andamento'
-                        : 'Etapa pendente'
+                        ? t('processo.workflow.em_andamento', 'Etapa em andamento')
+                        : t('processo.workflow.pendente', 'Etapa pendente')
                   }
                 >
                   <div className={`wf-step-circle ${
@@ -290,7 +292,7 @@ export default function WorkflowPage() {
         {/* ─── Coluna Esquerda: Follow-ups ──────────────── */}
         <div className="wf-followup-section ws-fade-up">
           <div className="wf-followup-header">
-            <span className="wf-followup-title">Follow-up</span>
+            <span className="wf-followup-title">{t('processo.workflow.followup', 'Follow-up')}</span>
 
             {/* Pill Tabs para filtro de categoria */}
             <div className="wf-tabs-pill">
@@ -326,7 +328,7 @@ export default function WorkflowPage() {
             {!followUpsLoading && followUps.length === 0 && (
               <div className="wf-feed-empty ws-fade-up">
                 <ChatText weight="duotone" size={32} className="wf-feed-empty-icon" />
-                <p>Nenhum follow-up registrado ainda</p>
+                <p>{t('processo.workflow.followup_vazio', 'Nenhum follow-up registrado ainda')}</p>
               </div>
             )}
 
@@ -363,14 +365,14 @@ export default function WorkflowPage() {
           {/* Caixa de Comentario */}
           <div className="wf-comment-box">
             <GeralCampoGlobal
-              label="Novo comentario"
-              tooltipTitulo="Comentario"
-              tooltipDescricao="Adicione observacoes visíveis para a equipe"
+              label={t('processo.workflow.novo_comentario', 'Novo comentário')}
+              tooltipTitulo={t('processo.workflow.comentario', 'Comentário')}
+              tooltipDescricao={t('processo.workflow.comentario_desc', 'Adicione observações visíveis para a equipe')}
               className="wf-comment-field"
             >
               <textarea
                 className="wf-comment-input"
-                placeholder="Adicionar comentario..."
+                placeholder={t('processo.workflow.comentario_placeholder', 'Adicionar comentário...')}
                 value={comment}
                 onChange={e => setComment(e.target.value)}
                 rows={2}
@@ -390,7 +392,7 @@ export default function WorkflowPage() {
               disabled={submitting || !comment.trim()}
               className="wf-comment-submit"
             >
-              Enviar
+              {t('comum.enviar', 'Enviar')}
             </BotaoGlobal>
           </div>
         </div>
@@ -399,11 +401,11 @@ export default function WorkflowPage() {
         <div className="wf-right-panel">
           {/* Estimativas de Custo — CardBasicoGlobal */}
           <div className="wf-custos-section ws-fade-up">
-            <h3 className="wf-section-title">Estimativa de Custos</h3>
+            <h3 className="wf-section-title">{t('processo.workflow.estimativa_custos', 'Estimativa de Custos')}</h3>
             {custos.length === 0 ? (
               <div className="wf-panel-empty">
                 <CurrencyDollar weight="duotone" size={28} className="wf-panel-empty-icon" />
-                <p>Nenhuma estimativa cadastrada</p>
+                <p>{t('processo.workflow.sem_estimativa', 'Nenhuma estimativa cadastrada')}</p>
               </div>
             ) : (
               <div className="wf-custos-grid">
@@ -427,13 +429,13 @@ export default function WorkflowPage() {
                     ]}
                     subtexto={
                       c.valor_real != null
-                        ? <span className="wf-custo-real">Real: {brl(c.valor_real)}</span>
-                        : <span className="wf-custo-pendente">Aguardando valor real</span>
+                        ? <span className="wf-custo-real">{t('processo.workflow.custo_real', 'Real')}: {brl(c.valor_real)}</span>
+                        : <span className="wf-custo-pendente">{t('processo.workflow.aguardando_real', 'Aguardando valor real')}</span>
                     }
                     tooltip={
                       <div className="wf-custo-tooltip">
-                        <p>Status: <strong>{c.status === 'estimado' ? 'Estimado' : c.status === 'confirmado' ? 'Confirmado' : 'Pago'}</strong></p>
-                        {c.data_vencimento && <p>Vencimento: {formatDate(c.data_vencimento)}</p>}
+                        <p>{t('comum.status', 'Status')}: <strong>{c.status === 'estimado' ? t('processo.workflow.status_estimado', 'Estimado') : c.status === 'confirmado' ? t('processo.workflow.status_confirmado', 'Confirmado') : t('processo.workflow.status_pago', 'Pago')}</strong></p>
+                        {c.data_vencimento && <p>{t('processo.workflow.vencimento', 'Vencimento')}: {formatDate(c.data_vencimento)}</p>}
                         {c.observacoes && <p>{c.observacoes}</p>}
                       </div>
                     }
@@ -446,11 +448,11 @@ export default function WorkflowPage() {
 
           {/* Documentos */}
           <div className="wf-docs-section ws-fade-up">
-            <h3 className="wf-section-title">Documentos</h3>
+            <h3 className="wf-section-title">{t('processo.workflow.documentos', 'Documentos')}</h3>
             {documentos.length === 0 ? (
               <div className="wf-panel-empty">
                 <FileIcon weight="duotone" size={28} className="wf-panel-empty-icon" />
-                <p>Nenhum documento anexado</p>
+                <p>{t('processo.workflow.sem_documentos', 'Nenhum documento anexado')}</p>
               </div>
             ) : (
               <div className="wf-docs-list">

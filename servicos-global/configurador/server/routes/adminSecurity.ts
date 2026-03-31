@@ -128,7 +128,7 @@ const SERVICES = [
   { name: 'dashboard', url: process.env.DASHBOARD_SERVICE_URL || 'http://localhost:8010' },
   { name: 'notificacoes', url: process.env.NOTIFICACOES_SERVICE_URL || 'http://localhost:8013' },
   { name: 'relatorios', url: process.env.RELATORIOS_SERVICE_URL || 'http://localhost:8011' },
-  { name: 'gabi', url: process.env.GABI_SERVICE_URL || 'http://localhost:8015' },
+  { name: 'gabi', url: process.env.GABI_SERVICE_URL || 'http://localhost:8000' },
   { name: 'historico', url: process.env.HISTORICO_SERVICE_URL || 'http://localhost:8012' },
   { name: 'agendamento', url: process.env.AGENDAMENTO_SERVICE_URL || 'http://localhost:8014' },
   { name: 'api-cockpit', url: process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016' },

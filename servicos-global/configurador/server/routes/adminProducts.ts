@@ -15,7 +15,7 @@ import { AppError } from '../lib/appError.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-/** Lê os slugs registrados em contracts.json */
+/** Lê os slugs de PRODUTOS registrados em contracts.json (seção "products") */
 function getContractsSlugs(): string[] {
   // Tentar múltiplos caminhos possíveis (dev vs deploy)
   const possiblePaths = [
@@ -31,7 +31,8 @@ function getContractsSlugs(): string[] {
     try {
       const raw = readFileSync(contractsPath, 'utf-8')
       const contracts = JSON.parse(raw)
-      const slugs = Object.keys(contracts.services ?? {})
+      // Lê apenas a seção "products" — slugs exclusivos de produtos (não serviços)
+      const slugs: string[] = Array.isArray(contracts.products) ? contracts.products : []
       if (slugs.length > 0) {
         console.log(`[adminProducts] contracts.json encontrado em: ${contractsPath}`)
         return slugs
@@ -42,13 +43,8 @@ function getContractsSlugs(): string[] {
   }
 
   console.warn('[adminProducts] contracts.json NÃO ENCONTRADO! Paths tentados:', possiblePaths)
-  // Fallback: retorna os slugs conhecidos para não bloquear a UI
-  return [
-    'dashboard', 'relatorios', 'atividades', 'notificacoes', 'agendamento',
-    'gabi', 'api-cockpit', 'conector-erp', 'historico', 'whatsapp',
-    'simula-custo', 'helpdesk', 'cronometro', 'email', 'bid-frete',
-    'bid-cambio', 'pedido', 'smart-read',
-  ]
+  // Fallback: apenas slugs de produtos
+  return ['simula-custo', 'bid-frete', 'bid-cambio', 'pedido', 'nf-importacao']
 }
 
 export const adminProductsRouter = Router()

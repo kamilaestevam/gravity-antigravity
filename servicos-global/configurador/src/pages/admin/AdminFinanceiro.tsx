@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { 
-  Receipt, Buildings, DownloadSimple, CalendarBlank, FileXls, ChartLineUp, 
+import { useTranslation } from 'react-i18next'
+import {
+  Receipt, Buildings, DownloadSimple, CalendarBlank, FileXls, ChartLineUp,
   Plus, FilePdf, Paperclip, Trash
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -83,6 +84,7 @@ const statusBadge: Record<FaturaStatus, string> = {
 }
 
 export function AdminFinanceiro() {
+  const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const [faturasLocal, setFaturasLocal] = useState<FaturaGlobal[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -94,7 +96,7 @@ export function AdminFinanceiro() {
         const res = await adminBillingApi.listInvoices()
         setFaturasLocal(res.invoices.map((inv, i) => mapSubscriptionToFatura(inv, i)))
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar faturas globais.' })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.financial.msg_erro_carregar') })
       } finally {
         setCarregando(false)
       }
@@ -109,7 +111,7 @@ export function AdminFinanceiro() {
   const totalInadimplencia = inadimplencias.reduce((acc, f) => acc + parseFloat(f.valor.replace('R$ ', '').replace('.', '').replace(',', '.')), 0)
 
   function handleDownload(tipo: string, num: string) {
-    addNotification({ type: 'info', message: `Preparando download de ${tipo} da fatura ${num}.` })
+    addNotification({ type: 'info', message: t('admin.financial.msg_preparando_download', { tipo, num }) })
   }
 
   // === Estado para Modal de Cadastro
@@ -167,7 +169,7 @@ export function AdminFinanceiro() {
       setFaturasLocal(prev => [nova, ...prev])
     }
     
-    addNotification({ type: 'success', message: faturaEditando ? 'Fatura atualizada com sucesso!' : 'Fatura criada com sucesso!' })
+    addNotification({ type: 'success', message: faturaEditando ? t('admin.financial.msg_fatura_atualizada') : t('admin.financial.msg_fatura_criada') })
     setModalAberto(false)
   }
 
@@ -176,7 +178,7 @@ export function AdminFinanceiro() {
     const num = faturaParaExcluir.num
     setFaturasLocal(prev => prev.filter(f => f.id !== faturaParaExcluir.id))
     setFaturaParaExcluir(null)
-    addNotification({ type: 'success', message: `Fatura ${num} excluída com sucesso.` })
+    addNotification({ type: 'success', message: t('admin.financial.msg_fatura_excluida', { num }) })
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -237,12 +239,12 @@ export function AdminFinanceiro() {
 
   const COLUNAS: TabelaGlobalColuna<FaturaGlobal>[] = [
     {
-      key: 'num', label: '#', tipo: 'texto', align: 'center',
+      key: 'num', label: t('admin.financial.tabela.numero'), tipo: 'texto', align: 'center',
       tooltipTitulo: 'Invoice ID / Reference', tooltipDescricao: 'Identificador único de transação gerado no Payment Gateway (ex: Iugu/Stripe).',
       render: (v) => <code style={{ fontSize: '0.8125rem', color: '#818cf8', background: 'rgba(129,140,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>{v}</code>
     },
     {
-      key: 'cliente', label: 'Cliente', tipo: 'texto',
+      key: 'cliente', label: t('admin.financial.tabela.cliente'), tipo: 'texto',
       tooltipTitulo: 'Tenant Object Reference', tooltipDescricao: 'Chave primária vinculada ao root da Organization no banco de dados isolado.',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
@@ -252,12 +254,12 @@ export function AdminFinanceiro() {
       render: (v) => <span style={{ color: 'var(--ws-text)' }}>{v}</span>
     },
     {
-      key: 'competencia', label: 'Competência', tipo: 'texto',
+      key: 'competencia', label: t('admin.financial.tabela.competencia'), tipo: 'texto',
       tooltipTitulo: 'Billing Cycle', tooltipDescricao: 'Período computado pela engine de faturamento para cálculo de quota/excedente.',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'valor', label: 'Valor', tipo: 'texto',
+      key: 'valor', label: t('admin.financial.tabela.valor'), tipo: 'texto',
       tooltipTitulo: 'Gross Amount', tooltipDescricao: 'Passe o mouse para ver a composição detalhada.',
       render: (v, item) => (
         <span
@@ -277,12 +279,12 @@ export function AdminFinanceiro() {
       )
     },
     {
-      key: 'vencimento', label: 'Data (Vencimento)', tipo: 'texto',
+      key: 'vencimento', label: t('admin.financial.tabela.vencimento'), tipo: 'texto',
       tooltipTitulo: 'Due Date / Prazo Limite', tooltipDescricao: 'Timestamp configurado para trigger de suspensão em caso de inadimplência (cron job).',
       render: (v, item) => <span style={{ color: item.status === 'Atrasado' ? '#f87171' : 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('admin.financial.tabela.status'), tipo: 'texto',
       tooltipTitulo: 'Payment State', tooltipDescricao: 'Lifecycle event devolvido via webhook do gateway de pagamento.',
       render: (v) => <span className={`ws-badge ${statusBadge[v as FaturaStatus]}`}>{v}</span>
     },
@@ -333,14 +335,14 @@ export function AdminFinanceiro() {
       layout="lista"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Financeiro Global"
-          subtitulo="Relatório consolidado por cliente, produto e data com acompanhamento de inadimplências."
+          titulo={t('admin.financial.titulo')}
+          subtitulo={t('admin.financial.subtitulo')}
           icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
           acoes={
-            <BotaoGlobal 
-              texto="Lançar Fatura" 
-              icone={<Plus weight="bold" />} 
-              variante="sucesso" 
+            <BotaoGlobal
+              texto={t('admin.financial.btn_lancar_fatura')}
+              icone={<Plus weight="bold" />}
+              variante="sucesso"
               onClick={abrirModalNovo}
             />
           }

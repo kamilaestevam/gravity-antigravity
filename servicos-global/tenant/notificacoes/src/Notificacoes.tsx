@@ -42,21 +42,26 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = Array.from({ length: 30 }).map((_
 
 export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: string }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS)
-  const [isPolling, setIsPolling] = useState(false)
+  const [backendDisponivel, setBackendDisponivel] = useState<boolean | null>(null)
 
   const syncState = useCallback(async () => {
     try {
       const res = await fetch(`/api/tenant/notificacoes`, {
         headers: { 'x-tenant-id': tenantId, 'x-user-id': userId }
       })
-      const data = await res.json()
-      if (data.status === 'success' && data.data && data.data.length > 0) {
-        // TEMPORARIAMENTE COMENTADO PARA PODERMOS TESTAR OS 30 MOCKS LOCAIS
-        // setNotifications(data.data)
-        // setUnreadCount(data.unread_count)
+      if (!res.ok) {
+        // Backend indisponível — para de tentar (usa mocks locais)
+        setBackendDisponivel(false)
+        return
       }
-    } catch (err) {
-      console.error('Failed to sync notifications state via polling', err)
+      const data = await res.json()
+      setBackendDisponivel(true)
+      if (data.status === 'success' && data.data && data.data.length > 0) {
+        setNotifications(data.data)
+      }
+    } catch {
+      // Sem backend — opera com mocks, sem spam no console
+      setBackendDisponivel(false)
     }
   }, [tenantId, userId])
 
@@ -64,62 +69,69 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
     if (!userId) return
 
     let eventSource: EventSource | null = null
-    let pollInterval: any = null
+    let pollInterval: ReturnType<typeof setInterval> | null = null
 
+    // Tenta conectar ao backend uma vez
+    syncState().then(() => {
+      // Se backend não respondeu, não inicia SSE nem polling
+      // O state backendDisponivel é atualizado dentro de syncState
+    })
+
+    // SSE apenas se backend estiver disponível (tenta uma vez)
     try {
       eventSource = new EventSource(`/api/tenant/notificacoes/stream?userId=${userId}`)
-      
+
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
           if (data.type === 'new_notification') {
             syncState()
           }
-        } catch(e) {}
+        } catch {}
       }
 
       eventSource.onerror = () => {
-        console.warn('SSE connection lost. Falling back to polling...')
+        // SSE falhou — fecha sem spam, polling cuida do resto
         eventSource?.close()
-        setIsPolling(true)
+        eventSource = null
       }
-    } catch(err) {
-      setIsPolling(true)
+    } catch {
+      // SSE não suportado — ok, polling cuida
     }
 
-    pollInterval = setInterval(syncState, isPolling ? 30000 : 60000)
-    syncState()
+    // Polling a cada 60s — mas só se o backend respondeu na primeira tentativa
+    pollInterval = setInterval(() => {
+      if (backendDisponivel !== false) {
+        syncState()
+      }
+    }, 60_000)
 
     return () => {
       eventSource?.close()
-      clearInterval(pollInterval)
+      if (pollInterval) clearInterval(pollInterval)
     }
-  }, [userId, syncState, isPolling])
+  }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMarkAsRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-    
+    if (backendDisponivel === false) return
     try {
       await fetch(`/api/tenant/notificacoes/${id}/read`, {
         method: 'PUT',
         headers: { 'x-tenant-id': tenantId, 'x-user-id': userId }
       })
-    } catch (err) {
-      syncState()
-    }
+    } catch {}
   }
 
   const handleReadAll = async () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-
+    if (backendDisponivel === false) return
     try {
       await fetch(`/api/tenant/notificacoes/read-all`, {
         method: 'PUT',
         headers: { 'x-tenant-id': tenantId, 'x-user-id': userId }
       })
-    } catch (err) {
-      syncState()
-    }
+    } catch {}
   }
 
   const handleCriarAviso = async (texto: string) => {
@@ -136,8 +148,8 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
 
     setNotifications(prev => [novoAviso, ...prev])
 
+    if (backendDisponivel === false) return
     try {
-      // Bate no backend instruindo a criar um novo aviso/lembrete/chamado interno
       const res = await fetch(`/api/tenant/notificacoes`, {
         method: 'POST',
         headers: { 

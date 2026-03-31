@@ -474,7 +474,7 @@ export function SelecionarWorkspace() {
                       <button
                         className="sw-ws-enter-btn"
                         type="button"
-                        onClick={e => { e.stopPropagation(); handleSelectWs(ws.id); setTimeout(() => { sessionStorage.setItem('gravity_company_id', ws.id); sessionStorage.setItem('gravity_company_name', ws.nome); navigate('/core') }, 300) }}
+                        onClick={e => { e.stopPropagation(); handleSelectWs(ws.id); setTimeout(() => { sessionStorage.setItem('gravity_company_id', ws.id); sessionStorage.setItem('gravity_company_name', ws.nome); navigate(contratadosAtivos.length > 0 ? '/core' : '/store') }, 300) }}
                         disabled={entrando}
                       >
                         {entrando ? 'Entrando...' : 'Entrar no Workspace'}
@@ -511,7 +511,7 @@ export function SelecionarWorkspace() {
                     <div className="sw-sec-pip" style={{ background: 'var(--sw-accent-2)' }} />
                     <span className="sw-sec-title">Produtos</span>
                   </div>
-                  <button className="sw-sec-link" type="button" onClick={() => navigate('/workspace/assinaturas')}>
+                  <button className="sw-sec-link" type="button" onClick={() => navigate('/store')}>
                     Ver catálogo completo
                     <ArrowRight size={12} />
                   </button>
@@ -534,8 +534,8 @@ export function SelecionarWorkspace() {
                         <div className="sw-prod-empty-desc">
                           Explore o catálogo e ative seu primeiro módulo para este workspace.
                         </div>
-                        <button className="sw-btn-sm" type="button" onClick={() => navigate('/workspace/assinaturas')}>
-                          Explorar Catálogo
+                        <button className="sw-btn-sm" type="button" onClick={() => navigate('/store')}>
+                          Explorar Produtos Gravity
                         </button>
                       </div>
                     ) : (
@@ -579,7 +579,13 @@ export function SelecionarWorkspace() {
                     ) : (
                       <div className="sw-prod-list">
                         {produtosSugeridos.slice(0, 5).map(prod => (
-                          <div key={prod.id} className="sw-prod-item" data-searchable="true">
+                          <div
+                            key={prod.id}
+                            className="sw-prod-item"
+                            data-searchable="true"
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => navigate(`/store?produto=${prod.slug}`)}
+                          >
                             <div className="sw-prod-icon" style={{ background: 'var(--sw-accent-dim)' }}>
                               <Star size={18} weight="regular" style={{ color: 'var(--sw-accent-2)' }} />
                             </div>

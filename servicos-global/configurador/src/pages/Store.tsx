@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Package,
   CheckCircle,
@@ -124,6 +124,7 @@ export function Store() {
   const { t } = useTranslation()
   const { getToken } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const canBuy = true // Qualquer usuário logado pode contratar. Master pode restringir via permissões.
 
   const { user } = useUser()
@@ -218,6 +219,18 @@ export function Store() {
       setSubscribing(null)
     }
   }
+
+  // Scroll para produto específico quando navegado via ?produto=slug
+  useEffect(() => {
+    const slug = searchParams.get('produto')
+    if (!slug || loading) return
+    const el = document.getElementById(`produto-${slug}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('hs-store-card--highlight')
+      setTimeout(() => el.classList.remove('hs-store-card--highlight'), 2000)
+    }
+  }, [loading, searchParams])
 
   const getStatus = (slug: string): 'owned' | 'available' => {
     const sub = subscribed.get(slug)
@@ -347,6 +360,7 @@ export function Store() {
               return (
                 <div
                   key={p.id}
+                  id={`produto-${p.slug}`}
                   className={`hs-store-card hs-fade-up ${delayClass}`}
                   onClick={status === 'owned' ? () => navigate(`/produto/${p.slug}`) : undefined}
                   style={status === 'owned' ? { cursor: 'pointer' } : undefined}

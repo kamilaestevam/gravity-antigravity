@@ -14,6 +14,7 @@ import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exp
 import { catalogService } from '../../services/catalogService'
 import { getSimboloMoeda } from '../../utils/formatters'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { useShellStore } from '@gravity/shell'
 
 
 type ProdutoStatus = 'Ativo' | 'Trial' | 'Suspenso'
@@ -50,6 +51,7 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 export function Assinaturas() {
   const _auth = useAuth() // mantido para contexto Clerk
   const { t } = useTranslation()
+  const addNotification = useShellStore((s) => s.addNotification)
 
   const upsellProducts = [
     { id: 'help', nome: t('workspace.subscriptions.upsell.helpdesk'), desc: t('workspace.subscriptions.upsell.helpdesk_desc'),    valor: 'R$ 249/mês', billing: 'SaaS' as BillingType },
@@ -110,7 +112,8 @@ export function Assinaturas() {
 
         // Show only catalog products that are NOT subscribed
         setCatalogProdutos(allProducts.filter((p: any) => !subscribedSlugs.has(p.slug)))
-      } catch {
+      } catch (err) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar assinaturas.' })
         // fallback: show all catalog products
         catalogService.getProdutos().then(setCatalogProdutos).catch(() => {})
       } finally {
@@ -131,21 +134,96 @@ export function Assinaturas() {
       return acc + (isNaN(v) ? 0 : v)
     }, 0)
 
-  function handleSuspend(p: Produto) {
-    setProdutos(prev => prev.map(x => x.id === p.id
-      ? { ...x, status: x.status === 'Suspenso' ? 'Ativo' : 'Suspenso' }
-      : x
-    ))
+  async function handleSuspend(p: Produto) {
+    const isActivating = p.status === 'Suspenso'
+    try {
+      const headers = await getAuthHeaders()
+      if (isActivating) {
+        // Reativar: subscribe novamente
+        const res = await fetch('/api/v1/tenants/products/subscribe', {
+          method: 'POST', headers,
+          body: JSON.stringify({ product_key: p.id }),
+        })
+        if (!res.ok) throw new Error('Falha ao reativar')
+      } else {
+        // Suspender: deactivate via DELETE (sets is_active=false)
+        const res = await fetch(`/api/v1/tenants/products/${p.id}`, {
+          method: 'DELETE', headers,
+        })
+        if (!res.ok) throw new Error('Falha ao suspender')
+      }
+      setProdutos(prev => prev.map(x => x.id === p.id
+        ? { ...x, status: isActivating ? 'Ativo' : 'Suspenso' }
+        : x
+      ))
+      addNotification({
+        type: isActivating ? 'success' : 'warning',
+        message: `Produto "${p.nome}" ${isActivating ? 'reativado' : 'suspenso'} com sucesso.`,
+      })
+    } catch {
+      addNotification({ type: 'error', message: `Erro ao ${isActivating ? 'reativar' : 'suspender'} produto.` })
+    }
   }
 
   function handleDelete(p: Produto) {
     setProdutoParaExcluir(p)
   }
 
-  function confirmarExclusao() {
+  async function confirmarExclusao() {
     if (!produtoParaExcluir) return
-    setProdutos(prev => prev.filter(x => x.id !== produtoParaExcluir.id))
+    const nome = produtoParaExcluir.nome
+    const key = produtoParaExcluir.id
+    try {
+      const headers = await getAuthHeaders()
+      const res = await fetch(`/api/v1/tenants/products/${key}`, {
+        method: 'DELETE', headers,
+      })
+      if (!res.ok) throw new Error('Falha ao cancelar')
+      setProdutos(prev => prev.filter(x => x.id !== key))
+      // Devolver ao catálogo de disponíveis
+      const catProd = catalogProdutos.find(c => c.slug === key)
+      if (!catProd) {
+        // Recarregar catálogo para mostrar produto devolvido
+        catalogService.getProdutos().then(all => {
+          const subscribedIds = new Set(produtos.filter(p => p.id !== key).map(p => p.id))
+          setCatalogProdutos(all.filter((p: any) => !subscribedIds.has(p.slug)))
+        }).catch(() => {})
+      }
+      addNotification({ type: 'success', message: `Assinatura de "${nome}" cancelada com sucesso.` })
+    } catch {
+      addNotification({ type: 'error', message: `Erro ao cancelar assinatura de "${nome}".` })
+    }
     setProdutoParaExcluir(null)
+  }
+
+  async function handleAssinar(slug: string, nome: string) {
+    try {
+      const headers = await getAuthHeaders()
+      const res = await fetch('/api/v1/tenants/products/subscribe', {
+        method: 'POST', headers,
+        body: JSON.stringify({ product_key: slug }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body?.error?.message ?? 'Falha ao assinar')
+      }
+      // Adicionar à lista de contratados
+      const novoProduto: Produto = {
+        id: slug,
+        nome,
+        status: 'Ativo',
+        billing: 'SaaS',
+        valor: '',
+        renovacao: '',
+        workspacesHabilitados: [],
+      }
+      setProdutos(prev => [...prev, novoProduto])
+      // Remover do catálogo disponível
+      setCatalogProdutos(prev => prev.filter(p => p.slug !== slug))
+      addNotification({ type: 'success', message: `Produto "${nome}" ativado com sucesso!` })
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao assinar produto.' })
+    }
   }
 
   function confirmarExclusaoVinculo() {
@@ -156,6 +234,7 @@ export function Assinaturas() {
     const novoHabilitados = produto.workspacesHabilitados.filter(n => n !== workspaceNome)
     setProdutos(prev => prev.map(p => p.id === produto.id ? { ...p, workspacesVinculados: novoVinculos, workspacesHabilitados: novoHabilitados } : p))
     setVinculoParaExcluir(null)
+    addNotification({ type: 'success', message: `Workspace "${workspaceNome}" removido da assinatura.` })
   }
 
   // ── Colunas da TabelaGlobal ───────────────────────────────────────────────────
@@ -617,7 +696,7 @@ export function Assinaturas() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem' }}>
               <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{p.temSetup ? 'Requer Setup' : 'Ativação Instantânea'}</span>
               <TooltipGlobal descricao="Iniciar processo de contratação e ativação do produto">
-                <BotaoGlobal variante="primario" tamanho="pequeno">Assinar</BotaoGlobal>
+                <BotaoGlobal variante="primario" tamanho="pequeno" onClick={() => handleAssinar(p.slug, p.nome)}>Assinar</BotaoGlobal>
               </TooltipGlobal>
             </div>
           </div>
@@ -684,6 +763,7 @@ export function Assinaturas() {
       aoSalvar={(dados) => {
         setProdutos(prev => prev.map(p => p.id === dados.id ? dados : p))
         setProdutoEditando(null)
+        addNotification({ type: 'success', message: `Assinatura "${dados.nome}" atualizada com sucesso!` })
       }}
     />
     </>

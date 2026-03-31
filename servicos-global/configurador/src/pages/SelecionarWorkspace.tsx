@@ -32,6 +32,8 @@ import {
 } from '@phosphor-icons/react'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
+import { LogoGlobal } from '@nucleo/logo-global'
+import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import './selecionar-workspace.css'
 
 /* ── Tipos ── */
@@ -133,11 +135,8 @@ export function SelecionarWorkspace() {
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
   const [produtosContratados, setProdutosContratados] = useState<ProdutoContratado[]>([])
   const [catalogoProdutos, setCatalogoProdutos] = useState<ProdutoCatalogo[]>([])
-  const [busca, setBusca] = useState('')
-  const [buscaAberta, setBuscaAberta] = useState(false)
   const wsCarouselRef = useRef<HTMLDivElement>(null)
   const prodCarouselRef = useRef<HTMLDivElement>(null)
-  const searchRef = useRef<HTMLDivElement>(null)
 
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -358,64 +357,6 @@ export function SelecionarWorkspace() {
     ref.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' })
   }, [])
 
-  /* ── Busca funcional — pesquisa workspaces, produtos, atalhos, seções ── */
-  const resultadosBusca = useMemo(() => {
-    if (!busca.trim()) return []
-    const termo = busca.toLowerCase()
-    const resultados: { tipo: string; label: string; acao: () => void }[] = []
-
-    // Workspaces
-    workspaces.forEach(ws => {
-      if (ws.nome.toLowerCase().includes(termo)) {
-        resultados.push({ tipo: 'Workspace', label: ws.nome, acao: () => { setSelectedId(ws.id); setBusca(''); setBuscaAberta(false) } })
-      }
-    })
-
-    // Produtos contratados
-    produtosContratados.forEach(p => {
-      if (p.nome.toLowerCase().includes(termo) || p.product_key.toLowerCase().includes(termo)) {
-        resultados.push({ tipo: 'Produto', label: p.nome, acao: () => { navigate(`/produto/${p.product_key}`); setBusca(''); setBuscaAberta(false) } })
-      }
-    })
-
-    // Catálogo
-    catalogoProdutos.forEach(p => {
-      if (p.name.toLowerCase().includes(termo) || p.slug.toLowerCase().includes(termo)) {
-        resultados.push({ tipo: 'Catálogo', label: p.name, acao: () => { navigate('/workspace/assinaturas'); setBusca(''); setBuscaAberta(false) } })
-      }
-    })
-
-    // Seções/Atalhos fixos
-    const fixos = [
-      { label: 'Dashboard', rota: '/hub' },
-      { label: 'Configurações', rota: '/workspace/organizacao' },
-      { label: 'Store de Módulos', rota: '/workspace/assinaturas' },
-      { label: 'Relatórios', rota: '/workspace/financeiro' },
-      { label: 'Equipe', rota: '/workspace/usuarios' },
-      { label: 'Cockpit API', rota: '/workspace/api-cockpit' },
-      { label: 'Admin', rota: '/admin/visao-geral' },
-      { label: 'Notificações', rota: '/core/notificacoes' },
-    ]
-    fixos.forEach(f => {
-      if (f.label.toLowerCase().includes(termo)) {
-        resultados.push({ tipo: 'Atalho', label: f.label, acao: () => { navigate(f.rota); setBusca(''); setBuscaAberta(false) } })
-      }
-    })
-
-    return resultados.slice(0, 8)
-  }, [busca, workspaces, produtosContratados, catalogoProdutos, navigate])
-
-  // Fechar busca ao clicar fora
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setBuscaAberta(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
   /* ══════════════════════════════════
      RENDER
   ══════════════════════════════════ */
@@ -425,35 +366,28 @@ export function SelecionarWorkspace() {
       <div className="sw-page sw-page--full">
         {/* TOPBAR */}
         <header className="sw-topbar">
-          <span className="sw-t-brand">Gravity<span>.</span></span>
-
-          {/* ── Busca funcional ── */}
-          <div className="sw-search-bar" ref={searchRef}>
-            <MagnifyingGlass size={14} className="sw-search-icon" />
-            <input
-              type="text"
-              placeholder="Buscar workspaces, produtos, atalhos..."
-              value={busca}
-              onChange={e => { setBusca(e.target.value); setBuscaAberta(true) }}
-              onFocus={() => { if (busca.trim()) setBuscaAberta(true) }}
-            />
-            {buscaAberta && busca.trim() && (
-              <div className="sw-search-results">
-                {resultadosBusca.length > 0 ? (
-                  resultadosBusca.map((r, i) => (
-                    <div key={i} className="sw-search-item" onClick={r.acao}>
-                      <span className="sw-search-item-type">{r.tipo}</span>
-                      <span>{r.label}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="sw-search-empty">Nenhum resultado para "{busca}"</div>
-                )}
-              </div>
-            )}
+          <div className="sw-t-brand">
+            <LogoGlobal iconSize={26} iconColor="#818cf8" />
           </div>
-
           <div className="sw-t-right">
+            <LocalizarExpandidoCampoGlobal
+              onBuscarNavigate={(term) => {
+                const termLower = term.toLowerCase()
+                // Buscar em workspaces
+                const ws = workspaces.find(w => w.nome.toLowerCase().includes(termLower))
+                if (ws) { setSelectedId(ws.id); return }
+                // Buscar em produtos contratados
+                const prod = produtosContratados.find(p => p.nome.toLowerCase().includes(termLower) || p.product_key.toLowerCase().includes(termLower))
+                if (prod) { navigate(`/produto/${prod.product_key}`); return }
+                // Buscar em catálogo
+                const cat = catalogoProdutos.find(p => p.name.toLowerCase().includes(termLower))
+                if (cat) { navigate('/workspace/assinaturas'); return }
+                // Buscar em navItems
+                const flat = navItems.flatMap(i => i.children ? i.children : [i])
+                const target = flat.find(item => item.label?.toLowerCase().includes(termLower))
+                if (target?.to) navigate(target.to)
+              }}
+            />
             <div className="sw-notif-wrap">
               <button className="sw-t-icon" type="button" title="Notificações">
                 <Bell size={15} />

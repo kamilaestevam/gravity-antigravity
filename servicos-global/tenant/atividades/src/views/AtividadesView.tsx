@@ -810,16 +810,16 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Informações ─────────────────────────────────── */}
           {tab === 'informacoes' && (
             <>
-              <p className="ativ-section-label">⚙ Configurações</p>
+              <p className="ativ-section-label">{t('atividades.modal.configuracoes')}</p>
               <div className="ativ-grid-2">
                 <div className="ativ-field">
-                  <label>Tipo de Atividade</label>
+                  <label>{t('atividades.modal.tipo_atividade')}</label>
                   <select value={tipo} onChange={e => setTipo(e.target.value)}>
-                    {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
+                    {TIPOS.map(tp => <option key={tp} value={tp}>{tp}</option>)}
                   </select>
                 </div>
                 <div className="ativ-field">
-                  <label>Fase da Atividade</label>
+                  <label>{t('atividades.modal.fase_atividade')}</label>
                   <select value={status} onChange={e => setStatus(e.target.value as KanbanStatus)}>
                     {KANBAN_COLS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
                   </select>
@@ -827,48 +827,48 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
               </div>
               <div className="ativ-grid-2">
                 <div className="ativ-field">
-                  <label>Prioridade</label>
+                  <label>{t('atividades.modal.prioridade')}</label>
                   <select value={prioridade} onChange={e => setPrioridade(e.target.value)}>
-                    <option value="">Sem prioridade</option>
+                    <option value="">{t('atividades.modal.sem_prioridade')}</option>
                     {PRIOS.map(p => <option key={p} value={p}>{PRIO_LABEL[p]}</option>)}
                   </select>
                 </div>
                 <div className="ativ-field">
-                  <label>Data e Horário</label>
+                  <label>{t('atividades.modal.data_horario')}</label>
                   <input type="datetime-local" value={dataAtvStr} onChange={e => setDataAtvStr(e.target.value)} />
                 </div>
               </div>
 
-              <p className="ativ-section-label" style={{ marginTop: '1rem' }}>📝 Conteúdo</p>
+              <p className="ativ-section-label" style={{ marginTop: '1rem' }}>{t('atividades.modal.conteudo')}</p>
               <div className="ativ-field" style={{ marginBottom: '0.85rem' }}>
-                <label>Título *</label>
+                <label>{t('atividades.modal.titulo_label')}</label>
                 <input
-                  placeholder="Título da atividade"
+                  placeholder={t('atividades.modal.titulo_placeholder')}
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
                 />
               </div>
               <div className="ativ-field" style={{ marginBottom: '1rem' }}>
-                <label>Descrição</label>
+                <label>{t('atividades.modal.descricao_label')}</label>
                 <textarea
-                  placeholder="Descreva a atividade..."
+                  placeholder={t('atividades.modal.descricao_placeholder')}
                   value={descricao}
                   onChange={e => setDescricao(e.target.value)}
                   rows={4}
                 />
               </div>
 
-              <p className="ativ-section-label">👥 Participantes</p>
+              <p className="ativ-section-label">{t('atividades.modal.participantes')}</p>
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input
                   className="ativ-field"
                   style={{ flex: 1 }}
-                  placeholder="Nome ou e-mail do participante"
+                  placeholder={t('atividades.modal.participante_placeholder')}
                   value={newPart}
                   onChange={e => setNewPart(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addParticipant() } }}
                 />
-                <button className="ativ-btn-secondary" onClick={addParticipant}>+ Adicionar</button>
+                <button className="ativ-btn-secondary" onClick={addParticipant}>{t('atividades.modal.adicionar_participante')}</button>
               </div>
               <div className="ativ-chips">
                 {participantes.map(p => (
@@ -884,44 +884,49 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Tempo ──────────────────────────────────────── */}
           {tab === 'tempo' && (
             <>
-              <p className="ativ-section-label">⏱ Cronômetro</p>
+              <p className="ativ-section-label">{t('atividades.modal.cronometro')}</p>
               <div style={{ background: 'rgba(15,23,42,0.5)', border: '1px solid var(--bg-elevated)', borderRadius: 'var(--radius-md)', padding: '1.25rem', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
                   <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Tempo Trabalhado</div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>{t('atividades.modal.tempo_trabalhado')}</div>
                     <div className={`ativ-timer-display${timerRunning ? ' ativ-timer-running' : ''}`}>
                       {fmtTimerHMS(timerSec)}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     {!timerRunning ? (
-                      <button className="ativ-btn-primary" onClick={startTimer}>▷ Iniciar</button>
+                      <button className="ativ-btn-primary" onClick={startTimer}>{t('atividades.modal.iniciar')}</button>
                     ) : (
                       <>
-                        <button className="ativ-btn-secondary" onClick={pauseTimer}>⏸ Pausar</button>
-                        <button className="ativ-btn-danger" onClick={stopTimer}>⏹ Finalizar</button>
+                        <button className="ativ-btn-secondary" onClick={pauseTimer}>{t('atividades.modal.pausar')}</button>
+                        <button className="ativ-btn-danger" onClick={stopTimer}>{t('atividades.modal.finalizar')}</button>
                       </>
                     )}
                   </div>
                 </div>
                 <div className="ativ-field" style={{ marginTop: '0.85rem' }}>
-                  <label>Assunto da sessão (opcional)</label>
-                  <input placeholder="Ex: Analisei a documentação..." value={timerAssunto} onChange={e => setTimerAssunto(e.target.value)} />
+                  <label>{t('atividades.modal.assunto_sessao')}</label>
+                  <input placeholder={t('atividades.modal.assunto_placeholder')} value={timerAssunto} onChange={e => setTimerAssunto(e.target.value)} />
                 </div>
               </div>
 
-              <p className="ativ-section-label">Sessões Registradas</p>
+              <p className="ativ-section-label">{t('atividades.modal.sessoes_registradas')}</p>
               {atividade && (
                 <div style={{ marginBottom: '0.75rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
-                  Total acumulado: <strong>{fmtMin(atividade.tempo_gasto_minutos)}</strong>
+                  {t('atividades.modal.total_acumulado')} <strong>{fmtMin(atividade.tempo_gasto_minutos)}</strong>
                 </div>
               )}
               {sessoes.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Nenhuma sessão registrada ainda.</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>{t('atividades.modal.nenhuma_sessao')}</p>
               ) : (
                 <table className="ativ-sessoes-table">
                   <thead>
-                    <tr><th>Data</th><th>Hora</th><th>Duração</th><th>Assunto</th></tr>
+                    <tr>
+                      <th>{t('atividades.modal.sessao_data')}</th>
+                      <th>{t('atividades.modal.sessao_hora')}</th>
+                      <th>{t('atividades.modal.sessao_duracao')}</th>
+                      <th>{t('atividades.modal.sessao_assunto')}</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {sessoes.map(s => (

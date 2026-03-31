@@ -690,12 +690,12 @@ export function ProdutosAdmin() {
                         valor={formSlugSelecionado}
                         aoMudarValor={v => dirty(() => setFormSlugSelecionado(v ? String(v) : null))}
                         iconeEsquerda={<Tag size={16} />}
-                        placeholder="Selecione o produto..."
+                        placeholder={t('admin.products.campo_slug_placeholder')}
                         buscavel
                       />
                     ) : (
                       <div style={{ padding: '0.625rem 0.875rem', borderRadius: '0.375rem', background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)', color: '#fbbf24', fontSize: '0.8125rem' }}>
-                        Nenhum slug disponível. Todos os produtos de contracts.json já estão cadastrados.
+                        {t('admin.products.campo_slug_vazio')}
                       </div>
                     )}
                   </GeralCampoGlobal>
@@ -705,15 +705,15 @@ export function ProdutosAdmin() {
           },
           {
             id: 'setup',
-            rotulo: 'Setup',
+            rotulo: t('admin.products.aba_setup'),
             tooltipTitulo: 'OPERAÇÃO INICIAL',
             tooltipDescricao: 'Taxa de ativação e onboarding (One-time fee).',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Wrench size={16} weight="duotone" />} titulo="Setup" />
+                <SecaoFormularioGlobal icone={<Wrench size={16} weight="duotone" />} titulo={t('admin.products.aba_setup')} />
 
-                <GeralCampoGlobal 
-                  label="Tem Setup?"
+                <GeralCampoGlobal
+                  label={t('admin.products.campo_tem_setup')}
                   tooltipTitulo="ADMISSÃO DO SERVIÇO"
                   tooltipDescricao="Define se haverá um custo único de ativação ou implantação"
                 >
@@ -725,8 +725,8 @@ export function ProdutosAdmin() {
 
                 {temSetup === 'sim' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <GeralCampoGlobal 
-                      label="Moeda do Setup"
+                    <GeralCampoGlobal
+                      label={t('admin.products.campo_moeda_setup')}
                       tooltipTitulo="MOEDA DE TRANSAÇÃO"
                       tooltipDescricao="Moeda utilizada para o faturamento inicial"
                     >
@@ -738,8 +738,8 @@ export function ProdutosAdmin() {
                         buscavel
                       />
                     </GeralCampoGlobal>
-                    <GeralCampoGlobal 
-                      label="Valor do Setup"
+                    <GeralCampoGlobal
+                      label={t('admin.products.campo_valor_setup')}
                       tooltipTitulo="INVESTIMENTO INICIAL"
                       tooltipDescricao="Montante fixo cobrado apenas no primeiro ciclo"
                     >
@@ -755,15 +755,15 @@ export function ProdutosAdmin() {
           },
           {
             id: 'valor-produto',
-            rotulo: 'Valor do Produto',
+            rotulo: t('admin.products.aba_valor_produto'),
             tooltipTitulo: 'PRECIFICAÇÃO',
             tooltipDescricao: 'Modelo de cobrança, recorrência e camadas de preço.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Sliders size={16} weight="duotone" />} titulo="Valores do Produto" />
+                <SecaoFormularioGlobal icone={<Sliders size={16} weight="duotone" />} titulo={t('admin.products.aba_valor_produto')} />
 
-                <GeralCampoGlobal 
-                  label="Tipo de Cobrança"
+                <GeralCampoGlobal
+                  label={t('admin.products.campo_tipo_cobranca')}
                   tooltipTitulo="MÉTRICA DE VALOR"
                   tooltipDescricao="Especifica a unidade de medida para o cálculo do faturamento"
                 >

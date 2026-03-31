@@ -37,7 +37,6 @@ interface Workspace {
   id: string
   nome: string
   iniciais: string
-  plano: 'enterprise' | 'professional' | 'starter'
   role: string
   modulos: number
   membros: number
@@ -96,16 +95,6 @@ const ATALHOS: Atalho[] = [
 ]
 
 /* ── Helpers ── */
-function planLabel(plano: string): string {
-  const map: Record<string, string> = { starter: 'Starter', professional: 'Professional', enterprise: 'Enterprise' }
-  return map[plano] ?? plano
-}
-
-function planClass(plano: string): string {
-  const map: Record<string, string> = { starter: 'sw-plan-starter', professional: 'sw-plan-business', enterprise: 'sw-plan-pro' }
-  return map[plano] ?? ''
-}
-
 function ShortcutIcon({ icon, color }: { icon: string; color: string }) {
   const props = { size: 17, weight: 'regular' as const, style: { color } }
   switch (icon) {
@@ -231,13 +220,6 @@ export function SelecionarWorkspace() {
         }
 
         // ── Workspaces ──
-        const subscription = data.tenant?.subscriptions?.[0]
-        const planMap: Record<string, Workspace['plano']> = {
-          STARTER: 'starter',
-          PROFESSIONAL: 'professional',
-          ENTERPRISE: 'enterprise',
-        }
-        const tenantPlano = planMap[subscription?.plan] ?? 'starter'
         const tenantUserCount = data.tenant?._count?.users ?? 0
 
         if (data.companies && data.companies.length > 0) {
@@ -256,7 +238,6 @@ export function SelecionarWorkspace() {
               id: c.id,
               nome: c.name,
               iniciais: c.name.substring(0, 2).toUpperCase(),
-              plano: tenantPlano,
               role: userRole,
               modulos: totalAtivos,
               membros,
@@ -438,10 +419,7 @@ export function SelecionarWorkspace() {
                       <div>
                         <div className="sw-ws-name">{ws.nome}</div>
                         <div className="sw-ws-meta">
-                          <span className={`sw-ws-plan-tag ${planClass(ws.plano)}`}>
-                            {planLabel(ws.plano)}
-                          </span>
-                          <span className="sw-ws-role">· {ws.role}</span>
+                          <span className="sw-ws-role">{ws.role}</span>
                         </div>
                       </div>
 

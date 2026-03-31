@@ -3,6 +3,7 @@
 
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
+import { clerkClient } from '../lib/clerk.js'
 
 
 interface CreateTenantInput {
@@ -80,6 +81,11 @@ export const tenantService = {
         },
       })
 
+      // Sincroniza role no Clerk para o frontend ler corretamente
+      await clerkClient.users.updateUserMetadata(clerkUserId, {
+        publicMetadata: { role: 'MASTER', tenantId: newTenant.id },
+      })
+
       return newTenant
     })
 
@@ -143,25 +149,6 @@ export const tenantService = {
    * Cria empresa filha no tenant
    */
   async createCompany(tenantId: string, data: CreateCompanyInput) {
-    // Verifica limite de empresas filhas por plano
-    const count = await prisma.company.count({ where: { tenant_id: tenantId } })
-    const subscription = await prisma.subscription.findFirst({
-      where: { tenant_id: tenantId },
-      orderBy: { created_at: 'desc' },
-    })
-
-    const limits = { STARTER: 2, PROFESSIONAL: 20, ENTERPRISE: 50 }
-    const plan = subscription?.plan ?? 'STARTER'
-    const limit = limits[plan as keyof typeof limits] ?? 2
-
-    if (count >= limit) {
-      throw new AppError(
-        `Seu plano ${plan} permite no máximo ${limit} empresas filhas`,
-        403,
-        'PLAN_LIMIT_EXCEEDED'
-      )
-    }
-
     return prisma.company.create({
       data: {
         tenant_id: tenantId,
@@ -171,5 +158,39 @@ export const tenantService = {
         status: 'ACTIVE',
       },
     })
+  },
+
+  /**
+   * Atualiza empresa filha (verifica que pertence ao tenant)
+   */
+  async updateCompany(tenantId: string, companyId: string, data: {
+    name?: string
+    subdomain?: string
+    cnpj?: string
+    status?: 'ACTIVE' | 'INACTIVE'
+  }) {
+    const company = await prisma.company.findFirst({
+      where: { id: companyId, tenant_id: tenantId },
+    })
+    if (!company) {
+      throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
+    }
+    return prisma.company.update({
+      where: { id: companyId },
+      data,
+    })
+  },
+
+  /**
+   * Deleta empresa filha (verifica que pertence ao tenant)
+   */
+  async deleteCompany(tenantId: string, companyId: string) {
+    const company = await prisma.company.findFirst({
+      where: { id: companyId, tenant_id: tenantId },
+    })
+    if (!company) {
+      throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
+    }
+    await prisma.company.delete({ where: { id: companyId } })
   },
 }

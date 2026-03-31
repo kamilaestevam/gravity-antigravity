@@ -43,6 +43,13 @@ const CreateCompanySchema = z.object({
   cnpj: z.string().optional(),
 })
 
+const UpdateCompanySchema = z.object({
+  name: z.string().min(2).optional(),
+  subdomain: z.string().optional(),
+  cnpj: z.string().optional(),
+  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+})
+
 // ─── Rotas ──────────────────────────────────────────────────────────────────
 
 /**
@@ -137,6 +144,44 @@ tenantsRouter.post('/companies', requireAuth, async (req, res, next) => {
       parsed.data
     )
     res.status(201).json({ company })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * PATCH /api/v1/tenants/companies/:id
+ * Atualiza uma empresa filha (nome, subdomain, cnpj, status)
+ */
+tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
+  try {
+    const parsed = UpdateCompanySchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Dados inválidos',
+        400,
+        'VALIDATION_ERROR'
+      )
+    }
+    const company = await tenantService.updateCompany(
+      req.auth.tenantId,
+      req.params.id,
+      parsed.data
+    )
+    res.json({ company })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * DELETE /api/v1/tenants/companies/:id
+ * Remove uma empresa filha do tenant autenticado
+ */
+tenantsRouter.delete('/companies/:id', requireAuth, async (req, res, next) => {
+  try {
+    await tenantService.deleteCompany(req.auth.tenantId, req.params.id)
+    res.status(204).end()
   } catch (err) {
     next(err)
   }

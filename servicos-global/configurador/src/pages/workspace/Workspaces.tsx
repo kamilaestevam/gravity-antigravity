@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'
-import { Buildings, TreeStructure, CheckCircle, Gauge, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
+import { Buildings, TreeStructure, CheckCircle, ChartPieSlice, FileXls, FileCsv, FileText, FilePdf, Code, PauseCircle, PlayCircle, PencilSimple, Trash, Plus, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
@@ -12,6 +12,8 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalEditarWorkspace } from './ModalEditarWorkspace'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { extractApiError, extractCatchError } from '../../utils/extractApiError'
+import { useShellStore } from '@gravity/shell'
 
 
 export type EmpresaStatus = 'Ativa' | 'Suspensa'
@@ -44,6 +46,7 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 export function Workspaces() {
   const { t } = useTranslation()
   const { isLoaded: userLoaded } = useUser()
+  const addNotification = useShellStore((s) => s.addNotification)
   const [empresas, setWorkspaces] = useState<Empresa[]>([])
   const [carregando, setCarregando] = useState(true)
 
@@ -69,7 +72,7 @@ export function Workspaces() {
           })))
         }
       } catch (err) {
-        console.error('Erro ao carregar workspaces:', err)
+        addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao carregar workspaces.') })
       } finally {
         setCarregando(false)
       }
@@ -100,7 +103,6 @@ export function Workspaces() {
 
   const ativas = empresas.filter(e => e.status === 'Ativa').length
   const suspensas = empresas.filter(e => e.status === 'Suspensa').length
-  const limite = 50
 
 
   async function handleAdd(dados: { nome: string; subdominio: string }) {
@@ -122,30 +124,93 @@ export function Workspaces() {
           criadaEm: new Date().toLocaleDateString('pt-BR'),
         }
         setWorkspaces(prev => [...prev, nova])
+        addNotification({ type: 'success', message: `Workspace "${dados.nome}" criado com sucesso!` })
+      } else {
+        let msg = 'Falha ao criar workspace. Tente novamente.'
+        try {
+          const body = await res.json()
+          if (body?.error?.message) msg = body.error.message
+        } catch { /* resposta não é JSON */ }
+        addNotification({ type: 'error', message: msg })
       }
     } catch (err) {
-      console.error('Erro ao criar workspace:', err)
+      addNotification({ type: 'error', message: extractCatchError(err, 'Erro ao criar workspace. Verifique sua conexão.') })
     }
     setShowForm(false)
   }
 
-  function handleUpdate(dados: Partial<Empresa>) {
+  async function handleUpdate(dados: Partial<Empresa>) {
     if (!empresaEditando) return
-    setWorkspaces(prev =>
-      prev.map(e => e.id === empresaEditando.id ? { ...e, ...dados } : e)
-    )
+    try {
+      const headers = await getAuthHeaders()
+      const body: Record<string, string> = {}
+      if (dados.nome) body.name = dados.nome
+      if (dados.subdominio) body.subdomain = dados.subdominio
+      if (dados.cnpj) body.cnpj = dados.cnpj
+
+      const res = await fetch(`/api/v1/tenants/companies/${empresaEditando.id}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(body),
+      })
+      if (res.ok) {
+        setWorkspaces(prev =>
+          prev.map(e => e.id === empresaEditando.id ? { ...e, ...dados } : e)
+        )
+        addNotification({ type: 'success', message: `Workspace "${dados.nome ?? empresaEditando.nome}" atualizado com sucesso!` })
+      } else {
+        addNotification({ type: 'error', message: 'Falha ao atualizar workspace.' })
+      }
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao atualizar workspace. Verifique sua conexão.' })
+    }
     setShowForm(false)
     setEmpresaEditando(null)
   }
 
-  function handleSuspend(linha: Empresa) {
-    // Bypass window.confirm to avoid silent failures in secure iframes.
-    setWorkspaces(prev =>
-      prev.map(e => e.id === linha.id
-        ? { ...e, status: e.status === 'Ativa' ? 'Suspensa' : 'Ativa' }
-        : e
-      )
-    )
+  async function handleSuspend(linha: Empresa) {
+    const novoStatus = linha.status === 'Ativa' ? 'INACTIVE' : 'ACTIVE'
+    try {
+      const headers = await getAuthHeaders()
+      const res = await fetch(`/api/v1/tenants/companies/${linha.id}`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status: novoStatus }),
+      })
+      if (res.ok) {
+        const statusLabel = novoStatus === 'INACTIVE' ? 'Suspensa' : 'Ativa'
+        setWorkspaces(prev =>
+          prev.map(e => e.id === linha.id ? { ...e, status: statusLabel } : e)
+        )
+        addNotification({
+          type: novoStatus === 'INACTIVE' ? 'warning' : 'success',
+          message: `Workspace "${linha.nome}" ${novoStatus === 'INACTIVE' ? 'suspenso' : 'reativado'} com sucesso.`,
+        })
+      } else {
+        addNotification({ type: 'error', message: 'Falha ao alterar status do workspace.' })
+      }
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao alterar status. Verifique sua conexão.' })
+    }
+  }
+
+  async function handleDelete(linha: Empresa) {
+    if (!confirm(`Tem certeza que deseja excluir "${linha.nome}"? Esta ação não pode ser desfeita.`)) return
+    try {
+      const headers = await getAuthHeaders()
+      const res = await fetch(`/api/v1/tenants/companies/${linha.id}`, {
+        method: 'DELETE',
+        headers,
+      })
+      if (res.ok || res.status === 204) {
+        setWorkspaces(prev => prev.filter(e => e.id !== linha.id))
+        addNotification({ type: 'success', message: `Workspace "${linha.nome}" excluído com sucesso.` })
+      } else {
+        addNotification({ type: 'error', message: 'Falha ao excluir workspace.' })
+      }
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao excluir workspace. Verifique sua conexão.' })
+    }
   }
 
   function handleEdit(linha: Empresa) {
@@ -227,6 +292,25 @@ export function Workspaces() {
       icone: <PencilSimple size={15} weight="bold" />,
       tooltip: 'Editar',
       onClick: handleEdit,
+    },
+    {
+      id: 'delete',
+      icone: <Trash size={15} weight="bold" />,
+      tooltip: 'Excluir',
+      onClick: handleDelete,
+      renderCustom: (item) => (
+        <TooltipGlobal descricao="Excluir permanentemente este workspace">
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(item); }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
+            onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(248,113,113,0.12)'; ev.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)'; ev.currentTarget.style.color = '#f87171' }}
+            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
+          >
+            <Trash size={15} weight="bold" />
+          </button>
+        </TooltipGlobal>
+      )
     }
   ]
 
@@ -312,43 +396,6 @@ export function Workspaces() {
                 <div className="cg-tooltip__row">
                   <span>Taxa de atividade</span>
                   <strong style={{ color: '#34d399' }}>{empresas.length ? Math.round(ativas / empresas.length * 100) : 0}%</strong>
-                </div>
-              </>
-            }
-          />
-          <CardBasicoGlobal
-            titulo="Limite do Plano"
-            icone={<Gauge weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-            valor={empresas.length}
-            subtexto={`${limite - empresas.length} slots disponíveis`}
-            periodos={[
-              { periodo: '7d',  rotulo: '7 dias',  valor: '+1',  direcao: 'up',     descricao: 'vs semana anterior' },
-              { periodo: '30d', rotulo: '30 dias', valor: '+3',  direcao: 'up',     descricao: 'vs mês anterior'    },
-              { periodo: '6m',  rotulo: '6 meses', valor: '+12', direcao: 'up',     descricao: 'vs semestre anterior'},
-              { periodo: '1a',  rotulo: '1 ano',   valor: '+30', direcao: 'up',     descricao: 'vs ano anterior'    },
-            ] as PeriodoTendencia[]}
-            variante="aviso"
-            tooltip={
-              <>
-                <p className="cg-tooltip__title">Plano Enterprise</p>
-                <div className="cg-tooltip__row">
-                  <span>Limite total</span>
-                  <strong>{limite}</strong>
-                </div>
-                <div className="cg-tooltip__row">
-                  <span>Utilizados</span>
-                  <strong style={{ color: '#fbbf24' }}>{empresas.length}</strong>
-                </div>
-                <div className="cg-tooltip__row">
-                  <span>Disponíveis</span>
-                  <strong style={{ color: '#34d399' }}>{limite - empresas.length}</strong>
-                </div>
-                <div className="cg-tooltip__divider" />
-                <div className="cg-tooltip__row">
-                  <span>Uso</span>
-                  <strong style={{ color: empresas.length / limite > 0.8 ? '#f87171' : '#fbbf24' }}>
-                    {Math.round(empresas.length / limite * 100)}%
-                  </strong>
                 </div>
               </>
             }

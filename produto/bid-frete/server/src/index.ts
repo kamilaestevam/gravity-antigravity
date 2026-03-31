@@ -22,6 +22,7 @@ import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { startCronJobs } from './services/cronJobs.js'
 import { rateLimitPresets } from '../../../../servicos-global/tenant/middleware/rateLimiter.js'
+import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -91,6 +92,9 @@ app.use(requireInternalKey)
 
 // --- 8. Tenant Isolation — injeta req.prisma com filtro por tenant_id ---
 app.use(tenantIsolationMiddleware)
+
+// --- 8.1. Observabilidade — captura metricas para API Cockpit ---
+app.use(apiObservability('bid-frete'))
 
 // --- 9. Rotas do Produto (protegidas) ---
 app.use('/api/v1/bid-frete/cotacoes', cotacoesRouter)

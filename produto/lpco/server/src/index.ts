@@ -20,6 +20,7 @@ import { lpcoHistoricoRouter } from './routes/lpcoHistorico.js'
 import { simuladorTARouter } from './routes/simuladorTA.js'
 import { lpcoPortalRouter } from './routes/lpcoPortal.js'
 import { credenciaisRouter } from './routes/credenciais.js'
+import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -92,6 +93,9 @@ app.use('/api/', requireInternalKey)
 
 // --- 7. Tenant Isolation — injeta req.prisma com filtro por tenant_id ---
 app.use(tenantIsolationMiddleware)
+
+// --- 7.1. Observabilidade — captura metricas para API Cockpit ---
+app.use(apiObservability('lpco'))
 
 // --- 8. Rotas do Produto (protegidas) ---
 app.use('/api/v1/lpcos', lpcoRouter)

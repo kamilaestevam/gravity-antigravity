@@ -1,0 +1,872 @@
+# Arquitetura Tecnica — SimulaCusto
+
+> **Versao:** 1.0
+> **Data:** 31/03/2026
+> **Porta:** 8020
+> **Product ID:** simula-custo
+> **Agente:** Tech Lead (Dream Team de Produtos)
+
+---
+
+## 1. PRODUCT_CONFIG
+
+```typescript
+export const PRODUCT_CONFIG = {
+  id: 'simula-custo',
+  productId: 'simula-custo',
+  name: 'SimulaCusto',
+  port: 8020,
+
+  tenantServices: [
+    'atividades',      // Log de acoes
+    'dashboard',       // KPIs consolidados
+    'relatorios',      // Relatorios exportaveis
+    'historico',       // Audit trail imutavel
+    'notificacoes',    // Alertas in-app
+    'gabi',            // IA — analise de custos
+    'email',           // Disparo de memorias de calculo
+    'whatsapp',        // Notificacoes via WhatsApp
+  ],
+
+  productServices: [
+    'engine-fiscal',          // Motor de calculo de 7 passos (Landed Cost)
+    'siscomex-connector',     // Integracao Portal Unico Siscomex
+    'ptax-service',           // Cotacao BACEN (OData)
+    'docx-generator',         // Geracao de Memoria de Calculo (DOCX)
+  ],
+
+  navigation: [
+    {
+      id: 'meu-espaco-group',
+      label: 'Meu Espaco',
+      icon: 'check-circle',
+      source: 'tenant',
+      children: [
+        { id: 'meu-espaco',            label: 'Dashboard',          icon: 'bar-chart',    source: 'product' },
+        { id: 'meu-espaco/atividades', label: 'Minhas Atividades',  icon: 'check-circle', source: 'tenant'  },
+        { id: 'meu-espaco/email',      label: 'E-mails',            icon: 'envelope',     source: 'tenant'  },
+        { id: 'meu-espaco/whatsapp',   label: 'Whatsapp',           icon: 'chat-circle',  source: 'tenant'  },
+      ]
+    },
+    { id: 'estimativas',  label: 'Estimativas',              icon: 'calculator', source: 'product' },
+    { id: 'relatorios',   label: 'Relatorios',               icon: 'file-text',  source: 'product' },
+    { id: 'historico',    label: 'Historico de Alteracoes',   icon: 'clock',      source: 'tenant'  },
+    { id: 'gabi',         label: 'Gabi IA',                  icon: 'sparkle',    source: 'tenant'  },
+  ],
+
+  features: {
+    siscomex_integration: 'active',    // Simulacao via Portal Unico
+    bacen_auto_update: true,           // PTAX automatica via BACEN OData
+    default_icms_mode: 'inside_calc',  // ICMS "por dentro"
+    anti_captcha_provider: 'capsolver',// Resolucao de hCaptcha do Siscomex
+    token_pool_enabled: true,          // Pool de tokens pre-resolvidos
+  },
+}
+```
+
+---
+
+## 2. Estrutura de Pastas
+
+```
+produto/simula-custo/
+├── client/
+│   └── src/
+│       ├── pages/
+│       │   ├── dashboard/
+│       │   │   └── DashboardSimulaCusto.tsx   # KPIs + simulacoes recentes
+│       │   ├── estimativas/
+│       │   │   ├── Estimativas.tsx            # Grid paginado de estimativas
+│       │   │   ├── EstimativasDashboard.tsx   # KPIs de estimativas
+│       │   │   └── ModalSimulacao.tsx         # Modal de simulacao fiscal
+│       │   ├── importar/
+│       │   │   └── ImportarMassa.tsx          # Importacao em lote
+│       │   └── relatorios/
+│       │       └── Relatorios.tsx             # Relatorios e exportacao
+│       ├── shared/
+│       │   ├── api.ts                         # Client API functions
+│       │   ├── config.ts                      # PRODUCT_CONFIG
+│       │   └── types.ts                       # TypeScript types + enums
+│       ├── App.tsx                            # Router principal
+│       └── main.tsx                           # Entry point
+│
+├── server/
+│   ├── src/
+│   │   ├── routes/
+│   │   │   ├── simulate.ts                   # POST /simula-custo (engine fiscal)
+│   │   │   ├── estimativas.ts                # CRUD estimativas + KPIs
+│   │   │   ├── masterData.ts                 # NCM, UFs, Paises (dados publicos)
+│   │   │   └── dashboard.ts                  # KPIs + recentes (cache 5min)
+│   │   │
+│   │   ├── services/
+│   │   │   ├── tokenPool.ts                  # Pool de hCaptcha tokens (circuit breaker)
+│   │   │   └── documentGenerator.ts          # Geracao DOCX (Memoria de Calculo)
+│   │   │
+│   │   ├── connectors/
+│   │   │   ├── siscomex.ts                   # Portal Unico Siscomex (simulacao + NCM)
+│   │   │   ├── bacen.ts                      # PTAX via BACEN OData
+│   │   │   └── capsolver.ts                  # Anti-captcha (hCaptcha)
+│   │   │
+│   │   ├── lib/
+│   │   │   ├── calculator.ts                 # Engine Fiscal de 7 passos
+│   │   │   └── dashboardCache.ts             # Cache em memoria (TTL 5min)
+│   │   │
+│   │   ├── middleware/
+│   │   │   ├── requireInternalKey.ts         # Auth S2S (timing-safe compare)
+│   │   │   └── tenantIsolation.ts            # Prisma Extension por tenant_id
+│   │   │
+│   │   └── index.ts                          # Express server (porta 8020)
+│   │
+│   ├── prisma/
+│   │   ├── fragment.prisma                   # Models do SimulaCusto
+│   │   ├── schema.base.prisma                # Base Prisma config
+│   │   ├── schema.prisma                     # Schema composto (gerado)
+│   │   └── rls-policies.sql                  # RLS PostgreSQL (2a camada)
+│   │
+│   └── templates/
+│       └── memoria_calculo.docx              # Template DOCX
+│
+└── package.json
+```
+
+---
+
+## 3. fragment.prisma
+
+```prisma
+// ============================================
+// SimulaCusto — Fragment Prisma
+// Produto: simula-custo | Porta: 8020
+// ============================================
+
+// ---- ENUMS ----
+
+enum OperacaoTipo {
+  IMPORTACAO
+  EXPORTACAO
+}
+
+enum TipoOperacaoDetalhe {
+  DIRETA
+  CONTA_ORDEM
+  ENCOMENDA
+  COMERCIAL_EXPORTADORA
+}
+
+enum EstimativaStatus {
+  EM_CRIACAO
+  CRIADA
+  ARQUIVADA
+}
+
+enum TaxaTipo {
+  ORIGEM
+  DESTINO
+}
+
+enum CobrancaTipo {
+  PROCESSO
+  CONTAINER
+  AWB
+  BL
+  CRT
+  KGS
+  TON
+  CAIXA
+  M3
+}
+
+enum TributoTipo {
+  II
+  IPI
+  PIS
+  COFINS
+  ICMS
+}
+
+enum DocumentoTipo {
+  PEDIDO_COMPRA
+  PEDIDO_VENDA
+  PROFORMA
+  INVOICE
+  OUTRO
+}
+
+// ---- MODELS ----
+
+/// Estimativa de Custo (Landed Cost) — artefato volatil de simulacao
+model Estimativa {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  company_id      String
+  product_id      String   @default("simula-custo")
+  user_id         String
+  processo_id     String?  // Vinculo com CoreProcess (congela ao efetivar)
+
+  // Identificacao
+  numero          String             // EST-IMP-00001/26
+  referencia      String?            // Referencia interna (ate 30 chars)
+  operacao        OperacaoTipo       @default(IMPORTACAO)
+  tipo_operacao   TipoOperacaoDetalhe @default(DIRETA)
+  status          EstimativaStatus   @default(EM_CRIACAO)
+  data_geracao    DateTime           @default(now())
+
+  // Aba Produto
+  ncm             String
+  ncm_descricao   String?
+  incoterm        String             @default("FOB")
+  quantidade      Decimal            @db.Decimal(15, 5) @default(0)
+  moeda_produto   String             @default("USD")
+  valor_produto   Decimal            @db.Decimal(15, 2)
+
+  // Aba Frete Internacional
+  moeda_frete     String             @default("USD")
+  valor_frete     Decimal            @db.Decimal(15, 2) @default(0)
+
+  // Aba Seguro Internacional
+  moeda_seguro    String             @default("USD")
+  valor_seguro    Decimal            @db.Decimal(15, 2) @default(0)
+
+  // Aba ICMS
+  uf_desembaraco  String             @default("SP")
+  aliquota_icms   Decimal            @db.Decimal(5, 4) @default(0)
+  usa_beneficio   Boolean            @default(false)
+  icms_entrada    Decimal?           @db.Decimal(15, 2)
+  icms_saida      Decimal?           @db.Decimal(15, 2)
+
+  // Aliquotas utilizadas no calculo
+  aliquota_ii     Decimal            @db.Decimal(5, 4) @default(0)
+  aliquota_ipi    Decimal            @db.Decimal(5, 4) @default(0)
+  aliquota_pis    Decimal            @db.Decimal(5, 4) @default(0)
+  aliquota_cofins Decimal            @db.Decimal(5, 4) @default(0)
+  reducao_ii      Decimal            @db.Decimal(5, 4) @default(0)
+
+  // Resultado calculado (BRL)
+  ptax_utilizada  Decimal?           @db.Decimal(10, 4)
+  valor_aduaneiro Decimal?           @db.Decimal(15, 2)
+  total_tributos  Decimal?           @db.Decimal(15, 2)
+  landed_cost_brl Decimal?           @db.Decimal(15, 2)
+  source          String?            // 'siscomex' | 'gravity-engine' | 'fallback'
+
+  // Relacoes
+  taxas_origem    TaxaEstimativa[]   @relation("TaxasOrigem")
+  taxas_destino   TaxaEstimativa[]   @relation("TaxasDestino")
+  tributos        TributoEstimativa[]
+  documentos      DocumentoEstimativa[]
+
+  // Timestamps
+  created_at      DateTime           @default(now())
+  updated_at      DateTime           @updatedAt
+
+  // Indices obrigatorios (skill: antigravity-tenant-isolation)
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, numero])
+  @@index([tenant_id, status])
+  @@index([tenant_id, ncm])
+  @@index([processo_id])
+  @@map("estimativas_trade")
+}
+
+/// Taxas adicionais vinculadas a estimativa (Origem ou Destino)
+model TaxaEstimativa {
+  id              String      @id @default(cuid())
+  tenant_id       String
+  company_id      String
+  product_id      String      @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tipo            TaxaTipo
+  nome            String
+  moeda           String
+  cobranca_por    CobrancaTipo @default(PROCESSO)
+  valor_minimo    Decimal     @db.Decimal(15, 2) @default(0)
+  valor_total     Decimal     @db.Decimal(15, 2)
+
+  estimativa_origem  Estimativa? @relation("TaxasOrigem", ...)
+  estimativa_destino Estimativa? @relation("TaxasDestino", ...)
+
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("taxas_estimativa_trade")
+}
+
+/// Detalhamento tributario por estimativa
+model TributoEstimativa {
+  id              String      @id @default(cuid())
+  tenant_id       String
+  product_id      String      @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tributo         TributoTipo
+  aliquota        Decimal     @db.Decimal(5, 4)
+  base_calculo    Decimal     @db.Decimal(15, 2)
+  valor           Decimal     @db.Decimal(15, 2)
+  reducao         Decimal?    @db.Decimal(5, 4)
+  acordo          String?
+
+  estimativa      Estimativa  @relation(...)
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("tributos_estimativa_trade")
+}
+
+/// Documentos vinculados (PO, Proforma, Invoice)
+model DocumentoEstimativa {
+  id              String        @id @default(cuid())
+  tenant_id       String
+  product_id      String        @default("simula-custo")
+  user_id         String?
+
+  estimativa_id   String
+  tipo            DocumentoTipo
+  numero          String        // Alfanumerico ate 30 chars
+
+  estimativa      Estimativa    @relation(...)
+
+  created_at      DateTime      @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, estimativa_id])
+  @@map("documentos_estimativa_trade")
+}
+
+/// Cache de aliquotas NCM (dados publicos — SEM tenant_id)
+model CacheAliquota {
+  ncm             String   @id
+  descricao       String?
+  aliquota_ii     Decimal  @db.Decimal(5, 4)
+  aliquota_ipi    Decimal  @db.Decimal(5, 4)
+  aliquota_pis    Decimal  @db.Decimal(5, 4)
+  aliquota_cofins Decimal  @db.Decimal(5, 4)
+  acordos         Json?
+  vigencia_inicio DateTime?
+  vigencia_fim    DateTime?
+  fonte           String   @default("siscomex")
+  updated_at      DateTime @updatedAt
+
+  @@map("cache_aliquotas_ncm")
+}
+
+/// Cache de cotacoes BACEN (dados publicos — SEM tenant_id)
+model CacheCambio {
+  id              String   @id @default(cuid())
+  moeda           String
+  data_referencia DateTime
+  ptax_compra     Decimal  @db.Decimal(10, 4)
+  ptax_venda      Decimal  @db.Decimal(10, 4)
+  fetched_at      DateTime @default(now())
+
+  @@unique([moeda, data_referencia])
+  @@index([moeda])
+  @@map("cache_cambio_bacen")
+}
+
+/// Sequencia de numeracao automatica
+model SequenciaEstimativa {
+  id              String   @id @default(cuid())
+  tenant_id       String
+  user_id         String
+  ano             Int
+  ultimo_numero   Int      @default(0)
+
+  @@unique([tenant_id, user_id, ano])
+  @@index([tenant_id])
+  @@map("sequencia_estimativa_trade")
+}
+```
+
+---
+
+## 4. API Endpoints
+
+### Rotas Publicas (sem auth)
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/health` | Health check com status do DB (UptimeRobot) |
+| GET | `/api/v1/master-data/ncm/search?q={termo}` | Busca NCM por codigo ou descricao (min 3 chars) |
+| GET | `/api/v1/master-data/countries` | Lista de paises ISO 3166-1 alpha-2 (38 paises) |
+| GET | `/api/v1/master-data/ufs` | Lista de UFs brasileiras com aliquota ICMS padrao |
+
+### Rotas Protegidas — Simulacao (x-internal-key + tenant isolation)
+
+#### Motor de Calculo Fiscal
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/simula-custo` | Executa simulacao Landed Cost (Engine 7 passos ou Siscomex) |
+
+**Fluxo da simulacao:**
+1. Validacao Zod do payload (22 campos)
+2. Se PTAX nao informada, busca automatica via BACEN OData
+3. Obtencao de hCaptcha token via TokenPool
+4. Tentativa de simulacao via Portal Unico Siscomex
+5. Se Siscomex falhar, fallback para Engine Fiscal Local (7 passos)
+6. Retorna resultado com `source: 'siscomex' | 'local_engine'`
+
+#### CRUD de Estimativas
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/api/v1/simula-custo/estimativas` | Criar estimativa (numero auto: EST-IMP-00001/26) |
+| GET | `/api/v1/simula-custo/estimativas` | Listar estimativas (busca, status, paginacao) |
+| GET | `/api/v1/simula-custo/estimativas/kpis` | KPIs: total, por status, landed cost medio, tributos acumulados |
+| GET | `/api/v1/simula-custo/estimativas/:id` | Detalhe de uma estimativa |
+| POST | `/api/v1/simula-custo/estimativas/:id/duplicar` | Duplicar estimativa existente |
+| PATCH | `/api/v1/simula-custo/estimativas/:id/status` | Alterar status (EM_CRIACAO, CRIADA, ARQUIVADA) |
+
+#### Dashboard
+
+| Method | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/api/v1/dashboard/kpis` | KPIs consolidados: total, finalizadas, rascunhos, landed cost (media/max/min), CIF USD, viabilidade |
+| GET | `/api/v1/dashboard/recentes` | Ultimas 10 simulacoes (NCM, pais, FOB USD, landed cost, status) |
+
+**Cache:** Dashboard usa cache em memoria com TTL de 5 minutos por tenant. Invalidacao automatica via `invalidateDashboardCache(tenantId)`.
+
+---
+
+## 5. Motor de Calculo Fiscal (Engine de 7 Passos)
+
+O motor de calculo (`calculator.ts`) implementa a legislacao aduaneira brasileira para calculo de Landed Cost em importacoes. Todos os valores sao calculados em BRL usando a PTAX informada ou obtida automaticamente via BACEN.
+
+### Visao Geral do Fluxo
+
+```
+Entrada (SimulacaoInput)
+    |
+    v
+[Passo 1] Valor Aduaneiro (VA)
+    |
+    v
+[Passo 2] Imposto de Importacao (II)
+    |
+    v
+[Passo 3] IPI
+    |
+    v
+[Passo 4] PIS-Importacao
+    |
+    v
+[Passo 5] COFINS-Importacao
+    |
+    v
+[Passo 6] Base ICMS "Por Dentro"
+    |
+    v
+[Passo 7] ICMS
+    |
+    v
+Saida (SimulacaoResult) => Landed Cost BRL
+```
+
+### Detalhamento dos 7 Passos
+
+#### Passo 1 — Valor Aduaneiro (VA)
+
+```
+VA = (ValorProduto + FreteInternacional + SeguroInternacional + TaxasOrigem) x PTAX
+```
+
+- Cada componente e convertido individualmente para BRL usando sua moeda e a PTAX
+- Taxas de Origem: capatazia no exterior, THC, certificados, etc.
+- Se moeda = BRL, conversao e ignorada (fator 1.0)
+
+#### Passo 2 — Imposto de Importacao (II)
+
+```
+AliquotaEfetiva = AliquotaII x (1 - ReducaoII)
+II = VA x AliquotaEfetiva
+```
+
+- `ReducaoII` (0.0 a 1.0) aplica descontos de acordos comerciais (Mercosul, Ex-Tarifario)
+- Base de calculo: exclusivamente o Valor Aduaneiro
+
+#### Passo 3 — IPI (Imposto sobre Produtos Industrializados)
+
+```
+BaseIPI = VA + II
+IPI = BaseIPI x AliquotaIPI
+```
+
+- Base de calculo incorpora o II (imposto-sobre-imposto)
+
+#### Passo 4 — PIS-Importacao
+
+```
+PIS = VA x AliquotaPIS
+```
+
+- Base de calculo: exclusivamente o Valor Aduaneiro
+- Aliquota padrao: 2,10% (pode variar por NCM)
+
+#### Passo 5 — COFINS-Importacao
+
+```
+COFINS = VA x AliquotaCOFINS
+```
+
+- Base de calculo: exclusivamente o Valor Aduaneiro
+- Aliquota padrao: 10,65% (pode variar por NCM)
+
+#### Passo 6 — Base ICMS "Por Dentro"
+
+```
+SomaBasesPrevias = VA + II + IPI + PIS + COFINS + TaxasDestino
+BaseICMS = SomaBasesPrevias / (1 - AliquotaICMS)
+```
+
+- TaxasDestino: capatazia nacional, armazenagem, frete rodoviario, etc.
+- O ICMS e calculado "por dentro" (incide sobre sua propria base) conforme legislacao estadual
+- A divisao por `(1 - AliquotaICMS)` implementa o calculo reverso obrigatorio
+
+#### Passo 7 — ICMS
+
+```
+ICMS = BaseICMS x AliquotaICMS
+```
+
+- Aliquota varia por UF de desembaraco (17% a 22%)
+- Aliquotas padrao por UF disponiveis via endpoint `/api/v1/master-data/ufs`
+
+### Resultado Final — Landed Cost
+
+```
+TotalTributos = II + IPI + PIS + COFINS + ICMS
+LandedCost(BRL) = VA + TotalTributos + TaxasDestino(BRL)
+```
+
+### Estrategia Dual-Source
+
+O SimulaCusto opera com duas fontes de calculo:
+
+| Prioridade | Fonte | Descricao |
+|-----------|-------|-----------|
+| 1 (primaria) | **Siscomex** | Simulacao oficial via Portal Unico. Requer hCaptcha token. |
+| 2 (fallback) | **Gravity Engine** | Engine local de 7 passos. Usado quando Siscomex esta indisponivel. |
+
+O campo `source` no resultado indica qual fonte gerou o calculo: `'siscomex'` ou `'local_engine'`.
+
+### Seguranca de Ponto Flutuante
+
+- Todos os valores monetarios usam `Decimal` no Prisma (`@db.Decimal(15, 2)`)
+- Aliquotas usam `@db.Decimal(5, 4)` para precisao de 4 casas decimais
+- PTAX usa `@db.Decimal(10, 4)` para precisao de cotacao
+- **NUNCA** formatar/parsear como strings dentro do banco — correm nativamente em Decimal/Float
+- A 4a casa decimal pode alterar a base de calculo (IPI, PIS, COFINS, ICMS)
+
+---
+
+## 6. Regras de Negocio
+
+### 6.1 Ciclo de Vida da Estimativa
+
+```
+EM_CRIACAO --> CRIADA --> ARQUIVADA
+     |            |
+     +--- (editar)---+
+```
+
+- **EM_CRIACAO:** Rascunho editavel. Pode ser duplicada ou excluida.
+- **CRIADA:** Estimativa finalizada. Pode ser efetivada (vinculada a um CoreProcess via `processo_id`).
+- **ARQUIVADA:** Historico/lixeira. Nao aceita mais edicao.
+
+### 6.2 Efetivacao (Conexao com CoreProcess)
+
+Quando o operador aduaneiro decide que a estimativa "vai virar um processo real":
+1. O campo `processo_id` recebe o `core_id` do processo
+2. A estimativa congela (nao aceita mais edicao)
+3. As taxas sao absorvidas pelo CoreProcess
+4. A estimativa vira prova historica do planejamento para comparacao com o custo real efetivo
+
+### 6.3 Numeracao Automatica
+
+Formato: `EST-{PREFIXO}-{SEQUENCIAL}/{ANO}`
+
+- **PREFIXO:** `IMP` (importacao) ou `EXP` (exportacao)
+- **SEQUENCIAL:** 5 digitos, por tenant + usuario + ano
+- **ANO:** 2 digitos (ex: 26)
+- Exemplo: `EST-IMP-00001/26`
+- Gerado via model `SequenciaEstimativa` com upsert atomico
+
+### 6.4 Isolamento de Dados
+
+- Toda tabela transacional possui `tenant_id` + `company_id` obrigatorios
+- Dados de estimativa sao segredo industrial (NCMs, margens, precos de fornecedor)
+- Zero-Trust Isolation Nivel 2: ID vazado nunca permite cross-tenant access
+
+### 6.5 Classificacao de Viabilidade (Dashboard)
+
+O dashboard classifica automaticamente estimativas por viabilidade tributaria:
+
+| Nivel | Condicao | Significado |
+|-------|----------|-------------|
+| **Viavel** | `total_tributos / landed_cost_brl <= 30%` | Carga tributaria aceitavel |
+| **Atencao** | `total_tributos / landed_cost_brl <= 50%` | Carga tributaria elevada |
+| **Inviavel** | `total_tributos / landed_cost_brl > 50%` | Operacao provavelmente deficitaria |
+
+### 6.6 Tipos de Operacao
+
+| Tipo | Descricao |
+|------|-----------|
+| **DIRETA** | Importacao direta pelo comprador |
+| **CONTA_ORDEM** | Terceiro adquire, comprador recebe |
+| **ENCOMENDA** | Importador atua sob encomenda |
+| **COMERCIAL_EXPORTADORA** | Via trading company |
+
+### 6.7 Tipos de Cobranca de Taxas
+
+Taxas de origem e destino podem ser cobradas por diferentes unidades:
+
+| Tipo | Exemplo |
+|------|---------|
+| PROCESSO | Capatazia fixa por processo |
+| CONTAINER | THC por container |
+| AWB | Taxa por conhecimento aereo |
+| BL | Taxa por Bill of Lading |
+| CRT | Taxa por conhecimento rodoviario |
+| KGS / TON | Armazenagem por peso |
+| CAIXA / M3 | Frete por volume |
+
+---
+
+## 7. Seguranca
+
+### 7.1 Middleware Stack (index.ts)
+
+```
+1.  Helmet (security headers com CSP restritivo)
+2.  Body parser (JSON)
+3.  CORS (localhost:8001, localhost:8000, CLIENT_URL)
+4.  Static files (client build)
+5.  Health check (GET /health — sem auth)
+6.  Master data routes (GET /api/v1/master-data/* — sem auth, dados publicos)
+7.  requireInternalKey middleware
+8.  tenantIsolationMiddleware
+9.  Rotas do produto (simulate, estimativas, dashboard)
+10. SPA fallback
+11. Global error handler
+```
+
+### 7.2 Autenticacao S2S (requireInternalKey)
+
+- Valida header `x-internal-key` com `timingSafeEqual` (previne timing attacks)
+- Se `INTERNAL_SERVICE_KEY` nao configurada, bloqueia todas as requisicoes (fail-closed)
+- Rotas publicas (`/health`, `/api/v1/master-data/*`) sao isentas
+
+### 7.3 Tenant Isolation (3 camadas)
+
+| Camada | Mecanismo | Descricao |
+|--------|-----------|-----------|
+| **1 — Middleware** | Prisma Extension | Injeta `tenant_id` em toda query via `$extends()`. Intercepta `findMany`, `findFirst`, `create`, `update`, `delete`. |
+| **2 — RLS** | PostgreSQL | Row-Level Security ativado em todas as tabelas transacionais. Politica: `USING (tenant_id = current_setting('app.current_tenant_id', true))` |
+| **3 — Indices** | Prisma Schema | Todo model tem `@@index([tenant_id])`, `@@index([tenant_id, product_id])`, `@@index([tenant_id, user_id])` |
+
+**REGRA ABSOLUTA:** `tenant_id` NUNCA vem do payload da requisicao — sempre do header `x-tenant-id` propagado pelo Gateway (JWT).
+
+### 7.4 Content Security Policy (Helmet)
+
+```
+defaultSrc: ['self']
+scriptSrc:  ['self', 'unsafe-inline']
+styleSrc:   ['self', 'unsafe-inline', 'fonts.googleapis.com']
+fontSrc:    ['self', 'fonts.gstatic.com']
+imgSrc:     ['self', 'data:']
+connectSrc: ['self', 'ws://localhost:*']
+objectSrc:  ['none']
+baseUri:    ['self']
+```
+
+### 7.5 Checklist de Seguranca
+
+- [x] Todo model Prisma tem `tenant_id` obrigatorio
+- [x] Todo endpoint tem validacao Zod antes do banco
+- [x] `tenantIsolationMiddleware` no servidor
+- [x] `requireInternalKey` protege chamadas S2S
+- [x] `x-tenant-id` propagado pelo Gateway (JWT), nunca do body
+- [x] Health check sem auth em `/health`
+- [x] Nenhum `console.log` com dados sensiveis
+- [x] Variaveis via `process.env`, nunca hardcoded
+- [x] Timing-safe compare para chave interna
+- [x] Valores monetarios com precisao controlada (2 ou 4 casas)
+- [x] RLS ativado em todas as tabelas transacionais
+- [x] Tabelas de cache (NCM, Cambio) sem tenant_id (dados publicos)
+
+---
+
+## 8. Integracoes Externas
+
+### 8.1 Portal Unico Siscomex
+
+**Conector:** `connectors/siscomex.ts`
+**Base URL:** `https://api-externa.portalunico.siscomex.gov.br/ttce/api/ext`
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/ncm/{codigo}` | Detalhes tecnicos de NCM de 8 digitos |
+| POST | `/simular-calculo-publico` | Simulacao oficial de calculo tributario |
+
+**Comportamento:**
+- Usado como fonte primaria de calculo fiscal
+- Se falhar (timeout, erro, indisponibilidade), o Engine Local assume como fallback
+- Mock automatico para NCM de teste (`84713019`) em ambiente de desenvolvimento
+
+### 8.2 BACEN (Banco Central do Brasil)
+
+**Conector:** `connectors/bacen.ts`
+**Base URL:** `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata`
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| GET | `/CotacaoMoedaDia(moeda,dataCotacao)` | PTAX do dia (compra + venda) |
+
+**Comportamento:**
+- Busca automatica se PTAX nao informada pelo usuario
+- Formato de data: `MM-DD-YYYY` (exigencia do BACEN)
+- **Fallback hardcoded:** Se a API estiver indisponivel, retorna PTAX de referencia (5.92 venda / 5.91 compra) para nao bloquear a simulacao
+- Dados cacheados na tabela `cache_cambio_bacen` (moeda + data_referencia)
+
+### 8.3 CapSolver (Anti-Captcha)
+
+**Conector:** `connectors/capsolver.ts`
+**Base URL:** `https://api.capsolver.com`
+
+| Metodo | Endpoint | Descricao |
+|--------|----------|-----------|
+| POST | `/createTask` | Cria tarefa de resolucao hCaptcha |
+| POST | `/getTaskResult` | Consulta resultado (polling) |
+
+**Configuracao:**
+- `CAPSOLVER_API_KEY` — Chave de API
+- `SISCOMEX_HCAPTCHA_SITE_KEY` — Site key do Portal Unico (`51829642-2c97-4db0-881c-d40b4ef3b259`)
+- Tipo de tarefa: `HCaptchaTaskProxyLess`
+- Timeout: 60 segundos (20 tentativas x 3s de intervalo)
+- Modo mock se API key nao configurada (retorna `MOCK_TOKEN_RESOLVIDO`)
+
+### 8.4 Token Pool (Servico Interno)
+
+**Servico:** `services/tokenPool.ts`
+
+O TokenPool pre-resolve hCaptcha tokens em background para eliminar a latencia de 15-45 segundos por requisicao.
+
+| Parametro | Valor | Descricao |
+|-----------|-------|-----------|
+| `TOKEN_TTL_MS` | 120.000ms (2min) | Tempo de vida de cada token |
+| `POOL_MAX_SIZE` | 5 | Maximo de tokens em reserva |
+| `RESOLVE_INTERVAL_MS` | 30.000ms (30s) | Intervalo de reabastecimento |
+
+**Circuit Breaker:**
+- Ativado apos 3 falhas consecutivas
+- Suspende resolucao por 60 segundos
+- Reset automatico apos periodo de suspensao
+
+**Fluxo:**
+```
+1. Requisicao chega -> getToken()
+2. Se pool tem token valido -> retorna imediatamente
+3. Se pool vazio -> fallback sincrono (resolve na hora, 15-45s)
+4. Background: reabastece pool a cada 30s se abaixo de 5 tokens
+```
+
+---
+
+## 9. Feature Flags
+
+| Flag | Valor Padrao | Descricao |
+|------|-------------|-----------|
+| `siscomex_integration` | `'active'` | Habilita simulacao via Portal Unico Siscomex |
+| `bacen_auto_update` | `true` | Busca automatica de PTAX quando nao informada |
+| `default_icms_mode` | `'inside_calc'` | Modo de calculo ICMS "por dentro" (legislacao padrao) |
+| `anti_captcha_provider` | `'capsolver'` | Provider de resolucao de hCaptcha |
+| `token_pool_enabled` | `true` | Pool de tokens pre-resolvidos em background |
+
+---
+
+## 10. Mapa de Reuso
+
+### Servicos Gravity Reutilizados
+
+| Servico | Porta | Uso no SimulaCusto |
+|---------|-------|-------------------|
+| Configurador | 8000 | Auth Clerk, JWT, permissoes, workspace |
+| Atividades | 8012 | Log de acoes do operador |
+| Dashboard | 8010 | KPIs cross-product |
+| Relatorios | 8011 | Exportacao de relatorios |
+| Historico | 8014 | Audit trail de alteracoes |
+| Notificacoes | 8013 | Alertas in-app |
+| GABI | 8015 | IA — analise de custos e sugestoes |
+| Email | 8022 | Disparo de memorias de calculo |
+| WhatsApp | — | Notificacoes via WhatsApp |
+
+### Componentes nucleo-global Reutilizados
+
+| Componente | Uso |
+|-----------|-----|
+| TabelaGlobal | Grid de estimativas (paginacao, filtros) |
+| CaixaSelectGlobal | Filtros de status, UF, pais, moeda |
+| InputTexto | Formularios de estimativa |
+| ModalGlobal | Modal de simulacao fiscal |
+| BadgeStatus | Status de estimativas (EM_CRIACAO, CRIADA, ARQUIVADA) |
+| BotaoGlobal | Acoes (Simular, Duplicar, Arquivar) |
+| Loading | Skeleton/spinner |
+
+### O que e criado do zero
+
+| Componente/Engine | Justificativa |
+|-------------------|-------------|
+| calculator.ts (Engine Fiscal) | Logica tributaria de 7 passos — especifica de importacao |
+| tokenPool.ts | Pool de hCaptcha com circuit breaker — nao existe em outros produtos |
+| siscomex.ts | Conector com Portal Unico — exclusivo de comex |
+| bacen.ts | Conector PTAX BACEN — exclusivo de cambio |
+| capsolver.ts | Anti-captcha — exclusivo da integracao Siscomex |
+| documentGenerator.ts | Geracao de Memoria de Calculo DOCX |
+| dashboardCache.ts | Cache em memoria com TTL por tenant |
+
+---
+
+## 11. Variaveis de Ambiente
+
+```bash
+PORT=8020
+NODE_ENV=development
+DATABASE_URL=postgresql://user:pass@localhost:5432/simula_custo_db
+INTERNAL_SERVICE_KEY=dev-key
+
+# Integracao Siscomex
+SISCOMEX_BASE_URL=https://api-externa.portalunico.siscomex.gov.br/ttce/api/ext
+SISCOMEX_HCAPTCHA_SITE_KEY=51829642-2c97-4db0-881c-d40b4ef3b259
+
+# Integracao BACEN
+BACEN_URL=https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata
+
+# Anti-Captcha
+CAPSOLVER_API_KEY=cap_xxxxxxxxxxxxxxxxxxxxxxx
+
+# Tenant Services
+EMAIL_SERVICE_URL=http://localhost:8022
+ATIVIDADES_SERVICE_URL=http://localhost:8012
+NOTIFICACOES_SERVICE_URL=http://localhost:8013
+HISTORICO_SERVICE_URL=http://localhost:8014
+GABI_SERVICE_URL=http://localhost:8015
+DASHBOARD_SERVICE_URL=http://localhost:8010
+RELATORIOS_SERVICE_URL=http://localhost:8011
+
+# Application URLs
+APP_URL=http://localhost:8001
+CLIENT_URL=http://localhost:8001
+```

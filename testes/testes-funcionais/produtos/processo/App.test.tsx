@@ -209,8 +209,8 @@ describe('App — Produto Processo', () => {
       expect(PRODUCT_CONFIG.port).toBe(8025)
     })
 
-    it('tem 8 tenantServices', () => {
-      expect(PRODUCT_CONFIG.tenantServices).toHaveLength(8)
+    it('tem 9 tenantServices', () => {
+      expect(PRODUCT_CONFIG.tenantServices).toHaveLength(9)
     })
 
     it('tenantServices contem os servicos esperados', () => {

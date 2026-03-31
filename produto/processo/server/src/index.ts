@@ -16,6 +16,7 @@ import { pedidosRouter } from '../../../../servicos-global/tenant/processos-core
 import { importacaoRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/importacao.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
+import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -85,6 +86,9 @@ app.use(requireInternalKey)
 //    tenant_id vem do header x-tenant-id propagado pelo Gateway (JWT)
 //    NUNCA vem do body da requisicao
 app.use(tenantIsolationMiddleware)
+
+// --- 7.1. Observabilidade — captura metricas para API Cockpit ----------------
+app.use(apiObservability('processo'))
 
 // --- 8. Rotas do Produto ------------------------------------------------------
 app.use('/api/v1/processos', processosRouter)

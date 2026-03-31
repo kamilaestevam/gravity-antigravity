@@ -121,6 +121,10 @@ app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por ten
 import { adminSecurityRouter } from './routes/adminSecurity.js'
 app.use('/api/admin/security', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
 
+import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
+app.use('/api/cockpit', apiCockpitRouter)                  // workspace: observabilidade por tenant
+app.use('/api/admin/cockpit', apiCockpitAdminRouter)       // admin: observabilidade global
+
 // ─── Catálogo público (sem auth — usado pelo Store/Marketplace) ─────────────
 
 app.use('/api/v1/catalog', publicCatalogRouter)

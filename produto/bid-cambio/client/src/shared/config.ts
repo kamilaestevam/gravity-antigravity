@@ -20,6 +20,7 @@ export const PRODUCT_CONFIG = {
     'gabi',
     'email',
     'agendamento',
+    'api-cockpit',
   ],
 
   productServices: [

@@ -21,6 +21,7 @@ export const PRODUCT_CONFIG = {
     'email',
     'whatsapp',
     'agendamento',
+    'api-cockpit',
   ],
 
   productServices: [

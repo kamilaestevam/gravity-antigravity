@@ -49,8 +49,8 @@ describe('PRODUCT_CONFIG', () => {
       }
     })
 
-    it('deve ter exatamente 9 tenant services', () => {
-      expect(PRODUCT_CONFIG.tenantServices).toHaveLength(9)
+    it('deve ter exatamente 10 tenant services', () => {
+      expect(PRODUCT_CONFIG.tenantServices).toHaveLength(10)
     })
   })
 

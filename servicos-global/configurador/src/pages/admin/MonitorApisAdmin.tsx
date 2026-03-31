@@ -62,12 +62,43 @@ export function MonitorApisAdmin() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Estado Real: banco iniciando vazio no Railway
     const carregarMonitor = async () => {
       setLoading(true)
       try {
-        setServicos([])
-        setLogs([])
+        const [svcRes, logsRes] = await Promise.all([
+          fetch('/api/admin/cockpit/services', { credentials: 'include' }),
+          fetch('/api/admin/cockpit/logs?limit=50', { credentials: 'include' }),
+        ])
+
+        if (svcRes.ok) {
+          const svcData = await svcRes.json()
+          setServicos((svcData.services || []).map((s: any) => ({
+            id: s.name,
+            produto: s.name,
+            organizacao: 'Gravity',
+            baseUrl: `http://localhost`,
+            status: s.status === 'online' ? 'Online' : s.status === 'degraded' ? 'Degradado' : 'Offline',
+            tipoCobranca: s.type,
+            consumoAtual: 0,
+            consumoLimite: null,
+          })))
+        }
+
+        if (logsRes.ok) {
+          const logsData = await logsRes.json()
+          setLogs((logsData.logs || []).map((l: any) => ({
+            id: l.id,
+            data: l.data,
+            hora: l.hora,
+            organizacao: l.organizacao,
+            produto: l.produto,
+            metodo: l.metodo || l.method,
+            endpoint: l.endpoint || l.path,
+            statusCode: l.statusCode,
+            duracao: l.duracao,
+          })))
+        }
+
         setAlertas([])
       } catch (err) {
         console.error('Erro ao carregar monitor real:', err)

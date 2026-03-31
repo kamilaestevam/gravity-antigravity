@@ -31,6 +31,7 @@ export const PRODUCT_CONFIG = {
     'gabi',
     'email',
     'whatsapp',
+    'api-cockpit',
   ] as const,
 
   // Serviços de produto (rodam dentro deste servidor, dados em simulacusto-db)

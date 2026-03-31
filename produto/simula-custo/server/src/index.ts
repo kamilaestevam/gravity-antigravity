@@ -16,6 +16,7 @@ import { dashboardRouter } from './routes/dashboard.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { tokenPool } from './services/tokenPool.js'
+import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -86,6 +87,9 @@ app.use(requireInternalKey)
 //    tenant_id vem do header x-tenant-id propagado pelo Gateway (JWT)
 //    NUNCA vem do body da requisição
 app.use(tenantIsolationMiddleware)
+
+// ─── 7.1. Observabilidade — captura metricas para API Cockpit ─────────────────
+app.use(apiObservability('simula-custo'))
 
 // ─── 8. Rotas do Produto ───────────────────────────────────────────────────────
 app.use('/api/v1/simula-custo', simulateRouter)

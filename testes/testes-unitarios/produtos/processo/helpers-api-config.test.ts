@@ -657,8 +657,8 @@ describe('PRODUCT_CONFIG: identity', () => {
 })
 
 describe('PRODUCT_CONFIG: tenantServices', () => {
-  it('has exactly 8 tenant services', () => {
-    expect(PRODUCT_CONFIG.tenantServices).toHaveLength(8)
+  it('has exactly 9 tenant services', () => {
+    expect(PRODUCT_CONFIG.tenantServices).toHaveLength(9)
   })
 
   it.each([

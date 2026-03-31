@@ -18,6 +18,7 @@ import { tokensRouter } from './routes/tokens'
 import { webhooksRouter } from './routes/webhooks'
 import { erpRouter } from './routes/erp'
 import { docsRouter } from './routes/docs'
+import { observabilityRouter } from './routes/observability'
 import { requireInternalKey } from './middleware/requireInternalKey'
 import { rateLimitPresets } from '../../../middleware/rateLimiter'
 
@@ -41,6 +42,7 @@ app.use('/api/v1/cockpit/tokens', tokensRouter)
 app.use('/api/v1/cockpit/webhooks', webhooksRouter)
 app.use('/api/v1/erp', erpRouter)
 app.use('/api/v1/cockpit/docs', requireInternalKey, docsRouter)
+app.use('/api/v1/cockpit/observability', observabilityRouter)
 
 // Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

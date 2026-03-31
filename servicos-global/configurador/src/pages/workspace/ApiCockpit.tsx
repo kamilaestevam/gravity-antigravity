@@ -58,8 +58,20 @@ export function ApiCockpit() {
     const carregarCockpit = async () => {
       setLoading(true)
       try {
-        setServicos([])
-        setLogs([])
+        const [svcRes, logsRes] = await Promise.all([
+          fetch('/api/cockpit/services', { credentials: 'include' }),
+          fetch('/api/cockpit/logs?limit=50', { credentials: 'include' }),
+        ])
+
+        if (svcRes.ok) {
+          const svcData = await svcRes.json()
+          setServicos(svcData.services || [])
+        }
+
+        if (logsRes.ok) {
+          const logsData = await logsRes.json()
+          setLogs(logsData.logs || [])
+        }
       } catch (err) {
         // ApiCockpit ainda sem endpoint real — silencia durante desenvolvimento
       } finally {

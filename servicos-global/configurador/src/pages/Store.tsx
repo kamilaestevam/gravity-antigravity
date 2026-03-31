@@ -126,7 +126,7 @@ export function Store() {
 
   const { user } = useUser()
   const { signOut } = useClerk()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
   const isLight = currentTheme === 'light'
   
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
@@ -161,7 +161,7 @@ export function Store() {
           setSubscribed(map)
         }
       } catch (err) {
-        console.error('[Store] Erro ao carregar:', err)
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar catálogo de produtos.' })
       } finally {
         setLoading(false)
       }
@@ -195,7 +195,9 @@ export function Store() {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ product_key: slug }),
-          }).catch(() => {}) // silently fail — produto já fica no tenant
+          }).catch((e) => {
+            console.warn('[Store] Falha ao auto-habilitar produto na company:', e)
+          })
         }
 
         setSubscribed(prev => {
@@ -203,9 +205,13 @@ export function Store() {
           next.set(slug, { product_key: slug, is_active: true })
           return next
         })
+        addNotification({ type: 'success', message: 'Produto contratado com sucesso!' })
+      } else {
+        const body = await res.json().catch(() => ({ error: { message: res.statusText } }))
+        addNotification({ type: 'error', message: body?.error?.message ?? 'Falha ao contratar produto.' })
       }
     } catch (err) {
-      console.error('[Store] Erro ao contratar:', err)
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao contratar produto. Tente novamente.' })
     } finally {
       setSubscribing(null)
     }

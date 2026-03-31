@@ -8,6 +8,7 @@ import { ModalAgendamentoTestes } from './ModalAgendamentoTestes'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { adminTestLogsApi, type TestLogApi } from '../../services/apiClient'
+import { useShellStore } from '@gravity/shell'
 
 
 type TipoTeste = 'E2E' | 'FUNCIONAL' | 'UNITARIO'
@@ -57,6 +58,7 @@ function mapTestLogToLocal(log: TestLogApi): LogTeste {
 }
 
 export function LogTestes() {
+  const addNotification = useShellStore((s) => s.addNotification)
   const [dados, setDados] = useState<LogTeste[]>([])
   const [carregando, setCarregando] = useState(true)
   const [loadingCode, setLoadingCode] = useState<string | null>(null)
@@ -69,8 +71,8 @@ export function LogTestes() {
         setCarregando(true)
         const res = await adminTestLogsApi.list()
         setDados(res.logs.map(mapTestLogToLocal))
-      } catch {
-        console.warn('Falha ao carregar logs de teste')
+      } catch (err) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar logs de teste.' })
       } finally {
         setCarregando(false)
       }

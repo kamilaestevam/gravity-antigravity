@@ -17,6 +17,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { createPortal } from 'react-dom'
 import { exportarExcel } from '../../services/exportService'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { useShellStore } from '@gravity/shell'
 
 
 type FaturaStatus = 'Pago' | 'Pendente' | 'Atrasado'
@@ -82,6 +83,7 @@ const statusBadge: Record<FaturaStatus, string> = {
 }
 
 export function AdminFinanceiro() {
+  const addNotification = useShellStore((s) => s.addNotification)
   const [faturasLocal, setFaturasLocal] = useState<FaturaGlobal[]>([])
   const [carregando, setCarregando] = useState(true)
 
@@ -91,8 +93,8 @@ export function AdminFinanceiro() {
         setCarregando(true)
         const res = await adminBillingApi.listInvoices()
         setFaturasLocal(res.invoices.map((inv, i) => mapSubscriptionToFatura(inv, i)))
-      } catch {
-        console.warn('Falha ao carregar faturas globais')
+      } catch (err) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar faturas globais.' })
       } finally {
         setCarregando(false)
       }
@@ -107,7 +109,7 @@ export function AdminFinanceiro() {
   const totalInadimplencia = inadimplencias.reduce((acc, f) => acc + parseFloat(f.valor.replace('R$ ', '').replace('.', '').replace(',', '.')), 0)
 
   function handleDownload(tipo: string, num: string) {
-    alert(`Preparando download de ${tipo} da fatura ${num}.`)
+    addNotification({ type: 'info', message: `Preparando download de ${tipo} da fatura ${num}.` })
   }
 
   // === Estado para Modal de Cadastro
@@ -165,15 +167,16 @@ export function AdminFinanceiro() {
       setFaturasLocal(prev => [nova, ...prev])
     }
     
-    alert('Fatura salva com sucesso! (Simulação em State Local)')
+    addNotification({ type: 'success', message: faturaEditando ? 'Fatura atualizada com sucesso!' : 'Fatura criada com sucesso!' })
     setModalAberto(false)
   }
 
   function handleConfirmarExclusao() {
     if (!faturaParaExcluir) return
+    const num = faturaParaExcluir.num
     setFaturasLocal(prev => prev.filter(f => f.id !== faturaParaExcluir.id))
     setFaturaParaExcluir(null)
-    // alert('Fatura excluída com sucesso!')
+    addNotification({ type: 'success', message: `Fatura ${num} excluída com sucesso.` })
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {

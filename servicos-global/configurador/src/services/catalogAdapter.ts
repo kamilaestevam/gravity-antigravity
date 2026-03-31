@@ -159,9 +159,9 @@ export const catalogApiService = {
     try {
       const { products } = await adminProductsApi.list()
       return products.map(apiToUi)
-    } catch {
-      console.warn('[catalogAdapter] API indisponível, usando fallback vazio')
-      return []
+    } catch (err) {
+      console.warn('[catalogAdapter] API indisponível:', err instanceof Error ? err.message : err)
+      throw err
     }
   },
 
@@ -206,8 +206,9 @@ export const catalogApiService = {
         }
       }
       return negs
-    } catch {
-      return []
+    } catch (err) {
+      console.warn('[catalogAdapter] Erro ao buscar negociações:', err instanceof Error ? err.message : err)
+      throw err
     }
   },
 

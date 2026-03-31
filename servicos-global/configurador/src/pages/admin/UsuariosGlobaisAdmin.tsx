@@ -19,6 +19,7 @@ import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
 import { adminUsersApi, type GlobalUserApi } from '../../services/apiClient'
+import { useShellStore } from '@gravity/shell'
 
 // ─── Tipos globais ─────────────────────────────────────────────────────────────
 // Documentação central em src/types/niveis-acesso.ts
@@ -97,6 +98,7 @@ const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
 
 export function UsuariosGlobaisAdmin() {
   // Mock do usuário logado — No futuro, recuperar de um AuthContext
+  const addNotification = useShellStore((s) => s.addNotification)
   const [perfilLogado] = useState<NivelAcesso>('Super Admin')
 
   const [users, setUsers] = useState<GlobalUser[]>([])
@@ -121,8 +123,8 @@ export function UsuariosGlobaisAdmin() {
         setCarregando(true)
         const res = await adminUsersApi.list()
         setUsers(res.users.map(mapApiUserToGlobal))
-      } catch {
-        console.warn('Falha ao carregar usuários globais')
+      } catch (err) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar usuários globais.' })
       } finally {
         setCarregando(false)
       }
@@ -153,6 +155,7 @@ export function UsuariosGlobaisAdmin() {
       espacos: [{ id: String(Date.now() + 1), nome: fOrg + ' Principal', subdominio: fOrg.toLowerCase().replace(/\s/g, ''), perfil: fTipo }]
     }
     setUsers(prev => [...prev, newUser])
+    addNotification({ type: 'success', message: `Usuário "${fNome.trim()}" adicionado com sucesso!` })
     setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
   }
 

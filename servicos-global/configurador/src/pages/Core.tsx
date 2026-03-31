@@ -53,7 +53,7 @@ export function Core() {
   const { user } = useUser()
   const { signOut } = useClerk()
   const { getToken } = useAuth()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
 
   useSyncClerkToShell()
 
@@ -69,17 +69,13 @@ export function Core() {
   const [isGabiOpen, setIsGabiOpen] = useState(false)
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
 
-  // Se não selecionou workspace, volta ao Hub
-  if (!companyId) {
-    return <Navigate to="/hub" replace />
-  }
-
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
 
   // Carregar produtos ativos do workspace
   useEffect(() => {
+    if (!companyId) return
     async function loadProducts() {
       try {
         const token = await getToken()
@@ -97,8 +93,8 @@ export function Core() {
             }))
           setProdutosAtivos(ativos)
         }
-      } catch {
-        // Fallback silencioso
+      } catch (err) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar produtos ativos.' })
       }
     }
     loadProducts()
@@ -196,6 +192,11 @@ export function Core() {
   useEffect(() => {
     document.body.classList.toggle('tooltips-disabled', tooltipsDisabled)
   }, [tooltipsDisabled])
+
+  // Se não selecionou workspace, volta ao Hub (após todos os hooks)
+  if (!companyId) {
+    return <Navigate to="/hub" replace />
+  }
 
   return (
     <div className="ws-shell">

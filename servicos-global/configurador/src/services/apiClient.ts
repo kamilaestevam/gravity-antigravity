@@ -58,8 +58,8 @@ async function request<T>(
   })
 
   if (!res.ok) {
-    const body = await res.json().catch(() => ({ error: res.statusText }))
-    throw new Error(body.message ?? body.error ?? `HTTP ${res.status}`)
+    const body = await res.json().catch(() => ({ error: { message: res.statusText } }))
+    throw new Error(body?.error?.message ?? body?.message ?? `HTTP ${res.status}`)
   }
 
   return res.json()

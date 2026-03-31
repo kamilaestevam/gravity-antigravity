@@ -103,8 +103,8 @@ export function VisaoGeralAdmin() {
           setDadosIniciais(loaded)
           resetDirty(loaded)
         }
-      } catch {
-        addNotification({ type: 'error', message: 'Falha ao carregar dados da plataforma.' })
+      } catch (err) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar dados da plataforma.' })
       } finally {
         setCarregando(false)
       }
@@ -157,10 +157,10 @@ export function VisaoGeralAdmin() {
         type: 'success',
         message: 'Configurações globais salvas com sucesso!'
       })
-    } catch {
+    } catch (err) {
       addNotification({
         type: 'error',
-        message: 'Falha ao salvar. Tente novamente.'
+        message: err instanceof Error ? err.message : 'Falha ao salvar. Tente novamente.'
       })
     } finally {
       setSalvando(false)

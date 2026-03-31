@@ -136,8 +136,8 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         suspendedWorkspaces: allWorkspaces - activeWs,
         totalUsers: s.totalUsers,
       })
-    } catch {
-      setError('Erro ao carregar os metadados do servidor. Painel rodando em read-only fallback.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar os metadados do servidor. Painel rodando em read-only fallback.')
     } finally {
       setLoading(false)
     }
@@ -194,6 +194,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     setTenants(prev => [novo, ...prev])
     setStats(prev => prev ? { ...prev, totalTenants: prev.totalTenants + 1, activeTenants: prev.activeTenants + 1 } : null)
     setShowNovaOrg(false)
+    addNotification({ type: 'success', message: `Organização "${dados.nome}" criada com sucesso!` })
   }
 
   function handleEditOrg(linha: Tenant) {

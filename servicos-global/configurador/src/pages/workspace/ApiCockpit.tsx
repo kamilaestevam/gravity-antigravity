@@ -61,7 +61,7 @@ export function ApiCockpit() {
         setServicos([])
         setLogs([])
       } catch (err) {
-        console.error('Erro ao carregar dados reais:', err)
+        // ApiCockpit ainda sem endpoint real — silencia durante desenvolvimento
       } finally {
         setLoading(false)
       }

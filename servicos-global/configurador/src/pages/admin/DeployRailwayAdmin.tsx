@@ -6,6 +6,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { adminDeploysApi, type DeployLogApi } from '../../services/apiClient'
+import { useShellStore } from '@gravity/shell'
 
 
 type DeployLog = {
@@ -41,6 +42,7 @@ function formatDate(iso: string) {
 
 export function DeployRailwayAdmin() {
   const { t } = useTranslation()
+  const addNotification = useShellStore((s) => s.addNotification)
   const [deploys, setDeploys] = useState<DeployLog[]>([])
   const [carregando, setCarregando] = useState(true)
 
@@ -50,8 +52,8 @@ export function DeployRailwayAdmin() {
         setCarregando(true)
         const res = await adminDeploysApi.list()
         setDeploys(res.deploys.map(mapDeployToLocal))
-      } catch {
-        console.warn('Falha ao carregar deploys')
+      } catch (err) {
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar histórico de deploys.' })
       } finally {
         setCarregando(false)
       }

@@ -131,7 +131,7 @@ export function ProdutosAdmin() {
       setNegociacoes(negs)
       setSlugsDisponiveis(slugs)
     } catch (err) {
-      console.error('[ProdutosAdmin] Erro ao carregar dados:', err)
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar produtos.' })
     } finally {
       setLoading(false)
       setCarregando(false)
@@ -579,10 +579,9 @@ export function ProdutosAdmin() {
             })
             carregarDados()
           } catch (err) {
-            console.error('[ProdutosAdmin] Erro ao salvar produto:', err)
             addNotification({
               type: 'error',
-              message: 'Falha ao salvar produto. Tente novamente.'
+              message: err instanceof Error ? err.message : 'Falha ao salvar produto. Tente novamente.'
             })
           }
         }}

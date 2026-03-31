@@ -159,10 +159,11 @@ export function Workspaces() {
         )
         addNotification({ type: 'success', message: `Workspace "${dados.nome ?? empresaEditando.nome}" atualizado com sucesso!` })
       } else {
-        addNotification({ type: 'error', message: 'Falha ao atualizar workspace.' })
+        const msg = await extractApiError(res, 'Falha ao atualizar workspace.')
+        addNotification({ type: 'error', message: msg })
       }
-    } catch {
-      addNotification({ type: 'error', message: 'Erro ao atualizar workspace. Verifique sua conexão.' })
+    } catch (err) {
+      addNotification({ type: 'error', message: extractCatchError(err, 'Erro ao atualizar workspace. Verifique sua conexão.') })
     }
     setShowForm(false)
     setEmpresaEditando(null)
@@ -187,10 +188,11 @@ export function Workspaces() {
           message: `Workspace "${linha.nome}" ${novoStatus === 'INACTIVE' ? 'suspenso' : 'reativado'} com sucesso.`,
         })
       } else {
-        addNotification({ type: 'error', message: 'Falha ao alterar status do workspace.' })
+        const msg = await extractApiError(res, 'Falha ao alterar status do workspace.')
+        addNotification({ type: 'error', message: msg })
       }
-    } catch {
-      addNotification({ type: 'error', message: 'Erro ao alterar status. Verifique sua conexão.' })
+    } catch (err) {
+      addNotification({ type: 'error', message: extractCatchError(err, 'Erro ao alterar status. Verifique sua conexão.') })
     }
   }
 
@@ -206,10 +208,11 @@ export function Workspaces() {
         setWorkspaces(prev => prev.filter(e => e.id !== linha.id))
         addNotification({ type: 'success', message: `Workspace "${linha.nome}" excluído com sucesso.` })
       } else {
-        addNotification({ type: 'error', message: 'Falha ao excluir workspace.' })
+        const msg = await extractApiError(res, 'Falha ao excluir workspace.')
+        addNotification({ type: 'error', message: msg })
       }
-    } catch {
-      addNotification({ type: 'error', message: 'Erro ao excluir workspace. Verifique sua conexão.' })
+    } catch (err) {
+      addNotification({ type: 'error', message: extractCatchError(err, 'Erro ao excluir workspace. Verifique sua conexão.') })
     }
   }
 

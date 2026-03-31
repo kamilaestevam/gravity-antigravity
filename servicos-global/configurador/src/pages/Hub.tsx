@@ -23,6 +23,7 @@ import {
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 
 const API_URL = '/api/v1'
 
@@ -39,6 +40,7 @@ interface CompanyProduct {
 }
 
 export function Hub() {
+  const addNotification = useShellStore((s) => s.addNotification)
   const [hoveredUpsell, setHoveredUpsell] = useState<string | null>(null)
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
   const [products, setProducts] = useState<CompanyProduct[]>([])
@@ -120,7 +122,7 @@ export function Hub() {
           }
         }
       } catch (err) {
-        console.error('[Hub] Erro ao carregar produtos:', err)
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar produtos do workspace.' })
       } finally {
         setLoading(false)
       }

@@ -8,6 +8,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { useShellStore } from '@gravity/shell'
 
 
 type DiffObj = {
@@ -80,6 +81,7 @@ function renderDiffTable(diffs: DiffObj[]) {
 
 export function HistoricoGlobalAdmin() {
   const { t } = useTranslation()
+  const addNotification = useShellStore((s) => s.addNotification)
   const [logs, setLogs] = useState<LogHistorico[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -104,7 +106,7 @@ export function HistoricoGlobalAdmin() {
            setLogs(mappedLogs)
         }
       } catch (err) {
-        console.warn("Falha ao carregar registros do histórico:", err)
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar histórico.' })
       } finally {
         setLoading(false)
       }

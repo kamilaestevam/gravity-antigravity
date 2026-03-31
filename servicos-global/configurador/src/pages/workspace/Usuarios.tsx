@@ -12,9 +12,11 @@ import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+import { useShellStore } from '@gravity/shell'
 import { ModalEditarUsuario } from './ModalEditarUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { extractApiError, extractCatchError } from '../../utils/extractApiError'
 
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -142,6 +144,7 @@ const OPCOES_TIPO: SelectOpcao[] = [
 export function Usuarios() {
   const { t } = useTranslation()
   const { isLoaded: userLoaded } = useUser()
+  const addNotification = useShellStore((s) => s.addNotification)
   const [users, setUsers]     = useState<TenantUser[]>([])
   const [espacos, setFiliais] = useState<EspacoTrabalho[]>([])
   const [membershipsMap, setMembershipsMap] = useState<Record<string, string[]>>({})
@@ -238,9 +241,13 @@ export function Usuarios() {
           status: 'Ativo',
         }
         setUsers(prev => [...prev, newUser])
+        addNotification({ type: 'success', message: `Usuário "${fNome.trim()}" convidado com sucesso!` })
+      } else {
+        const body = await res.json().catch(() => ({ error: { message: 'Falha ao convidar usuário.' } }))
+        addNotification({ type: 'error', message: body?.error?.message ?? body?.message ?? 'Falha ao convidar usuário.' })
       }
     } catch (err) {
-      console.error('Erro ao convidar usuário:', err)
+      addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao convidar usuário. Tente novamente.') })
     }
     setFNome(''); setFEmail(''); setFTipo('Standard'); setShowForm(false)
   }

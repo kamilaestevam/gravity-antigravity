@@ -249,8 +249,8 @@ export function Organizacao() {
       })
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error(err.message ?? 'Erro ao salvar')
+        const body = await res.json().catch(() => ({ error: { message: 'Erro ao salvar' } }))
+        throw new Error(body?.error?.message ?? body?.message ?? 'Erro ao salvar')
       }
 
       setDadosIniciaisLocal(dados)
@@ -272,7 +272,7 @@ export function Organizacao() {
     } catch (err) {
       addNotification({
         type: 'error',
-        message: t('workspace.organization.msg_erro')
+        message: err instanceof Error ? err.message : t('workspace.organization.msg_erro')
       })
     } finally {
       setSalvando(false)

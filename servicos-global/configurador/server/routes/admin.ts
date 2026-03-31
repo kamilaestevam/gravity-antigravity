@@ -345,6 +345,11 @@ adminRouter.get('/test-logs', async (_req, res, next) => {
  */
 adminRouter.get('/platform-config', async (req, res, next) => {
   try {
+    if (!req.auth?.clerkUserId) {
+      res.json({ config: null })
+      return
+    }
+
     // Busca o tenant do usuário admin logado
     const user = await prisma.user.findFirst({
       where: { clerk_user_id: req.auth.clerkUserId },
@@ -368,15 +373,28 @@ adminRouter.get('/platform-config', async (req, res, next) => {
         segment: true,
         website: true,
         created_at: true,
-        subscriptions: {
-          orderBy: { created_at: 'desc' },
-          take: 1,
-          select: { plan: true },
-        },
       },
     })
 
-    res.json({ config: tenant })
+    if (!tenant) {
+      res.json({ config: null })
+      return
+    }
+
+    // Busca subscription separado para isolar possíveis erros de migration
+    let subscriptions: { plan: string }[] = []
+    try {
+      subscriptions = await prisma.subscription.findMany({
+        where: { tenant_id: tenant.id },
+        orderBy: { created_at: 'desc' },
+        take: 1,
+        select: { plan: true },
+      })
+    } catch {
+      // Subscription ainda não migrada ou sem dados — retorna vazio
+    }
+
+    res.json({ config: { ...tenant, subscriptions } })
   } catch (err) {
     next(err)
   }

@@ -114,6 +114,9 @@ app.use('/api/internal', serviceTokenRouter)
 import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
 app.use('/api/tenant/historico-global', historicoRouter)
 
+import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
+app.use('/api/tenant/notificacoes', notificacoesRouter)
+
 app.use('/api/admin', adminRouter)
 app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)
 app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)
@@ -136,8 +139,16 @@ app.use(errorHandler)
 // ─── Start (apenas quando executado diretamente, não em testes) ──────────────
 
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`[configurador] Servidor rodando na porta ${PORT}`)
+    // Sincronizar catálogo de produtos com a lista canônica a cada startup
+    try {
+      const { productCatalogService } = await import('./services/productCatalogService.js')
+      await productCatalogService.ensureMissingProducts()
+      console.log('[configurador] Catálogo de produtos sincronizado')
+    } catch (err) {
+      console.error('[configurador] Falha ao sincronizar catálogo de produtos:', err)
+    }
   })
 }
 

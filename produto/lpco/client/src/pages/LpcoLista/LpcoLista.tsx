@@ -15,13 +15,13 @@ import {
   Eye,
   Copy,
   XCircle,
-  FileCheck,
+  Files,
   Clock,
   Warning,
   CheckCircle,
   Prohibit,
   ArrowClockwise,
-  FileSearch,
+  MagnifyingGlass,
   Funnel,
 } from '@phosphor-icons/react'
 import { lpcoApi } from '../../shared/api'
@@ -125,7 +125,7 @@ interface StatCard {
 
 function StatsBar({ stats, onFilter }: { stats: Record<string, number>; onFilter: (status: LpcoStatus | null) => void }) {
   const cards: StatCard[] = [
-    { label: 'Total', value: stats.total ?? 0, icon: <FileCheck weight="duotone" size={20} />, color: 'var(--lp-accent)' },
+    { label: 'Total', value: stats.total ?? 0, icon: <Files weight="duotone" size={20} />, color: 'var(--lp-accent)' },
     { label: 'Rascunho', value: stats.rascunho ?? 0, icon: <Clock weight="duotone" size={20} />, color: '#94a3b8', filterStatus: 'rascunho' },
     { label: 'Em Analise', value: stats.em_analise ?? 0, icon: <ArrowClockwise weight="duotone" size={20} />, color: '#60a5fa', filterStatus: 'em_analise' },
     { label: 'Em Exigencia', value: stats.em_exigencia ?? 0, icon: <Warning weight="duotone" size={20} />, color: '#fbbf24', filterStatus: 'em_exigencia' },
@@ -329,7 +329,7 @@ export default function LpcoLista() {
                 tamanho="medio"
                 onClick={() => navigate('/lpco/simulador')}
               >
-                <FileSearch weight="duotone" size={16} />
+                <MagnifyingGlass weight="duotone" size={16} />
                 Simulador TA
               </BotaoGlobal>
             </TooltipGlobal>

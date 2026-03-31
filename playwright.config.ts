@@ -4,8 +4,9 @@ import { defineConfig, devices } from '@playwright/test'
  * Playwright Config — Gravity E2E
  *
  * Projetos:
- *  - bid-frete:    frontend 5181 → backend 8023
- *  - simula-custo: frontend 5180 → backend 8020
+ *  - bid-frete:       frontend 5181 → backend 8023
+ *  - simula-custo:    frontend 5180 → backend 8020
+ *  - nf-importacao:   frontend 5183 → backend 8028
  *
  * Backends do Configurador (8005) devem estar rodando para testes de catálogo.
  */
@@ -71,6 +72,22 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:5010',
+      },
+    },
+    {
+      name: 'lpco',
+      testDir: './testes/testes-e2e/lpco',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5182',
+      },
+    },
+    {
+      name: 'nf-importacao',
+      testDir: './testes/testes-e2e/nf-importacao',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5183',
       },
     },
   ],

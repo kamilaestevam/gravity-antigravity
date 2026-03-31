@@ -950,33 +950,33 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Próximo Passo ───────────────────────────────── */}
           {tab === 'proximo-passo' && (
             <>
-              <p className="ativ-section-label">→ Próximo Passo</p>
+              <p className="ativ-section-label">{t('atividades.modal.proximo_passo')}</p>
               <div className="ativ-grid-2" style={{ marginBottom: '0.85rem' }}>
                 <div className="ativ-field">
-                  <label>Título do Próximo Passo</label>
-                  <input placeholder="O que fazer a seguir?" value={pPassoTit} onChange={e => setPPassoTit(e.target.value)} />
+                  <label>{t('atividades.modal.proximo_passo_titulo_label')}</label>
+                  <input placeholder={t('atividades.modal.proximo_passo_placeholder')} value={pPassoTit} onChange={e => setPPassoTit(e.target.value)} />
                 </div>
                 <div className="ativ-field">
-                  <label>Data do Próximo Passo</label>
+                  <label>{t('atividades.modal.proximo_passo_data_label')}</label>
                   <input type="date" value={pPassoData} onChange={e => setPPassoData(e.target.value)} />
                 </div>
               </div>
               {pPassoData && (
                 <div className="ativ-field" style={{ marginBottom: '0.85rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
-                    <input type="checkbox" /> Lembrar por e-mail (1 dia antes)
+                    <input type="checkbox" /> {t('atividades.modal.proximo_passo_email')}
                   </label>
                 </div>
               )}
               {pPassoTit || pPassoData ? (
                 <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 'var(--radius-md)', padding: '0.85rem', fontSize: '0.83rem', color: '#10b981' }}>
-                  ✓ Próximo passo configurado:{' '}
+                  {t('atividades.modal.proximo_passo_configurado')}{' '}
                   <strong>{pPassoTit}</strong>
                   {pPassoData && ` · ${fmtDateShort(pPassoData + 'T00:00:00')}`}
                 </div>
               ) : (
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-                  Nenhum próximo passo definido. Adicione um título e data para ajudar na gestão das atividades.
+                  {t('atividades.modal.nenhum_proximo_passo')}
                 </p>
               )}
             </>

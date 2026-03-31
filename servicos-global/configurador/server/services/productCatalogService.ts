@@ -183,7 +183,7 @@ export const productCatalogService = {
     const products = await prisma.$transaction([
       prisma.product.create({
         data: {
-          name: 'SimulaCusto',
+          name: 'Simula Custo',
           slug: 'simula-custo',
           description: 'Gestão de custos estimados de exportação e importação',
           status: 'ACTIVE',
@@ -198,28 +198,7 @@ export const productCatalogService = {
       }),
       prisma.product.create({
         data: {
-          name: 'Smart Read',
-          slug: 'smart-read',
-          description: 'Leitura inteligente de documentos via OCR e IA',
-          status: 'ACTIVE',
-          billing_type: 'PER_DOCUMENT',
-          unit_price: 5.99,
-          minimum_price: 0,
-          user_limit_type: 'UNLIMITED',
-          backend_module: 'smart-read',
-          target_audience: 'Logística, Financeiro e Aduaneiro',
-          price_tiers: {
-            create: [
-              { range_from: 10, range_to: 100, price: 5.99 },
-              { range_from: 100, range_to: 500, price: 2.99 },
-              { range_from: 500, price: 1.99 },
-            ],
-          },
-        },
-      }),
-      prisma.product.create({
-        data: {
-          name: 'BID Frete Internacional',
+          name: 'Bid Frete Internacional',
           slug: 'bid-frete',
           description: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
           status: 'ACTIVE',
@@ -234,7 +213,7 @@ export const productCatalogService = {
       }),
       prisma.product.create({
         data: {
-          name: 'BID Cambio',
+          name: 'Bid Câmbio',
           slug: 'bid-cambio',
           description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
           status: 'ACTIVE',
@@ -249,16 +228,16 @@ export const productCatalogService = {
       }),
       prisma.product.create({
         data: {
-          name: 'LPCO',
-          slug: 'lpco',
-          description: 'Gestão de Licenças, Permissões, Certificados e Outros Documentos do Portal Único Siscomex — acompanhamento do ciclo de vida, resposta a exigências, controle de saldo Flex e integração bidirecional com o Portal Único',
+          name: 'Pedido',
+          slug: 'pedido',
+          description: 'Gestão de pedidos de importação e exportação com controle de saldo, etapas e rastreabilidade',
           status: 'ACTIVE',
           billing_type: 'PER_PROCESS',
           has_setup: false,
-          unit_price: 0.99,
+          unit_price: 1.99,
           minimum_price: 0,
           user_limit_type: 'UNLIMITED',
-          backend_module: 'lpco',
+          backend_module: 'pedido',
           target_audience: 'Importadores, exportadores e despachantes aduaneiros',
         },
       }),
@@ -272,32 +251,82 @@ export const productCatalogService = {
    * Roda como upsert — cria apenas os que não existem.
    */
   async ensureMissingProducts() {
-    const newProducts = [
+    // Produtos que devem existir no catálogo
+    const expectedProducts = [
       {
-        name: 'LPCO',
-        slug: 'lpco',
-        description: 'Gestão de Licenças, Permissões, Certificados e Outros Documentos do Portal Único Siscomex — acompanhamento do ciclo de vida, resposta a exigências, controle de saldo Flex e integração bidirecional com o Portal Único',
+        name: 'Simula Custo',
+        slug: 'simula-custo',
+        description: 'Gestão de custos estimados de exportação e importação',
+        status: 'ACTIVE',
+        billing_type: 'PER_ESTIMATE',
+        unit_price: 10.99,
+        minimum_price: 0,
+        user_limit_type: 'LIMITED',
+        base_users_qty: 10,
+        backend_module: 'simula-custo',
+        target_audience: 'Importadores, exportadores e despachantes aduaneiros',
+      },
+      {
+        name: 'Bid Frete Internacional',
+        slug: 'bid-frete',
+        description: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
         status: 'ACTIVE',
         billing_type: 'PER_PROCESS',
-        has_setup: false,
-        unit_price: 0.99,
+        unit_price: 1.99,
+        minimum_price: 199,
+        user_limit_type: 'UNLIMITED',
+        backend_module: 'bid-frete',
+        target_audience: 'Importadores, exportadores e despachantes aduaneiros',
+      },
+      {
+        name: 'Bid Câmbio',
+        slug: 'bid-cambio',
+        description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
+        status: 'ACTIVE',
+        billing_type: 'PER_PROCESS',
+        unit_price: 2.99,
+        minimum_price: 199,
+        user_limit_type: 'UNLIMITED',
+        backend_module: 'bid-cambio',
+        target_audience: 'Importadores, exportadores, tradings, agentes de carga e despachantes aduaneiros',
+      },
+      {
+        name: 'Pedido',
+        slug: 'pedido',
+        description: 'Gestão de pedidos de importação e exportação com controle de saldo, etapas e rastreabilidade',
+        status: 'ACTIVE',
+        billing_type: 'PER_PROCESS',
+        unit_price: 1.99,
         minimum_price: 0,
         user_limit_type: 'UNLIMITED',
-        backend_module: 'lpco',
+        backend_module: 'pedido',
         target_audience: 'Importadores, exportadores e despachantes aduaneiros',
       },
     ]
 
     let created = 0
-    for (const product of newProducts) {
+    let updated = 0
+    for (const product of expectedProducts) {
       const existing = await prisma.product.findFirst({ where: { slug: product.slug } })
       if (!existing) {
         await prisma.product.create({ data: product })
         created++
         console.log(`[seed] Produto '${product.name}' (${product.slug}) criado`)
+      } else if (existing.name !== product.name) {
+        await prisma.product.update({ where: { id: existing.id }, data: { name: product.name } })
+        updated++
+        console.log(`[seed] Produto '${existing.name}' renomeado para '${product.name}'`)
       }
     }
-    if (created > 0) console.log(`[seed] ${created} novo(s) produto(s) adicionado(s)`)
+
+    // Remover Smart Read do catálogo de produtos (é um serviço, não produto)
+    const smartRead = await prisma.product.findFirst({ where: { slug: 'smart-read' } })
+    if (smartRead) {
+      await prisma.product.delete({ where: { id: smartRead.id } })
+      console.log(`[seed] Smart Read removido do catálogo de produtos`)
+    }
+
+    if (created > 0 || updated > 0) console.log(`[seed] ${created} criado(s), ${updated} atualizado(s)`)
   },
 
   /**

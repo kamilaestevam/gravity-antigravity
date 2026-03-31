@@ -174,10 +174,72 @@ export const simuladorApi = {
 
 export const portalUnicoApi = {
   registrar: (lpcoId: string) =>
-    request<{ numero_portal: string }>(`/api/v1/lpcos/${lpcoId}/portal/registrar`, { method: 'POST' }),
+    request<{ lpco: Lpco; portal: { numero: string; situacao: string } }>(`/api/v1/lpcos/${lpcoId}/portal/registrar`, { method: 'POST' }),
 
   sincronizar: (lpcoId: string) =>
-    request<Lpco>(`/api/v1/lpcos/${lpcoId}/portal/sincronizar`),
+    request<{ lpco: Lpco; sincronizado: boolean; status_alterado: boolean }>(`/api/v1/lpcos/${lpcoId}/portal/sincronizar`),
+
+  retificar: (lpcoId: string, payload: Partial<Lpco>) =>
+    request<{ sucesso: boolean }>(`/api/v1/lpcos/${lpcoId}/portal/retificar`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  cancelarPortal: (lpcoId: string, motivo: string) =>
+    request<{ sucesso: boolean; lpco: Lpco }>(`/api/v1/lpcos/${lpcoId}/portal/cancelar`, {
+      method: 'POST',
+      body: JSON.stringify({ motivo }),
+    }),
+
+  responderExigenciaPortal: (lpcoId: string, exId: string, resposta: string) =>
+    request<{ sucesso: boolean }>(`/api/v1/lpcos/${lpcoId}/portal/exigencia/${exId}/responder`, {
+      method: 'POST',
+      body: JSON.stringify({ resposta }),
+    }),
+}
+
+// ── Credenciais Siscomex ─────────────────────────────────────────────────────
+
+interface CredencialResumo {
+  id: string
+  tenant_id: string
+  company_id: string
+  tipo_auth: string
+  certificado_cn: string | null
+  certificado_validade: string | null
+  oauth_client_id: string | null
+  oauth_scope: string | null
+  ultimo_uso: string | null
+  status: string
+  created_at: string
+}
+
+export const credenciaisApi = {
+  listar: (companyId?: string) => {
+    const query = companyId ? `?company_id=${companyId}` : ''
+    return request<{ data: CredencialResumo[] }>(`/api/v1/credenciais${query}`)
+  },
+
+  criar: (data: Record<string, unknown>) =>
+    request<{ id: string; tipo_auth: string; status: string }>('/api/v1/credenciais', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  atualizar: (id: string, data: Record<string, unknown>) =>
+    request<{ sucesso: boolean }>(`/api/v1/credenciais/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  revogar: (id: string) =>
+    request<{ sucesso: boolean }>(`/api/v1/credenciais/${id}`, { method: 'DELETE' }),
+
+  testar: (id: string) =>
+    request<{ sucesso: boolean; metodo?: string; pode_escrita?: boolean; erro?: string }>(
+      `/api/v1/credenciais/${id}/testar`,
+      { method: 'POST' }
+    ),
 }
 
 // ── Importacao Planilha ───────────────────────────────────────────────────────

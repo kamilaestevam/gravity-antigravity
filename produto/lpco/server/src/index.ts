@@ -18,6 +18,8 @@ import { lpcoVinculoRouter } from './routes/lpcoVinculo.js'
 import { lpcoDocumentoRouter } from './routes/lpcoDocumento.js'
 import { lpcoHistoricoRouter } from './routes/lpcoHistorico.js'
 import { simuladorTARouter } from './routes/simuladorTA.js'
+import { lpcoPortalRouter } from './routes/lpcoPortal.js'
+import { credenciaisRouter } from './routes/credenciais.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -98,6 +100,8 @@ app.use('/api/v1/lpcos', lpcoExigenciaRouter)
 app.use('/api/v1/lpcos', lpcoVinculoRouter)
 app.use('/api/v1/lpcos', lpcoDocumentoRouter)
 app.use('/api/v1/lpcos', lpcoHistoricoRouter)
+app.use('/api/v1/lpcos', lpcoPortalRouter)
+app.use('/api/v1/credenciais', credenciaisRouter)
 app.use('/api/v1/simulador-ta', simuladorTARouter)
 
 // --- 9. SPA Fallback (producao) ---

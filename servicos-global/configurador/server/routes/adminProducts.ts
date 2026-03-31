@@ -68,7 +68,7 @@ const PriceTierSchema = z.object({
 const CreateProductSchema = z.object({
   name: z.string().min(2).max(100),
   slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/),
-  description: z.string().min(5).max(500),
+  description: z.string().min(3).max(500),
   status: z.enum(['ACTIVE', 'SUSPENDED', 'COMING_SOON', 'LEGACY', 'INACTIVE']).default('ACTIVE'),
   launch_date: z.string().datetime().optional(),
 

@@ -772,14 +772,14 @@ export function ProdutosAdmin() {
                     valor={tipoCobranca || null}
                     aoMudarValor={v => dirty(() => setTipoCobranca(String(v ?? '')))}
                     iconeEsquerda={<Sliders size={16} />}
-                    placeholder="Selecione o tipo..."
+                    placeholder={t('admin.products.campo_tipo_cobranca_placeholder')}
                     buscavel={false}
                   />
                 </GeralCampoGlobal>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal 
-                    label="Moeda"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_moeda')}
                     tooltipTitulo="MOEDA BASE"
                     tooltipDescricao="Moeda padrão para exibição e faturamento deste serviço"
                   >

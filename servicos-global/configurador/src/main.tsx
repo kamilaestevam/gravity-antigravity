@@ -17,7 +17,14 @@ if (!PUBLISHABLE_KEY) {
 const root = document.getElementById('root')!
 createRoot(root).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} localization={ptBR as any}>
+    <ClerkProvider
+      publishableKey={PUBLISHABLE_KEY}
+      localization={ptBR as any}
+      afterSignUpUrl="/selecionar-workspace"
+      afterSignInUrl="/selecionar-workspace"
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+    >
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <App />
         <ModalProvider />

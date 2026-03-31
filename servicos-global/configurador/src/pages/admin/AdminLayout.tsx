@@ -183,7 +183,7 @@ export function AdminLayout() {
             isLight={isLight}
             onToggleTheme={toggleTheme}
             onNavigateOrganizacao={() => navigate('/admin/visao-geral')}
-            onNavigateAssinaturas={() => {}}
+            onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
             isAdmin={true}
             isAdminPanel={true}

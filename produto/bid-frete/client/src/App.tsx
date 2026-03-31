@@ -53,31 +53,31 @@ export default function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* Rotas do Cliente */}
-          <Route path="/" element={<Navigate to="/visao-geral" replace />} />
-          <Route path="/visao-geral" element={<Dashboard />} />
-          <Route path="/cotacoes" element={<Cotacoes />} />
-          <Route path="/cotacoes/nova" element={<NovaCotacao />} />
-          <Route path="/cotacoes/importar" element={<ImportarBloco />} />
-          <Route path="/cotacoes/:id" element={<DetalheCotacao />} />
-          <Route path="/cotacoes/:id/comparativo" element={<Comparativo />} />
-          <Route path="/fornecedores" element={<Fornecedores />} />
-          <Route path="/fornecedores/:id" element={<DetalheFornecedor />} />
-          <Route path="/configuracoes" element={<Configuracoes />} />
+          <Route path="/" element={<Navigate to="visao-geral" replace />} />
+          <Route path="visao-geral" element={<Dashboard />} />
+          <Route path="cotacoes" element={<Cotacoes />} />
+          <Route path="cotacoes/nova" element={<NovaCotacao />} />
+          <Route path="cotacoes/importar" element={<ImportarBloco />} />
+          <Route path="cotacoes/:id" element={<DetalheCotacao />} />
+          <Route path="cotacoes/:id/comparativo" element={<Comparativo />} />
+          <Route path="fornecedores" element={<Fornecedores />} />
+          <Route path="fornecedores/:id" element={<DetalheFornecedor />} />
+          <Route path="configuracoes" element={<Configuracoes />} />
 
           {/* Portal do Fornecedor (logado) */}
-          <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
-          <Route path="/portal/dashboard" element={<PortalDashboard />} />
-          <Route path="/portal/pendentes" element={<CotacoesPendentes />} />
-          <Route path="/portal/respostas" element={<MinhasRespostas />} />
-          <Route path="/portal/tabela-precos" element={<TabelaPrecos />} />
-          <Route path="/portal/desempenho" element={<MeuDesempenho />} />
-          <Route path="/portal/responder/:bidRequestId" element={<ResponderCotacao />} />
+          <Route path="portal" element={<Navigate to="portal/dashboard" replace />} />
+          <Route path="portal/dashboard" element={<PortalDashboard />} />
+          <Route path="portal/pendentes" element={<CotacoesPendentes />} />
+          <Route path="portal/respostas" element={<MinhasRespostas />} />
+          <Route path="portal/tabela-precos" element={<TabelaPrecos />} />
+          <Route path="portal/desempenho" element={<MeuDesempenho />} />
+          <Route path="portal/responder/:bidRequestId" element={<ResponderCotacao />} />
 
           {/* Portal Público */}
-          <Route path="/portal/public/responder/:token" element={<ResponderPublico />} />
+          <Route path="portal/public/responder/:token" element={<ResponderPublico />} />
 
           {/* Serviços de tenant são renderizados pelo Shell automaticamente via PRODUCT_CONFIG */}
-          <Route path="*" element={<Navigate to="/visao-geral" replace />} />
+          <Route path="*" element={<Navigate to="visao-geral" replace />} />
         </Routes>
       </Suspense>
     </Layout>

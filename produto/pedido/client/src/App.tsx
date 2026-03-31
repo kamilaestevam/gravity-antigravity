@@ -61,12 +61,12 @@ export function App() {
     <Layout>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/pedidos" replace />} />
-          <Route path="/pedidos" element={<ListaPedidos />} />
-          <Route path="/pedidos/novo" element={<NovoPedido />} />
-          <Route path="/pedidos/:id/editar" element={<NovoPedido />} />
-          <Route path="/importar" element={<ImportarArquivo />} />
-          <Route path="*" element={<Navigate to="/pedidos" replace />} />
+          <Route path="/" element={<Navigate to="pedidos" replace />} />
+          <Route path="pedidos" element={<ListaPedidos />} />
+          <Route path="pedidos/novo" element={<NovoPedido />} />
+          <Route path="pedidos/:id/editar" element={<NovoPedido />} />
+          <Route path="importar" element={<ImportarArquivo />} />
+          <Route path="*" element={<Navigate to="pedidos" replace />} />
         </Routes>
       </Suspense>
     </Layout>

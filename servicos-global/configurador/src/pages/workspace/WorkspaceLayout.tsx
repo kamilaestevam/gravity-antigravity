@@ -188,7 +188,7 @@ export function WorkspaceLayout() {
             isLight={isLight}
             onToggleTheme={toggleTheme}
             onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
-            onNavigateAssinaturas={() => navigate('/workspace/assinaturas')}
+            onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
             isAdmin={false} // UsuarioGlobal resolverá privilégios de Super Admin via e-mail
             onNavigateAdmin={() => navigate('/admin/visao-geral')}

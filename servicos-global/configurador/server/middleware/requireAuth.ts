@@ -31,6 +31,25 @@ export async function requireAuth(
   try {
     const authHeader = req.headers.authorization
 
+    // ─── DEMO_MODE bypass: permite acesso sem Clerk em desenvolvimento local ───
+    if (process.env.DEMO_MODE === 'true' && !authHeader?.startsWith('Bearer ')) {
+      const { prisma } = await import('../lib/prisma.js')
+      const demoUser = await prisma.user.findFirst({
+        where: { role: { in: ['SUPER_ADMIN', 'ADMIN'] } },
+        select: { id: true, tenant_id: true, clerk_user_id: true },
+      })
+      if (demoUser) {
+        console.log('[requireAuth] DEMO_MODE: bypass ativado para', req.path)
+        req.auth = {
+          userId: demoUser.id,
+          tenantId: demoUser.tenant_id,
+          clerkUserId: demoUser.clerk_user_id ?? 'demo-user',
+        }
+        return next()
+      }
+    }
+
+
     if (!authHeader?.startsWith('Bearer ')) {
       throw new AppError('Token de autenticação ausente', 401, 'UNAUTHORIZED')
     }

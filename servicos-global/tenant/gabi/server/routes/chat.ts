@@ -3,7 +3,6 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { getConversationContext, buildSystemPrompt } from '../services/chat.js'
 import { generateContentWithFallback } from '../services/gemini.js'
-import { AppError } from '../lib/errors.js'
 
 export const chatRouter = Router()
 
@@ -11,7 +10,44 @@ const MAX_MESSAGE_LENGTH = 10_000
 
 const chatSchema = z.object({
   conversationId: z.string().max(255),
-  message: z.string().min(1).max(MAX_MESSAGE_LENGTH)
+  message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
+})
+
+// Requisicao sincrona (usada pelo widget)
+chatRouter.post('/api/v1/gabi/chat', async (req, res, next) => {
+  try {
+    const { conversationId, message: rawMessage } = chatSchema.parse(req.body)
+    const message = sanitizeUserInput(rawMessage)
+
+    // tenant/user DEVEM vir do JWT autenticado (req.auth), não dos headers/query
+    const tenantId = (req as any).auth?.tenantId || (req.headers['x-tenant-id'] as string) || 'default'
+    const userId = (req as any).auth?.userId || (req.headers['x-user-id'] as string) || 'anonymous'
+
+    const history = conversationId !== 'new'
+      ? await getConversationContext(conversationId)
+      : []
+
+    const sysPrompt = buildSystemPrompt({
+      userName: userId,
+      userRole: (req as any).auth?.role ?? 'user',
+      tenantName: tenantId,
+      activeServices: ['Gabi IA'],
+    })
+
+    const result = await generateContentWithFallback(
+      `${sysPrompt}\n\nPergunta do usuario: ${message}`,
+      history
+    )
+
+    res.json({
+      response: result.text,
+      model: result.modelUsed,
+      tokens: { input: result.tokensInput, output: result.tokensOutput },
+      cost_usd: result.costUsd,
+    })
+  } catch (error) {
+    next(error)
+  }
 })
 
 const streamQuerySchema = z.object({
@@ -60,46 +96,28 @@ chatRouter.get('/api/v1/gabi/chat/stream', async (req, res) => {
   res.write(`data: ${JSON.stringify({ type: 'indicator', content: '. . .' })}\n\n`)
 
   try {
-    const history = await getConversationContext(conversationId)
-    // Insere o prompt de sistema como primeira mensagem do histórico pro LLM
+    const history = conversationId !== 'new'
+      ? await getConversationContext(conversationId)
+      : []
+
     const sysPrompt = buildSystemPrompt({
       userName: userId,
       userRole: (req as any).auth?.role ?? 'user',
       tenantName: tenantId,
-      activeServices: []
+      activeServices: ['Gabi IA'],
     })
-    
-    // Na vida real isso seria consumido com stream pelo SDK do Gemini:
-    // const resultStream = await chat.sendMessageStream(message)
-    // for await (const chunk of resultStream) { res.write... }
-    
-    // Como usar o fallback chain complexifica com streaming (cada erro tenta o prox model), 
-    // simularemos a quebra da resposta do generateContentWithFallback para efeito didático:
-    
-    // ... Aqui poderia ter uma checagem se é ação destrutiva via classificação simples pré-envio
-    
-    res.write(`data: ${JSON.stringify({ type: 'transparency', content: '📝 Processando sua solicitação (auditoria em background)' })}\n\n`)
-    
-    const result = await generateContentWithFallback(message, history)
-    
-    res.write(`data: ${JSON.stringify({ type: 'message', content: result.text })}\n\n`)
+
+    const result = await generateContentWithFallback(
+      `${sysPrompt}\n\nPergunta do usuario: ${message}`,
+      history
+    )
+
+    res.write(`data: ${JSON.stringify({ type: 'message', content: result.text, model: result.modelUsed, cost: result.costUsd })}\n\n`)
     res.write(`data: [DONE]\n\n`)
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Erro interno'
     res.write(`data: ${JSON.stringify({ error: message })}\n\n`)
   } finally {
     res.end()
-  }
-})
-
-// Requisição síncrona alternativa
-chatRouter.post('/api/v1/gabi/chat', async (req, res, next) => {
-  try {
-    const { conversationId, message } = chatSchema.parse(req.body)
-    const history = await getConversationContext(conversationId)
-    const result = await generateContentWithFallback(message, history)
-    res.json({ response: result.text })
-  } catch (error) {
-    next(error)
   }
 })

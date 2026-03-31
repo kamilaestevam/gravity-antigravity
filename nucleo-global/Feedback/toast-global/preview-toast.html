@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview — Toast Global — Gravity Design System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       Design System Tokens
+    ═══════════════════════════════════════════ */
+    :root {
+      --bg-body-dark: #0f172a;
+      --bg-base: #1e293b;
+      --bg-surface: #334155;
+      --bg-elevated: #475569;
+      --accent: #6366f1;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #6366f1;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+      --focus-ring: 0 0 0 2px rgba(99, 102, 241, 0.4);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-body-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       Page Layout (só para preview)
+    ═══════════════════════════════════════════ */
+    .preview-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .preview-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .preview-header p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .preview-section {
+      max-width: 480px;
+      margin: 0 auto 3rem;
+    }
+    .preview-section h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .toast-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       Toast Component
+    ═══════════════════════════════════════════ */
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.875rem 1rem;
+      border-radius: var(--radius-lg);
+      background: var(--bg-base);
+      border: 1px solid var(--bg-surface);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      animation: toast-in 0.3s ease-out;
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateX(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Barra lateral colorida */
+    .toast::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    }
+
+    .toast--success::before { background: var(--success); }
+    .toast--error::before   { background: var(--danger); }
+    .toast--warning::before { background: var(--warning); }
+    .toast--info::before    { background: var(--info); }
+
+    /* Ícone */
+    .toast-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .toast--success .toast-icon { color: var(--success); }
+    .toast--error .toast-icon   { color: var(--danger); }
+    .toast--warning .toast-icon { color: var(--warning); }
+    .toast--info .toast-icon    { color: var(--info); }
+
+    /* Conteúdo */
+    .toast-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toast-message {
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    .toast-ref {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Botão Tentar novamente */
+    .toast-retry {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      border: 1px solid var(--bg-elevated);
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .toast-retry:hover {
+      background: var(--bg-elevated);
+    }
+
+    /* Botão fechar (X) */
+    .toast-close {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s ease;
+      margin-top: 1px;
+    }
+    .toast-close:hover {
+      color: var(--text-primary);
+    }
+
+    /* Barra de progresso (auto-dismiss) */
+    .toast-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      animation: progress-shrink linear forwards;
+    }
+    .toast--success .toast-progress {
+      background: var(--success);
+      animation-duration: 3s;
+    }
+    .toast--error .toast-progress {
+      background: var(--danger);
+      animation-duration: 8s;
+    }
+    .toast--warning .toast-progress {
+      background: var(--warning);
+      /* sem animation = persistente */
+    }
+    .toast--info .toast-progress {
+      background: var(--info);
+      animation-duration: 5s;
+    }
+
+    @keyframes progress-shrink {
+      from { width: 100%; }
+      to   { width: 0%; }
+    }
+
+    /* ═══════════════════════════════════════════
+       Error Boundary (tela de crash)
+    ═══════════════════════════════════════════ */
+    .error-boundary {
+      max-width: 480px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--bg-base);
+      border: 1px solid var(--bg-surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .error-boundary-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--warning);
+      margin: 0 auto 1.25rem;
+    }
+
+    .error-boundary h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .error-boundary p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .error-boundary-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #0f172a;
+      background: var(--accent);
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .error-boundary-btn:hover {
+      background: #4f46e5;
+    }
+
+    .error-boundary-ref {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      margin-top: 1.25rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ═══════════════════════════════════════════
+       Validação Inline (erro em campo)
+    ═══════════════════════════════════════════ */
+    .field-group {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .field-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 0.375rem;
+    }
+
+    .field-input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-primary);
+      background: var(--bg-base);
+      border: 1px solid var(--bg-elevated);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .field-input:focus {
+      border-color: var(--accent);
+      box-shadow: var(--focus-ring);
+    }
+    .field-input--error {
+      border-color: var(--danger);
+    }
+    .field-input--error:focus {
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3);
+    }
+
+    .field-error {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      margin-top: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--danger);
+      font-weight: 500;
+    }
+    .field-error svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       Separadores de seção
+    ═══════════════════════════════════════════ */
+    hr {
+      border: none;
+      border-top: 1px solid var(--bg-surface);
+      margin: 1rem 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       Botões de demo
+    ═══════════════════════════════════════════ */
+    .demo-controls {
+      max-width: 480px;
+      margin: 0 auto 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .demo-btn {
+      padding: 0.375rem 0.875rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      border: 1px solid var(--bg-elevated);
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+    .demo-btn:hover {
+      background: var(--bg-elevated);
+    }
+
+    /* Toast container fixo (para demo interativo) */
+    .toast-container-fixed {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 0.75rem;
+      z-index: 9999;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .toast-container-fixed .toast {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- HEADER                                       -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-header">
+    <h1>Toast Global — Preview Visual</h1>
+    <p>Gravity Design System &mdash; Sistema de feedback para o usuario</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- DEMO INTERATIVO                              -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-section">
+    <h2>Teste interativo</h2>
+    <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem;">
+      Clique nos botoes para ver os toasts aparecerem no canto inferior direito da tela.
+    </p>
+    <div class="demo-controls">
+      <button class="demo-btn" onclick="showToast('success')">Sucesso</button>
+      <button class="demo-btn" onclick="showToast('error')">Erro</button>
+      <button class="demo-btn" onclick="showToast('error-500')">Erro 500</button>
+      <button class="demo-btn" onclick="showToast('warning')">Aviso</button>
+      <button class="demo-btn" onclick="showToast('info')">Info</button>
+      <button class="demo-btn" onclick="showToast('offline')">Sem conexao</button>
+      <button class="demo-btn" onclick="showToast('online')">Conexao restaurada</button>
+      <button class="demo-btn" onclick="showToast('permission')">Sem permissao</button>
+    </div>
+  </div>
+
+  <!-- Container fixo para toasts interativos -->
+  <div class="toast-container-fixed" id="toastContainer"></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TOASTS DE SUCESSO                            -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-section">
+    <h2>Sucesso</h2>
+    <div class="toast-stack">
+
+      <!-- Salvo -->
+      <div class="toast toast--success">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,156.69l50.34-50.35A8,8,0,0,1,173.66,106.34Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Salvo com sucesso.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+      <!-- Workspace criado -->
+      <div class="toast toast--success">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,156.69l50.34-50.35A8,8,0,0,1,173.66,106.34Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Workspace criado! Vamos configurar sua empresa.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+      <!-- Convite enviado -->
+      <div class="toast toast--success">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,156.69l50.34-50.35A8,8,0,0,1,173.66,106.34Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Convite enviado para o e-mail informado.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TOASTS DE ERRO                               -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-section">
+    <h2>Erro</h2>
+    <div class="toast-stack">
+
+      <!-- Erro ao salvar (com retry) -->
+      <div class="toast toast--error">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Nao foi possivel salvar. Tente novamente.</div>
+          <button class="toast-retry">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L163.54,54.85a80,80,0,1,0,1.67,114.54,8,8,0,1,1,11,11.6A96,96,0,1,1,204.37,56H216A8,8,0,0,1,224,48Z"/></svg>
+            Tentar novamente
+          </button>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+      <!-- Erro ao criar workspace (com retry) -->
+      <div class="toast toast--error">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Nao foi possivel criar o workspace. Tente novamente.</div>
+          <button class="toast-retry">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L163.54,54.85a80,80,0,1,0,1.67,114.54,8,8,0,1,1,11,11.6A96,96,0,1,1,204.37,56H216A8,8,0,0,1,224,48Z"/></svg>
+            Tentar novamente
+          </button>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+      <!-- Erro 500 (com ref) -->
+      <div class="toast toast--error">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Algo deu errado do nosso lado. Tente novamente em alguns instantes.</div>
+          <div class="toast-ref">Ref: a7f3-b2c1</div>
+          <button class="toast-retry">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L163.54,54.85a80,80,0,1,0,1.67,114.54,8,8,0,1,1,11,11.6A96,96,0,1,1,204.37,56H216A8,8,0,0,1,224,48Z"/></svg>
+            Tentar novamente
+          </button>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+      <!-- Erro genérico (sem retry) -->
+      <div class="toast toast--error">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Ocorreu um erro inesperado. Se o problema persistir, entre em contato com o suporte.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TOASTS DE AVISO                              -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-section">
+    <h2>Aviso</h2>
+    <div class="toast-stack">
+
+      <!-- Sem permissão -->
+      <div class="toast toast--warning">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Voce nao tem permissao para esta acao. Fale com o administrador do workspace.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+      </div>
+
+      <!-- Conexão instável -->
+      <div class="toast toast--warning">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Sua conexao esta instavel. Algumas acoes podem demorar mais.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+      </div>
+
+      <!-- Sem conexão -->
+      <div class="toast toast--warning">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Voce esta sem conexao. Reconectaremos automaticamente.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+      </div>
+
+      <!-- Limite do plano -->
+      <div class="toast toast--warning">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Voce atingiu o limite do seu plano para esta funcionalidade.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- TOASTS INFORMATIVOS                          -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-section">
+    <h2>Informativo</h2>
+    <div class="toast-stack">
+
+      <!-- Processando -->
+      <div class="toast toast--info">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Estamos processando sua solicitacao. Voce sera notificado quando terminar.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+        <div class="toast-progress"></div>
+      </div>
+
+      <!-- Atualização -->
+      <div class="toast toast--info">
+        <svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+        <div class="toast-content">
+          <div class="toast-message">Nova versao disponivel. Recarregue a pagina para atualizar.</div>
+        </div>
+        <svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- ERROR BOUNDARY (tela de crash)               -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-section">
+    <h2>Tela de erro (quando a pagina quebra)</h2>
+    <div class="error-boundary">
+      <svg class="error-boundary-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+      <h3>Algo deu errado</h3>
+      <p>Esta pagina encontrou um problema e nao pode ser exibida corretamente.</p>
+      <button class="error-boundary-btn">
+        <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L163.54,54.85a80,80,0,1,0,1.67,114.54,8,8,0,1,1,11,11.6A96,96,0,1,1,204.37,56H216A8,8,0,0,1,224,48Z"/></svg>
+        Recarregar pagina
+      </button>
+      <div class="error-boundary-ref">Se o problema continuar, informe ao suporte: Ref: a7f3-b2c1</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- VALIDAÇÃO INLINE                             -->
+  <!-- ════════════════════════════════════════════ -->
+  <div class="preview-section">
+    <h2>Validacao de campos (inline)</h2>
+    <div class="field-group">
+
+      <div>
+        <div class="field-label">CNPJ *</div>
+        <input class="field-input field-input--error" type="text" value="12.345.678" readonly>
+        <div class="field-error">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+          CNPJ invalido. Verifique os numeros.
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">E-MAIL *</div>
+        <input class="field-input field-input--error" type="text" value="joao@" readonly>
+        <div class="field-error">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+          Digite um e-mail valido.
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">NOME DO WORKSPACE *</div>
+        <input class="field-input field-input--error" type="text" value="" placeholder="" readonly>
+        <div class="field-error">
+          <svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>
+          Este campo e obrigatorio.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="height: 4rem;"></div>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- SCRIPT INTERATIVO                            -->
+  <!-- ════════════════════════════════════════════ -->
+  <script>
+    const TOASTS = {
+      'success': {
+        type: 'success',
+        message: 'Salvo com sucesso.',
+        duration: 3000
+      },
+      'error': {
+        type: 'error',
+        message: 'Nao foi possivel salvar. Tente novamente.',
+        retry: true,
+        duration: 8000
+      },
+      'error-500': {
+        type: 'error',
+        message: 'Algo deu errado do nosso lado. Tente novamente em alguns instantes.',
+        ref: 'a7f3-b2c1',
+        retry: true,
+        duration: 10000
+      },
+      'warning': {
+        type: 'warning',
+        message: 'Voce atingiu o limite do seu plano para esta funcionalidade.',
+        duration: 8000
+      },
+      'info': {
+        type: 'info',
+        message: 'Estamos processando sua solicitacao. Voce sera notificado quando terminar.',
+        duration: 5000
+      },
+      'offline': {
+        type: 'warning',
+        message: 'Voce esta sem conexao. Reconectaremos automaticamente.',
+        duration: 0 // persistente
+      },
+      'online': {
+        type: 'success',
+        message: 'Conexao restaurada.',
+        duration: 3000
+      },
+      'permission': {
+        type: 'warning',
+        message: 'Voce nao tem permissao para esta acao. Fale com o administrador do workspace.',
+        duration: 8000
+      }
+    };
+
+    const ICONS = {
+      success: '<svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-109.66a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,156.69l50.34-50.35A8,8,0,0,1,173.66,106.34Z"/></svg>',
+      error: '<svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>',
+      warning: '<svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>',
+      info: '<svg class="toast-icon" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>'
+    };
+
+    const CLOSE_ICON = '<svg class="toast-close" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>';
+
+    const container = document.getElementById('toastContainer');
+
+    function showToast(key) {
+      const config = TOASTS[key];
+      const el = document.createElement('div');
+      el.className = `toast toast--${config.type}`;
+
+      let content = `
+        ${ICONS[config.type]}
+        <div class="toast-content">
+          <div class="toast-message">${config.message}</div>
+          ${config.ref ? `<div class="toast-ref">Ref: ${config.ref}</div>` : ''}
+          ${config.retry ? `<button class="toast-retry" onclick="this.closest('.toast').remove(); showToast('${key}');">
+            <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L163.54,54.85a80,80,0,1,0,1.67,114.54,8,8,0,1,1,11,11.6A96,96,0,1,1,204.37,56H216A8,8,0,0,1,224,48Z"/></svg>
+            Tentar novamente
+          </button>` : ''}
+        </div>
+        <span onclick="this.closest('.toast').remove()">${CLOSE_ICON}</span>
+      `;
+
+      if (config.duration > 0) {
+        content += `<div class="toast-progress" style="animation-duration: ${config.duration}ms"></div>`;
+      }
+
+      el.innerHTML = content;
+      container.appendChild(el);
+
+      // Limitar a 3 visíveis
+      while (container.children.length > 3) {
+        container.removeChild(container.firstChild);
+      }
+
+      // Auto-remove
+      if (config.duration > 0) {
+        setTimeout(() => {
+          if (el.parentNode) el.remove();
+        }, config.duration);
+      }
+    }
+  </script>
+
+</body>
+</html>

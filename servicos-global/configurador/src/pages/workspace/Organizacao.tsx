@@ -23,14 +23,6 @@ import { useShellStore } from '@gravity/shell'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 
-// ── Mock — substituir por contexto real de tenant ──────────────────────────
-const WORKSPACES_MOCK = [
-  { id: '1', nome: 'Acme Logística',       subdominio: 'acme-log'    },
-  { id: '2', nome: 'Acme Importações',     subdominio: 'acme-import' },
-  { id: '3', nome: 'Acme Distribuição',    subdominio: 'acme-dist'   },
-  { id: '4', nome: 'Brasilcom Tecnologia', subdominio: 'brasilcom'   },
-]
-
 type DadosMae = {
   nome:       string
   cnpj:       string
@@ -43,16 +35,16 @@ type DadosMae = {
   criadaEm:   string
 }
 
-const dadosIniciais: DadosMae = {
-  nome:       'Acme Corporation Ltda.',
-  cnpj:       '12.345.678/0001-99',
-  estado:     'SP',
-  cidade:     'São Paulo',
-  segmento:   'Logística',
-  site:       'https://www.acme.com.br',
-  plano:      'Enterprise',
-  subdominio: 'acme',
-  criadaEm:   '01/01/2024',
+const dadosVazios: DadosMae = {
+  nome:       '',
+  cnpj:       '',
+  estado:     '',
+  cidade:     '',
+  segmento:   '',
+  site:       '',
+  plano:      'Starter',
+  subdominio: '',
+  criadaEm:   '',
 }
 
 const ESTADOS_BR = [
@@ -90,36 +82,90 @@ function storageKey(userId: string | undefined) {
 
 export function Organizacao() {
   const { t } = useTranslation()
-  const { user } = useUser()
+  const { user, isLoaded: userLoaded } = useUser()
   const addNotification = useShellStore((state) => state.addNotification)
 
-  // Carregar os workspaces do localStorage em um state
-  const [espacosLocais] = useState<any[]>(() => {
-    try {
-      const salvo = localStorage.getItem('gravity:workspaces-dados')
-      if (salvo) return JSON.parse(salvo)
-    } catch (e) {}
-    return WORKSPACES_MOCK
-  })
+  // Workspaces (empresas filhas) carregados da API
+  const [espacosLocais, setEspacosLocais] = useState<{ id: string; nome: string; subdominio: string }[]>([])
 
   const OPCOES_ESPACOS: SelectOpcao[] = espacosLocais.map(f => ({
     valor:   f.id,
     rotulo:  f.nome,
-    descricao: `${f.subdominio}.gravity.com.br`,
+    descricao: f.subdominio ? `${f.subdominio}.gravity.com.br` : '',
   }))
 
   // dados editáveis diretamente — sem modo "editando"
-  const [dadosIniciaisLocal, setDadosIniciaisLocal] = useState<DadosMae>(() => {
-    try {
-      const salvo = localStorage.getItem('gravity:organizacao-dados')
-      if (salvo) return JSON.parse(salvo)
-    } catch (e) {
-      console.error('Erro ao ler organizacao do localStorage', e)
-    }
-    return dadosIniciais
-  })
+  const [dadosIniciaisLocal, setDadosIniciaisLocal] = useState<DadosMae>(dadosVazios)
+  const [dados, setDados] = useState<DadosMae>(dadosVazios)
+  const [carregando, setCarregando] = useState(true)
 
-  const [dados, setDados] = useState<DadosMae>(dadosIniciaisLocal)
+  // ── Carregar dados reais do tenant e companies da API ───────────────────
+  useEffect(() => {
+    if (!userLoaded) return
+
+    async function fetchDados() {
+      try {
+        setCarregando(true)
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+
+        // Pega token do Clerk se disponível
+        if (user) {
+          try {
+            const session = await (window as any).Clerk?.session
+            const token = session ? await session.getToken() : null
+            if (token) headers['Authorization'] = `Bearer ${token}`
+          } catch { /* sem token — backend tentará DEMO_MODE */ }
+        }
+
+        // Busca tenant e companies em paralelo
+        const [tenantRes, companiesRes] = await Promise.all([
+          fetch('/api/v1/tenants/me', { headers }),
+          fetch('/api/v1/tenants/companies', { headers }),
+        ])
+
+        if (tenantRes.ok) {
+          const { tenant } = await tenantRes.json()
+          const sub = tenant.subscriptions?.[0]
+          const planMap: Record<string, string> = {
+            STARTER: 'Starter', PROFESSIONAL: 'Professional', ENTERPRISE: 'Enterprise'
+          }
+          const dadosApi: DadosMae = {
+            nome:       tenant.name ?? '',
+            cnpj:       tenant.cnpj ?? '',
+            estado:     tenant.state ?? '',
+            cidade:     tenant.city ?? '',
+            segmento:   tenant.segment ?? '',
+            site:       tenant.website ?? '',
+            plano:      planMap[sub?.plan] ?? sub?.plan ?? 'Starter',
+            subdominio: tenant.slug ?? '',
+            criadaEm:   tenant.created_at
+              ? new Date(tenant.created_at).toLocaleDateString('pt-BR')
+              : '',
+          }
+          setDadosIniciaisLocal(dadosApi)
+          setDados(dadosApi)
+        }
+
+        if (companiesRes.ok) {
+          const { companies } = await companiesRes.json()
+          setEspacosLocais(
+            companies.map((c: any) => ({
+              id: c.id,
+              nome: c.name,
+              subdominio: c.subdomain ?? '',
+            }))
+          )
+        }
+      } catch (err) {
+        console.error('Erro ao carregar dados da organização:', err)
+        addNotification({ type: 'error', message: 'Erro ao carregar dados da organização' })
+      } finally {
+        setCarregando(false)
+      }
+    }
+
+    fetchDados()
+  }, [userLoaded])
 
   // detecção de alterações para habilitar Salvar / Cancelar
   const { dirty, resetDirty } = useDirty(dadosIniciaisLocal, dados)
@@ -179,12 +225,34 @@ export function Organizacao() {
   async function handleSalvar() {
     try {
       setSalvando(true)
-      
-      // fake delay
-      await new Promise(res => setTimeout(res, 1200))
 
-      // Persistir dados via mock localStorage
-      localStorage.setItem('gravity:organizacao-dados', JSON.stringify(dados))
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (user) {
+        try {
+          const session = await (window as any).Clerk?.session
+          const token = session ? await session.getToken() : null
+          if (token) headers['Authorization'] = `Bearer ${token}`
+        } catch { /* sem token */ }
+      }
+
+      const res = await fetch('/api/v1/tenants/me', {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({
+          name: dados.nome,
+          cnpj: dados.cnpj,
+          state: dados.estado,
+          city: dados.cidade,
+          segment: dados.segmento,
+          website: dados.site,
+        }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.message ?? 'Erro ao salvar')
+      }
+
       setDadosIniciaisLocal(dados)
       resetDirty(dados)
 
@@ -222,6 +290,25 @@ export function Organizacao() {
   }
 
   const espacoAtivo = espacosLocais.find(f => f.id === espacoAtivoId)
+
+  if (carregando) {
+    return (
+      <PaginaGlobal
+        layout="formulario"
+        cabecalho={
+          <CabecalhoGlobal
+            icone={<Crown weight="duotone" size={22} />}
+            titulo="Organização"
+            subtitulo="Carregando dados..."
+          />
+        }
+      >
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh', color: 'var(--color-text-muted)' }}>
+          Carregando...
+        </div>
+      </PaginaGlobal>
+    )
+  }
 
   return (
     <PaginaGlobal

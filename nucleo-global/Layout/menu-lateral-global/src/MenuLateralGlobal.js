@@ -43,8 +43,32 @@ export function MenuLateralGlobal({ tenantName, tenantPlan, navItems, moduleName
         if (hasChildren) {
             return (_jsxs("div", { className: `mlg-nav-group ${isExpanded ? 'active' : ''}`, children: [_jsxs("button", { className: `mlg-nav-item mlg-nav-parent ${isExpanded ? 'expanded' : ''}`, onClick: () => toggleSubmenu(item.label, isExpanded), children: [_jsx("div", { className: "mlg-nav-icon", children: item.icon }), !isCollapsed && (_jsxs(_Fragment, { children: [_jsx("span", { className: "mlg-nav-text", children: item.label }), _jsx(CaretDown, { className: `mlg-nav-chevron ${isExpanded ? 'open' : ''}`, size: 14, weight: "bold" })] }))] }), !isCollapsed && (_jsx("div", { className: `mlg-submenu ${isExpanded ? 'open' : ''}`, children: item.children?.map(child => renderNavItem(child, true)) }))] }, item.label));
         }
+
+        // Conteúdo de texto (nome + badge opcional em coluna)
+        const textContent = !isCollapsed ? (
+            item.badge ? (
+                _jsxs("div", { className: "mlg-nav-content", children: [
+                    _jsx("span", { className: "mlg-nav-text", children: item.label }),
+                    _jsx("span", { className: `mlg-nav-badge ${item.badgeVariant === 'accent' ? 'mlg-nav-badge--accent' : 'mlg-nav-badge--muted'}`, children: item.badge })
+                ]})
+            ) : (
+                _jsx("span", { className: "mlg-nav-text", children: item.label })
+            )
+        ) : null;
+
         // Item normal (link)
-        const navLink = item.disabled ? (_jsxs("div", { className: `mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`, style: { opacity: 0.5, cursor: 'not-allowed' }, children: [_jsx("div", { className: "mlg-nav-icon", children: item.icon }), !isCollapsed && (_jsxs("div", { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingRight: '0.5rem' }, children: [_jsx("span", { className: "mlg-nav-text", children: item.label }), _jsx(Lock, { size: 14, weight: "bold", opacity: 0.6 })] }))] })) : (_jsxs(NavLink, { to: item.to || '#', className: ({ isActive }) => `mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`, children: [_jsx("div", { className: "mlg-nav-icon", children: item.icon }), !isCollapsed && _jsx("span", { className: "mlg-nav-text", children: item.label })] }, item.to || item.label));
+        const navLink = item.disabled ? (
+            _jsxs("div", { className: `mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`, children: [
+                _jsx("div", { className: "mlg-nav-icon", children: item.icon }),
+                textContent
+            ]})
+        ) : (
+            _jsxs(NavLink, { to: item.to || '#', className: ({ isActive }) => `mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`, children: [
+                _jsx("div", { className: "mlg-nav-icon", children: item.icon }),
+                textContent
+            ]}, item.to || item.label)
+        );
+
         if (isCollapsed && !isSubmenu) {
             return (_jsx(TooltipGlobal, { descricao: item.label, children: navLink }, item.label));
         }

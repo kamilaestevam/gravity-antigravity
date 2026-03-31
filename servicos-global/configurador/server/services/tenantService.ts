@@ -71,6 +71,15 @@ export const tenantService = {
         },
       })
 
+      // Cria primeira company automaticamente com o nome da organização
+      await tx.company.create({
+        data: {
+          tenant_id: newTenant.id,
+          name,
+          status: 'ACTIVE',
+        },
+      })
+
       return newTenant
     })
 
@@ -91,6 +100,23 @@ export const tenantService = {
         },
         _count: { select: { users: true, companies: true } },
       },
+    })
+  },
+
+  /**
+   * Atualiza dados cadastrais do tenant
+   */
+  async updateTenant(tenantId: string, data: {
+    name?: string
+    cnpj?: string
+    state?: string
+    city?: string
+    segment?: string
+    website?: string
+  }) {
+    return prisma.tenant.update({
+      where: { id: tenantId },
+      data,
     })
   },
 

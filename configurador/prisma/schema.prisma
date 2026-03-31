@@ -79,6 +79,13 @@ model Tenant {
   clerk_org_id       String?      @unique
   stripe_customer_id String?      @unique
 
+  // Dados cadastrais da organização
+  cnpj    String?
+  state   String?
+  city    String?
+  segment String?
+  website String?
+
   // Metadata
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

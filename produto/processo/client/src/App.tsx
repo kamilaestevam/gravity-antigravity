@@ -69,15 +69,15 @@ export function App() {
     <Layout>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/workflow" replace />} />
+          <Route path="/" element={<Navigate to="workflow" replace />} />
           <Route element={<ProcessoLayout />}>
-            <Route path="/workflow" element={<WorkflowPage />} />
-            <Route path="/pedidos" element={<PedidosPage />} />
-            <Route path="/dados-tecnicos" element={<DadosTecnicosPage />} />
-            <Route path="/email" element={<EmailPage />} />
-            <Route path="/financeiro" element={<FinanceiroPlaceholder />} />
+            <Route path="workflow" element={<WorkflowPage />} />
+            <Route path="pedidos" element={<PedidosPage />} />
+            <Route path="dados-tecnicos" element={<DadosTecnicosPage />} />
+            <Route path="email" element={<EmailPage />} />
+            <Route path="financeiro" element={<FinanceiroPlaceholder />} />
           </Route>
-          <Route path="*" element={<Navigate to="/workflow" replace />} />
+          <Route path="*" element={<Navigate to="workflow" replace />} />
         </Routes>
       </Suspense>
     </Layout>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { useAuth } from '@clerk/clerk-react'
+import React, { useEffect, useState } from 'react'
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
   Package,
@@ -12,14 +12,23 @@ import {
   ArrowRight,
   ShoppingBagOpen,
   Sparkle,
+  Info,
   ChartBar,
   ChatCircleText,
   Plugs,
   Headset,
 } from '@phosphor-icons/react'
 import './hub-store.css'
+import '../pages/workspace/workspace.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { publicCatalogApi, type ProductApi } from '../services/apiClient'
+import { PaginaGlobal } from '@nucleo/pagina-global'
+import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
+import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { UsuarioGlobal } from '@nucleo/usuario-global'
+import { ToastContainer, useShellStore } from '@gravity/shell'
+import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
+import { type ProductApi } from '../services/apiClient'
 
 const API_URL = '/api/v1'
 
@@ -115,6 +124,15 @@ export function Store() {
   const navigate = useNavigate()
   const canBuy = true // Qualquer usuário logado pode contratar. Master pode restringir via permissões.
 
+  const { user } = useUser()
+  const { signOut } = useClerk()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const isLight = currentTheme === 'light'
+  
+  const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
+  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
+
   const [catalog, setCatalog] = useState<CatalogProduct[]>([])
   const [subscribed, setSubscribed] = useState<Map<string, SubscribedProduct>>(new Map())
   const [loading, setLoading] = useState(true)
@@ -155,6 +173,8 @@ export function Store() {
     setSubscribing(slug)
     try {
       const token = await getToken()
+
+      // 1. Contrata no tenant
       const res = await fetch(`${API_URL}/tenants/products/subscribe`, {
         method: 'POST',
         headers: {
@@ -165,6 +185,19 @@ export function Store() {
       })
 
       if (res.ok) {
+        // 2. Auto-habilita na company atual (se selecionada)
+        const companyId = sessionStorage.getItem('gravity_company_id')
+        if (companyId) {
+          await fetch(`${API_URL}/companies/${companyId}/products`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ product_key: slug }),
+          }).catch(() => {}) // silently fail — produto já fica no tenant
+        }
+
         setSubscribed(prev => {
           const next = new Map(prev)
           next.set(slug, { product_key: slug, is_active: true })
@@ -198,36 +231,73 @@ export function Store() {
   }
 
   return (
-    <div className="hs-page">
-      {/* Hero */}
-      <div className="hs-store-hero hs-fade-up">
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.25rem' }}>
-          <div style={{ 
-            background: 'rgba(79, 70, 229, 0.15)', 
-            padding: '0.5rem', 
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <RocketLaunch weight="duotone" size={20} color="var(--color-primary)" />
-          </div>
-          <span style={{ fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-primary)' }}>
-            Gravity Ecosystem
-          </span>
-        </div>
-        
-        <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-          Expanda sua <span className="hs-gradient-text">Operação.</span>
-        </h1>
-        
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '1.125rem', maxWidth: 600, lineHeight: 1.6, marginBottom: 0 }}>
-          Descubra módulos inteligentes projetados para escalar seu negócio com eficiência e dados centralizados.
-        </p>
+    <div className="ws-shell" style={{ display: 'block', overflowY: 'auto' }}>
+      {/* ── Global Actions (Floating over content) ── */}
+      <div className="ws-global-actions" style={{ position: 'fixed' }}>
+        <LocalizarExpandidoCampoGlobal 
+          onBuscarNavigate={() => {}} 
+        />
+
+        <TooltipGlobal
+          titulo="Dicas e Explicações"
+          descricao={
+            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Info size={14} weight="fill" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
+                <span><strong style={{ color: '#f1f5f9' }}>Habilitadas</strong> — dicas aparecem ao passar o mouse</span>
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Info size={14} weight="regular" style={{ color: '#64748b', flexShrink: 0 }} />
+                <span><strong style={{ color: '#f1f5f9' }}>Desabilitadas</strong> — nenhuma dica é exibida</span>
+              </span>
+              <span style={{ marginTop: '0.15rem', color: '#64748b', fontSize: '0.7rem' }}>
+                Agora: <strong style={{ color: tooltipsDisabled ? '#f87171' : '#34d399' }}>
+                  {tooltipsDisabled ? 'desabilitadas' : 'habilitadas'}
+                </strong>
+              </span>
+            </span>
+          }
+        >
+          <button
+            className="ws-global-btn"
+            onClick={toggleTooltips}
+            style={{ color: tooltipsDisabled ? 'var(--ws-muted)' : 'var(--ws-accent)' }}
+            type="button"
+          >
+            <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+          </button>
+        </TooltipGlobal>
+
+        <Notificacoes tenantId="store" userId={user?.id ?? 'mock-user'} />
+
+        <UsuarioGlobal
+          userName={userName}
+          userEmail={userEmail}
+          userInitials={userInitials}
+          userRole="Admin"
+          isLight={isLight}
+          onToggleTheme={toggleTheme}
+          onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
+          onNavigateMarketPlace={() => navigate('/store')}
+          onSignOut={() => signOut()}
+          isAdmin={true}
+          onNavigateAdmin={() => navigate('/admin/visao-geral')}
+        />
       </div>
 
-      {/* Content Grid */}
-      <div className="hs-fade-up hs-fade-up-d1">
+      <PaginaGlobal
+        className="ws-fade-up"
+        layout="lista"
+        cabecalho={
+          <CabecalhoGlobal
+            icone={<RocketLaunch size={24} weight="duotone" color="#6366f1" />}
+            titulo="Gravity Ecosystem"
+            subtitulo="Expanda sua Operação. Descubra módulos inteligentes projetados para escalar seu negócio com eficiência e dados centralizados."
+          />
+        }
+      >
+        <div style={{ paddingTop: '1rem' }}>
+          <div className="hs-fade-up hs-fade-up-d1">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <h2 className="hs-section-title" style={{ margin: 0 }}>
             <ShoppingBagOpen weight="duotone" size={18} color="var(--color-primary)" />
@@ -347,16 +417,96 @@ export function Store() {
                 </div>
               )
             })}
+            
+            {/* Mock Products: Em Breve */}
+            {[
+              {
+                id: 'mock-1',
+                name: 'Smart Read',
+                description: 'Plataforma de automação (IDP) e IA para extração e validação inteligente de documentos de Comércio Exterior.',
+                type_billing: 'Subscription'
+              },
+              {
+                id: 'mock-2',
+                name: 'BID Frete Internacional',
+                description: 'Centralize cotações marítimas e aéreas, comparando agentes de carga em tempo real.',
+                type_billing: 'Transactional'
+              },
+              {
+                id: 'mock-3',
+                name: 'BID Câmbio',
+                description: 'Otimize transações de fechamento ao competir taxas entre corretoras e bancos em uma única interface.',
+                type_billing: 'Transactional'
+              }
+            ].map((p, idx) => {
+              const delayClass = `hs-fade-up-d${Math.min(catalog.length + idx + 1, 4)}`
+
+              return (
+                <div key={p.id} className={`hs-store-card hs-fade-up ${delayClass}`} style={{ cursor: 'not-allowed', opacity: 0.7 }}>
+                  <div className="hs-store-card__body">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div className="hs-icon-box" style={{ filter: 'grayscale(1)', opacity: 0.5 }}>
+                        <Package weight="duotone" size={28} color="var(--color-text-muted)" />
+                      </div>
+                      <div title="Lançamento previsto para os próximos meses">
+                        <span className="hs-badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
+                          Em Breve
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span style={{ 
+                        fontSize: '0.6875rem', 
+                        fontWeight: 700, 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '0.08em', 
+                        color: 'var(--color-text-muted)',
+                        display: 'block',
+                        marginBottom: '0.25rem'
+                      }}>
+                        {p.type_billing}
+                      </span>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
+                        {p.name}
+                      </h3>
+                      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.6 }}>
+                        {p.description}
+                      </p>
+                    </div>
+
+                    <div className="hs-price" style={{ fontSize: '1.25rem', color: 'var(--color-text-muted)' }}>
+                      Em breve
+                    </div>
+                  </div>
+
+                  <div className="hs-store-card__footer" style={{ borderTopColor: 'rgba(255,255,255,0.02)' }}>
+                    <BotaoGlobal
+                      variante="fantasma"
+                      disabled
+                      blocoCompleto
+                      centralizado
+                      onClick={() => {}}
+                    >
+                      Aguarde o Lançamento
+                    </BotaoGlobal>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
       
-      {/* Footer info */}
-      <div className="hs-fade-up hs-fade-up-d3" style={{ marginTop: '4rem', textAlign: 'center', opacity: 0.5 }}>
+      <div className="hs-fade-up hs-fade-up-d3" style={{ marginTop: '4rem', textAlign: 'center', opacity: 0.5, paddingBottom: '2rem' }}>
         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
           © {new Date().getFullYear()} Gravity Platform · Todos os módulos incluem suporte priorizado.
         </p>
       </div>
+        </div>
+      </PaginaGlobal>
+
+      <ToastContainer />
     </div>
   )
 }

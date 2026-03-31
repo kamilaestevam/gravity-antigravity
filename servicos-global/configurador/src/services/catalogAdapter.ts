@@ -222,11 +222,8 @@ export const catalogApiService = {
 
   async getSlugsDisponiveis(): Promise<string[]> {
     try {
-      const { available, all } = await adminProductsApi.getAvailableSlugs()
-      // Retorna todos os slugs de contracts.json (POST faz upsert se slug já existe)
-      const slugs = all.length > 0 ? all : available
-      console.log('[catalogAdapter] slugs disponíveis:', slugs)
-      return slugs
+      const { available } = await adminProductsApi.getAvailableSlugs()
+      return available
     } catch (err) {
       console.error('[catalogAdapter] ERRO ao buscar slugs disponíveis:', err)
       return []

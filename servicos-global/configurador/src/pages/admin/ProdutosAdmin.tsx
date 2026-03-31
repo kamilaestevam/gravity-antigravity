@@ -791,8 +791,8 @@ export function ProdutosAdmin() {
                       buscavel
                     />
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal 
-                    label="Franquia Free (Qtd)"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_franquia')}
                     tooltipTitulo="VOLUME INCLUÍDO"
                     tooltipDescricao="Quantidade mínima de uso liberada sem custos extras"
                   >
@@ -804,8 +804,8 @@ export function ProdutosAdmin() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal 
-                    label="Valor Unitário"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_valor_unitario')}
                     tooltipTitulo="PREÇO POR UNIDADE"
                     tooltipDescricao="Custo aplicado cada vez que um item adicional é consumido"
                   >
@@ -814,8 +814,8 @@ export function ProdutosAdmin() {
                       <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorUnitario} onChange={e => dirty(() => setValorUnitario(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal 
-                    label="Valor Mínimo"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_valor_minimo')}
                     tooltipTitulo="PISO DE COBRANÇA"
                     tooltipDescricao="Menor valor possível a ser faturado em cada ciclo"
                   >

@@ -985,32 +985,32 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* ── Tab: Lembrete ────────────────────────────────────── */}
           {tab === 'lembrete' && (
             <>
-              <p className="ativ-section-label">🔔 Lembrete</p>
+              <p className="ativ-section-label">{t('atividades.modal.lembrete')}</p>
               <div className="ativ-grid-2" style={{ marginBottom: '1rem' }}>
                 <div className="ativ-field">
-                  <label>Data e hora do lembrete</label>
+                  <label>{t('atividades.modal.lembrete_data_hora')}</label>
                   <input type="datetime-local" value={lembreteEm} onChange={e => setLembreteEm(e.target.value)} />
                 </div>
                 <div className="ativ-field" style={{ justifyContent: 'flex-end', gap: '0.6rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                     <input type="checkbox" checked={lemEmail} onChange={e => setLemEmail(e.target.checked)} />
-                    Por e-mail
+                    {t('atividades.modal.lembrete_email')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.85rem' }}>
                     <input type="checkbox" checked={lemWpp} onChange={e => setLemWpp(e.target.checked)} />
-                    Por WhatsApp
+                    {t('atividades.modal.lembrete_whatsapp')}
                   </label>
                 </div>
               </div>
               {lembreteEm ? (
                 <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 'var(--radius-md)', padding: '0.85rem', fontSize: '0.83rem', color: '#f59e0b' }}>
-                  🔔 Lembrete agendado para{' '}
+                  {t('atividades.modal.lembrete_agendado')}{' '}
                   <strong>{fmtDate(lembreteEm + ':00')}</strong>
                   {lemEmail && ' · E-mail'}{lemWpp && ' · WhatsApp'}
                 </div>
               ) : (
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
-                  Nenhum lembrete configurado. Defina uma data/hora acima para receber uma notificação.
+                  {t('atividades.modal.nenhum_lembrete')}
                 </p>
               )}
             </>

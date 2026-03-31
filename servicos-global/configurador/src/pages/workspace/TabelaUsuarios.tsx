@@ -143,7 +143,7 @@ function PopoverFiltro({
       <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
         <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>{t('tabela.ordenar')}</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
-          {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [Direcao, string, React.ReactNode][]).map(([dir, rot, ico]) => {
+          {([['asc', t('tabela.crescente'), <ArrowUp key="u" size={12} weight="bold" />], ['desc', t('tabela.decrescente'), <ArrowDown key="d" size={12} weight="bold" />]] as [Direcao, string, React.ReactNode][]).map(([dir, rot, ico]) => {
             const ativo = sortAtivo && ordenacao?.direcao === dir
             return (
               <button key={dir} type="button" onClick={() => { onOrdenar(coluna, dir); onFechar() }} style={pillStyle(ativo)}
@@ -157,14 +157,14 @@ function PopoverFiltro({
       </div>
 
       <div style={{ borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
-        <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
+        <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>{t('tabela.filtrar_por')}</p>
 
         {valoresDisponiveis.length > 5 && (
           <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
             <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
               <MagnifyingGlass size={11} weight="bold" />
             </span>
-            <input type="text" placeholder="Buscar…" value={buscaLocal}
+            <input type="text" placeholder={t('tabela.buscar')} value={buscaLocal}
               onChange={e => setBuscaLocal(e.target.value)}
               style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
               onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}

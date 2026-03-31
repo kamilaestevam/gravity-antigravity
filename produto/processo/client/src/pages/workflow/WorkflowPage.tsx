@@ -473,8 +473,8 @@ export default function WorkflowPage() {
                         </div>
                       </div>
                       <TooltipGlobal
-                        titulo="Excluir documento"
-                        descricao="Remover este documento do processo"
+                        titulo={t('processo.workflow.excluir_doc', 'Excluir documento')}
+                        descricao={t('processo.workflow.excluir_doc_desc', 'Remover este documento do processo')}
                       >
                         <button
                           className="wf-doc-delete"
@@ -496,8 +496,8 @@ export default function WorkflowPage() {
       {/* ─── Modal de Confirmacao de Exclusao ───────────── */}
       <SelecaoExcluirGlobal
         aberto={!!docToDelete}
-        titulo="Excluir Documento"
-        descricao="Tem certeza que deseja excluir este documento? Esta acao nao pode ser desfeita."
+        titulo={t('processo.workflow.excluir_doc_modal', 'Excluir Documento')}
+        descricao={t('processo.workflow.excluir_doc_confirm', 'Tem certeza que deseja excluir este documento? Esta ação não pode ser desfeita.')}
         nomeItem={docToDelete?.nome}
         aoConfirmar={handleConfirmDeleteDoc}
         aoCancelar={() => setDocToDelete(null)}

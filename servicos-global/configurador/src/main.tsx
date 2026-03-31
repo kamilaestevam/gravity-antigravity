@@ -18,7 +18,7 @@ const root = document.getElementById('root')!
 createRoot(root).render(
   <StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY} localization={ptBR as any}>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <App />
         <ModalProvider />
       </BrowserRouter>

@@ -22,7 +22,9 @@ import { Waitlist } from './pages/Waitlist'
 const lazy = (fn: () => Promise<{ [k: string]: React.ComponentType<any> }>, name: string) =>
   React.lazy(() => fn().then(m => ({ default: (m as any)[name] })))
 
+// SelecionarWorkspace lazy — evita carregar 30+ ícones phosphor no bundle inicial
 const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'SelecionarWorkspace')
+
 const Hub = lazy(() => import('./pages/Hub'), 'Hub')
 const Store = lazy(() => import('./pages/Store'), 'Store')
 const AdminPanel = lazy(() => import('./pages/AdminPanel'), 'AdminPanel')
@@ -143,19 +145,22 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** Wrapper para rotas que exigem autenticação */
+/** Wrapper para rotas que exigem autenticação — otimizado para evitar round-trip ao Clerk */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // DEMO_MODE: bypass de auth Clerk em dev local
   if (import.meta.env.VITE_DEMO_MODE === 'true') {
     return <>{children}</>
   }
 
-  return (
-    <>
-      <SignedIn>{children}</SignedIn>
-      <SignedOut><RedirectToSignIn /></SignedOut>
-    </>
-  )
+  const { isLoaded, isSignedIn } = useAuth()
+
+  // Enquanto Clerk não carregou, não renderiza nada (evita flash)
+  if (!isLoaded) return null
+
+  // Se não autenticado, redireciona para /sign-in local (sem round-trip ao Clerk hosted)
+  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+
+  return <>{children}</>
 }
 
 /** Gabi IA global — aparece em todas as telas autenticadas (lazy-loaded) */

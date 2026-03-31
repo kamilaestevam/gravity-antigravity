@@ -16,7 +16,10 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
 // ─── Lazy loading das telas do produto ─────────────────────────────────────
 
-const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout'))
+// v1 original (preservada):
+// const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout'))
+// v2 — nova versao para avaliacao:
+const ProcessoLayout = lazy(() => import('./pages/ProcessoLayout_2'))
 const WorkflowPage = lazy(() => import('./pages/workflow/WorkflowPage'))
 const PedidosPage = lazy(() => import('./pages/pedidos/PedidosPage'))
 const DadosTecnicosPage = lazy(() => import('./pages/dados-tecnicos/DadosTecnicosPage'))

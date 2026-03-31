@@ -25,7 +25,7 @@ createRoot(root).render(
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
     >
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <App />
         <ModalProvider />
       </BrowserRouter>

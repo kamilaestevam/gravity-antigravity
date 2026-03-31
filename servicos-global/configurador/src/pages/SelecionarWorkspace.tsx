@@ -179,6 +179,7 @@ export function SelecionarWorkspace() {
         const res = await fetch('/api/v1/hub/init', {
           headers: { Authorization: `Bearer ${token}` },
         })
+        if (!res.ok) throw new Error(`Hub init failed: ${res.status}`)
         const data = await res.json()
 
         if (cancelled) return
@@ -265,6 +266,69 @@ export function SelecionarWorkspace() {
           })
           setWorkspaces(mapeados)
           setSelectedId(mapeados[0].id)
+=======
+  /* ── Carrega workspaces + produtos em paralelo (1 único getToken) ── */
+  useEffect(() => {
+    let cancelled = false
+
+    async function carregarDados() {
+      try {
+        const token = await getToken()
+        const headers = { Authorization: `Bearer ${token}` }
+
+        const [resWorkspaces, resProdutos] = await Promise.all([
+          fetch('/api/v1/tenants/companies', { headers }),
+          fetch('/api/v1/products', { headers }),
+        ])
+
+        if (cancelled) return
+
+        // Workspaces — com validação de resposta
+        if (resWorkspaces.ok) {
+          const dataWs = await resWorkspaces.json()
+          if (dataWs.companies && dataWs.companies.length > 0) {
+            const mapeados: Workspace[] = dataWs.companies.map((c: Record<string, unknown>, i: number) => ({
+              id: c.id as string,
+              nome: c.name as string,
+              iniciais: (c.name as string).substring(0, 2).toUpperCase(),
+              plano: 'business' as const,
+              role: 'Admin',
+              modulos: 0,
+              membros: 1,
+              simulacoes: '0',
+              gradientFrom: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientFrom,
+              gradientTo: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientTo,
+            }))
+            setWorkspaces(mapeados)
+            setSelectedId(mapeados[0].id)
+          } else {
+            setWorkspaces(MOCK_WORKSPACES)
+            setSelectedId(MOCK_WORKSPACES[0].id)
+          }
+        } else {
+          setWorkspaces(MOCK_WORKSPACES)
+          setSelectedId(MOCK_WORKSPACES[0].id)
+>>>>>>> 14cef591bf891e4397895496bf7f873970685445
+        }
+
+        // Produtos — independente dos workspaces
+        if (resProdutos.ok) {
+          const dataProd = await resProdutos.json()
+          if (dataProd.products) {
+            const ativos: ProdutoAtivo[] = dataProd.products
+              .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
+              .map((p: Record<string, unknown>) => {
+                const slug = p.slug as string
+                const info = PRODUCT_ROUTE_MAP[slug]
+                return {
+                  id: p.id as string,
+                  slug,
+                  nome: info?.nome ?? (p.name as string),
+                  rota: info?.rota ?? `/produto/${slug}`,
+                }
+              })
+            setProdutosAtivos(ativos)
+          }
         }
       } catch {
         // API indisponível — mostra estado vazio

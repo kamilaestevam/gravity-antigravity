@@ -1,0 +1,209 @@
+/* LpcoLista.css — Grid de LPCOs com stats cards */
+
+:root {
+  --lp-accent: #6366f1;
+  --lp-accent-dim: rgba(99, 102, 241, 0.12);
+  --lp-accent-border: rgba(99, 102, 241, 0.18);
+  --lp-bg: var(--ws-bg-body, #0f172a);
+  --lp-surface: var(--ws-surface, #1e293b);
+  --lp-text: var(--ws-text, #f1f5f9);
+  --lp-muted: var(--ws-muted, #94a3b8);
+  --lp-radius: 10px;
+}
+
+/* ── Container ─────────────────────────────────────────────────────────────── */
+.lp-lista-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────────── */
+.lp-lista-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.lp-lista-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.lp-lista-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--lp-text);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.lp-lista-subtitle {
+  font-size: 0.8125rem;
+  color: var(--lp-muted);
+  margin: 0.25rem 0 0;
+}
+
+.lp-lista-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Stats Bar ─────────────────────────────────────────────────────────────── */
+.lp-stats-bar {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.lp-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-accent-border);
+  border-radius: var(--lp-radius);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.lp-stat-card:hover {
+  background: var(--lp-accent-dim);
+  border-color: var(--lp-accent);
+  transform: translateY(-1px);
+}
+
+.lp-stat-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.lp-stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+}
+
+.lp-stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--lp-text);
+  line-height: 1.2;
+}
+
+.lp-stat-label {
+  font-size: 0.6875rem;
+  color: var(--lp-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Filtro Ativo ──────────────────────────────────────────────────────────── */
+.lp-filtro-ativo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--lp-accent-dim);
+  border: 1px solid var(--lp-accent-border);
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  color: var(--lp-muted);
+  width: fit-content;
+}
+
+.lp-filtro-ativo svg:first-child {
+  color: var(--lp-accent);
+}
+
+.lp-filtro-ativo strong {
+  color: var(--lp-text);
+  font-weight: 600;
+}
+
+.lp-filtro-limpar {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--lp-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.lp-filtro-limpar:hover {
+  color: #f87171;
+}
+
+/* ── Tabela ────────────────────────────────────────────────────────────────── */
+.lp-lista-tabela {
+  min-height: 300px;
+}
+
+/* ── Loading Skeleton ──────────────────────────────────────────────────────── */
+.lp-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lp-skeleton-row {
+  height: 3rem;
+  background: var(--lp-accent-dim);
+  border-radius: 6px;
+  animation: lp-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes lp-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* ── Light Theme ───────────────────────────────────────────────────────────── */
+body.light-theme .lp-stat-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-theme .lp-stat-card:hover {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+body.light-theme .lp-filtro-ativo {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .lp-lista-container {
+    padding: 1rem;
+  }
+
+  .lp-lista-title-row {
+    flex-direction: column;
+  }
+
+  .lp-stat-card {
+    min-width: 100px;
+    padding: 0.5rem 0.625rem;
+  }
+
+  .lp-stat-value {
+    font-size: 0.9375rem;
+  }
+}

@@ -1,4 +1,3 @@
-// vite.config.ts — produto/processo/client
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -36,11 +35,7 @@ export default defineConfig({
       // ── Tabelas ──
       '@nucleo/tabela-camadas-global': path.resolve(monorepoRoot, 'nucleo-global/Tabelas/tabela-camadas-global/src/index.ts'),
       '@nucleo/tabela-global': path.resolve(monorepoRoot, 'nucleo-global/Tabelas/tabela-global/src/index.ts'),
-      // ── Mensageria ──
-      '@nucleo/mensageria-global': path.resolve(monorepoRoot, 'nucleo-global/Mensageria Global/mensageria-global/src/index.ts'),
       // ── Utilidades ──
-      '@nucleo/switch-global': path.resolve(monorepoRoot, 'nucleo-global/Campos/switch-global/src/index.ts'),
-      '@nucleo/usuario-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/usuario-global/src/index.ts'),
       '@nucleo/utils': path.resolve(monorepoRoot, 'nucleo-global/Utilidades/utils/src/index.ts'),
       // ── Shell / Tenant ──
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
@@ -59,13 +54,13 @@ export default defineConfig({
   },
 
   server: {
-    port: 5000,
+    port: 5182,
     fs: {
       allow: [monorepoRoot],
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:8025',
+        target: 'http://localhost:8027',
         changeOrigin: true,
       },
     },

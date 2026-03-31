@@ -67,6 +67,10 @@
     "pedido": {
       "baseUrl": "http://localhost:8026",
       "pathPrefix": "/api/v1/pedidos"
+    },
+    "lpco": {
+      "baseUrl": "http://localhost:8027",
+      "pathPrefix": "/api/v1/lpcos"
     }
   }
 }

@@ -47,7 +47,7 @@ interface ProcessoContextValue {
   refetch: () => void
 }
 
-const ProcessoContext = createContext<ProcessoContextValue>({
+export const ProcessoContext = createContext<ProcessoContextValue>({
   processo: null,
   loading: true,
   error: null,

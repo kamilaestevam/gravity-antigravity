@@ -433,6 +433,7 @@ export function SelecionarWorkspace() {
                     <div
                       key={ws.id}
                       className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}`}
+                      data-searchable="true"
                       onClick={() => handleSelectWs(ws.id)}
                       role="button"
                       tabIndex={0}
@@ -538,7 +539,7 @@ export function SelecionarWorkspace() {
                     ) : (
                       <div className="sw-prod-list">
                         {contratadosAtivos.map(prod => (
-                          <div key={prod.product_key} className="sw-prod-item">
+                          <div key={prod.product_key} className="sw-prod-item" data-searchable="true">
                             <div className="sw-prod-icon" style={{ background: 'var(--sw-green-dim)' }}>
                               <CheckCircle size={18} weight="regular" style={{ color: 'var(--sw-green)' }} />
                             </div>
@@ -576,7 +577,7 @@ export function SelecionarWorkspace() {
                     ) : (
                       <div className="sw-prod-list">
                         {produtosSugeridos.slice(0, 5).map(prod => (
-                          <div key={prod.id} className="sw-prod-item">
+                          <div key={prod.id} className="sw-prod-item" data-searchable="true">
                             <div className="sw-prod-icon" style={{ background: 'var(--sw-accent-dim)' }}>
                               <Star size={18} weight="regular" style={{ color: 'var(--sw-accent-2)' }} />
                             </div>
@@ -619,7 +620,7 @@ export function SelecionarWorkspace() {
                       {ATALHOS.map(atalho => (
                         <button
                           key={atalho.id}
-                          className="sw-shortcut-item"
+                          className="sw-shortcut-item" data-searchable="true"
                           type="button"
                           onClick={() => navigate(atalho.rota)}
                         >

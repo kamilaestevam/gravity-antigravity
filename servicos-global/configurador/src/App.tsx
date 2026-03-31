@@ -2,7 +2,11 @@ import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
 import { AuthPage } from './pages/AuthPage'
-import { GabiOnboardingWidget } from './components/GabiOnboardingWidget'
+
+// Lazy-load — Gabi é pesado e não é crítico para o primeiro render
+const GabiOnboardingWidget = React.lazy(() =>
+  import('./components/GabiOnboardingWidget').then(m => ({ default: m.GabiOnboardingWidget }))
+)
 
 export type Page =
   | { name: 'admin' }
@@ -13,7 +17,7 @@ export type Page =
 import { Onboarding } from './pages/Onboarding'
 import { Contato } from './pages/Contato'
 import { Waitlist } from './pages/Waitlist'
-import { SelecionarWorkspace } from './pages/SelecionarWorkspace'
+const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'SelecionarWorkspace')
 
 // Lazy-load — cada grupo carrega só quando o usuário navega para a rota
 const lazy = (fn: () => Promise<{ [k: string]: React.ComponentType<any> }>, name: string) =>
@@ -89,9 +93,22 @@ function TenantDetailWrapper() {
 /** Rota raiz: se logado → /hub, se não → AuthPage */
 function RootRedirect() {
   const { isLoaded, isSignedIn } = useAuth()
+  const [clerkTimeout, setClerkTimeout] = React.useState(false)
 
-  // Evita flash de login enquanto o estado não é carregado
-  if (!isLoaded) return null
+  React.useEffect(() => {
+    if (isLoaded) return
+    const timer = setTimeout(() => setClerkTimeout(true), 1500)
+    return () => clearTimeout(timer)
+  }, [isLoaded])
+
+  // Se Clerk não carregou após timeout (ex: cookies bloqueados em anônima), mostra login direto
+  if (!isLoaded && !clerkTimeout) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+        Carregando…
+      </div>
+    )
+  }
 
   return isSignedIn ? (
     <Navigate to="/hub" replace />
@@ -103,8 +120,21 @@ function RootRedirect() {
 /** Guarda para rotas públicas (Login/Cadastro). Se logado, expulsa para o sistema. */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
+  const [clerkTimeout, setClerkTimeout] = React.useState(false)
 
-  if (!isLoaded) return null
+  React.useEffect(() => {
+    if (isLoaded) return
+    const timer = setTimeout(() => setClerkTimeout(true), 1500)
+    return () => clearTimeout(timer)
+  }, [isLoaded])
+
+  if (!isLoaded && !clerkTimeout) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+        Carregando…
+      </div>
+    )
+  }
 
   return isSignedIn ? (
     <Navigate to="/hub" replace />
@@ -128,16 +158,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** Gabi IA global — aparece em todas as telas autenticadas */
+/** Gabi IA global — aparece em todas as telas autenticadas (lazy-loaded) */
 function GabiGlobal() {
   const { user } = useUser()
   const location = useLocation()
 
   return (
-    <GabiOnboardingWidget
-      userName={user?.firstName ?? 'Usuario'}
-      pathname={location.pathname}
-    />
+    <React.Suspense fallback={null}>
+      <GabiOnboardingWidget
+        userName={user?.firstName ?? 'Usuario'}
+        pathname={location.pathname}
+      />
+    </React.Suspense>
   )
 }
 
@@ -167,7 +199,7 @@ export default function App() {
         <Route path="/selecionar-workspace" element={<Navigate to="/hub" replace />} />
 
         {/* Área autenticada */}
-        <Route path="/hub" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
+        <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SelecionarWorkspace /></React.Suspense></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
 
         {/* Core — workspace selecionado (menu lateral + conteúdo) */}

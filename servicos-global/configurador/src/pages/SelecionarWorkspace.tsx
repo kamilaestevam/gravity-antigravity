@@ -169,39 +169,77 @@ export function SelecionarWorkspace() {
     p => !HIDDEN_STATUSES.has(p.status) && !slugsContratados.has(p.slug)
   )
 
-  /* ── Carrega workspaces + tenant info da API ── */
+  /* ── Carrega TUDO via endpoint agregado (1 chamada = 1 requireAuth) ── */
   useEffect(() => {
     let cancelled = false
 
-    async function carregarDados() {
+    async function carregarTudo() {
       try {
         const token = await getToken()
-        const headers = { Authorization: `Bearer ${token}` }
-
-        // Busca em paralelo: companies + tenant info
-        const [companiesRes, tenantRes] = await Promise.all([
-          fetch('/api/v1/tenants/companies', { headers }),
-          fetch('/api/v1/tenants/me', { headers }),
-        ])
-
-        const companiesData = await companiesRes.json()
-        const tenantData = await tenantRes.json()
+        const res = await fetch('/api/v1/hub/init', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        const data = await res.json()
 
         if (cancelled) return
 
-        // Extrai plano da subscription do tenant
-        const subscription = tenantData.tenant?.subscriptions?.[0]
+        // ── Catálogo ──
+        const catalogo: ProdutoCatalogo[] = (data.catalog ?? []).map(
+          (p: { id: string; name: string; slug: string; description?: string | null; status: string }) => ({
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            description: p.description ?? null,
+            status: p.status,
+          })
+        )
+        setCatalogoProdutos(catalogo)
+
+        const catalogMap = new Map(catalogo.map(p => [p.slug, p]))
+
+        // ── Produtos contratados ──
+        let totalAtivos = 0
+        if (data.products) {
+          const contratados: ProdutoContratado[] = data.products.map(
+            (p: { product_key: string; is_active: boolean; catalog?: { name?: string; description?: string } }) => {
+              const catInfo = catalogMap.get(p.product_key)
+              return {
+                product_key: p.product_key,
+                is_active: p.is_active,
+                nome: catInfo?.name ?? p.catalog?.name ?? p.product_key,
+                descricao: catInfo?.description ?? p.catalog?.description ?? '',
+              }
+            }
+          )
+          setProdutosContratados(contratados)
+
+          totalAtivos = contratados.filter(c => c.is_active).length
+
+          const ativos: ProdutoAtivo[] = contratados
+            .filter(c => c.is_active)
+            .map(c => {
+              const info = PRODUCT_ROUTE_MAP[c.product_key]
+              return {
+                id: c.product_key,
+                slug: c.product_key,
+                nome: info?.nome ?? c.nome,
+                rota: info?.rota ?? `/produto/${c.product_key}`,
+              }
+            })
+          setProdutosAtivos(ativos)
+        }
+
+        // ── Workspaces ──
+        const subscription = data.tenant?.subscriptions?.[0]
         const planMap: Record<string, Workspace['plano']> = {
           STARTER: 'starter',
           PROFESSIONAL: 'professional',
           ENTERPRISE: 'enterprise',
         }
         const tenantPlano = planMap[subscription?.plan] ?? 'starter'
+        const tenantUserCount = data.tenant?._count?.users ?? 0
 
-        // Extrai role do usuário no tenant
-        const tenantUserCount = tenantData.tenant?._count?.users ?? 0
-
-        if (companiesData.companies && companiesData.companies.length > 0) {
+        if (data.companies && data.companies.length > 0) {
           interface CompanyApi {
             id: string
             name: string
@@ -210,7 +248,7 @@ export function SelecionarWorkspace() {
             _count?: { memberships: number }
           }
 
-          const mapeados: Workspace[] = companiesData.companies.map((c: CompanyApi, i: number) => {
+          const mapeados: Workspace[] = data.companies.map((c: CompanyApi, i: number) => {
             const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
             const membros = (c._count?.memberships || 0) > 0 ? c._count!.memberships : tenantUserCount
             return {
@@ -219,7 +257,7 @@ export function SelecionarWorkspace() {
               iniciais: c.name.substring(0, 2).toUpperCase(),
               plano: tenantPlano,
               role: userRole,
-              modulos: 0, // será atualizado após carregar produtos
+              modulos: totalAtivos,
               membros,
               gradientFrom: grad.from,
               gradientTo: grad.to,
@@ -235,86 +273,9 @@ export function SelecionarWorkspace() {
       }
     }
 
-    carregarDados()
+    carregarTudo()
     return () => { cancelled = true }
   }, [getToken, userRole])
-
-  /* ── Carrega produtos contratados pelo tenant + catálogo completo ── */
-  useEffect(() => {
-    let cancelled = false
-
-    async function carregarProdutos() {
-      try {
-        const token = await getToken()
-        const headers = { Authorization: `Bearer ${token}` }
-
-        // Busca produtos contratados + catálogo real (ProductCatalog via admin API)
-        const [contratadosRes, catalogoRes] = await Promise.all([
-          fetch('/api/v1/tenants/products', { headers }),
-          fetch('/api/admin/products', { headers }).catch(() => null),
-        ])
-
-        const contratadosData = await contratadosRes.json()
-        const catalogoData = catalogoRes ? await catalogoRes.json() : { products: [] }
-
-        if (cancelled) return
-
-        // Catálogo completo (ProductCatalog — fonte real)
-        const catalogo: ProdutoCatalogo[] = (catalogoData.products ?? []).map(
-          (p: { id: string; name: string; slug: string; description?: string | null; status: string }) => ({
-            id: p.id,
-            name: p.name,
-            slug: p.slug,
-            description: p.description ?? null,
-            status: p.status,
-          })
-        )
-        setCatalogoProdutos(catalogo)
-
-        // Mapa slug → nome/descrição do catálogo para enriquecer contratados
-        const catalogMap = new Map(catalogo.map(p => [p.slug, p]))
-
-        // Produtos contratados pelo tenant
-        if (contratadosData.products) {
-          const contratados: ProdutoContratado[] = contratadosData.products.map(
-            (p: { product_key: string; is_active: boolean; catalog?: { name?: string; description?: string } }) => {
-              const catInfo = catalogMap.get(p.product_key)
-              return {
-                product_key: p.product_key,
-                is_active: p.is_active,
-                nome: catInfo?.name ?? p.catalog?.name ?? p.product_key,
-                descricao: catInfo?.description ?? p.catalog?.description ?? '',
-              }
-            }
-          )
-          setProdutosContratados(contratados)
-
-          // Atualiza contagem de módulos nos workspaces
-          const totalAtivos = contratados.filter(c => c.is_active).length
-          setWorkspaces(prev => prev.map(ws => ({ ...ws, modulos: totalAtivos })))
-
-          // Produtos ativos para o menu lateral
-          const ativos: ProdutoAtivo[] = contratados
-            .filter(c => c.is_active)
-            .map(c => {
-              const info = PRODUCT_ROUTE_MAP[c.product_key]
-              return {
-                id: c.product_key,
-                slug: c.product_key,
-                nome: info?.nome ?? c.nome,
-                rota: info?.rota ?? `/produto/${c.product_key}`,
-              }
-            })
-          setProdutosAtivos(ativos)
-        }
-      } catch {
-        // Sem dados de produtos — seções ficarão vazias
-      }
-    }
-
-    carregarProdutos()
-    return () => { cancelled = true }
-  }, [getToken])
 
   /* ── Menu lateral: navItems ── */
   const navItems: NavItem[] = useMemo(() => {

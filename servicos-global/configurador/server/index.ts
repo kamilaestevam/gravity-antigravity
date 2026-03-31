@@ -31,6 +31,7 @@ import { companyProductsRouter } from './routes/companyProducts.js'
 import { serviceTokenRouter } from './routes/serviceToken.js'
 import { adminProductsRouter } from './routes/adminProducts.js'
 import { publicCatalogRouter } from './routes/publicCatalog.js'
+import { hubRouter } from './routes/hubInit.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -94,6 +95,7 @@ app.use('/api/catalog', rateLimitPresets.public())
 // ─── Rotas públicas / protegidas por Clerk ──────────────────────────────────
 
 app.use('/api/v1/webhooks', authRouter)
+app.use('/api/v1/hub', hubRouter)
 app.use('/api/v1/tenants', tenantsRouter)
 app.use('/api/v1/billing', billingRouter)
 app.use('/api/v1/admin', adminRouter)

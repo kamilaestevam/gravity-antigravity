@@ -174,7 +174,11 @@ export const productCatalogService = {
    */
   async seedInitialProducts() {
     const count = await prisma.product.count()
-    if (count > 0) return { seeded: false, count }
+    if (count > 0) {
+      // Verificar se novos produtos precisam ser adicionados (upsert)
+      await this.ensureMissingProducts()
+      return { seeded: false, count }
+    }
 
     const products = await prisma.$transaction([
       prisma.product.create({
@@ -243,9 +247,57 @@ export const productCatalogService = {
           target_audience: 'Importadores, exportadores, tradings, agentes de carga e despachantes aduaneiros',
         },
       }),
+      prisma.product.create({
+        data: {
+          name: 'LPCO',
+          slug: 'lpco',
+          description: 'Gestão de Licenças, Permissões, Certificados e Outros Documentos do Portal Único Siscomex — acompanhamento do ciclo de vida, resposta a exigências, controle de saldo Flex e integração bidirecional com o Portal Único',
+          status: 'ACTIVE',
+          billing_type: 'PER_PROCESS',
+          has_setup: false,
+          unit_price: 0.99,
+          minimum_price: 0,
+          user_limit_type: 'UNLIMITED',
+          backend_module: 'lpco',
+          target_audience: 'Importadores, exportadores e despachantes aduaneiros',
+        },
+      }),
     ])
 
     return { seeded: true, count: products.length }
+  },
+
+  /**
+   * Garante que produtos novos do seed sejam criados no banco existente.
+   * Roda como upsert — cria apenas os que não existem.
+   */
+  async ensureMissingProducts() {
+    const newProducts = [
+      {
+        name: 'LPCO',
+        slug: 'lpco',
+        description: 'Gestão de Licenças, Permissões, Certificados e Outros Documentos do Portal Único Siscomex — acompanhamento do ciclo de vida, resposta a exigências, controle de saldo Flex e integração bidirecional com o Portal Único',
+        status: 'ACTIVE',
+        billing_type: 'PER_PROCESS',
+        has_setup: false,
+        unit_price: 0.99,
+        minimum_price: 0,
+        user_limit_type: 'UNLIMITED',
+        backend_module: 'lpco',
+        target_audience: 'Importadores, exportadores e despachantes aduaneiros',
+      },
+    ]
+
+    let created = 0
+    for (const product of newProducts) {
+      const existing = await prisma.product.findFirst({ where: { slug: product.slug } })
+      if (!existing) {
+        await prisma.product.create({ data: product })
+        created++
+        console.log(`[seed] Produto '${product.name}' (${product.slug}) criado`)
+      }
+    }
+    if (created > 0) console.log(`[seed] ${created} novo(s) produto(s) adicionado(s)`)
   },
 
   /**

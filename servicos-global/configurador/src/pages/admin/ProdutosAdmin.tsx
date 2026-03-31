@@ -579,7 +579,15 @@ export function ProdutosAdmin() {
               type: 'success',
               message: produtoEditando ? `Produto "${formNome}" atualizado com sucesso!` : `Produto "${formNome}" criado com sucesso!`
             })
-            carregarDados()
+            // Refresh em background — sem flash de loading
+            Promise.all([
+              catalogApiService.getProdutos(),
+              catalogApiService.getNegociacoes(),
+            ]).then(([prods, negs]) => {
+              setProdutos(prods)
+              setNegociacoes(negs)
+            })
+            catalogApiService.getSlugsDisponiveis().then(setSlugsDisponiveis)
           } catch (err) {
             addNotification({
               type: 'error',

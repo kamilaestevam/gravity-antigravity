@@ -37,10 +37,12 @@ import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
-import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
-import GabiChat from '@tenant/gabi/src/Gabi'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
+
+// Lazy-load componentes pesados — antes eram estáticos e bloqueavam o render do Core
+const Notificacoes = React.lazy(() => import('../../../tenant/notificacoes/src/Notificacoes').then(m => ({ default: m.Notificacoes })))
+const GabiChat = React.lazy(() => import('@tenant/gabi/src/Gabi'))
 
 interface ProdutoAtivo {
   nome: string
@@ -263,7 +265,9 @@ export function Core() {
 
           <LanguageSwitcherGlobal />
 
-          <Notificacoes tenantId={user?.organizationMemberships?.[0]?.organization?.id ?? 'default'} userId={user?.id ?? 'user'} />
+          <React.Suspense fallback={null}>
+            <Notificacoes tenantId={user?.organizationMemberships?.[0]?.organization?.id ?? 'default'} userId={user?.id ?? 'user'} />
+          </React.Suspense>
 
           <UsuarioGlobal
             userName={userName}
@@ -290,7 +294,9 @@ export function Core() {
       {/* ── Gabi IA ── */}
       {isGabiOpen && (
         <div className="ws-gabi-panel">
-          <GabiChat onClose={() => setIsGabiOpen(false)} />
+          <React.Suspense fallback={null}>
+            <GabiChat onClose={() => setIsGabiOpen(false)} />
+          </React.Suspense>
         </div>
       )}
 

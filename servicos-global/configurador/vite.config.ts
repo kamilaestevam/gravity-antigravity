@@ -64,7 +64,20 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['react-i18next', 'i18next', 'zustand', '@clerk/clerk-react', '@phosphor-icons/react'],
+    include: ['react-i18next', 'i18next', 'zustand', '@clerk/clerk-react'],
+    // @phosphor-icons/react REMOVIDO — pre-bundleia 5000+ ícones desnecessariamente
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-clerk': ['@clerk/clerk-react'],
+          'vendor-icons': ['@phosphor-icons/react'],
+          'vendor-i18n': ['react-i18next', 'i18next'],
+        },
+      },
+    },
   },
   server: {
     port: 5000,

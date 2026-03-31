@@ -8,6 +8,7 @@ import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
+const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
 const userCache = new Map<string, { userId: string; tenantId: string; expiry: number }>()
 
 declare global {
@@ -63,6 +64,19 @@ export async function requireAuth(
 
     if (!user) {
       throw new AppError('Usuário não encontrado no sistema', 401, 'UNAUTHORIZED')
+    }
+
+    // Limpa entradas expiradas quando o cache atinge o limite
+    if (userCache.size >= USER_CACHE_MAX) {
+      const now = Date.now()
+      for (const [key, val] of userCache) {
+        if (val.expiry <= now) userCache.delete(key)
+      }
+      // Se ainda cheio após limpeza, remove as mais antigas (FIFO via Map insertion order)
+      if (userCache.size >= USER_CACHE_MAX) {
+        const first = userCache.keys().next().value
+        if (first) userCache.delete(first)
+      }
     }
 
     userCache.set(cacheKey, {

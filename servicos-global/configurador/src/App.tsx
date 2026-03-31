@@ -12,11 +12,14 @@ export type Page =
 import { Onboarding } from './pages/Onboarding'
 import { Contato } from './pages/Contato'
 import { Waitlist } from './pages/Waitlist'
-import { SelecionarWorkspace } from './pages/SelecionarWorkspace'
 
 // Lazy-load — cada grupo carrega só quando o usuário navega para a rota
 const lazy = (fn: () => Promise<{ [k: string]: React.ComponentType<any> }>, name: string) =>
   React.lazy(() => fn().then(m => ({ default: (m as any)[name] })))
+
+// SelecionarWorkspace agora é lazy — antes era import estático que puxava
+// 30+ ícones phosphor + MenuLateralGlobal no bundle inicial (até na tela de login)
+const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'SelecionarWorkspace')
 
 const Hub = lazy(() => import('./pages/Hub'), 'Hub')
 const Store = lazy(() => import('./pages/Store'), 'Store')
@@ -88,14 +91,17 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** Wrapper para rotas que exigem autenticação */
+/** Wrapper para rotas que exigem autenticação — otimizado para evitar round-trip ao Clerk */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <SignedIn>{children}</SignedIn>
-      <SignedOut><RedirectToSignIn /></SignedOut>
-    </>
-  )
+  const { isLoaded, isSignedIn } = useAuth()
+
+  // Enquanto Clerk não carregou, não renderiza nada (evita flash)
+  if (!isLoaded) return null
+
+  // Se não autenticado, redireciona para /sign-in local (sem round-trip ao Clerk hosted)
+  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+
+  return <>{children}</>
 }
 
 export default function App() {
@@ -121,7 +127,7 @@ export default function App() {
         <Route path="/waitlist" element={<Waitlist />} />
 
         {/* Área autenticada */}
-        <Route path="/hub" element={<ProtectedRoute><SelecionarWorkspace /></ProtectedRoute>} />
+        <Route path="/hub" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><SelecionarWorkspace /></React.Suspense></ProtectedRoute>} />
         <Route path="/store" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><Store /></React.Suspense></ProtectedRoute>} />
 
         {/* Core — workspace selecionado (menu lateral + conteúdo) */}

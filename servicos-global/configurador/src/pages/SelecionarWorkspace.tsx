@@ -252,49 +252,53 @@ export function SelecionarWorkspace() {
           fetch('/api/v1/products', { headers }),
         ])
 
-        const [dataWs, dataProd] = await Promise.all([
-          resWorkspaces.json(),
-          resProdutos.json(),
-        ])
-
         if (cancelled) return
 
-        // Workspaces
-        if (dataWs.companies && dataWs.companies.length > 0) {
-          const mapeados: Workspace[] = dataWs.companies.map((c: Record<string, unknown>, i: number) => ({
-            id: c.id as string,
-            nome: c.name as string,
-            iniciais: (c.name as string).substring(0, 2).toUpperCase(),
-            plano: 'business' as const,
-            role: 'Admin',
-            modulos: 0,
-            membros: 1,
-            simulacoes: '0',
-            gradientFrom: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientFrom,
-            gradientTo: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientTo,
-          }))
-          setWorkspaces(mapeados)
-          setSelectedId(mapeados[0].id)
+        // Workspaces — com validação de resposta
+        if (resWorkspaces.ok) {
+          const dataWs = await resWorkspaces.json()
+          if (dataWs.companies && dataWs.companies.length > 0) {
+            const mapeados: Workspace[] = dataWs.companies.map((c: Record<string, unknown>, i: number) => ({
+              id: c.id as string,
+              nome: c.name as string,
+              iniciais: (c.name as string).substring(0, 2).toUpperCase(),
+              plano: 'business' as const,
+              role: 'Admin',
+              modulos: 0,
+              membros: 1,
+              simulacoes: '0',
+              gradientFrom: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientFrom,
+              gradientTo: MOCK_WORKSPACES[i % MOCK_WORKSPACES.length].gradientTo,
+            }))
+            setWorkspaces(mapeados)
+            setSelectedId(mapeados[0].id)
+          } else {
+            setWorkspaces(MOCK_WORKSPACES)
+            setSelectedId(MOCK_WORKSPACES[0].id)
+          }
         } else {
           setWorkspaces(MOCK_WORKSPACES)
           setSelectedId(MOCK_WORKSPACES[0].id)
         }
 
-        // Produtos
-        if (dataProd.products) {
-          const ativos: ProdutoAtivo[] = dataProd.products
-            .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
-            .map((p: Record<string, unknown>) => {
-              const slug = p.slug as string
-              const info = PRODUCT_ROUTE_MAP[slug]
-              return {
-                id: p.id as string,
-                slug,
-                nome: info?.nome ?? (p.name as string),
-                rota: info?.rota ?? `/produto/${slug}`,
-              }
-            })
-          setProdutosAtivos(ativos)
+        // Produtos — independente dos workspaces
+        if (resProdutos.ok) {
+          const dataProd = await resProdutos.json()
+          if (dataProd.products) {
+            const ativos: ProdutoAtivo[] = dataProd.products
+              .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
+              .map((p: Record<string, unknown>) => {
+                const slug = p.slug as string
+                const info = PRODUCT_ROUTE_MAP[slug]
+                return {
+                  id: p.id as string,
+                  slug,
+                  nome: info?.nome ?? (p.name as string),
+                  rota: info?.rota ?? `/produto/${slug}`,
+                }
+              })
+            setProdutosAtivos(ativos)
+          }
         }
       } catch {
         if (!cancelled) {

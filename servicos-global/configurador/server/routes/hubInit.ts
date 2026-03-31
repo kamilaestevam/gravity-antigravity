@@ -6,7 +6,6 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { tenantService } from '../services/tenantService.js'
-import { productCatalogService } from '../services/productCatalogService.js'
 import { prisma } from '../lib/prisma.js'
 
 export const hubRouter = Router()
@@ -24,23 +23,23 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
   try {
     const tenantId = req.auth.tenantId
 
-    // Tudo em paralelo — 1 único requireAuth, 4 queries simultâneas
-    const [tenant, companies, configs, catalogResult] = await Promise.all([
+    // Tudo em paralelo — 1 único requireAuth
+    const [tenant, companies, configs, catalogProducts] = await Promise.all([
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
       prisma.productConfig.findMany({
         where: { tenant_id: tenantId },
         orderBy: { created_at: 'desc' },
-      }),
-      productCatalogService.list({}),
+      }).catch(() => []),
+      // Query leve: só campos necessários para o hub (sem price_tiers/negotiations)
+      prisma.product.findMany({
+        select: { id: true, name: true, slug: true, description: true, status: true },
+        orderBy: { created_at: 'desc' },
+      }).catch(() => []),
     ])
 
     // Enriquece produtos contratados com dados do catálogo
-    const slugs = configs.map(c => c.product_key)
-    const catalogItems = await prisma.globalProduct.findMany({
-      where: { slug: { in: slugs } },
-    })
-    const catalogMap = new Map(catalogItems.map(p => [p.slug, p]))
+    const catalogMap = new Map(catalogProducts.map(p => [p.slug, p]))
 
     const products = configs.map(c => ({
       product_key: c.product_key,
@@ -54,7 +53,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       tenant,
       companies,
       products,
-      catalog: catalogResult.products ?? [],
+      catalog: catalogProducts,
     })
   } catch (err) {
     next(err)

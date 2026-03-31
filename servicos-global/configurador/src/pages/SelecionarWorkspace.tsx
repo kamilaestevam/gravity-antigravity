@@ -154,7 +154,7 @@ export function SelecionarWorkspace() {
     STANDARD: 'Usuário',
     SUPPLIER: 'Fornecedor',
   }
-  const userRole = ROLE_LABELS[rawRole] ?? (rawRole || 'Admin')
+  const userRole = ROLE_LABELS[rawRole] ?? (rawRole || 'Usuário')
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
 
   const selectedWs = workspaces.find(w => w.id === selectedId)

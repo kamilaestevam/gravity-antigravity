@@ -17,12 +17,12 @@ export type Page =
 import { Onboarding } from './pages/Onboarding'
 import { Contato } from './pages/Contato'
 import { Waitlist } from './pages/Waitlist'
-const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'SelecionarWorkspace')
 
 // Lazy-load — cada grupo carrega só quando o usuário navega para a rota
 const lazy = (fn: () => Promise<{ [k: string]: React.ComponentType<any> }>, name: string) =>
   React.lazy(() => fn().then(m => ({ default: (m as any)[name] })))
 
+const SelecionarWorkspace = lazy(() => import('./pages/SelecionarWorkspace'), 'SelecionarWorkspace')
 const Hub = lazy(() => import('./pages/Hub'), 'Hub')
 const Store = lazy(() => import('./pages/Store'), 'Store')
 const AdminPanel = lazy(() => import('./pages/AdminPanel'), 'AdminPanel')

@@ -238,20 +238,30 @@ export function SelecionarWorkspace() {
   const tenantName = selectedWs?.nome ?? 'Gravity'
   const tenantPlan = selectedWs ? planLabel(selectedWs.plano) : 'Business'
 
-  /* ── Carrega workspaces da API ── */
+  /* ── Carrega workspaces + produtos em paralelo (1 único getToken) ── */
   useEffect(() => {
     let cancelled = false
 
-    async function carregarWorkspaces() {
+    async function carregarDados() {
       try {
         const token = await getToken()
-        const response = await fetch('/api/v1/tenants/companies', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        const data = await response.json()
+        const headers = { Authorization: `Bearer ${token}` }
 
-        if (!cancelled && data.companies && data.companies.length > 0) {
-          const mapeados: Workspace[] = data.companies.map((c: Record<string, unknown>, i: number) => ({
+        const [resWorkspaces, resProdutos] = await Promise.all([
+          fetch('/api/v1/tenants/companies', { headers }),
+          fetch('/api/v1/products', { headers }),
+        ])
+
+        const [dataWs, dataProd] = await Promise.all([
+          resWorkspaces.json(),
+          resProdutos.json(),
+        ])
+
+        if (cancelled) return
+
+        // Workspaces
+        if (dataWs.companies && dataWs.companies.length > 0) {
+          const mapeados: Workspace[] = dataWs.companies.map((c: Record<string, unknown>, i: number) => ({
             id: c.id as string,
             nome: c.name as string,
             iniciais: (c.name as string).substring(0, 2).toUpperCase(),
@@ -265,38 +275,14 @@ export function SelecionarWorkspace() {
           }))
           setWorkspaces(mapeados)
           setSelectedId(mapeados[0].id)
-        } else if (!cancelled) {
+        } else {
           setWorkspaces(MOCK_WORKSPACES)
           setSelectedId(MOCK_WORKSPACES[0].id)
         }
-      } catch {
-        if (!cancelled) {
-          setWorkspaces(MOCK_WORKSPACES)
-          setSelectedId(MOCK_WORKSPACES[0].id)
-        }
-      } finally {
-        if (!cancelled) setCarregando(false)
-      }
-    }
 
-    carregarWorkspaces()
-    return () => { cancelled = true }
-  }, [getToken])
-
-  /* ── Carrega produtos ativos do catálogo ── */
-  useEffect(() => {
-    let cancelled = false
-
-    async function carregarProdutos() {
-      try {
-        const token = await getToken()
-        const response = await fetch('/api/v1/products', {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        const data = await response.json()
-
-        if (!cancelled && data.products) {
-          const ativos: ProdutoAtivo[] = data.products
+        // Produtos
+        if (dataProd.products) {
+          const ativos: ProdutoAtivo[] = dataProd.products
             .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
             .map((p: Record<string, unknown>) => {
               const slug = p.slug as string
@@ -311,11 +297,16 @@ export function SelecionarWorkspace() {
           setProdutosAtivos(ativos)
         }
       } catch {
-        // Sem produtos ativos — menu não mostrará seção de produtos Gravity
+        if (!cancelled) {
+          setWorkspaces(MOCK_WORKSPACES)
+          setSelectedId(MOCK_WORKSPACES[0].id)
+        }
+      } finally {
+        if (!cancelled) setCarregando(false)
       }
     }
 
-    carregarProdutos()
+    carregarDados()
     return () => { cancelled = true }
   }, [getToken])
 

@@ -5,6 +5,10 @@
 import type { Request, Response, NextFunction } from 'express'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
+import { prisma } from '../lib/prisma.js'
+
+const USER_CACHE_TTL = 60_000 // 1 minuto
+const userCache = new Map<string, { userId: string; tenantId: string; expiry: number }>()
 
 declare global {
   namespace Express {
@@ -43,8 +47,15 @@ export async function requireAuth(
       throw new AppError('Token inválido', 401, 'UNAUTHORIZED')
     }
 
-    // Busca tenant vinculado ao clerk_user_id
-    const { prisma } = await import('../lib/prisma.js')
+    // Busca tenant vinculado ao clerk_user_id (com cache em memória)
+    const cacheKey = `user:${verified.sub}`
+    const cached = userCache.get(cacheKey)
+    if (cached && cached.expiry > Date.now()) {
+      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub }
+      next()
+      return
+    }
+
     const user = await prisma.user.findFirst({
       where: { clerk_user_id: verified.sub },
       select: { id: true, tenant_id: true },
@@ -53,6 +64,12 @@ export async function requireAuth(
     if (!user) {
       throw new AppError('Usuário não encontrado no sistema', 401, 'UNAUTHORIZED')
     }
+
+    userCache.set(cacheKey, {
+      userId: user.id,
+      tenantId: user.tenant_id,
+      expiry: Date.now() + USER_CACHE_TTL,
+    })
 
     req.auth = {
       userId: user.id,

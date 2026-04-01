@@ -173,6 +173,10 @@ export function SelecionarWorkspace() {
     async function carregarTudo() {
       try {
         const token = await getToken()
+        if (!token) {
+          setTimeout(() => { if (!cancelled) carregarTudo() }, 500)
+          return
+        }
         const res = await fetch('/api/v1/hub/init', {
           headers: { Authorization: `Bearer ${token}` },
         })

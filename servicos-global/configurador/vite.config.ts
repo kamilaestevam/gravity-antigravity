@@ -92,7 +92,7 @@ export default defineConfig({
       },
       // Configurador API
       '/api': {
-        target: 'http://localhost:8001',
+        target: 'http://localhost:8005',
         changeOrigin: true,
       },
     },

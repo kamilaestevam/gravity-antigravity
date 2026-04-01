@@ -6,8 +6,9 @@ import { AppError } from '../lib/errors'
 export const apiRoutes = Router()
 
 const checkAuth = (req: Request, res: Response, next: NextFunction) => {
-  const tenantId = req.headers['x-tenant-id'] as string | undefined
-  const userId = req.headers['x-user-id'] as string | undefined
+  // EventSource (SSE) não suporta headers — aceita query params como fallback
+  const tenantId = (req.headers['x-tenant-id'] as string | undefined) ?? (req.query.tenantId as string | undefined)
+  const userId = (req.headers['x-user-id'] as string | undefined) ?? (req.query.userId as string | undefined)
 
   if (!tenantId) {
     return res.status(401).json({ status: 'error', message: 'x-tenant-id header is required' })

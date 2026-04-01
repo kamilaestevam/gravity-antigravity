@@ -129,6 +129,11 @@ exports.Prisma.TenantScalarFieldEnum = {
   status: 'status',
   clerk_org_id: 'clerk_org_id',
   stripe_customer_id: 'stripe_customer_id',
+  cnpj: 'cnpj',
+  state: 'state',
+  city: 'city',
+  segment: 'segment',
+  website: 'website',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -213,6 +218,16 @@ exports.Prisma.ProductConfigScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.CompanyProductScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  company_id: 'company_id',
+  product_key: 'product_key',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -282,15 +297,70 @@ exports.Prisma.SupplierTenantAccessScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ServiceTokenScalarFieldEnum = {
+exports.Prisma.SecurityEventScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
+  actor_id: 'actor_id',
+  actor_type: 'actor_type',
+  action: 'action',
+  severity: 'severity',
+  status: 'status',
+  description: 'description',
+  ip: 'ip',
+  endpoint: 'endpoint',
   user_id: 'user_id',
-  token_hash: 'token_hash',
-  scope: 'scope',
-  expires_at: 'expires_at',
-  revoked: 'revoked',
+  product_id: 'product_id',
+  correlation_id: 'correlation_id',
+  metadata: 'metadata',
   created_at: 'created_at'
+};
+
+exports.Prisma.RateLimitMetricScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  tenant_id: 'tenant_id',
+  ip: 'ip',
+  endpoint: 'endpoint',
+  count: 'count',
+  limit_max: 'limit_max',
+  blocked: 'blocked',
+  window_start: 'window_start',
+  created_at: 'created_at'
+};
+
+exports.Prisma.ServiceHealthScalarFieldEnum = {
+  id: 'id',
+  service: 'service',
+  url: 'url',
+  status: 'status',
+  latency_ms: 'latency_ms',
+  last_error: 'last_error',
+  checked_at: 'checked_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.GlobalProductScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  status: 'status',
+  type_billing: 'type_billing',
+  setup_price: 'setup_price',
+  unit_price: 'unit_price',
+  min_price: 'min_price',
+  total_price: 'total_price',
+  currency: 'currency',
+  limit_users: 'limit_users',
+  base_users: 'base_users',
+  help_desk_hours: 'help_desk_hours',
+  backend_module: 'backend_module',
+  target_audience: 'target_audience',
+  features: 'features',
+  pricing_tiers: 'pricing_tiers',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -299,6 +369,11 @@ exports.Prisma.SortOrder = {
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -382,12 +457,6 @@ exports.UserLimitType = exports.$Enums.UserLimitType = {
   LIMITED: 'LIMITED'
 };
 
-exports.ServiceTokenScope = exports.$Enums.ServiceTokenScope = {
-  SERVICE: 'SERVICE',
-  WEBHOOK: 'WEBHOOK',
-  CRON: 'CRON'
-};
-
 exports.Prisma.ModelName = {
   Tenant: 'Tenant',
   User: 'User',
@@ -397,12 +466,16 @@ exports.Prisma.ModelName = {
   Company: 'Company',
   UserMembership: 'UserMembership',
   ProductConfig: 'ProductConfig',
+  CompanyProduct: 'CompanyProduct',
   Product: 'Product',
   PriceTier: 'PriceTier',
   SpecialNegotiation: 'SpecialNegotiation',
   StripeEvent: 'StripeEvent',
   SupplierTenantAccess: 'SupplierTenantAccess',
-  ServiceToken: 'ServiceToken'
+  SecurityEvent: 'SecurityEvent',
+  RateLimitMetric: 'RateLimitMetric',
+  ServiceHealth: 'ServiceHealth',
+  GlobalProduct: 'GlobalProduct'
 };
 
 /**

@@ -361,6 +361,7 @@ adminRouter.get('/platform-config', async (req, res, next) => {
       return
     }
 
+    // Campos core — sempre existem na migration init
     const tenant = await prisma.tenant.findUnique({
       where: { id: user.tenant_id },
       select: {
@@ -370,8 +371,6 @@ adminRouter.get('/platform-config', async (req, res, next) => {
         cnpj: true,
         state: true,
         city: true,
-        segment: true,
-        website: true,
         created_at: true,
       },
     })
@@ -379,6 +378,18 @@ adminRouter.get('/platform-config', async (req, res, next) => {
     if (!tenant) {
       res.json({ config: null })
       return
+    }
+
+    // Campos opcionais adicionados após init — isolados para não bloquear se migration pendente
+    let extras: { segment?: string | null; website?: string | null } = {}
+    try {
+      const row = await prisma.tenant.findUnique({
+        where: { id: tenant.id },
+        select: { segment: true, website: true },
+      })
+      if (row) extras = row
+    } catch {
+      // Colunas segment/website ainda não migradas — retorna sem elas
     }
 
     // Busca subscription separado para isolar possíveis erros de migration
@@ -394,7 +405,7 @@ adminRouter.get('/platform-config', async (req, res, next) => {
       // Subscription ainda não migrada ou sem dados — retorna vazio
     }
 
-    res.json({ config: { ...tenant, subscriptions } })
+    res.json({ config: { ...tenant, ...extras, subscriptions } })
   } catch (err) {
     next(err)
   }

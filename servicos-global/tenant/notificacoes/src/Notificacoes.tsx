@@ -79,7 +79,7 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
 
     // SSE apenas se backend estiver disponível (tenta uma vez)
     try {
-      eventSource = new EventSource(`/api/tenant/notificacoes/stream?userId=${userId}`)
+      eventSource = new EventSource(`/api/tenant/notificacoes/stream?userId=${userId}&tenantId=${tenantId}`)
 
       eventSource.onmessage = (event) => {
         try {

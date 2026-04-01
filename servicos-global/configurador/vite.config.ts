@@ -89,11 +89,19 @@ export default defineConfig({
       '/api/v1/gabi': {
         target: 'http://localhost:8000',
         changeOrigin: true,
+        onError(err, _req, res) {
+          // Backend indisponível — evita crash do Vite (ex: ECONNRESET no restart)
+          if (!res.headersSent) res.writeHead(502).end()
+        },
       },
       // Configurador API
       '/api': {
         target: 'http://localhost:8005',
         changeOrigin: true,
+        onError(err, _req, res) {
+          // Backend indisponível — evita crash do Vite (ex: ECONNRESET no restart do tsx)
+          if (!res.headersSent) res.writeHead(502).end()
+        },
       },
     },
   },

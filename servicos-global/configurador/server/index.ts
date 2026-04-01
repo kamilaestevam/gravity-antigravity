@@ -117,6 +117,9 @@ app.use('/api/tenant/historico-global', historicoRouter)
 import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
 app.use('/api/tenant/notificacoes', notificacoesRouter)
 
+import { apiRoutes as preferenciasRouter } from '../../tenant/preferencias-usuario/server/routes/api.js'
+app.use('/api/tenant/preferencias', preferenciasRouter)
+
 app.use('/api/admin', adminRouter)
 app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)
 app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)

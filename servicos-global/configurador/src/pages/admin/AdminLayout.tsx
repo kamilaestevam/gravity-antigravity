@@ -113,7 +113,6 @@ export function AdminLayout() {
         <div className="ws-global-actions">
           <TooltipGlobal titulo={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} descricao={t('admin.layout.voltar_hub_desc', 'Retornar à tela principal do workspace')}>
             <button
-              className="ws-global-btn ws-voltar-btn"
               onClick={() => navigate('/hub')}
               type="button"
               style={{

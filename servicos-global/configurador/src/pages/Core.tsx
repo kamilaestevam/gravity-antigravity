@@ -238,7 +238,6 @@ export function Core() {
         <div className="ws-global-actions">
           <TooltipGlobal titulo={t('shell.voltar_hub')} descricao={t('shell.voltar_hub')}>
             <button
-              className="ws-global-btn ws-voltar-btn"
               onClick={() => navigate('/hub')}
               type="button"
               style={{

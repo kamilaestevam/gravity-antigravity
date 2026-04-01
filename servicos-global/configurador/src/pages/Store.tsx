@@ -5,6 +5,7 @@ import {
   Package,
   CheckCircle,
   SpinnerGap,
+  ArrowLeft,
   ArrowRight,
   Info,
   MagnifyingGlass,
@@ -23,10 +24,12 @@ import {
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import '../pages/workspace/workspace.css'
+import './selecionar-workspace.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
+import { LogoGlobal } from '@nucleo/logo-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
 
@@ -292,59 +295,75 @@ export function Store() {
   }
 
   return (
-    <div className="ws-shell" style={{ display: 'block', overflowY: 'auto' }}>
-      {/* ── Global Actions (barra superior fixa) ── */}
-      <div className="ws-global-actions" style={{ position: 'fixed' }}>
-        <LocalizarExpandidoCampoGlobal onBuscarNavigate={() => {}} />
+    <div className="sw-shell sw-shell--no-sidebar">
+      <div className="sw-page sw-page--full">
+        {/* ── Topbar idêntico ao Hub ── */}
+        <header className="sw-topbar">
+          <div className="sw-t-brand">
+            <LogoGlobal iconSize={26} iconColor="#818cf8" />
+          </div>
 
-        <TooltipGlobal
-          titulo="Dicas e Explicações"
-          descricao={
-            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Info size={14} weight="fill" style={{ color: 'var(--ws-accent, #818cf8)', flexShrink: 0 }} />
-                <span><strong style={{ color: '#f1f5f9' }}>Habilitadas</strong> — dicas aparecem ao passar o mouse</span>
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Info size={14} weight="regular" style={{ color: '#64748b', flexShrink: 0 }} />
-                <span><strong style={{ color: '#f1f5f9' }}>Desabilitadas</strong> — nenhuma dica é exibida</span>
-              </span>
-              <span style={{ marginTop: '0.15rem', color: '#64748b', fontSize: '0.7rem' }}>
-                Agora: <strong style={{ color: tooltipsDisabled ? '#f87171' : '#34d399' }}>
-                  {tooltipsDisabled ? 'desabilitadas' : 'habilitadas'}
-                </strong>
-              </span>
-            </span>
-          }
-        >
-          <button
-            className="ws-global-btn"
-            onClick={toggleTooltips}
-            style={{ color: tooltipsDisabled ? 'var(--ws-muted)' : 'var(--ws-accent)' }}
-            type="button"
-          >
-            <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
-          </button>
-        </TooltipGlobal>
+          <div className="sw-t-right">
+            <TooltipGlobal titulo="Voltar ao Hub" descricao="Retornar à tela principal do workspace">
+              <button
+                onClick={() => navigate('/hub')}
+                type="button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.375rem 0.875rem',
+                  borderRadius: '9999px',
+                  border: '1px solid rgba(129,140,248,0.25)',
+                  background: 'rgba(129,140,248,0.08)',
+                  color: '#818cf8',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
+              >
+                <ArrowLeft size={16} weight="bold" />
+                Hub
+              </button>
+            </TooltipGlobal>
 
-        <Notificacoes tenantId="store" userId={user?.id ?? 'mock-user'} />
+            <LocalizarExpandidoCampoGlobal onBuscarNavigate={() => {}} />
 
-        <UsuarioGlobal
-          userName={userName}
-          userEmail={userEmail}
-          userInitials={userInitials}
-          userRole="Admin"
-          isLight={isLight}
-          onToggleTheme={toggleTheme}
-          onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
-          onNavigateMarketPlace={() => navigate('/store')}
-          onSignOut={() => signOut()}
-          isAdmin={true}
-          onNavigateAdmin={() => navigate('/admin/visao-geral')}
-        />
-      </div>
+            <button
+              className="sw-t-icon"
+              onClick={toggleTooltips}
+              style={{ color: tooltipsDisabled ? 'var(--sw-muted, #64748b)' : 'var(--sw-accent-2, #818cf8)' }}
+              type="button"
+              title={tooltipsDisabled ? 'Habilitar dicas' : 'Desabilitar dicas'}
+            >
+              <Info size={15} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+            </button>
 
-      <div className="gs-store ws-fade-up">
+            <Notificacoes tenantId="store" userId={user?.id ?? 'mock-user'} />
+
+            <div className="sw-t-sep" />
+
+            <UsuarioGlobal
+              userName={userName}
+              userEmail={userEmail}
+              userInitials={userInitials}
+              userRole="Admin"
+              isLight={isLight}
+              onToggleTheme={toggleTheme}
+              onNavigateWorkspace={() => navigate('/workspace/organizacao')}
+              onNavigateMarketPlace={() => navigate('/store')}
+              onSignOut={() => signOut()}
+              isAdmin={true}
+              onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            />
+          </div>
+        </header>
+
+        <div className="gs-store ws-fade-up">
 
           {/* ── HERO ─────────────────────────────────────────────── */}
           <div className="gs-hero">
@@ -549,8 +568,8 @@ export function Store() {
                 </div>
 
                 <div className="gs-card__body">
-                  <h3 className="gs-card__name" style={{ color: 'var(--color-text-muted)' }}>{p.name}</h3>
-                  <span className="gs-card__category" style={{ color: 'var(--color-text-muted)', opacity: 0.6 }}>
+                  <h3 className="gs-card__name" style={{ color: 'var(--sw-text-2)' }}>{p.name}</h3>
+                  <span className="gs-card__category" style={{ color: 'var(--sw-text-3)', opacity: 0.6 }}>
                     {p.category}
                   </span>
                   <p className="gs-card__desc">{p.description}</p>
@@ -580,9 +599,10 @@ export function Store() {
             <span>© {new Date().getFullYear()} Gravity Platform · Todos os módulos incluem suporte priorizado.</span>
           </div>
 
-      </div>
+        </div>
 
-      <ToastContainer />
+        <ToastContainer />
+      </div>
     </div>
   )
 }

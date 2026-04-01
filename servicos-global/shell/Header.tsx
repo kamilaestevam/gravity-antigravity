@@ -122,7 +122,6 @@ export function Header() {
       <div className="shell-header__right">
         {/* Botão Voltar ao Hub */}
         <button
-          className="shell-header__icon-btn shell-voltar-btn"
           onClick={() => { window.location.href = '/hub' }}
           type="button"
           title={t('shell.voltar_hub', 'Voltar ao Hub')}
@@ -194,10 +193,10 @@ export function Header() {
           userName={currentUser.name || t('shell.usuario_padrao')}
           userEmail={currentUser.email || t('shell.email_padrao')}
           userInitials={initials}
-          userRole={t('shell.papel_membro')}
+          userRole={currentUser.role ?? t('shell.papel_membro')}
           isLight={currentTheme === 'light'}
           onToggleTheme={toggleTheme}
-          onNavigateOrganizacao={() => console.log('Navegar para Organização')}
+          onNavigateWorkspace={() => console.log('Navegar para Organização')}
           onNavigateMarketPlace={() => window.location.href = '/store'}
           onSignOut={() => {
             clearCurrentUser()

@@ -136,7 +136,6 @@ export function WorkspaceLayout() {
         <div className="ws-global-actions">
           <TooltipGlobal titulo="Voltar ao Hub" descricao="Retornar à tela principal do workspace">
             <button
-              className="ws-global-btn ws-voltar-btn"
               onClick={() => navigate('/hub')}
               type="button"
               style={{

@@ -39,7 +39,7 @@ export function AdminLayout() {
   // Defesa em profundidade: bloqueia rendering se não for admin Gravity,
   // mesmo que o roteador (AdminRoute) já tenha feito essa verificação.
   // Role lido do banco — não depende de Clerk publicMetadata.
-  const { isGravityAdmin, isReady } = useLoadSystemRole()
+  const { isGravityAdmin, isReady, role: systemRole } = useLoadSystemRole()
   if (isReady && !isGravityAdmin) {
     return <Navigate to="/hub" replace />
   }
@@ -187,7 +187,7 @@ export function AdminLayout() {
             userName={userName}
             userEmail={userEmail}
             userInitials={userInitials}
-            userRole="Admin" 
+            userRole={systemRole === 'SUPER_ADMIN' ? 'Super Admin' : 'Admin'}
             isLight={isLight}
             onToggleTheme={toggleTheme}
             onNavigateWorkspace={() => navigate('/admin/visao-geral')}

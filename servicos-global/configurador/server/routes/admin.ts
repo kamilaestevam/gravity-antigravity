@@ -2,7 +2,7 @@
 // Rotas exclusivas para gravity_admin — gestão de todos os tenants da plataforma
 // GET   /api/admin/tenants       — listar todos os tenants
 // GET   /api/admin/tenants/:id   — detalhes de um tenant
-// PATCH /api/admin/tenants/:id   — atualizar status/plano
+// PATCH /api/admin/tenants/:id   — atualizar status
 // GET   /api/admin/stats         — estatísticas globais da plataforma
 // GET   /api/admin/users         — listar todos os usuários de todos os tenants
 // GET   /api/admin/billing/invoices — listar faturas globais
@@ -26,7 +26,6 @@ adminRouter.use(requireAuth, requireGravityAdmin)
 
 const UpdateTenantSchema = z.object({
   status: z.enum(['ACTIVE', 'SUSPENDED', 'CANCELLED', 'PENDING_SETUP']).optional(),
-  plan: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']).optional(),
   note: z.string().optional(),
 })
 
@@ -65,7 +64,7 @@ adminRouter.get('/tenants', async (req, res, next) => {
           subscriptions: {
             orderBy: { created_at: 'desc' },
             take: 1,
-            select: { plan: true, status: true },
+            select: { status: true },
           },
           companies: {
             select: { id: true, name: true, subdomain: true, status: true },
@@ -270,7 +269,6 @@ adminRouter.get('/billing/invoices', async (req, res, next) => {
       orderBy: { created_at: 'desc' },
       select: {
         id: true,
-        plan: true,
         status: true,
         stripe_subscription_id: true,
         current_period_start: true,
@@ -393,20 +391,7 @@ adminRouter.get('/platform-config', async (req, res, next) => {
       // Colunas segment/tipo_empresa ainda não migradas — retorna sem elas
     }
 
-    // Busca subscription separado para isolar possíveis erros de migration
-    let subscriptions: { plan: string }[] = []
-    try {
-      subscriptions = await prisma.subscription.findMany({
-        where: { tenant_id: tenant.id },
-        orderBy: { created_at: 'desc' },
-        take: 1,
-        select: { plan: true },
-      })
-    } catch {
-      // Subscription ainda não migrada ou sem dados — retorna vazio
-    }
-
-    res.json({ config: { ...tenant, ...extras, subscriptions } })
+    res.json({ config: { ...tenant, ...extras } })
   } catch (err) {
     next(err)
   }
@@ -457,7 +442,7 @@ adminRouter.post('/users/:userId/promote', async (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { id: req.params.userId },
-      select: { id: true, email: true, role: true },
+      select: { id: true, email: true, role: true, clerk_user_id: true },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -468,6 +453,14 @@ adminRouter.post('/users/:userId/promote', async (req, res, next) => {
       data: { role: parsed.data.role },
       select: { id: true, email: true, role: true },
     })
+
+    // Sincroniza publicMetadata no Clerk para que o frontend reflita o novo role imediatamente.
+    // Usuários com clerk_user_id 'pending_...' ainda não aceitaram o convite — não há conta para atualizar.
+    if (!user.clerk_user_id.startsWith('pending_')) {
+      await clerkClient.users.updateUserMetadata(user.clerk_user_id, {
+        publicMetadata: { role: parsed.data.role },
+      })
+    }
 
     console.log(
       `[admin] Usuário ${updated.email} promovido para ${updated.role} por ${req.auth.userId}`

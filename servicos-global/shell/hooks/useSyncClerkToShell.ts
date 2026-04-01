@@ -16,6 +16,19 @@ import { useEffect } from 'react'
 import { useUser, useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '../store'
 
+const ROLE_LABELS: Record<string, string> = {
+  gravity_admin: 'Admin',
+  SUPER_ADMIN:   'Super Admin',
+  ADMIN:         'Admin',
+  MASTER:        'Master',
+  STANDARD:      'Standard',
+  SUPPLIER:      'Fornecedor',
+}
+
+function resolveRole(raw: string): string {
+  return ROLE_LABELS[raw] ?? (raw || 'Standard')
+}
+
 /**
  * Deve ser chamado uma vez no Layout principal (ou App.tsx do Configurador).
  * Requer que esteja dentro de um <ClerkProvider>.
@@ -28,7 +41,6 @@ export function useSyncClerkToShell() {
   useEffect(() => {
     if (!userLoaded || !user) return
 
-    // Extrair tenantId: prioriza orgId do auth, senão pega da primeira membership
     const tenantId =
       orgId ??
       user.organizationMemberships?.[0]?.organization?.id ??
@@ -38,10 +50,13 @@ export function useSyncClerkToShell() {
       user.organizationMemberships?.[0]?.organization?.name ??
       undefined
 
+    const role = resolveRole((user.publicMetadata?.role as string) ?? '')
+
     // Só atualiza se mudou (evita loop)
     if (
       currentUser.id === user.id &&
-      currentUser.tenantId === tenantId
+      currentUser.tenantId === tenantId &&
+      currentUser.role === role
     ) {
       return
     }
@@ -53,6 +68,7 @@ export function useSyncClerkToShell() {
       avatarUrl: user.imageUrl ?? undefined,
       tenantId,
       tenantName,
+      role,
     })
-  }, [userLoaded, user, orgId, currentUser.id, currentUser.tenantId, setCurrentUser])
+  }, [userLoaded, user, orgId, currentUser.id, currentUser.tenantId, currentUser.role, setCurrentUser])
 }

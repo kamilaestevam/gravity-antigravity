@@ -70,7 +70,7 @@ export function WorkspaceLayout() {
 
   const { role: dbRole } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {
-    SUPER_ADMIN: 'Admin',
+    SUPER_ADMIN: 'Super Admin',
     ADMIN:       'Admin',
     MASTER:      'Master',
     STANDARD:    'Standard',

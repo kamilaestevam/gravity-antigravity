@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
+import { useSyncClerkToShell } from './hooks/useSyncClerkToShell'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -42,6 +43,9 @@ export function Layout({
   
   // Detecção Mágica de "Merculo/Deep Work"
   const isProcessoRoute = location.pathname.startsWith('/processo/')
+
+  // Sincroniza dados do Clerk (email, role, tenantId) no Shell store
+  useSyncClerkToShell()
 
   // Carrega produtos permitidos para o tenant ao montar
   useLoadAllowedProducts()

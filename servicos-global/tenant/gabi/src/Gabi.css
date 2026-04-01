@@ -7,7 +7,7 @@
   background: #0f111a; /* Solid background to prevent bleeding */
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  font-family: var(--font, 'Inter', sans-serif);
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
   color: var(--color-text, #ffffff);
   box-shadow: 0 24px 50px rgba(0, 0, 0, 0.2);
   overflow: hidden;
@@ -307,7 +307,7 @@
   border: none;
   resize: none;
   color: #fff;
-  font-family: var(--font, 'Inter', sans-serif);
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
   font-size: 0.9375rem;
   padding: 0.5rem 0.5rem;
   outline: none;

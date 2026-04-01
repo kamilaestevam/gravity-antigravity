@@ -213,7 +213,7 @@ body.light-theme .sg-btn-limpar:hover {
 /* position é definido via style inline pelo portal (fixed) ou pelo wrapper (absolute) */
 .sg-dropdown {
   z-index: 99999;
-  font-family: var(--font, system-ui);
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
   background: rgba(22, 34, 56, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

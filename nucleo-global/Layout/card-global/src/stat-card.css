@@ -12,7 +12,7 @@
   border-radius: 12px;
   background: var(--ws-surface, #1e293b);
   border: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.2));
-  font-family: var(--font, system-ui);
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }

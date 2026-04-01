@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
-  font-family: var(--font, system-ui, sans-serif);
+  font-family: var(--font, 'Plus Jakarta Sans', sans-serif);
   color: var(--aig-text);
 }
 

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { useUser, useClerk } from '@clerk/clerk-react'
+import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
+import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
   Crown,
@@ -63,12 +64,40 @@ export function WorkspaceLayout() {
 
   // Mock tenant data — replace with real tenant context when available
   const tenantName = 'Importes SA'
-  const tenantPlan = 'Profissional'
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
 
+  const { role: dbRole } = useLoadSystemRole()
+  const ROLE_LABELS: Record<string, string> = {
+    SUPER_ADMIN: 'Admin',
+    ADMIN:       'Admin',
+    MASTER:      'Master',
+    STANDARD:    'Standard',
+    SUPPLIER:    'Fornecedor',
+  }
+  const userRole = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
+
   const { signOut } = useClerk()
+  const { getToken } = useAuth()
+
+  const [tipoEmpresa, setTipoEmpresa] = useState('')
+
+  useEffect(() => {
+    async function fetchTipoEmpresa() {
+      try {
+        const token = await getToken()
+        const res = await fetch('/api/v1/tenants/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const { tenant } = await res.json()
+          setTipoEmpresa(tenant.tipo_empresa ?? '')
+        }
+      } catch { /* silencioso */ }
+    }
+    fetchTipoEmpresa()
+  }, [])
 
   // Handle frontend search filtering e estado foi movido para o componente LocalizarExpandidoCampoGlobal
   
@@ -94,7 +123,7 @@ export function WorkspaceLayout() {
       {/* ── Sidebar ── */}
       <MenuLateralGlobal 
         tenantName={tenantName}
-        tenantPlan={tenantPlan}
+        tenantPlan={tipoEmpresa}
         navItems={navItems}
         moduleName={t('workspace.layout.modulo_nome')}
         moduleColor="#818cf8"
@@ -184,10 +213,10 @@ export function WorkspaceLayout() {
             userName={userName}
             userEmail={userEmail}
             userInitials={userInitials}
-            userRole="Master"
+            userRole={userRole}
             isLight={isLight}
             onToggleTheme={toggleTheme}
-            onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
+            onNavigateWorkspace={() => navigate('/workspace/organizacao')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
             isAdmin={false} // UsuarioGlobal resolverá privilégios de Super Admin via e-mail

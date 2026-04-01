@@ -6,7 +6,6 @@ import {
   IdentificationCard,
   CalendarBlank,
   MapPin,
-  Link,
   Package,
   Ticket,
   Warning
@@ -25,8 +24,25 @@ export interface DadosEditarOrg {
   estado: string
   cidade: string
   segmento: string
-  site: string
+  tipo_empresa: string
 }
+
+const TIPOS_EMPRESA = [
+  'Importador',
+  'Exportador',
+  'Importador e Exportador',
+  'Despachante Aduaneiro',
+  'Agente de Carga',
+  'Trading',
+  'Transportadora Rodoviária',
+  'Seguradora Internacional',
+  'Corretora de Câmbio',
+]
+
+const OPCOES_TIPOS_EMPRESA: SelectOpcao[] = [
+  { valor: '', rotulo: 'Selecione...' },
+  ...TIPOS_EMPRESA.map(t => ({ valor: t, rotulo: t }))
+]
 
 interface ModalEditarOrganizacaoProps {
   aberto: boolean
@@ -90,7 +106,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   const [estado, setEstado] = useState('')
   const [cidade, setCidade] = useState('')
   const [segmento, setSegmento] = useState('')
-  const [site, setSite] = useState('')
+  const [tipoEmpresa, setTipoEmpresa] = useState('')
 
   const [cidades, setCidades] = useState<SelectOpcao[]>([])
   const [carregandoCidades, setCarregandoCidades] = useState(false)
@@ -106,7 +122,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       setEstado('SP')
       setCidade('São Paulo')
       setSegmento('Logística')
-      setSite(`https://www.${organizacao.slug}.com.br`)
+      setTipoEmpresa('')
     }
   }, [aberto, organizacao])
 
@@ -129,7 +145,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
     const clean = slugify(v)
     setSubdominio(clean)
     if (clean && !/^[a-z][a-z0-9-]*$/.test(clean)) {
-      setErroSub(t('admin.tests.org.erro_subdominio'))
+      setErroSub(t('admin.tests.org.subdominio_erro'))
     } else {
       setErroSub('')
     }
@@ -143,13 +159,13 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
     estado !== 'SP' ||
     cidade !== 'São Paulo' ||
     segmento !== 'Logística' ||
-    site !== `https://www.${organizacao?.slug}.com.br`
+    tipoEmpresa !== ''
   )
   const podesSalvar = !!nome.trim() && !!subdominio.trim() && !erroSub
 
   function handleSalvar() {
     if (!podesSalvar) return
-    aoSalvar({ nome, subdominio, plano, cnpj, estado, cidade, segmento, site })
+    aoSalvar({ nome, subdominio, plano, cnpj, estado, cidade, segmento, tipo_empresa: tipoEmpresa })
     aoFechar()
   }
 
@@ -165,7 +181,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       altura="680px"
       dirty={dirty}
       podesSalvar={podesSalvar}
-      textoSalvar={t('admin.tests.org.salvar_organizacao')}
+      textoSalvar={t('admin.tests.org.editar_btn_salvar')}
     >
       <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
 
@@ -174,7 +190,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
             <SecaoFormularioGlobal
               icone={<IdentificationCard size={16} weight="duotone" />}
-              titulo="Identidade"
+              titulo={t('admin.tests.org.secao_identidade')}
               tooltip={t('admin.tests.org.secao_identidade_tooltip')}
               marginBottom={0}
             />
@@ -212,7 +228,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   <Buildings size={16} />
                   <input
                     value={nome}
-                    placeholder="Ex: Acme Corporation Ltda."
+                    placeholder={t('admin.tests.org.campo_nome_placeholder')}
                     onChange={e => setNome(e.target.value)}
                     style={{ width: '100%' }}
                   />
@@ -226,7 +242,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   <IdentificationCard size={16} />
                   <input
                     value={cnpj}
-                    placeholder="00.000.000/0000-00"
+                    placeholder={t('admin.tests.org.campo_cnpj_placeholder')}
                     onChange={e => setCnpj(formatarCNPJ(e.target.value))}
                     style={{ width: '100%' }}
                   />
@@ -241,7 +257,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   opcoes={OPCOES_SEGMENTOS}
                   valor={segmento || null}
                   aoMudarValor={(v: string | number | null) => setSegmento(String(v ?? ''))}
-                  placeholder="Selecione..."
+                  placeholder={t('admin.tests.org.campo_selecione_placeholder')}
                   buscavel
                 />
               </GeralCampoGlobal>
@@ -257,7 +273,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                     setEstado(String(v ?? ''))
                     setCidade('')
                   }}
-                  placeholder="Ex: SP"
+                  placeholder={t('admin.tests.org.campo_estado_placeholder')}
                   buscavel
                 />
               </GeralCampoGlobal>
@@ -270,7 +286,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                   opcoes={cidades}
                   valor={cidade || null}
                   aoMudarValor={(v: string | number | null) => setCidade(String(v ?? ''))}
-                  placeholder={estado ? "Selecione a cidade..." : "Selecione o estado..."}
+                  placeholder={estado ? t('admin.tests.org.cidade_placeholder_com_estado') : t('admin.tests.org.cidade_placeholder_sem_estado')}
                   buscavel
                   desabilitado={!estado}
                   carregando={carregandoCidades}
@@ -288,16 +304,14 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
           />
           <div className="em-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={{ gridColumn: '1 / -1' }}>
-              <GeralCampoGlobal label={t('admin.overview.campo_site')}>
-                <div className="ws-input-icon-wrap">
-                  <Link size={16} />
-                  <input
-                    value={site}
-                    placeholder="Ex: https://www.acme.com.br"
-                    onChange={e => setSite(e.target.value)}
-                    style={{ width: '100%' }}
-                  />
-                </div>
+              <GeralCampoGlobal label={t('admin.overview.campo_tipo_empresa')}>
+                <SelectGlobal
+                  iconeEsquerda={<Buildings size={16} />}
+                  opcoes={OPCOES_TIPOS_EMPRESA}
+                  valor={tipoEmpresa || null}
+                  aoMudarValor={(v: string | number | null) => setTipoEmpresa(String(v ?? ''))}
+                  placeholder={t('admin.tests.org.campo_selecione_placeholder')}
+                />
               </GeralCampoGlobal>
             </div>
 
@@ -308,7 +322,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
                     <Globe size={16} />
                     <input
                       value={subdominio}
-                      placeholder="Ex: acme-corp"
+                      placeholder={t('admin.tests.org.campo_subdominio_placeholder')}
                       onChange={e => handleSubChange(e.target.value)}
                       style={{ borderRadius: '8px 0 0 8px', borderRight: 'none', width: '100%', height: '100%' }}
                     />
@@ -357,13 +371,13 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
             </div>
 
             <div>
-              <GeralCampoGlobal label={t('admin.tests.org.plano_contratado')}>
+              <GeralCampoGlobal label={t('admin.tests.org.campo_plano')}>
                 <SelectGlobal
                   iconeEsquerda={<Ticket size={16} />}
                   opcoes={PLANOS.map(p => ({ valor: p, rotulo: p }))}
                   valor={plano || null}
                   aoMudarValor={(v: string | number | null) => setPlano(String(v ?? ''))}
-                  placeholder="Selecione o plano..."
+                  placeholder={t('admin.tests.org.campo_plano_placeholder')}
                 />
               </GeralCampoGlobal>
             </div>

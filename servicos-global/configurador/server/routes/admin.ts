@@ -381,15 +381,15 @@ adminRouter.get('/platform-config', async (req, res, next) => {
     }
 
     // Campos opcionais adicionados após init — isolados para não bloquear se migration pendente
-    let extras: { segment?: string | null; website?: string | null } = {}
+    let extras: { segment?: string | null; tipo_empresa?: string | null } = {}
     try {
       const row = await prisma.tenant.findUnique({
         where: { id: tenant.id },
-        select: { segment: true, website: true },
+        select: { segment: true, tipo_empresa: true },
       })
       if (row) extras = row
     } catch {
-      // Colunas segment/website ainda não migradas — retorna sem elas
+      // Colunas segment/tipo_empresa ainda não migradas — retorna sem elas
     }
 
     // Busca subscription separado para isolar possíveis erros de migration
@@ -421,7 +421,61 @@ const PlatformConfigSchema = z.object({
   state: z.string().max(2).optional(),
   city: z.string().max(200).optional(),
   segment: z.string().max(200).optional(),
-  website: z.string().max(500).optional(),
+  tipo_empresa: z.string().max(500).optional(),
+})
+
+/**
+ * POST /api/admin/users/:userId/promote
+ * Promove um usuário para SUPER_ADMIN ou ADMIN.
+ * Apenas SUPER_ADMIN pode chamar este endpoint.
+ */
+const PromoteSchema = z.object({
+  role: z.enum(['SUPER_ADMIN', 'ADMIN']),
+})
+
+adminRouter.post('/users/:userId/promote', async (req, res, next) => {
+  try {
+    // Apenas SUPER_ADMIN pode promover — ADMIN tem acesso ao painel mas não pode promover
+    if (req.auth.role !== 'SUPER_ADMIN') {
+      throw new AppError('Somente Super Admin pode promover usuários', 403, 'FORBIDDEN')
+    }
+
+    const parsed = PromoteSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        parsed.error.errors[0]?.message ?? 'Role inválido',
+        400,
+        'VALIDATION_ERROR'
+      )
+    }
+
+    // Impede auto-promoção/alteração
+    if (req.params.userId === req.auth.userId) {
+      throw new AppError('Não é possível alterar o próprio role', 400, 'INVALID_OPERATION')
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.params.userId },
+      select: { id: true, email: true, role: true },
+    })
+    if (!user) {
+      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: req.params.userId },
+      data: { role: parsed.data.role },
+      select: { id: true, email: true, role: true },
+    })
+
+    console.log(
+      `[admin] Usuário ${updated.email} promovido para ${updated.role} por ${req.auth.userId}`
+    )
+
+    res.json({ user: updated })
+  } catch (err) {
+    next(err)
+  }
 })
 
 adminRouter.put('/platform-config', async (req, res, next) => {
@@ -455,7 +509,7 @@ adminRouter.put('/platform-config', async (req, res, next) => {
         state: true,
         city: true,
         segment: true,
-        website: true,
+        tipo_empresa: true,
         created_at: true,
       },
     })

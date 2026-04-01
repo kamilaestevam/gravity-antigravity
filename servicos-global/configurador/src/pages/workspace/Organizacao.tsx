@@ -4,9 +4,7 @@ import {
   Buildings,
   IdentificationCard,
   MapPin,
-  Globe,
   Package,
-  CalendarBlank,
   CheckCircle,
   FloppyDisk,
 } from '@phosphor-icons/react'
@@ -24,27 +22,27 @@ import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 
 type DadosMae = {
-  nome:       string
-  cnpj:       string
-  estado:     string
-  cidade:     string
-  segmento:   string
-  site:       string
-  plano:      string
-  subdominio: string
-  criadaEm:   string
+  nome:         string
+  cnpj:         string
+  estado:       string
+  cidade:       string
+  segmento:     string
+  tipo_empresa: string
+  plano:        string
+  subdominio:   string
+  criadaEm:     string
 }
 
 const dadosVazios: DadosMae = {
-  nome:       '',
-  cnpj:       '',
-  estado:     '',
-  cidade:     '',
-  segmento:   '',
-  site:       '',
-  plano:      'Starter',
-  subdominio: '',
-  criadaEm:   '',
+  nome:         '',
+  cnpj:         '',
+  estado:       '',
+  cidade:       '',
+  segmento:     '',
+  tipo_empresa: '',
+  plano:        'Starter',
+  subdominio:   '',
+  criadaEm:     '',
 }
 
 const ESTADOS_BR = [
@@ -71,6 +69,23 @@ const SEGMENTOS = [
 const OPCOES_SEGMENTOS: SelectOpcao[] = [
   { valor: '', rotulo: 'Selecione...' },
   ...SEGMENTOS.map(s => ({ valor: s, rotulo: s }))
+]
+
+const TIPOS_EMPRESA = [
+  'Importador',
+  'Exportador',
+  'Importador e Exportador',
+  'Despachante Aduaneiro',
+  'Agente de Carga',
+  'Trading',
+  'Transportadora Rodoviária',
+  'Seguradora Internacional',
+  'Corretora de Câmbio',
+]
+
+const OPCOES_TIPOS_EMPRESA: SelectOpcao[] = [
+  { valor: '', rotulo: 'Selecione...' },
+  ...TIPOS_EMPRESA.map(t => ({ valor: t, rotulo: t }))
 ]
 
 // As opções de workspaces serão carregadas dinamicamente dentro do componente
@@ -134,8 +149,8 @@ export function Organizacao() {
             cnpj:       tenant.cnpj ?? '',
             estado:     tenant.state ?? '',
             cidade:     tenant.city ?? '',
-            segmento:   tenant.segment ?? '',
-            site:       tenant.website ?? '',
+            segmento:     tenant.segment ?? '',
+            tipo_empresa: tenant.tipo_empresa ?? '',
             plano:      planMap[sub?.plan] ?? sub?.plan ?? 'Starter',
             subdominio: tenant.slug ?? '',
             criadaEm:   tenant.created_at
@@ -244,7 +259,7 @@ export function Organizacao() {
           state: dados.estado,
           city: dados.cidade,
           segment: dados.segmento,
-          website: dados.site,
+          tipo_empresa: dados.tipo_empresa,
         }),
       })
 
@@ -298,8 +313,8 @@ export function Organizacao() {
         cabecalho={
           <CabecalhoGlobal
             icone={<Crown weight="duotone" size={22} />}
-            titulo="Organização"
-            subtitulo="Carregando dados..."
+            titulo={t('workspace.organization.titulo')}
+            subtitulo={t('workspace.organization.subtitulo_carregando')}
           />
         }
       >
@@ -318,7 +333,7 @@ export function Organizacao() {
         <CabecalhoGlobal
           icone={<Crown weight="duotone" size={22} />}
           titulo={t('workspace.organization.titulo')}
-          subtitulo="Dados da empresa que contratou a plataforma Gravity"
+          subtitulo={t('workspace.organization.subtitulo')}
         />
       }
     >
@@ -329,7 +344,7 @@ export function Organizacao() {
           <div className="em-identity__avatar">{dados.nome.charAt(0) || '?'}</div>
           <div className="em-identity__text">
             <TooltipGlobal titulo="Hierarquia de Contas" descricao="Organização é a matriz gerencial, os workspaces são as várias empresas operadas dentro dela">
-              <span className="em-identity__badge">Organização</span>
+              <span className="em-identity__badge">{t('workspace.organization.badge_organizacao')}</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
@@ -346,10 +361,10 @@ export function Organizacao() {
       {/* ── Dados Básicos — sempre editáveis ────────────────────────────── */}
       <div className="em-section ws-fade-up ws-fade-up-d1">
         <p className="ws-section-title" style={{ width: 'max-content' }}>
-          <TooltipGlobal titulo="Dados Básicos" descricao="Informações principais da sua empresa usadas em toda a plataforma">
+          <TooltipGlobal titulo={t('workspace.organization.secao_dados_basicos')} descricao="Informações principais da sua empresa usadas em toda a plataforma">
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Buildings weight="duotone" size={14} color="var(--ws-accent)" />
-              Dados Básicos
+              {t('workspace.organization.secao_dados_basicos')}
             </span>
           </TooltipGlobal>
         </p>
@@ -433,94 +448,34 @@ export function Organizacao() {
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label={t('workspace.organization.campo_site')}
-            tooltipTitulo={t('workspace.organization.campo_site')}
-            tooltipDescricao="Endereço público da empresa, exibido no perfil"
+            label={t('workspace.organization.campo_tipo_empresa')}
+            tooltipTitulo={t('workspace.organization.campo_tipo_empresa')}
+            tooltipDescricao="Categoria que define a atuação da empresa no comércio exterior"
           >
-            <div className="ws-input-icon-wrap">
-              <Globe size={16} />
-              <input
-                value={dados.site}
-                placeholder="https://..."
-                onChange={e => set('site', e.target.value)}
-              />
-            </div>
+            <SelectGlobal
+              iconeEsquerda={<Buildings size={16} />}
+              opcoes={OPCOES_TIPOS_EMPRESA}
+              valor={dados.tipo_empresa}
+              aoMudarValor={v => set('tipo_empresa', String(v ?? ''))}
+              placeholder="Selecione..."
+            />
           </GeralCampoGlobal>
         </div>
       </div>
 
-
-      {/* ── Dados do Plano ────────────────────────────────────────────────── */}
-      <div className="em-section ws-fade-up ws-fade-up-d2">
-        <p className="ws-section-title" style={{ width: 'max-content' }}>
-          <TooltipGlobal titulo="Plano Contratado" descricao="Resumo das configurações de cobrança e limites do seu plano atual">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-              <Package weight="duotone" size={14} color="var(--ws-accent)" />
-              Plano Contratado
-            </span>
-          </TooltipGlobal>
-        </p>
-        <div className="em-plan-row">
-          <div className="em-plan-info">
-            <div className="em-plan-icon"><Package weight="duotone" size={22} /></div>
-            <div>
-              <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso e funcionalidades do seu sistema">
-                <div>
-                  <p className="em-plan-label">Plano atual</p>
-                  <p className="em-plan-name">{dados.plano}</p>
-                </div>
-              </TooltipGlobal>
-            </div>
-          </div>
-          <div className="em-plan-meta">
-            <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="Subdomínio" descricao="Endereço exclusivo da sua conta — não pode ser alterado">
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <Globe size={14} weight="duotone" />
-                  <span>{dados.subdominio}.gravity.com.br</span>
-                </span>
-              </TooltipGlobal>
-            </div>
-            <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="Cliente Desde" descricao="Data de ativação da conta na plataforma">
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <CalendarBlank size={14} weight="duotone" />
-                  <span>Cliente desde {dados.criadaEm}</span>
-                </span>
-              </TooltipGlobal>
-            </div>
-            <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="Localização" descricao="Cidade e estado da sede principal da empresa">
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <MapPin size={14} weight="duotone" />
-                  <span>{dados.cidade}{dados.estado ? `, ${dados.estado}` : ''}</span>
-                </span>
-              </TooltipGlobal>
-            </div>
-            <div className="em-plan-meta-item">
-              <TooltipGlobal titulo="CNPJ" descricao="Aparece em notas fiscais e documentos gerados na plataforma">
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <IdentificationCard size={14} weight="duotone" />
-                  <span>{dados.cnpj}</span>
-                </span>
-              </TooltipGlobal>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* ── Workspace Padrão ──────────────────────────────────── */}
       <ModalSelectGlobal
         icone={<CheckCircle weight="duotone" size={14} color="var(--ws-accent)" />}
         titulo={
           <TooltipGlobal titulo="Workspace Padrão" descricao="A empresa que será aberta automaticamente sempre que você acessar a plataforma">
-            <span>Acesso Padrão</span>
+            <span>{t('workspace.organization.acesso_padrao')}</span>
           </TooltipGlobal>
         }
-        descricao="Defina qual ambiente será carregado automaticamente ao entrar na plataforma."
+        descricao={t('workspace.organization.acesso_padrao_desc')}
         labelContext={
           <TooltipGlobal titulo="Ambiente Padrão" descricao="Escolha o workspace que será seu ambiente principal ao entrar no sistema">
-            <span>Workspace</span>
+            <span>{t('workspace.organization.acesso_padrao_label')}</span>
           </TooltipGlobal>
         }
         selectElement={

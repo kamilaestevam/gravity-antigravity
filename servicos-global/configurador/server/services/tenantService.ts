@@ -118,7 +118,7 @@ export const tenantService = {
     state?: string
     city?: string
     segment?: string
-    website?: string
+    tipo_empresa?: string
   }) {
     return prisma.tenant.update({
       where: { id: tenantId },

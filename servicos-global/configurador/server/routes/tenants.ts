@@ -34,7 +34,7 @@ const UpdateTenantSchema = z.object({
   state: z.string().optional(),
   city: z.string().optional(),
   segment: z.string().optional(),
-  website: z.string().optional(),
+  tipo_empresa: z.string().optional(),
 })
 
 const CreateCompanySchema = z.object({

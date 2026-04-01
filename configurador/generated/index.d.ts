@@ -2654,7 +2654,7 @@ export namespace Prisma {
     state: string | null
     city: string | null
     segment: string | null
-    website: string | null
+    tipo_empresa: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -2670,7 +2670,7 @@ export namespace Prisma {
     state: string | null
     city: string | null
     segment: string | null
-    website: string | null
+    tipo_empresa: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -2686,7 +2686,7 @@ export namespace Prisma {
     state: number
     city: number
     segment: number
-    website: number
+    tipo_empresa: number
     created_at: number
     updated_at: number
     _all: number
@@ -2704,7 +2704,7 @@ export namespace Prisma {
     state?: true
     city?: true
     segment?: true
-    website?: true
+    tipo_empresa?: true
     created_at?: true
     updated_at?: true
   }
@@ -2720,7 +2720,7 @@ export namespace Prisma {
     state?: true
     city?: true
     segment?: true
-    website?: true
+    tipo_empresa?: true
     created_at?: true
     updated_at?: true
   }
@@ -2736,7 +2736,7 @@ export namespace Prisma {
     state?: true
     city?: true
     segment?: true
-    website?: true
+    tipo_empresa?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -2825,7 +2825,7 @@ export namespace Prisma {
     state: string | null
     city: string | null
     segment: string | null
-    website: string | null
+    tipo_empresa: string | null
     created_at: Date
     updated_at: Date
     _count: TenantCountAggregateOutputType | null
@@ -2858,7 +2858,7 @@ export namespace Prisma {
     state?: boolean
     city?: boolean
     segment?: boolean
-    website?: boolean
+    tipo_empresa?: boolean
     created_at?: boolean
     updated_at?: boolean
     users?: boolean | Tenant$usersArgs<ExtArgs>
@@ -2881,7 +2881,7 @@ export namespace Prisma {
     state?: boolean
     city?: boolean
     segment?: boolean
-    website?: boolean
+    tipo_empresa?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["tenant"]>
@@ -2897,7 +2897,7 @@ export namespace Prisma {
     state?: boolean
     city?: boolean
     segment?: boolean
-    website?: boolean
+    tipo_empresa?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
@@ -2934,7 +2934,7 @@ export namespace Prisma {
       state: string | null
       city: string | null
       segment: string | null
-      website: string | null
+      tipo_empresa: string | null
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["tenant"]>
@@ -3346,7 +3346,7 @@ export namespace Prisma {
     readonly state: FieldRef<"Tenant", 'String'>
     readonly city: FieldRef<"Tenant", 'String'>
     readonly segment: FieldRef<"Tenant", 'String'>
-    readonly website: FieldRef<"Tenant", 'String'>
+    readonly tipo_empresa: FieldRef<"Tenant", 'String'>
     readonly created_at: FieldRef<"Tenant", 'DateTime'>
     readonly updated_at: FieldRef<"Tenant", 'DateTime'>
   }
@@ -20733,7 +20733,7 @@ export namespace Prisma {
     state: 'state',
     city: 'city',
     segment: 'segment',
-    website: 'website',
+    tipo_empresa: 'tipo_empresa',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -21297,7 +21297,7 @@ export namespace Prisma {
     state?: StringNullableFilter<"Tenant"> | string | null
     city?: StringNullableFilter<"Tenant"> | string | null
     segment?: StringNullableFilter<"Tenant"> | string | null
-    website?: StringNullableFilter<"Tenant"> | string | null
+    tipo_empresa?: StringNullableFilter<"Tenant"> | string | null
     created_at?: DateTimeFilter<"Tenant"> | Date | string
     updated_at?: DateTimeFilter<"Tenant"> | Date | string
     users?: UserListRelationFilter
@@ -21319,7 +21319,7 @@ export namespace Prisma {
     state?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     segment?: SortOrderInput | SortOrder
-    website?: SortOrderInput | SortOrder
+    tipo_empresa?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     users?: UserOrderByRelationAggregateInput
@@ -21344,7 +21344,7 @@ export namespace Prisma {
     state?: StringNullableFilter<"Tenant"> | string | null
     city?: StringNullableFilter<"Tenant"> | string | null
     segment?: StringNullableFilter<"Tenant"> | string | null
-    website?: StringNullableFilter<"Tenant"> | string | null
+    tipo_empresa?: StringNullableFilter<"Tenant"> | string | null
     created_at?: DateTimeFilter<"Tenant"> | Date | string
     updated_at?: DateTimeFilter<"Tenant"> | Date | string
     users?: UserListRelationFilter
@@ -21366,7 +21366,7 @@ export namespace Prisma {
     state?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     segment?: SortOrderInput | SortOrder
-    website?: SortOrderInput | SortOrder
+    tipo_empresa?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     _count?: TenantCountOrderByAggregateInput
@@ -21388,7 +21388,7 @@ export namespace Prisma {
     state?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     city?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     segment?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
-    website?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    tipo_empresa?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   }
@@ -22804,7 +22804,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -22826,7 +22826,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -22848,7 +22848,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -22870,7 +22870,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -22892,7 +22892,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -22908,7 +22908,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -22924,7 +22924,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24640,7 +24640,7 @@ export namespace Prisma {
     state?: SortOrder
     city?: SortOrder
     segment?: SortOrder
-    website?: SortOrder
+    tipo_empresa?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -24656,7 +24656,7 @@ export namespace Prisma {
     state?: SortOrder
     city?: SortOrder
     segment?: SortOrder
-    website?: SortOrder
+    tipo_empresa?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -24672,7 +24672,7 @@ export namespace Prisma {
     state?: SortOrder
     city?: SortOrder
     segment?: SortOrder
-    website?: SortOrder
+    tipo_empresa?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -27538,7 +27538,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     subscriptions?: SubscriptionCreateNestedManyWithoutTenantInput
@@ -27559,7 +27559,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutTenantInput
@@ -27658,7 +27658,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions?: SubscriptionUpdateManyWithoutTenantNestedInput
@@ -27679,7 +27679,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutTenantNestedInput
@@ -27746,7 +27746,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -27767,7 +27767,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -27804,7 +27804,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -27825,7 +27825,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -27846,7 +27846,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -27867,7 +27867,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -27933,7 +27933,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -27954,7 +27954,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28010,7 +28010,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28031,7 +28031,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28126,7 +28126,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28147,7 +28147,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28328,7 +28328,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28349,7 +28349,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28386,7 +28386,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28407,7 +28407,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput
@@ -28428,7 +28428,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserCreateNestedManyWithoutTenantInput
@@ -28449,7 +28449,7 @@ export namespace Prisma {
     state?: string | null
     city?: string | null
     segment?: string | null
-    website?: string | null
+    tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutTenantInput
@@ -28515,7 +28515,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutTenantNestedInput
@@ -28536,7 +28536,7 @@ export namespace Prisma {
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     segment?: NullableStringFieldUpdateOperationsInput | string | null
-    website?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutTenantNestedInput

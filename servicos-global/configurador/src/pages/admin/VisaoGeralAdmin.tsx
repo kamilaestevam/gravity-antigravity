@@ -4,7 +4,6 @@ import {
   Buildings,
   IdentificationCard,
   MapPin,
-  Globe,
   Package,
   CalendarBlank,
   RocketLaunch,
@@ -24,28 +23,45 @@ import { adminPlatformApi } from '../../services/apiClient'
 import '../workspace/workspace.css'
 
 type DadosAdmin = {
-  nome:       string
-  cnpj:       string
-  estado:     string
-  cidade:     string
-  segmento:   string
-  site:       string
-  plano:      string
-  subdominio: string
-  criadaEm:   string
+  nome:         string
+  cnpj:         string
+  estado:       string
+  cidade:       string
+  segmento:     string
+  tipo_empresa: string
+  plano:        string
+  subdominio:   string
+  criadaEm:     string
 }
 
 const dadosVazios: DadosAdmin = {
-  nome:       '',
-  cnpj:       '',
-  estado:     '',
-  cidade:     '',
-  segmento:   '',
-  site:       '',
-  plano:      '',
-  subdominio: '',
-  criadaEm:   '',
+  nome:         '',
+  cnpj:         '',
+  estado:       '',
+  cidade:       '',
+  segmento:     '',
+  tipo_empresa: '',
+  plano:        '',
+  subdominio:   '',
+  criadaEm:     '',
 }
+
+const TIPOS_EMPRESA = [
+  'Importador',
+  'Exportador',
+  'Importador e Exportador',
+  'Despachante Aduaneiro',
+  'Agente de Carga',
+  'Trading',
+  'Transportadora Rodoviária',
+  'Seguradora Internacional',
+  'Corretora de Câmbio',
+]
+
+const OPCOES_TIPOS_EMPRESA: SelectOpcao[] = [
+  { valor: '', rotulo: 'Selecione...' },
+  ...TIPOS_EMPRESA.map(t => ({ valor: t, rotulo: t }))
+]
 
 const ESTADOS_BR = [
   'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS',
@@ -96,7 +112,7 @@ export function VisaoGeralAdmin() {
             estado: c.state || '',
             cidade: c.city || '',
             segmento: c.segment || '',
-            site: c.website || '',
+            tipo_empresa: c.tipo_empresa || '',
             plano: c.subscriptions?.[0]?.plan || 'N/A',
             subdominio: c.slug || '',
             criadaEm: c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '',
@@ -150,7 +166,7 @@ export function VisaoGeralAdmin() {
         state: dados.estado,
         city: dados.cidade,
         segment: dados.segmento,
-        website: dados.site,
+        tipo_empresa: dados.tipo_empresa,
       })
 
       setDadosIniciais(dados)
@@ -282,14 +298,17 @@ export function VisaoGeralAdmin() {
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label={t('admin.overview.campo_site')}
-            tooltipTitulo={t('admin.overview.campo_site_tooltip')}
-            tooltipDescricao={t('admin.overview.campo_site_desc')}
+            label={t('admin.overview.campo_tipo_empresa')}
+            tooltipTitulo={t('admin.overview.campo_tipo_empresa_tooltip')}
+            tooltipDescricao={t('admin.overview.campo_tipo_empresa_desc')}
           >
-            <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
-              <Globe size={16} />
-              <input value={dados.site} onChange={e => set('site', e.target.value)} />
-            </div>
+            <SelectGlobal
+              iconeEsquerda={<Buildings size={16} />}
+              opcoes={OPCOES_TIPOS_EMPRESA}
+              valor={dados.tipo_empresa}
+              aoMudarValor={v => set('tipo_empresa', String(v ?? ''))}
+              placeholder="Selecione..."
+            />
           </GeralCampoGlobal>
         </div>
       </div>
@@ -304,7 +323,7 @@ export function VisaoGeralAdmin() {
         </p>
         <div className="em-plan-row">
           <div className="em-plan-info">
-            <TooltipGlobal descricao="O Núcleo Central é o ambiente master de gestão de todos os recursos da rede.">
+            <TooltipGlobal descricao={t('admin.overview.infra_nucleo_desc')}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <div className="em-plan-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}><Package weight="duotone" size={22} /></div>
                 <div>
@@ -316,21 +335,21 @@ export function VisaoGeralAdmin() {
           </div>
           <div className="em-plan-meta">
             <div className="em-plan-meta-item">
-              <TooltipGlobal descricao="URL base para acesso aos serviços administrativos globais">
+              <TooltipGlobal descricao={t('admin.overview.infra_url_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
                   <Globe size={14} weight="duotone" /> <span>{dados.subdominio}.gravity.com.br</span>
                 </span>
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <TooltipGlobal descricao="Data histórica de ativação desta infraestrutura master">
+              <TooltipGlobal descricao={t('admin.overview.infra_data_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
                   <CalendarBlank size={14} weight="duotone" /> <span>{t('admin.overview.operando_desde')} {dados.criadaEm}</span>
                 </span>
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <TooltipGlobal descricao="Região e cidade onde o registro master está localizado">
+              <TooltipGlobal descricao={t('admin.overview.infra_regiao_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
                   <MapPin size={14} weight="duotone" /> <span>{dados.cidade}, {dados.estado}</span>
                 </span>

@@ -345,7 +345,7 @@ export interface PlatformConfigApi {
   state: string | null
   city: string | null
   segment: string | null
-  website: string | null
+  tipo_empresa: string | null
   created_at: string
   subscriptions?: Array<{ plan: string }>
 }
@@ -361,7 +361,7 @@ export const adminPlatformApi = {
     state?: string
     city?: string
     segment?: string
-    website?: string
+    tipo_empresa?: string
   }) {
     return request<{ config: PlatformConfigApi }>('/admin/platform-config', {
       method: 'PUT',

@@ -80,11 +80,11 @@ model Tenant {
   stripe_customer_id String?      @unique
 
   // Dados cadastrais da organização
-  cnpj    String?
-  state   String?
-  city    String?
-  segment String?
-  website String?
+  cnpj         String?
+  state        String?
+  city         String?
+  segment      String?
+  tipo_empresa String?
 
   // Metadata
   created_at DateTime @default(now())

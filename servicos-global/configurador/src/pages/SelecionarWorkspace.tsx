@@ -90,6 +90,17 @@ interface Atalho {
   rota: string
 }
 
+/* ── Tipo de insight GABI ── */
+interface GabiInsight {
+  id: string
+  variante: 'default' | 'warn'
+  tag: string
+  texto: React.ReactNode
+  stat?: { label: string; valor: string }
+  textoLink: string
+  rota: string
+}
+
 /* ── Paleta de gradientes para workspace cards ── */
 const WORKSPACE_GRADIENTS = [
   { from: '#4F63FF', to: '#1ED8C8' },
@@ -172,6 +183,12 @@ export function SelecionarWorkspace() {
   })
   const wsCarouselRef = useRef<HTMLDivElement>(null)
   const prodCarouselRef = useRef<HTMLDivElement>(null)
+  const gabiCarouselRef = useRef<HTMLDivElement>(null)
+
+  /* ── GABI insights ── */
+  const [gabiInsights, setGabiInsights] = useState<GabiInsight[]>([])
+  const [gabiLoading, setGabiLoading] = useState(true)
+  const [gabiPaused, setGabiPaused] = useState(false)
 
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -306,7 +323,7 @@ export function SelecionarWorkspace() {
               id: c.id,
               nome: c.name,
               iniciais: c.name.substring(0, 2).toUpperCase(),
-              role: userRole,
+              role: data.tenant?.tipo_empresa ?? '',
               modulos: totalAtivos,
               membros,
               gradientFrom: grad.from,
@@ -419,6 +436,172 @@ export function SelecionarWorkspace() {
     ref.current.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' })
   }, [])
 
+  /* ── GABI: auto-avanço a cada 6s ── */
+  React.useEffect(() => {
+    if (gabiPaused || gabiInsights.length <= 1) return
+    const timer = setInterval(() => scrollCarousel(gabiCarouselRef, 'right'), 6000)
+    return () => clearInterval(timer)
+  }, [gabiPaused, gabiInsights.length, scrollCarousel])
+
+  /* ── GABI: busca dados reais dos produtos contratados ── */
+  React.useEffect(() => {
+    let cancelled = false
+
+    async function fetchGabiInsights() {
+      try {
+        const token = await getToken()
+        if (!token) return
+        const headers = { Authorization: `Bearer ${token}` }
+        const activeKeys = new Set(produtosContratados.filter(p => p.is_active).map(p => p.product_key))
+        const insights: GabiInsight[] = []
+
+        const safe = async (fn: () => Promise<void>) => { try { await fn() } catch {} }
+
+        /* BID Câmbio — vencimentos */
+        if (activeKeys.has('bid-cambio')) {
+          await safe(async () => {
+            const r = await fetch('/api/v1/bid-cambio/dashboard/vencimentos?dias=30', { headers })
+            if (!r.ok) return
+            const d = await r.json()
+            const total: number = d.proximos_vencimentos?.total ?? 0
+            if (total > 0)
+              insights.push({
+                id: 'cambio-venc', variante: 'warn',
+                tag: 'Alerta de Prazo · BID Câmbio',
+                texto: <>{total} parcela{total > 1 ? 's' : ''} vence{total === 1 ? '' : 'm'} em menos de <strong>30 dias</strong>. Revise para não perder o prazo.</>,
+                textoLink: 'Ver parcelas', rota: '/produto/bid-cambio',
+              })
+          })
+
+          /* BID Câmbio — economia */
+          await safe(async () => {
+            const r = await fetch('/api/v1/bid-cambio/dashboard', { headers })
+            if (!r.ok) return
+            const d = await r.json()
+            const eco: number = d.financeiro?.economia_acumulada_mes ?? 0
+            if (eco > 0)
+              insights.push({
+                id: 'cambio-eco', variante: 'default',
+                tag: 'Economia · BID Câmbio',
+                texto: <>Você economizou neste mês operando câmbio pelo marketplace Gravity.</>,
+                stat: { label: 'Economia acumulada', valor: `R$ ${eco.toLocaleString('pt-BR')}` },
+                textoLink: 'Ver detalhes', rota: '/produto/bid-cambio',
+              })
+          })
+        }
+
+        /* BID Frete — alertas */
+        if (activeKeys.has('bid-frete')) {
+          await safe(async () => {
+            const r = await fetch('/api/v1/bid-frete/dashboard/calendario', { headers })
+            if (!r.ok) return
+            const d = await r.json()
+            const alertas: Array<{ tipo: string; count: number }> = d.alertas ?? []
+            const fora = alertas.find(a => a.tipo === 'fora_prazo')?.count ?? 0
+            const hoje = alertas.find(a => a.tipo === 'vence_hoje')?.count ?? 0
+            if (fora > 0 || hoje > 0)
+              insights.push({
+                id: 'frete-alert', variante: 'warn',
+                tag: 'Alerta · BID Frete',
+                texto: <>
+                  {fora > 0 && <><strong>{fora} cotação{fora > 1 ? 'ões' : ''}</strong> fora do prazo. </>}
+                  {hoje > 0 && <><strong>{hoje}</strong> vence{hoje === 1 ? '' : 'm'} hoje.</>}
+                </>,
+                textoLink: 'Ver cotações', rota: '/produto/bid-frete',
+              })
+          })
+        }
+
+        /* SimulaCusto — KPIs */
+        if (activeKeys.has('simula-custo')) {
+          await safe(async () => {
+            const r = await fetch('/api/v1/simula-custo/dashboard/kpis', { headers })
+            if (!r.ok) return
+            const d = await r.json()
+            const inviavel: number = d.inviavel ?? 0
+            const atencao: number = d.atencao ?? 0
+            const media: number = d.mediaLandedCostBrl ?? 0
+            if (inviavel > 0 || atencao > 0)
+              insights.push({
+                id: 'simula-kpi', variante: inviavel > 0 ? 'warn' : 'default',
+                tag: 'Simulações · SimulaCusto',
+                texto: <>
+                  {inviavel > 0 && <><strong>{inviavel} simulaç{inviavel > 1 ? 'ões inviáveis' : 'ão inviável'}</strong> detectada{inviavel > 1 ? 's' : ''}. </>}
+                  {atencao > 0 && <><strong>{atencao}</strong> requer{atencao === 1 ? '' : 'em'} atenção.</>}
+                </>,
+                ...(media > 0 && { stat: { label: 'Média landed cost', valor: `R$ ${Math.round(media).toLocaleString('pt-BR')}` } }),
+                textoLink: 'Ver simulações', rota: '/produto/simula-custo',
+              })
+          })
+        }
+
+        /* LPCO — licenças suspensas */
+        if (activeKeys.has('lpco')) {
+          await safe(async () => {
+            const r = await fetch('/api/v1/lpco/stats', { headers })
+            if (!r.ok) return
+            const d = await r.json()
+            const suspensa: number = d.SUSPENSA ?? d.suspensa ?? 0
+            if (suspensa > 0)
+              insights.push({
+                id: 'lpco-alert', variante: 'warn',
+                tag: 'Atenção · LPCO',
+                texto: <><strong>{suspensa} licença{suspensa > 1 ? 's' : ''} suspensa{suspensa > 1 ? 's' : ''}</strong>. Regularize para retomar as operações de importação.</>,
+                textoLink: 'Ver licenças', rota: '/produto/lpco',
+              })
+          })
+        }
+
+        /* Cards extras para demonstração visual do carrossel */
+        insights.push(
+          {
+            id: 'demo-ncm', variante: 'default',
+            tag: 'Redução Tributária · NCM 8471',
+            texto: <>Economize até <strong>12% em ICMS</strong> reclassificando 3 SKUs com enquadramento fiscal mais favorável.</>,
+            stat: { label: 'Economia estimada', valor: 'R$ 23.400/mês' },
+            textoLink: 'Ver análise completa', rota: '/produto/simula-custo',
+          },
+          {
+            id: 'demo-frete', variante: 'default',
+            tag: 'Oportunidade · BID Frete',
+            texto: <>Há <strong>2 fornecedores novos</strong> cadastrados na sua rota SP–Manaus com tarifa até <strong>18% menor</strong>.</>,
+            stat: { label: 'Melhor oferta', valor: 'R$ 4.200 / ton' },
+            textoLink: 'Comparar fretes', rota: '/produto/bid-frete',
+          },
+          {
+            id: 'demo-lpco', variante: 'warn',
+            tag: 'Vencimento · LPCO',
+            texto: <><strong>1 licença de importação</strong> vence em <strong>7 dias</strong>. Inicie a renovação para evitar bloqueio operacional.</>,
+            textoLink: 'Renovar agora', rota: '/produto/lpco',
+          },
+          {
+            id: 'demo-cambio', variante: 'default',
+            tag: 'Câmbio · BID Câmbio',
+            texto: <>Dólar em queda de <strong>1,4%</strong> esta semana. Boa janela para antecipar fechamento de câmbio.</>,
+            stat: { label: 'USD/BRL atual', valor: 'R$ 5,12' },
+            textoLink: 'Ver cotações', rota: '/produto/bid-cambio',
+          }
+        )
+
+        /* Fallback */
+        if (insights.length === 0)
+          insights.push({
+            id: 'fallback', variante: 'default',
+            tag: 'GABI AI · Pronta',
+            texto: <>Sua assistente está pronta. Ative produtos para receber <strong>insights em tempo real</strong> das suas operações COMEX.</>,
+            textoLink: 'Explorar produtos', rota: '/store',
+          })
+
+        if (!cancelled) { setGabiInsights(insights); setGabiLoading(false) }
+      } catch {
+        if (!cancelled) setGabiLoading(false)
+      }
+    }
+
+    if (!carregando) fetchGabiInsights()
+    return () => { cancelled = true }
+  }, [carregando, produtosContratados, getToken])
+
   /* ══════════════════════════════════
      RENDER
   ══════════════════════════════════ */
@@ -516,156 +699,206 @@ export function SelecionarWorkspace() {
                 </div>
 
                 <div className="sw-ws-carousel-wrap">
-                <button className="sw-carousel-btn sw-carousel-btn--left" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'left')} aria-label="Anterior">
-                  <CaretLeft size={16} weight="bold" />
-                </button>
-                <div className="sw-ws-grid" ref={wsCarouselRef}>
-                  {wsFiltrados.length === 0 && (
-                    <div className="sw-ws-empty-search">
-                      <MagnifyingGlass size={22} weight="light" />
-                      <span>Nenhum workspace encontrado para "<strong>{wsSearch}</strong>"</span>
-                    </div>
-                  )}
-                  {wsFiltrados.map(ws => (
-                    <div
-                      key={ws.id}
-                      className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${favoriteIds.has(ws.id) ? ' favorited' : ''}`}
-                      data-searchable="true"
-                      onClick={() => handleSelectWs(ws.id)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleSelectWs(ws.id) }}
-                    >
-                      <div className="sw-ws-card-top">
-                        <div
-                          className="sw-ws-logo"
-                          style={{ background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)` }}
-                        >
-                          {ws.iniciais}
-                        </div>
-                        <div className="sw-ws-card-top-actions">
-                          <button
-                            className={`sw-ws-fav-btn${favoriteIds.has(ws.id) ? ' active' : ''}`}
-                            type="button"
-                            onClick={e => toggleFavorite(e, ws.id)}
-                            aria-label={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                            title={favoriteIds.has(ws.id) ? 'Remover favorito' : 'Favoritar'}
+                  <button className="sw-carousel-btn sw-carousel-btn--left" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'left')} aria-label="Anterior">
+                    <CaretLeft size={16} weight="bold" />
+                  </button>
+                  <div className="sw-ws-grid" ref={wsCarouselRef}>
+                    {wsFiltrados.length === 0 && (
+                      <div className="sw-ws-empty-search">
+                        <MagnifyingGlass size={22} weight="light" />
+                        <span>Nenhum workspace encontrado para "<strong>{wsSearch}</strong>"</span>
+                      </div>
+                    )}
+                    {wsFiltrados.map(ws => (
+                      <div
+                        key={ws.id}
+                        className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${favoriteIds.has(ws.id) ? ' favorited' : ''}`}
+                        data-searchable="true"
+                        onClick={() => handleSelectWs(ws.id)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleSelectWs(ws.id) }}
+                      >
+                        <div className="sw-ws-card-top">
+                          <div
+                            className="sw-ws-logo"
+                            style={{ background: `linear-gradient(135deg, ${ws.gradientFrom} 0%, ${ws.gradientTo} 100%)` }}
                           >
-                            <Star size={14} weight={favoriteIds.has(ws.id) ? 'fill' : 'regular'} />
-                          </button>
-                          <div className="sw-ws-check">
-                            <Check size={12} color="white" weight="bold" />
+                            {ws.iniciais}
+                          </div>
+                          <div className="sw-ws-card-top-actions">
+                            <button
+                              className={`sw-ws-fav-btn${favoriteIds.has(ws.id) ? ' active' : ''}`}
+                              type="button"
+                              onClick={e => toggleFavorite(e, ws.id)}
+                              aria-label={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                              title={favoriteIds.has(ws.id) ? 'Remover favorito' : 'Favoritar'}
+                            >
+                              <Star size={14} weight={favoriteIds.has(ws.id) ? 'fill' : 'regular'} />
+                            </button>
+                            <div className="sw-ws-check">
+                              <Check size={12} color="white" weight="bold" />
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <div className="sw-ws-name">{ws.nome}</div>
-                        <div className="sw-ws-meta">
-                          <span className="sw-ws-role">{ws.role}</span>
+                        <div style={{ textAlign: 'center', marginTop: '-12px' }}>
+                          <div className="sw-ws-name">{ws.nome}</div>
+                          <div className="sw-ws-meta">
+                            <span className="sw-ws-role">{ws.role}</span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="sw-ws-stats">
-                        <div>
-                          <div className="sw-ws-stat-n">{ws.modulos}</div>
-                          <div className="sw-ws-stat-l">Produtos</div>
+                        <div className="sw-ws-stats">
+                          <div>
+                            <div className="sw-ws-stat-n">{ws.modulos}</div>
+                            <div className="sw-ws-stat-l">Produtos</div>
+                          </div>
+                          <div>
+                            <div className="sw-ws-stat-n">{ws.membros}</div>
+                            <div className="sw-ws-stat-l">Usuários</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="sw-ws-stat-n">{ws.membros}</div>
-                          <div className="sw-ws-stat-l">Usuários</div>
-                        </div>
+
+                        <button
+                          className="sw-ws-enter-btn"
+                          type="button"
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleSelectWs(ws.id)
+                            setTimeout(() => {
+                              sessionStorage.setItem('gravity_company_id', ws.id)
+                              sessionStorage.setItem('gravity_company_name', ws.nome)
+                              if (contratadosAtivos.length > 0) {
+                                navigate('/core')
+                              } else {
+                                setModalSemProdutos(true)
+                              }
+                            }, 300)
+                          }}
+                          disabled={entrando}
+                        >
+                          {entrando ? 'Entrando...' : 'Entrar no Workspace'}
+                          <ArrowRight size={14} />
+                        </button>
                       </div>
+                    ))}
 
-                      <button
-                        className="sw-ws-enter-btn"
-                        type="button"
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleSelectWs(ws.id)
-                          setTimeout(() => {
-                            sessionStorage.setItem('gravity_company_id', ws.id)
-                            sessionStorage.setItem('gravity_company_name', ws.nome)
-                            if (contratadosAtivos.length > 0) {
-                              navigate('/core')
-                            } else {
-                              setModalSemProdutos(true)
-                            }
-                          }, 300)
-                        }}
-                        disabled={entrando}
-                      >
-                        {entrando ? 'Entrando...' : 'Entrar no Workspace'}
-                        <ArrowRight size={14} />
-                      </button>
-                    </div>
-                  ))}
-
-                  {/* Criar novo workspace */}
-                  <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
-                    <Plus size={20} />
-                    <span className="sw-ws-add-label">Criar novo workspace</span>
+                    {/* Criar novo workspace */}
+                    <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
+                      <Plus size={20} />
+                      <span className="sw-ws-add-label">Criar novo workspace</span>
+                    </button>
+                  </div>
+                  <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
+                    <CaretRight size={16} weight="bold" />
                   </button>
+                </div>
 
-                  {/* Gabi AI card */}
-                  <div className="sw-gabi-card">
-                    <div className="sw-gabi-card-watermark">
-                      <Sparkle weight="fill" size={110} />
-                    </div>
-                    <div className="sw-gabi-card-header">
-                      <div className="sw-gabi-card-avatar">
-                        <Sparkle weight="fill" size={14} color="#fff" />
+                {/* GABI AI — carrossel dinâmico */}
+                <div
+                  className="sw-gabi-card sw-a1"
+                  onMouseEnter={() => setGabiPaused(true)}
+                  onMouseLeave={() => setGabiPaused(false)}
+                >
+                  <div className="sw-gabi-card-watermark" aria-hidden="true">
+                    <Sparkle weight="fill" size={200} />
+                  </div>
+                  <div className="sw-gabi-card-main">
+                    {/* Header */}
+                    <div className="sw-gabi-card-top-row">
+                      <div className="sw-gabi-card-header">
+                        <div className="sw-gabi-card-avatar">
+                          <Sparkle weight="fill" size={14} color="#fff" />
+                        </div>
+                        <span className="sw-gabi-card-label">GABI AI · Insights</span>
                       </div>
-                      <span className="sw-gabi-card-label">GABI AI · Insights</span>
+                      <span className="sw-gabi-live-badge">
+                          <span className="sw-gabi-live-dot" />
+                          ao vivo
+                        </span>
                     </div>
-                    <p className="sw-gabi-card-text">
-                      Sua assistente inteligente está pronta para acelerar suas operações de COMEX com análises em tempo real.
-                    </p>
-                    <div className="sw-gabi-card-footer">
+
+                    {/* Track horizontal com setas laterais */}
+                    <div className="sw-gabi-track-wrap">
                       <button
-                        className="sw-gabi-card-btn"
+                        className="sw-gabi-arrow sw-gabi-arrow--left"
                         type="button"
-                        onClick={() => navigate('/gabi')}
+                        onClick={() => scrollCarousel(gabiCarouselRef, 'left')}
+                        disabled={gabiInsights.length <= 1}
+                        aria-label="Insight anterior"
                       >
-                        Abrir GABI <CaretRight size={12} />
+                        <CaretLeft size={14} weight="bold" />
+                      </button>
+
+                      {gabiLoading ? (
+                        <div className="sw-gabi-insights-track">
+                          {[0, 1, 2].map(i => (
+                            <div key={i} className="sw-gabi-insight-card sw-gabi-insight-card--skeleton">
+                              <div className="sw-gabi-skeleton-line sw-gabi-skeleton-line--short" />
+                              <div className="sw-gabi-skeleton-line" />
+                              <div className="sw-gabi-skeleton-line" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="sw-gabi-insights-track" ref={gabiCarouselRef}>
+                          {gabiInsights.map(ins => (
+                            <div
+                              key={ins.id}
+                              className={`sw-gabi-insight-card${ins.variante === 'warn' ? ' sw-gabi-insight-card--warn' : ''}`}
+                            >
+                              <div className={`sw-gabi-insight-tag${ins.variante === 'warn' ? ' sw-gabi-insight-tag--warn' : ''}`}>
+                                {ins.variante === 'warn'
+                                  ? <Warning size={11} weight="fill" />
+                                  : <RocketLaunch size={11} weight="fill" />}
+                                {ins.tag}
+                              </div>
+                              <p className="sw-gabi-insight-text">{ins.texto}</p>
+                              {ins.stat && (
+                                <div className="sw-gabi-insight-stat">
+                                  <span className="sw-gabi-insight-stat-label">{ins.stat.label}</span>
+                                  <span className="sw-gabi-insight-stat-value">{ins.stat.valor}</span>
+                                </div>
+                              )}
+                              <button
+                                className="sw-gabi-insight-link"
+                                type="button"
+                                onClick={() => navigate(ins.rota)}
+                              >
+                                {ins.textoLink} <CaretRight size={11} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <button
+                        className="sw-gabi-arrow sw-gabi-arrow--right"
+                        type="button"
+                        onClick={() => scrollCarousel(gabiCarouselRef, 'right')}
+                        disabled={gabiInsights.length <= 1}
+                        aria-label="Próximo insight"
+                      >
+                        <CaretRight size={14} weight="bold" />
                       </button>
                     </div>
                   </div>
-                </div>
-                <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
-                  <CaretRight size={16} weight="bold" />
-                </button>
                 </div>
               </section>
 
-              {/* DIVIDER */}
-              {selectedWs && (
-                <div className="sw-pill-divider sw-a1">
-                  <div className="sw-pill-divider-line" />
-                  <div className="sw-pill-divider-label">Workspace: {selectedWs.nome}</div>
-                  <div className="sw-pill-divider-line" />
-                </div>
-              )}
-
               {/* ════ BLOCO 2: PRODUTOS ════ */}
               <section className="sw-products-section sw-a1">
-                <div className="sw-sec-header">
-                  <div className="sw-sec-title-wrap">
-                    <Package weight="duotone" size={16} style={{ color: '#818cf8', flexShrink: 0 }} />
-                    <span className="sw-sec-title">Produtos</span>
-                  </div>
-                  <button className="sw-sec-link" type="button" onClick={() => navigate('/store')}>
-                    Ver catálogo completo
-                    <ArrowRight size={12} />
-                  </button>
-                </div>
 
                 <div className="sw-products-carousel-wrap">
                 <div className="sw-products-cols" ref={prodCarouselRef}>
                   {/* Contratados */}
                   <div className="sw-prod-panel">
                     <div className="sw-prod-panel-head">
-                      <span className="sw-prod-panel-title contracted">Seus Produtos Contratados</span>
+                      <span className="sw-prod-panel-title contracted">
+                        <Package weight="duotone" size={15} />
+                        Seus Produtos Contratados
+                      </span>
                       <span className="sw-sec-count">{contratadosAtivos.length} ativos</span>
                     </div>
                     {contratadosAtivos.length === 0 ? (
@@ -677,7 +910,7 @@ export function SelecionarWorkspace() {
                         <div className="sw-prod-empty-desc">
                           Explore o catálogo e ative seu primeiro módulo para este workspace.
                         </div>
-                        <button className="sw-btn-sm" type="button" onClick={() => navigate('/store')}>
+                        <button className="sw-btn-sm" type="button" onClick={() => navigate('/store')} style={{ marginTop: '8px' }}>
                           Explorar Produtos Gravity
                         </button>
                       </div>
@@ -704,7 +937,10 @@ export function SelecionarWorkspace() {
                   {/* Sugeridos (do catálogo, excluindo contratados) */}
                   <div className="sw-prod-panel sw-prod-panel--suggested">
                     <div className="sw-prod-panel-head">
-                      <span className="sw-prod-panel-title suggested">Sugeridos para Você</span>
+                      <span className="sw-prod-panel-title suggested">
+                        <Fire weight="duotone" size={15} className="sw-fire-pulse" />
+                        Sugeridos para Você
+                      </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span className="sw-sec-count" style={{ background: 'var(--sw-accent-dim)', color: 'var(--sw-accent-2)' }}>
                           {produtosSugeridos.length} disponíveis

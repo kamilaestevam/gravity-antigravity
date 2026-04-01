@@ -133,7 +133,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   state: 'state',
   city: 'city',
   segment: 'segment',
-  website: 'website',
+  tipo_empresa: 'tipo_empresa',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };

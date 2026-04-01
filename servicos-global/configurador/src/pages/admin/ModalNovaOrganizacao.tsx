@@ -23,9 +23,26 @@ export interface DadosNovaOrg {
   estado: string
   cidade: string
   segmento: string
-  site: string
+  tipo_empresa: string
   espacoPadrao?: string
 }
+
+const TIPOS_EMPRESA = [
+  'Importador',
+  'Exportador',
+  'Importador e Exportador',
+  'Despachante Aduaneiro',
+  'Agente de Carga',
+  'Trading',
+  'Transportadora Rodoviária',
+  'Seguradora Internacional',
+  'Corretora de Câmbio',
+]
+
+const OPCOES_TIPOS_EMPRESA: SelectOpcao[] = [
+  { valor: '', rotulo: 'Selecione...' },
+  ...TIPOS_EMPRESA.map(t => ({ valor: t, rotulo: t }))
+]
 
 interface ModalNovaOrganizacaoProps {
   aberto: boolean
@@ -70,7 +87,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   const [estado, setEstado] = useState('')
   const [cidade, setCidade] = useState('')
   const [segmento, setSegmento] = useState('')
-  const [site, setSite] = useState('')
+  const [tipoEmpresa, setTipoEmpresa] = useState('')
   const [espacoPadrao, setEspacoPadrao] = useState('')
 
   const [cidades, setCidades] = useState<SelectOpcao[]>([])
@@ -101,7 +118,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   }, [estado])
 
   // Simple dirty tracking
-  const dirty = !!(nome || subdominio || cnpj || estado || cidade || segmento || site)
+  const dirty = !!(nome || subdominio || cnpj || estado || cidade || segmento || tipoEmpresa)
   // Simple validation
   const podesSalvar = !!(nome.trim() && subdominio.trim())
 
@@ -114,7 +131,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       estado,
       cidade,
       segmento,
-      site,
+      tipo_empresa: tipoEmpresa,
       espacoPadrao
     })
     handleLimpar()
@@ -128,7 +145,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     setEstado('')
     setCidade('')
     setSegmento('')
-    setSite('')
+    setTipoEmpresa('')
     setEspacoPadrao('')
   }
 
@@ -140,14 +157,14 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   const abas: AbaFormulario[] = useMemo(() => [
     {
       id: 'geral',
-      rotulo: t('admin.tests.org.aba_dados_gerais'),
-      tooltipTitulo: t('admin.tests.org.aba_dados_gerais_tooltip'),
-      tooltipDescricao: t('admin.tests.org.aba_dados_gerais_desc'),
+      rotulo: t('admin.tests.org.aba_geral'),
+      tooltipTitulo: t('admin.tests.org.aba_geral_tooltip'),
+      tooltipDescricao: t('admin.tests.org.aba_geral_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid">
             <GeralCampoGlobal
-              label={t('admin.tests.org.campo_nome')}
+              label={t('admin.tests.org.campo_nome_org')}
               obrigatorio
               tooltipTitulo={t('admin.tests.org.campo_nome_tooltip')}
               tooltipDescricao={t('admin.tests.org.campo_nome_desc')}
@@ -156,7 +173,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 <Buildings size={16} />
                 <input
                   value={nome}
-                  placeholder="Ex: Acme Corporation Ltda."
+                  placeholder={t('admin.tests.org.campo_nome_placeholder')}
                   onChange={e => {
                     setNome(e.target.value)
                     const sugerido = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-')
@@ -178,7 +195,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 <IdentificationCard size={16} />
                 <input
                   value={cnpj}
-                  placeholder="00.000.000/0001-00"
+                  placeholder={t('admin.tests.org.campo_cnpj_placeholder')}
                   onChange={e => setCnpj(e.target.value)}
                   style={{ width: '100%' }}
                 />
@@ -196,7 +213,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               <Globe size={16} />
               <input
                 value={subdominio}
-                placeholder="acme"
+                placeholder={t('admin.tests.org.campo_subdominio_placeholder_novo')}
                 onChange={e => setSubdominio(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-'))}
                 style={{ width: '100%' }}
               />
@@ -226,7 +243,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                   setEstado(String(v ?? ''))
                   setCidade('')
                 }}
-                placeholder="Selecione..."
+                placeholder={t('admin.tests.org.campo_selecione_placeholder')}
                 buscavel
               />
             </GeralCampoGlobal>
@@ -237,7 +254,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 opcoes={cidades}
                 valor={cidade || null}
                 aoMudarValor={v => setCidade(String(v ?? ''))}
-                placeholder={estado ? "Selecione a cidade..." : "Selecione o estado..."}
+                placeholder={estado ? t('admin.tests.org.cidade_placeholder_com_estado') : t('admin.tests.org.cidade_placeholder_sem_estado')}
                 buscavel
                 desabilitado={!estado}
                 carregando={carregandoCidades}
@@ -252,21 +269,19 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                 opcoes={OPCOES_SEGMENTOS}
                 valor={segmento}
                 aoMudarValor={v => setSegmento(String(v ?? ''))}
-                placeholder="Selecione..."
+                placeholder={t('admin.tests.org.campo_selecione_placeholder')}
                 buscavel
               />
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label={t('admin.overview.campo_site')}>
-              <div className="ws-input-icon-wrap">
-                <Globe size={16} />
-                <input
-                  value={site}
-                  placeholder="https://www.empresa.com.br"
-                  onChange={e => setSite(e.target.value)}
-                  style={{ width: '100%' }}
-                />
-              </div>
+            <GeralCampoGlobal label={t('admin.overview.campo_tipo_empresa')}>
+              <SelectGlobal
+                iconeEsquerda={<Buildings size={16} />}
+                opcoes={OPCOES_TIPOS_EMPRESA}
+                valor={tipoEmpresa}
+                aoMudarValor={v => setTipoEmpresa(String(v ?? ''))}
+                placeholder={t('admin.tests.org.campo_selecione_placeholder')}
+              />
             </GeralCampoGlobal>
           </div>
         </div>
@@ -279,7 +294,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       tooltipDescricao: t('admin.tests.org.aba_plano_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <GeralCampoGlobal label={t('admin.tests.org.plano_inicial')}>
+          <GeralCampoGlobal label={t('admin.tests.org.campo_plano_inicial')}>
             <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
               <select
                 value={plano}
@@ -293,7 +308,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           </GeralCampoGlobal>
 
           <GeralCampoGlobal
-            label={t('admin.tests.org.acesso_padrao')}
+            label={t('admin.tests.org.campo_acesso_padrao')}
             tooltipTitulo={t('admin.tests.org.acesso_padrao_tooltip')}
             tooltipDescricao={t('admin.tests.org.acesso_padrao_desc')}
           >
@@ -302,7 +317,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
               opcoes={[]} // Inicialmente vazio para nova organização
               valor={espacoPadrao || null}
               aoMudarValor={v => setEspacoPadrao(String(v ?? ''))}
-              placeholder="— Selecione após a criação —"
+              placeholder={t('admin.tests.org.campo_acesso_placeholder')}
               desabilitado
             />
           </GeralCampoGlobal>
@@ -318,7 +333,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           }}>
             <Package size={20} weight="duotone" color="#38bdf8" style={{ marginTop: '2px' }} />
             <div>
-              <p style={{ color: '#bae6fd', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>{t('admin.tests.org.resumo_provisao')}</p>
+              <p style={{ color: '#bae6fd', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>{t('admin.tests.org.resumo_provisao_titulo')}</p>
               <p style={{ color: 'var(--ws-muted)', fontSize: '0.75rem', lineHeight: '1.4' }}>
                 {t('admin.tests.org.resumo_provisao_desc', { plano })}
               </p>
@@ -327,7 +342,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
         </div>
       )
     }
-  ], [nome, subdominio, plano, cnpj, estado, cidade, segmento, site, espacoPadrao, cidades, carregandoCidades])
+  ], [nome, subdominio, plano, cnpj, estado, cidade, segmento, tipoEmpresa, espacoPadrao, cidades, carregandoCidades])
 
   return (
     <ModalFormularioAbasGlobal
@@ -335,13 +350,13 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       aoFechar={handleFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings size={24} weight="duotone" />}
-      titulo={t('admin.tests.org.nova_titulo')}
-      subtitulo={t('admin.tests.org.nova_subtitulo')}
+      titulo={t('admin.tests.org.novo_titulo')}
+      subtitulo={t('admin.tests.org.novo_subtitulo')}
       tamanho="lg"
       altura="600px"
       dirty={dirty}
       podesSalvar={podesSalvar}
-      textoSalvar={t('admin.tests.org.criar_instancia')}
+      textoSalvar={t('admin.tests.org.novo_btn_criar')}
       abas={abas}
       tipoAbas="pill"
     />

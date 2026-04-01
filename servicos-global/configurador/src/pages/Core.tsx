@@ -57,12 +57,30 @@ export function Core() {
   const { user } = useUser()
   const { signOut } = useClerk()
   const { getToken } = useAuth()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
 
   useSyncClerkToShell()
 
   const companyId = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
+
+  const [tipoEmpresa, setTipoEmpresa] = useState('')
+
+  useEffect(() => {
+    async function fetchTipoEmpresa() {
+      try {
+        const token = await getToken()
+        const res = await fetch('/api/v1/tenants/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const { tenant } = await res.json()
+          setTipoEmpresa(tenant.tipo_empresa ?? '')
+        }
+      } catch { /* silencioso */ }
+    }
+    fetchTipoEmpresa()
+  }, [])
 
   useUserPreferences({
     userId: user?.id,
@@ -98,7 +116,7 @@ export function Core() {
           setProdutosAtivos(ativos)
         }
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar produtos ativos.' })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })
       }
     }
     loadProducts()
@@ -110,19 +128,19 @@ export function Core() {
 
     // Meu Espaço
     items.push({
-      label: 'Meu Espaço',
+      label: t('shell.menu.meu_espaco'),
       icon: <House weight="duotone" size={18} />,
       children: [
-        { to: '/core', label: 'Dashboard', icon: <House weight="duotone" size={18} /> },
-        { to: '/core/atividades', label: 'Atividades', icon: <ListChecks weight="duotone" size={18} /> },
-        { to: '/core/email', label: 'Email', icon: <Envelope weight="duotone" size={18} /> },
-        { to: '/core/whatsapp', label: 'WhatsApp', icon: <WhatsappLogo weight="duotone" size={18} /> },
+        { to: '/core', label: t('shell.menu.dashboard'), icon: <House weight="duotone" size={18} /> },
+        { to: '/core/atividades', label: t('shell.menu.minhas_atividades'), icon: <ListChecks weight="duotone" size={18} /> },
+        { to: '/core/email', label: t('shell.menu.email'), icon: <Envelope weight="duotone" size={18} /> },
+        { to: '/core/whatsapp', label: t('shell.menu.whatsapp'), icon: <WhatsappLogo weight="duotone" size={18} /> },
       ],
     })
 
     // Produtos Gravity (dinâmico)
     items.push({
-      label: 'Produtos Gravity',
+      label: t('shell.menu.produtos_gravity'),
       sectionDivider: true,
       icon: <ShoppingBagOpen weight="duotone" size={18} />,
     })
@@ -138,7 +156,7 @@ export function Core() {
     } else {
       items.push({
         to: '/store',
-        label: 'Explorar Catálogo',
+        label: t('hub.explorar_catalogo'),
         icon: <ShoppingBagOpen weight="duotone" size={18} />,
       })
     }
@@ -149,35 +167,35 @@ export function Core() {
     // Processo
     items.push({
       to: '/produto/processo',
-      label: 'Processo',
+      label: t('shell.processo_prefixo'),
       icon: <Folders weight="duotone" size={18} />,
     })
 
     // Notificações
     items.push({
       to: '/core/notificacoes',
-      label: 'Notificações',
+      label: t('shell.menu.notificacoes'),
       icon: <Bell weight="duotone" size={18} />,
     })
 
     // Histórico
     items.push({
       to: '/core/historico',
-      label: 'Histórico',
+      label: t('shell.menu.historico'),
       icon: <ClockCounterClockwise weight="duotone" size={18} />,
     })
 
     // Conector ERP
     items.push({
       to: '/core/conector-erp',
-      label: 'Conector ERP',
+      label: t('shell.menu.conector_erp'),
       icon: <Plug weight="duotone" size={18} />,
     })
 
     // Configurações
     items.push({
       to: '/core/configuracoes',
-      label: 'Configurações',
+      label: t('shell.menu.configuracoes'),
       icon: <GearSix weight="duotone" size={18} />,
     })
 
@@ -207,7 +225,7 @@ export function Core() {
       {/* ── Menu Lateral ── */}
       <MenuLateralGlobal
         tenantName={companyName}
-        tenantPlan="Profissional"
+        tenantPlan={tipoEmpresa}
         navItems={navItems}
         moduleName="Core"
         moduleColor="#818cf8"
@@ -218,7 +236,7 @@ export function Core() {
       <div className="ws-main">
         {/* ── Header ── */}
         <div className="ws-global-actions">
-          <TooltipGlobal titulo="Voltar ao Hub" descricao="Retornar à seleção de workspace">
+          <TooltipGlobal titulo={t('shell.voltar_hub')} descricao={t('shell.voltar_hub')}>
             <button
               className="ws-global-btn ws-voltar-btn"
               onClick={() => navigate('/hub')}
@@ -255,7 +273,7 @@ export function Core() {
             }}
           />
 
-          <TooltipGlobal titulo="Dicas e Explicações" descricao={tooltipsDisabled ? 'Clique para habilitar dicas' : 'Clique para desabilitar dicas'}>
+          <TooltipGlobal titulo={t('shell.label_habilitar_dicas')} descricao={tooltipsDisabled ? t('shell.habilitar_dicas') : t('shell.desabilitar_dicas')}>
             <button
               className="ws-global-btn"
               onClick={toggleTooltips}
@@ -276,10 +294,10 @@ export function Core() {
             userName={userName}
             userEmail={userEmail}
             userInitials={userInitials}
-            userRole="Membro"
+            userRole={currentUser.role ?? t('shell.papel_membro')}
             isLight={isLight}
             onToggleTheme={toggleTheme}
-            onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
+            onNavigateWorkspace={() => navigate('/workspace/organizacao')}
             onNavigateAssinaturas={() => navigate('/workspace/assinaturas')}
             onSignOut={() => signOut()}
             isAdmin={false}
@@ -304,7 +322,7 @@ export function Core() {
       )}
 
       {!isGabiOpen && (
-        <TooltipGlobal descricao="Falar com a Gabi IA">
+        <TooltipGlobal descricao={t('shell.menu.gabi')}>
           <button className="ws-gabi-trigger" onClick={() => setIsGabiOpen(true)}>
             <Sparkle weight="fill" size={28} />
           </button>

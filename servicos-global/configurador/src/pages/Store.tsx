@@ -24,7 +24,6 @@ import {
 import './hub-store.css'
 import '../pages/workspace/workspace.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { PaginaGlobal } from '@nucleo/pagina-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
@@ -188,7 +187,7 @@ export function Store() {
 
         if (catRes.ok) {
           const catData = await catRes.json()
-          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'Ativo'))
+          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ACTIVE' || p.status === 'Ativo'))
         }
 
         if (subRes?.ok) {
@@ -345,8 +344,7 @@ export function Store() {
         />
       </div>
 
-      <PaginaGlobal className="ws-fade-up" layout="lista" cabecalho={<></>}>
-        <div className="gs-store">
+      <div className="gs-store ws-fade-up">
 
           {/* ── HERO ─────────────────────────────────────────────── */}
           <div className="gs-hero">
@@ -582,8 +580,7 @@ export function Store() {
             <span>© {new Date().getFullYear()} Gravity Platform · Todos os módulos incluem suporte priorizado.</span>
           </div>
 
-        </div>
-      </PaginaGlobal>
+      </div>
 
       <ToastContainer />
     </div>

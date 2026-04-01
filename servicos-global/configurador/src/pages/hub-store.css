@@ -11,9 +11,12 @@
 
 /* Wrapper geral do conteúdo */
 .gs-store {
-  padding: 0 0 4rem;
+  padding: 74px 2rem 4rem;
+  max-width: 1280px;
+  margin: 0 auto;
   font-family: var(--font);
   color: var(--color-text);
+  min-height: 100dvh;
 }
 
 /* ── HERO ───────────────────────────────────────────────────────────────── */

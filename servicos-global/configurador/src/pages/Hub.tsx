@@ -27,11 +27,20 @@ import {
   Rocket,
   CheckCircle,
   WarningCircle,
+  Info,
+  GridFour,
+  HouseLine,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import './hub.css'
 import { useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
+import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import {
+  LocalizadorGlobal,
+  useLocalizadorHistory,
+  type EcosystemNode,
+} from '@nucleo/localizador-global'
 
 const API_URL = '/api/v1'
 
@@ -133,6 +142,9 @@ export function Hub() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
   const currentTheme = useShellStore((s) => s.currentTheme)
+  const tooltipsDisabled = useShellStore((s) => s.tooltipsDisabled)
+  const toggleTooltips = useShellStore((s) => s.toggleTooltips)
+  const allowedProducts = useShellStore((s) => s.allowedProducts)
 
   useEffect(() => {
     document.body.classList.toggle('light-theme', currentTheme === 'light')
@@ -224,6 +236,25 @@ export function Hub() {
 
   const activeCount = products.length
 
+  // ── Localizador — nós do ecossistema ──────────────────────────────────────
+  const { history, addEntry } = useLocalizadorHistory('gravity')
+
+  const ecosystemNodes: EcosystemNode[] = [
+    { id: 'gravity', label: 'Hub', sublabel: 'command center', color: '#818cf8', type: 'gravity', status: 'current' },
+    { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f59e0b', type: 'configurador', status: 'accessible' },
+    ...products.map((p): EcosystemNode => {
+      const v = PROD_VISUAL[p.product_key] ?? DEFAULT_VISUAL
+      return {
+        id:       p.product_key,
+        label:    p.catalog?.name ?? p.product_key,
+        sublabel: 'produto',
+        color:    v.color,
+        type:     'produto',
+        status:   allowedProducts.some(a => a.product_key === p.product_key && a.is_active) ? 'accessible' : 'locked',
+      }
+    }),
+  ]
+
   return (
     <div className="hb-shell">
 
@@ -239,6 +270,28 @@ export function Hub() {
         </div>
 
         <div className="hb-topbar-right">
+          {/* Atalhos de navegação rápida */}
+          <button
+            className="hb-topbar-navlink"
+            type="button"
+            title="Core — Command Center"
+            onClick={() => navigate('/core')}
+          >
+            <GridFour weight="duotone" size={14} />
+            Core
+          </button>
+          <button
+            className="hb-topbar-navlink"
+            type="button"
+            title="Hub — Selecionar Workspace"
+            onClick={() => navigate('/hub')}
+          >
+            <HouseLine weight="duotone" size={14} />
+            Hub
+          </button>
+
+          <div className="hb-topbar-sep" />
+
           <button className="hb-topbar-btn" type="button" title={t('comum.buscar')}>
             <MagnifyingGlass weight="bold" size={16} />
           </button>
@@ -247,6 +300,39 @@ export function Hub() {
             <Bell weight="duotone" size={16} />
             <div className="hb-notif-dot" />
           </button>
+
+          {/* Tooltip toggle */}
+          <button
+            className="hb-topbar-btn"
+            type="button"
+            title={tooltipsDisabled ? t('shell.label_habilitar_dicas') : t('shell.label_desabilitar_dicas')}
+            onClick={toggleTooltips}
+            style={{ color: tooltipsDisabled ? 'var(--hb-muted)' : 'var(--hb-accent)' }}
+          >
+            <Info weight={tooltipsDisabled ? 'regular' : 'fill'} size={16} />
+          </button>
+
+          {/* Localizador — ecosistema */}
+          <LocalizadorGlobal
+            workspaceName={companyName}
+            workspacePlan={t('shell.plano_padrao')}
+            currentProductId="gravity"
+            currentProductLabel="Hub"
+            currentProductColor="#818cf8"
+            currentPageLabel="Hub"
+            history={history}
+            nodes={ecosystemNodes}
+            onNavigate={(node) => {
+              if (node.type === 'configurador') navigate('/workspace')
+              else if (node.type === 'gravity')  navigate('/core')
+              else if (node.type === 'produto')  navigate(`/produto/${node.id}`)
+            }}
+          />
+
+          {/* Seletor de idioma */}
+          <LanguageSwitcherGlobal />
+
+          <div className="hb-topbar-sep" />
 
           <button
             className="hb-topbar-btn"

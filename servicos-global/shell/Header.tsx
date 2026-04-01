@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -8,11 +8,39 @@ import {
   MagnifyingGlass,
   Info,
   ArrowLeft,
+  Hexagon,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import {
+  LocalizadorGlobal,
+  useLocalizadorHistory,
+  type EcosystemNode,
+} from '@nucleo/localizador-global'
+
+// ── Mapa estático de produtos do ecossistema ─────────────────────────────────
+const PRODUCT_META: Record<string, { label: string; color: string; sublabel: string }> = {
+  'bid-cambio':    { label: 'Bid Câmbio',    color: '#06b6d4', sublabel: 'cotações · câmbio' },
+  'simulacusto':   { label: 'SimulaCusto',   color: '#34d399', sublabel: 'fiscal · NCM'      },
+  'lpco':          { label: 'LPCO',          color: '#fb923c', sublabel: 'licenças COMEX'     },
+  'nf-importacao': { label: 'NF Importação', color: '#c084fc', sublabel: 'nota fiscal'        },
+}
+
+// Detecta produto e contexto pelo pathname — URL é a fonte de verdade
+function resolveContextFromPath(pathname: string): { productId: string; label: string; color: string; sublabel: string } {
+  const prodMatch = pathname.match(/^\/produto\/([^/]+)/)
+  if (prodMatch) {
+    const slug = prodMatch[1]
+    // Tenta match direto ou com normalização (simula-custo → simulacusto)
+    const found = PRODUCT_META[slug]
+      ?? Object.entries(PRODUCT_META).find(([k]) => k.replace(/-/g, '') === slug.replace(/-/g, ''))?.[1]
+    if (found) return { productId: slug, ...found }
+  }
+  // Fallback: Gravity workspace
+  return { productId: 'gravity', label: 'Gravity', color: '#818cf8', sublabel: 'workspace' }
+}
 
 /**
  * Mapa de rota → chave i18n de breadcrumb
@@ -48,7 +76,12 @@ const ROUTE_LABEL_KEYS: Record<string, string> = {
  * Info de usuário/tenant exibida na sidebar (footer).
  * Nunca contém lógica de produto.
  */
-export function Header() {
+interface HeaderProps {
+  moduleName?: string
+  moduleColor?: string
+}
+
+export function Header({ moduleName, moduleColor }: HeaderProps) {
   const location = useLocation()
   const { t } = useTranslation()
   const {
@@ -59,7 +92,64 @@ export function Header() {
     toggleTooltips,
     currentUser,
     clearCurrentUser,
+    allowedProducts,
   } = useShellStore()
+
+  // ── Localizador ──────────────────────────────────────────────────────────
+  const ctx = resolveContextFromPath(location.pathname)
+  const { history, addEntry } = useLocalizadorHistory(ctx.productId)
+
+  // Registra navegação no histórico a cada mudança de rota
+  useEffect(() => {
+    addEntry({
+      productId:    ctx.productId,
+      productLabel: ctx.label,
+      productColor: ctx.color,
+      pageLabel:    getPageLabel(location.pathname),
+      pagePath:     location.pathname,
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname])
+
+  // Monta nós do ecossistema a partir dos produtos habilitados + metadados
+  const ecosystemNodes: EcosystemNode[] = [
+    {
+      id:       'gravity',
+      label:    'Gravity',
+      sublabel: 'workspace',
+      color:    '#818cf8',
+      type:     'gravity',
+      status:   'accessible',
+    },
+    {
+      id:       'configurador',
+      label:    'Configurador',
+      sublabel: 'auth · billing',
+      color:    '#f472b6',
+      type:     'configurador',
+      status:   'accessible',
+    },
+    // Produtos habilitados
+    ...Object.entries(PRODUCT_META).map(([id, meta]): EcosystemNode => {
+      const isAllowed = allowedProducts.some(p => p.product_key === id && p.is_active)
+      return {
+        id,
+        label:    meta.label,
+        sublabel: meta.sublabel,
+        color:    meta.color,
+        type:     'produto',
+        status:   id === ctx.productId ? 'current' : isAllowed ? 'accessible' : 'locked',
+      }
+    }),
+    {
+      id:       'processo',
+      label:    'Processo',
+      sublabel: 'consolida todos os produtos',
+      color:    '#facc15',
+      type:     'processo',
+      status:   'locked',
+    },
+  ]
 
   const avisosMock: AvisoInterno[] = [
     {
@@ -118,6 +208,17 @@ export function Header() {
 
   return (
     <header className="shell-header" role="banner">
+
+      {/* ESQUERDA: logo + label de contexto */}
+      <div className="shell-header__left">
+        <div className="shell-header__logo">
+          <Hexagon weight="duotone" size={22} color="#818cf8" />
+          <span className="shell-header__logo-name">Gravity</span>
+        </div>
+        <div className="shell-header__logo-div" />
+        <span className="shell-header__logo-label">{pageLabel}</span>
+      </div>
+
       {/* DIREITA: ações + usuário (Floating Header) */}
       <div className="shell-header__right">
         {/* Botão Voltar ao Hub */}
@@ -181,6 +282,23 @@ export function Header() {
             onCriarAviso={handleCriarAviso}
           />
         </div>
+
+        {/* Localizador — Onde estou (sempre visível) */}
+        <LocalizadorGlobal
+          workspaceName={currentUser.tenantName ?? t('shell.organizacao_padrao')}
+          workspacePlan={t('shell.plano_padrao')}
+          currentProductId={ctx.productId}
+          currentProductLabel={ctx.label}
+          currentProductColor={ctx.color}
+          currentPageLabel={getPageLabel(location.pathname)}
+          history={history}
+          nodes={ecosystemNodes}
+          onNavigate={(node) => {
+            if (node.type === 'configurador') window.location.href = '/configurador'
+            else if (node.type === 'gravity')  window.location.href = '/hub'
+            else if (node.type === 'produto')  window.location.href = `/produto/${node.id}`
+          }}
+        />
 
         {/* Seletor de idioma */}
         <LanguageSwitcherGlobal />

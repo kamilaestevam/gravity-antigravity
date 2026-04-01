@@ -140,6 +140,35 @@ body.light-theme .hb-topbar {
 
 .hb-topbar-btn--notif { position: relative; }
 
+.hb-topbar-navlink {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  border: 1px solid var(--hb-border);
+  background: transparent;
+  color: var(--hb-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--hb-transition);
+}
+
+.hb-topbar-navlink:hover {
+  background: var(--hb-accent-d);
+  color: var(--hb-accent);
+  border-color: var(--hb-accent-b);
+}
+
+.hb-topbar-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--hb-border);
+  margin: 0 0.125rem;
+}
+
 .hb-notif-dot {
   position: absolute;
   top: 6px; right: 6px;

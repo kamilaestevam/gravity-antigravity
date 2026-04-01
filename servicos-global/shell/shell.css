@@ -276,17 +276,22 @@ body,
 .shell-header {
   position: absolute;
   top: 0;
+  left: 0;
   right: 0;
   height: 74px; /* Ajustado para EXATOS 74px do Configurador Golder Source */
-  padding: 0 1.5rem;
-  background: transparent; 
-  border-bottom: none; 
+  padding: 0 1.5rem 0 calc(var(--sidebar-width) + 1.5rem);
+  background: transparent;
+  border-bottom: none;
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* Move tudo para a direita */
+  justify-content: space-between;
   gap: 0.5rem;
   z-index: 100;
   pointer-events: none; /* Permite cliques no conteúdo atrás (exceto nos filhos) */
+}
+
+.shell-layout.sidebar-collapsed .shell-header {
+  padding-left: calc(var(--sidebar-collapsed-w) + 1.5rem);
 }
 
 /* Evita que o título da página (CabecalhoGlobal) seja sobreposto pelos ícones flutuantes */
@@ -310,6 +315,33 @@ body,
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
+}
+
+.shell-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.shell-header__logo-name {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.shell-header__logo-div {
+  width: 1px;
+  height: 16px;
+  background: var(--bg-elevated);
+}
+
+.shell-header__logo-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
 }
 
 .shell-header__toggle {

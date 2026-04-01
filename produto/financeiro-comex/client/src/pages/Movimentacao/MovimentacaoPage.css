@@ -1,0 +1,223 @@
+.fincom-page {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Tabs */
+.fincom-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--bg-elevated, #2a2a3e);
+}
+
+.fincom-tab {
+  padding: 0.625rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary, #a0a0b8);
+  cursor: pointer;
+  font-size: 0.875rem;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.fincom-tab:hover {
+  color: var(--text-primary, #e0e0f0);
+}
+
+.fincom-tab--active {
+  color: var(--accent, #6c6cff);
+  border-bottom-color: var(--accent, #6c6cff);
+  font-weight: 600;
+}
+
+/* Badges de moeda */
+.fincom-totais {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fincom-badge-moeda {
+  padding: 0.25rem 0.625rem;
+  background: var(--bg-elevated, #2a2a3e);
+  color: var(--text-secondary, #a0a0b8);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.fincom-badge-moeda--sm {
+  font-size: 0.7rem;
+  padding: 0.125rem 0.375rem;
+}
+
+/* KPIs */
+.fincom-kpi-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.fincom-kpi {
+  flex: 1;
+  min-width: 140px;
+  padding: 1rem;
+  background: var(--bg-base, #16161e);
+  border: 1px solid var(--bg-elevated, #2a2a3e);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fincom-kpi__label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #a0a0b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fincom-kpi__valor {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary, #e0e0f0);
+}
+
+.fincom-kpi--negativo .fincom-kpi__valor { color: var(--danger, #f43f5e); }
+.fincom-kpi--pago .fincom-kpi__valor { color: var(--success, #22c55e); }
+.fincom-kpi--agendado .fincom-kpi__valor { color: var(--warning, #f59e0b); }
+.fincom-kpi--pendente .fincom-kpi__valor { color: var(--text-secondary, #a0a0b8); }
+
+/* Ações */
+.fincom-acoes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fincom-acoes-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Botões */
+.fincom-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+
+.fincom-btn:hover { opacity: 0.85; }
+
+.fincom-btn--primary {
+  background: var(--accent, #6c6cff);
+  color: #fff;
+}
+
+.fincom-btn--secondary {
+  background: var(--bg-elevated, #2a2a3e);
+  color: var(--text-primary, #e0e0f0);
+  border: 1px solid var(--border, #3a3a50);
+}
+
+.fincom-btn--ghost {
+  background: none;
+  color: var(--text-secondary, #a0a0b8);
+}
+
+.fincom-btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+  font-size: 0.875rem;
+}
+
+.fincom-table__row:hover .fincom-btn-icon { opacity: 1; }
+
+/* Tabela */
+.fincom-table-wrapper {
+  overflow-x: auto;
+}
+
+.fincom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.fincom-table th {
+  text-align: left;
+  padding: 0.625rem 0.75rem;
+  background: var(--bg-elevated, #2a2a3e);
+  color: var(--text-secondary, #a0a0b8);
+  font-weight: 500;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.fincom-table td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--bg-elevated, #2a2a3e);
+  color: var(--text-primary, #e0e0f0);
+  white-space: nowrap;
+}
+
+.fincom-table__row { cursor: pointer; }
+.fincom-table__row:hover td { background: var(--bg-surface, #1e1e2e); }
+
+.fincom-monospace { font-family: monospace; }
+.fincom-bold { font-weight: 600; }
+.fincom-vencida { color: var(--danger, #f43f5e) !important; }
+
+/* Status */
+.fincom-status {
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.fincom-status--pago { background: #16a34a22; color: #22c55e; }
+.fincom-status--pendente { background: #a0a0b822; color: #a0a0b8; }
+.fincom-status--agendado { background: #f59e0b22; color: #f59e0b; }
+
+/* Empty / Error */
+.fincom-empty, .fincom-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem;
+  color: var(--text-secondary, #a0a0b8);
+}
+
+/* Skeleton */
+.fincom-skeleton {
+  background: var(--bg-elevated, #2a2a3e);
+  border-radius: 0.375rem;
+  animation: fincom-pulse 1.5s ease-in-out infinite;
+}
+
+.fincom-skeleton--title { height: 1.5rem; width: 40%; }
+.fincom-skeleton--kpi { height: 5rem; flex: 1; min-width: 120px; }
+.fincom-skeleton--table { height: 20rem; width: 100%; }
+
+@keyframes fincom-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

@@ -90,5 +90,13 @@ export default defineConfig({
         baseURL: 'http://localhost:5183',
       },
     },
+    {
+      name: 'financeiro-comex',
+      testDir: './testes/testes-e2e/financeiro-comex',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5184',
+      },
+    },
   ],
 })

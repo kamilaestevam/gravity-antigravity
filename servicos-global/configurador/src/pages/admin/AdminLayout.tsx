@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -34,6 +34,13 @@ export function AdminLayout() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useUser()
+
+  // Defesa em profundidade: bloqueia rendering se o role não for gravity_admin,
+  // mesmo que o roteador (AdminRoute) já tenha feito essa verificação
+  const role = user?.publicMetadata?.role as string | undefined
+  if (user && role !== 'gravity_admin') {
+    return <Navigate to="/hub" replace />
+  }
 
   const navItems = [
     { to: '/admin/visao-geral',  label: t('admin.layout.visao_geral'),      icon: <Crown           weight="duotone" size={18} /> },

@@ -1,0 +1,35 @@
+.fincom-rateio-header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.fincom-rateio-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fincom-rateio-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-base, #16161e);
+  border: 1px solid var(--bg-elevated, #2a2a3e);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+  color: var(--text-primary, #e0e0f0);
+  font-size: 0.875rem;
+}
+
+.fincom-rateio-item:hover {
+  background: var(--bg-surface, #1e1e2e);
+}
+
+.fincom-rateio-item__icon { font-size: 1.25rem; }
+.fincom-rateio-item__nome { flex: 1; font-weight: 500; }
+.fincom-rateio-item__data { color: var(--text-secondary, #a0a0b8); font-size: 0.8125rem; }
+.fincom-rateio-item__dl { color: var(--accent, #6c6cff); }

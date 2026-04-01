@@ -147,11 +147,6 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 /** Wrapper para rotas que exigem autenticação — otimizado para evitar round-trip ao Clerk */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  // DEMO_MODE: bypass de auth Clerk em dev local
-  if (import.meta.env.VITE_DEMO_MODE === 'true') {
-    return <>{children}</>
-  }
-
   const { isLoaded, isSignedIn } = useAuth()
 
   // Enquanto Clerk não carregou, não renderiza nada (evita flash)
@@ -159,6 +154,22 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   // Se não autenticado, redireciona para /sign-in local (sem round-trip ao Clerk hosted)
   if (!isSignedIn) return <Navigate to="/sign-in" replace />
+
+  return <>{children}</>
+}
+
+/** Wrapper para rotas exclusivas de gravity_admin — rejeita qualquer outro role */
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+
+  if (!isLoaded) return null
+  if (!isSignedIn) return <Navigate to="/sign-in" replace />
+
+  const role = user?.publicMetadata?.role as string | undefined
+  if (role !== 'gravity_admin') {
+    return <Navigate to="/hub" replace />
+  }
 
   return <>{children}</>
 }
@@ -226,8 +237,8 @@ export default function App() {
         <Route path="/produto/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/produto/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
 
-        {/* Admin — área interna restrita */}
-        <Route path="/admin" element={<ProtectedRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></ProtectedRoute>}>
+        {/* Admin — área interna restrita — exclusivo gravity_admin */}
+        <Route path="/admin" element={<AdminRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></AdminRoute>}>
           <Route index element={<Navigate to="/admin/visao-geral" replace />} />
           <Route path="visao-geral" element={<React.Suspense fallback={<ProductLoading />}><VisaoGeralAdmin /></React.Suspense>} />
           <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><UsuariosGlobaisAdmin /></React.Suspense>} />

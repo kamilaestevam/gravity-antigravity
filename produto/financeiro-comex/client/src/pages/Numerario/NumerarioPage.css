@@ -1,0 +1,90 @@
+.fincom-num-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fincom-num-total {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--success, #22c55e);
+}
+
+.fincom-num-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fincom-num-item {
+  border: 1px solid var(--bg-elevated, #2a2a3e);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.fincom-num-item__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-base, #16161e);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.fincom-num-item__header:hover {
+  background: var(--bg-surface, #1e1e2e);
+}
+
+.fincom-num-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.fincom-num-avatar--principal {
+  background: #16a34a22;
+  color: #22c55e;
+}
+
+.fincom-num-avatar--complementar {
+  background: #6c6cff22;
+  color: #6c6cff;
+}
+
+.fincom-num-item__desc {
+  flex: 1;
+  color: var(--text-primary, #e0e0f0);
+  font-size: 0.875rem;
+}
+
+.fincom-num-item__data {
+  color: var(--text-secondary, #a0a0b8);
+  font-size: 0.8125rem;
+}
+
+.fincom-num-item__valor {
+  font-weight: 600;
+  font-family: monospace;
+  color: var(--text-primary, #e0e0f0);
+}
+
+.fincom-num-item__acoes {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.fincom-num-despesas {
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface, #1e1e2e);
+  border-top: 1px solid var(--bg-elevated, #2a2a3e);
+}
+
+.fincom-btn--danger { color: var(--danger, #f43f5e) !important; }

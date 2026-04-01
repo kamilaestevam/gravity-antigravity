@@ -4,7 +4,8 @@
     "bid-frete",
     "bid-cambio",
     "pedido",
-    "nf-importacao"
+    "nf-importacao",
+    "financeiro-comex"
   ],
   "services": {
     "dashboard": {
@@ -82,6 +83,10 @@
     "nf-importacao": {
       "baseUrl": "http://localhost:8028",
       "pathPrefix": "/api/v1/nf-importacao"
+    },
+    "financeiro-comex": {
+      "baseUrl": "http://localhost:8029",
+      "pathPrefix": "/api/v1/financeiro"
     }
   }
 }

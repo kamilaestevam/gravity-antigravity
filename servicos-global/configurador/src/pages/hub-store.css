@@ -527,6 +527,246 @@
   opacity: 0.5;
 }
 
+/* ── COMBINA COM — dentro dos cards ─────────────────────────────────────── */
+.gs-card__combina {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.gs-card__combina-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sw-text-3);
+}
+
+.gs-card__combina-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.gs-combina-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  color: var(--sw-text-3);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.gs-combina-chip--owned {
+  background: rgba(16,185,129,0.08);
+  border-color: rgba(16,185,129,0.2);
+  color: #34d399 !important;
+}
+
+/* ── STACK VISUALIZER — Monte o seu Gravity ─────────────────────────────── */
+.gs-stack {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.gs-stack__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.gs-stack__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--sw-text-1);
+  margin: 0 0 0.25rem;
+}
+
+.gs-stack__sub {
+  font-size: 0.8125rem;
+  color: var(--sw-text-2);
+  margin: 0;
+}
+
+.gs-stack__meter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.gs-stack__meter-bar {
+  display: flex;
+  gap: 3px;
+}
+
+.gs-stack__seg {
+  width: 18px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.07);
+  transition: background 0.4s, box-shadow 0.4s;
+}
+
+.gs-stack__seg--on {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16,185,129,0.6);
+}
+
+.gs-stack__meter-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--sw-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Fila de peças — overflow-x:auto no wrapper, overflow:visible nas peças */
+.gs-stack__pieces-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+  padding: 8px 4px 16px;
+}
+
+.gs-stack__pieces-scroll::-webkit-scrollbar { display: none; }
+
+.gs-stack__pieces {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  /* largura mínima para que as peças caibam sem comprimir */
+  min-width: min-content;
+}
+
+.gs-stack__hint {
+  font-size: 0.8rem;
+  color: var(--sw-text-3);
+  margin: 1rem 0 0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── PUZZLE PIECE — SVG shape real ──────────────────────────────────────── */
+
+/* Container da peça: 138px wide para incluir a aba (tab) que estende 18px */
+.gs-piece {
+  position: relative;
+  width: 138px;
+  height: 90px;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Peças com cavidade à esquerda ficam sobrepostas 18px sobre a aba anterior */
+.gs-piece--has-blank {
+  margin-left: -18px;
+}
+
+.gs-piece:hover {
+  transform: translateY(-5px);
+}
+
+/* SVG de fundo — fornece o shape da peça */
+.gs-piece__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: filter 0.2s;
+  pointer-events: none;
+}
+
+.gs-piece:hover .gs-piece__svg {
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+}
+
+.gs-piece--on .gs-piece__svg {
+  filter: drop-shadow(0 0 10px var(--piece-color, #818cf8));
+}
+
+.gs-piece--on:hover .gs-piece__svg {
+  filter: drop-shadow(0 0 14px var(--piece-color, #818cf8)) drop-shadow(0 6px 16px rgba(0,0,0,0.4));
+}
+
+/* Conteúdo da peça — fica sobre o SVG */
+.gs-piece__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px; /* corpo sem a aba */
+  height: 90px;
+  gap: 0.4rem;
+  padding: 8px 8px 8px 8px;
+}
+
+/* Peças com cavidade: recuam o conteúdo para não cair dentro da cavidade */
+.gs-piece__body--indent {
+  padding-left: 18px;
+}
+
+.gs-piece__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  transition: transform 0.2s;
+}
+
+.gs-piece--on .gs-piece__icon {
+  background: rgba(255,255,255,0.12);
+}
+
+.gs-piece:hover .gs-piece__icon {
+  transform: scale(1.1);
+}
+
+.gs-piece__name {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-align: center;
+  max-width: 72px;
+}
+
+.gs-piece--on .gs-piece__name {
+  color: rgba(255,255,255,0.9);
+}
+
+.gs-piece__check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .gs-stack__head { flex-direction: column; }
+  .gs-stack__pieces { padding-bottom: 0.75rem; }
+}
+
 /* ── HIGHLIGHT VINDO DO ?produto= ───────────────────────────────────────── */
 .hs-store-card--highlight {
   border-color: rgba(99,102,241,0.8) !important;

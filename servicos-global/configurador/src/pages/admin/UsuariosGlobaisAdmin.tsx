@@ -21,6 +21,7 @@ import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
 import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
 import { adminUsersApi, type GlobalUserApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
+import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 
 // ─── Tipos globais ─────────────────────────────────────────────────────────────
 // Documentação central em src/types/niveis-acesso.ts
@@ -47,11 +48,12 @@ interface GlobalUser {
 
 function mapRole(role: string): NivelAcesso {
   switch (role) {
-    case 'GRAVITY_ADMIN': return 'Super Admin'
-    case 'MASTER': return 'Master'
-    case 'STANDARD': return 'Standard'
-    case 'SUPPLIER': return 'Fornecedor'
-    default: return 'Standard'
+    case 'SUPER_ADMIN': return 'Super Admin'
+    case 'ADMIN':       return 'Admin'
+    case 'MASTER':      return 'Master'
+    case 'STANDARD':    return 'Standard'
+    case 'SUPPLIER':    return 'Fornecedor'
+    default:            return 'Standard'
   }
 }
 
@@ -99,9 +101,9 @@ const OPCOES_TIPO_ADMIN: SelectOpcao[] = [
 
 export function UsuariosGlobaisAdmin() {
   const { t } = useTranslation()
-  // Mock do usuário logado — No futuro, recuperar de um AuthContext
   const addNotification = useShellStore((s) => s.addNotification)
-  const [perfilLogado] = useState<NivelAcesso>('Super Admin')
+  const { role: dbRole } = useLoadSystemRole()
+  const perfilLogado: NivelAcesso = mapRole(dbRole ?? '')
 
   const [users, setUsers] = useState<GlobalUser[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -141,24 +143,55 @@ export function UsuariosGlobaisAdmin() {
   // Filtro de opções com base no perfil logado
   const opcoesDisponiveis = useMemo(() => {
     if (perfilLogado === 'Super Admin') return OPCOES_TIPO_ADMIN
-    // Admin não pode criar Super Admin
-    return OPCOES_TIPO_ADMIN.filter(op => op.valor !== 'Super Admin')
+    // Admin não pode criar Super Admin ou outro Admin
+    return OPCOES_TIPO_ADMIN.filter(op => op.valor !== 'Super Admin' && op.valor !== 'Admin')
   }, [perfilLogado])
 
-  function handleInvite() {
-    if (!fNome.trim() || !fEmail.trim()) return
-    const newUser: GlobalUser = {
-      id: String(Date.now()),
-      nome: fNome.trim(),
-      email: fEmail.trim(),
-      tipo: fTipo,
-      status: 'Ativo',
-      organizacao: fOrg,
-      espacos: [{ id: String(Date.now() + 1), nome: fOrg + ' Principal', subdominio: fOrg.toLowerCase().replace(/\s/g, ''), perfil: fTipo }]
+  // Admin e Super Admin pertencem à Gravity (org fixa) — os demais precisam de workspace
+  const isGravityRole = fTipo === 'Admin' || fTipo === 'Super Admin'
+
+  // Quando o tipo muda, ajusta o fOrg automaticamente
+  useEffect(() => {
+    if (isGravityRole) {
+      setFOrg('Gravity')
+    } else {
+      // Volta para o primeiro workspace que não seja "Gravity"
+      const firstWorkspace = ORGS.find(o => o !== 'Gravity') ?? ORGS[0] ?? ''
+      setFOrg(firstWorkspace)
     }
-    setUsers(prev => [...prev, newUser])
-    addNotification({ type: 'success', message: t('admin.users.msg_usuario_adicionado', { nome: fNome.trim() }) })
-    setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
+  }, [fTipo]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Mapa NivelAcesso → role do backend
+  const NIVEL_TO_ROLE: Record<NivelAcesso, string> = {
+    'Super Admin': 'SUPER_ADMIN',
+    'Admin':       'ADMIN',
+    'Master':      'MASTER',
+    'Standard':    'STANDARD',
+    'Fornecedor':  'SUPPLIER',
+  }
+
+  async function handleInvite() {
+    if (!fNome.trim() || !fEmail.trim()) return
+    try {
+      const result = await adminUsersApi.inviteUser({
+        email: fEmail.trim(),
+        name:  fNome.trim(),
+        role:  NIVEL_TO_ROLE[fTipo],
+      })
+      setUsers(prev => [...prev, {
+        id:          result.user.id,
+        nome:        fNome.trim(),
+        email:       fEmail.trim(),
+        tipo:        fTipo,
+        status:      'Ativo',
+        organizacao: fOrg,
+        espacos:     [],
+      }])
+      addNotification({ type: 'success', message: t('admin.users.msg_usuario_adicionado', { nome: fNome.trim() }) })
+      setFNome(''); setFEmail(''); setFTipo('Standard'); setFOrg(ORGS[0] ?? ''); setShowForm(false)
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.users.msg_erro_convidar') })
+    }
   }
 
   function handleToggleStatus(u: GlobalUser) {
@@ -298,7 +331,7 @@ export function UsuariosGlobaisAdmin() {
       )
     },
     {
-      key: 'id' as any, label: 'Usuários', align: 'center', tipo: 'texto',
+      key: 'id' as any, label: t('admin.users.children.usuarios'), align: 'center', tipo: 'texto',
       render: () => <span style={{ fontWeight: 600, fontSize: '0.8125rem' }}>12</span>
     }
   ]
@@ -307,16 +340,16 @@ export function UsuariosGlobaisAdmin() {
     {
       id: 'permissions',
       icone: <Key size={15} weight="bold" />,
-      tooltip: 'Permissões do Usuário',
+      tooltip: t('admin.users.acao_permissoes'),
       onClick: setUsuarioPermissoes,
     },
     {
       id: 'suspend',
       icone: <PauseCircle size={16} weight="bold" />,
-      tooltip: 'Desativar/Reativar',
+      tooltip: t('admin.users.acao_toggle_status'),
       onClick: handleToggleStatus,
       renderCustom: (item) => (
-        <TooltipGlobal descricao={item.status === 'Ativo' ? 'Suspender o acesso deste usuário' : 'Reativar o acesso deste usuário'}>
+        <TooltipGlobal descricao={item.status === 'Ativo' ? t('admin.users.acao_suspender') : t('admin.users.acao_reativar')}>
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleStatus(item) }}
@@ -332,7 +365,7 @@ export function UsuariosGlobaisAdmin() {
     {
       id: 'edit',
       icone: <PencilSimple size={15} weight="bold" />,
-      tooltip: 'Editar',
+      tooltip: t('admin.users.acao_editar'),
       onClick: (u) => { setUsuarioEditando(u); setAbaEditando('dados') },
     },
   ]
@@ -387,10 +420,10 @@ export function UsuariosGlobaisAdmin() {
             ] as PeriodoTendencia[]}
             tooltip={
               <>
-                <p className="cg-tooltip__title">Total na Plataforma</p>
-                <div className="cg-tooltip__row"><span>Total global</span><strong>{totalUsers}</strong></div>
-                <div className="cg-tooltip__row"><span>Ativos</span><strong style={{ color: '#34d399' }}>{ativos}</strong></div>
-                <div className="cg-tooltip__row"><span>Inativos</span><strong style={{ color: '#f87171' }}>{inativos}</strong></div>
+                <p className="cg-tooltip__title">{t('admin.users.card_total_tooltip_titulo')}</p>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_total_tooltip_total')}</span><strong>{totalUsers}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_total_tooltip_ativos')}</span><strong style={{ color: '#34d399' }}>{ativos}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_total_tooltip_inativos')}</span><strong style={{ color: '#f87171' }}>{inativos}</strong></div>
               </>
             }
           />
@@ -407,8 +440,8 @@ export function UsuariosGlobaisAdmin() {
             ] as PeriodoTendencia[]}
             tooltip={
               <>
-                <p className="cg-tooltip__title">Acessos Ativos</p>
-                <div className="cg-tooltip__row"><span>Usuários ativos</span><strong style={{ color: '#34d399' }}>{ativos}</strong></div>
+                <p className="cg-tooltip__title">{t('admin.users.card_ativos_tooltip_titulo')}</p>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_ativos_tooltip_label')}</span><strong style={{ color: '#34d399' }}>{ativos}</strong></div>
               </>
             }
           />
@@ -425,8 +458,8 @@ export function UsuariosGlobaisAdmin() {
             ] as PeriodoTendencia[]}
             tooltip={
               <>
-                <p className="cg-tooltip__title">Acessos Inativos</p>
-                <div className="cg-tooltip__row"><span>Usuários inativos</span><strong style={{ color: '#f87171' }}>{inativos}</strong></div>
+                <p className="cg-tooltip__title">{t('admin.users.card_inativos_tooltip_titulo')}</p>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_inativos_tooltip_label')}</span><strong style={{ color: '#f87171' }}>{inativos}</strong></div>
               </>
             }
           />
@@ -438,16 +471,16 @@ export function UsuariosGlobaisAdmin() {
             valorPrincipal={orgsAtivas}
             corGauge="#8b5cf6"
             legenda={[
-              { label: 'Com usuários', valor: orgsAtivas,           cor: '#8b5cf6' },
-              { label: 'Sem usuários', valor: ORGS.length - orgsAtivas, cor: '#64748b' },
+              { label: t('admin.users.card_orgs_com_usuarios'), valor: orgsAtivas,           cor: '#8b5cf6' },
+              { label: t('admin.users.card_orgs_sem_usuarios'), valor: ORGS.length - orgsAtivas, cor: '#64748b' },
             ]}
             tooltip={
               <>
-                <p className="cg-tooltip__title">Distribuição por Org</p>
-                <div className="cg-tooltip__row"><span>Total de orgs</span><strong>{ORGS.length}</strong></div>
-                <div className="cg-tooltip__row"><span>Com usuários</span><strong style={{ color: '#8b5cf6' }}>{orgsAtivas}</strong></div>
+                <p className="cg-tooltip__title">{t('admin.users.card_orgs_tooltip_titulo')}</p>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_orgs_tooltip_total')}</span><strong>{ORGS.length}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_orgs_com_usuarios')}</span><strong style={{ color: '#8b5cf6' }}>{orgsAtivas}</strong></div>
                 <div className="cg-tooltip__divider" />
-                <div className="cg-tooltip__row"><span>Total usuários</span><strong>{totalUsers}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.users.card_orgs_tooltip_total_usuarios')}</span><strong>{totalUsers}</strong></div>
               </>
             }
           />
@@ -476,21 +509,21 @@ export function UsuariosGlobaisAdmin() {
            colunas={COLUNAS}
            acoes={ACOES}
            acoesExportacao={ACOES_EXPORT}
-           mensagemVazio="Nenhum usuário encontrado na busca..."
-           tooltipBusca="Localizar usuário global por nome ou e-mail"
-           tooltipExpandir="Ver espaços de trabalho vinculados a este usuário"
-           tooltipRecolher="Recolher detalhes de espaços de trabalho"
+           mensagemVazio={t('admin.users.tabela_vazio')}
+           tooltipBusca={t('admin.users.tabela_busca_tooltip')}
+           tooltipExpandir={t('admin.users.tabela_expandir_tooltip')}
+           tooltipRecolher={t('admin.users.tabela_recolher_tooltip')}
            idKey="id"
            renderExpandido={(user) => (
              <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
                <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                 <TreeStructure size={14} /> Espaços de Trabalho ({user.espacos?.length || 0})
+                 <TreeStructure size={14} /> {t('admin.users.espacos_trabalho')} ({user.espacos?.length || 0})
                </div>
                <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
                  <TabelaGlobal<GlobalUserSpace>
                    dados={user.espacos || []}
                    colunas={COLUNAS_FILHAS}
-                   mensagemVazio="Este usuário não possui workspaces vinculados."
+                   mensagemVazio={t('admin.users.espacos_vazio')}
                  />
                </div>
              </div>
@@ -543,7 +576,7 @@ export function UsuariosGlobaisAdmin() {
               <User size={16} />
               <input
                 value={fNome}
-                placeholder="Ex: Ana Paula"
+                placeholder={t('admin.users.form_nome_placeholder')}
                 onChange={e => setFNome(e.target.value)}
                 style={{ width: '100%' }}
               />
@@ -561,7 +594,7 @@ export function UsuariosGlobaisAdmin() {
               <input
                 type="email"
                 value={fEmail}
-                placeholder="usuario@empresa.com"
+                placeholder={t('admin.users.form_email_placeholder')}
                 onChange={e => setFEmail(e.target.value)}
                 style={{ width: '100%' }}
               />
@@ -575,7 +608,7 @@ export function UsuariosGlobaisAdmin() {
               aoMudarValor={(v) => setFTipo(v as NivelAcesso)}
               iconeEsquerda={<ShieldCheck size={18} weight="duotone" />}
               buscavel={false}
-              placeholder="Selecione o perfil corporativo..."
+              placeholder={t('admin.users.form_tipo_placeholder')}
               renderizarOpcao={(op) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{ 
@@ -594,14 +627,37 @@ export function UsuariosGlobaisAdmin() {
             />
           </GeralCampoGlobal>
 
-          <GeralCampoGlobal label={t('admin.users.tabela.organizacao')}>
-            <SelectGlobal
-              opcoes={ORGS.map(o => ({ valor: o, rotulo: o }))}
-              valor={fOrg}
-              aoMudarValor={(v) => setFOrg(v as string)}
-              iconeEsquerda={<Buildings size={18} weight="duotone" />}
-              placeholder="Selecionar organização de destino..."
-            />
+          <GeralCampoGlobal
+            label={t('admin.users.tabela.organizacao')}
+            tooltipTitulo={isGravityRole ? 'Organização Gravity' : t('admin.users.tabela.org_tooltip')}
+            tooltipDescricao={isGravityRole
+              ? 'Admin e Super Admin pertencem à plataforma Gravity e não a um workspace de cliente.'
+              : t('admin.users.tabela.org_desc')}
+          >
+            {isGravityRole ? (
+              // Org fixa — Admin/Super Admin sempre pertencem à Gravity
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.55rem 0.875rem', borderRadius: '0.5rem',
+                background: 'rgba(16,185,129,0.06)',
+                border: '1px solid rgba(16,185,129,0.25)',
+                color: '#10b981', fontSize: '0.875rem', fontWeight: 600,
+              }}>
+                <Buildings size={16} weight="duotone" />
+                Gravity
+                <span style={{ marginLeft: 'auto', fontSize: '0.7rem', opacity: 0.6, fontWeight: 400 }}>
+                  fixo para Admin / Super Admin
+                </span>
+              </div>
+            ) : (
+              <SelectGlobal
+                opcoes={ORGS.filter(o => o !== 'Gravity').map(o => ({ valor: o, rotulo: o }))}
+                valor={fOrg}
+                aoMudarValor={(v) => setFOrg(v as string)}
+                iconeEsquerda={<Buildings size={18} weight="duotone" />}
+                placeholder={t('admin.users.form_org_placeholder')}
+              />
+            )}
           </GeralCampoGlobal>
         </div>
       </ModalFormularioGlobal>

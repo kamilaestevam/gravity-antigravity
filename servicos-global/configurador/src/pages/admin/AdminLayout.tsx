@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom'
 import { useUser, useClerk } from '@clerk/clerk-react'
+import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
@@ -35,10 +36,11 @@ export function AdminLayout() {
   const navigate = useNavigate()
   const { user } = useUser()
 
-  // Defesa em profundidade: bloqueia rendering se o role não for gravity_admin,
-  // mesmo que o roteador (AdminRoute) já tenha feito essa verificação
-  const role = user?.publicMetadata?.role as string | undefined
-  if (user && role !== 'gravity_admin') {
+  // Defesa em profundidade: bloqueia rendering se não for admin Gravity,
+  // mesmo que o roteador (AdminRoute) já tenha feito essa verificação.
+  // Role lido do banco — não depende de Clerk publicMetadata.
+  const { isGravityAdmin, isReady } = useLoadSystemRole()
+  if (isReady && !isGravityAdmin) {
     return <Navigate to="/hub" replace />
   }
 
@@ -189,7 +191,7 @@ export function AdminLayout() {
             userRole="Admin" 
             isLight={isLight}
             onToggleTheme={toggleTheme}
-            onNavigateOrganizacao={() => navigate('/admin/visao-geral')}
+            onNavigateWorkspace={() => navigate('/admin/visao-geral')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
             isAdmin={true}

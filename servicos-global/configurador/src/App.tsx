@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
+import { useLoadSystemRole } from './hooks/useLoadSystemRole'
 import { AuthPage } from './pages/AuthPage'
 
 // Lazy-load — Gabi é pesado e não é crítico para o primeiro render
@@ -158,18 +159,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-/** Wrapper para rotas exclusivas de gravity_admin — rejeita qualquer outro role */
+/** Wrapper para rotas exclusivas de administradores Gravity (SUPER_ADMIN ou ADMIN).
+ *  Role lido do banco via /api/v1/me — não depende de Clerk publicMetadata. */
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth()
-  const { user } = useUser()
+  const { isReady, isGravityAdmin } = useLoadSystemRole()
 
   if (!isLoaded) return null
   if (!isSignedIn) return <Navigate to="/sign-in" replace />
+  if (!isReady) return null  // aguarda resultado do banco
 
-  const role = user?.publicMetadata?.role as string | undefined
-  if (role !== 'gravity_admin') {
-    return <Navigate to="/hub" replace />
-  }
+  if (!isGravityAdmin) return <Navigate to="/hub" replace />
 
   return <>{children}</>
 }

@@ -25,6 +25,7 @@ import {
 import './hub-store.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
+import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 
 const API_URL = '/api/v1'
 
@@ -51,7 +52,7 @@ export function Hub() {
   const { getToken } = useAuth()
   const { user } = useUser()
   const navigate = useNavigate()
-  const isAdmin = user?.publicMetadata?.role === 'gravity_admin'
+  const { isGravityAdmin: isAdmin } = useLoadSystemRole()
   const menuRef = useRef<HTMLDivElement>(null)
 
   // companyId vem da URL ou do sessionStorage (salvo na seleção do workspace)
@@ -124,7 +125,7 @@ export function Hub() {
           }
         }
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar produtos do workspace.' })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })
       } finally {
         setLoading(false)
       }
@@ -140,9 +141,9 @@ export function Hub() {
   const initials = companyName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
 
   const upsellProducts = [
-    { id: 'bid-frete', name: 'BID Frete Internacional', icon: <Plugs weight="duotone" size={18} color="var(--color-success)" />, desc: 'Licitação inteligente de fretes com fornecedores' },
-    { id: 'conector-erp', name: 'Conector ERP', icon: <Plugs weight="duotone" size={18} color="var(--color-primary)" />, desc: 'Sincronização com Omie, TOTVS, SAP' },
-    { id: 'helpdesk', name: 'Helpdesk Premium', icon: <Headset weight="duotone" size={18} color="var(--color-text-muted)" />, desc: 'Tickets e SLA para seus clientes' },
+    { id: 'bid-frete', name: t('hub.upsell_frete_nome'), icon: <Plugs weight="duotone" size={28} color="var(--color-success)" />, desc: t('hub.upsell_frete_desc') },
+    { id: 'conector-erp', name: t('hub.upsell_erp_nome'), icon: <Plugs weight="duotone" size={28} color="var(--color-primary)" />, desc: t('hub.upsell_erp_desc') },
+    { id: 'helpdesk', name: t('hub.upsell_helpdesk_nome'), icon: <Headset weight="duotone" size={28} color="var(--color-text-muted)" />, desc: t('hub.upsell_helpdesk_desc') },
   ]
 
   return (
@@ -158,9 +159,9 @@ export function Hub() {
           </div>
           <div>
             <h1 className="hs-gradient-text-subtle">
-              Bem-vindo ao Gravity.
+              {t('hub.titulo')}
             </h1>
-            <p>Gerencie sua operação e expanda módulos no seu workspace.</p>
+            <p>{t('hub.subtitulo')}</p>
           </div>
         </div>
 
@@ -175,7 +176,7 @@ export function Hub() {
               <div className="hs-tenant-avatar">{initials}</div>
               <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <span className="hs-badge-title">{companyName}</span>
-                <span className="hs-badge-sub">Workspace Principal</span>
+                <span className="hs-badge-sub">{t('hub.workspace_principal')}</span>
               </div>
               <CaretDown
                 weight="bold"
@@ -188,14 +189,14 @@ export function Hub() {
             {showWorkspaceMenu && (
               <div className="hs-glass-menu" style={{ animation: 'fadeUp 0.2s cubic-bezier(0.16,1,0.3,1) forwards' }}>
                 <div className="hs-menu-header">
-                  <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', fontWeight: 700 }}>Alternar / Configurar</span>
+                  <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', fontWeight: 700 }}>{t('hub.menu_alternar')}</span>
                 </div>
                 {[
-                  { label: 'Gerenciar Workspace', icon: <Gear weight="duotone" size={16} />, path: '/workspace' },
-                  { label: 'Workspaces', icon: <Buildings weight="duotone" size={16} />, path: '/workspace/workspaces' },
-                  { label: 'Usuários', icon: <Users weight="duotone" size={16} />, path: '/workspace/usuarios' },
-                  { label: 'Gravity Store', icon: <ShoppingBagOpen weight="duotone" size={16} />, path: '/store' },
-                  { label: 'Trocar Workspace', icon: <Buildings weight="duotone" size={16} />, path: '/hub' },
+                  { label: t('hub.menu_gerenciar_workspace'), icon: <Gear weight="duotone" size={16} />, path: '/workspace' },
+                  { label: t('hub.menu_workspaces'), icon: <Buildings weight="duotone" size={16} />, path: '/workspace/workspaces' },
+                  { label: t('hub.menu_usuarios'), icon: <Users weight="duotone" size={16} />, path: '/workspace/usuarios' },
+                  { label: t('hub.menu_gravity_store'), icon: <ShoppingBagOpen weight="duotone" size={16} />, path: '/store' },
+                  { label: t('hub.menu_trocar_workspace'), icon: <Buildings weight="duotone" size={16} />, path: '/hub' },
                 ].map((item, idx) => (
                   <button
                     key={item.path}
@@ -217,7 +218,7 @@ export function Hub() {
                       onClick={() => { navigate('/admin'); setShowWorkspaceMenu(false) }}
                     >
                       <span className="hs-menu-icon"><ShieldCheck weight="duotone" size={16} color="#818cf8" /></span>
-                      Painel Admin
+                      {t('hub.menu_painel_admin')}
                     </button>
                   </>
                 )}
@@ -229,10 +230,10 @@ export function Hub() {
             className="hs-glass-btn-danger"
             type="button"
             onClick={() => signOut(() => navigate('/'))}
-            title="Encerrar sessão"
+            title={t('hub.btn_sair_titulo')}
           >
             <SignOut weight="bold" size={16} />
-            Sair
+            {t('hub.btn_sair')}
           </button>
         </div>
       </header>
@@ -242,26 +243,26 @@ export function Hub() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <h2 className="hs-section-title" style={{ margin: 0, fontSize: '0.8125rem' }}>
             <Package weight="bold" size={16} color="var(--color-text-muted)" />
-            Seus Módulos Ativos
+            {t('hub.modulos_ativos')}
           </h2>
           <BotaoGlobal variante="fantasma" tamanho="pequeno" onClick={() => navigate('/store')}>
-            <ShoppingBagOpen weight="bold" /> Ir para a Store
+            <ShoppingBagOpen weight="bold" /> {t('hub.ir_para_store')}
           </BotaoGlobal>
         </div>
 
         {loading ? (
           <div className="hs-loading-container">
             <SpinnerGap size={40} className="hs-spin" color="var(--color-primary)" />
-            <p>Carregando ecossistema...</p>
+            <p>{t('hub.carregando')}</p>
           </div>
         ) : products.length === 0 ? (
           <>
             {/* Onboarding Steps */}
             <div className="hs-onboard-steps">
               {[
-                { icon: <Gear weight="duotone" size={22} />, label: 'Configure', desc: 'Personalize seu workspace', path: '/workspace', color: '#818cf8' },
-                { icon: <ShoppingBagOpen weight="duotone" size={22} />, label: 'Ative Módulos', desc: 'Explore o catálogo Gravity', path: '/store', color: '#a78bfa' },
-                { icon: <Users weight="duotone" size={22} />, label: 'Convide', desc: 'Adicione sua equipe', path: '/workspace/usuarios', color: '#6ee7b7' },
+                { icon: <Gear weight="duotone" size={22} />, label: t('hub.onboard_configure_label'), desc: t('hub.onboard_configure_desc'), path: '/workspace', color: '#818cf8' },
+                { icon: <ShoppingBagOpen weight="duotone" size={22} />, label: t('hub.onboard_ative_label'), desc: t('hub.onboard_ative_desc'), path: '/store', color: '#a78bfa' },
+                { icon: <Users weight="duotone" size={22} />, label: t('hub.onboard_convide_label'), desc: t('hub.onboard_convide_desc'), path: '/workspace/usuarios', color: '#6ee7b7' },
               ].map((step, idx) => (
                 <button
                   key={step.path}
@@ -287,11 +288,11 @@ export function Hub() {
               <div className="hs-empty-icon-wrap">
                 <Rocket weight="duotone" size={48} />
               </div>
-              <h3>Pronto para decolar</h3>
-              <p>Seu workspace <strong>{companyName}</strong> está configurado. Ative seu primeiro módulo na Store e comece a operar.</p>
+              <h3>{t('hub.empty_titulo')}</h3>
+              <p>{t('hub.empty_desc', { nome: companyName })}</p>
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
                 <BotaoGlobal variante="primario" onClick={() => navigate('/store')}>
-                  <ShoppingBagOpen weight="fill" size={18} /> Explorar Catálogo
+                  <ShoppingBagOpen weight="fill" size={18} /> {t('hub.explorar_catalogo')}
                 </BotaoGlobal>
               </div>
             </div>
@@ -305,23 +306,23 @@ export function Hub() {
                 <div className="hs-gabi-avatar">
                   <Sparkle weight="fill" size={14} color="#fff" />
                 </div>
-                <span className="hs-gabi-title">GABI AI &bull; INSIGHT</span>
+                <span className="hs-gabi-title">{t('hub.gabi_header')}</span>
               </div>
               <p className="hs-gabi-text">
-                Identificamos que 40% das suas simulações recentes para NCM 8471 poderiam economizar até 12% em ICMS se o desembaraço fosse feito via Santa Catarina.
+                {t('hub.gabi_texto')}
               </p>
               <div className="hs-gabi-footer">
                 <button className="hs-gabi-btn" type="button">
-                  Ver Detalhes <CaretRight size={12} />
+                  {t('hub.ver_detalhes')} <CaretRight size={12} />
                 </button>
               </div>
             </div>
 
             {/* Recommended Products */}
             <div className="hs-fade-up hs-fade-up-d3" style={{ marginTop: '3rem' }}>
-              <h2 className="hs-section-title" style={{ fontSize: '0.8125rem' }}>
-                <Lightning weight="fill" size={16} color="#f59e0b" />
-                Recomendados para você
+              <h2 className="hs-section-title" style={{ margin: 0, fontSize: '0.8125rem' }}>
+                <Lightning weight="bold" size={16} color="#f59e0b" />
+                {t('hub.recomendados')}
               </h2>
               <div className="hs-upsell-grid">
                 {upsellProducts.map(up => (
@@ -333,14 +334,14 @@ export function Hub() {
                     onMouseLeave={() => setHoveredUpsell(null)}
                   >
                     <div className="hs-upsell-header">
-                      <div className="hs-upsell-icon">{up.icon}</div>
+                      <div className="hs-icon-box-glass">{up.icon}</div>
                       <div className="hs-upsell-info">
                         <strong>{up.name}</strong>
                         <span>{up.desc}</span>
                       </div>
                     </div>
                     <div className={`hs-upsell-cta ${hoveredUpsell === up.id ? 'hs-upsell-cta-visible' : ''}`}>
-                      <span>Ver na Store</span>
+                      <span>{t('hub.ver_na_store')}</span>
                       <ArrowUpRight weight="bold" size={12} />
                     </div>
                   </div>
@@ -366,18 +367,18 @@ export function Hub() {
                       <Package weight="duotone" size={28} color="#818cf8" />
                     </div>
                     <span className="hs-badge hs-badge-success-glass">
-                      <div className="hs-pulse-dot"></div> Ativo
+                      <div className="hs-pulse-dot"></div> {t('hub.produto_ativo')}
                     </span>
                   </div>
                   
                   <div className="hs-product-card-info">
-                    <span className="hs-product-type">Módulo de Plataforma</span>
+                    <span className="hs-product-type">{t('hub.produto_modulo')}</span>
                     <h3>{p.catalog?.name || p.product_key}</h3>
-                    <p>{p.catalog?.description || 'Acesse o dashboard principal deste produto para visualizar dados detalhados.'}</p>
+                    <p>{p.catalog?.description || t('hub.produto_desc_fallback')}</p>
                   </div>
 
                   <div className="hs-product-card-footer">
-                    <span>Acessar Dashboard</span>
+                    <span>{t('hub.produto_acessar')}</span>
                     <div className="hs-product-arrow">
                       <ArrowUpRight weight="bold" size={14} />
                     </div>

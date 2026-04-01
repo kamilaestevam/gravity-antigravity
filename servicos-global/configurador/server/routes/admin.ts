@@ -16,6 +16,7 @@ import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
+import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 
 export const adminRouter = Router()
@@ -473,6 +474,66 @@ adminRouter.post('/users/:userId/promote', async (req, res, next) => {
     )
 
     res.json({ user: updated })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/admin/users/invite
+ * Convida um usuário com role de plataforma (SUPER_ADMIN, ADMIN, MASTER, STANDARD, SUPPLIER).
+ * Apenas SUPER_ADMIN pode convidar SUPER_ADMIN ou ADMIN.
+ * ADMIN pode convidar MASTER, STANDARD e SUPPLIER.
+ */
+const AdminInviteSchema = z.object({
+  email: z.string().email().max(255),
+  name:  z.string().min(1).max(200),
+  role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'STANDARD', 'SUPPLIER']),
+})
+
+adminRouter.post('/users/invite', async (req, res, next) => {
+  try {
+    const parsed = AdminInviteSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const { email, name, role } = parsed.data
+
+    // ADMIN não pode criar SUPER_ADMIN ou outro ADMIN
+    if (req.auth.role === 'ADMIN' && (role === 'SUPER_ADMIN' || role === 'ADMIN')) {
+      throw new AppError('ADMIN não pode convidar usuários com role SUPER_ADMIN ou ADMIN', 403, 'FORBIDDEN')
+    }
+
+    // Verifica se já existe usuário com esse e-mail
+    const existing = await prisma.user.findFirst({ where: { email } })
+    if (existing) {
+      throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
+    }
+
+    // Cria convite via Clerk
+    const invitation = await clerkClient.invitations.createInvitation({
+      emailAddress: email,
+      publicMetadata: { role, invitedBy: req.auth.clerkUserId, isAdminInvite: true },
+    })
+
+    // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
+    const user = await prisma.user.create({
+      data: {
+        tenant_id:     req.auth.tenantId,
+        clerk_user_id: `pending_${invitation.id}`,
+        email,
+        name,
+        role,
+      },
+    })
+
+    console.log(`[admin] Convite enviado para ${email} (${role}) por ${req.auth.userId}`)
+
+    res.status(201).json({
+      message: 'Convite enviado com sucesso',
+      user: { id: user.id, email: user.email, role: user.role },
+    })
   } catch (err) {
     next(err)
   }

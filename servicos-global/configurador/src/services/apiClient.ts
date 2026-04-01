@@ -270,6 +270,20 @@ export const adminUsersApi = {
       `/admin/users${qs ? `?${qs}` : ''}`
     )
   },
+
+  async promoteUser(userId: string, role: 'SUPER_ADMIN' | 'ADMIN') {
+    return request<{ user: { id: string; email: string; role: string } }>(
+      `/admin/users/${userId}/promote`,
+      { method: 'POST', body: JSON.stringify({ role }) }
+    )
+  },
+
+  async inviteUser(data: { email: string; name: string; role: string }) {
+    return request<{ user: { id: string; email: string; role: string } }>(
+      '/admin/users/invite',
+      { method: 'POST', body: JSON.stringify(data) }
+    )
+  },
 }
 
 // ─── Admin: Billing / Faturas ───────────────────────────────────────────────

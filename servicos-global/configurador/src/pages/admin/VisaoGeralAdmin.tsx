@@ -7,6 +7,7 @@ import {
   Package,
   CalendarBlank,
   RocketLaunch,
+  Globe,
 } from '@phosphor-icons/react'
 import { useTranslation } from 'react-i18next'
 import { useUser } from '@clerk/clerk-react'

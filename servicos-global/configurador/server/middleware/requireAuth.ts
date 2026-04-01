@@ -58,10 +58,39 @@ export async function requireAuth(
       return
     }
 
-    const user = await prisma.user.findFirst({
+    let user = await prisma.user.findFirst({
       where: { clerk_user_id: verified.sub },
       select: { id: true, tenant_id: true, role: true },
     })
+
+    // Fallback: se não encontrou pelo clerk_user_id, tenta por email.
+    // Isso acontece quando a conta foi criada no DB sem o clerk_user_id correto
+    // (ex: seed manual, migração). Ao achar por email, auto-vincula o clerk_user_id.
+    if (!user) {
+      try {
+        const clerkUser = await clerkClient.users.getUser(verified.sub)
+        const primaryEmail = clerkUser.emailAddresses.find(e => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
+          ?? clerkUser.emailAddresses[0]?.emailAddress
+
+        if (primaryEmail) {
+          const byEmail = await prisma.user.findFirst({
+            where: { email: primaryEmail },
+            select: { id: true, tenant_id: true, role: true },
+          })
+          if (byEmail) {
+            // Auto-vincula para que as próximas chamadas usem o caminho rápido
+            await prisma.user.update({
+              where: { id: byEmail.id },
+              data: { clerk_user_id: verified.sub },
+            })
+            user = byEmail
+            console.log(`[requireAuth] clerk_user_id auto-vinculado para ${primaryEmail} (${verified.sub})`)
+          }
+        }
+      } catch {
+        // Falha ao consultar Clerk — continua sem o fallback
+      }
+    }
 
     if (!user) {
       throw new AppError('Usuário não encontrado no sistema', 401, 'UNAUTHORIZED')

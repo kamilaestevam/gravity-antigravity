@@ -1,35 +1,35 @@
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useAuth, useClerk, useUser } from '@clerk/clerk-react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Package,
   CheckCircle,
-  RocketLaunch,
-  LockSimple,
-  Calculator,
-  FileMagnifyingGlass,
   SpinnerGap,
   ArrowRight,
-  ShoppingBagOpen,
-  Sparkle,
   Info,
-  ChartBar,
-  ChatCircleText,
-  Plugs,
-  Headset,
+  MagnifyingGlass,
+  Truck,
+  CurrencyDollar,
+  FileMagnifyingGlass,
+  FileText,
+  ShoppingBag,
+  Eye,
+  Receipt,
+  Lightning,
+  Star,
+  RocketLaunch,
+  Sparkle,
+  ArrowDown,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import '../pages/workspace/workspace.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
-import { type ProductApi } from '../services/apiClient'
 
 const API_URL = '/api/v1'
 
@@ -45,93 +45,125 @@ interface CatalogProduct {
   backend_module: string | null
 }
 
-// Mapa de ícones por slug para renderização dinâmica
-const ICON_MAP: Record<string, React.ReactNode> = {
-  'simula-custo': <Calculator weight="duotone" size={28} color="var(--color-primary)" />,
-  'smart-read': <FileMagnifyingGlass weight="duotone" size={28} color="var(--color-warning)" />,
-  'bid-frete': <Package weight="duotone" size={28} color="var(--color-success)" />,
-  'dashboard': <ChartBar weight="duotone" size={28} color="var(--color-primary)" />,
-  'whatsapp': <ChatCircleText weight="duotone" size={28} color="var(--color-success)" />,
-  'conector-erp': <Plugs weight="duotone" size={28} color="var(--color-primary)" />,
-  'gabi': <Sparkle weight="duotone" size={28} color="var(--color-warning)" />,
-  'helpdesk': <Headset weight="duotone" size={28} color="var(--color-text-muted)" />,
-}
-
-// Mapa de categorias por slug
-const CATEGORY_MAP: Record<string, string> = {
-  'simula-custo': 'Comércio Exterior',
-  'smart-read': 'Inteligência Documental',
-  'bid-frete': 'Logística',
-  'dashboard': 'Analytics',
-  'whatsapp': 'Atendimento',
-  'conector-erp': 'Integração',
-  'gabi': 'Machine Learning',
-  'helpdesk': 'Atendimento',
-}
-
-const BILLING_TYPE_LABELS: Record<string, string> = {
-  MONTHLY: '/mês',
-  PER_PROCESS: '/processo',
-  PER_DOCUMENT: '/documento',
-  PER_ESTIMATE: '/estimativa',
-  PER_DI_DUIMP: '/DI',
-  PER_DUE: '/DUE',
-  PER_PRODUCT: '/produto',
-  PER_FLOW: '/fluxo',
-  PER_LPCO: '/LPCO',
-}
-
-function formatPrice(value: string, currency: string): string {
-  const num = parseFloat(value)
-  if (isNaN(num)) return `${currency} 0,00`
-  const symbol = currency === 'BRL' ? 'R$' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency
-  return `${symbol} ${num.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
-}
-
-interface StoreProduct {
-  id: string
-  name: string
-  slug: string
-  category: string
-  icon: React.ReactNode
-  price: string
-  period: string
-  desc: string
-  status: 'owned' | 'trial' | 'available'
-}
-
-function apiToStoreProduct(p: ProductApi): StoreProduct {
-  return {
-    id: p.slug,
-    name: p.name,
-    slug: p.slug,
-    category: CATEGORY_MAP[p.slug] ?? 'Produto',
-    icon: ICON_MAP[p.slug] ?? <Package weight="duotone" size={28} color="var(--color-primary)" />,
-    price: formatPrice(p.unit_price, p.unit_currency),
-    period: BILLING_TYPE_LABELS[p.billing_type] ?? '/mês',
-    desc: p.description,
-    status: 'available',
-  }
-}
-
-
 interface SubscribedProduct {
   product_key: string
   is_active: boolean
 }
 
+// Metadados visuais e categóricos por slug (complementam API)
+const PRODUCT_META: Record<string, {
+  iconBg: string
+  iconColor: string
+  icon: React.ReactNode
+  category: string
+  categoryFilter: string
+  tags: string[]
+  users: number
+  featured?: boolean
+}> = {
+  'bid-frete': {
+    iconBg: 'rgba(16, 185, 129, 0.15)',
+    iconColor: '#10b981',
+    icon: <Truck weight="duotone" size={28} color="#10b981" />,
+    category: 'LOGÍSTICA • COTAÇÃO',
+    categoryFilter: 'Frete',
+    tags: ['Multi-carrier', 'Tempo real', 'Relatórios', 'API integrada'],
+    users: 240,
+    featured: true,
+  },
+  'bid-cambio': {
+    iconBg: 'rgba(16, 185, 129, 0.15)',
+    iconColor: '#10b981',
+    icon: <CurrencyDollar weight="duotone" size={28} color="#10b981" />,
+    category: 'FINANCEIRO • CÂMBIO',
+    categoryFilter: 'Câmbio',
+    tags: ['Banco Central', 'Multi-moeda', 'Histórico'],
+    users: 185,
+  },
+  'nf-importacao': {
+    iconBg: 'rgba(99, 102, 241, 0.15)',
+    iconColor: '#818cf8',
+    icon: <FileText weight="duotone" size={28} color="#818cf8" />,
+    category: 'FISCAL • DOCUMENTOS',
+    categoryFilter: 'Importação',
+    tags: ['SEFAZ integrada', 'Cálculo NCM', 'XML/PDF'],
+    users: 310,
+  },
+  'lpco': {
+    iconBg: 'rgba(99, 102, 241, 0.15)',
+    iconColor: '#818cf8',
+    icon: <Receipt weight="duotone" size={28} color="#818cf8" />,
+    category: 'FISCAL • LICENÇAS',
+    categoryFilter: 'Importação',
+    tags: ['SISCOMEX', 'Saldo automático', 'Rastreio'],
+    users: 98,
+  },
+  'pedido': {
+    iconBg: 'rgba(245, 158, 11, 0.15)',
+    iconColor: '#f59e0b',
+    icon: <ShoppingBag weight="duotone" size={28} color="#f59e0b" />,
+    category: 'COMERCIAL • PEDIDOS',
+    categoryFilter: 'Comercial',
+    tags: ['Fluxo de aprovação', 'Rastreamento', 'Integração ERP'],
+    users: 92,
+  },
+  'simula-custo': {
+    iconBg: 'rgba(99, 102, 241, 0.15)',
+    iconColor: '#818cf8',
+    icon: <FileMagnifyingGlass weight="duotone" size={28} color="#818cf8" />,
+    category: 'COMEX • SIMULAÇÃO',
+    categoryFilter: 'Importação',
+    tags: ['NCM automático', 'Impostos', 'Comparativo'],
+    users: 154,
+  },
+  'smart-read': {
+    iconBg: 'rgba(139, 92, 246, 0.15)',
+    iconColor: '#a78bfa',
+    icon: <Eye weight="duotone" size={28} color="#a78bfa" />,
+    category: 'IA • EXTRAÇÃO DE DADOS',
+    categoryFilter: 'Importação',
+    tags: ['OCR com IA', 'Invoice', 'Aduaneiro'],
+    users: 0,
+  },
+}
+
+// Produtos "Em Breve" estáticos (não chegam via API)
+const COMING_SOON = [
+  {
+    id: 'cs-smart-read',
+    slug: 'smart-read',
+    name: 'Smart Read',
+    description: 'Extração inteligente de dados de documentos e imagens usando IA. Processa faturas, invoices e documentos aduaneiros automaticamente.',
+    category: 'IA • EXTRAÇÃO DE DADOS',
+    categoryFilter: 'Importação',
+    tags: ['OCR com IA', 'Invoice', 'Aduaneiro'],
+    iconBg: 'rgba(139, 92, 246, 0.15)',
+    icon: <Eye weight="duotone" size={28} color="#a78bfa" />,
+  },
+  {
+    id: 'cs-nf-pro',
+    slug: 'nf-importacao-pro',
+    name: 'NF Import Pro',
+    description: 'Versão avançada do NF Import com suporte a regimes especiais, drawback, e integração com sistemas aduaneiros SISCOMEX.',
+    category: 'FISCAL • AVANÇADO',
+    categoryFilter: 'Importação',
+    tags: ['SISCOMEX', 'Drawback', 'Regime especial'],
+    iconBg: 'rgba(239, 68, 68, 0.15)',
+    icon: <Package weight="duotone" size={28} color="#f87171" />,
+    isPro: true,
+  },
+]
+
 export function Store() {
-  const { t } = useTranslation()
   const { getToken } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const canBuy = true // Qualquer usuário logado pode contratar. Master pode restringir via permissões.
 
   const { user } = useUser()
   const { signOut } = useClerk()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
   const isLight = currentTheme === 'light'
-  
+
   const userName = user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
@@ -140,6 +172,8 @@ export function Store() {
   const [subscribed, setSubscribed] = useState<Map<string, SubscribedProduct>>(new Map())
   const [loading, setLoading] = useState(true)
   const [subscribing, setSubscribing] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+  const [activeFilter, setActiveFilter] = useState('Todos')
 
   // Carrega catálogo e produtos contratados
   useEffect(() => {
@@ -164,7 +198,7 @@ export function Store() {
           setSubscribed(map)
         }
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar catálogo de produtos.' })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar catálogo.' })
       } finally {
         setLoading(false)
       }
@@ -172,37 +206,37 @@ export function Store() {
     load()
   }, [])
 
+  // Scroll para produto específico quando navegado via ?produto=slug
+  useEffect(() => {
+    const slug = searchParams.get('produto')
+    if (!slug || loading) return
+    const el = document.getElementById(`produto-${slug}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.classList.add('gs-card--highlight')
+      setTimeout(() => el.classList.remove('gs-card--highlight'), 2500)
+    }
+  }, [loading, searchParams])
+
   const handleSubscribe = async (slug: string) => {
     setSubscribing(slug)
     try {
       const token = await getToken()
-
-      // 1. Contrata no tenant
       const res = await fetch(`${API_URL}/tenants/products/subscribe`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ product_key: slug }),
       })
 
       if (res.ok) {
-        // 2. Auto-habilita na company atual (se selecionada)
         const companyId = sessionStorage.getItem('gravity_company_id')
         if (companyId) {
           await fetch(`${API_URL}/companies/${companyId}/products`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ product_key: slug }),
-          }).catch((e) => {
-            console.warn('[Store] Falha ao auto-habilitar produto na company:', e)
-          })
+          }).catch(() => {})
         }
-
         setSubscribed(prev => {
           const next = new Map(prev)
           next.set(slug, { product_key: slug, is_active: true })
@@ -214,50 +248,55 @@ export function Store() {
         addNotification({ type: 'error', message: body?.error?.message ?? 'Falha ao contratar produto.' })
       }
     } catch (err) {
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao contratar produto. Tente novamente.' })
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao contratar produto.' })
     } finally {
       setSubscribing(null)
     }
   }
 
-  // Scroll para produto específico quando navegado via ?produto=slug
-  useEffect(() => {
-    const slug = searchParams.get('produto')
-    if (!slug || loading) return
-    const el = document.getElementById(`produto-${slug}`)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      el.classList.add('hs-store-card--highlight')
-      setTimeout(() => el.classList.remove('hs-store-card--highlight'), 2000)
-    }
-  }, [loading, searchParams])
+  const getStatus = (slug: string): 'owned' | 'available' =>
+    subscribed.get(slug)?.is_active ? 'owned' : 'available'
 
-  const getStatus = (slug: string): 'owned' | 'available' => {
-    const sub = subscribed.get(slug)
-    return sub?.is_active ? 'owned' : 'available'
-  }
+  // Stats derivados
+  const ownedCount = useMemo(() => catalog.filter(p => getStatus(p.slug) === 'owned').length, [catalog, subscribed])
+  const totalCount = catalog.length + COMING_SOON.length
 
-  const formatPrice = (price: number | string, currency: string) => {
-    const num = Number(price)
-    if (!num) return 'Sob consulta'
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(num)
-  }
+  // Filtros disponíveis (dinâmico + fixos)
+  const categoryFilters = useMemo(() => {
+    const cats = new Set(catalog.map(p => PRODUCT_META[p.slug]?.categoryFilter).filter(Boolean))
+    return ['Todos', 'Disponíveis', 'Em Breve', ...Array.from(cats)]
+  }, [catalog])
+
+  // Produtos filtrados
+  const filteredCatalog = useMemo(() => {
+    return catalog.filter(p => {
+      const meta = PRODUCT_META[p.slug]
+      const matchesSearch = !search ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.description ?? '').toLowerCase().includes(search.toLowerCase())
+      const matchesFilter =
+        activeFilter === 'Todos' ||
+        activeFilter === 'Disponíveis' ||
+        meta?.categoryFilter === activeFilter
+      return matchesSearch && matchesFilter
+    })
+  }, [catalog, search, activeFilter])
+
+  const showComingSoon = activeFilter === 'Todos' || activeFilter === 'Em Breve'
 
   if (loading) {
     return (
-      <div className="hs-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <SpinnerGap size={32} className="hs-spin" color="var(--color-primary)" />
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--color-bg)' }}>
+        <SpinnerGap size={36} className="hs-spin" color="var(--color-primary)" />
       </div>
     )
   }
 
   return (
     <div className="ws-shell" style={{ display: 'block', overflowY: 'auto' }}>
-      {/* ── Global Actions (Floating over content) ── */}
+      {/* ── Global Actions (barra superior fixa) ── */}
       <div className="ws-global-actions" style={{ position: 'fixed' }}>
-        <LocalizarExpandidoCampoGlobal 
-          onBuscarNavigate={() => {}} 
-        />
+        <LocalizarExpandidoCampoGlobal onBuscarNavigate={() => {}} />
 
         <TooltipGlobal
           titulo="Dicas e Explicações"
@@ -306,225 +345,243 @@ export function Store() {
         />
       </div>
 
-      <PaginaGlobal
-        className="ws-fade-up"
-        layout="lista"
-        cabecalho={
-          <CabecalhoGlobal
-            icone={<RocketLaunch size={24} weight="duotone" color="#6366f1" />}
-            titulo="Gravity Ecosystem"
-            subtitulo="Expanda sua Operação. Descubra módulos inteligentes projetados para escalar seu negócio com eficiência e dados centralizados."
-          />
-        }
-      >
-        <div style={{ paddingTop: '1rem' }}>
-          <div className="hs-fade-up hs-fade-up-d1">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h2 className="hs-section-title" style={{ margin: 0 }}>
-            <ShoppingBagOpen weight="duotone" size={18} color="var(--color-primary)" />
-            Módulos Disponíveis ({catalog.length})
-          </h2>
-          
-          <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-primary)' }} />
-              Premium Access
-            </div>
-          </div>
-        </div>
+      <PaginaGlobal className="ws-fade-up" layout="lista" cabecalho={<></>}>
+        <div className="gs-store">
 
-        {catalog.length === 0 ? (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '4rem', 
-            background: 'var(--color-surface)', 
-            borderRadius: '16px',
-            border: '1px dashed var(--color-border)'
-          }}>
-            <Package weight="duotone" size={48} style={{ marginBottom: '1rem', opacity: 0.3 }} />
-            <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem' }}>
-              Nenhum produto disponível no catálogo no momento.
+          {/* ── HERO ─────────────────────────────────────────────── */}
+          <div className="gs-hero">
+            <div className="gs-hero__glow" />
+            <span className="gs-pill">
+              <span className="gs-pill__dot" />
+              Gravity Ecosystem
+            </span>
+            <h1 className="gs-hero__title">
+              Expanda sua <span className="gs-hero__gradient">Operação</span>
+            </h1>
+            <p className="gs-hero__sub">
+              Descubra módulos inteligentes projetados para escalar seu negócio com<br />
+              eficiência e dados centralizados.
             </p>
           </div>
-        ) : (
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', 
-            gap: '1.5rem' 
-          }}>
-            {catalog.map((p, idx) => {
+
+          {/* ── STATS ────────────────────────────────────────────── */}
+          <div className="gs-stats">
+            <div className="gs-stat">
+              <div className="gs-stat__icon" style={{ background: 'rgba(99,102,241,0.12)', color: '#818cf8' }}>
+                <Package weight="duotone" size={20} />
+              </div>
+              <div>
+                <div className="gs-stat__n">{totalCount}</div>
+                <div className="gs-stat__l">Módulos disponíveis</div>
+              </div>
+            </div>
+            <div className="gs-stat">
+              <div className="gs-stat__icon" style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981' }}>
+                <CheckCircle weight="duotone" size={20} />
+              </div>
+              <div>
+                <div className="gs-stat__n">{ownedCount}</div>
+                <div className="gs-stat__l">Prontos para ativar</div>
+              </div>
+            </div>
+            <div className="gs-stat">
+              <div className="gs-stat__icon" style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b' }}>
+                <Lightning weight="duotone" size={20} />
+              </div>
+              <div>
+                <div className="gs-stat__n">{COMING_SOON.length}</div>
+                <div className="gs-stat__l">Em breve</div>
+              </div>
+            </div>
+            <div className="gs-stat gs-stat--premium">
+              <div className="gs-stat__icon" style={{ background: 'rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
+                <Star weight="duotone" size={20} />
+              </div>
+              <div>
+                <div className="gs-stat__n" style={{ color: '#a5b4fc' }}>Premium</div>
+                <div className="gs-stat__l">Todos os módulos incluídos</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── FILTROS ──────────────────────────────────────────── */}
+          <div className="gs-toolbar">
+            <div className="gs-search">
+              <MagnifyingGlass size={16} weight="bold" />
+              <input
+                className="gs-search__input"
+                type="text"
+                placeholder="Buscar módulo..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="gs-filters">
+              {categoryFilters.map(f => (
+                <button
+                  key={f}
+                  className={`gs-filter-tab${activeFilter === f ? ' gs-filter-tab--active' : ''}`}
+                  type="button"
+                  onClick={() => setActiveFilter(f)}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
+            <div className="gs-toolbar__count">
+              {filteredCatalog.length + (showComingSoon ? COMING_SOON.length : 0)} módulos
+            </div>
+          </div>
+
+          {/* ── LABEL SEÇÃO ──────────────────────────────────────── */}
+          <div className="gs-section-label">
+            <span>Módulos Disponíveis ({filteredCatalog.length + (showComingSoon ? COMING_SOON.length : 0)})</span>
+          </div>
+
+          {/* ── GRID DE CARDS ────────────────────────────────────── */}
+          <div className="gs-grid">
+
+            {/* Produtos ativos do catálogo */}
+            {filteredCatalog.map((p, idx) => {
+              const meta = PRODUCT_META[p.slug]
               const status = getStatus(p.slug)
+              const isOwned = status === 'owned'
               const isSubscribing = subscribing === p.slug
-              const delayClass = idx < 4 ? `hs-fade-up-d${idx + 1}` : ''
+              const delayClass = idx < 6 ? `hs-fade-up-d${Math.min(idx + 1, 4)}` : ''
 
               return (
                 <div
                   key={p.id}
                   id={`produto-${p.slug}`}
-                  className={`hs-store-card hs-fade-up ${delayClass}`}
-                  onClick={status === 'owned' ? () => navigate(`/produto/${p.slug}`) : undefined}
-                  style={status === 'owned' ? { cursor: 'pointer' } : undefined}
+                  className={`gs-card hs-fade-up ${delayClass}${isOwned ? ' gs-card--owned' : ''}`}
+                  onClick={isOwned ? () => navigate(`/produto/${p.slug}`) : undefined}
+                  style={isOwned ? { cursor: 'pointer' } : undefined}
                 >
-                  <div className="hs-store-card__body">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div className="hs-icon-box">
-                        <Package weight="duotone" size={28} color="var(--color-primary)" />
-                      </div>
-                      {status === 'owned' ? (
-                        <span className="hs-badge hs-badge-success">
-                          <CheckCircle weight="fill" size={14} /> Ativo
+                  {/* Header do card */}
+                  <div className="gs-card__top">
+                    <div className="gs-card__icon" style={{ background: meta?.iconBg ?? 'rgba(99,102,241,0.12)' }}>
+                      {meta?.icon ?? <Package weight="duotone" size={28} color="#818cf8" />}
+                    </div>
+                    <div className="gs-card__badges">
+                      {isOwned ? (
+                        <span className="gs-badge gs-badge--owned">
+                          <CheckCircle weight="fill" size={11} /> Ativo
                         </span>
                       ) : (
-                        <div title="Módulo disponível para contratação">
-                          <Sparkle weight="duotone" size={18} color="var(--color-warning)" />
-                        </div>
+                        <span className="gs-badge gs-badge--available">
+                          <span className="gs-badge__dot" /> Disponível
+                        </span>
                       )}
-                    </div>
-
-                    <div>
-                      <span style={{ 
-                        fontSize: '0.6875rem', 
-                        fontWeight: 700, 
-                        textTransform: 'uppercase', 
-                        letterSpacing: '0.08em', 
-                        color: 'var(--color-primary)',
-                        display: 'block',
-                        marginBottom: '0.25rem'
-                      }}>
-                        {p.type_billing || 'Subscription'}
-                      </span>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>
-                        {p.name}
-                      </h3>
-                      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.6 }}>
-                        {p.description || 'Impulsione sua produtividade com este módulo especializado da Gravity.'}
-                      </p>
-                    </div>
-
-                    <div className="hs-price">
-                      {formatPrice(p.unit_price, p.currency)} <span>/mês</span>
+                      {meta?.featured && (
+                        <span className="gs-badge gs-badge--featured">Destaque</span>
+                      )}
                     </div>
                   </div>
 
-                  <div className="hs-store-card__footer">
-                    {status === 'owned' ? (
+                  {/* Corpo */}
+                  <div className="gs-card__body">
+                    <h3 className="gs-card__name">{p.name}</h3>
+                    {meta?.category && (
+                      <span className="gs-card__category" style={{ color: meta.iconColor }}>
+                        {meta.category}
+                      </span>
+                    )}
+                    <p className="gs-card__desc">
+                      {p.description ?? 'Módulo especializado da plataforma Gravity.'}
+                    </p>
+                    {meta?.tags && (
+                      <div className="gs-card__tags">
+                        {meta.tags.map(t => (
+                          <span key={t} className="gs-tag">{t}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="gs-card__footer">
+                    {meta?.users ? (
+                      <span className="gs-card__users">+{meta.users} usando</span>
+                    ) : <span />}
+                    {isOwned ? (
                       <BotaoGlobal
                         variante="primario"
-                        blocoCompleto
-                        centralizado
+                        tamanho="pequeno"
                         onClick={(e) => { e.stopPropagation(); navigate(`/produto/${p.slug}`) }}
                       >
-                        Acessar Dashboard
+                        Acessar
                       </BotaoGlobal>
                     ) : (
                       <BotaoGlobal
                         variante="primario"
-                        disabled={!canBuy || isSubscribing}
-                        blocoCompleto
-                        centralizado
+                        tamanho="pequeno"
+                        disabled={isSubscribing}
                         onClick={(e) => { e.stopPropagation(); handleSubscribe(p.slug) }}
                       >
-                        {isSubscribing ? (
-                          <>
-                            <SpinnerGap size={16} className="hs-spin" /> Contratando...
-                          </>
-                        ) : (
-                          <>
-                            Contratar Agora <ArrowRight weight="bold" size={16} />
-                          </>
-                        )}
+                        {isSubscribing
+                          ? <><SpinnerGap size={14} className="hs-spin" /> Contratando...</>
+                          : <>Ativar Módulo <ArrowRight weight="bold" size={13} /></>
+                        }
                       </BotaoGlobal>
                     )}
                   </div>
                 </div>
               )
             })}
-            
-            {/* Mock Products: Em Breve */}
-            {[
-              {
-                id: 'mock-1',
-                name: 'Smart Read',
-                description: 'Plataforma de automação (IDP) e IA para extração e validação inteligente de documentos de Comércio Exterior.',
-                type_billing: 'Subscription'
-              },
-              {
-                id: 'mock-2',
-                name: 'BID Frete Internacional',
-                description: 'Centralize cotações marítimas e aéreas, comparando agentes de carga em tempo real.',
-                type_billing: 'Transactional'
-              },
-              {
-                id: 'mock-3',
-                name: 'BID Câmbio',
-                description: 'Otimize transações de fechamento ao competir taxas entre corretoras e bancos em uma única interface.',
-                type_billing: 'Transactional'
-              }
-            ].map((p, idx) => {
-              const delayClass = `hs-fade-up-d${Math.min(catalog.length + idx + 1, 4)}`
 
-              return (
-                <div key={p.id} className={`hs-store-card hs-fade-up ${delayClass}`} style={{ cursor: 'not-allowed', opacity: 0.7 }}>
-                  <div className="hs-store-card__body">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div className="hs-icon-box" style={{ filter: 'grayscale(1)', opacity: 0.5 }}>
-                        <Package weight="duotone" size={28} color="var(--color-text-muted)" />
-                      </div>
-                      <div title="Lançamento previsto para os próximos meses">
-                        <span className="hs-badge" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' }}>
-                          Em Breve
-                        </span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <span style={{ 
-                        fontSize: '0.6875rem', 
-                        fontWeight: 700, 
-                        textTransform: 'uppercase', 
-                        letterSpacing: '0.08em', 
-                        color: 'var(--color-text-muted)',
-                        display: 'block',
-                        marginBottom: '0.25rem'
-                      }}>
-                        {p.type_billing}
-                      </span>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
-                        {p.name}
-                      </h3>
-                      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.6 }}>
-                        {p.description}
-                      </p>
-                    </div>
-
-                    <div className="hs-price" style={{ fontSize: '1.25rem', color: 'var(--color-text-muted)' }}>
-                      Em breve
-                    </div>
+            {/* Produtos "Em Breve" */}
+            {showComingSoon && COMING_SOON.map((p, idx) => (
+              <div
+                key={p.id}
+                id={`produto-${p.slug}`}
+                className={`gs-card gs-card--soon hs-fade-up hs-fade-up-d${Math.min(filteredCatalog.length + idx + 1, 4)}`}
+              >
+                <div className="gs-card__top">
+                  <div className="gs-card__icon" style={{ background: p.iconBg }}>
+                    {p.icon}
                   </div>
+                  <div className="gs-card__badges">
+                    <span className="gs-badge gs-badge--soon">
+                      <Lightning weight="fill" size={11} /> Em breve
+                    </span>
+                    {p.isPro && (
+                      <span className="gs-badge gs-badge--pro">Pro</span>
+                    )}
+                  </div>
+                </div>
 
-                  <div className="hs-store-card__footer" style={{ borderTopColor: 'rgba(255,255,255,0.02)' }}>
-                    <BotaoGlobal
-                      variante="fantasma"
-                      disabled
-                      blocoCompleto
-                      centralizado
-                      onClick={() => {}}
-                    >
-                      Aguarde o Lançamento
+                <div className="gs-card__body">
+                  <h3 className="gs-card__name" style={{ color: 'var(--color-text-muted)' }}>{p.name}</h3>
+                  <span className="gs-card__category" style={{ color: 'var(--color-text-muted)', opacity: 0.6 }}>
+                    {p.category}
+                  </span>
+                  <p className="gs-card__desc">{p.description}</p>
+                  <div className="gs-card__tags">
+                    {p.tags.map(t => (
+                      <span key={t} className="gs-tag gs-tag--muted">{t}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="gs-card__footer">
+                  <span className="gs-card__users" style={{ opacity: 0.5 }}>Em desenvolvimento</span>
+                  <div className="gs-card__footer-btn-wrap">
+                    <BotaoGlobal variante="fantasma" tamanho="pequeno" disabled onClick={() => {}}>
+                      Em breve
                     </BotaoGlobal>
                   </div>
                 </div>
-              )
-            })}
+              </div>
+            ))}
+
           </div>
-        )}
-      </div>
-      
-      <div className="hs-fade-up hs-fade-up-d3" style={{ marginTop: '4rem', textAlign: 'center', opacity: 0.5, paddingBottom: '2rem' }}>
-        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-          © {new Date().getFullYear()} Gravity Platform · Todos os módulos incluem suporte priorizado.
-        </p>
-      </div>
+
+          {/* ── FOOTER ───────────────────────────────────────────── */}
+          <div className="gs-footer">
+            <ArrowDown size={20} color="var(--color-text-muted)" />
+            <span>© {new Date().getFullYear()} Gravity Platform · Todos os módulos incluem suporte priorizado.</span>
+          </div>
+
         </div>
       </PaginaGlobal>
 

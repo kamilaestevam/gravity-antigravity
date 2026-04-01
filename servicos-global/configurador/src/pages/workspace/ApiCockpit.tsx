@@ -82,29 +82,46 @@ export function ApiCockpit() {
   }, [])
 
   const colunasServicos: TabelaGlobalColuna<ApiService>[] = [
-    { key: 'name', label: t('admin.cockpit.tabela.servico'), tipo: 'texto' },
-    { key: 'type', label: t('admin.cockpit.tabela.tipo'), tipo: 'texto', render: (val) => <span style={{ textTransform: 'capitalize' }}>{val as string}</span> },
-    { key: 'status', label: t('admin.cockpit.tabela.status'), tipo: 'texto', render: (val) => (
+    { key: 'name', label: t('admin.cockpit.tabela.servico'), tipo: 'texto',
+      tooltipTitulo: 'Serviço', tooltipDescricao: 'Nome do serviço ou integração monitorada pela plataforma' },
+    { key: 'type', label: t('admin.cockpit.tabela.tipo'), tipo: 'texto',
+      tooltipTitulo: 'Tipo', tooltipDescricao: 'Categoria do serviço: interno, externo ou webhook',
+      render: (val) => <span style={{ textTransform: 'capitalize' }}>{val as string}</span> },
+    { key: 'status', label: t('admin.cockpit.tabela.status'), tipo: 'texto',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o serviço está respondendo normalmente',
+      render: (val) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: val === 'online' ? '#10b981' : '#f59e0b' }}>
         {val === 'online' ? <CheckCircle size={16} weight="fill" /> : <WarningCircle size={16} weight="fill" />}
         {(val as string).toUpperCase()}
       </div>
     )},
-    { key: 'latency', label: t('admin.cockpit.tabela.latencia'), tipo: 'texto' },
-    { key: 'version', label: t('admin.cockpit.tabela.versao'), tipo: 'texto' },
-    { key: 'lastCheck', label: t('admin.cockpit.tabela.ultimo_check'), tipo: 'texto' },
+    { key: 'latency', label: t('admin.cockpit.tabela.latencia'), tipo: 'texto',
+      tooltipTitulo: 'Latência', tooltipDescricao: 'Tempo médio de resposta do serviço na última verificação' },
+    { key: 'version', label: t('admin.cockpit.tabela.versao'), tipo: 'texto',
+      tooltipTitulo: 'Versão', tooltipDescricao: 'Versão da API ou serviço atualmente em execução' },
+    { key: 'lastCheck', label: t('admin.cockpit.tabela.ultimo_check'), tipo: 'texto',
+      tooltipTitulo: 'Último Check', tooltipDescricao: 'Data e hora da última verificação de disponibilidade' },
   ]
 
   const colunasLogs: TabelaGlobalColuna<ApiLog>[] = [
-    { key: 'timestamp', label: t('admin.cockpit.tabela.data_hora'), tipo: 'texto' },
-    { key: 'method', label: t('admin.cockpit.tabela.metodo'), tipo: 'texto', render: (val) => <strong style={{ color: 'var(--brand-primary)' }}>{val as string}</strong> },
-    { key: 'path', label: t('admin.cockpit.tabela.endpoint'), tipo: 'texto' },
-    { key: 'statusCode', label: t('admin.cockpit.tabela.status'), tipo: 'texto', render: (val) => (
+    { key: 'timestamp', label: t('admin.cockpit.tabela.data_hora'), tipo: 'texto',
+      tooltipTitulo: 'Data e Hora', tooltipDescricao: 'Momento exato em que a requisição foi registrada' },
+    { key: 'method', label: t('admin.cockpit.tabela.metodo'), tipo: 'texto',
+      tooltipTitulo: 'Método', tooltipDescricao: 'Verbo HTTP da requisição: GET, POST, PUT ou DELETE',
+      render: (val) => <strong style={{ color: 'var(--brand-primary)' }}>{val as string}</strong> },
+    { key: 'path', label: t('admin.cockpit.tabela.endpoint'), tipo: 'texto',
+      tooltipTitulo: 'Endpoint', tooltipDescricao: 'Rota da API que recebeu a requisição' },
+    { key: 'statusCode', label: t('admin.cockpit.tabela.status'), tipo: 'texto',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Código de resposta HTTP — abaixo de 400 indica sucesso',
+      render: (val) => (
       <span style={{ color: (val as number) < 400 ? '#10b981' : '#ef4444' }}>{val as number}</span>
     )},
-    { key: 'organizacao', label: t('admin.cockpit.tabela.organizacao'), tipo: 'texto' },
-    { key: 'produto', label: t('admin.cockpit.tabela.produto'), tipo: 'texto' },
-    { key: 'duracao', label: t('admin.cockpit.tabela.duracao'), tipo: 'texto' },
+    { key: 'organizacao', label: t('admin.cockpit.tabela.organizacao'), tipo: 'texto',
+      tooltipTitulo: 'Organização', tooltipDescricao: 'Empresa que originou esta requisição à API' },
+    { key: 'produto', label: t('admin.cockpit.tabela.produto'), tipo: 'texto',
+      tooltipTitulo: 'Produto', tooltipDescricao: 'Módulo ou produto que realizou a chamada' },
+    { key: 'duracao', label: t('admin.cockpit.tabela.duracao'), tipo: 'texto',
+      tooltipTitulo: 'Duração', tooltipDescricao: 'Tempo total de processamento da requisição em milissegundos' },
   ]
 
   return (

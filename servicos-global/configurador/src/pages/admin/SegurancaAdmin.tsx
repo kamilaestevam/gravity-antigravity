@@ -10,6 +10,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { StatCardGlobal } from '@nucleo/card-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 
 // ─── Tipos (espelhados do backend) ────────────────────────────────────────
 
@@ -175,10 +176,12 @@ export function SegurancaAdmin() {
   const colunasEventos: TabelaGlobalColuna<SecurityEvent>[] = [
     {
       key: 'created_at', label: t('admin.security.tabela.horario'), width: '140px',
+      tooltipTitulo: 'Horário', tooltipDescricao: 'Data e hora em que o evento de segurança foi registrado',
       render: (row) => new Date(row.created_at).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit' }),
     },
     {
       key: 'severity', label: t('admin.security.tabela.severidade'), width: '100px',
+      tooltipTitulo: 'Severidade', tooltipDescricao: 'Nível de criticidade do evento: info, warning ou critical',
       render: (row) => (
         <span style={{ ...getSeveridadeStyle(row.severity), padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
           {row.severity}
@@ -187,22 +190,30 @@ export function SegurancaAdmin() {
     },
     {
       key: 'status', label: t('admin.security.tabela.status'), width: '90px',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o evento foi resolvido ou ainda está aberto',
       render: (row) => (
         <span style={{ ...getStatusStyle(row.status), padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600 }}>
           {row.status}
         </span>
       ),
     },
-    { key: 'action', label: t('admin.security.tabela.tipo'), width: '200px' },
-    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), width: '120px' },
-    { key: 'actor_id', label: t('admin.security.tabela.ator'), width: '110px' },
-    { key: 'description', label: t('admin.security.tabela.descricao'), render: (row) => <span title={row.description || ''}>{(row.description || '').slice(0, 80)}</span> },
-    { key: 'ip', label: t('admin.security.tabela.ip'), width: '120px' },
+    { key: 'action', label: t('admin.security.tabela.tipo'), width: '200px',
+      tooltipTitulo: 'Tipo', tooltipDescricao: 'Classificação do evento: login, acesso negado, rate limit, etc' },
+    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), width: '120px',
+      tooltipTitulo: 'Tenant', tooltipDescricao: 'Empresa associada a este evento de segurança' },
+    { key: 'actor_id', label: t('admin.security.tabela.ator'), width: '110px',
+      tooltipTitulo: 'Ator', tooltipDescricao: 'Usuário ou serviço que originou o evento' },
+    { key: 'description', label: t('admin.security.tabela.descricao'),
+      tooltipTitulo: 'Descrição', tooltipDescricao: 'Detalhes do evento registrado pelo sistema',
+      render: (row) => <span title={row.description || ''}>{(row.description || '').slice(0, 80)}</span> },
+    { key: 'ip', label: t('admin.security.tabela.ip'), width: '120px',
+      tooltipTitulo: 'IP', tooltipDescricao: 'Endereço de rede de onde partiu a requisição' },
   ]
 
   const colunasHealth: TabelaGlobalColuna<ServiceHealthEntry>[] = [
     {
       key: 'service', label: t('admin.security.tabela.servico'), width: '180px',
+      tooltipTitulo: 'Serviço', tooltipDescricao: 'Nome do serviço interno monitorado pela plataforma',
       render: (row) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           {getCamadaIcon(row.status)} {row.service}
@@ -211,21 +222,31 @@ export function SegurancaAdmin() {
     },
     {
       key: 'status', label: t('admin.security.tabela.status'), width: '100px',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Condição atual do serviço: online, degradado ou offline',
       render: (row) => <span style={{ color: statusColor(row.status), fontWeight: 700 }}>{row.status}</span>,
     },
     {
       key: 'latency_ms', label: t('admin.security.tabela.latencia'), width: '100px',
+      tooltipTitulo: 'Latência', tooltipDescricao: 'Tempo de resposta do serviço em milissegundos',
       render: (row) => <span style={{ color: row.latency_ms > 2000 ? '#fbbf24' : '#34d399' }}>{row.latency_ms}ms</span>,
     },
-    { key: 'error', label: t('admin.security.tabela.erro'), render: (row) => row.error || '-' },
+    { key: 'error', label: t('admin.security.tabela.erro'),
+      tooltipTitulo: 'Erro', tooltipDescricao: 'Mensagem de erro registrada na última verificação',
+      render: (row) => row.error || '-' },
   ]
 
   const colunasRateLimit: TabelaGlobalColuna<RateLimitEntry>[] = [
-    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), width: '140px', render: (row) => row.tenant_id || 'anonymous' },
-    { key: 'ip', label: t('admin.security.tabela.ip'), width: '130px', render: (row) => row.ip || '-' },
-    { key: 'endpoint', label: 'Endpoint' },
+    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), width: '140px',
+      tooltipTitulo: 'Tenant', tooltipDescricao: 'Empresa que atingiu o limite de requisições',
+      render: (row) => row.tenant_id || 'anonymous' },
+    { key: 'ip', label: t('admin.security.tabela.ip'), width: '130px',
+      tooltipTitulo: 'IP', tooltipDescricao: 'Endereço de rede de onde as requisições partiram',
+      render: (row) => row.ip || '-' },
+    { key: 'endpoint', label: 'Endpoint',
+      tooltipTitulo: 'Endpoint', tooltipDescricao: 'Rota que recebeu o volume excessivo de chamadas' },
     {
       key: 'count', label: t('admin.security.tabela.requests'), width: '100px',
+      tooltipTitulo: 'Requests', tooltipDescricao: 'Total de requisições feitas versus o limite permitido',
       render: (row) => (
         <span style={{ color: row.blocked ? '#f87171' : '#34d399', fontWeight: 600 }}>
           {row.count}/{row.limit_max}
@@ -234,6 +255,7 @@ export function SegurancaAdmin() {
     },
     {
       key: 'blocked', label: t('admin.security.tabela.bloqueado'), width: '100px',
+      tooltipTitulo: 'Bloqueado', tooltipDescricao: 'Indica se o acesso foi bloqueado por excesso de requisições',
       render: (row) => row.blocked
         ? <span style={{ color: '#f87171', fontWeight: 600 }}>{t('comum.sim')}</span>
         : <span style={{ color: '#64748b' }}>{t('comum.nao')}</span>,
@@ -422,20 +444,30 @@ export function SegurancaAdmin() {
             >
               <Key weight="duotone" size={20} style={{ color: secret.configured ? '#10b981' : '#f87171' }} />
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--ws-text, #f1f5f9)' }}>
-                  {secret.name}
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px' }}>
-                  {t('admin.security.secrets.prefixo')} <code>{secret.prefix}</code>
-                </div>
+                <TooltipGlobal titulo={secret.name} descricao="Nome da variável de ambiente configurada no servidor">
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--ws-text, #f1f5f9)', display: 'inline-block' }}>
+                    {secret.name}
+                  </div>
+                </TooltipGlobal>
+                <TooltipGlobal titulo="Prefixo" descricao="Primeiros caracteres do valor configurado, para confirmação">
+                  <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px', display: 'inline-block' }}>
+                    {t('admin.security.secrets.prefixo')} <code>{secret.prefix}</code>
+                  </div>
+                </TooltipGlobal>
               </div>
-              <div style={{
-                padding: '3px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600,
-                background: secret.configured ? '#14532d' : '#7f1d1d',
-                color: secret.configured ? '#86efac' : '#fca5a5',
-              }}>
-                {secret.configured ? t('admin.security.secrets.configurada') : t('admin.security.secrets.ausente')}
-              </div>
+              <TooltipGlobal
+                titulo={secret.configured ? 'Configurada' : 'Ausente'}
+                descricao="Indica se esta variável de ambiente está presente no servidor"
+              >
+                <div style={{
+                  padding: '3px 10px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600,
+                  background: secret.configured ? '#14532d' : '#7f1d1d',
+                  color: secret.configured ? '#86efac' : '#fca5a5',
+                  cursor: 'default',
+                }}>
+                  {secret.configured ? t('admin.security.secrets.configurada') : t('admin.security.secrets.ausente')}
+                </div>
+              </TooltipGlobal>
             </div>
           ))}
 

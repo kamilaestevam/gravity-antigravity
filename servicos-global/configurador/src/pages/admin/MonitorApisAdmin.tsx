@@ -110,25 +110,40 @@ export function MonitorApisAdmin() {
   }, [])
 
   const colunasInventario: TabelaGlobalColuna<ApiService>[] = [
-    { key: 'produto', label: t('admin.monitor.tabela.servico'), tipo: 'texto' },
-    { key: 'organizacao', label: t('admin.monitor.tabela.organizacao'), tipo: 'texto' },
-    { key: 'status', label: t('admin.monitor.tabela.status'), tipo: 'texto' },
-    { key: 'consumoAtual', label: t('admin.monitor.tabela.consumo'), tipo: 'texto' },
+    { key: 'produto', label: t('admin.monitor.tabela.servico'), tipo: 'texto',
+      tooltipTitulo: 'Serviço', tooltipDescricao: 'Produto ou integração monitorada pela plataforma' },
+    { key: 'organizacao', label: t('admin.monitor.tabela.organizacao'), tipo: 'texto',
+      tooltipTitulo: 'Organização', tooltipDescricao: 'Empresa associada a este serviço' },
+    { key: 'status', label: t('admin.monitor.tabela.status'), tipo: 'texto',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o serviço está operando normalmente' },
+    { key: 'consumoAtual', label: t('admin.monitor.tabela.consumo'), tipo: 'texto',
+      tooltipTitulo: 'Consumo', tooltipDescricao: 'Volume de requisições processadas no período atual' },
   ]
 
   const colunasLogs: TabelaGlobalColuna<ApiLog>[] = [
-    { key: 'data', label: t('admin.monitor.tabela.data'), tipo: 'texto' },
-    { key: 'hora', label: t('admin.monitor.tabela.hora'), tipo: 'texto' },
-    { key: 'organizacao', label: t('admin.monitor.tabela.org'), tipo: 'texto' },
-    { key: 'metodo', label: t('admin.monitor.tabela.metodo'), tipo: 'texto' },
-    { key: 'endpoint', label: t('admin.monitor.tabela.endpoint'), tipo: 'texto' },
-    { key: 'statusCode', label: t('admin.monitor.tabela.status'), tipo: 'texto' },
+    { key: 'data', label: t('admin.monitor.tabela.data'), tipo: 'texto',
+      tooltipTitulo: 'Data', tooltipDescricao: 'Data em que a requisição foi registrada' },
+    { key: 'hora', label: t('admin.monitor.tabela.hora'), tipo: 'texto',
+      tooltipTitulo: 'Hora', tooltipDescricao: 'Hora exata em que a requisição ocorreu' },
+    { key: 'organizacao', label: t('admin.monitor.tabela.org'), tipo: 'texto',
+      tooltipTitulo: 'Organização', tooltipDescricao: 'Empresa que originou esta chamada à API' },
+    { key: 'metodo', label: t('admin.monitor.tabela.metodo'), tipo: 'texto',
+      tooltipTitulo: 'Método', tooltipDescricao: 'Verbo HTTP da requisição: GET, POST, PUT ou DELETE' },
+    { key: 'endpoint', label: t('admin.monitor.tabela.endpoint'), tipo: 'texto',
+      tooltipTitulo: 'Endpoint', tooltipDescricao: 'Rota da API que recebeu a chamada' },
+    { key: 'statusCode', label: t('admin.monitor.tabela.status'), tipo: 'texto',
+      tooltipTitulo: 'Status', tooltipDescricao: 'Código de resposta HTTP — abaixo de 400 indica sucesso' },
   ]
 
   const colunasAlertas: TabelaGlobalColuna<AlertaConfig>[] = [
-    { key: 'nome', label: t('admin.monitor.tabela.grupo'), tipo: 'texto' },
-    { key: 'canais', label: t('admin.monitor.tabela.canais'), tipo: 'texto', render: (v: any) => (v as string[]).join(', ') },
-    { key: 'ativo', label: t('admin.monitor.tabela.ativo'), tipo: 'texto', render: (v: any) => v ? t('comum.sim') : t('comum.nao') },
+    { key: 'nome', label: t('admin.monitor.tabela.grupo'), tipo: 'texto',
+      tooltipTitulo: 'Grupo', tooltipDescricao: 'Nome da regra de alerta configurada' },
+    { key: 'canais', label: t('admin.monitor.tabela.canais'), tipo: 'texto',
+      tooltipTitulo: 'Canais', tooltipDescricao: 'Meios de notificação ativados para este alerta',
+      render: (v: any) => (v as string[]).join(', ') },
+    { key: 'ativo', label: t('admin.monitor.tabela.ativo'), tipo: 'texto',
+      tooltipTitulo: 'Ativo', tooltipDescricao: 'Indica se este alerta está disparando notificações',
+      render: (v: any) => v ? t('comum.sim') : t('comum.nao') },
   ]
 
   return (

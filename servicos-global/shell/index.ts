@@ -11,6 +11,7 @@
 // Componentes de layout
 export { Layout }          from './Layout'
 export { Sidebar }         from './Sidebar'
+export { ProductSidebar }  from './ProductSidebar'
 export { Header }          from './Header'
 export { Navigation }      from './Navigation'
 export { ToastContainer }  from './ToastContainer'

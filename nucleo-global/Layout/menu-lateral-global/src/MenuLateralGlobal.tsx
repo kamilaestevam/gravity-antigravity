@@ -164,7 +164,13 @@ export function MenuLateralGlobal({
       {/* ── Logo + Chip ── */}
       <div className="mlg-logo-area">
         <LogoGlobal iconSize={28} iconColor={moduleColor} hideText={isCollapsed} />
-        {!isCollapsed && (
+        {isCollapsed ? (
+          <TooltipGlobal descricao={moduleName}>
+            <div className="mlg-module-chip--dot-only">
+              <span className="mlg-module-chip__dot" style={{ backgroundColor: moduleColor, boxShadow: `0 0 8px ${moduleColor}, 0 0 3px ${moduleColor}cc` }} />
+            </div>
+          </TooltipGlobal>
+        ) : (
           <div className="mlg-module-chip">
             <span className="mlg-module-chip__dot" style={{ backgroundColor: moduleColor, boxShadow: `0 0 8px ${moduleColor}, 0 0 3px ${moduleColor}cc` }} />
             <span className="mlg-module-chip__label" style={{ color: moduleColor }}>{moduleName}</span>

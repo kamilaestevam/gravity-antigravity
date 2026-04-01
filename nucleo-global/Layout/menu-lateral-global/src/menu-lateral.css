@@ -82,8 +82,24 @@
 }
 
 .mlg-sidebar.collapsed .mlg-logo-area {
-  padding: 36px 0 26px 0;
+  padding: 28px 0 20px 0;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ── Module chip — dot only (modo collapsed) ── */
+.mlg-module-chip--dot-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem;
+  background: var(--mlg-accent-dim);
+  border: 1px solid var(--mlg-accent-border);
+  border-radius: 9999px;
+  animation: mlg-glow-pulse 2s ease-in-out infinite;
+  cursor: default;
 }
 
 /* ── Module chip (e.g. CONFIGURADOR) ── */

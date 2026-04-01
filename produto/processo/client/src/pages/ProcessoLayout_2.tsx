@@ -191,13 +191,20 @@ export default function ProcessoLayout_2() {
   const processoId = searchParams.get('id') ?? ''
   const tenantId = searchParams.get('tenantId') ?? ''
 
-  const { currentTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, tooltipsDisabled, toggleTooltips, setSidebarOpen } = useShellStore()
   const isLight = currentTheme === 'light'
 
   const [processo, setProcesso] = useState<ProcessoDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  // Recolhe o nav global ao entrar no processo; restaura ao sair
+  useEffect(() => {
+    const prevOpen = useShellStore.getState().sidebarOpen
+    setSidebarOpen(false)
+    return () => setSidebarOpen(prevOpen)
+  }, [setSidebarOpen])
 
   const fetchProcesso = useCallback(async () => {
     setLoading(true)

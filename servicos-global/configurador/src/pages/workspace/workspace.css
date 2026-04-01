@@ -4,11 +4,11 @@
    --color-success, --color-warning, --color-danger, --radius, --font
 */
 
-/* ── Design tokens — Violet accent (Configurador Global) ───────────────── */
+/* ── Design tokens — Amber accent (Configurador Global) ────────────────── */
 :root {
-  --ws-accent: #818cf8;
-  --ws-accent-dim: rgba(129, 140, 248, 0.12);
-  --ws-accent-border: rgba(129, 140, 248, 0.20);
+  --ws-accent: #f59e0b;
+  --ws-accent-dim: rgba(245, 158, 11, 0.12);
+  --ws-accent-border: rgba(245, 158, 11, 0.20);
   --ws-bg-body: #0f172a;
   --ws-surface: #1e293b;
   --ws-surface-2: #0f172a;
@@ -29,9 +29,9 @@ body.light-theme {
   --ws-surface-2: #ffffff;
   --ws-text: #1e293b;
   --ws-muted: #475569;
-  --ws-accent: #4f46e5;
-  --ws-accent-dim: #e0e7ff;
-  --ws-accent-border: #a5b4fc;
+  --ws-accent: #d97706;
+  --ws-accent-dim: rgba(217, 119, 6, 0.10);
+  --ws-accent-border: rgba(217, 119, 6, 0.25);
 }
 
 body.light-theme .ws-shell {
@@ -55,7 +55,7 @@ body.light-theme .ws-table-wrap {
 }
 
 body.light-theme .ws-table thead {
-  background: rgba(129, 140, 248, 0.06);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 body.light-theme .ws-field input,

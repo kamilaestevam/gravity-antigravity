@@ -3,6 +3,7 @@ import './shell.css'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { ContextualSidebar } from './ContextualSidebar'
+import { ProductSidebar } from './ProductSidebar'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ToastContainer } from './ToastContainer'
@@ -41,8 +42,9 @@ export function Layout({
   const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser } = useShellStore()
   const location = useLocation()
   
-  // Detecção Mágica de "Merculo/Deep Work"
+  // Detecção de contexto de navegação
   const isProcessoRoute = location.pathname.startsWith('/processo/')
+  const isProdutoRoute  = location.pathname.startsWith('/produto/')
 
   // Sincroniza dados do Clerk (email, role, tenantId) no Shell store
   useSyncClerkToShell()
@@ -85,6 +87,14 @@ export function Layout({
           tenantName={tenantName ?? currentUser.tenantName ?? t('shell.organizacao_padrao')}
           tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
         />
+      ) : isProdutoRoute ? (
+        <ProductSidebar
+          navItems={navItems}
+          moduleName={moduleName}
+          moduleColor={moduleColor}
+          tenantName={tenantName ?? currentUser.tenantName ?? t('shell.organizacao_padrao')}
+          tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
+        />
       ) : (
         <Sidebar
           navItems={navItems}
@@ -94,7 +104,7 @@ export function Layout({
           tenantPlan={tenantPlan ?? t('shell.plano_padrao')}
         />
       )}
-      <Header />
+      <Header moduleName={moduleName} moduleColor={moduleColor} />
       <main className="shell-main" role="main" aria-label={t('shell.conteudo_principal')}>
         <Suspense
           fallback={

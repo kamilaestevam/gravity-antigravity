@@ -126,7 +126,7 @@ export function WorkspaceLayout() {
         tenantPlan={tipoEmpresa}
         navItems={navItems}
         moduleName={t('workspace.layout.modulo_nome')}
-        moduleColor="#818cf8"
+        moduleColor="#f59e0b"
         defaultCollapsed={false}
       />
 
@@ -144,17 +144,17 @@ export function WorkspaceLayout() {
                 gap: '0.375rem',
                 padding: '0.375rem 0.875rem',
                 borderRadius: '9999px',
-                border: '1px solid rgba(129,140,248,0.25)',
-                background: 'rgba(129,140,248,0.08)',
-                color: '#818cf8',
+                border: '1px solid rgba(245,158,11,0.25)',
+                background: 'rgba(245,158,11,0.08)',
+                color: '#f59e0b',
                 fontSize: '0.8125rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 whiteSpace: 'nowrap',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.15)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.4)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.08)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.25)' }}
             >
               <ArrowLeft size={16} weight="bold" />
               Hub

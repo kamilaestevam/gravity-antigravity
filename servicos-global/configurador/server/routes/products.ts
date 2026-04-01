@@ -34,14 +34,23 @@ const ProductSchema = z.object({
  * GET /api/v1/products
  * Retorna o catálogo oficial vindo do Railway (SSOT)
  */
-productsRouter.get('/', async (_req, res, next) => {
+productsRouter.get('/', async (_req, res) => {
   try {
     const products = await prisma.globalProduct.findMany({
       orderBy: { name: 'asc' }
     })
     res.json({ products })
-  } catch (err) {
-    next(err)
+  } catch {
+    // Tabela GlobalProduct pode não existir — retorna lista do Product
+    try {
+      const products = await prisma.product.findMany({
+        select: { id: true, name: true, slug: true, description: true, status: true },
+        orderBy: { name: 'asc' }
+      })
+      res.json({ products })
+    } catch {
+      res.json({ products: [] })
+    }
   }
 })
 

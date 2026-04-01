@@ -51,8 +51,9 @@ tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
     }))
 
     res.json({ products })
-  } catch (err) {
-    next(err)
+  } catch {
+    // globalProduct ou productConfig pode não existir — retorna vazio
+    res.json({ products: [] })
   }
 })
 

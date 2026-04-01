@@ -37,7 +37,7 @@ tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
 
     // Enriquece com dados do catálogo
     const slugs = configs.map(c => c.product_key)
-    const catalog = await prisma.globalProduct.findMany({
+    const catalog = await prisma.product.findMany({
       where: { slug: { in: slugs } },
     })
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
@@ -70,9 +70,8 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     const { product_key } = parsed.data
 
-    // Verifica se o produto existe no catálogo (GlobalProduct ou Product como fallback)
+    // Verifica se o produto existe no catálogo
     const catalogProduct =
-      await prisma.globalProduct.findFirst({ where: { slug: product_key, status: 'Ativo' } }).catch(() => null) ??
       await prisma.product.findFirst({ where: { slug: product_key, status: { in: ['ACTIVE'] as any[] } } }).catch(() => null)
 
     if (!catalogProduct) {

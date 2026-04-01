@@ -36,13 +36,16 @@ import {
   Truck,
   ClipboardText,
   Fire,
+  Info,
 } from '@phosphor-icons/react'
+import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { ModalGlobal } from '@nucleo/modal-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './selecionar-workspace.css'
 
 /* ── Tipos ── */
@@ -164,7 +167,7 @@ export function SelecionarWorkspace() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
-  useShellStore()
+  const { tooltipsDisabled, toggleTooltips } = useShellStore()
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
@@ -633,8 +636,24 @@ export function SelecionarWorkspace() {
                 if (target?.to) navigate(target.to)
               }}
             />
+
+            {/* Toggle de tooltips */}
+            <button
+              className="sw-t-icon"
+              type="button"
+              aria-label={tooltipsDisabled ? t('shell.habilitar_dicas') : t('shell.desabilitar_dicas')}
+              title={tooltipsDisabled ? t('shell.label_habilitar_dicas') : t('shell.label_desabilitar_dicas')}
+              onClick={toggleTooltips}
+              style={{ color: tooltipsDisabled ? 'var(--sw-muted, #64748b)' : 'var(--sw-accent-2, #818cf8)' }}
+            >
+              <Info size={15} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+            </button>
+
+            {/* Seletor de idioma */}
+            <LanguageSwitcherGlobal />
+
             <div className="sw-notif-wrap">
-              <button className="sw-t-icon" type="button" title="Notificações">
+              <button className="sw-t-icon" type="button" title={t('sw.notificacoes')}>
                 <Bell size={15} />
               </button>
             </div>
@@ -660,7 +679,7 @@ export function SelecionarWorkspace() {
           {carregando ? (
             <div className="sw-loading">
               <div className="sw-loading-spinner" />
-              <span>Carregando workspaces...</span>
+              <span>{t('sw.carregando')}</span>
             </div>
           ) : (
             <>
@@ -671,9 +690,9 @@ export function SelecionarWorkspace() {
                     <span className="sw-ws-icon" aria-hidden="true">
                       <SquaresFour weight="duotone" size={24} />
                     </span>
-                    <h1 className="sw-ws-title">Acessar Workspace</h1>
+                    <h1 className="sw-ws-title">{t('sw.titulo')}</h1>
                   </div>
-                  <p className="sw-ws-sub">Selecione o workspace que deseja operar nesta sessão.</p>
+                  <p className="sw-ws-sub">{t('sw.subtitulo')}</p>
                 </div>
 
                 <div className="sw-ws-search-wrap">
@@ -683,17 +702,17 @@ export function SelecionarWorkspace() {
                   <input
                     className="sw-ws-search"
                     type="text"
-                    placeholder="Buscar workspace..."
+                    placeholder={t('sw.buscar_placeholder')}
                     value={wsSearch}
                     onChange={e => setWsSearch(e.target.value)}
-                    aria-label="Buscar workspace"
+                    aria-label={t('sw.buscar_aria')}
                   />
                   {wsSearch && (
                     <button
                       className="sw-ws-search-clear"
                       type="button"
                       onClick={() => setWsSearch('')}
-                      aria-label="Limpar busca"
+                      aria-label={t('sw.limpar_busca')}
                     >×</button>
                   )}
                 </div>
@@ -706,7 +725,7 @@ export function SelecionarWorkspace() {
                     {wsFiltrados.length === 0 && (
                       <div className="sw-ws-empty-search">
                         <MagnifyingGlass size={22} weight="light" />
-                        <span>Nenhum workspace encontrado para "<strong>{wsSearch}</strong>"</span>
+                        <span>{t('sw.nenhum_ws_encontrado')}"<strong>{wsSearch}</strong>"</span>
                       </div>
                     )}
                     {wsFiltrados.map(ws => (
@@ -727,15 +746,19 @@ export function SelecionarWorkspace() {
                             {ws.iniciais}
                           </div>
                           <div className="sw-ws-card-top-actions">
-                            <button
-                              className={`sw-ws-fav-btn${favoriteIds.has(ws.id) ? ' active' : ''}`}
-                              type="button"
-                              onClick={e => toggleFavorite(e, ws.id)}
-                              aria-label={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                              title={favoriteIds.has(ws.id) ? 'Remover favorito' : 'Favoritar'}
+                            <TooltipGlobal
+                              titulo={favoriteIds.has(ws.id) ? t('sw.fav_remover_titulo') : t('sw.fav_adicionar_titulo')}
+                              descricao={favoriteIds.has(ws.id) ? t('sw.fav_remover_desc') : t('sw.fav_adicionar_desc')}
                             >
-                              <Star size={14} weight={favoriteIds.has(ws.id) ? 'fill' : 'regular'} />
-                            </button>
+                              <button
+                                className={`sw-ws-fav-btn${favoriteIds.has(ws.id) ? ' active' : ''}`}
+                                type="button"
+                                onClick={e => toggleFavorite(e, ws.id)}
+                                aria-label={favoriteIds.has(ws.id) ? t('sw.fav_remover_aria') : t('sw.fav_adicionar_aria')}
+                              >
+                                <Star size={14} weight={favoriteIds.has(ws.id) ? 'fill' : 'regular'} />
+                              </button>
+                            </TooltipGlobal>
                             <div className="sw-ws-check">
                               <Check size={12} color="white" weight="bold" />
                             </div>
@@ -752,11 +775,11 @@ export function SelecionarWorkspace() {
                         <div className="sw-ws-stats">
                           <div>
                             <div className="sw-ws-stat-n">{ws.modulos}</div>
-                            <div className="sw-ws-stat-l">Produtos</div>
+                            <div className="sw-ws-stat-l">{t('sw.stat_produtos')}</div>
                           </div>
                           <div>
                             <div className="sw-ws-stat-n">{ws.membros}</div>
-                            <div className="sw-ws-stat-l">Usuários</div>
+                            <div className="sw-ws-stat-l">{t('sw.stat_usuarios')}</div>
                           </div>
                         </div>
 
@@ -778,7 +801,7 @@ export function SelecionarWorkspace() {
                           }}
                           disabled={entrando}
                         >
-                          {entrando ? 'Entrando...' : 'Entrar no Workspace'}
+                          {entrando ? t('sw.entrando') : t('sw.entrar_btn')}
                           <ArrowRight size={14} />
                         </button>
                       </div>
@@ -787,7 +810,7 @@ export function SelecionarWorkspace() {
                     {/* Criar novo workspace */}
                     <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>
                       <Plus size={20} />
-                      <span className="sw-ws-add-label">Criar novo workspace</span>
+                      <span className="sw-ws-add-label">{t('sw.criar_workspace')}</span>
                     </button>
                   </div>
                   <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
@@ -796,41 +819,41 @@ export function SelecionarWorkspace() {
                 </div>
 
                 {/* GABI AI — carrossel dinâmico */}
-                <div
-                  className="sw-gabi-card sw-a1"
-                  onMouseEnter={() => setGabiPaused(true)}
-                  onMouseLeave={() => setGabiPaused(false)}
-                >
-                  <div className="sw-gabi-card-watermark" aria-hidden="true">
-                    <Sparkle weight="fill" size={200} />
-                  </div>
-                  <div className="sw-gabi-card-main">
-                    {/* Header */}
-                    <div className="sw-gabi-card-top-row">
-                      <div className="sw-gabi-card-header">
-                        <div className="sw-gabi-card-avatar">
-                          <Sparkle weight="fill" size={14} color="#fff" />
-                        </div>
-                        <span className="sw-gabi-card-label">GABI AI · Insights</span>
-                      </div>
-                      <span className="sw-gabi-live-badge">
-                          <span className="sw-gabi-live-dot" />
-                          ao vivo
-                        </span>
+                <div className="sw-gabi-outer sw-a1">
+                  <button
+                    className="sw-carousel-btn sw-carousel-btn--left"
+                    type="button"
+                    onClick={() => scrollCarousel(gabiCarouselRef, 'left')}
+                    disabled={gabiInsights.length <= 1}
+                    aria-label="Insight anterior"
+                  >
+                    <CaretLeft size={16} weight="bold" />
+                  </button>
+
+                  <div
+                    className="sw-gabi-card"
+                    onMouseEnter={() => setGabiPaused(true)}
+                    onMouseLeave={() => setGabiPaused(false)}
+                  >
+                    <div className="sw-gabi-card-watermark" aria-hidden="true">
+                      <Sparkle weight="fill" size={200} />
                     </div>
+                    <div className="sw-gabi-card-main">
+                      {/* Header */}
+                      <div className="sw-gabi-card-top-row">
+                        <div className="sw-gabi-card-header">
+                          <div className="sw-gabi-card-avatar">
+                            <Sparkle weight="fill" size={14} color="#fff" />
+                          </div>
+                          <span className="sw-gabi-card-label">{t('sw.gabi_label')}</span>
+                        </div>
+                        <span className="sw-gabi-live-badge">
+                          <span className="sw-gabi-live-dot" />
+                          {t('sw.ao_vivo')}
+                        </span>
+                      </div>
 
-                    {/* Track horizontal com setas laterais */}
-                    <div className="sw-gabi-track-wrap">
-                      <button
-                        className="sw-gabi-arrow sw-gabi-arrow--left"
-                        type="button"
-                        onClick={() => scrollCarousel(gabiCarouselRef, 'left')}
-                        disabled={gabiInsights.length <= 1}
-                        aria-label="Insight anterior"
-                      >
-                        <CaretLeft size={14} weight="bold" />
-                      </button>
-
+                      {/* Track horizontal */}
                       {gabiLoading ? (
                         <div className="sw-gabi-insights-track">
                           {[0, 1, 2].map(i => (
@@ -872,18 +895,18 @@ export function SelecionarWorkspace() {
                           ))}
                         </div>
                       )}
-
-                      <button
-                        className="sw-gabi-arrow sw-gabi-arrow--right"
-                        type="button"
-                        onClick={() => scrollCarousel(gabiCarouselRef, 'right')}
-                        disabled={gabiInsights.length <= 1}
-                        aria-label="Próximo insight"
-                      >
-                        <CaretRight size={14} weight="bold" />
-                      </button>
                     </div>
                   </div>
+
+                  <button
+                    className="sw-carousel-btn sw-carousel-btn--right"
+                    type="button"
+                    onClick={() => scrollCarousel(gabiCarouselRef, 'right')}
+                    disabled={gabiInsights.length <= 1}
+                    aria-label="Próximo insight"
+                  >
+                    <CaretRight size={16} weight="bold" />
+                  </button>
                 </div>
               </section>
 
@@ -897,21 +920,21 @@ export function SelecionarWorkspace() {
                     <div className="sw-prod-panel-head">
                       <span className="sw-prod-panel-title contracted">
                         <Package weight="duotone" size={15} />
-                        Seus Produtos Contratados
+                        {t('sw.produtos_contratados')}
                       </span>
-                      <span className="sw-sec-count">{contratadosAtivos.length} ativos</span>
+                      <span className="sw-sec-count">{contratadosAtivos.length} {t('sw.ativos')}</span>
                     </div>
                     {contratadosAtivos.length === 0 ? (
                       <div className="sw-prod-empty">
                         <div className="sw-prod-empty-icon">
                           <Clock size={20} />
                         </div>
-                        <div className="sw-prod-empty-title">Nenhum produto ativo</div>
+                        <div className="sw-prod-empty-title">{t('sw.nenhum_produto_titulo')}</div>
                         <div className="sw-prod-empty-desc">
-                          Explore o catálogo e ative seu primeiro módulo para este workspace.
+                          {t('sw.nenhum_produto_desc')}
                         </div>
                         <button className="sw-btn-sm" type="button" onClick={() => navigate('/store')} style={{ marginTop: '8px' }}>
-                          Explorar Produtos Gravity
+                          {t('sw.explorar_produtos')}
                         </button>
                       </div>
                     ) : (
@@ -926,7 +949,7 @@ export function SelecionarWorkspace() {
                               <div className="sw-prod-desc">{prod.descricao}</div>
                             </div>
                             <div className="sw-prod-right">
-                              <span className="sw-badge sw-b-active">Ativo</span>
+                              <span className="sw-badge sw-b-active">{t('sw.ativo')}</span>
                             </div>
                           </div>
                         ))}
@@ -939,18 +962,18 @@ export function SelecionarWorkspace() {
                     <div className="sw-prod-panel-head">
                       <span className="sw-prod-panel-title suggested">
                         <Fire weight="duotone" size={15} className="sw-fire-pulse" />
-                        Sugeridos para Você
+                        {t('sw.sugeridos_titulo')}
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span className="sw-sec-count" style={{ background: 'var(--sw-accent-dim)', color: 'var(--sw-accent-2)' }}>
-                          {produtosSugeridos.length} disponíveis
+                          {produtosSugeridos.length} {t('sw.disponiveis')}
                         </span>
                         <button
                           className="sw-btn-ver-catalogo"
                           type="button"
                           onClick={() => navigate('/store')}
                         >
-                          Ver catálogo →
+                          {t('sw.ver_catalogo')}
                         </button>
                       </div>
                     </div>
@@ -959,9 +982,9 @@ export function SelecionarWorkspace() {
                         <div className="sw-prod-empty-icon">
                           <CheckCircle size={20} />
                         </div>
-                        <div className="sw-prod-empty-title">Tudo contratado!</div>
+                        <div className="sw-prod-empty-title">{t('sw.tudo_contratado_titulo')}</div>
                         <div className="sw-prod-empty-desc">
-                          Você já contratou todos os produtos disponíveis.
+                          {t('sw.tudo_contratado_desc')}
                         </div>
                       </div>
                     ) : (
@@ -984,7 +1007,7 @@ export function SelecionarWorkspace() {
                                   {prod.name}
                                   {idx === 0 && (
                                     <span className="sw-badge-popular">
-                                      <Fire size={10} weight="fill" /> Popular
+                                      <Fire size={10} weight="fill" /> {t('sw.popular')}
                                     </span>
                                   )}
                                 </div>
@@ -997,10 +1020,10 @@ export function SelecionarWorkspace() {
                                     type="button"
                                     onClick={(e) => { e.stopPropagation(); navigate(`/store?produto=${prod.slug}`) }}
                                   >
-                                    Contratar <ArrowRight size={11} weight="bold" />
+                                    {t('sw.contratar')} <ArrowRight size={11} weight="bold" />
                                   </button>
                                 ) : (
-                                  <span className="sw-badge sw-b-trial">Em Breve</span>
+                                  <span className="sw-badge sw-b-trial">{t('sw.em_breve')}</span>
                                 )}
                               </div>
                             </div>
@@ -1017,7 +1040,7 @@ export function SelecionarWorkspace() {
               <section className="sw-a2">
                 <div className="sw-sec-header">
                   <div className="sw-sec-title-wrap">
-                    <span className="sw-sec-title sw-sec-title--micro">Acesso Rápido</span>
+                    <span className="sw-sec-title sw-sec-title--micro">{t('sw.acesso_rapido')}</span>
                   </div>
                 </div>
 
@@ -1025,7 +1048,7 @@ export function SelecionarWorkspace() {
                   {/* Shortcuts */}
                   <div className="sw-shortcuts-panel">
                     <div className="sw-shortcuts-head">
-                      <span className="sw-shortcuts-head-title">Atalhos</span>
+                      <span className="sw-shortcuts-head-title">{t('sw.atalhos')}</span>
                     </div>
                     <div className="sw-shortcuts-grid">
                       {ATALHOS.map(atalho => (
@@ -1039,8 +1062,8 @@ export function SelecionarWorkspace() {
                             <ShortcutIcon icon={atalho.icon} color={atalho.iconColor} />
                           </div>
                           <div>
-                            <div className="sw-sh-name">{atalho.nome}</div>
-                            <div className="sw-sh-desc">{atalho.descricao}</div>
+                            <div className="sw-sh-name">{t(`sw.atalho_${atalho.id}_nome`)}</div>
+                            <div className="sw-sh-desc">{t(`sw.atalho_${atalho.id}_desc`)}</div>
                           </div>
                           {atalho.admin && (
                             <span className="sw-sh-tag sw-sh-admin">Admin</span>
@@ -1057,12 +1080,12 @@ export function SelecionarWorkspace() {
                         <Sparkle size={15} />
                       </div>
                       <div>
-                        <div className="sw-gabi-title">GABI AI · Insights</div>
-                        <div className="sw-gabi-sub">3 oportunidades esta semana</div>
+                        <div className="sw-gabi-title">{t('sw.gabi_label')}</div>
+                        <div className="sw-gabi-sub">{t('sw.gabi_oportunidades')}</div>
                       </div>
                       <div className="sw-gabi-live">
                         <div className="sw-gabi-live-dot" />
-                        ao vivo
+                        {t('sw.ao_vivo')}
                       </div>
                     </div>
 
@@ -1071,19 +1094,16 @@ export function SelecionarWorkspace() {
                       <div className="sw-insight-card">
                         <div className="sw-i-type">
                           <Download size={11} />
-                          Redução Tributária · NCM 8471
+                          {t('sw.insight1_tipo')}
                         </div>
-                        <div className="sw-i-text">
-                          <strong>40% das suas simulações</strong> recentes poderiam economizar até{' '}
-                          <strong>12% em ICMS</strong> com desembaraço via Santa Catarina.
-                        </div>
+                        <div className="sw-i-text">{t('sw.insight1_texto')}</div>
                         <div className="sw-i-saving">
-                          <span className="sw-i-saving-label">Economia estimada</span>
-                          <span className="sw-i-saving-value">R$ 28.400/mês</span>
+                          <span className="sw-i-saving-label">{t('sw.insight1_economia_label')}</span>
+                          <span className="sw-i-saving-value">{t('sw.insight1_economia_valor')}</span>
                         </div>
                         <div className="sw-i-footer">
                           <button className="sw-i-action" type="button">
-                            Ver análise completa
+                            {t('sw.insight1_acao')}
                             <ArrowRight size={11} />
                           </button>
                         </div>
@@ -1093,15 +1113,12 @@ export function SelecionarWorkspace() {
                       <div className="sw-insight-card secondary">
                         <div className="sw-i-type">
                           <Warning size={11} />
-                          Alerta de Prazo · Drawback
+                          {t('sw.insight2_tipo')}
                         </div>
-                        <div className="sw-i-text">
-                          <strong>2 regimes de drawback</strong> vencem em menos de{' '}
-                          <strong>30 dias</strong>. Renove para não perder o benefício.
-                        </div>
+                        <div className="sw-i-text">{t('sw.insight2_texto')}</div>
                         <div className="sw-i-footer">
                           <button className="sw-i-action" type="button">
-                            Ver prazos
+                            {t('sw.insight2_acao')}
                             <ArrowRight size={11} />
                           </button>
                         </div>
@@ -1159,7 +1176,7 @@ export function SelecionarWorkspace() {
                 letterSpacing: '-0.02em',
                 lineHeight: 1.2,
               }}>
-                Nenhum Produto Gravity Contratado
+                {t('sw.modal_sem_produtos_titulo')}
               </h2>
               <p style={{
                 fontSize: '0.875rem',
@@ -1169,7 +1186,7 @@ export function SelecionarWorkspace() {
                 width: '100%',
                 textAlign: 'center',
               }}>
-                É necessário ao menos um produto Gravity para acessar o workspace
+                {t('sw.modal_sem_produtos_desc')}
               </p>
 
               {/* Destaque comercial */}
@@ -1196,10 +1213,10 @@ export function SelecionarWorkspace() {
                 </span>
                 <div>
                   <p style={{ margin: '0 0 0.2rem', fontSize: '0.8125rem', fontWeight: 700, color: '#f1f5f9' }}>
-                    Explore todo o potencial do Gravity
+                    {t('sw.modal_cta_titulo')}
                   </p>
                   <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5 }}>
-                    Ative agora e leve sua operação a outro nível
+                    {t('sw.modal_cta_desc')}
                   </p>
                 </div>
               </div>
@@ -1229,7 +1246,7 @@ export function SelecionarWorkspace() {
               onMouseEnter={e => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(-1px)' }}
               onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.transform = 'translateY(0)' }}
             >
-              Agora não
+              {t('sw.modal_btn_agora_nao')}
             </button>
 
             <button
@@ -1252,7 +1269,7 @@ export function SelecionarWorkspace() {
               onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(180deg, #818cf8 0%, #6366f1 100%)'; e.currentTarget.style.transform = 'translateY(0)' }}
             >
               <Package size={16} weight="bold" />
-              Ver Gravity Store
+              {t('sw.modal_btn_ver_store')}
             </button>
           </div>
         )}

@@ -9,6 +9,7 @@
 //
 // Estratégia: mock do Prisma e do Clerk para isolamento total.
 // Cross-tenant: garantido pela injeção do tenant_id via mock de requireAuth.
+// Role enforcement: controlado via mockAuth.role para testar MASTER vs STANDARD/SUPPLIER.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
@@ -35,6 +36,7 @@ const mockPrisma = vi.hoisted(() => ({
 vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: mockPrisma,
 }))
+
 const mockClerkClient = vi.hoisted(() => ({
   invitations: {
     createInvitation: vi.fn(),
@@ -45,13 +47,21 @@ vi.mock('../../../servicos-global/configurador/server/lib/clerk.js', () => ({
   clerkClient: mockClerkClient,
 }))
 
+// mockAuth permite controlar o role injetado por requireAuth nos testes
+const mockAuth = vi.hoisted(() => ({
+  tenantId: 'tenant-abc',
+  clerkUserId: 'clerk-abc',
+  userId: 'user-abc',
+  role: 'MASTER',
+}))
+
 vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
   requireAuth: (
-    req: { auth: { tenantId: string; clerkUserId: string } },
+    req: { auth: { tenantId: string; clerkUserId: string; userId: string; role: string } },
     _res: unknown,
     next: () => void
   ) => {
-    req.auth = { tenantId: 'tenant-abc', clerkUserId: 'clerk-abc' }
+    req.auth = { ...mockAuth }
     next()
   },
 }))
@@ -71,7 +81,10 @@ function buildApp() {
 describe('GET /api/v1/users — listar usuários do tenant', () => {
   const app = buildApp()
 
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockAuth.role = 'MASTER'
+  })
 
   it('200 — retorna apenas usuários do tenant autenticado', async () => {
     const mockUsers = [
@@ -115,9 +128,12 @@ describe('GET /api/v1/users — listar usuários do tenant', () => {
 describe('POST /api/v1/users/invite — convidar usuário', () => {
   const app = buildApp()
 
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockAuth.role = 'MASTER'
+  })
 
-  it('201 — convite enviado com sucesso', async () => {
+  it('201 — MASTER convida com sucesso', async () => {
     mockPrisma.user.findFirst.mockResolvedValueOnce(null) // não existe ainda
     mockClerkClient.invitations.createInvitation.mockResolvedValueOnce({
       id: 'inv-001',
@@ -136,6 +152,31 @@ describe('POST /api/v1/users/invite — convidar usuário', () => {
     expect(response.body.message).toContain('sucesso')
     expect(response.body.user.email).toBe('novo@empresa.com')
     expect(mockClerkClient.invitations.createInvitation).toHaveBeenCalledTimes(1)
+  })
+
+  it('403 — STANDARD não pode convidar ninguém', async () => {
+    mockAuth.role = 'STANDARD'
+
+    const response = await request(app)
+      .post('/api/v1/users/invite')
+      .send({ email: 'novo@empresa.com', name: 'Novo Usuário', role: 'STANDARD' })
+
+    expect(response.status).toBe(403)
+    expect(response.body.error).toHaveProperty('code', 'FORBIDDEN')
+    expect(mockClerkClient.invitations.createInvitation).not.toHaveBeenCalled()
+    expect(mockPrisma.user.create).not.toHaveBeenCalled()
+  })
+
+  it('403 — SUPPLIER não pode convidar ninguém', async () => {
+    mockAuth.role = 'SUPPLIER'
+
+    const response = await request(app)
+      .post('/api/v1/users/invite')
+      .send({ email: 'novo@empresa.com', name: 'Novo Usuário', role: 'STANDARD' })
+
+    expect(response.status).toBe(403)
+    expect(response.body.error).toHaveProperty('code', 'FORBIDDEN')
+    expect(mockClerkClient.invitations.createInvitation).not.toHaveBeenCalled()
   })
 
   it('409 — conflito quando usuário já pertence ao tenant', async () => {
@@ -169,7 +210,7 @@ describe('POST /api/v1/users/invite — convidar usuário', () => {
     expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
   })
 
-  it('400 — role inválido rejeitado pelo Zod', async () => {
+  it('400 — role ADMIN/SUPER_ADMIN rejeitado pelo Zod', async () => {
     const response = await request(app)
       .post('/api/v1/users/invite')
       .send({ email: 'teste@empresa.com', name: 'Teste', role: 'SUPER_ADMIN' })
@@ -178,7 +219,16 @@ describe('POST /api/v1/users/invite — convidar usuário', () => {
     expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
   })
 
-  it('convidar com role SUPPLIER — aceito', async () => {
+  it('400 — role ADMIN rejeitado pelo Zod', async () => {
+    const response = await request(app)
+      .post('/api/v1/users/invite')
+      .send({ email: 'teste@empresa.com', name: 'Teste', role: 'ADMIN' })
+
+    expect(response.status).toBe(400)
+    expect(response.body.error).toHaveProperty('code', 'VALIDATION_ERROR')
+  })
+
+  it('201 — MASTER convida com role SUPPLIER', async () => {
     mockPrisma.user.findFirst.mockResolvedValueOnce(null)
     mockClerkClient.invitations.createInvitation.mockResolvedValueOnce({ id: 'inv-002' })
     mockPrisma.user.create.mockResolvedValueOnce({
@@ -199,9 +249,12 @@ describe('POST /api/v1/users/invite — convidar usuário', () => {
 describe('POST /api/v1/users/:id/memberships — habilitar em workspace', () => {
   const app = buildApp()
 
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockAuth.role = 'MASTER'
+  })
 
-  it('201 — membership criado com sucesso', async () => {
+  it('201 — MASTER cria membership com sucesso', async () => {
     mockPrisma.user.findFirst.mockResolvedValueOnce({ id: 'user-1', tenant_id: 'tenant-abc' })
     mockPrisma.company.findFirst.mockResolvedValueOnce({ id: 'company-1', tenant_id: 'tenant-abc' })
     mockPrisma.userMembership.upsert.mockResolvedValueOnce({
@@ -220,6 +273,30 @@ describe('POST /api/v1/users/:id/memberships — habilitar em workspace', () => 
     expect(response.status).toBe(201)
     expect(response.body).toHaveProperty('membership')
     expect(response.body.membership.role).toBe('STANDARD')
+  })
+
+  it('403 — STANDARD não pode habilitar usuário em workspace', async () => {
+    mockAuth.role = 'STANDARD'
+
+    const response = await request(app)
+      .post('/api/v1/users/user-1/memberships')
+      .send({ companyId: 'company-1', role: 'STANDARD' })
+
+    expect(response.status).toBe(403)
+    expect(response.body.error).toHaveProperty('code', 'FORBIDDEN')
+    expect(mockPrisma.userMembership.upsert).not.toHaveBeenCalled()
+  })
+
+  it('403 — SUPPLIER não pode habilitar usuário em workspace', async () => {
+    mockAuth.role = 'SUPPLIER'
+
+    const response = await request(app)
+      .post('/api/v1/users/user-1/memberships')
+      .send({ companyId: 'company-1', role: 'STANDARD' })
+
+    expect(response.status).toBe(403)
+    expect(response.body.error).toHaveProperty('code', 'FORBIDDEN')
+    expect(mockPrisma.userMembership.upsert).not.toHaveBeenCalled()
   })
 
   it('404 — usuário não pertence ao tenant (cross-tenant bloqueado)', async () => {
@@ -263,9 +340,12 @@ describe('POST /api/v1/users/:id/memberships — habilitar em workspace', () => 
 describe('PATCH /api/v1/users/:id/role — atualizar role do usuário', () => {
   const app = buildApp()
 
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockAuth.role = 'MASTER'
+  })
 
-  it('200 — role atualizado com sucesso', async () => {
+  it('200 — MASTER atualiza role com sucesso', async () => {
     mockPrisma.user.findFirst.mockResolvedValueOnce({ id: 'user-1', tenant_id: 'tenant-abc' })
     mockPrisma.user.update.mockResolvedValueOnce({
       id: 'user-1',
@@ -279,6 +359,30 @@ describe('PATCH /api/v1/users/:id/role — atualizar role do usuário', () => {
 
     expect(response.status).toBe(200)
     expect(response.body.user.role).toBe('STANDARD')
+  })
+
+  it('403 — STANDARD não pode alterar role de outro usuário', async () => {
+    mockAuth.role = 'STANDARD'
+
+    const response = await request(app)
+      .patch('/api/v1/users/user-1/role')
+      .send({ role: 'STANDARD' })
+
+    expect(response.status).toBe(403)
+    expect(response.body.error).toHaveProperty('code', 'FORBIDDEN')
+    expect(mockPrisma.user.update).not.toHaveBeenCalled()
+  })
+
+  it('403 — SUPPLIER não pode alterar role de outro usuário', async () => {
+    mockAuth.role = 'SUPPLIER'
+
+    const response = await request(app)
+      .patch('/api/v1/users/user-1/role')
+      .send({ role: 'STANDARD' })
+
+    expect(response.status).toBe(403)
+    expect(response.body.error).toHaveProperty('code', 'FORBIDDEN')
+    expect(mockPrisma.user.update).not.toHaveBeenCalled()
   })
 
   it('404 — usuário não encontrado no tenant (cross-tenant bloqueado)', async () => {

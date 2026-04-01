@@ -8,6 +8,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
+import { requireMasterRole } from '../middleware/requireMasterRole.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
@@ -67,7 +68,7 @@ usersRouter.get('/', async (req, res, next) => {
  * POST /api/v1/users/invite
  * Convida um usuário para o tenant — dispara e-mail via Clerk
  */
-usersRouter.post('/invite', async (req, res, next) => {
+usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
   try {
     const parsed = InviteUserSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -122,7 +123,7 @@ usersRouter.post('/invite', async (req, res, next) => {
  * POST /api/v1/users/:id/memberships
  * Habilita usuário em uma empresa filha com um papel específico
  */
-usersRouter.post('/:id/memberships', async (req, res, next) => {
+usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) => {
   try {
     const parsed = MembershipSchema.safeParse(req.body)
     if (!parsed.success) {
@@ -180,7 +181,7 @@ usersRouter.post('/:id/memberships', async (req, res, next) => {
  * PATCH /api/v1/users/:id/role
  * Atualiza o role de um usuário no tenant
  */
-usersRouter.patch('/:id/role', async (req, res, next) => {
+usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
   try {
     const RoleSchema = z.object({
       role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),

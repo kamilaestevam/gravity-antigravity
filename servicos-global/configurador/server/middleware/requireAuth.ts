@@ -9,7 +9,7 @@ import { prisma } from '../lib/prisma.js'
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
-const userCache = new Map<string, { userId: string; tenantId: string; expiry: number }>()
+const userCache = new Map<string, { userId: string; tenantId: string; role: string; expiry: number }>()
 
 declare global {
   namespace Express {
@@ -18,6 +18,7 @@ declare global {
         userId: string
         tenantId: string
         clerkUserId: string
+        role: string
       }
     }
   }
@@ -52,14 +53,14 @@ export async function requireAuth(
     const cacheKey = `user:${verified.sub}`
     const cached = userCache.get(cacheKey)
     if (cached && cached.expiry > Date.now()) {
-      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub }
+      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub, role: cached.role }
       next()
       return
     }
 
     const user = await prisma.user.findFirst({
       where: { clerk_user_id: verified.sub },
-      select: { id: true, tenant_id: true },
+      select: { id: true, tenant_id: true, role: true },
     })
 
     if (!user) {
@@ -82,6 +83,7 @@ export async function requireAuth(
     userCache.set(cacheKey, {
       userId: user.id,
       tenantId: user.tenant_id,
+      role: user.role,
       expiry: Date.now() + USER_CACHE_TTL,
     })
 
@@ -89,6 +91,7 @@ export async function requireAuth(
       userId: user.id,
       tenantId: user.tenant_id,
       clerkUserId: verified.sub,
+      role: user.role,
     }
 
     next()

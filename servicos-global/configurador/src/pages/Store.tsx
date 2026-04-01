@@ -488,7 +488,6 @@ export function Store() {
                             {/* Shape SVG da peça */}
                             <svg width="138" height="90" viewBox="0 0 138 90" className="gs-piece__svg">
                               <path d={path} fill={fill} stroke={stroke} strokeWidth="1.5" strokeLinejoin="round" />
-                              {isOwned && <path d={path} fill="none" stroke={stroke} strokeWidth="4" opacity="0.12" strokeLinejoin="round" />}
                             </svg>
                             {/* Conteúdo */}
                             <div className={`gs-piece__body${isFirst ? '' : ' gs-piece__body--indent'}`}>

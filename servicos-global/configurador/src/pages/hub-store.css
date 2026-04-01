@@ -11,9 +11,10 @@
 
 /* ── ROOT + TOPBAR FIXA ─────────────────────────────────────────────────── */
 
-/* Raiz da tela — sem height constraints, rola normalmente */
+/* Raiz da tela — ocupa 100% do #root fixo e rola internamente */
 .gs-root {
-  min-height: 100vh;
+  height: 100%;
+  overflow-y: auto;
   background: var(--sw-bg, var(--color-bg, #0f172a));
   font-family: var(--font);
   color: var(--sw-text-1);

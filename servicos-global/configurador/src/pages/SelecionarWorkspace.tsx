@@ -30,11 +30,19 @@ import {
   ListChecks,
   CaretLeft,
   CaretRight,
+  RocketLaunch,
+  CurrencyDollar,
+  Calculator,
+  Truck,
+  ClipboardText,
+  Fire,
 } from '@phosphor-icons/react'
 import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { ToastContainer, useShellStore } from '@gravity/shell'
+import { ModalGlobal } from '@nucleo/modal-global'
 import './selecionar-workspace.css'
 
 /* ── Tipos ── */
@@ -120,6 +128,22 @@ const PRODUCT_ROUTE_MAP: Record<string, { nome: string; rota: string }> = {
   'processo': { nome: 'Processo', rota: '/produto/processo' },
 }
 
+/* ── Mapa de slug → ícone, cor e bg para produtos sugeridos ── */
+const PRODUCT_ICON_MAP: Record<string, { icon: React.ReactElement; color: string; bg: string }> = {
+  'nf-importacao':  { icon: <FileText size={18} weight="duotone" />,        color: '#818cf8', bg: 'rgba(129,140,248,0.12)' },
+  'nf-import':      { icon: <FileText size={18} weight="duotone" />,        color: '#818cf8', bg: 'rgba(129,140,248,0.12)' },
+  'pedido':         { icon: <ClipboardText size={18} weight="duotone" />,   color: '#34d399', bg: 'rgba(52,211,153,0.10)' },
+  'processo':       { icon: <ClipboardText size={18} weight="duotone" />,   color: '#34d399', bg: 'rgba(52,211,153,0.10)' },
+  'bid-cambio':     { icon: <CurrencyDollar size={18} weight="duotone" />,  color: '#f59e0b', bg: 'rgba(245,158,11,0.10)' },
+  'bid-frete':      { icon: <Truck size={18} weight="duotone" />,           color: '#1ED8C8', bg: 'rgba(30,216,200,0.10)' },
+  'simula-custo':   { icon: <Calculator size={18} weight="duotone" />,      color: '#a78bfa', bg: 'rgba(167,139,250,0.10)' },
+  'smart-read':     { icon: <Folders size={18} weight="duotone" />,         color: '#f472b6', bg: 'rgba(244,114,182,0.10)' },
+}
+
+function getProdutoIcon(slug: string): { icon: React.ReactElement; color: string; bg: string } {
+  return PRODUCT_ICON_MAP[slug] ?? { icon: <Star size={18} weight="regular" />, color: 'var(--sw-accent-2)', bg: 'var(--sw-accent-dim)' }
+}
+
 /* ══════════════════════════════════════════════════════
    COMPONENTE PRINCIPAL — SelecionarWorkspace (Dashboard Core)
 ══════════════════════════════════════════════════════ */
@@ -129,6 +153,8 @@ export function SelecionarWorkspace() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
+  useShellStore()
+  const [modalSemProdutos, setModalSemProdutos] = useState(false)
 
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -137,6 +163,13 @@ export function SelecionarWorkspace() {
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
   const [produtosContratados, setProdutosContratados] = useState<ProdutoContratado[]>([])
   const [catalogoProdutos, setCatalogoProdutos] = useState<ProdutoCatalogo[]>([])
+  const [wsSearch, setWsSearch] = useState('')
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('gravity_ws_favorites')
+      return new Set(stored ? JSON.parse(stored) : [])
+    } catch { return new Set() }
+  })
   const wsCarouselRef = useRef<HTMLDivElement>(null)
   const prodCarouselRef = useRef<HTMLDivElement>(null)
 
@@ -155,6 +188,29 @@ export function SelecionarWorkspace() {
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
+
+  // Workspaces filtrados por busca e ordenados: favoritos primeiro
+  const wsFiltrados = useMemo(() => {
+    const term = wsSearch.trim().toLowerCase()
+    const filtered = term
+      ? workspaces.filter(ws => ws.nome.toLowerCase().includes(term))
+      : workspaces
+    return [...filtered].sort((a, b) => {
+      const aFav = favoriteIds.has(a.id) ? 0 : 1
+      const bFav = favoriteIds.has(b.id) ? 0 : 1
+      return aFav - bFav
+    })
+  }, [workspaces, wsSearch, favoriteIds])
+
+  function toggleFavorite(e: React.MouseEvent, wsId: string) {
+    e.stopPropagation()
+    setFavoriteIds(prev => {
+      const next = new Set(prev)
+      if (next.has(wsId)) { next.delete(wsId) } else { next.add(wsId) }
+      try { localStorage.setItem('gravity_ws_favorites', JSON.stringify([...next])) } catch {}
+      return next
+    })
+  }
 
   // Produtos contratados ativos
   const contratadosAtivos = produtosContratados.filter(p => p.is_active)
@@ -407,7 +463,7 @@ export function SelecionarWorkspace() {
               userRole={userRole}
               isLight={false}
               onToggleTheme={() => {}}
-              onNavigateOrganizacao={() => navigate('/workspace/organizacao')}
+              onNavigateWorkspace={() => navigate('/workspace/organizacao')}
               onNavigateMarketPlace={() => navigate('/store')}
               onSignOut={handleSair}
               isAdmin={true}
@@ -427,18 +483,53 @@ export function SelecionarWorkspace() {
             <>
               {/* ════ BLOCO 1: WORKSPACES ════ */}
               <section className="sw-ws-section sw-a0">
-                <h1 className="sw-ws-title">Acessar Workspace</h1>
-                <p className="sw-ws-sub">Selecione o workspace que deseja operar nesta sessão.</p>
+                <div className="sw-ws-title-block">
+                  <div className="sw-ws-title-row">
+                    <span className="sw-ws-icon" aria-hidden="true">
+                      <SquaresFour weight="duotone" size={24} />
+                    </span>
+                    <h1 className="sw-ws-title">Acessar Workspace</h1>
+                  </div>
+                  <p className="sw-ws-sub">Selecione o workspace que deseja operar nesta sessão.</p>
+                </div>
+
+                <div className="sw-ws-search-wrap">
+                  <span className="sw-ws-search-icon" aria-hidden="true">
+                    <MagnifyingGlass size={15} weight="bold" />
+                  </span>
+                  <input
+                    className="sw-ws-search"
+                    type="text"
+                    placeholder="Buscar workspace..."
+                    value={wsSearch}
+                    onChange={e => setWsSearch(e.target.value)}
+                    aria-label="Buscar workspace"
+                  />
+                  {wsSearch && (
+                    <button
+                      className="sw-ws-search-clear"
+                      type="button"
+                      onClick={() => setWsSearch('')}
+                      aria-label="Limpar busca"
+                    >×</button>
+                  )}
+                </div>
 
                 <div className="sw-ws-carousel-wrap">
                 <button className="sw-carousel-btn sw-carousel-btn--left" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'left')} aria-label="Anterior">
                   <CaretLeft size={16} weight="bold" />
                 </button>
                 <div className="sw-ws-grid" ref={wsCarouselRef}>
-                  {workspaces.map(ws => (
+                  {wsFiltrados.length === 0 && (
+                    <div className="sw-ws-empty-search">
+                      <MagnifyingGlass size={22} weight="light" />
+                      <span>Nenhum workspace encontrado para "<strong>{wsSearch}</strong>"</span>
+                    </div>
+                  )}
+                  {wsFiltrados.map(ws => (
                     <div
                       key={ws.id}
-                      className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}`}
+                      className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${favoriteIds.has(ws.id) ? ' favorited' : ''}`}
                       data-searchable="true"
                       onClick={() => handleSelectWs(ws.id)}
                       role="button"
@@ -452,8 +543,19 @@ export function SelecionarWorkspace() {
                         >
                           {ws.iniciais}
                         </div>
-                        <div className="sw-ws-check">
-                          <Check size={12} color="white" weight="bold" />
+                        <div className="sw-ws-card-top-actions">
+                          <button
+                            className={`sw-ws-fav-btn${favoriteIds.has(ws.id) ? ' active' : ''}`}
+                            type="button"
+                            onClick={e => toggleFavorite(e, ws.id)}
+                            aria-label={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                            title={favoriteIds.has(ws.id) ? 'Remover favorito' : 'Favoritar'}
+                          >
+                            <Star size={14} weight={favoriteIds.has(ws.id) ? 'fill' : 'regular'} />
+                          </button>
+                          <div className="sw-ws-check">
+                            <Check size={12} color="white" weight="bold" />
+                          </div>
                         </div>
                       </div>
 
@@ -467,18 +569,30 @@ export function SelecionarWorkspace() {
                       <div className="sw-ws-stats">
                         <div>
                           <div className="sw-ws-stat-n">{ws.modulos}</div>
-                          <div className="sw-ws-stat-l">Módulos</div>
+                          <div className="sw-ws-stat-l">Produtos</div>
                         </div>
                         <div>
                           <div className="sw-ws-stat-n">{ws.membros}</div>
-                          <div className="sw-ws-stat-l">Membros</div>
+                          <div className="sw-ws-stat-l">Usuários</div>
                         </div>
                       </div>
 
                       <button
                         className="sw-ws-enter-btn"
                         type="button"
-                        onClick={e => { e.stopPropagation(); handleSelectWs(ws.id); setTimeout(() => { sessionStorage.setItem('gravity_company_id', ws.id); sessionStorage.setItem('gravity_company_name', ws.nome); navigate(contratadosAtivos.length > 0 ? '/core' : '/store') }, 300) }}
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleSelectWs(ws.id)
+                          setTimeout(() => {
+                            sessionStorage.setItem('gravity_company_id', ws.id)
+                            sessionStorage.setItem('gravity_company_name', ws.nome)
+                            if (contratadosAtivos.length > 0) {
+                              navigate('/core')
+                            } else {
+                              setModalSemProdutos(true)
+                            }
+                          }, 300)
+                        }}
                         disabled={entrando}
                       >
                         {entrando ? 'Entrando...' : 'Entrar no Workspace'}
@@ -492,6 +606,31 @@ export function SelecionarWorkspace() {
                     <Plus size={20} />
                     <span className="sw-ws-add-label">Criar novo workspace</span>
                   </button>
+
+                  {/* Gabi AI card */}
+                  <div className="sw-gabi-card">
+                    <div className="sw-gabi-card-watermark">
+                      <Sparkle weight="fill" size={110} />
+                    </div>
+                    <div className="sw-gabi-card-header">
+                      <div className="sw-gabi-card-avatar">
+                        <Sparkle weight="fill" size={14} color="#fff" />
+                      </div>
+                      <span className="sw-gabi-card-label">GABI AI · Insights</span>
+                    </div>
+                    <p className="sw-gabi-card-text">
+                      Sua assistente inteligente está pronta para acelerar suas operações de COMEX com análises em tempo real.
+                    </p>
+                    <div className="sw-gabi-card-footer">
+                      <button
+                        className="sw-gabi-card-btn"
+                        type="button"
+                        onClick={() => navigate('/gabi')}
+                      >
+                        Abrir GABI <CaretRight size={12} />
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <button className="sw-carousel-btn sw-carousel-btn--right" type="button" onClick={() => scrollCarousel(wsCarouselRef, 'right')} aria-label="Próximo">
                   <CaretRight size={16} weight="bold" />
@@ -512,7 +651,7 @@ export function SelecionarWorkspace() {
               <section className="sw-products-section sw-a1">
                 <div className="sw-sec-header">
                   <div className="sw-sec-title-wrap">
-                    <div className="sw-sec-pip" style={{ background: 'var(--sw-accent-2)' }} />
+                    <Package weight="duotone" size={16} style={{ color: '#818cf8', flexShrink: 0 }} />
                     <span className="sw-sec-title">Produtos</span>
                   </div>
                   <button className="sw-sec-link" type="button" onClick={() => navigate('/store')}>
@@ -563,12 +702,21 @@ export function SelecionarWorkspace() {
                   </div>
 
                   {/* Sugeridos (do catálogo, excluindo contratados) */}
-                  <div className="sw-prod-panel">
+                  <div className="sw-prod-panel sw-prod-panel--suggested">
                     <div className="sw-prod-panel-head">
                       <span className="sw-prod-panel-title suggested">Sugeridos para Você</span>
-                      <span className="sw-sec-count" style={{ background: 'var(--sw-accent-dim)', color: 'var(--sw-accent-2)' }}>
-                        {produtosSugeridos.length} novos
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="sw-sec-count" style={{ background: 'var(--sw-accent-dim)', color: 'var(--sw-accent-2)' }}>
+                          {produtosSugeridos.length} disponíveis
+                        </span>
+                        <button
+                          className="sw-btn-ver-catalogo"
+                          type="button"
+                          onClick={() => navigate('/store')}
+                        >
+                          Ver catálogo →
+                        </button>
+                      </div>
                     </div>
                     {produtosSugeridos.length === 0 ? (
                       <div className="sw-prod-empty">
@@ -582,30 +730,46 @@ export function SelecionarWorkspace() {
                       </div>
                     ) : (
                       <div className="sw-prod-list">
-                        {produtosSugeridos.slice(0, 5).map(prod => (
-                          <div
-                            key={prod.id}
-                            className="sw-prod-item"
-                            data-searchable="true"
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => navigate(`/store?produto=${prod.slug}`)}
-                          >
-                            <div className="sw-prod-icon" style={{ background: 'var(--sw-accent-dim)' }}>
-                              <Star size={18} weight="regular" style={{ color: 'var(--sw-accent-2)' }} />
+                        {produtosSugeridos.slice(0, 5).map((prod, idx) => {
+                          const iconData = getProdutoIcon(prod.slug)
+                          const isActive = prod.status === 'ACTIVE' || prod.status === 'Ativo'
+                          return (
+                            <div
+                              key={prod.id}
+                              className="sw-prod-item sw-prod-item--suggested"
+                              data-searchable="true"
+                              onClick={() => navigate(`/store?produto=${prod.slug}`)}
+                            >
+                              <div className="sw-prod-icon" style={{ background: iconData.bg, color: iconData.color }}>
+                                {iconData.icon}
+                              </div>
+                              <div className="sw-prod-body">
+                                <div className="sw-prod-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  {prod.name}
+                                  {idx === 0 && (
+                                    <span className="sw-badge-popular">
+                                      <Fire size={10} weight="fill" /> Popular
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="sw-prod-desc">{prod.description ?? ''}</div>
+                              </div>
+                              <div className="sw-prod-right">
+                                {isActive ? (
+                                  <button
+                                    className="sw-btn-contratar"
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/store?produto=${prod.slug}`) }}
+                                  >
+                                    Contratar <ArrowRight size={11} weight="bold" />
+                                  </button>
+                                ) : (
+                                  <span className="sw-badge sw-b-trial">Em Breve</span>
+                                )}
+                              </div>
                             </div>
-                            <div className="sw-prod-body">
-                              <div className="sw-prod-name">{prod.name}</div>
-                              <div className="sw-prod-desc">{prod.description ?? ''}</div>
-                            </div>
-                            <div className="sw-prod-right">
-                              {(prod.status === 'ACTIVE' || prod.status === 'Ativo') ? (
-                                <span className="sw-badge sw-b-new">Disponível</span>
-                              ) : (
-                                <span className="sw-badge sw-b-trial">Em Breve</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     )}
                   </div>
@@ -615,10 +779,9 @@ export function SelecionarWorkspace() {
 
               {/* ════ BLOCO 3: ATALHOS + GABI AI ════ */}
               <section className="sw-a2">
-                <div className="sw-sec-header" style={{ marginBottom: 16 }}>
+                <div className="sw-sec-header">
                   <div className="sw-sec-title-wrap">
-                    <div className="sw-sec-pip" style={{ background: 'var(--sw-text-3)' }} />
-                    <span className="sw-sec-title">Acesso Rápido</span>
+                    <span className="sw-sec-title sw-sec-title--micro">Acesso Rápido</span>
                   </div>
                 </div>
 
@@ -715,6 +878,153 @@ export function SelecionarWorkspace() {
           )}
         </div>
       </div>
+      <ModalGlobal
+        aberto={modalSemProdutos}
+        aoFechar={() => setModalSemProdutos(false)}
+        tamanho="md"
+        titulo=""
+        cabecalhoPersonalizado={
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            padding: '2rem 2rem 0.75rem',
+            gap: '1rem',
+          }}>
+            {/* Ícone indigo — friendly, não destrutivo */}
+            <div style={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: 'linear-gradient(180deg, rgba(129,140,248,0.15) 0%, rgba(129,140,248,0.05) 100%)',
+              border: '1px solid rgba(129,140,248,0.2)',
+              boxShadow: '0 0 0 8px rgba(129,140,248,0.04), inset 0 2px 8px rgba(129,140,248,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#818cf8',
+              position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute', inset: 0, borderRadius: '50%',
+                background: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1) 0%, transparent 60%)',
+                pointerEvents: 'none',
+              }} />
+              <Package size={28} weight="duotone" />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%', marginTop: '0.25rem' }}>
+              <h2 style={{
+                fontSize: '1.125rem',
+                fontWeight: 700,
+                color: 'var(--text-primary, #f1f5f9)',
+                margin: 0,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.2,
+              }}>
+                Nenhum Produto Gravity Contratado
+              </h2>
+              <p style={{
+                fontSize: '0.875rem',
+                color: 'var(--text-secondary, #94a3b8)',
+                lineHeight: 1.5,
+                margin: 0,
+                width: '100%',
+                textAlign: 'center',
+              }}>
+                É necessário ao menos um produto Gravity para acessar o workspace
+              </p>
+
+              {/* Destaque comercial */}
+              <div style={{
+                marginTop: '0.25rem',
+                padding: '0.875rem 1rem',
+                background: 'linear-gradient(135deg, rgba(129,140,248,0.1) 0%, rgba(167,139,250,0.06) 100%)',
+                border: '1px solid rgba(129,140,248,0.2)',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.75rem',
+                textAlign: 'left',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
+              }}>
+                <span style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 32, height: 32, minWidth: 32,
+                  borderRadius: '8px',
+                  background: 'rgba(129,140,248,0.15)',
+                  color: '#818cf8',
+                }}>
+                  <RocketLaunch size={17} weight="duotone" />
+                </span>
+                <div>
+                  <p style={{ margin: '0 0 0.2rem', fontSize: '0.8125rem', fontWeight: 700, color: '#f1f5f9' }}>
+                    Explore todo o potencial do Gravity
+                  </p>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.5 }}>
+                    Ative agora e leve sua operação a outro nível
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+        renderizarFooter={() => (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '0.75rem',
+            width: '100%',
+            padding: '0 2rem 2rem',
+          }}>
+            <button
+              type="button"
+              style={{
+                width: '180px', height: '38px',
+                display: 'flex', justifyContent: 'center', alignItems: 'center',
+                fontWeight: 600, fontSize: '0.875rem',
+                background: '#f8fafc', color: '#0f172a',
+                border: '1px solid transparent', borderRadius: '8px',
+                cursor: 'pointer', transition: 'all 0.2s',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+              }}
+              onClick={() => setModalSemProdutos(false)}
+              onMouseEnter={e => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.transform = 'translateY(0)' }}
+            >
+              Agora não
+            </button>
+
+            <button
+              type="button"
+              style={{
+                width: '180px', height: '38px',
+                display: 'flex', justifyContent: 'center', alignItems: 'center',
+                gap: '0.5rem',
+                background: 'linear-gradient(180deg, #818cf8 0%, #6366f1 100%)',
+                color: '#ffffff',
+                border: '1px solid #4f46e5',
+                borderTopColor: '#818cf8',
+                borderRadius: '8px',
+                fontWeight: 600, fontSize: '0.875rem',
+                cursor: 'pointer', transition: 'all 0.2s',
+                boxShadow: '0 2px 4px rgba(99,102,241,0.25), inset 0 1px 0 rgba(255,255,255,0.15)',
+              }}
+              onClick={() => { setModalSemProdutos(false); navigate('/store') }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'linear-gradient(180deg, #a5b4fc 0%, #818cf8 100%)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'linear-gradient(180deg, #818cf8 0%, #6366f1 100%)'; e.currentTarget.style.transform = 'translateY(0)' }}
+            >
+              <Package size={16} weight="bold" />
+              Ver Gravity Store
+            </button>
+          </div>
+        )}
+      >
+        <div style={{ display: 'none' }} />
+      </ModalGlobal>
+
+      <ToastContainer />
     </div>
   )
 }

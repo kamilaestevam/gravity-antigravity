@@ -9,20 +9,73 @@
 /* GRAVITY STORE — REDESIGN (gs-*)                                            */
 /* ========================================================================= */
 
-/* Wrapper geral do conteúdo */
+/* ── ROOT + TOPBAR FIXA ─────────────────────────────────────────────────── */
+
+/* Raiz da tela — sem height constraints, rola normalmente */
+.gs-root {
+  min-height: 100vh;
+  background: var(--sw-bg, var(--color-bg, #0f172a));
+  font-family: var(--font);
+  color: var(--sw-text-1);
+}
+
+/* Topbar fixada no topo da janela */
+.gs-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  gap: 16px;
+  background: var(--sw-surface, var(--color-surface, #1e293b));
+  border-bottom: 1px solid var(--sw-border, rgba(99,102,241,0.15));
+  z-index: 100;
+}
+
+/* Wrapper geral do conteúdo — começa logo abaixo da topbar */
 .gs-store {
-  padding: 74px 2rem 4rem;
+  padding: 1.5rem 2rem 4rem;
+  padding-top: calc(54px + 1.5rem);
   max-width: 1280px;
   margin: 0 auto;
-  font-family: var(--font);
-  color: var(--color-text);
-  min-height: 100dvh;
+}
+
+/* Loading centralizado */
+.gs-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+}
+
+/* Botão voltar ao Hub */
+.gs-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(129, 140, 248, 0.25);
+  background: rgba(129, 140, 248, 0.08);
+  color: #818cf8;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.gs-back-btn:hover {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.4);
 }
 
 /* ── HERO ───────────────────────────────────────────────────────────────── */
 .gs-hero {
   position: relative;
-  padding: 3rem 0 2.5rem;
+  padding: 1.25rem 0 2rem;
   overflow: hidden;
 }
 
@@ -38,7 +91,7 @@
   filter: blur(40px);
 }
 
-.gs-hero > * { position: relative; z-index: 1; }
+.gs-hero > *:not(.gs-hero__glow) { position: relative; z-index: 1; }
 
 .gs-pill {
   display: inline-flex;
@@ -73,7 +126,7 @@
   font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #fff;
+  color: var(--sw-text-1);
   margin: 0 0 0.75rem;
   line-height: 1.1;
 }
@@ -86,7 +139,7 @@
 }
 
 .gs-hero__sub {
-  color: var(--color-text-muted);
+  color: var(--sw-text-2);
   font-size: 0.9375rem;
   line-height: 1.65;
   margin: 0;
@@ -142,7 +195,7 @@
 .gs-stat__n {
   font-size: 1.375rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--sw-text-1);
   line-height: 1;
   margin-bottom: 0.2rem;
 }
@@ -150,7 +203,7 @@
 .gs-stat__l {
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: var(--sw-text-2);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -172,7 +225,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--color-text-muted);
+  color: var(--sw-text-2);
   flex-shrink: 0;
 }
 
@@ -180,13 +233,13 @@
   background: none;
   border: none;
   outline: none;
-  color: var(--color-text);
+  color: var(--sw-text-1);
   font-size: 0.875rem;
   font-family: var(--font);
   width: 160px;
 }
 
-.gs-search__input::placeholder { color: var(--color-text-muted); }
+.gs-search__input::placeholder { color: var(--sw-text-3); }
 
 .gs-filters {
   display: flex;
@@ -200,7 +253,7 @@
   background: none;
   border: 1px solid transparent;
   border-radius: 8px;
-  color: var(--color-text-muted);
+  color: var(--sw-text-2);
   font-size: 0.8125rem;
   font-weight: 600;
   font-family: var(--font);
@@ -211,7 +264,7 @@
 }
 
 .gs-filter-tab:hover {
-  color: var(--color-text);
+  color: var(--sw-text-1);
   background: rgba(255,255,255,0.04);
 }
 
@@ -224,7 +277,7 @@
 .gs-toolbar__count {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: var(--sw-text-2);
   white-space: nowrap;
   margin-left: auto;
 }
@@ -235,7 +288,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-muted);
+  color: var(--sw-text-3);
   margin-bottom: 1.25rem;
   padding: 0 0.25rem;
 }
@@ -395,7 +448,7 @@
 .gs-card__name {
   font-size: 1.1875rem;
   font-weight: 800;
-  color: #fff;
+  color: var(--sw-text-1);
   line-height: 1.2;
   margin: 0;
 }
@@ -410,7 +463,7 @@
 
 .gs-card__desc {
   font-size: 0.8125rem;
-  color: var(--color-text-muted);
+  color: var(--sw-text-2);
   line-height: 1.6;
   margin: 0;
   display: -webkit-box;
@@ -430,7 +483,7 @@
 .gs-tag {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.08);
-  color: var(--color-text-muted);
+  color: var(--sw-text-3);
   font-size: 0.6875rem;
   font-weight: 600;
   padding: 0.2rem 0.6rem;
@@ -455,7 +508,7 @@
 .gs-card__users {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-text-muted);
+  color: var(--sw-text-2);
 }
 
 .gs-card__footer-btn-wrap {
@@ -469,7 +522,7 @@
   align-items: center;
   gap: 0.75rem;
   padding-top: 3rem;
-  color: var(--color-text-muted);
+  color: var(--sw-text-3);
   font-size: 0.75rem;
   opacity: 0.5;
 }
@@ -515,7 +568,7 @@
   max-width: 1280px;
   margin: 0 auto;
   font-family: var(--font);
-  color: var(--color-text);
+  color: var(--sw-text-1);
   background: var(--color-bg);
   min-height: 100vh;
 }
@@ -526,7 +579,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-text-muted);
+  color: var(--sw-text-3);
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
@@ -1553,6 +1606,15 @@ body.light-theme .hs-menu-item:hover {
   color: #1e293b;
 }
 
+body.light-theme .hs-menu-item-admin {
+  color: #4f46e5;
+}
+
+body.light-theme .hs-menu-item-admin:hover {
+  background: rgba(79, 70, 229, 0.1);
+  color: #4338ca;
+}
+
 body.light-theme .hs-glass-btn-danger {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid #cbd5e1;
@@ -1625,4 +1687,172 @@ body.light-theme .hs-ambient-glow {
 
 body.light-theme .hs-kanban-col__header {
   border-bottom: 1px solid #e2e8f0;
+}
+
+/* ── Hub: Onboard Cards ──────────────────────────────────────────────────── */
+body.light-theme .hs-onboard-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+body.light-theme .hs-onboard-card:hover {
+  background: #f8fafc;
+  border-color: rgba(79, 70, 229, 0.25);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .hs-onboard-icon {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+body.light-theme .hs-onboard-card:hover .hs-onboard-icon {
+  background: rgba(79, 70, 229, 0.08);
+  border-color: rgba(79, 70, 229, 0.2);
+}
+
+body.light-theme .hs-onboard-text strong {
+  color: #1e293b;
+}
+
+/* ── Hub: Upsell Cards ───────────────────────────────────────────────────── */
+body.light-theme .hs-upsell-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+body.light-theme .hs-upsell-card:hover {
+  background: #ffffff;
+  border-color: rgba(79, 70, 229, 0.2);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+body.light-theme .hs-upsell-info strong {
+  color: #1e293b;
+}
+
+body.light-theme .hs-upsell-icon {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+/* ── Hub: Empty State ────────────────────────────────────────────────────── */
+body.light-theme .hs-empty-state p strong {
+  color: #1e293b;
+}
+
+/* ── Hub: Active product badge ───────────────────────────────────────────── */
+body.light-theme .hs-badge-success-glass {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.3);
+}
+
+body.light-theme .hs-pulse-dot {
+  background: #16a34a;
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.5);
+}
+
+/* ── Store: Tags de features ─────────────────────────────────────────────── */
+body.light-theme .gs-tag {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+}
+
+body.light-theme .gs-tag--muted {
+  opacity: 0.7;
+}
+
+/* ── Store: Filter tabs ──────────────────────────────────────────────────── */
+body.light-theme .gs-filter-tab {
+  color: #475569;
+}
+
+body.light-theme .gs-filter-tab:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+body.light-theme .gs-filter-tab--active {
+  background: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.3);
+  color: #4f46e5;
+}
+
+/* ── Store: Card hover shadows ───────────────────────────────────────────── */
+body.light-theme .gs-card:hover {
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(79, 70, 229, 0.15);
+}
+
+body.light-theme .gs-card--owned:hover {
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(16, 185, 129, 0.15);
+}
+
+body.light-theme .gs-card--soon:hover {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+}
+
+/* ── Store: Card footer ──────────────────────────────────────────────────── */
+body.light-theme .gs-card__footer {
+  background: #f8fafc;
+  border-top-color: #e2e8f0;
+}
+
+/* ── Store: Status badges (contraste WCAG AA) ────────────────────────────── */
+body.light-theme .gs-badge--available {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.25);
+}
+
+body.light-theme .gs-badge--owned {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: rgba(22, 163, 74, 0.25);
+}
+
+body.light-theme .gs-badge--soon {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: rgba(180, 83, 9, 0.25);
+}
+
+body.light-theme .gs-badge--featured {
+  background: #f0fdfa;
+  color: #0d9488;
+  border-color: rgba(13, 148, 136, 0.25);
+}
+
+body.light-theme .gs-badge--pro {
+  background: #ede9fe;
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+/* ── Store: Hero ecosystem pill ──────────────────────────────────────────── */
+body.light-theme .gs-pill {
+  background: rgba(5, 150, 105, 0.1);
+  border-color: rgba(5, 150, 105, 0.3);
+  color: #059669;
+}
+
+body.light-theme .gs-pill__dot {
+  background: #059669;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.5);
+}
+
+/* ── Store: Stats bar ────────────────────────────────────────────────────── */
+body.light-theme .gs-stat:hover {
+  border-color: rgba(79, 70, 229, 0.2);
+}
+
+/* ── Store: Search input ─────────────────────────────────────────────────── */
+body.light-theme .gs-search {
+  color: #475569;
+}
+
+/* ── Store: Toolbar count ────────────────────────────────────────────────── */
+body.light-theme .gs-toolbar__count {
+  color: #475569;
 }

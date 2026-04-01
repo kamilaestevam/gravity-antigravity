@@ -39,18 +39,34 @@ productsRouter.get('/', async (_req, res) => {
     const products = await prisma.globalProduct.findMany({
       orderBy: { name: 'asc' }
     })
-    res.json({ products })
-  } catch {
-    // Tabela GlobalProduct pode não existir — retorna lista do Product
-    try {
-      const products = await prisma.product.findMany({
-        select: { id: true, name: true, slug: true, description: true, status: true },
-        orderBy: { name: 'asc' }
-      })
+    // Se a tabela existe mas está vazia, cai para o fallback
+    if (products.length > 0) {
       res.json({ products })
-    } catch {
-      res.json({ products: [] })
+      return
     }
+  } catch {
+    // Tabela GlobalProduct não existe — continua para fallback
+  }
+
+  // Fallback: usa a tabela Product (seed inicial)
+  try {
+    const products = await prisma.product.findMany({
+      where: { status: { in: ['ACTIVE', 'COMING_SOON'] as any[] } },
+      select: {
+        id: true, name: true, slug: true, description: true, status: true,
+        unit_price: true, unit_currency: true, backend_module: true,
+      },
+      orderBy: { name: 'asc' }
+    })
+    res.json({
+      products: products.map(p => ({
+        ...p,
+        type_billing: null,
+        currency: p.unit_currency ?? 'BRL',
+      }))
+    })
+  } catch {
+    res.json({ products: [] })
   }
 })
 

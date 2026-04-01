@@ -70,10 +70,11 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     const { product_key } = parsed.data
 
-    // Verifica se o produto existe no catálogo
-    const catalogProduct = await prisma.globalProduct.findFirst({
-      where: { slug: product_key, status: 'Ativo' },
-    })
+    // Verifica se o produto existe no catálogo (GlobalProduct ou Product como fallback)
+    const catalogProduct =
+      await prisma.globalProduct.findFirst({ where: { slug: product_key, status: 'Ativo' } }).catch(() => null) ??
+      await prisma.product.findFirst({ where: { slug: product_key, status: { in: ['ACTIVE'] as any[] } } }).catch(() => null)
+
     if (!catalogProduct) {
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')
     }

@@ -22,6 +22,7 @@ export default defineConfig({
       '@nucleo/campo-localizar-expandido-global': path.resolve(monorepoRoot, 'nucleo-global/Campos/campo-localizar-expandido-global/src/index.ts'),
       '@nucleo/campo-select-global': path.resolve(monorepoRoot, 'nucleo-global/Campos/campo-select-global/src/index.ts'),
       // ── Feedback ──
+      '@nucleo/mensageria-global': path.resolve(monorepoRoot, 'nucleo-global/Mensageria Global/mensageria-global/src/index.ts'),
       '@nucleo/status-badge-global': path.resolve(monorepoRoot, 'nucleo-global/Feedback/status-badge-global/src/index.ts'),
       '@nucleo/tooltip-global': path.resolve(monorepoRoot, 'nucleo-global/Feedback/tooltip-global/src/index.ts'),
       // ── Layout ──

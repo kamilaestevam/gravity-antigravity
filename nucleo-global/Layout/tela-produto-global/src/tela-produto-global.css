@@ -1,0 +1,68 @@
+/* ── Tela Produto Global ──────────────────────────────────────────────────── */
+
+/* ── Grid principal ── */
+.tpg-layout {
+  display: grid;
+  grid-template-areas:
+    "topo    topo"
+    "lateral conteudo";
+  grid-template-rows: var(--header-height, 60px) 1fr;
+  grid-template-columns: auto 1fr;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg-body-dark, #0f172a);
+}
+
+/* ── Topo — ocupa as 2 colunas ── */
+.tpg-topo {
+  grid-area: topo;
+  /* MenuTopoGlobal já tem position: sticky internamente */
+}
+
+/* ── Lateral ── */
+.tpg-lateral {
+  grid-area: lateral;
+  overflow: hidden;
+  /* MenuLateralGlobal controla sua própria largura e scroll */
+}
+
+/* ── Área de conteúdo ── */
+.tpg-conteudo {
+  grid-area: conteudo;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tpg-conteudo::-webkit-scrollbar {
+  width: 5px;
+}
+
+.tpg-conteudo::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated, #475569);
+  border-radius: 10px;
+}
+
+/* ── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .tpg-layout {
+  background: var(--bg-base, #f8fafc);
+}
+
+/* ── Responsivo: colapsa lateral abaixo de 768px ── */
+@media (max-width: 768px) {
+  .tpg-layout {
+    grid-template-areas:
+      "topo"
+      "conteudo";
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--header-height, 60px) 1fr;
+  }
+
+  .tpg-lateral {
+    display: none;
+  }
+}

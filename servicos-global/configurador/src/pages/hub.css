@@ -46,15 +46,22 @@ body.light-theme {
   50%       { box-shadow: 0 0 20px rgba(99, 102, 241, 0.2); }
 }
 
-.hb-d1 { animation: hb-fade-up 0.4s 0.05s both; }
-.hb-d2 { animation: hb-fade-up 0.4s 0.12s both; }
-.hb-d3 { animation: hb-fade-up 0.4s 0.20s both; }
-.hb-d4 { animation: hb-fade-up 0.4s 0.28s both; }
-.hb-d5 { animation: hb-fade-up 0.4s 0.36s both; }
+/* Delays mínimos para reduzir tempo de opacity:0 antes da animação */
+.hb-d1 { animation: hb-fade-up 0.35s 0s    both; }
+.hb-d2 { animation: hb-fade-up 0.35s 0.07s both; }
+.hb-d3 { animation: hb-fade-up 0.35s 0.14s both; }
+.hb-d4 { animation: hb-fade-up 0.35s 0.21s both; }
+.hb-d5 { animation: hb-fade-up 0.35s 0.28s both; }
+
+/* Se preferência de movimento reduzido: mostra imediatamente */
+@media (prefers-reduced-motion: reduce) {
+  .hb-d1, .hb-d2, .hb-d3, .hb-d4, .hb-d5 { animation: none; opacity: 1; }
+}
 
 /* ── Shell ────────────────────────────────────────────────────────────────── */
 .hb-shell {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   background: var(--hb-bg);
   color: var(--hb-text);
   font-family: 'Plus Jakarta Sans', sans-serif;

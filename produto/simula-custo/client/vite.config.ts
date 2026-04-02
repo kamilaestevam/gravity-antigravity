@@ -36,8 +36,12 @@ export default defineConfig({
       '@nucleo/cabecalho-global':                  nucleo('Layout/cabecalho-global/src/index.ts'),
       '@nucleo/card-global':                       nucleo('Layout/card-global/src/index.ts'),
       '@nucleo/logo-global':                       nucleo('Layout/logo-global/src/index.ts'),
+      '@nucleo/language-switcher-global':           nucleo('Layout/language-switcher-global/src/index.ts'),
+      '@nucleo/localizador-global':                nucleo('Layout/localizador-global/src/index.ts'),
       '@nucleo/menu-lateral-global':               nucleo('Layout/menu-lateral-global/src/index.ts'),
+      '@nucleo/menu-topo-global':                  nucleo('Layout/menu-topo-global/src/index.ts'),
       '@nucleo/pagina-global':                     nucleo('Layout/pagina-global/src/index.ts'),
+      '@nucleo/tela-produto-global':               nucleo('Layout/tela-produto-global/src/index.ts'),
       '@nucleo/usuario-global':                    nucleo('Layout/usuario-global/src/index.ts'),
       '@nucleo/view-toggle-global':                nucleo('Layout/view-toggle-global/src/index.ts'),
       // ── Modais ──

@@ -21,6 +21,15 @@ import {
   CurrencyDollar,
   Scales,
   Cube,
+  Warning,
+  CheckCircle,
+  Coins,
+  ClipboardText,
+  ArrowRight,
+  Gauge,
+  ArrowsLeftRight,
+  StackSimple,
+  Money,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaCamadasGlobal } from '@nucleo/tabela-camadas-global'
@@ -508,11 +517,25 @@ export default function ListaPedidos() {
   const pedidos = PEDIDOS_MOCK
   const { visiveis: cardsVisiveis } = useCardPreferences()
 
-  // Stats calculados
-  const totalPedidos = pedidos.length
-  const totalItens = pedidos.reduce((acc, p) => acc + p.itens.length, 0)
-  const valorTotal = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
-  const qtdTotal = pedidos.reduce((acc, p) => acc + (p.quantidade_total_pedido ?? 0), 0)
+  // Stats calculados — Pedido (pai)
+  const totalPedidos       = pedidos.length
+  const totalItens         = pedidos.reduce((acc, p) => acc + p.itens.length, 0)
+  const valorTotal         = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
+  const qtdTotal           = pedidos.reduce((acc, p) => acc + (p.quantidade_total_pedido ?? 0), 0)
+  const pedidosAtrasados   = pedidos.filter(p => p.status === 'atrasado').length
+  const pedidosAbertos     = pedidos.filter(p => p.status === 'aberto').length
+  const pedidosEmAndamento = pedidos.filter(p => p.status === 'em_andamento').length
+  const coberturaPendente  = pedidos
+    .filter(p => p.cobertura_cambial === 'sem_cobertura' || !p.cobertura_cambial)
+    .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
+
+  // Stats calculados — Item (filho)
+  const todosItens           = pedidos.flatMap(p => p.itens)
+  const itensProntos         = todosItens.reduce((acc, i) => acc + (i.quantidade_pronta    ?? 0), 0)
+  const qtdAtualTotal        = todosItens.reduce((acc, i) => acc + (i.quantidade_atual      ?? 0), 0)
+  const qtdTransferidaTotal  = todosItens.reduce((acc, i) => acc + (i.quantidade_transferida ?? 0), 0)
+  const qtdInicialTotal      = todosItens.reduce((acc, i) => acc + (i.quantidade_inicial    ?? 0), 0)
+  const valorItensTotal      = todosItens.reduce((acc, i) => acc + (i.valor_item            ?? 0), 0)
 
   return (
     <div className="ws-fade-up lp-page">
@@ -558,6 +581,85 @@ export default function ListaPedidos() {
                   <p className="cg-tooltip__row"><span>{t('pedido.total_itens_distintos')}</span><strong>{totalItens}</strong></p>
                   <p className="cg-tooltip__row"><span>{t('pedido.media_itens_pedido')}</span><strong>{totalPedidos ? (totalItens / totalPedidos).toFixed(1) : 0}</strong></p>
                 </>}
+              />
+            )
+            if (pref.id === 'pedidos_atrasados') return (
+              <CardBasicoGlobal key="pedidos_atrasados"
+                titulo={t('pedido.pedidos_atrasados')}
+                icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
+                valor={pedidosAtrasados}
+                variante="perigo"
+                subtexto={t('pedido.pedidos_atrasados_desc')}
+              />
+            )
+            if (pref.id === 'pedidos_abertos') return (
+              <CardBasicoGlobal key="pedidos_abertos"
+                titulo={t('pedido.pedidos_abertos')}
+                icone={<ClipboardText weight="duotone" size={16} style={{ color: '#60a5fa' }} />}
+                valor={pedidosAbertos}
+                subtexto={t('pedido.pedidos_abertos_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidosEmAndamento}</strong></p>
+                </>}
+              />
+            )
+            if (pref.id === 'pedidos_em_andamento') return (
+              <CardBasicoGlobal key="pedidos_em_andamento"
+                titulo={t('pedido.pedidos_em_andamento')}
+                icone={<ArrowRight weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
+                valor={pedidosEmAndamento}
+                subtexto={t('pedido.pedidos_em_andamento_desc')}
+              />
+            )
+            if (pref.id === 'cobertura_pendente') return (
+              <CardBasicoGlobal key="cobertura_pendente"
+                titulo={t('pedido.cobertura_pendente')}
+                icone={<Coins weight="duotone" size={16} style={{ color: '#fb923c' }} />}
+                valor={fmtMoeda(coberturaPendente)}
+                variante="aviso"
+                subtexto={t('pedido.cobertura_pendente_desc')}
+              />
+            )
+            if (pref.id === 'itens_prontos') return (
+              <CardBasicoGlobal key="itens_prontos"
+                titulo={t('pedido.itens_prontos')}
+                icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
+                valor={fmtQuantidade(itensProntos)}
+                variante="sucesso"
+                subtexto={t('pedido.itens_prontos_desc')}
+              />
+            )
+            if (pref.id === 'qtd_atual_total') return (
+              <CardBasicoGlobal key="qtd_atual_total"
+                titulo={t('pedido.qtd_atual_total')}
+                icone={<Gauge weight="duotone" size={16} style={{ color: '#38bdf8' }} />}
+                valor={fmtQuantidade(qtdAtualTotal)}
+                subtexto={t('pedido.qtd_atual_total_desc')}
+              />
+            )
+            if (pref.id === 'qtd_transferida_total') return (
+              <CardBasicoGlobal key="qtd_transferida_total"
+                titulo={t('pedido.qtd_transferida_total')}
+                icone={<ArrowsLeftRight weight="duotone" size={16} style={{ color: '#a3e635' }} />}
+                valor={fmtQuantidade(qtdTransferidaTotal)}
+                subtexto={t('pedido.qtd_transferida_total_desc')}
+              />
+            )
+            if (pref.id === 'qtd_inicial_total') return (
+              <CardBasicoGlobal key="qtd_inicial_total"
+                titulo={t('pedido.qtd_inicial_total')}
+                icone={<StackSimple weight="duotone" size={16} style={{ color: '#94a3b8' }} />}
+                valor={fmtQuantidade(qtdInicialTotal)}
+                subtexto={t('pedido.qtd_inicial_total_desc')}
+              />
+            )
+            if (pref.id === 'valor_itens_total') return (
+              <CardBasicoGlobal key="valor_itens_total"
+                titulo={t('pedido.valor_itens_total')}
+                icone={<Money weight="duotone" size={16} style={{ color: '#f59e0b' }} />}
+                valor={fmtMoeda(valorItensTotal)}
+                variante="aviso"
+                subtexto={t('pedido.valor_itens_total_desc')}
               />
             )
             return null

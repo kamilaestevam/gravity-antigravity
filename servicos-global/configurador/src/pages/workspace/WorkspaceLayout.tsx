@@ -220,6 +220,7 @@ export function WorkspaceLayout() {
             onSignOut={() => signOut()}
             isAdmin={false} // UsuarioGlobal resolverá privilégios de Super Admin via e-mail
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            compact
           />
         </div>
 

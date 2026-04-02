@@ -195,6 +195,7 @@ export function AdminLayout() {
             onSignOut={() => signOut()}
             isAdmin={true}
             isAdminPanel={true}
+            compact
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             onNavigateConfigurador={() => navigate('/workspace/workspaces')}
           />

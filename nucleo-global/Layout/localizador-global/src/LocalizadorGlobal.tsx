@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './localizador-global.css'
 import type { EcosystemNode, LocalizadorEntry, LocalizadorGlobalProps } from './types'
 
@@ -255,26 +256,28 @@ export function LocalizadorGlobal({
     <div className="lcg-wrap" ref={panelRef}>
 
       {/* ── Trigger button (vai no header superior direito) ── */}
+      <TooltipGlobal descricao="Onde estou — abrir mapa do ecossistema">
       <button
         className={`lcg-trigger${isOpen ? ' lcg-trigger--active' : ''}${iconOnly ? ' lcg-trigger--icon' : ''}`}
         style={{ '--lcg-color': currentProductColor } as React.CSSProperties}
         onClick={() => setIsOpen((v: boolean) => !v)}
         aria-label="Onde estou — abrir mapa do ecossistema"
-        title="Onde estou"
         aria-expanded={isOpen}
       >
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
-          <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" opacity=".5"/>
-        </svg>
+        <div className="lcg-trigger__icon-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.9"/>
+            <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.5" opacity="0.4"/>
+          </svg>
+          <span className="lcg-trigger__orbit"/>
+        </div>
         {!iconOnly && (
           <span className="lcg-trigger__label">
             {currentProductLabel} <span style={{ opacity: 0.4, fontWeight: 'normal', margin: '0 2px' }}>›</span> {currentPageLabel}
           </span>
         )}
-        <span className="lcg-trigger__pulse"/>
       </button>
+      </TooltipGlobal>
 
       {/* ── Panel overlay ── */}
       {isOpen && (

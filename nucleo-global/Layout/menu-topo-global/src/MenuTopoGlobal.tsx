@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MagnifyingGlass, Info, Cube, Hexagon, X } from '@phosphor-icons/react'
+import { MagnifyingGlass, Info, X } from '@phosphor-icons/react'
+import { LogoHub, LogoCore } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import {
   LocalizadorGlobal,
   type LocalizadorEntry,
@@ -42,6 +44,8 @@ export interface MenuTopoGlobalProps {
   localizador: MenuTopoLocalizadorConfig
   /** Props para o UsuarioGlobal */
   usuario: MenuTopoUsuarioConfig
+  /** Quando o menu lateral está recolhido — substitui breadcrumb pelo nome do produto */
+  sidebarCollapsed?: boolean
   /** Navegar para o Hub — omitir ou passar false oculta o botão (ex: na tela Hub) */
   onNavigateHub?: () => void
   /** Navegar para o Core — omitir ou passar false oculta o botão (ex: na tela Core) */
@@ -55,6 +59,7 @@ export function MenuTopoGlobal({
   productColor = '#818cf8',
   productIcon,
   viewToggle,
+  sidebarCollapsed = false,
   tooltipsDisabled,
   onToggleTooltips,
   localizador,
@@ -102,13 +107,13 @@ export function MenuTopoGlobal({
   return (
     <header className="mtg-header" style={cssVars} role="banner">
 
-      {/* ── ESQUERDA: título da view atual ── */}
+      {/* ── ESQUERDA: nome do produto (collapsed) ou produto › view (expanded) ── */}
       <div className="mtg-left">
         {viewToggle
           ? viewToggle
           : (
             <span className="mtg-left__page-title">
-              {localizador.currentPageLabel}
+              {sidebarCollapsed ? productName : localizador.currentPageLabel}
             </span>
           )
         }
@@ -140,85 +145,93 @@ export function MenuTopoGlobal({
             </button>
           </div>
         ) : (
-          <button
-            className="mtg-icon-btn"
-            type="button"
-            aria-label={t('shell.busca_global', 'Buscar na tela')}
-            title={t('shell.busca_global', 'Buscar na tela')}
-            onClick={openSearch}
-          >
-            <MagnifyingGlass size={17} />
-          </button>
+          <TooltipGlobal descricao={t('shell.busca_global', 'Buscar na tela')}>
+            <button
+              className="mtg-icon-btn"
+              type="button"
+              aria-label={t('shell.busca_global', 'Buscar na tela')}
+              onClick={openSearch}
+            >
+              <MagnifyingGlass size={17} />
+            </button>
+          </TooltipGlobal>
         )}
 
         {/* Toggle de dicas */}
-        <button
-          className="mtg-icon-btn"
-          type="button"
-          aria-label={tooltipsDisabled ? t('shell.habilitar_dicas', 'Habilitar dicas') : t('shell.desabilitar_dicas', 'Desabilitar dicas')}
-          title={tooltipsDisabled ? t('shell.label_habilitar_dicas', 'Habilitar dicas') : t('shell.label_desabilitar_dicas', 'Desabilitar dicas')}
-          onClick={onToggleTooltips}
-          style={{ color: tooltipsDisabled ? 'var(--text-muted)' : productColor }}
-        >
-          <Info size={17} weight={tooltipsDisabled ? 'regular' : 'fill'} />
-        </button>
+        <TooltipGlobal descricao={tooltipsDisabled ? t('shell.habilitar_dicas', 'Habilitar dicas') : t('shell.desabilitar_dicas', 'Desabilitar dicas')}>
+          <button
+            className="mtg-icon-btn"
+            type="button"
+            aria-label={tooltipsDisabled ? t('shell.habilitar_dicas', 'Habilitar dicas') : t('shell.desabilitar_dicas', 'Desabilitar dicas')}
+            onClick={onToggleTooltips}
+            style={{ color: tooltipsDisabled ? 'var(--text-muted)' : '#818cf8' }}
+          >
+            <Info size={17} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+          </button>
+        </TooltipGlobal>
 
         {/* Seletor de idioma */}
         <LanguageSwitcherGlobal iconOnly />
 
-        {/* Localizador — onde estou */}
-        <LocalizadorGlobal
-          workspaceName={localizador.workspaceName}
-          currentProductId={localizador.currentProductId}
-          currentProductLabel={localizador.currentProductLabel}
-          currentProductColor={localizador.currentProductColor}
-          currentPageLabel={localizador.currentPageLabel}
-          history={localizador.history}
-          nodes={localizador.nodes}
-          onNavigate={localizador.onNavigate}
-          iconOnly
-        />
+        {/* Localizador — onde estou (cor fixa Gravity, não herda cor do produto) */}
+        <div style={{ '--lcg-color': '#818cf8' } as React.CSSProperties}>
+          <LocalizadorGlobal
+            workspaceName={localizador.workspaceName}
+            currentProductId={localizador.currentProductId}
+            currentProductLabel={localizador.currentProductLabel}
+            currentProductColor={localizador.currentProductColor}
+            currentPageLabel={localizador.currentPageLabel}
+            history={localizador.history}
+            nodes={localizador.nodes}
+            onNavigate={localizador.onNavigate}
+            iconOnly
+          />
+        </div>
 
         <div className="mtg-sep" />
 
-        {/* Atalho Hub — oculto quando onNavigateHub não fornecido (ex: tela Hub) */}
+        {/* Atalho Hub */}
         {onNavigateHub && (
-          <button
-            className="mtg-nav-btn"
-            type="button"
-            title={t('shell.voltar_hub', 'Voltar ao Hub')}
-            onClick={onNavigateHub}
-            style={{
-              '--mtg-btn-color':        '#818cf8',
-              '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
-              '--mtg-btn-border':       'rgba(129,140,248,0.22)',
-              '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
-              '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
-            } as React.CSSProperties}
-          >
-            <Hexagon size={13} weight="duotone" />
-            Hub
-          </button>
+          <TooltipGlobal descricao={t('shell.voltar_hub', 'Voltar ao Hub')}>
+            <button
+              className="mtg-nav-btn"
+              type="button"
+              aria-label={t('shell.voltar_hub', 'Voltar ao Hub')}
+              onClick={onNavigateHub}
+              style={{
+                '--mtg-btn-color':        '#818cf8',
+                '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
+                '--mtg-btn-border':       'rgba(129,140,248,0.22)',
+                '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
+                '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
+              } as React.CSSProperties}
+            >
+              <LogoHub size={13} color="#818cf8" />
+              Hub
+            </button>
+          </TooltipGlobal>
         )}
 
-        {/* Atalho Core — oculto quando onNavigateCore não fornecido (ex: tela Core) */}
+        {/* Atalho Core — cor fixa #818cf8 (identidade Gravity), não herda cor do produto */}
         {onNavigateCore && (
-          <button
-            className="mtg-nav-btn"
-            type="button"
-            title={t('shell.ir_core', 'Ir para o Core')}
-            onClick={onNavigateCore}
-            style={{
-              '--mtg-btn-color':        productColor,
-              '--mtg-btn-bg':           `${productColor}12`,
-              '--mtg-btn-border':       `${productColor}2e`,
-              '--mtg-btn-bg-hover':     `${productColor}22`,
-              '--mtg-btn-border-hover': `${productColor}55`,
-            } as React.CSSProperties}
-          >
-            <Cube size={13} weight="duotone" />
-            Core
-          </button>
+          <TooltipGlobal descricao={t('shell.ir_core', 'Ir para o Core')}>
+            <button
+              className="mtg-nav-btn"
+              type="button"
+              aria-label={t('shell.ir_core', 'Ir para o Core')}
+              onClick={onNavigateCore}
+              style={{
+                '--mtg-btn-color':        '#818cf8',
+                '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
+                '--mtg-btn-border':       'rgba(129,140,248,0.22)',
+                '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
+                '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
+              } as React.CSSProperties}
+            >
+              <LogoCore size={13} color="#818cf8" />
+              Core
+            </button>
+          </TooltipGlobal>
         )}
 
         <div className="mtg-sep" />

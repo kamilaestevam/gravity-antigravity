@@ -94,6 +94,10 @@
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
+.cg-card--has-tooltip:hover {
+  z-index: 9999;
+}
+
 .cg-card--has-tooltip:hover .cg-card__tooltip {
   opacity: 1;
   pointer-events: auto;

@@ -335,6 +335,7 @@ export function Core() {
             isAdmin={false}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             onNavigateConfigurador={() => navigate('/workspace/workspaces')}
+            compact
           />
         </div>
 

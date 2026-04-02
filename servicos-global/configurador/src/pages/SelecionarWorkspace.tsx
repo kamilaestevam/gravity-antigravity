@@ -8,13 +8,11 @@ import {
   ChartLine,
   UsersThree,
   GearSix,
-  Bell,
   MagnifyingGlass,
   Plus,
   Check,
   ArrowRight,
   Star,
-  Download,
   CheckCircle,
   Clock,
   Sparkle,
@@ -44,6 +42,7 @@ import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
+import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalGlobal } from '@nucleo/modal-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './selecionar-workspace.css'
@@ -104,6 +103,14 @@ interface GabiInsight {
   rota: string
 }
 
+interface CompanyApi {
+  id: string
+  name: string
+  cnpj: string | null
+  status: string
+  _count?: { memberships: number }
+}
+
 /* ── Paleta de gradientes para workspace cards ── */
 const WORKSPACE_GRADIENTS = [
   { from: '#4F63FF', to: '#1ED8C8' },
@@ -111,6 +118,20 @@ const WORKSPACE_GRADIENTS = [
   { from: '#1ED8C8', to: '#20C96A' },
   { from: '#A855F7', to: '#6366F1' },
   { from: '#EC4899', to: '#F43F5E' },
+]
+
+/* ── Mock workspaces (fallback quando API não retorna companies) ── */
+const MOCK_WORKSPACES_RAW = [
+  { id: 'mock-1',  name: 'DMM Importações',     modulos: 3, membros: 12 },
+  { id: 'mock-2',  name: 'TechBrasil Ltda',      modulos: 5, membros: 8  },
+  { id: 'mock-3',  name: 'Exporta Sul',          modulos: 2, membros: 5  },
+  { id: 'mock-4',  name: 'Alpha Logística',      modulos: 7, membros: 20 },
+  { id: 'mock-5',  name: 'Comex Partners',       modulos: 4, membros: 3  },
+  { id: 'mock-6',  name: 'Nexus Trade',          modulos: 6, membros: 15 },
+  { id: 'mock-7',  name: 'Prime Cargo',          modulos: 3, membros: 7  },
+  { id: 'mock-8',  name: 'Global Freight',       modulos: 5, membros: 9  },
+  { id: 'mock-9',  name: 'Summit Distribuidora', modulos: 2, membros: 4  },
+  { id: 'mock-10', name: 'Zenith Operações',     modulos: 4, membros: 6  },
 ]
 
 /* ── Atalhos (estáticos — navegação interna) ── */
@@ -167,11 +188,34 @@ export function SelecionarWorkspace() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
-  const { tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const isLight = currentTheme === 'light'
+
+  useEffect(() => {
+    if (isLight) {
+      document.body.classList.add('light-theme')
+    } else {
+      document.body.classList.remove('light-theme')
+    }
+  }, [isLight])
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
 
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [workspaces, setWorkspaces] = useState<Workspace[]>(() =>
+    MOCK_WORKSPACES_RAW.map((c, i) => {
+      const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
+      return {
+        id: c.id,
+        nome: c.name,
+        iniciais: c.name.substring(0, 2).toUpperCase(),
+        role: 'Importador',
+        modulos: c.modulos,
+        membros: c.membros,
+        gradientFrom: grad.from,
+        gradientTo: grad.to,
+      }
+    })
+  )
+  const [selectedId, setSelectedId] = useState<string | null>(MOCK_WORKSPACES_RAW[0].id)
   const [carregando, setCarregando] = useState(true)
   const [entrando, setEntrando] = useState(false)
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
@@ -191,6 +235,22 @@ export function SelecionarWorkspace() {
   /* ── GABI insights ── */
   const [gabiInsights, setGabiInsights] = useState<GabiInsight[]>([])
   const [gabiLoading, setGabiLoading] = useState(true)
+
+  /* ── Mensageria (sino) ── */
+  const [avisos, setAvisos] = useState<AvisoInterno[]>([])
+  const handleMarcarLido = (id: string) => setAvisos(prev => prev.map(a => a.id === id ? { ...a, lido: true } : a))
+  const handleMarcarTodosLidos = () => setAvisos(prev => prev.map(a => ({ ...a, lido: true })))
+  const handleCriarAviso = (texto: string) => {
+    const novo: AvisoInterno = {
+      id: `aviso-${Date.now()}`,
+      conteudo: texto,
+      autor: { nome: userName },
+      dataHora: new Date().toLocaleString('pt-BR'),
+      lido: false,
+      tipo: 'aviso',
+    }
+    setAvisos(prev => [novo, ...prev])
+  }
   const [gabiPaused, setGabiPaused] = useState(false)
 
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
@@ -311,15 +371,7 @@ export function SelecionarWorkspace() {
         const tenantUserCount = data.tenant?._count?.users ?? 0
 
         if (data.companies && data.companies.length > 0) {
-          interface CompanyApi {
-            id: string
-            name: string
-            cnpj: string | null
-            status: string
-            _count?: { memberships: number }
-          }
-
-          const mapeados: Workspace[] = data.companies.map((c: CompanyApi, i: number) => {
+          const mapeados: Workspace[] = (data.companies as CompanyApi[]).map((c, i) => {
             const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
             const membros = (c._count?.memberships || 0) > 0 ? c._count!.memberships : tenantUserCount
             return {
@@ -335,27 +387,23 @@ export function SelecionarWorkspace() {
           })
           setWorkspaces(mapeados)
           setSelectedId(mapeados[0].id)
+        } else {
+          setWorkspaces(MOCK_WORKSPACES_RAW.map((c, i) => {
+            const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
+            return {
+              id: c.id,
+              nome: c.name,
+              iniciais: c.name.substring(0, 2).toUpperCase(),
+              role: data.tenant?.tipo_empresa ?? 'Importador',
+              modulos: c.modulos,
+              membros: c.membros,
+              gradientFrom: grad.from,
+              gradientTo: grad.to,
+            }
+          }))
+          setSelectedId(MOCK_WORKSPACES_RAW[0].id)
         }
 
-        // Produtos — independente dos workspaces
-        if (resProdutos.ok) {
-          const dataProd = await resProdutos.json()
-          if (dataProd.products) {
-            const ativos: ProdutoAtivo[] = dataProd.products
-              .filter((p: Record<string, unknown>) => p.status === 'ACTIVE')
-              .map((p: Record<string, unknown>) => {
-                const slug = p.slug as string
-                const info = PRODUCT_ROUTE_MAP[slug]
-                return {
-                  id: p.id as string,
-                  slug,
-                  nome: info?.nome ?? (p.name as string),
-                  rota: info?.rota ?? `/produto/${slug}`,
-                }
-              })
-            setProdutosAtivos(ativos)
-          }
-        }
       } catch {
         // API indisponível — mostra estado vazio
       } finally {
@@ -442,7 +490,7 @@ export function SelecionarWorkspace() {
   /* ── GABI: auto-avanço a cada 6s ── */
   React.useEffect(() => {
     if (gabiPaused || gabiInsights.length <= 1) return
-    const timer = setInterval(() => scrollCarousel(gabiCarouselRef, 'right'), 6000)
+    const timer = setInterval(() => scrollCarousel(gabiCarouselRef, 'right'), 5000)
     return () => clearInterval(timer)
   }, [gabiPaused, gabiInsights.length, scrollCarousel])
 
@@ -583,6 +631,26 @@ export function SelecionarWorkspace() {
             texto: <>Dólar em queda de <strong>1,4%</strong> esta semana. Boa janela para antecipar fechamento de câmbio.</>,
             stat: { label: 'USD/BRL atual', valor: 'R$ 5,12' },
             textoLink: 'Ver cotações', rota: '/produto/bid-cambio',
+          },
+          {
+            id: 'demo-di', variante: 'warn',
+            tag: 'Atenção · DI Pendente',
+            texto: <><strong>3 Declarações de Importação</strong> aguardam parametrização há mais de <strong>5 dias</strong>.</>,
+            textoLink: 'Ver DIs', rota: '/produto/lpco',
+          },
+          {
+            id: 'demo-pedido', variante: 'default',
+            tag: 'Pedido · NF Importação',
+            texto: <>Pedido <strong>#PED-2041</strong> teve todas as notas fiscais emitidas. Pronto para faturamento.</>,
+            stat: { label: 'Valor total', valor: 'R$ 187.300' },
+            textoLink: 'Ver pedido', rota: '/produto/nf-importacao',
+          },
+          {
+            id: 'demo-ncm2', variante: 'default',
+            tag: 'Classificação · SimulaCusto',
+            texto: <>GABI identificou <strong>5 NCMs</strong> com alíquota de II reduzida disponível por ex-tarifário.</>,
+            stat: { label: 'Potencial de economia', valor: 'R$ 41.000/ano' },
+            textoLink: 'Ver oportunidades', rota: '/produto/simula-custo',
           }
         )
 
@@ -653,9 +721,12 @@ export function SelecionarWorkspace() {
             <LanguageSwitcherGlobal />
 
             <div className="sw-notif-wrap">
-              <button className="sw-t-icon" type="button" title={t('sw.notificacoes')}>
-                <Bell size={15} />
-              </button>
+              <AvisoInternoGlobal
+                avisos={avisos}
+                onMarcarLido={handleMarcarLido}
+                onMarcarTodosLidos={handleMarcarTodosLidos}
+                onCriarAviso={handleCriarAviso}
+              />
             </div>
             <div className="sw-t-sep" />
             <UsuarioGlobal
@@ -663,13 +734,14 @@ export function SelecionarWorkspace() {
               userEmail={userEmail}
               userInitials={userInitials}
               userRole={userRole}
-              isLight={false}
-              onToggleTheme={() => {}}
+              isLight={isLight}
+              onToggleTheme={toggleTheme}
               onNavigateWorkspace={() => navigate('/workspace/organizacao')}
               onNavigateMarketPlace={() => navigate('/store')}
               onSignOut={handleSair}
               isAdmin={true}
               onNavigateAdmin={() => navigate('/admin/visao-geral')}
+              compact
             />
           </div>
         </header>
@@ -747,14 +819,14 @@ export function SelecionarWorkspace() {
                           </div>
                           <div className="sw-ws-card-top-actions">
                             <TooltipGlobal
-                              titulo={favoriteIds.has(ws.id) ? t('sw.fav_remover_titulo') : t('sw.fav_adicionar_titulo')}
-                              descricao={favoriteIds.has(ws.id) ? t('sw.fav_remover_desc') : t('sw.fav_adicionar_desc')}
+                              titulo={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Favoritar workspace'}
+                              descricao={favoriteIds.has(ws.id) ? 'Clique para remover este workspace dos favoritos' : 'Marque como favorito para acessar rapidamente na próxima vez'}
                             >
                               <button
                                 className={`sw-ws-fav-btn${favoriteIds.has(ws.id) ? ' active' : ''}`}
                                 type="button"
                                 onClick={e => toggleFavorite(e, ws.id)}
-                                aria-label={favoriteIds.has(ws.id) ? t('sw.fav_remover_aria') : t('sw.fav_adicionar_aria')}
+                                aria-label={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                               >
                                 <Star size={14} weight={favoriteIds.has(ws.id) ? 'fill' : 'regular'} />
                               </button>
@@ -819,39 +891,48 @@ export function SelecionarWorkspace() {
                 </div>
 
                 {/* GABI AI — carrossel dinâmico */}
-                <div className="sw-gabi-outer sw-a1">
-                  <button
-                    className="sw-carousel-btn sw-carousel-btn--left"
-                    type="button"
-                    onClick={() => scrollCarousel(gabiCarouselRef, 'left')}
-                    disabled={gabiInsights.length <= 1}
-                    aria-label="Insight anterior"
-                  >
-                    <CaretLeft size={16} weight="bold" />
-                  </button>
-
-                  <div
-                    className="sw-gabi-card"
-                    onMouseEnter={() => setGabiPaused(true)}
-                    onMouseLeave={() => setGabiPaused(false)}
-                  >
-                    <div className="sw-gabi-card-watermark" aria-hidden="true">
-                      <Sparkle weight="fill" size={200} />
-                    </div>
-                    <div className="sw-gabi-card-main">
-                      {/* Header */}
-                      <div className="sw-gabi-card-top-row">
-                        <div className="sw-gabi-card-header">
-                          <div className="sw-gabi-card-avatar">
-                            <Sparkle weight="fill" size={14} color="#fff" />
-                          </div>
-                          <span className="sw-gabi-card-label">{t('sw.gabi_label')}</span>
+                <div
+                  className="sw-gabi-card sw-a1"
+                  onMouseEnter={() => setGabiPaused(true)}
+                  onMouseLeave={() => setGabiPaused(false)}
+                >
+                  <div className="sw-gabi-card-watermark" aria-hidden="true">
+                    <Sparkle weight="fill" size={200} />
+                  </div>
+                  <div className="sw-gabi-card-main">
+                    {/* Header */}
+                    <div className="sw-gabi-card-top-row">
+                      <div className="sw-gabi-card-header">
+                        <div className="sw-gabi-card-avatar">
+                          <Sparkle weight="fill" size={14} color="#fff" />
                         </div>
+                        <span className="sw-gabi-card-label">{t('sw.gabi_label')}</span>
+                      </div>
+                      <div className="sw-gabi-header-right">
+                        <button
+                          className="sw-gabi-nav-btn"
+                          type="button"
+                          onClick={() => scrollCarousel(gabiCarouselRef, 'left')}
+                          disabled={gabiInsights.length <= 1}
+                          aria-label="Insight anterior"
+                        >
+                          <CaretLeft size={12} weight="bold" />
+                        </button>
+                        <button
+                          className="sw-gabi-nav-btn"
+                          type="button"
+                          onClick={() => scrollCarousel(gabiCarouselRef, 'right')}
+                          disabled={gabiInsights.length <= 1}
+                          aria-label="Próximo insight"
+                        >
+                          <CaretRight size={12} weight="bold" />
+                        </button>
                         <span className="sw-gabi-live-badge">
                           <span className="sw-gabi-live-dot" />
                           {t('sw.ao_vivo')}
                         </span>
                       </div>
+                    </div>
 
                       {/* Track horizontal */}
                       {gabiLoading ? (
@@ -878,255 +959,117 @@ export function SelecionarWorkspace() {
                                 {ins.tag}
                               </div>
                               <p className="sw-gabi-insight-text">{ins.texto}</p>
-                              {ins.stat && (
-                                <div className="sw-gabi-insight-stat">
-                                  <span className="sw-gabi-insight-stat-label">{ins.stat.label}</span>
-                                  <span className="sw-gabi-insight-stat-value">{ins.stat.valor}</span>
-                                </div>
-                              )}
-                              <button
-                                className="sw-gabi-insight-link"
-                                type="button"
-                                onClick={() => navigate(ins.rota)}
-                              >
-                                {ins.textoLink} <CaretRight size={11} />
-                              </button>
+                              <div className="sw-gabi-insight-bottom">
+                                {ins.stat && (
+                                  <div className="sw-gabi-insight-stat">
+                                    <span className="sw-gabi-insight-stat-label">{ins.stat.label}</span>
+                                    <span className="sw-gabi-insight-stat-value">{ins.stat.valor}</span>
+                                  </div>
+                                )}
+                                <button
+                                  className="sw-gabi-insight-link"
+                                  type="button"
+                                  onClick={() => navigate(ins.rota)}
+                                >
+                                  {ins.textoLink} <CaretRight size={11} />
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
                       )}
                     </div>
                   </div>
-
-                  <button
-                    className="sw-carousel-btn sw-carousel-btn--right"
-                    type="button"
-                    onClick={() => scrollCarousel(gabiCarouselRef, 'right')}
-                    disabled={gabiInsights.length <= 1}
-                    aria-label="Próximo insight"
-                  >
-                    <CaretRight size={16} weight="bold" />
-                  </button>
-                </div>
               </section>
 
               {/* ════ BLOCO 2: PRODUTOS ════ */}
               <section className="sw-products-section sw-a1">
-
-                <div className="sw-products-carousel-wrap">
-                <div className="sw-products-cols" ref={prodCarouselRef}>
-                  {/* Contratados */}
-                  <div className="sw-prod-panel">
-                    <div className="sw-prod-panel-head">
-                      <span className="sw-prod-panel-title contracted">
-                        <Package weight="duotone" size={15} />
-                        {t('sw.produtos_contratados')}
+                <div className="sw-prod-panel sw-prod-panel--unified">
+                  <div className="sw-prod-panel-head">
+                    <span className="sw-prod-panel-title contracted">
+                      <Package weight="duotone" size={15} />
+                      Produtos Gravity
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className="sw-sec-count">
+                        {contratadosAtivos.length}/{contratadosAtivos.length + produtosSugeridos.length} {t('sw.ativos')}
                       </span>
-                      <span className="sw-sec-count">{contratadosAtivos.length} {t('sw.ativos')}</span>
+                      <button className="sw-btn-ver-catalogo" type="button" onClick={() => navigate('/store')}>
+                        {t('sw.ver_catalogo')} <ArrowRight size={10} />
+                      </button>
                     </div>
-                    {contratadosAtivos.length === 0 ? (
-                      <div className="sw-prod-empty">
-                        <div className="sw-prod-empty-icon">
-                          <Clock size={20} />
-                        </div>
-                        <div className="sw-prod-empty-title">{t('sw.nenhum_produto_titulo')}</div>
-                        <div className="sw-prod-empty-desc">
-                          {t('sw.nenhum_produto_desc')}
-                        </div>
-                        <button className="sw-btn-sm" type="button" onClick={() => navigate('/store')} style={{ marginTop: '8px' }}>
-                          {t('sw.explorar_produtos')}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="sw-prod-list">
-                        {contratadosAtivos.map(prod => (
-                          <div key={prod.product_key} className="sw-prod-item" data-searchable="true">
-                            <div className="sw-prod-icon" style={{ background: 'var(--sw-green-dim)' }}>
-                              <CheckCircle size={18} weight="regular" style={{ color: 'var(--sw-green)' }} />
-                            </div>
-                            <div className="sw-prod-body">
-                              <div className="sw-prod-name">{prod.nome}</div>
-                              <div className="sw-prod-desc">{prod.descricao}</div>
-                            </div>
-                            <div className="sw-prod-right">
-                              <span className="sw-badge sw-b-active">{t('sw.ativo')}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
-                  {/* Sugeridos (do catálogo, excluindo contratados) */}
-                  <div className="sw-prod-panel sw-prod-panel--suggested">
-                    <div className="sw-prod-panel-head">
-                      <span className="sw-prod-panel-title suggested">
-                        <Fire weight="duotone" size={15} className="sw-fire-pulse" />
-                        {t('sw.sugeridos_titulo')}
-                      </span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className="sw-sec-count" style={{ background: 'var(--sw-accent-dim)', color: 'var(--sw-accent-2)' }}>
-                          {produtosSugeridos.length} {t('sw.disponiveis')}
-                        </span>
-                        <button
-                          className="sw-btn-ver-catalogo"
-                          type="button"
-                          onClick={() => navigate('/store')}
+                  <div className="sw-prod-list">
+                    {/* Contratados e habilitados */}
+                    {contratadosAtivos.map(prod => {
+                      const iconData = getProdutoIcon(prod.product_key)
+                      const rota = PRODUCT_ROUTE_MAP[prod.product_key]?.rota ?? `/produto/${prod.product_key}`
+                      return (
+                        <div
+                          key={prod.product_key}
+                          className="sw-prod-item sw-prod-item--active"
+                          data-searchable="true"
+                          onClick={() => navigate(rota)}
                         >
-                          {t('sw.ver_catalogo')}
-                        </button>
-                      </div>
-                    </div>
-                    {produtosSugeridos.length === 0 ? (
-                      <div className="sw-prod-empty">
-                        <div className="sw-prod-empty-icon">
-                          <CheckCircle size={20} />
-                        </div>
-                        <div className="sw-prod-empty-title">{t('sw.tudo_contratado_titulo')}</div>
-                        <div className="sw-prod-empty-desc">
-                          {t('sw.tudo_contratado_desc')}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="sw-prod-list">
-                        {produtosSugeridos.slice(0, 5).map((prod, idx) => {
-                          const iconData = getProdutoIcon(prod.slug)
-                          const isActive = prod.status === 'ACTIVE' || prod.status === 'Ativo'
-                          return (
-                            <div
-                              key={prod.id}
-                              className="sw-prod-item sw-prod-item--suggested"
-                              data-searchable="true"
-                              onClick={() => navigate(`/store?produto=${prod.slug}`)}
+                          <div className="sw-prod-icon" style={{ background: iconData.bg, color: iconData.color }}>
+                            {iconData.icon}
+                          </div>
+                          <div className="sw-prod-body">
+                            <div className="sw-prod-name">{prod.nome}</div>
+                            <div className="sw-prod-desc">{prod.descricao}</div>
+                          </div>
+                          <div className="sw-prod-right">
+                            <span className="sw-badge sw-b-active">{t('sw.ativo')}</span>
+                            <button
+                              className="sw-btn-acessar"
+                              type="button"
+                              onClick={e => { e.stopPropagation(); navigate(rota) }}
                             >
-                              <div className="sw-prod-icon" style={{ background: iconData.bg, color: iconData.color }}>
-                                {iconData.icon}
-                              </div>
-                              <div className="sw-prod-body">
-                                <div className="sw-prod-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  {prod.name}
-                                  {idx === 0 && (
-                                    <span className="sw-badge-popular">
-                                      <Fire size={10} weight="fill" /> {t('sw.popular')}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="sw-prod-desc">{prod.description ?? ''}</div>
-                              </div>
-                              <div className="sw-prod-right">
-                                {isActive ? (
-                                  <button
-                                    className="sw-btn-contratar"
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); navigate(`/store?produto=${prod.slug}`) }}
-                                  >
-                                    {t('sw.contratar')} <ArrowRight size={11} weight="bold" />
-                                  </button>
-                                ) : (
-                                  <span className="sw-badge sw-b-trial">{t('sw.em_breve')}</span>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                </div>
-              </section>
+                              Acessar <ArrowRight size={10} weight="bold" />
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
 
-              {/* ════ BLOCO 3: ATALHOS + GABI AI ════ */}
-              <section className="sw-a2">
-                <div className="sw-sec-header">
-                  <div className="sw-sec-title-wrap">
-                    <span className="sw-sec-title sw-sec-title--micro">{t('sw.acesso_rapido')}</span>
-                  </div>
-                </div>
-
-                <div className="sw-bottom-cols">
-                  {/* Shortcuts */}
-                  <div className="sw-shortcuts-panel">
-                    <div className="sw-shortcuts-head">
-                      <span className="sw-shortcuts-head-title">{t('sw.atalhos')}</span>
-                    </div>
-                    <div className="sw-shortcuts-grid">
-                      {ATALHOS.map(atalho => (
-                        <button
-                          key={atalho.id}
-                          className="sw-shortcut-item" data-searchable="true"
-                          type="button"
-                          onClick={() => navigate(atalho.rota)}
+                    {/* Não contratados — bloqueados com "Assine agora" */}
+                    {produtosSugeridos.map(prod => {
+                      const iconData = getProdutoIcon(prod.slug)
+                      const isActive = prod.status === 'ACTIVE' || prod.status === 'Ativo'
+                      return (
+                        <div
+                          key={prod.id}
+                          className="sw-prod-item sw-prod-item--locked"
+                          data-searchable="true"
                         >
-                          <div className="sw-sh-icon" style={{ background: atalho.iconBg }}>
-                            <ShortcutIcon icon={atalho.icon} color={atalho.iconColor} />
+                          <div className="sw-prod-icon" style={{ background: iconData.bg, color: iconData.color, opacity: 0.5 }}>
+                            {iconData.icon}
                           </div>
-                          <div>
-                            <div className="sw-sh-name">{t(`sw.atalho_${atalho.id}_nome`)}</div>
-                            <div className="sw-sh-desc">{t(`sw.atalho_${atalho.id}_desc`)}</div>
+                          <div className="sw-prod-body">
+                            <div className="sw-prod-name">{prod.name}</div>
+                            <div className="sw-prod-desc">{prod.description ?? ''}</div>
                           </div>
-                          {atalho.admin && (
-                            <span className="sw-sh-tag sw-sh-admin">Admin</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* GABI AI Insights */}
-                  <div className="sw-gabi-panel">
-                    <div className="sw-gabi-head">
-                      <div className="sw-gabi-icon-wrap">
-                        <Sparkle size={15} />
-                      </div>
-                      <div>
-                        <div className="sw-gabi-title">{t('sw.gabi_label')}</div>
-                        <div className="sw-gabi-sub">{t('sw.gabi_oportunidades')}</div>
-                      </div>
-                      <div className="sw-gabi-live">
-                        <div className="sw-gabi-live-dot" />
-                        {t('sw.ao_vivo')}
-                      </div>
-                    </div>
-
-                    <div className="sw-gabi-body">
-                      {/* Insight 1: Redução Tributária */}
-                      <div className="sw-insight-card">
-                        <div className="sw-i-type">
-                          <Download size={11} />
-                          {t('sw.insight1_tipo')}
+                          <div className="sw-prod-right">
+                            {isActive ? (
+                              <button
+                                className="sw-btn-contratar"
+                                type="button"
+                                onClick={() => navigate(`/store?produto=${prod.slug}`)}
+                              >
+                                Assine agora <ArrowRight size={11} weight="bold" />
+                              </button>
+                            ) : (
+                              <span className="sw-badge sw-b-trial">{t('sw.em_breve')}</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="sw-i-text">{t('sw.insight1_texto')}</div>
-                        <div className="sw-i-saving">
-                          <span className="sw-i-saving-label">{t('sw.insight1_economia_label')}</span>
-                          <span className="sw-i-saving-value">{t('sw.insight1_economia_valor')}</span>
-                        </div>
-                        <div className="sw-i-footer">
-                          <button className="sw-i-action" type="button">
-                            {t('sw.insight1_acao')}
-                            <ArrowRight size={11} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Insight 2: Alerta de Prazo */}
-                      <div className="sw-insight-card secondary">
-                        <div className="sw-i-type">
-                          <Warning size={11} />
-                          {t('sw.insight2_tipo')}
-                        </div>
-                        <div className="sw-i-text">{t('sw.insight2_texto')}</div>
-                        <div className="sw-i-footer">
-                          <button className="sw-i-action" type="button">
-                            {t('sw.insight2_acao')}
-                            <ArrowRight size={11} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                      )
+                    })}
                   </div>
                 </div>
               </section>
+
             </>
           )}
         </div>

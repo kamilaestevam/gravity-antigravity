@@ -321,6 +321,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           }}
           isAdmin={currentUser.email === 'admin@gravity.com.br'}
           onNavigateAdmin={() => window.location.href = '/admin'}
+          compact
         />
       </div>
     </header>

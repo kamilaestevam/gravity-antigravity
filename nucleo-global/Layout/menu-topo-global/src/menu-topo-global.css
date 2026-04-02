@@ -30,6 +30,26 @@
   opacity: 0.9;
 }
 
+.mtg-left__breadcrumb {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.mtg-left__product-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary, #94a3b8);
+  white-space: nowrap;
+}
+
+.mtg-left__sep {
+  font-size: 1rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1;
+}
+
 .mtg-left__page-title {
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   font-size: 1.625rem !important;
@@ -129,6 +149,24 @@
   align-items: center;
   gap: 0.125rem;
   margin-left: auto;
+}
+
+/* UsuarioGlobal no header — sempre compacto (só avatar) */
+.mtg-right .ws-global-user__info,
+.mtg-right .ws-global-caret {
+  display: none !important;
+}
+
+.mtg-right .ws-global-user-wrap .ws-global-user {
+  padding: 3px;
+  border-radius: 50%;
+  gap: 0;
+  background: transparent !important;
+  border-color: transparent;
+}
+
+.mtg-right .ws-global-user-wrap .ws-global-user:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
 }
 
 /* ── Botão ícone ── */

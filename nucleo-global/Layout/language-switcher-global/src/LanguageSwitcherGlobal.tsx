@@ -11,6 +11,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GlobeHemisphereWest } from '@phosphor-icons/react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './language-switcher-global.css'
 
 interface LanguageOption {
@@ -58,18 +59,19 @@ export function LanguageSwitcherGlobal({ onLanguageChange, iconOnly = false }: L
 
   return (
     <div className="lang-switcher" ref={ref} data-testid="language-switcher">
-      <button
-        className={`lang-switcher__trigger${iconOnly ? ' lang-switcher__trigger--icon' : ''}`}
-        onClick={() => setOpen(!open)}
-        aria-label={t('shell.idioma.trocar_idioma')}
-        title={t('shell.idioma.trocar_idioma')}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        type="button"
-      >
-        <GlobeHemisphereWest size={18} weight="duotone" />
-        {!iconOnly && <span className="lang-switcher__code">{currentLang.code.toUpperCase()}</span>}
-      </button>
+      <TooltipGlobal descricao={t('shell.idioma.trocar_idioma')}>
+        <button
+          className={`lang-switcher__trigger${iconOnly ? ' lang-switcher__trigger--icon' : ''}`}
+          onClick={() => setOpen(!open)}
+          aria-label={t('shell.idioma.trocar_idioma')}
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          type="button"
+        >
+          <GlobeHemisphereWest size={18} weight="duotone" />
+          {!iconOnly && <span className="lang-switcher__code">{currentLang.code.toUpperCase()}</span>}
+        </button>
+      </TooltipGlobal>
 
       {open && (
         <ul

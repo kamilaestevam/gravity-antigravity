@@ -18,8 +18,6 @@ import {
   PencilSimple,
   Trash,
   Copy,
-  UploadSimple,
-  DownloadSimple,
   CurrencyDollar,
   Scales,
   Cube,
@@ -258,6 +256,8 @@ const colunasPai: TCGColuna<Pedido>[] = [
   {
     key: 'numero_pedido',
     label: 'Pedido/Item',
+    tipo: 'texto',
+    filtravel: true,
     naoOcultavel: true,
     tooltipTitulo: 'Numero do Pedido',
     tooltipDescricao: 'Identificador unico do documento comercial (PO/SO)',
@@ -265,6 +265,8 @@ const colunasPai: TCGColuna<Pedido>[] = [
   {
     key: 'tipo_operacao',
     label: 'P.O Tipo',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Tipo de Operacao',
     tooltipDescricao: 'Importacao (Purchase Order) ou Exportacao (Sales Order)',
     render: (_val: string, row: Pedido) => (
@@ -274,6 +276,8 @@ const colunasPai: TCGColuna<Pedido>[] = [
   {
     key: 'exportador_nome',
     label: 'Importador',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Importador',
     tooltipDescricao: 'Entidade legal importadora (tenant/company)',
     render: () => <span>Ottis</span>,
@@ -281,48 +285,64 @@ const colunasPai: TCGColuna<Pedido>[] = [
   {
     key: 'referencia_importador',
     label: 'Ref. Importador',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Referencia do Importador',
     tooltipDescricao: 'Codigo de referencia interna do importador para o pedido',
   },
   {
     key: 'exportador_nome',
     label: 'Exportador',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Exportador',
     tooltipDescricao: 'Fornecedor estrangeiro (na importacao) ou entidade exportadora',
   },
   {
     key: 'referencia_exportador',
     label: 'Ref. Exportador',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Referencia do Exportador',
     tooltipDescricao: 'Codigo de referencia utilizado pelo exportador',
   },
   {
     key: 'fabricante_nome',
     label: 'Fabricante',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Fabricante',
     tooltipDescricao: 'Identificacao da origem produtiva (Fabrica)',
   },
   {
     key: 'referencia_fabricante',
     label: 'Ref. Fabricante',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Referencia do Fabricante',
     tooltipDescricao: 'Codigo identificador especifico do fabricante',
   },
   {
     key: 'numero_proforma',
     label: 'Numero Proforma',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Numero Proforma',
     tooltipDescricao: 'Referencia da Proforma Invoice vinculada',
   },
   {
     key: 'numero_invoice',
     label: 'Numero Invoice',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Numero Invoice',
     tooltipDescricao: 'Identificador da Commercial Invoice (Fatura)',
   },
   {
     key: 'data_emissao_pedido',
     label: 'Data P.O',
+    tipo: 'periodo',
+    filtravel: true,
     tooltipTitulo: 'Data do Pedido',
     tooltipDescricao: 'Data de registro ou emissao da Purchase Order',
     render: (_val: string, row: Pedido) => <span>{fmtData(row.data_emissao_pedido)}</span>,
@@ -330,6 +350,8 @@ const colunasPai: TCGColuna<Pedido>[] = [
   {
     key: 'status',
     label: 'Status',
+    tipo: 'badge',
+    filtravel: true,
     tooltipTitulo: 'Status do Pedido',
     tooltipDescricao: 'Ciclo de vida: Draft, Aberto, Em Transferencia, Consolidado, Cancelado',
     render: (_val: string, row: Pedido) => (
@@ -348,6 +370,8 @@ const colunasFilha: TCGColuna<PedidoItem>[] = [
   {
     key: 'quantidade_inicial',
     label: 'Quantidade Inicial',
+    tipo: 'numero',
+    filtravel: true,
     align: 'right',
     tooltipTitulo: 'Quantidade Inicial',
     tooltipDescricao: 'Quantidade original do item no momento da criacao — valor imutavel',
@@ -358,6 +382,8 @@ const colunasFilha: TCGColuna<PedidoItem>[] = [
   {
     key: 'quantidade_atual',
     label: 'Quantidade Atual',
+    tipo: 'numero',
+    filtravel: true,
     align: 'right',
     tooltipTitulo: 'Quantidade Atual',
     tooltipDescricao: 'Saldo vivo disponivel para alocacao em processos logisticos',
@@ -373,6 +399,8 @@ const colunasFilha: TCGColuna<PedidoItem>[] = [
   {
     key: 'quantidade_transferida',
     label: 'Quantidade Transferida',
+    tipo: 'numero',
+    filtravel: true,
     align: 'right',
     tooltipTitulo: 'Quantidade Transferida',
     tooltipDescricao: 'Total ja alocado em processos logisticos (embarques)',
@@ -383,6 +411,8 @@ const colunasFilha: TCGColuna<PedidoItem>[] = [
   {
     key: 'quantidade_pronta',
     label: 'Quantidade Pronta',
+    tipo: 'numero',
+    filtravel: true,
     align: 'right',
     tooltipTitulo: 'Quantidade Pronta',
     tooltipDescricao: 'Montante produzido pela fabrica e validado para o proximo embarque',
@@ -393,6 +423,8 @@ const colunasFilha: TCGColuna<PedidoItem>[] = [
   {
     key: 'quantidade_para_transferir',
     label: 'Quantidade Para Transferir',
+    tipo: 'numero',
+    filtravel: true,
     align: 'right',
     tooltipTitulo: 'Quantidade Para Transferir',
     tooltipDescricao: 'Campo de entrada para alocar quantidade em um novo processo',
@@ -420,6 +452,8 @@ const colunasFilha: TCGColuna<PedidoItem>[] = [
   {
     key: 'unidade_comercializada_item',
     label: 'Descricao Quantidade',
+    tipo: 'texto',
+    filtravel: true,
     tooltipTitulo: 'Unidade de Medida',
     tooltipDescricao: 'Unidade de medida do item (Unidade, Metro, Litro, cm3, Metro Quadrado)',
     render: (_val: string | null, row: PedidoItem) => (
@@ -478,8 +512,6 @@ export default function ListaPedidos() {
   const valorTotal = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
   const qtdTotal = pedidos.reduce((acc, p) => acc + (p.quantidade_total_pedido ?? 0), 0)
 
-  const semPedidos = pedidos.length === 0
-
   return (
     <div className="ws-fade-up lp-page">
 
@@ -491,6 +523,11 @@ export default function ListaPedidos() {
             icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={totalPedidos}
             subtexto={`${totalItens} ${t('pedido.itens_total')}`}
+            tooltip={<>
+              <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidos.filter(p => p.status === 'aberto').length}</strong></p>
+              <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidos.filter(p => p.status === 'em_andamento').length}</strong></p>
+              <p className="cg-tooltip__row"><span>{t('pedido.concluidos')}</span><strong>{pedidos.filter(p => p.status === 'concluido').length}</strong></p>
+            </>}
           />
           <CardBasicoGlobal
             titulo={t('pedido.valor_total')}
@@ -498,6 +535,10 @@ export default function ListaPedidos() {
             valor={fmtMoeda(valorTotal)}
             variante="sucesso"
             subtexto={t('pedido.soma_pedidos')}
+            tooltip={<>
+              <p className="cg-tooltip__row"><span>{t('pedido.moeda')}</span><strong>USD</strong></p>
+              <p className="cg-tooltip__row"><span>{t('pedido.media_por_pedido')}</span><strong>{fmtMoeda(totalPedidos ? valorTotal / totalPedidos : 0)}</strong></p>
+            </>}
           />
           <CardBasicoGlobal
             titulo={t('pedido.qtd_total')}
@@ -505,17 +546,13 @@ export default function ListaPedidos() {
             valor={fmtQuantidade(qtdTotal)}
             variante="aviso"
             subtexto={t('pedido.qtd_acumulada')}
+            tooltip={<>
+              <p className="cg-tooltip__row"><span>{t('pedido.total_itens_distintos')}</span><strong>{totalItens}</strong></p>
+              <p className="cg-tooltip__row"><span>{t('pedido.media_itens_pedido')}</span><strong>{totalPedidos ? (totalItens / totalPedidos).toFixed(1) : 0}</strong></p>
+            </>}
           />
         </div>
         <div className="lp-acoes">
-          <BotaoGlobal variante="secundario" icone={<UploadSimple size={16} />}
-            onClick={() => console.log('[Pedido] Importar')}>
-            {t('comum.importar')}
-          </BotaoGlobal>
-          <BotaoGlobal variante="secundario" icone={<DownloadSimple size={16} />}
-            onClick={() => console.log('[Pedido] Exportar')}>
-            {t('comum.exportar')}
-          </BotaoGlobal>
           <BotaoGlobal variante="primario" icone={<Plus size={16} />}
             onClick={() => console.log('[Pedido] Novo')}>
             {t('pedido.novo_pedido')}
@@ -524,32 +561,27 @@ export default function ListaPedidos() {
       </div>
 
       {/* ── Tabela ── */}
-      {semPedidos && !carregando ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: '0.75rem', padding: '4rem 2rem',
-          color: 'var(--ws-muted)' }}>
-          <Package weight="duotone" size={48} style={{ opacity: 0.4 }} />
-          <span style={{ fontSize: '0.875rem' }}>{t('pedido.vazio')}</span>
+      <TabelaCamadasGlobal<Pedido, PedidoItem>
+        id="pedido-lista-principal"
+        dados={pedidos}
+        colunas={colunasPai}
+        colunasFilhas={colunasFilha}
+        filhos={(pedido) => pedido.itens ?? []}
+        acoes={acoesPai}
+        itemId={(pedido) => pedido.id}
+        placeholderBusca={t('pedido.buscar')}
+        campoBusca="numero_pedido"
+        carregando={carregando}
+        itensPorPagina={20}
+        emptyIcon={<Package weight="duotone" size={24} />}
+        emptyTitle={t('pedido.vazio')}
+        emptyDescription={t('pedido.vazio_filtro')}
+        emptyAction={
           <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
             {t('pedido.criar_primeiro')}
           </BotaoGlobal>
-        </div>
-      ) : (
-        <TabelaCamadasGlobal<Pedido, PedidoItem>
-          id="pedido-lista-principal"
-          dados={pedidos}
-          colunas={colunasPai}
-          colunasFilhas={colunasFilha}
-          filhos={(pedido) => pedido.itens ?? []}
-          acoes={acoesPai}
-          itemId={(pedido) => pedido.id}
-          placeholderBusca={t('pedido.buscar')}
-          campoBusca="numero_pedido"
-          mensagemVazio={t('pedido.vazio_filtro')}
-          carregando={carregando}
-          itensPorPagina={20}
-        />
-      )}
+        }
+      />
 
     </div>
   )

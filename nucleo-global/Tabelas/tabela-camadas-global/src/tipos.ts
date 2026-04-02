@@ -1,32 +1,30 @@
 /**
  * @nucleo/tabela-camadas-global — tipos
  * Tabela com suporte a linhas pai/filho expansíveis (tree table).
- * Não modifica nem depende de TabelaGlobal.
  */
 
 import type { ReactNode } from 'react'
 
 // ─── Coluna ────────────────────────────────────────────────────────────────────
 
+export type TCGTipo = 'texto' | 'numero' | 'periodo' | 'badge' | 'custom'
+
 export interface TCGColuna<T = any> {
-  /** Chave do campo no objeto */
   key: string
-  /** Rótulo exibido no cabeçalho */
   label: string
-  /** Tipo visual */
-  tipo?: 'texto' | 'numero' | 'badge' | 'custom'
-  /** Alinhamento da célula */
+  /** Tipo do dado — define o modo de filtro: texto → lista, numero → intervalo, periodo → datas */
+  tipo?: TCGTipo
   align?: 'left' | 'center' | 'right'
-  /** Tooltip título (aparece no ícone do cabeçalho) */
   tooltipTitulo?: string
-  /** Tooltip descrição */
   tooltipDescricao?: string
-  /** Renderizador customizado de célula */
   render?: (valor: any, item: T) => ReactNode
-  /** Ocultar coluna por padrão */
   oculta?: boolean
-  /** Coluna não pode ser escondida pelo usuário */
   naoOcultavel?: boolean
+  /** Exibe o ícone de filtro no cabeçalho desta coluna */
+  filtravel?: boolean
+  /** Permite ordenação por esta coluna */
+  sortavel?: boolean
+  largura?: string | number
 }
 
 // ─── Ação de linha ─────────────────────────────────────────────────────────────
@@ -35,7 +33,6 @@ export interface TCGAcao<T = any> {
   id: string
   tooltip?: string
   icone?: ReactNode
-  /** Renderizador completamente customizado (substitui o botão padrão) */
   renderCustom?: (item: T) => ReactNode
   onClick?: (item: T) => void
 }
@@ -48,37 +45,41 @@ export interface TCGAcaoExport {
   onClick: () => void
 }
 
+// ─── Ações em lote ─────────────────────────────────────────────────────────────
+
+export interface TCGAcaoLote<T = any> {
+  id: string
+  label: string
+  icone?: ReactNode
+  variant?: 'default' | 'danger'
+  onClick: (itens: T[]) => void
+}
+
 // ─── Props principais ──────────────────────────────────────────────────────────
 
 export interface TabelaCamadasGlobalProps<T = any, C = any> {
-  /** Dados das linhas pai (Organizações) */
   dados: T[]
-  /** Colunas da linha pai */
   colunas: TCGColuna<T>[]
-  /** Colunas da linha filha (Workspaces) */
   colunasFilhas: TCGColuna<C>[]
-  /** Função que retorna os filhos de um item pai */
   filhos: (item: T) => C[]
-  /** Ações da linha pai */
   acoes?: TCGAcao<T>[]
-  /** Ações da linha filha */
   acoesFilhas?: TCGAcao<C>[]
-  /** Ações de exportação */
   acoesExportacao?: TCGAcaoExport[]
-  /** Texto placeholder da busca */
   placeholderBusca?: string
-  /** Campo da linha pai usado na busca */
   campoBusca?: keyof T
-  /** Mensagem estado vazio */
   mensagemVazio?: string
-  /** Exibe skeleton de carregamento */
   carregando?: boolean
-  /** IDs das linhas abertas por padrão */
   expandidosPadrao?: string[]
-  /** Função que retorna o id de um item pai */
   itemId?: (item: T) => string
-  /** Itens por página */
   itensPorPagina?: number
   /** ID único para persistência de colunas (localStorage) */
   id?: string
+  /** Ações em lote — ativa checkboxes de seleção */
+  acoesLote?: TCGAcaoLote<T>[]
+  /** Slot de ações no toolbar (ex: botão "Novo") */
+  acoesBarra?: ReactNode
+  emptyIcon?: ReactNode
+  emptyTitle?: string
+  emptyDescription?: string
+  emptyAction?: ReactNode
 }

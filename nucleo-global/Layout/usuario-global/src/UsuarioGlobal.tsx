@@ -102,7 +102,7 @@ export function UsuarioGlobal({
             <div className="ws-profile-details">
               <span className="ws-profile-name" title={userName}>{userName}</span>
               <span className="ws-profile-email" title={userEmail}>{userEmail}</span>
-              <span className={`ws-profile-badge ${isSuperAdminUser ? 'ws-profile-badge--super-admin' : ''}`}>
+              <span className={`ws-profile-badge ws-profile-badge--${isSuperAdminUser ? 'super-admin' : (roleSlug[userRole.toLowerCase()] ?? 'standard')}`}>
                 {displayRole}
               </span>
             </div>

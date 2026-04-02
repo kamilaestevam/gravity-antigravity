@@ -359,6 +359,7 @@ export function Store() {
             onSignOut={() => signOut()}
             isAdmin={true}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
+            compact
           />
         </div>
       </header>

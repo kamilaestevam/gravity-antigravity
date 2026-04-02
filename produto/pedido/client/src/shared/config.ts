@@ -7,10 +7,15 @@
  */
 
 export interface NavigationItem {
-  id: string
-  label: string
-  icon: string
-  source: 'product' | 'tenant'
+  id:            string
+  label:         string
+  icon?:         string
+  source?:       'product' | 'tenant'
+  sectionDivider?: boolean
+  disabled?:     boolean
+  badge?:        string
+  badgeVariant?: 'accent' | 'muted'
+  children?:     NavigationItem[]
 }
 
 export const PRODUCT_CONFIG = {
@@ -18,7 +23,6 @@ export const PRODUCT_CONFIG = {
   productId: 'pedido',
   name: 'Pedido',
 
-  // Servicos de tenant consumidos via proxy (residem em tenant-db)
   tenantServices: [
     'atividades',
     'historico',
@@ -27,24 +31,40 @@ export const PRODUCT_CONFIG = {
     'conector-erp',
   ] as const,
 
-  // Servicos de produto (logica interna — rotas em processos-core)
   productServices: [
     'saldo-engine',
     'import-engine',
   ] as const,
 
-  // Navegacao: telas do produto + servicos de tenant
   navigation: [
-    { id: 'pedidos',    label: 'Pedidos',    icon: 'package',        source: 'product' },
-    { id: 'importar',   label: 'Importar',   icon: 'upload-simple',  source: 'product' },
-    { id: 'historico',  label: 'Historico',   icon: 'clock',          source: 'tenant'  },
+
+    // ── Meu Espaço ───────────────────────────────────────────────────────────
+    {
+      id: 'meu-espaco', label: 'Meu Espaço', icon: 'user-circle', source: 'tenant',
+      children: [
+        { id: 'atividades', label: 'Minhas Atividades', icon: 'check-circle', source: 'tenant' },
+        { id: 'email',      label: 'Email',             icon: 'envelope',     source: 'tenant' },
+        { id: 'whatsapp',   label: 'WhatsApp',          icon: 'whatsapp-logo', source: 'tenant' },
+      ],
+    },
+
+    // ── Pedidos ──────────────────────────────────────────────────────────────
+    { id: 'section-pedidos',   label: 'Pedidos',    sectionDivider: true },
+    { id: 'pedidos/dashboard', label: 'Dashboard',  icon: 'chart-pie-slice',         source: 'product', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+    { id: 'pedidos',           label: 'Lista',       icon: 'list-bullets',            source: 'product' },
+    { id: 'pedidos/kanban',    label: 'Kanban',       icon: 'kanban',                  source: 'product', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+
+    // ── Serviços ──────────────────────────────────────────────────────────────
+    { id: 'historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  },
+    { id: 'configuracoes', label: 'Configurações', icon: 'gear-six',                source: 'product', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+
   ] satisfies NavigationItem[],
 
   features: {
-    importacao_exportacao: true,
-    importacao_arquivo: true,
-    integracao_erp: true,
-    smart_read: false,
-    dashboard_analitico: false,
+    importacao_exportacao:  true,
+    importacao_arquivo:     true,
+    integracao_erp:         true,
+    smart_read:             false,
+    dashboard_analitico:    false,
   },
 } as const

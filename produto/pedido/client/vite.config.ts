@@ -28,8 +28,13 @@ export default defineConfig({
       '@nucleo/cabecalho-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/cabecalho-global/src/index.ts'),
       '@nucleo/card-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/card-global/src/index.ts'),
       '@nucleo/logo-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/logo-global/src/index.ts'),
+      '@nucleo/language-switcher-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/language-switcher-global/src/index.ts'),
+      '@nucleo/localizador-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/localizador-global/src/index.ts'),
       '@nucleo/menu-lateral-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/menu-lateral-global/src/index.ts'),
+      '@nucleo/menu-topo-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/menu-topo-global/src/index.ts'),
       '@nucleo/pagina-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/pagina-global/src/index.ts'),
+      '@nucleo/tela-produto-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/tela-produto-global/src/index.ts'),
+      '@nucleo/usuario-global': path.resolve(monorepoRoot, 'nucleo-global/Layout/usuario-global/src/index.ts'),
       // ── Modais ──
       '@nucleo/modal-confirmar-excluir-global': path.resolve(monorepoRoot, 'nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'),
       '@nucleo/modal-global': path.resolve(monorepoRoot, 'nucleo-global/Modais/modal-global/src/index.ts'),

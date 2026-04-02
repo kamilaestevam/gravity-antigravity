@@ -15,7 +15,7 @@ const ListaPedidos = lazy(() => import('./pages/ListaPedidos'))
 const PRODUTO       = getProdutoMeta('pedido')
 const PRODUCT_ID    = 'pedido'
 const PRODUCT_NAME  = 'Pedido'
-const PRODUCT_COLOR = PRODUTO.color   // usado nos ECOSYSTEM_NODES
+const PRODUCT_COLOR = PRODUTO.color
 
 const iconMap: Record<string, React.ReactNode> = {
   'chart-pie-slice':         <ChartPieSlice         weight="duotone" size={20} />,
@@ -48,30 +48,29 @@ const navItems = PRODUCT_CONFIG.navigation.map(mapNavItem)
 
 // ── Workspaces demo ───────────────────────────────────────────────────────────
 const DEMO_WORKSPACES = [
-  { id: 'ws-1',  name: 'Gravity Soluções',    plan: 'Pro' },
-  { id: 'ws-2',  name: 'Acme Importações',    plan: 'Enterprise' },
-  { id: 'ws-3',  name: 'Comex Express',       plan: 'Starter' },
-  { id: 'ws-4',  name: 'Global Trade Co.',    plan: 'Pro' },
-  { id: 'ws-5',  name: 'Brasília Logistics',  plan: 'Pro' },
-  { id: 'ws-6',  name: 'Porto Sul LTDA',      plan: 'Enterprise' },
-  { id: 'ws-7',  name: 'Nordeste Import',     plan: 'Starter' },
-  { id: 'ws-8',  name: 'Sul Cargo',           plan: 'Pro' },
+  { id: 'ws-1',  name: 'Gravity Soluções',     plan: 'Pro' },
+  { id: 'ws-2',  name: 'Acme Importações',     plan: 'Enterprise' },
+  { id: 'ws-3',  name: 'Comex Express',        plan: 'Starter' },
+  { id: 'ws-4',  name: 'Global Trade Co.',     plan: 'Pro' },
+  { id: 'ws-5',  name: 'Brasília Logistics',   plan: 'Pro' },
+  { id: 'ws-6',  name: 'Porto Sul LTDA',       plan: 'Enterprise' },
+  { id: 'ws-7',  name: 'Nordeste Import',      plan: 'Starter' },
+  { id: 'ws-8',  name: 'Sul Cargo',            plan: 'Pro' },
   { id: 'ws-9',  name: 'Importadora Paulista', plan: 'Enterprise' },
-  { id: 'ws-10', name: 'Rio Trade Group',     plan: 'Starter' },
+  { id: 'ws-10', name: 'Rio Trade Group',      plan: 'Starter' },
 ]
 
-// ── Nós do ecossistema para o Localizador ─────────────────────────────────────
+// ── Nós do ecossistema ────────────────────────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
-  { id: 'gravity',      label: 'Gravity',     sublabel: 'workspace',      color: '#818cf8',     type: 'gravity',      status: 'accessible' },
+  { id: 'gravity',      label: 'Gravity',      sublabel: 'workspace',      color: '#818cf8',     type: 'gravity',      status: 'accessible' },
   { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6',     type: 'configurador', status: 'accessible' },
-  { id: PRODUCT_ID,     label: PRODUCT_NAME,  sublabel: PRODUTO.sublabel,  color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
+  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: PRODUTO.sublabel,  color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
 
 function LoadingFallback() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '2rem' }}>
       <div style={{ height: '1.5rem', width: '60%', background: 'var(--bg-surface)', borderRadius: '0.375rem' }} />
-      <div style={{ height: '1rem',   width: '40%', background: 'var(--bg-surface)', borderRadius: '0.375rem' }} />
       <div style={{ height: '20rem', width: '100%', background: 'var(--bg-surface)', borderRadius: '0.5rem' }} />
     </div>
   )
@@ -106,7 +105,15 @@ export function App() {
     ? currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : '??'
 
-  const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'
+  const ROUTE_LABELS: Record<string, string> = {
+    'pedidos':           'Lista',
+    'pedidos/dashboard': 'Dashboard',
+    'pedidos/kanban':    'Kanban',
+    'historico':         'Histórico',
+    'configuracoes':     'Configurações',
+  }
+  const routeKey  = location.pathname.split('/').filter(Boolean).join('/')
+  const pageLabel = ROUTE_LABELS[routeKey] ?? 'Lista'
 
   return (
     <TelaProdutoGlobal
@@ -148,9 +155,9 @@ export function App() {
     >
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"        element={<Navigate to="pedidos" replace />} />
-          <Route path="pedidos"  element={<ListaPedidos />} />
-          <Route path="*"        element={<Navigate to="pedidos" replace />} />
+          <Route path="/"       element={<Navigate to="pedidos" replace />} />
+          <Route path="pedidos" element={<ListaPedidos />} />
+          <Route path="*"       element={<Navigate to="pedidos" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

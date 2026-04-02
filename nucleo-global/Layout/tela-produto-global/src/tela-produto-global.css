@@ -1,12 +1,9 @@
 /* ── Tela Produto Global ──────────────────────────────────────────────────── */
 
-/* ── Grid principal ── */
 .tpg-layout {
   display: grid;
-  grid-template-areas:
-    "lateral topo"
-    "lateral conteudo";
-  grid-template-rows: var(--header-height, 60px) 1fr;
+  grid-template-areas: "lateral conteudo";
+  grid-template-rows: 1fr;
   grid-template-columns: auto 1fr;
   height: 100vh;
   width: 100%;
@@ -14,54 +11,63 @@
   background: var(--bg-body-dark, #0f172a);
 }
 
-/* ── Topo — ocupa só a coluna direita ── */
-.tpg-topo {
-  grid-area: topo;
-}
-
-/* ── Lateral — span nas 2 linhas, do topo ao fundo ── */
+/* ── Lateral — altura total ── */
 .tpg-lateral {
   grid-area: lateral;
   overflow: visible;
 }
 
-/* ── Área de conteúdo ── */
+/* ── Coluna de conteúdo — flex-column: topo + área rolável ── */
 .tpg-conteudo {
   grid-area: conteudo;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  overflow: hidden;
+  min-height: 0;
 }
 
-.tpg-conteudo::-webkit-scrollbar {
-  width: 5px;
+/*
+ * MenuTopoGlobal como primeiro filho flex — não entra no fluxo de scroll.
+ * Fica naturalmente ancorado ao topo da coluna de conteúdo.
+ */
+.tpg-topo {
+  flex-shrink: 0;
+  z-index: 100;
+  width: 100%;
 }
 
-.tpg-conteudo::-webkit-scrollbar-thumb {
-  background: var(--bg-elevated, #475569);
-  border-radius: 10px;
+/* ── Área que rola — começa logo abaixo do topo fixo ── */
+.tpg-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-/* ── Light theme ─────────────────────────────────────────────────────────── */
-body.light-theme .tpg-layout {
-  background: var(--bg-base, #f8fafc);
+.tpg-main::-webkit-scrollbar       { width: 5px; }
+.tpg-main::-webkit-scrollbar-thumb { background: var(--bg-elevated, #475569); border-radius: 10px; }
+
+/*
+ * CabecalhoGlobal dentro do produto: não é sticky.
+ * O único elemento fixo é o MenuTopoGlobal acima.
+ */
+.tpg-main .cg-header {
+  position: relative;
+  top: auto;
+  z-index: auto;
 }
 
-/* ── Responsivo: colapsa lateral abaixo de 768px ── */
+/* ── Light theme ── */
+body.light-theme .tpg-layout { background: var(--bg-base, #f8fafc); }
+
+/* ── Responsivo ── */
 @media (max-width: 768px) {
   .tpg-layout {
-    grid-template-areas:
-      "topo"
-      "conteudo";
+    grid-template-areas: "conteudo";
     grid-template-columns: 1fr;
-    grid-template-rows: var(--header-height, 60px) 1fr;
   }
-
-  .tpg-lateral {
-    display: none;
-  }
+  .tpg-lateral { display: none; }
 }
-

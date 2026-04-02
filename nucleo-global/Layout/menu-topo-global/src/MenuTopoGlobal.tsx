@@ -33,6 +33,8 @@ export interface MenuTopoGlobalProps {
   productColor?: string
   /** Ícone React do produto — vem do registry @nucleo/logo-produtos */
   productIcon?: React.ReactElement
+  /** Toggle de visualização (Dashboard | Lista | Kanban) — renderizado no topo esquerdo */
+  viewToggle?: React.ReactNode
   /** Estado do toggle de dicas */
   tooltipsDisabled: boolean
   onToggleTooltips: () => void
@@ -52,6 +54,7 @@ export function MenuTopoGlobal({
   productName,
   productColor = '#818cf8',
   productIcon,
+  viewToggle,
   tooltipsDisabled,
   onToggleTooltips,
   localizador,
@@ -99,31 +102,16 @@ export function MenuTopoGlobal({
   return (
     <header className="mtg-header" style={cssVars} role="banner">
 
-      {/* ── ESQUERDA: logo + chip do produto ── */}
+      {/* ── ESQUERDA: título da view atual ── */}
       <div className="mtg-left">
-        <LogoGlobal iconSize={20} iconColor={productColor} iconOnly />
-        <div className="mtg-divider" />
-        <div
-          className="mtg-product-chip"
-          style={{
-            background:   `linear-gradient(135deg, ${productColor}18 0%, ${productColor}08 100%)`,
-            borderColor:  `${productColor}35`,
-          }}
-        >
-          {productIcon ? (
-            <span className="mtg-product-chip__icon" style={{ color: productColor }}>
-              {productIcon}
+        {viewToggle
+          ? viewToggle
+          : (
+            <span className="mtg-left__page-title">
+              {localizador.currentPageLabel}
             </span>
-          ) : (
-            <span
-              className="mtg-product-chip__dot"
-              style={{ backgroundColor: productColor, boxShadow: `0 0 6px ${productColor}99` }}
-            />
-          )}
-          <span className="mtg-product-chip__name" style={{ color: productColor }}>
-            {productName}
-          </span>
-        </div>
+          )
+        }
       </div>
 
       {/* ── DIREITA: ações + usuário ── */}

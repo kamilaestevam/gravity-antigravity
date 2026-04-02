@@ -5,43 +5,30 @@ import { getProdutoMeta } from '@nucleo/logo-produtos'
 import './tela-produto-global.css'
 
 export type { NavItem, WorkspaceItem }
+export type { MenuTopoUsuarioConfig as TelaProdutoUsuarioConfig }
 
-/**
- * Config do localizador sem os campos de produto — TelaProdutoGlobal injeta automaticamente
- * currentProductId, currentProductLabel e currentProductColor a partir do productId.
- */
 export type TelaProdutoLocalizadorConfig = Omit<
   MenuTopoLocalizadorConfig,
   'currentProductId' | 'currentProductLabel' | 'currentProductColor'
 >
 
 export interface TelaProdutoGlobalProps {
-  /** ID do produto — resolve cor, ícone e sublabel via registry PRODUTO_META */
-  productId: string
-  /** Nome legível do produto — exibido no chip do topo e na sidebar */
+  productId:   string
   productName: string
-  /** Dados do tenant */
-  tenantName: string
-  tenantPlan: string
-  /** Itens de navegação — único campo que varia por produto */
-  navItems: NavItem[]
-  /** Workspaces disponíveis para troca */
-  workspaces?: WorkspaceItem[]
+  tenantName:  string
+  tenantPlan:  string
+  navItems:    NavItem[]
+  workspaces?:        WorkspaceItem[]
   onSwitchWorkspace?: (id: string) => void
   onCreateWorkspace?: () => void
   onManageWorkspace?: () => void
-  /** Toggle de dicas */
-  tooltipsDisabled: boolean
-  onToggleTooltips: () => void
-  /** Config do localizador — productId/Label/Color são injetados automaticamente */
+  tooltipsDisabled:   boolean
+  onToggleTooltips:   () => void
   localizador: TelaProdutoLocalizadorConfig
-  /** Config do usuário */
-  usuario: MenuTopoUsuarioConfig
-  /** Atalhos de navegação — omitir oculta o botão */
-  onNavigateHub?: () => void
+  usuario:     MenuTopoUsuarioConfig
+  onNavigateHub?:  () => void
   onNavigateCore?: () => void
-  /** Conteúdo da área principal — telas específicas de cada produto */
-  children: React.ReactNode
+  children:    React.ReactNode
 }
 
 export function TelaProdutoGlobal({
@@ -62,33 +49,14 @@ export function TelaProdutoGlobal({
   onNavigateCore,
   children,
 }: TelaProdutoGlobalProps) {
-  const meta = getProdutoMeta(productId)
+  const meta        = getProdutoMeta(productId)
   const sidebarIcon = cloneElement(meta.icon, { size: 26 })
+  const topoIcon    = cloneElement(meta.icon, { size: 18, weight: 'duotone' })
 
   return (
     <div className="tpg-layout">
 
-      {/* Topo fixo */}
-      <div className="tpg-topo">
-        <MenuTopoGlobal
-          productName={productName}
-          productColor={meta.color}
-          productIcon={meta.icon}
-          tooltipsDisabled={tooltipsDisabled}
-          onToggleTooltips={onToggleTooltips}
-          localizador={{
-            ...localizador,
-            currentProductId:    productId,
-            currentProductLabel: productName,
-            currentProductColor: meta.color,
-          }}
-          usuario={usuario}
-          onNavigateHub={onNavigateHub}
-          onNavigateCore={onNavigateCore}
-        />
-      </div>
-
-      {/* Lateral esquerda */}
+      {/* Lateral — ocupa toda a altura da grid */}
       <div className="tpg-lateral">
         <MenuLateralGlobal
           tenantName={tenantName}
@@ -101,13 +69,43 @@ export function TelaProdutoGlobal({
           onSwitchWorkspace={onSwitchWorkspace}
           onCreateWorkspace={onCreateWorkspace}
           onManageWorkspace={onManageWorkspace}
+          userName={usuario.userName}
+          userInitials={usuario.userInitials}
+          userRole={usuario.userRole}
+          onSignOut={usuario.onSignOut}
+          onNavigateHub={onNavigateHub}
         />
       </div>
 
-      {/* Área de conteúdo */}
-      <main className="tpg-conteudo" role="main">
-        {children}
-      </main>
+      {/* Coluna de conteúdo — flex-column: topo fixo + área rolável */}
+      <div className="tpg-conteudo">
+
+        {/* Menu topo ancorado ao topo da coluna de conteúdo */}
+        <div className="tpg-topo">
+          <MenuTopoGlobal
+            productName={productName}
+            productColor={meta.color}
+            productIcon={topoIcon}
+            tooltipsDisabled={tooltipsDisabled}
+            onToggleTooltips={onToggleTooltips}
+            localizador={{
+              ...localizador,
+              currentProductId:    productId,
+              currentProductLabel: productName,
+              currentProductColor: meta.color,
+            }}
+            usuario={usuario}
+            onNavigateHub={onNavigateHub}
+            onNavigateCore={onNavigateCore}
+          />
+        </div>
+
+        {/* Área de conteúdo rolável */}
+        <main className="tpg-main" role="main">
+          {children}
+        </main>
+
+      </div>
 
     </div>
   )

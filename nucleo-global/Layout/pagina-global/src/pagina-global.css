@@ -54,6 +54,11 @@ body.light-theme .pg-contexto-row {
   justify-content: flex-end;
 }
 
+.pg-contexto-row.pg-no-header {
+  margin-top: 0;
+  padding-top: 0;
+}
+
 .pg-stats-area {
   display: flex;
   flex-wrap: wrap;

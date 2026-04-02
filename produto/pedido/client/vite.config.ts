@@ -57,6 +57,7 @@ export default defineConfig({
       '@nucleo/tabela-camadas-global':             nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils':                             nucleo('Utilidades/utils/src/index.ts'),
+      '@nucleo/Utilidades/localization/i18n':      nucleo('Utilidades/Localization/i18n.ts'),
       // ── Shell / serviços ──
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@shell':         path.resolve(monorepoRoot, 'servicos-global/shell'),

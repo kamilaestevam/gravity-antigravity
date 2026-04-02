@@ -1,0 +1,30 @@
+/* ListaPedidos.css */
+
+.lp-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 2rem 1.5rem;
+  min-height: 0;
+  flex: 1;
+}
+
+
+.lp-stats-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.lp-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  flex: 1;
+}
+
+.lp-acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}

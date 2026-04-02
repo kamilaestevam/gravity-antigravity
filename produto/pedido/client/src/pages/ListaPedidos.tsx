@@ -24,14 +24,13 @@ import {
   Scales,
   Cube,
 } from '@phosphor-icons/react'
-import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { TabelaCamadasGlobal } from '@nucleo/tabela-camadas-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { TCGColuna, TCGAcao } from '@nucleo/tabela-camadas-global'
+import './ListaPedidos.css'
 import type { Pedido, PedidoItem } from '../shared/types'
 import {
   STATUS_PEDIDO_LABELS,
@@ -482,18 +481,11 @@ export default function ListaPedidos() {
   const semPedidos = pedidos.length === 0
 
   return (
-    <PaginaGlobal
-      className="ws-fade-up"
-      layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Package weight="duotone" size={22} />}
-          titulo={t('pedido.titulo')}
-          subtitulo={t('pedido.subtitulo')}
-        />
-      }
-      stats={
-        <>
+    <div className="ws-fade-up lp-page">
+
+      {/* ── KPI cards + ações ── */}
+      <div className="lp-stats-row">
+        <div className="lp-cards">
           <CardBasicoGlobal
             titulo={t('pedido.total_pedidos')}
             icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
@@ -514,53 +506,28 @@ export default function ListaPedidos() {
             variante="aviso"
             subtexto={t('pedido.qtd_acumulada')}
           />
-        </>
-      }
-      acoes={
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <BotaoGlobal
-            variante="secundario"
-            icone={<UploadSimple size={16} />}
-            onClick={() => {
-              console.log('[Pedido] Importar arquivo')
-            }}
-          >
+        </div>
+        <div className="lp-acoes">
+          <BotaoGlobal variante="secundario" icone={<UploadSimple size={16} />}
+            onClick={() => console.log('[Pedido] Importar')}>
             {t('comum.importar')}
           </BotaoGlobal>
-          <BotaoGlobal
-            variante="secundario"
-            icone={<DownloadSimple size={16} />}
-            onClick={() => {
-              console.log('[Pedido] Exportar')
-            }}
-          >
+          <BotaoGlobal variante="secundario" icone={<DownloadSimple size={16} />}
+            onClick={() => console.log('[Pedido] Exportar')}>
             {t('comum.exportar')}
           </BotaoGlobal>
-          <BotaoGlobal
-            variante="primario"
-            icone={<Plus size={16} />}
-            onClick={() => {
-              console.log('[Pedido] Novo pedido')
-            }}
-          >
+          <BotaoGlobal variante="primario" icone={<Plus size={16} />}
+            onClick={() => console.log('[Pedido] Novo')}>
             {t('pedido.novo_pedido')}
           </BotaoGlobal>
         </div>
-      }
-    >
+      </div>
+
+      {/* ── Tabela ── */}
       {semPedidos && !carregando ? (
-        <div
-          className="ws-fade-up ws-fade-up-d1"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.75rem',
-            padding: '4rem 2rem',
-            color: 'var(--ws-muted)',
-          }}
-        >
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', gap: '0.75rem', padding: '4rem 2rem',
+          color: 'var(--ws-muted)' }}>
           <Package weight="duotone" size={48} style={{ opacity: 0.4 }} />
           <span style={{ fontSize: '0.875rem' }}>{t('pedido.vazio')}</span>
           <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
@@ -583,6 +550,7 @@ export default function ListaPedidos() {
           itensPorPagina={20}
         />
       )}
-    </PaginaGlobal>
+
+    </div>
   )
 }

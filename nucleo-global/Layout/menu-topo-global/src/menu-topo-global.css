@@ -6,9 +6,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem 0 1rem;
+  padding: 0 2rem;
   background: var(--bg-body-dark, #0f172a);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: none;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -21,6 +21,24 @@
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+}
+
+.mtg-left__icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.mtg-left__page-title {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.625rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary, #f1f5f9);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  margin: 0;
 }
 
 .mtg-divider {
@@ -60,6 +78,49 @@
   font-weight: 700;
   white-space: nowrap;
   letter-spacing: 0.01em;
+}
+
+/* ── View toggle (Dashboard | Lista | Kanban) ── */
+.mtg-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9999px;
+  padding: 3px;
+}
+
+.mtg-view-toggle__btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary, #94a3b8);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.mtg-view-toggle__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.mtg-view-toggle__btn.active {
+  background: var(--mtg-accent-dim, rgba(129, 140, 248, 0.15));
+  color: var(--mtg-accent, #818cf8);
+  font-weight: 600;
+}
+
+.mtg-view-toggle__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* ── Direita ── */

@@ -4,8 +4,9 @@ import './pagina-global.css';
 export interface PaginaGlobalProps {
   /**
    * Cabeçalho fixo no topo (geralmente CabecalhoGlobal).
+   * Opcional — quando omitido o conteúdo começa direto nos stats/ações.
    */
-  cabecalho: ReactNode;
+  cabecalho?: ReactNode;
   
   /**
    * Informações de painel ou listagem de métricas, ex: [StatCardGlobal, StatCardGlobal].
@@ -55,17 +56,20 @@ export function PaginaGlobal({
 }: PaginaGlobalProps) {
   const customLayoutClass = `pg-layout-${layout}`;
   const hasMiddleLayer = !!stats || !!acoes;
+  const hasCabecalho = !!cabecalho;
 
   return (
     <div className={`pg-container ${className}`}>
-      {/* 1. Header (Fixo ao topo) */}
-      <div className="pg-cabecalho-wrapper">
-        {cabecalho}
-      </div>
+      {/* 1. Header (opcional) */}
+      {cabecalho && (
+        <div className="pg-cabecalho-wrapper">
+          {cabecalho}
+        </div>
+      )}
 
       {/* 2. Middle Layer: Stats and/or Actions */}
       {hasMiddleLayer && (
-        <div className={`pg-contexto-row ${stats ? 'pg-has-stats' : 'pg-no-stats'}`}>
+        <div className={`pg-contexto-row ${stats ? 'pg-has-stats' : 'pg-no-stats'} ${!hasCabecalho ? 'pg-no-header' : ''}`}>
           <div className="pg-stats-area">
             {stats}
           </div>

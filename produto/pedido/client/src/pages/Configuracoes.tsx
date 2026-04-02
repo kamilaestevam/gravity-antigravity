@@ -2,7 +2,7 @@
  * Configuracoes.tsx — Página de configurações do produto Pedido
  *
  * Categorias:
- *  ├── Cards       ← DnD + toggle + período padrão + adicionar do catálogo
+ *  ├── Cards       ← DnD + toggle + período padrão + catálogo de colunas
  *  ├── Tabela      ← em breve
  *  ├── Notificações ← em breve
  *  └── Exportação  ← em breve
@@ -14,6 +14,7 @@ import {
   SquaresFour, Table, Bell, DownloadSimple,
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
+  ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -31,12 +32,18 @@ import './Configuracoes.css'
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
 
 const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
-  total_pedidos:      { icone: <Package        weight="duotone" size={18} />, cor: 'var(--ws-accent, #818cf8)' },
-  valor_total:        { icone: <CurrencyDollar weight="duotone" size={18} />, cor: '#34d399' },
-  qtd_total:          { icone: <Scales         weight="duotone" size={18} />, cor: '#fbbf24' },
-  pedidos_atrasados:  { icone: <Warning        weight="duotone" size={18} />, cor: '#f87171' },
-  itens_prontos:      { icone: <CheckCircle    weight="duotone" size={18} />, cor: '#34d399' },
-  cobertura_pendente: { icone: <Coins          weight="duotone" size={18} />, cor: '#fb923c' },
+  total_pedidos:        { icone: <Package           weight="duotone" size={18} />, cor: 'var(--ws-accent, #818cf8)' },
+  valor_total:          { icone: <CurrencyDollar    weight="duotone" size={18} />, cor: '#34d399' },
+  qtd_total:            { icone: <Scales            weight="duotone" size={18} />, cor: '#fbbf24' },
+  pedidos_atrasados:    { icone: <Warning           weight="duotone" size={18} />, cor: '#f87171' },
+  pedidos_abertos:      { icone: <ClipboardText     weight="duotone" size={18} />, cor: '#60a5fa' },
+  pedidos_em_andamento: { icone: <ArrowRight        weight="duotone" size={18} />, cor: '#a78bfa' },
+  cobertura_pendente:   { icone: <Coins             weight="duotone" size={18} />, cor: '#fb923c' },
+  itens_prontos:        { icone: <CheckCircle       weight="duotone" size={18} />, cor: '#34d399' },
+  qtd_atual_total:      { icone: <Gauge             weight="duotone" size={18} />, cor: '#38bdf8' },
+  qtd_transferida_total:{ icone: <ArrowsLeftRight   weight="duotone" size={18} />, cor: '#a3e635' },
+  qtd_inicial_total:    { icone: <StackSimple       weight="duotone" size={18} />, cor: '#94a3b8' },
+  valor_itens_total:    { icone: <Money             weight="duotone" size={18} />, cor: '#f59e0b' },
 }
 
 const PERIODOS = [
@@ -78,7 +85,6 @@ function CardSortavel({
       style={style}
       className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}`}
     >
-      {/* Handle DnD */}
       <button
         type="button"
         className="cfg-drag-handle"
@@ -89,7 +95,6 @@ function CardSortavel({
         <DotsSixVertical size={16} weight="bold" />
       </button>
 
-      {/* Ícone + nome + descrição */}
       <div className="cfg-card-row__info">
         <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
           {visual.icone}
@@ -100,7 +105,8 @@ function CardSortavel({
         </div>
       </div>
 
-      {/* Toggle visibilidade */}
+      <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
+
       <TooltipGlobal descricao={pref.visible ? 'Ocultar na lista' : 'Exibir na lista'}>
         <button
           type="button"
@@ -109,13 +115,12 @@ function CardSortavel({
           aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
         >
           {pref.visible
-            ? <Eye         size={15} weight="bold" />
-            : <EyeSlash    size={15} weight="bold" />
+            ? <Eye      size={15} weight="bold" />
+            : <EyeSlash size={15} weight="bold" />
           }
         </button>
       </TooltipGlobal>
 
-      {/* Remover */}
       <TooltipGlobal descricao="Remover da lista">
         <button
           type="button"
@@ -236,7 +241,7 @@ export default function Configuracoes() {
               </div>
 
               {prefs.length === 0 ? (
-                <p className="cfg-empty">Nenhum card adicionado. Escolha abaixo.</p>
+                <p className="cfg-empty">Nenhum card adicionado. Escolha na tabela abaixo.</p>
               ) : (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={prefs.map(p => p.id)} strategy={verticalListSortingStrategy}>
@@ -255,15 +260,26 @@ export default function Configuracoes() {
               )}
             </section>
 
-            {/* ── Catálogo — disponíveis para adicionar ── */}
+            {/* ── Catálogo — tabela de colunas disponíveis ── */}
             {disponiveis.length > 0 && (
               <section className="cfg-secao">
                 <div className="cfg-secao__header">
                   <div>
-                    <h2 className="cfg-secao__titulo">Disponíveis para adicionar</h2>
-                    <p className="cfg-secao__desc">Clique em + para incluir na sua lista</p>
+                    <h2 className="cfg-secao__titulo">Colunas disponíveis</h2>
+                    <p className="cfg-secao__desc">
+                      Todas as colunas da tabela de pedidos · clique em + para adicionar como card
+                    </p>
                   </div>
                 </div>
+
+                {/* Cabeçalho da tabela */}
+                <div className="cfg-tabela-head">
+                  <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
+                  <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
+                  <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">Agregação</span>
+                  <span className="cfg-tabela-head__col cfg-tabela-head__col--acao" />
+                </div>
+
                 <div className="cfg-cards-lista">
                   {disponiveis.map(def => {
                     const visual = CARD_VISUAL[def.id]
@@ -281,6 +297,10 @@ export default function Configuracoes() {
                             <p className="cfg-card-row__desc">{t(def.descKey)}</p>
                           </div>
                         </div>
+                        <span className={`cfg-origem-badge cfg-origem-badge--${def.origem === 'Pedido' ? 'pedido' : 'item'}`}>
+                          {def.origem}
+                        </span>
+                        <span className="cfg-agg-badge">{def.tipoAgg}</span>
                         <TooltipGlobal descricao="Adicionar aos meus cards">
                           <button
                             type="button"

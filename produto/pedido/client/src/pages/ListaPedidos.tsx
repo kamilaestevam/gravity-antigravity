@@ -28,6 +28,7 @@ import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { TCGColuna, TCGAcao } from '@nucleo/tabela-camadas-global'
+import { useCardPreferences } from '../shared/useCardPreferences'
 import './ListaPedidos.css'
 import type { Pedido, PedidoItem } from '../shared/types'
 import {
@@ -505,6 +506,7 @@ export default function ListaPedidos() {
   const { t } = useTranslation()
   const [carregando] = useState(false)
   const pedidos = PEDIDOS_MOCK
+  const { visiveis: cardsVisiveis } = useCardPreferences()
 
   // Stats calculados
   const totalPedidos = pedidos.length
@@ -518,39 +520,48 @@ export default function ListaPedidos() {
       {/* ── KPI cards + ações ── */}
       <div className="lp-stats-row">
         <div className="lp-cards">
-          <CardBasicoGlobal
-            titulo={t('pedido.total_pedidos')}
-            icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
-            valor={totalPedidos}
-            subtexto={`${totalItens} ${t('pedido.itens_total')}`}
-            tooltip={<>
-              <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidos.filter(p => p.status === 'aberto').length}</strong></p>
-              <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidos.filter(p => p.status === 'em_andamento').length}</strong></p>
-              <p className="cg-tooltip__row"><span>{t('pedido.concluidos')}</span><strong>{pedidos.filter(p => p.status === 'concluido').length}</strong></p>
-            </>}
-          />
-          <CardBasicoGlobal
-            titulo={t('pedido.valor_total')}
-            icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={fmtMoeda(valorTotal)}
-            variante="sucesso"
-            subtexto={t('pedido.soma_pedidos')}
-            tooltip={<>
-              <p className="cg-tooltip__row"><span>{t('pedido.moeda')}</span><strong>USD</strong></p>
-              <p className="cg-tooltip__row"><span>{t('pedido.media_por_pedido')}</span><strong>{fmtMoeda(totalPedidos ? valorTotal / totalPedidos : 0)}</strong></p>
-            </>}
-          />
-          <CardBasicoGlobal
-            titulo={t('pedido.qtd_total')}
-            icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-            valor={fmtQuantidade(qtdTotal)}
-            variante="aviso"
-            subtexto={t('pedido.qtd_acumulada')}
-            tooltip={<>
-              <p className="cg-tooltip__row"><span>{t('pedido.total_itens_distintos')}</span><strong>{totalItens}</strong></p>
-              <p className="cg-tooltip__row"><span>{t('pedido.media_itens_pedido')}</span><strong>{totalPedidos ? (totalItens / totalPedidos).toFixed(1) : 0}</strong></p>
-            </>}
-          />
+          {cardsVisiveis.map(pref => {
+            if (pref.id === 'total_pedidos') return (
+              <CardBasicoGlobal key="total_pedidos"
+                titulo={t('pedido.total_pedidos')}
+                icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
+                valor={totalPedidos}
+                subtexto={`${totalItens} ${t('pedido.itens_total')}`}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidos.filter(p => p.status === 'aberto').length}</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidos.filter(p => p.status === 'em_andamento').length}</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.concluidos')}</span><strong>{pedidos.filter(p => p.status === 'concluido').length}</strong></p>
+                </>}
+              />
+            )
+            if (pref.id === 'valor_total') return (
+              <CardBasicoGlobal key="valor_total"
+                titulo={t('pedido.valor_total')}
+                icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
+                valor={fmtMoeda(valorTotal)}
+                variante="sucesso"
+                subtexto={t('pedido.soma_pedidos')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>{t('pedido.moeda')}</span><strong>USD</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.media_por_pedido')}</span><strong>{fmtMoeda(totalPedidos ? valorTotal / totalPedidos : 0)}</strong></p>
+                </>}
+              />
+            )
+            if (pref.id === 'qtd_total') return (
+              <CardBasicoGlobal key="qtd_total"
+                titulo={t('pedido.qtd_total')}
+                icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+                valor={fmtQuantidade(qtdTotal)}
+                variante="aviso"
+                subtexto={t('pedido.qtd_acumulada')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>{t('pedido.total_itens_distintos')}</span><strong>{totalItens}</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.media_itens_pedido')}</span><strong>{totalPedidos ? (totalItens / totalPedidos).toFixed(1) : 0}</strong></p>
+                </>}
+              />
+            )
+            return null
+          })}
         </div>
         <div className="lp-acoes">
           <BotaoGlobal variante="primario" icone={<Plus size={16} />}

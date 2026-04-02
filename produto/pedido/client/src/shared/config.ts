@@ -56,7 +56,7 @@ export const PRODUCT_CONFIG = {
 
     // ── Serviços ──────────────────────────────────────────────────────────────
     { id: 'historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  },
-    { id: 'configuracoes', label: 'Configurações', icon: 'gear-six',                source: 'product', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+    { id: 'configuracoes', label: 'Configurações', icon: 'gear-six',                source: 'product' },
 
   ] satisfies NavigationItem[],
 

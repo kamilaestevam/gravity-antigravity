@@ -1,0 +1,340 @@
+/* Configuracoes.css — Página de configurações do produto Pedido */
+
+.cfg-page {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.5rem 2rem 2rem;
+  min-height: 0;
+  flex: 1;
+  align-items: flex-start;
+}
+
+/* ── Sidebar ── */
+
+.cfg-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1rem 0.5rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.cfg-sidebar__titulo {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #64748b);
+  padding: 0 0.625rem;
+  margin-bottom: 0.5rem;
+}
+
+.cfg-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cfg-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.cfg-sidebar__item:hover:not(.cfg-sidebar__item--breve) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary, #f1f5f9);
+}
+
+.cfg-sidebar__item--ativo {
+  background: rgba(129, 140, 248, 0.12) !important;
+  color: #818cf8 !important;
+  font-weight: 600;
+}
+
+.cfg-sidebar__item--breve {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.cfg-sidebar__item-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cfg-sidebar__item-label {
+  flex: 1;
+}
+
+.cfg-badge-breve {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Conteúdo ── */
+
+.cfg-conteudo {
+  flex: 1;
+  min-width: 0;
+}
+
+.cfg-secao {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.cfg-secao__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cfg-secao__titulo {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 0.25rem;
+}
+
+.cfg-secao__desc {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1.5;
+}
+
+/* ── Botão restaurar ── */
+
+.cfg-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.cfg-reset-btn:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* ── Lista de cards ── */
+
+.cfg-cards-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.cfg-card-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cfg-card-row:hover {
+  border-color: rgba(129, 140, 248, 0.2);
+  background: rgba(129, 140, 248, 0.03);
+}
+
+.cfg-card-row--oculto {
+  opacity: 0.45;
+}
+
+/* Posição + setas */
+
+.cfg-card-row__pos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.cfg-card-row__num {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  line-height: 1;
+  width: 14px;
+  text-align: center;
+}
+
+.cfg-card-row__arrows {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cfg-arrow-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.cfg-arrow-btn:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.12);
+  border-color: rgba(129, 140, 248, 0.3);
+  color: #818cf8;
+}
+
+.cfg-arrow-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* Info do card */
+
+.cfg-card-row__info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.cfg-card-row__icone {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  justify-content: center;
+}
+
+.cfg-card-row__nome {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 2px;
+}
+
+.cfg-card-row__desc {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+}
+
+/* Toggle switch */
+
+.cfg-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 9999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.cfg-toggle--on {
+  background: #818cf8;
+}
+
+.cfg-toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.cfg-toggle--on .cfg-toggle__thumb {
+  transform: translateX(16px);
+}
+
+/* Hint */
+
+.cfg-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Light theme ── */
+
+body.light-theme .cfg-sidebar,
+body.light-theme .cfg-secao {
+  background: #fff;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+body.light-theme .cfg-card-row {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+body.light-theme .cfg-card-row:hover {
+  background: rgba(129, 140, 248, 0.04);
+}
+
+body.light-theme .cfg-card-row__icone {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .cfg-toggle {
+  background: rgba(0, 0, 0, 0.12);
+}

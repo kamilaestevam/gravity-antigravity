@@ -9,7 +9,8 @@ import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
-const ListaPedidos = lazy(() => import('./pages/ListaPedidos'))
+const ListaPedidos   = lazy(() => import('./pages/ListaPedidos'))
+const Configuracoes  = lazy(() => import('./pages/Configuracoes'))
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -156,8 +157,9 @@ export function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/"       element={<Navigate to="pedidos" replace />} />
-          <Route path="pedidos" element={<ListaPedidos />} />
-          <Route path="*"       element={<Navigate to="pedidos" replace />} />
+          <Route path="pedidos"        element={<ListaPedidos />} />
+          <Route path="configuracoes"  element={<Configuracoes />} />
+          <Route path="*"              element={<Navigate to="pedidos" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

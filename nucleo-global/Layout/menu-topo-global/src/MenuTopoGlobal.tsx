@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MagnifyingGlass, Info, ArrowLeft, Cube } from '@phosphor-icons/react'
+import { MagnifyingGlass, Info, ArrowLeft, Cube, Hexagon, X } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
@@ -11,7 +11,7 @@ import {
 } from '@nucleo/localizador-global'
 import './menu-topo-global.css'
 
-// ── Agrupamentos de props para evitar interface achatada ─────────────────────
+// ── Agrupamentos de props ─────────────────────────────────────────────────────
 
 export interface MenuTopoLocalizadorConfig {
   workspaceName: string
@@ -24,12 +24,12 @@ export interface MenuTopoLocalizadorConfig {
   onNavigate: (node: EcosystemNode) => void
 }
 
-export type MenuTopoUsuarioConfig = Omit<UsuarioGlobalProps, 'isAdminPanel' | 'onNavigateConfigurador'>
+export type MenuTopoUsuarioConfig = Omit<UsuarioGlobalProps, 'isAdminPanel' | 'onNavigateConfigurador' | 'compact'>
 
 export interface MenuTopoGlobalProps {
   /** Nome do produto/módulo exibido no chip esquerdo */
   productName: string
-  /** Cor de destaque do produto — ex: '#06b6d4'. Padrão: accent indigo */
+  /** Cor de destaque do produto */
   productColor?: string
   /** Estado do toggle de dicas */
   tooltipsDisabled: boolean
@@ -38,10 +38,10 @@ export interface MenuTopoGlobalProps {
   localizador: MenuTopoLocalizadorConfig
   /** Props para o UsuarioGlobal */
   usuario: MenuTopoUsuarioConfig
-  /** Navegar para o Hub */
-  onNavigateHub: () => void
-  /** Navegar para o Core */
-  onNavigateCore: () => void
+  /** Navegar para o Hub — omitir ou passar false oculta o botão (ex: na tela Hub) */
+  onNavigateHub?: () => void
+  /** Navegar para o Core — omitir ou passar false oculta o botão (ex: na tela Core) */
+  onNavigateCore?: () => void
 }
 
 // ── Componente ───────────────────────────────────────────────────────────────
@@ -58,9 +58,38 @@ export function MenuTopoGlobal({
 }: MenuTopoGlobalProps) {
   const { t } = useTranslation()
 
+  // ── Busca funcional ───────────────────────────────────────────────────────
+  const [searchOpen, setSearchOpen]   = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const openSearch = () => {
+    setSearchOpen(true)
+    setTimeout(() => searchInputRef.current?.focus(), 30)
+  }
+
+  const closeSearch = () => {
+    setSearchOpen(false)
+    setSearchQuery('')
+    window.dispatchEvent(new CustomEvent('shell:search', { detail: { query: '' } }))
+  }
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value
+    setSearchQuery(query)
+    window.dispatchEvent(new CustomEvent('shell:search', { detail: { query } }))
+  }
+
+  // Fecha com Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && searchOpen) closeSearch() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [searchOpen])
+
   const cssVars = {
-    '--mtg-accent': productColor,
-    '--mtg-accent-dim': `${productColor}18`,
+    '--mtg-accent':        productColor,
+    '--mtg-accent-dim':    `${productColor}18`,
     '--mtg-accent-border': `${productColor}33`,
   } as React.CSSProperties
 
@@ -69,15 +98,12 @@ export function MenuTopoGlobal({
 
       {/* ── ESQUERDA: logo + chip do produto ── */}
       <div className="mtg-left">
-        <LogoGlobal iconSize={22} iconColor={productColor} iconOnly />
+        <LogoGlobal iconSize={20} iconColor={productColor} iconOnly />
         <div className="mtg-divider" />
         <div className="mtg-product-chip">
           <span
             className="mtg-product-chip__dot"
-            style={{
-              backgroundColor: productColor,
-              boxShadow: `0 0 6px ${productColor}99`,
-            }}
+            style={{ backgroundColor: productColor, boxShadow: `0 0 6px ${productColor}99` }}
           />
           <span className="mtg-product-chip__name">{productName}</span>
         </div>
@@ -86,35 +112,50 @@ export function MenuTopoGlobal({
       {/* ── DIREITA: ações + usuário ── */}
       <div className="mtg-right">
 
-        {/* Busca global — dispara evento, sem lógica de produto */}
-        <button
-          className="mtg-icon-btn"
-          type="button"
-          aria-label={t('shell.busca_global', 'Busca global')}
-          title={t('shell.busca_global', 'Busca global')}
-          onClick={() => window.dispatchEvent(new CustomEvent('shell:global-search'))}
-        >
-          <MagnifyingGlass size={18} />
-        </button>
+        {/* Busca funcional — expande para input ao clicar */}
+        {searchOpen ? (
+          <div className="mtg-search-bar">
+            <MagnifyingGlass size={15} className="mtg-search-bar__icon" />
+            <input
+              ref={searchInputRef}
+              className="mtg-search-bar__input"
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder={t('shell.buscar_na_tela', 'Buscar na tela…')}
+              aria-label={t('shell.buscar_na_tela', 'Buscar na tela')}
+            />
+            <button
+              className="mtg-search-bar__clear"
+              type="button"
+              onClick={closeSearch}
+              aria-label={t('comum.fechar', 'Fechar')}
+            >
+              <X size={13} weight="bold" />
+            </button>
+          </div>
+        ) : (
+          <button
+            className="mtg-icon-btn"
+            type="button"
+            aria-label={t('shell.busca_global', 'Buscar na tela')}
+            title={t('shell.busca_global', 'Buscar na tela')}
+            onClick={openSearch}
+          >
+            <MagnifyingGlass size={17} />
+          </button>
+        )}
 
         {/* Toggle de dicas */}
         <button
           className="mtg-icon-btn"
           type="button"
-          aria-label={
-            tooltipsDisabled
-              ? t('shell.habilitar_dicas', 'Habilitar dicas')
-              : t('shell.desabilitar_dicas', 'Desabilitar dicas')
-          }
-          title={
-            tooltipsDisabled
-              ? t('shell.label_habilitar_dicas', 'Habilitar dicas')
-              : t('shell.label_desabilitar_dicas', 'Desabilitar dicas')
-          }
+          aria-label={tooltipsDisabled ? t('shell.habilitar_dicas', 'Habilitar dicas') : t('shell.desabilitar_dicas', 'Desabilitar dicas')}
+          title={tooltipsDisabled ? t('shell.label_habilitar_dicas', 'Habilitar dicas') : t('shell.label_desabilitar_dicas', 'Desabilitar dicas')}
           onClick={onToggleTooltips}
           style={{ color: tooltipsDisabled ? 'var(--text-muted)' : productColor }}
         >
-          <Info size={18} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+          <Info size={17} weight={tooltipsDisabled ? 'regular' : 'fill'} />
         </button>
 
         {/* Seletor de idioma */}
@@ -135,46 +176,51 @@ export function MenuTopoGlobal({
 
         <div className="mtg-sep" />
 
-        {/* Atalho Hub */}
-        <button
-          className="mtg-nav-btn"
-          type="button"
-          title={t('shell.voltar_hub', 'Voltar ao Hub')}
-          onClick={onNavigateHub}
-          style={{
-            '--mtg-btn-color': '#818cf8',
-            '--mtg-btn-bg': 'rgba(129,140,248,0.08)',
-            '--mtg-btn-border': 'rgba(129,140,248,0.25)',
-            '--mtg-btn-bg-hover': 'rgba(129,140,248,0.16)',
-            '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
-          } as React.CSSProperties}
-        >
-          <ArrowLeft size={14} weight="bold" />
-          Hub
-        </button>
+        {/* Atalho Hub — oculto quando onNavigateHub não fornecido (ex: tela Hub) */}
+        {onNavigateHub && (
+          <button
+            className="mtg-nav-btn"
+            type="button"
+            title={t('shell.voltar_hub', 'Voltar ao Hub')}
+            onClick={onNavigateHub}
+            style={{
+              '--mtg-btn-color':        '#818cf8',
+              '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
+              '--mtg-btn-border':       'rgba(129,140,248,0.22)',
+              '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
+              '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
+            } as React.CSSProperties}
+          >
+            <ArrowLeft size={13} weight="bold" />
+            <Hexagon size={13} weight="duotone" />
+            Hub
+          </button>
+        )}
 
-        {/* Atalho Core */}
-        <button
-          className="mtg-nav-btn"
-          type="button"
-          title={t('shell.ir_core', 'Ir para o Core')}
-          onClick={onNavigateCore}
-          style={{
-            '--mtg-btn-color': productColor,
-            '--mtg-btn-bg': `${productColor}12`,
-            '--mtg-btn-border': `${productColor}30`,
-            '--mtg-btn-bg-hover': `${productColor}22`,
-            '--mtg-btn-border-hover': `${productColor}55`,
-          } as React.CSSProperties}
-        >
-          <Cube size={14} weight="duotone" />
-          Core
-        </button>
+        {/* Atalho Core — oculto quando onNavigateCore não fornecido (ex: tela Core) */}
+        {onNavigateCore && (
+          <button
+            className="mtg-nav-btn"
+            type="button"
+            title={t('shell.ir_core', 'Ir para o Core')}
+            onClick={onNavigateCore}
+            style={{
+              '--mtg-btn-color':        productColor,
+              '--mtg-btn-bg':           `${productColor}12`,
+              '--mtg-btn-border':       `${productColor}2e`,
+              '--mtg-btn-bg-hover':     `${productColor}22`,
+              '--mtg-btn-border-hover': `${productColor}55`,
+            } as React.CSSProperties}
+          >
+            <Cube size={13} weight="duotone" />
+            Core
+          </button>
+        )}
 
         <div className="mtg-sep" />
 
-        {/* Usuário */}
-        <UsuarioGlobal {...usuario} />
+        {/* Usuário — modo compacto (só avatar) */}
+        <UsuarioGlobal {...usuario} compact />
       </div>
     </header>
   )

@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CaretDown, ShieldCheck, Gear, Storefront, CreditCard, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
+import { CaretDown, ShieldCheck, Gear, Sliders, Storefront, Moon, Sun, Robot, Sparkle, SignOut, Crown } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './usuario-global.css'
+
+// ── Identidade Gravity ──────────────────────────────────────────────────────
+const SUPER_ADMIN_EMAILS = ['dmmltda@gmail.com', 'admin@gravity.com.br']
 
 export interface UsuarioGlobalProps {
   userName: string
@@ -11,13 +14,15 @@ export interface UsuarioGlobalProps {
   userRole: string
   isLight: boolean
   onToggleTheme: () => void
-  onNavigateOrganizacao: () => void
+  onNavigateWorkspace: () => void
   onNavigateMarketPlace: () => void
   onSignOut: () => void
   isAdmin?: boolean
   isAdminPanel?: boolean
   onNavigateAdmin?: () => void
   onNavigateConfigurador?: () => void
+  /** Modo compacto — exibe apenas o avatar no trigger, sem nome/role/caret */
+  compact?: boolean
 }
 
 export function UsuarioGlobal({
@@ -27,29 +32,37 @@ export function UsuarioGlobal({
   userRole,
   isLight,
   onToggleTheme,
-  onNavigateOrganizacao,
+  onNavigateWorkspace,
   onNavigateMarketPlace,
   onSignOut,
   isAdmin,
   isAdminPanel,
   onNavigateAdmin,
   onNavigateConfigurador,
+  compact = false,
 }: UsuarioGlobalProps) {
   const { t } = useTranslation()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  // ── Inteligência de Identidade ──────────────────────────────────────────
-  // Centralizamos aqui quem é Super Admin da plataforma Gravity
-  const SUPER_ADMIN_EMAILS = ['dmmltda@gmail.com', 'admin@gravity.com.br']
   const isSuperAdminUser = SUPER_ADMIN_EMAILS.includes(userEmail)
-  
-  // O papel exibido e o acesso administrativo são calculados aqui
   const displayRole = isSuperAdminUser ? t('usuario.super_admin') : userRole
   const hasAdminPrivileges = isSuperAdminUser || isAdmin
+  const canAccessWorkspace = userRole.toLowerCase() === 'master' || isSuperAdminUser
 
-  // Estilos específicos para Super Admin (Verde Platinum)
-  // Caso contrário, mantemos os estilos padrão (Master/Violet/Muted)
+  const roleSlug: Record<string, string> = {
+    'admin':      'admin',
+    'master':     'master',
+    'standard':   'standard',
+    'fornecedor': 'fornecedor',
+    'supplier':   'fornecedor',
+    'membro':     'standard',
+    'member':     'standard',
+  }
+  const roleClass = isSuperAdminUser
+    ? 'ws-global-user__role--super-admin'
+    : `ws-global-user__role--${roleSlug[userRole.toLowerCase()] ?? 'default'}`
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
@@ -63,18 +76,22 @@ export function UsuarioGlobal({
   return (
     <div className="ws-global-user-wrap" ref={profileRef}>
       <TooltipGlobal titulo={t('usuario.perfil_conta')} descricao={t('usuario.perfil_conta_desc')}>
-        <button 
-          className={`ws-global-user ${isSuperAdminUser ? 'ws-global-user--super-admin' : ''}`} 
+        <button
+          className={`ws-global-user ${isSuperAdminUser ? 'ws-global-user--super-admin' : ''} ${compact ? 'ws-global-user--compact' : ''}`}
           type="button"
           onClick={() => setIsProfileOpen(v => !v)}
           aria-expanded={isProfileOpen}
         >
           <div className="ws-global-user__avatar">{userInitials}</div>
-          <div className="ws-global-user__info">
-            <span className="ws-global-user__name">{userName}</span>
-            <span className="ws-global-user__role">{displayRole}</span>
-          </div>
-          <CaretDown weight="bold" size={14} className="ws-global-caret" />
+          {!compact && (
+            <>
+              <div className="ws-global-user__info">
+                <span className="ws-global-user__name">{userName}</span>
+                <span className={`ws-global-user__role ${roleClass}`}>{displayRole}</span>
+              </div>
+              <CaretDown weight="bold" size={14} className="ws-global-caret" />
+            </>
+          )}
         </button>
       </TooltipGlobal>
 
@@ -85,26 +102,20 @@ export function UsuarioGlobal({
             <div className="ws-profile-details">
               <span className="ws-profile-name" title={userName}>{userName}</span>
               <span className="ws-profile-email" title={userEmail}>{userEmail}</span>
-              <span className="ws-profile-badge">{displayRole}</span>
+              <span className={`ws-profile-badge ${isSuperAdminUser ? 'ws-profile-badge--super-admin' : ''}`}>
+                {displayRole}
+              </span>
             </div>
           </div>
 
           <div className="ws-profile-separator" />
 
           <div className="ws-profile-section">
-            <button 
-              className="ws-profile-item" 
-              type="button"
-              disabled
-            > 
+            <button className="ws-profile-item" type="button" disabled>
               <ShieldCheck weight="duotone" size={16} /> {t('admin.security.titulo', 'Segurança e Acesso')}
               <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
-            <button 
-              className="ws-profile-item" 
-              type="button"
-              disabled
-            > 
+            <button className="ws-profile-item" type="button" disabled>
               <Gear weight="duotone" size={16} /> {t('shell.menu.configuracoes', 'Preferências')}
               <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
@@ -115,67 +126,48 @@ export function UsuarioGlobal({
           <div className="ws-profile-section">
             {!isAdminPanel && (
               <>
-                {displayRole !== 'Master' && !isSuperAdminUser ? (
-                  <TooltipGlobal titulo={t('usuario.acesso_restrito')} descricao={t('usuario.apenas_master_org')}>
-                    <button
-                      className="ws-profile-item disabled-item"
-                      type="button"
-                      style={{ width: '100%', opacity: 0.5, cursor: 'not-allowed' }}
-                    >
-                      <Gear weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
-                    </button>
-                  </TooltipGlobal>
-                ) : (
+                {canAccessWorkspace ? (
                   <button
                     className="ws-profile-item"
                     type="button"
-                    onClick={() => {
-                      onNavigateOrganizacao()
-                      setIsProfileOpen(false)
-                    }}
+                    onClick={() => { onNavigateWorkspace(); setIsProfileOpen(false) }}
                   >
-                    <Gear weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
+                    <Sliders weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
                   </button>
+                ) : (
+                  <TooltipGlobal titulo={t('usuario.acesso_restrito')} descricao={t('usuario.apenas_master_org')}>
+                    <button className="ws-profile-item disabled-item" type="button">
+                      <Sliders weight="duotone" size={16} /> {t('usuario.gerenciar_organizacao')}
+                    </button>
+                  </TooltipGlobal>
                 )}
 
                 <button
                   className="ws-profile-item"
                   type="button"
-                  style={{ marginTop: '0.125rem' }}
-                  onClick={() => {
-                    onNavigateMarketPlace()
-                    setIsProfileOpen(false)
-                  }}
+                  onClick={() => { onNavigateMarketPlace(); setIsProfileOpen(false) }}
                 >
                   <Storefront weight="duotone" size={16} /> {t('usuario.ir_marketplace', 'Ir para Market Place')}
                 </button>
+
+                {hasAdminPrivileges && (
+                  <button
+                    className="ws-profile-item ws-profile-item--admin"
+                    type="button"
+                    onClick={() => { if (onNavigateAdmin) onNavigateAdmin(); setIsProfileOpen(false) }}
+                  >
+                    <Crown weight="duotone" size={16} /> {t('usuario.acesso_admin')}
+                  </button>
+                )}
               </>
             )}
 
-            {hasAdminPrivileges && !isAdminPanel && (
-              <button 
-                className="ws-profile-item ws-profile-item--admin" 
+            {isAdminPanel && hasAdminPrivileges && (
+              <button
+                className="ws-profile-item ws-profile-item--configurador"
                 type="button"
-                style={{ marginTop: '0.125rem' }}
-                onClick={() => {
-                  if (onNavigateAdmin) onNavigateAdmin()
-                  setIsProfileOpen(false)
-                }}
-              > 
-                <Crown weight="duotone" size={16} /> {t('usuario.acesso_admin')}
-              </button>
-            )}
-
-            {hasAdminPrivileges && isAdminPanel && (
-              <button 
-                className="ws-profile-item ws-profile-item--configurador" 
-                type="button"
-                style={{ marginTop: '0.125rem' }}
-                onClick={() => {
-                  if (onNavigateConfigurador) onNavigateConfigurador()
-                  setIsProfileOpen(false)
-                }}
-              > 
+                onClick={() => { if (onNavigateConfigurador) onNavigateConfigurador(); setIsProfileOpen(false) }}
+              >
                 <Gear weight="duotone" size={16} /> {t('usuario.acesso_configurador')}
               </button>
             )}
@@ -184,30 +176,19 @@ export function UsuarioGlobal({
           <div className="ws-profile-separator" />
 
           <div className="ws-profile-section">
-            <button 
-              className="ws-profile-item" 
-              type="button"
-              onClick={() => {
-                onToggleTheme()
-                setIsProfileOpen(false)
-              }}
-            > 
-              {isLight ? <Moon weight="duotone" size={16} /> : <Sun weight="duotone" size={16} />}
-              {t('usuario.alternar_tema', { tema: isLight ? t('shell.label_tema_escuro') : t('shell.label_tema_claro') })}
-            </button>
-            <button 
-              className="ws-profile-item" 
-              type="button"
-              disabled
-            > 
-              <Robot weight="duotone" size={16} /> {t('usuario.central_ajuda', 'Central de Ajuda')}
-              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
-            </button>
             <button
               className="ws-profile-item"
               type="button"
-              disabled
+              onClick={() => { onToggleTheme(); setIsProfileOpen(false) }}
             >
+              {isLight ? <Moon weight="duotone" size={16} /> : <Sun weight="duotone" size={16} />}
+              {t('usuario.alternar_tema', { tema: isLight ? t('shell.label_tema_escuro') : t('shell.label_tema_claro') })}
+            </button>
+            <button className="ws-profile-item" type="button" disabled>
+              <Robot weight="duotone" size={16} /> {t('usuario.central_ajuda', 'Central de Ajuda')}
+              <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
+            </button>
+            <button className="ws-profile-item" type="button" disabled>
               <Sparkle weight="duotone" size={16} /> {t('usuario.novidades', 'Novidades')}
               <span className="ws-profile-badge-soon">{t('comum.em_breve')}</span>
             </button>
@@ -216,11 +197,11 @@ export function UsuarioGlobal({
           <div className="ws-profile-separator" />
 
           <div className="ws-profile-section">
-            <button 
-              className="ws-profile-item ws-profile-item--danger" 
+            <button
+              className="ws-profile-item ws-profile-item--danger"
               type="button"
               onClick={onSignOut}
-            > 
+            >
               <SignOut weight="duotone" size={16} /> {t('usuario.sair', 'Sair do Sistema')}
             </button>
           </div>

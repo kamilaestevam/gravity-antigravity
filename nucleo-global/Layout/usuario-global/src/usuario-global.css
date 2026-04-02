@@ -23,6 +23,26 @@
   border-color: var(--accent);
 }
 
+/* ── Modo compacto — apenas avatar, sem nome/role/caret ── */
+.ws-global-user--compact {
+  padding: 3px;
+  border-radius: 50%;
+  gap: 0;
+  background: transparent !important;
+  border-color: transparent;
+}
+
+.ws-global-user--compact:hover {
+  background: var(--bg-surface) !important;
+  border-color: var(--accent) !important;
+}
+
+.ws-global-user--compact .ws-global-user__avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
 .ws-global-user__avatar {
   width: 28px;
   height: 28px;
@@ -58,11 +78,16 @@
 .ws-global-user__role {
   font-size: 10.5px; /* Respiro ideal */
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   font-weight: 800;
   line-height: 1;
 }
+
+/* Cores por role */
+.ws-global-user__role--super-admin { color: #22c55e; text-shadow: 0 0 8px rgba(34, 197, 94, 0.2); }
+.ws-global-user__role--admin       { color: #06b6d4; }
+.ws-global-user__role--master      { color: #818cf8; }
+.ws-global-user__role--standard    { color: #94a3b8; }
+.ws-global-user__role--fornecedor  { color: #fbbf24; }
 
 /* Modificadores SUPER ADMIN */
 .ws-global-user--super-admin .ws-global-user__avatar {
@@ -72,10 +97,6 @@
   box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.1);
 }
 
-.ws-global-user--super-admin .ws-global-user__role {
-  color: #22c55e;
-  text-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
-}
 
 .ws-global-caret {
   color: var(--text-muted);
@@ -199,6 +220,15 @@
   cursor: not-allowed;
 }
 
+.disabled-item {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+.ws-profile-section .ws-profile-item + .ws-profile-item {
+  margin-top: 0.125rem;
+}
+
 .ws-profile-badge-soon {
   margin-left: auto;
   font-size: 9px;
@@ -216,6 +246,12 @@
 .ws-profile-item--danger:hover:not(:disabled) {
   background: rgba(239, 68, 68, 0.08) !important;
   color: var(--danger) !important;
+}
+
+.ws-profile-badge--super-admin {
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.08);
 }
 
 .ws-profile-item--admin {
@@ -270,6 +306,14 @@ body.light-theme .ws-global-user--super-admin .ws-global-user__avatar {
   border-color: rgba(4, 120, 87, 0.3);
 }
 
-body.light-theme .ws-global-user--super-admin .ws-global-user__role {
+body.light-theme .ws-profile-badge--super-admin {
   color: #047857;
+  border-color: rgba(4, 120, 87, 0.3);
+  background: rgba(4, 120, 87, 0.05);
 }
+
+body.light-theme .ws-global-user__role--super-admin { color: #047857; }
+body.light-theme .ws-global-user__role--admin       { color: #0e7490; }
+body.light-theme .ws-global-user__role--master      { color: #4f46e5; }
+body.light-theme .ws-global-user__role--standard    { color: #64748b; }
+body.light-theme .ws-global-user__role--fornecedor  { color: #b45309; }

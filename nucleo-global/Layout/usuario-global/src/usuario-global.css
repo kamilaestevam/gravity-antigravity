@@ -66,20 +66,22 @@
 }
 
 .ws-global-user__name {
-  font-size: 13.5px; /* Legibilidade elite */
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+  color: var(--text-secondary, #94a3b8);
 }
 
 .ws-global-user__role {
-  font-size: 10.5px; /* Respiro ideal */
+  font-size: 10px;
   color: var(--text-muted);
-  font-weight: 800;
+  font-weight: 400;
   line-height: 1;
+  opacity: 0.7;
 }
 
 /* Cores por role */

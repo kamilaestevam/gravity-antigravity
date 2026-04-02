@@ -31,6 +31,8 @@ export interface MenuTopoGlobalProps {
   productName: string
   /** Cor de destaque do produto */
   productColor?: string
+  /** Ícone React do produto — vem do registry @nucleo/logo-produtos */
+  productIcon?: React.ReactElement
   /** Estado do toggle de dicas */
   tooltipsDisabled: boolean
   onToggleTooltips: () => void
@@ -49,6 +51,7 @@ export interface MenuTopoGlobalProps {
 export function MenuTopoGlobal({
   productName,
   productColor = '#818cf8',
+  productIcon,
   tooltipsDisabled,
   onToggleTooltips,
   localizador,
@@ -100,12 +103,26 @@ export function MenuTopoGlobal({
       <div className="mtg-left">
         <LogoGlobal iconSize={20} iconColor={productColor} iconOnly />
         <div className="mtg-divider" />
-        <div className="mtg-product-chip">
-          <span
-            className="mtg-product-chip__dot"
-            style={{ backgroundColor: productColor, boxShadow: `0 0 6px ${productColor}99` }}
-          />
-          <span className="mtg-product-chip__name">{productName}</span>
+        <div
+          className="mtg-product-chip"
+          style={{
+            background:   `linear-gradient(135deg, ${productColor}18 0%, ${productColor}08 100%)`,
+            borderColor:  `${productColor}35`,
+          }}
+        >
+          {productIcon ? (
+            <span className="mtg-product-chip__icon" style={{ color: productColor }}>
+              {productIcon}
+            </span>
+          ) : (
+            <span
+              className="mtg-product-chip__dot"
+              style={{ backgroundColor: productColor, boxShadow: `0 0 6px ${productColor}99` }}
+            />
+          )}
+          <span className="mtg-product-chip__name" style={{ color: productColor }}>
+            {productName}
+          </span>
         </div>
       </div>
 

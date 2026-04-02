@@ -34,6 +34,7 @@ export default defineConfig({
       // ── Layout ──
       '@nucleo/cabecalho-global':                  nucleo('Layout/cabecalho-global/src/index.ts'),
       '@nucleo/card-global':                       nucleo('Layout/card-global/src/index.ts'),
+      '@nucleo/logo-produtos':                     nucleo('Logo/produtos/src/index.ts'),
       '@nucleo/language-switcher-global':           nucleo('Layout/language-switcher-global/src/index.ts'),
       '@nucleo/localizador-global':                nucleo('Layout/localizador-global/src/index.ts'),
       '@nucleo/logo-global':                       nucleo('Layout/logo-global/src/index.ts'),

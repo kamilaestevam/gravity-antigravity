@@ -8,6 +8,7 @@ import {
 } from '@nucleo/localizador-global'
 import { PRODUCT_CONFIG } from './shared/config'
 import { setApiContext } from './shared/api'
+import { getProdutoMeta } from '@nucleo/logo-produtos'
 
 import {
   Calculator,
@@ -31,9 +32,11 @@ import RelatoriosPage from './pages/relatorios/Relatorios'
 import { Dashboard as GlobalDashboard } from '@tenant/dashboard/src/Dashboard'
 
 // ── Constantes do produto ─────────────────────────────────────────────────────
-const PRODUCT_COLOR = '#34d399'
-const PRODUCT_ID    = 'simula-custo'
-const PRODUCT_NAME  = 'SimulaCusto'
+const PRODUTO        = getProdutoMeta('simula-custo')
+const PRODUCT_COLOR  = PRODUTO.color
+const PRODUCT_ID     = 'simula-custo'
+const PRODUCT_NAME   = 'SimulaCusto'
+const PRODUCT_ICON   = PRODUTO.icon
 
 const iconMap: Record<string, React.ReactNode> = {
   'calculator':   <Calculator   weight="duotone" size={20} />,
@@ -135,6 +138,7 @@ export default function App() {
       menuTopo={{
         productName:  PRODUCT_NAME,
         productColor: PRODUCT_COLOR,
+        productIcon:  PRODUCT_ICON,
         tooltipsDisabled,
         onToggleTooltips: toggleTooltips,
         onNavigateHub:  () => { window.location.href = '/hub' },

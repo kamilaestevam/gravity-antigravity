@@ -2,39 +2,39 @@ import React, { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
-import {
-  useLocalizadorHistory,
-  type EcosystemNode,
-} from '@nucleo/localizador-global'
+import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
+import { getProdutoMeta } from '@nucleo/logo-produtos'
+import { Archive, Upload, Timer } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG } from './shared/config'
-import { Package, UploadSimple, Clock } from '@phosphor-icons/react'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const ListaPedidos    = lazy(() => import('./pages/ListaPedidos'))
 const NovoPedido      = lazy(() => import('./pages/NovoPedido'))
 const ImportarArquivo = lazy(() => import('./pages/ImportarArquivo'))
 
-// ── Constantes do produto ─────────────────────────────────────────────────────
-const PRODUCT_COLOR = '#f59e0b'
+// ── Identidade do produto — via registry central ──────────────────────────────
+const PRODUTO       = getProdutoMeta('pedido')
 const PRODUCT_ID    = 'pedido'
 const PRODUCT_NAME  = 'Pedido'
+const PRODUCT_COLOR = PRODUTO.color
+const PRODUCT_ICON  = PRODUTO.icon
 
 const iconMap: Record<string, React.ReactNode> = {
-  'package':       <Package      weight="duotone" size={20} />,
-  'upload-simple': <UploadSimple weight="duotone" size={20} />,
-  'clock':         <Clock        weight="duotone" size={20} />,
+  'package':       <Archive weight="duotone" size={20} />,
+  'upload-simple': <Upload  weight="duotone" size={20} />,
+  'clock':         <Timer   weight="duotone" size={20} />,
 }
 
 const navItems = PRODUCT_CONFIG.navigation.map(item => ({
   to:    item.id,
   label: item.label,
-  icon:  iconMap[item.icon] ?? <Package weight="duotone" size={20} />,
+  icon:  iconMap[item.icon] ?? <Archive weight="duotone" size={20} />,
 }))
 
 const ECOSYSTEM_NODES: EcosystemNode[] = [
-  { id: 'gravity',    label: 'Gravity',    sublabel: 'workspace',    color: '#818cf8', type: 'gravity',      status: 'accessible' },
-  { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6', type: 'configurador', status: 'accessible' },
-  { id: PRODUCT_ID,   label: PRODUCT_NAME, sublabel: 'pedidos · ERP', color: PRODUCT_COLOR, type: 'produto', status: 'current' },
+  { id: 'gravity',      label: 'Gravity',      sublabel: 'workspace',      color: '#818cf8', type: 'gravity',      status: 'accessible' },
+  { id: 'configurador', label: 'Configurador',  sublabel: 'auth · billing', color: '#f472b6', type: 'configurador', status: 'accessible' },
+  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: PRODUTO.sublabel,  color: PRODUCT_COLOR, type: 'produto', status: 'current' },
 ]
 
 function LoadingFallback() {
@@ -67,13 +67,13 @@ export function App() {
       productLabel: PRODUCT_NAME,
       productColor: PRODUCT_COLOR,
       pageLabel,
-      pagePath: location.pathname,
+      pagePath:     location.pathname,
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
   const initials = currentUser.name
-    ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    ? currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : '??'
 
   const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'
@@ -83,6 +83,7 @@ export function App() {
       menuTopo={{
         productName:  PRODUCT_NAME,
         productColor: PRODUCT_COLOR,
+        productIcon:  PRODUCT_ICON,
         tooltipsDisabled,
         onToggleTooltips: toggleTooltips,
         onNavigateHub:  () => { window.location.href = '/hub' },
@@ -95,8 +96,8 @@ export function App() {
           currentPageLabel:    pageLabel,
           history,
           nodes: ECOSYSTEM_NODES,
-          onNavigate: (node) => {
-            if (node.type === 'gravity')          window.location.href = '/hub'
+          onNavigate: (node: EcosystemNode) => {
+            if (node.type === 'gravity')           window.location.href = '/hub'
             else if (node.type === 'configurador') window.location.href = '/configurador'
             else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
           },
@@ -123,12 +124,12 @@ export function App() {
     >
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"                    element={<Navigate to="pedidos" replace />} />
-          <Route path="pedidos"              element={<ListaPedidos />} />
-          <Route path="pedidos/novo"         element={<NovoPedido />} />
-          <Route path="pedidos/:id/editar"   element={<NovoPedido />} />
-          <Route path="importar"             element={<ImportarArquivo />} />
-          <Route path="*"                    element={<Navigate to="pedidos" replace />} />
+          <Route path="/"                  element={<Navigate to="pedidos" replace />} />
+          <Route path="pedidos"            element={<ListaPedidos />} />
+          <Route path="pedidos/novo"       element={<NovoPedido />} />
+          <Route path="pedidos/:id/editar" element={<NovoPedido />} />
+          <Route path="importar"           element={<ImportarArquivo />} />
+          <Route path="*"                  element={<Navigate to="pedidos" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

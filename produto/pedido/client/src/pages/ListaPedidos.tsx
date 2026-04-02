@@ -590,6 +590,11 @@ export default function ListaPedidos() {
                 valor={pedidosAtrasados}
                 variante="perigo"
                 subtexto={t('pedido.pedidos_atrasados_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidosAbertos}</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidosEmAndamento}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total</span><strong>{totalPedidos}</strong></p>
+                </>}
               />
             )
             if (pref.id === 'pedidos_abertos') return (
@@ -600,6 +605,8 @@ export default function ListaPedidos() {
                 subtexto={t('pedido.pedidos_abertos_desc')}
                 tooltip={<>
                   <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidosEmAndamento}</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.pedidos_atrasados')}</span><strong>{pedidosAtrasados}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total</span><strong>{totalPedidos}</strong></p>
                 </>}
               />
             )
@@ -609,6 +616,11 @@ export default function ListaPedidos() {
                 icone={<ArrowRight weight="duotone" size={16} style={{ color: '#a78bfa' }} />}
                 valor={pedidosEmAndamento}
                 subtexto={t('pedido.pedidos_em_andamento_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidosAbertos}</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.concluidos')}</span><strong>{pedidos.filter(p => p.status === 'concluido').length}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total</span><strong>{totalPedidos}</strong></p>
+                </>}
               />
             )
             if (pref.id === 'cobertura_pendente') return (
@@ -618,6 +630,11 @@ export default function ListaPedidos() {
                 valor={fmtMoeda(coberturaPendente)}
                 variante="aviso"
                 subtexto={t('pedido.cobertura_pendente_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>Com cobertura</span><strong>{pedidos.filter(p => p.cobertura_cambial === 'com_cobertura').length}</strong></p>
+                  <p className="cg-tooltip__row"><span>Sem cobertura</span><strong>{pedidos.filter(p => p.cobertura_cambial !== 'com_cobertura').length}</strong></p>
+                  <p className="cg-tooltip__row"><span>{t('pedido.moeda')}</span><strong>USD</strong></p>
+                </>}
               />
             )
             if (pref.id === 'itens_prontos') return (
@@ -627,6 +644,11 @@ export default function ListaPedidos() {
                 valor={fmtQuantidade(itensProntos)}
                 variante="sucesso"
                 subtexto={t('pedido.itens_prontos_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>Saldo atual</span><strong>{fmtQuantidade(qtdAtualTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Transferida</span><strong>{fmtQuantidade(qtdTransferidaTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total itens</span><strong>{todosItens.length}</strong></p>
+                </>}
               />
             )
             if (pref.id === 'qtd_atual_total') return (
@@ -635,6 +657,11 @@ export default function ListaPedidos() {
                 icone={<Gauge weight="duotone" size={16} style={{ color: '#38bdf8' }} />}
                 valor={fmtQuantidade(qtdAtualTotal)}
                 subtexto={t('pedido.qtd_atual_total_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>Inicial</span><strong>{fmtQuantidade(qtdInicialTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Transferida</span><strong>{fmtQuantidade(qtdTransferidaTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Pronta</span><strong>{fmtQuantidade(itensProntos)}</strong></p>
+                </>}
               />
             )
             if (pref.id === 'qtd_transferida_total') return (
@@ -643,6 +670,11 @@ export default function ListaPedidos() {
                 icone={<ArrowsLeftRight weight="duotone" size={16} style={{ color: '#a3e635' }} />}
                 valor={fmtQuantidade(qtdTransferidaTotal)}
                 subtexto={t('pedido.qtd_transferida_total_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>Saldo atual</span><strong>{fmtQuantidade(qtdAtualTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Inicial</span><strong>{fmtQuantidade(qtdInicialTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total itens</span><strong>{todosItens.length}</strong></p>
+                </>}
               />
             )
             if (pref.id === 'qtd_inicial_total') return (
@@ -651,6 +683,11 @@ export default function ListaPedidos() {
                 icone={<StackSimple weight="duotone" size={16} style={{ color: '#94a3b8' }} />}
                 valor={fmtQuantidade(qtdInicialTotal)}
                 subtexto={t('pedido.qtd_inicial_total_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>Saldo atual</span><strong>{fmtQuantidade(qtdAtualTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Transferida</span><strong>{fmtQuantidade(qtdTransferidaTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total itens</span><strong>{todosItens.length}</strong></p>
+                </>}
               />
             )
             if (pref.id === 'valor_itens_total') return (
@@ -660,6 +697,11 @@ export default function ListaPedidos() {
                 valor={fmtMoeda(valorItensTotal)}
                 variante="aviso"
                 subtexto={t('pedido.valor_itens_total_desc')}
+                tooltip={<>
+                  <p className="cg-tooltip__row"><span>{t('pedido.media_por_pedido')}</span><strong>{fmtMoeda(totalPedidos ? valorItensTotal / totalPedidos : 0)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total pedidos</span><strong>{fmtMoeda(valorTotal)}</strong></p>
+                  <p className="cg-tooltip__row"><span>Total itens</span><strong>{todosItens.length}</strong></p>
+                </>}
               />
             )
             return null

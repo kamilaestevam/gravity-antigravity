@@ -170,7 +170,6 @@ async function main() {
     create: {
       id: `sub_${tenant.id}`,
       tenant_id: tenant.id,
-      plan: 'PROFESSIONAL',
       status: 'ACTIVE',
     },
     update: { status: 'ACTIVE' },

@@ -66,7 +66,6 @@ export const tenantService = {
       await tx.subscription.create({
         data: {
           tenant_id: newTenant.id,
-          plan: 'STARTER',
           status: 'TRIALING',
           trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
         },
@@ -102,7 +101,7 @@ export const tenantService = {
         subscriptions: {
           orderBy: { created_at: 'desc' },
           take: 1,
-          select: { plan: true, status: true, trial_ends_at: true },
+          select: { status: true, trial_ends_at: true },
         },
         _count: { select: { users: true, companies: true } },
       },

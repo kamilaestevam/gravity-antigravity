@@ -37,6 +37,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { LocalizadorGlobal, useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
@@ -63,6 +64,23 @@ export function Core() {
 
   const companyId = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
+
+  // ── Localizador ────────────────────────────────────────────────────────────
+  const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('gravity')
+  useEffect(() => {
+    locAddEntry({ productId: 'gravity', productLabel: 'Gravity', productColor: '#818cf8', pageLabel: 'Core', pagePath: '/core' })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const coreEcosystemNodes: EcosystemNode[] = [
+    { id: 'gravity',      label: 'Gravity',        sublabel: 'workspace',           color: '#818cf8', type: 'gravity',      status: 'current'    },
+    { id: 'configurador', label: 'Configurador',   sublabel: 'auth · billing',      color: '#f472b6', type: 'configurador', status: 'accessible' },
+    { id: 'bid-cambio',   label: 'Bid Câmbio',     sublabel: 'cotações · câmbio',   color: '#06b6d4', type: 'produto',      status: 'accessible' },
+    { id: 'simulacusto',  label: 'SimulaCusto',    sublabel: 'fiscal · NCM',        color: '#34d399', type: 'produto',      status: 'accessible' },
+    { id: 'lpco',         label: 'LPCO',           sublabel: 'licenças COMEX',      color: '#fb923c', type: 'produto',      status: 'locked'     },
+    { id: 'nf-importacao',label: 'NF Importação',  sublabel: 'nota fiscal',         color: '#c084fc', type: 'produto',      status: 'locked'     },
+    { id: 'processo',     label: 'Processo',       sublabel: 'consolida produtos',  color: '#facc15', type: 'processo',     status: 'locked'     },
+  ]
 
   const [tipoEmpresa, setTipoEmpresa] = useState('')
 
@@ -282,6 +300,21 @@ export function Core() {
               <Info size={20} weight={tooltipsDisabled ? 'regular' : 'fill'} />
             </button>
           </TooltipGlobal>
+
+          {/* Localizador — Onde estou */}
+          <LocalizadorGlobal
+            workspaceName={companyName}
+            currentProductId="gravity"
+            currentProductLabel="Gravity"
+            currentProductColor="#818cf8"
+            currentPageLabel="Core"
+            history={locHistory}
+            nodes={coreEcosystemNodes}
+            onNavigate={(node) => {
+              if (node.type === 'configurador') navigate('/configurador')
+              else if (node.type === 'produto')  navigate(`/produto/${node.id}`)
+            }}
+          />
 
           <LanguageSwitcherGlobal />
 

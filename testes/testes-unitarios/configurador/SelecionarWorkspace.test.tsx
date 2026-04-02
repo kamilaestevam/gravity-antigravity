@@ -62,7 +62,7 @@ const hubInitResponse = {
   tenant: {
     id: 'tenant-1',
     name: 'DMM Importação',
-    subscriptions: [{ plan: 'STARTER', status: 'TRIALING' }],
+    subscriptions: [{ status: 'TRIALING' }],
     _count: { users: 3, companies: 2 },
   },
   companies: [

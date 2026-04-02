@@ -28,7 +28,6 @@ type DadosMae = {
   cidade:       string
   segmento:     string
   tipo_empresa: string
-  plano:        string
   subdominio:   string
   criadaEm:     string
 }
@@ -40,7 +39,6 @@ const dadosVazios: DadosMae = {
   cidade:       '',
   segmento:     '',
   tipo_empresa: '',
-  plano:        'Starter',
   subdominio:   '',
   criadaEm:     '',
 }
@@ -140,10 +138,6 @@ export function Organizacao() {
 
         if (tenantRes.ok) {
           const { tenant } = await tenantRes.json()
-          const sub = tenant.subscriptions?.[0]
-          const planMap: Record<string, string> = {
-            STARTER: 'Starter', PROFESSIONAL: 'Professional', ENTERPRISE: 'Enterprise'
-          }
           const dadosApi: DadosMae = {
             nome:       tenant.name ?? '',
             cnpj:       tenant.cnpj ?? '',
@@ -151,7 +145,6 @@ export function Organizacao() {
             cidade:     tenant.city ?? '',
             segmento:     tenant.segment ?? '',
             tipo_empresa: tenant.tipo_empresa ?? '',
-            plano:      planMap[sub?.plan] ?? sub?.plan ?? 'Starter',
             subdominio: tenant.slug ?? '',
             criadaEm:   tenant.created_at
               ? new Date(tenant.created_at).toLocaleDateString('pt-BR')
@@ -348,10 +341,6 @@ export function Organizacao() {
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome || <span style={{ opacity: 0.4 }}>Nome da empresa</span>}</h2>
             <p className="em-identity__sub">
-              <TooltipGlobal titulo="Plano Atual" descricao="Define os limites de uso e funcionalidades do seu sistema">
-                <span className="em-tag">{dados.plano}</span>
-              </TooltipGlobal>
-              <span className="em-identity__sep">·</span>
               {dados.subdominio}.gravity.com.br
             </p>
           </div>

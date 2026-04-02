@@ -27,9 +27,10 @@ const LANGUAGES: LanguageOption[] = [
 
 interface LanguageSwitcherGlobalProps {
   onLanguageChange?: (lang: string) => void
+  iconOnly?: boolean
 }
 
-export function LanguageSwitcherGlobal({ onLanguageChange }: LanguageSwitcherGlobalProps) {
+export function LanguageSwitcherGlobal({ onLanguageChange, iconOnly = false }: LanguageSwitcherGlobalProps) {
   const { i18n, t } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -58,15 +59,16 @@ export function LanguageSwitcherGlobal({ onLanguageChange }: LanguageSwitcherGlo
   return (
     <div className="lang-switcher" ref={ref} data-testid="language-switcher">
       <button
-        className="lang-switcher__trigger"
+        className={`lang-switcher__trigger${iconOnly ? ' lang-switcher__trigger--icon' : ''}`}
         onClick={() => setOpen(!open)}
         aria-label={t('shell.idioma.trocar_idioma')}
+        title={t('shell.idioma.trocar_idioma')}
         aria-expanded={open}
         aria-haspopup="listbox"
         type="button"
       >
         <GlobeHemisphereWest size={18} weight="duotone" />
-        <span className="lang-switcher__code">{currentLang.code.toUpperCase()}</span>
+        {!iconOnly && <span className="lang-switcher__code">{currentLang.code.toUpperCase()}</span>}
       </button>
 
       {open && (

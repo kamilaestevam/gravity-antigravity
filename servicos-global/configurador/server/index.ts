@@ -21,7 +21,6 @@ import { errorHandler } from './middleware/errorHandler.js'
 import { authRouter } from './routes/auth.js'
 import { tenantsRouter } from './routes/tenants.js'
 import { usersRouter } from './routes/users.js'
-import { plansRouter } from './routes/plans.js'
 import { billingRouter } from './routes/billing.js'
 import { accessRouter } from './routes/access.js'
 import { adminRouter } from './routes/admin.js'
@@ -32,6 +31,7 @@ import { serviceTokenRouter } from './routes/serviceToken.js'
 import { adminProductsRouter } from './routes/adminProducts.js'
 import { publicCatalogRouter } from './routes/publicCatalog.js'
 import { hubRouter } from './routes/hubInit.js'
+import { meRouter } from './routes/me.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -89,12 +89,12 @@ app.get('/health', async (_req, res) => {
 // ─── Rate Limiting (endpoints publicos e webhooks) ─────────────────────────
 app.use('/api/v1/webhooks', rateLimitPresets.webhook())
 app.use('/api/v1/billing/webhook', rateLimitPresets.webhook())
-app.use('/api/v1/plans', rateLimitPresets.public())
 app.use('/api/catalog', rateLimitPresets.public())
 
 // ─── Rotas públicas / protegidas por Clerk ──────────────────────────────────
 
 app.use('/api/v1/webhooks', authRouter)
+app.use('/api/v1/me', meRouter)
 app.use('/api/v1/hub', hubRouter)
 app.use('/api/v1/tenants', tenantsRouter)
 app.use('/api/v1/billing', billingRouter)
@@ -102,6 +102,7 @@ app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/products', productsRouter)
 app.use('/api/v1/tenants/products', tenantProductsRouter)
 app.use('/api/v1/companies/:companyId/products', companyProductsRouter)
+app.use('/api/v1/users', usersRouter)
 app.use('/api/v1/service-tokens', serviceTokenRouter)
 
 // ─── Rotas internas (x-internal-key obrigatória) ────────────────────────────

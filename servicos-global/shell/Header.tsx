@@ -286,7 +286,6 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
         {/* Localizador — Onde estou (sempre visível) */}
         <LocalizadorGlobal
           workspaceName={currentUser.tenantName ?? t('shell.organizacao_padrao')}
-          workspacePlan={t('shell.plano_padrao')}
           currentProductId={ctx.productId}
           currentProductLabel={ctx.label}
           currentProductColor={ctx.color}

@@ -33,12 +33,6 @@ enum SubscriptionStatus {
   INCOMPLETE
 }
 
-enum SubscriptionPlan {
-  STARTER
-  PROFESSIONAL
-  ENTERPRISE
-}
-
 // Roles canônicos do sistema — alinhados com skill antigravity-permissoes
 enum UserRole {
   SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
@@ -142,7 +136,6 @@ model User {
 model Subscription {
   id        String             @id @default(cuid())
   tenant_id String
-  plan      SubscriptionPlan   @default(STARTER)
   status    SubscriptionStatus @default(TRIALING)
 
   stripe_subscription_id String? @unique
@@ -582,33 +575,3 @@ model ServiceHealth {
 
 // ---------------------------------------------------------------------------
 // GLOBAL PRODUCT
-// Catálogo oficial de produtos da plataforma Gravity.
-// ---------------------------------------------------------------------------
-
-model GlobalProduct {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  description     String?
-  status          String   @default("Ativo") // Ativo, Em Breve, Legado, Suspenso
-  type_billing    String?  // Mensalidade, Por Processo, etc.
-  setup_price     Decimal? @default(0)
-  unit_price      Decimal? @default(0)
-  min_price       Decimal? @default(0)
-  total_price     Decimal? @default(0)
-  currency        String   @default("BRL")
-  limit_users     String   @default("limitada")
-  base_users      Int      @default(0)
-  help_desk_hours Int      @default(0)
-  backend_module  String?  // Identificador para ativação técnica (ex: "simula-custo")
-  target_audience String?
-  features        Json?    @default("[]")
-  pricing_tiers   Json?    @default("[]")
-
-  // Timestamps
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  @@index([status])
-  @@index([slug])
-}

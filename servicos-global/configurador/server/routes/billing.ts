@@ -1,11 +1,9 @@
 // server/routes/billing.ts
 // Assinaturas, checkout e webhook do Stripe
-// POST /api/v1/billing/checkout  — cria sessão de checkout
 // POST /api/v1/billing/webhook   — recebe eventos do Stripe (raw body)
 // GET  /api/v1/billing/invoices  — histórico de faturas do tenant
 
 import { Router } from 'express'
-import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { stripe } from '../lib/stripe.js'
 import { prisma } from '../lib/prisma.js'
@@ -13,40 +11,6 @@ import { billingService } from '../services/billingService.js'
 import { AppError } from '../lib/appError.js'
 
 export const billingRouter = Router()
-
-const CheckoutSchema = z.object({
-  planKey: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']),
-  successUrl: z.string().url(),
-  cancelUrl: z.string().url(),
-})
-
-/**
- * POST /api/v1/billing/checkout
- * Cria uma sessão de checkout no Stripe e retorna a URL de redirecionamento
- */
-billingRouter.post('/checkout', requireAuth, async (req, res, next) => {
-  try {
-    const parsed = CheckoutSchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(
-        parsed.error.errors[0]?.message ?? 'Dados inválidos',
-        400,
-        'VALIDATION_ERROR'
-      )
-    }
-
-    const session = await billingService.createCheckoutSession({
-      tenantId: req.auth.tenantId,
-      planKey: parsed.data.planKey,
-      successUrl: parsed.data.successUrl,
-      cancelUrl: parsed.data.cancelUrl,
-    })
-
-    res.json({ url: session.url, sessionId: session.id })
-  } catch (err) {
-    next(err)
-  }
-})
 
 /**
  * POST /api/v1/billing/webhook

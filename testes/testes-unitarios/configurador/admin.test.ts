@@ -104,7 +104,7 @@ describe('Admin Routes — GET /tenants', () => {
 
   it('retorna lista de tenants com paginação', async () => {
     const tenants = [
-      { id: 't1', name: 'Tenant A', slug: 'a', status: 'ACTIVE', created_at: new Date(), _count: { users: 2, companies: 1 }, subscriptions: [{ plan: 'STARTER', status: 'ACTIVE' }], companies: [] },
+      { id: 't1', name: 'Tenant A', slug: 'a', status: 'ACTIVE', created_at: new Date(), _count: { users: 2, companies: 1 }, subscriptions: [{ status: 'ACTIVE' }], companies: [] },
     ]
     mockFindMany.mockResolvedValue(tenants)
     mockCount.mockResolvedValue(1)

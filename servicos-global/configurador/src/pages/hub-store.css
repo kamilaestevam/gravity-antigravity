@@ -1156,6 +1156,11 @@
   transform: translateY(-1px);
 }
 
+.hs-glass-badge--icon {
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  gap: 0.25rem;
+}
+
 .hs-badge-title {
   font-size: 0.8125rem;
   font-weight: 700;
@@ -1251,6 +1256,15 @@
   color: #ef4444;
   background: rgba(239, 68, 68, 0.08);
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+.hs-glass-btn-danger--icon {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  gap: 0;
+  justify-content: center;
+  border-radius: 8px;
 }
 
 /* Product Cards Premium */

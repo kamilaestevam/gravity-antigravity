@@ -14,7 +14,7 @@ const mockTenant = {
   name: 'DMM Importação',
   slug: 'dmm',
   status: 'ACTIVE',
-  subscriptions: [{ plan: 'STARTER', status: 'TRIALING', trial_ends_at: new Date() }],
+  subscriptions: [{ status: 'TRIALING', trial_ends_at: new Date() }],
   _count: { users: 3, companies: 2 },
 }
 

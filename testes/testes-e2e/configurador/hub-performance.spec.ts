@@ -19,7 +19,7 @@ const MOCK_HUB_DATA = {
     name: 'Empresa Teste',
     slug: 'teste',
     status: 'ACTIVE',
-    subscriptions: [{ plan: 'PROFESSIONAL', status: 'ACTIVE', trial_ends_at: null }],
+    subscriptions: [{ status: 'ACTIVE', trial_ends_at: null }],
     _count: { users: 5, companies: 2 },
   },
   companies: [

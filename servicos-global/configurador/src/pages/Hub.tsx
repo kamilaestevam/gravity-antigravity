@@ -144,7 +144,7 @@ export function Hub() {
   const currentTheme = useShellStore((s) => s.currentTheme)
   const tooltipsDisabled = useShellStore((s) => s.tooltipsDisabled)
   const toggleTooltips = useShellStore((s) => s.toggleTooltips)
-  const allowedProducts = useShellStore((s) => s.allowedProducts)
+  const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
 
   useEffect(() => {
     document.body.classList.toggle('light-theme', currentTheme === 'light')
@@ -315,7 +315,7 @@ export function Hub() {
           {/* Localizador — ecosistema */}
           <LocalizadorGlobal
             workspaceName={companyName}
-            workspacePlan={t('shell.plano_padrao')}
+            iconOnly
             currentProductId="gravity"
             currentProductLabel="Hub"
             currentProductColor="#818cf8"
@@ -330,7 +330,7 @@ export function Hub() {
           />
 
           {/* Seletor de idioma */}
-          <LanguageSwitcherGlobal />
+          <LanguageSwitcherGlobal iconOnly />
 
           <div className="hb-topbar-sep" />
 
@@ -346,21 +346,19 @@ export function Hub() {
           {/* Workspace switcher */}
           <div ref={menuRef} style={{ position: 'relative' }}>
             <button
-              className="hs-glass-badge"
+              className="hs-glass-badge hs-glass-badge--icon"
               type="button"
+              title={companyName}
+              aria-label={companyName}
               onClick={() => setShowWorkspaceMenu(v => !v)}
               aria-expanded={showWorkspaceMenu}
             >
               <div className="hs-tenant-avatar">{initials}</div>
-              <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <span className="hs-badge-title">{companyName}</span>
-                <span className="hs-badge-sub">{t('hub.workspace_principal')}</span>
-              </div>
               <CaretDown
                 weight="bold"
-                size={14}
+                size={11}
                 color="var(--color-text-muted)"
-                style={{ transition: 'transform 0.2s', transform: showWorkspaceMenu ? 'rotate(180deg)' : 'none', marginLeft: '0.5rem' }}
+                style={{ transition: 'transform 0.2s', transform: showWorkspaceMenu ? 'rotate(180deg)' : 'none' }}
               />
             </button>
 
@@ -407,13 +405,13 @@ export function Hub() {
           </div>
 
           <button
-            className="hs-glass-btn-danger"
+            className="hs-glass-btn-danger hs-glass-btn-danger--icon"
             type="button"
             onClick={() => signOut(() => navigate('/'))}
             title={t('hub.btn_sair_titulo')}
+            aria-label={t('hub.btn_sair')}
           >
             <SignOut weight="bold" size={16} />
-            {t('hub.btn_sair')}
           </button>
         </div>
       </header>

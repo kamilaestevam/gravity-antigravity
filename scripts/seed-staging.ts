@@ -25,11 +25,11 @@ const tenantDb = new TenantPrisma({
 // ----------------------------------------------------------------
 
 const TENANTS = [
-  { name: 'Empresa Alpha Ltda',   slug: 'empresa-alpha',   plan: 'PROFESSIONAL' },
-  { name: 'Beta Comércio S/A',    slug: 'beta-comercio',   plan: 'STARTER' },
-  { name: 'Gamma Importações',    slug: 'gamma-import',    plan: 'ENTERPRISE' },
-  { name: 'Delta Logística',      slug: 'delta-logistica', plan: 'PROFESSIONAL' },
-  { name: 'Épsilon Exportações',  slug: 'epsilon-export',  plan: 'STARTER' },
+  { name: 'Empresa Alpha Ltda',   slug: 'empresa-alpha'   },
+  { name: 'Beta Comércio S/A',    slug: 'beta-comercio'   },
+  { name: 'Gamma Importações',    slug: 'gamma-import'    },
+  { name: 'Delta Logística',      slug: 'delta-logistica' },
+  { name: 'Épsilon Exportações',  slug: 'epsilon-export'  },
 ]
 
 // ----------------------------------------------------------------
@@ -75,7 +75,6 @@ async function main() {
       create: {
         id: `sub-${tenant.id}`,
         tenant_id: tenant.id,
-        plan: tenantData.plan as any,
         status: 'ACTIVE',
       }
     })

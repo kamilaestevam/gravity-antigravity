@@ -100,7 +100,6 @@ describe('tenantService.createTenant — $transaction e slug duplicado', () => {
     expect(mockTx.subscription.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
         tenant_id: 'tenant-new-id',
-        plan: 'STARTER',
         status: 'TRIALING',
       }),
     })

@@ -59,7 +59,7 @@ const TENANT = {
   name: 'DMM Importação',
   slug: 'dmm',
   status: 'ACTIVE',
-  subscriptions: [{ plan: 'STARTER', status: 'TRIALING', trial_ends_at: new Date() }],
+  subscriptions: [{ status: 'TRIALING', trial_ends_at: new Date() }],
   _count: { users: 3, companies: 2 },
 }
 
@@ -107,7 +107,6 @@ describe('GET /api/v1/hub/init', () => {
 
     expect(res.body.tenant.name).toBe('DMM Importação')
     expect(res.body.tenant.subscriptions).toHaveLength(1)
-    expect(res.body.tenant.subscriptions[0].plan).toBe('STARTER')
     expect(res.body.tenant._count.users).toBe(3)
     expect(res.body.tenant._count.companies).toBe(2)
   })

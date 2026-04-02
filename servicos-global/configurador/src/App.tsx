@@ -198,7 +198,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-body-dark)' }}>
+    <div style={{ height: '100%', background: 'var(--bg-body-dark)' }}>
       <Routes>
         {/* Tela de login — clientes existentes */}
         <Route path="/" element={<RootRedirect />} />

@@ -1,27 +1,22 @@
 /**
  * produtos.tsx — Registry central de identidade visual dos produtos Gravity.
  *
- * Cada entrada define: ícone React, cor de destaque e sublabel descritivo.
- * Conforme produtos receberem logos próprios, substituir o ícone Phosphor
- * pelo componente SVG definitivo — sem quebrar nenhum consumidor.
- *
- * Adicionar novo produto: basta incluir uma entrada no PRODUTO_META abaixo.
+ * Cada entrada define: ícone React (logo SVG próprio), cor de destaque e sublabel.
+ * Os logos estão em ./logos/ — componentes SVG escaláveis via prop `size`.
  */
 import React from 'react'
-import {
-  Calculator,
-  Package,
-  ArrowsLeftRight,
-  Truck,
-  Stamp,
-  Receipt,
-  GitBranch,
-  ChartLine,
-  Spinner,
-} from '@phosphor-icons/react'
+import { LogoSimulaCusto }    from './logos/LogoSimulaCusto'
+import { LogoPedido }         from './logos/LogoPedido'
+import { LogoBidCambio }      from './logos/LogoBidCambio'
+import { LogoBidFrete }       from './logos/LogoBidFrete'
+import { LogoLpco }           from './logos/LogoLpco'
+import { LogoNfImportacao }   from './logos/LogoNfImportacao'
+import { LogoProcesso }       from './logos/LogoProcesso'
+import { LogoFinanceiroComex } from './logos/LogoFinanceiroComex'
+import { LogoGravity }        from './logos/LogoGravity'
 
 export interface ProdutoMeta {
-  /** Ícone React do produto — Phosphor por enquanto, SVG customizado no futuro */
+  /** Ícone React do produto — componente SVG próprio */
   icon: React.ReactElement
   /** Cor de destaque hexadecimal */
   color: string
@@ -31,42 +26,42 @@ export interface ProdutoMeta {
 
 export const PRODUTO_META: Record<string, ProdutoMeta> = {
   'simula-custo': {
-    icon:     <Calculator     weight="duotone" size={16} />,
+    icon:     <LogoSimulaCusto size={16} />,
     color:    '#34d399',
     sublabel: 'fiscal · NCM',
   },
   'pedido': {
-    icon:     <Package        weight="duotone" size={16} />,
+    icon:     <LogoPedido size={16} />,
     color:    '#f59e0b',
     sublabel: 'pedidos · ERP',
   },
   'bid-cambio': {
-    icon:     <ArrowsLeftRight weight="duotone" size={16} />,
+    icon:     <LogoBidCambio size={16} />,
     color:    '#06b6d4',
     sublabel: 'câmbio · cotações',
   },
   'bid-frete': {
-    icon:     <Truck          weight="duotone" size={16} />,
-    color:    '#f97316',
+    icon:     <LogoBidFrete size={16} />,
+    color:    '#60a5fa',
     sublabel: 'frete · transportes',
   },
   'lpco': {
-    icon:     <Stamp          weight="duotone" size={16} />,
-    color:    '#fb923c',
+    icon:     <LogoLpco size={16} />,
+    color:    '#f43f5e',
     sublabel: 'licenças COMEX',
   },
   'nf-importacao': {
-    icon:     <Receipt        weight="duotone" size={16} />,
+    icon:     <LogoNfImportacao size={16} />,
     color:    '#c084fc',
     sublabel: 'nota fiscal · importação',
   },
   'processo': {
-    icon:     <GitBranch      weight="duotone" size={16} />,
+    icon:     <LogoProcesso size={16} />,
     color:    '#facc15',
     sublabel: 'processos · consolidado',
   },
   'financeiro-comex': {
-    icon:     <ChartLine      weight="duotone" size={16} />,
+    icon:     <LogoFinanceiroComex size={16} />,
     color:    '#f472b6',
     sublabel: 'financeiro · COMEX',
   },
@@ -78,7 +73,7 @@ export const PRODUTO_META: Record<string, ProdutoMeta> = {
  */
 export function getProdutoMeta(productId: string): ProdutoMeta {
   return PRODUTO_META[productId] ?? {
-    icon:     <Spinner weight="duotone" size={16} />,
+    icon:     <LogoGravity size={16} />,
     color:    '#818cf8',
     sublabel: 'produto',
   }

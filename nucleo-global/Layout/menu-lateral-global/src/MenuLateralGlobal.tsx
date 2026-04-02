@@ -1,9 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { SidebarSimple, CaretDown, Lock } from '@phosphor-icons/react'
+import { SidebarSimple, CaretDown, Lock, Check, Plus, Gear } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './menu-lateral.css'
+
+export interface WorkspaceItem {
+  id: string
+  name: string
+  plan: string
+}
 
 export interface NavItem {
   to?: string
@@ -25,6 +31,15 @@ export interface MenuLateralGlobalProps {
   navItems: NavItem[]
   moduleName?: string
   moduleColor?: string
+  moduleIcon?: React.ReactNode
+  /** Lista de workspaces disponíveis para troca */
+  workspaces?: WorkspaceItem[]
+  /** Callback ao selecionar outro workspace */
+  onSwitchWorkspace?: (id: string) => void
+  /** Callback para criar novo workspace */
+  onCreateWorkspace?: () => void
+  /** Callback para ir às configurações do workspace */
+  onManageWorkspace?: () => void
   defaultCollapsed?: boolean
   isCollapsed?: boolean
   onToggleCollapse?: () => void
@@ -36,13 +51,36 @@ export function MenuLateralGlobal({
   navItems,
   moduleName = 'Configurador',
   moduleColor = '#818cf8',
+  moduleIcon,
+  workspaces = [],
+  onSwitchWorkspace,
+  onCreateWorkspace,
+  onManageWorkspace,
   defaultCollapsed = false,
   isCollapsed: controlledIsCollapsed,
   onToggleCollapse
 }: MenuLateralGlobalProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
+  const [wsOpen, setWsOpen] = useState(false)
+  const [wsSearch, setWsSearch] = useState('')
+  const wsRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
+
+  // Fecha dropdown ao clicar fora
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wsRef.current && !wsRef.current.contains(e.target as Node)) {
+        setWsOpen(false)
+      }
+    }
+    if (wsOpen) document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [wsOpen])
+
+  const filteredWorkspaces = workspaces.filter(ws =>
+    ws.name.toLowerCase().includes(wsSearch.toLowerCase())
+  )
 
   const isCollapsed = controlledIsCollapsed !== undefined ? controlledIsCollapsed : internalCollapsed
   
@@ -161,25 +199,29 @@ export function MenuLateralGlobal({
         </button>
       </TooltipGlobal>
 
-      {/* ── Logo + Chip ── */}
-      <div className="mlg-logo-area">
-        <LogoGlobal iconSize={28} iconColor={moduleColor} hideText={isCollapsed} />
-        {isCollapsed ? (
-          <TooltipGlobal descricao={moduleName}>
-            <div className="mlg-module-chip--dot-only">
-              <span className="mlg-module-chip__dot" style={{ backgroundColor: moduleColor, boxShadow: `0 0 8px ${moduleColor}, 0 0 3px ${moduleColor}cc` }} />
+      {/* ── Logo + Nome do produto ── */}
+      {isCollapsed ? (
+        <TooltipGlobal descricao={moduleName}>
+          <div className="mlg-logo-area mlg-logo-area--collapsed">
+            <div className="mlg-logo-icon" style={{ color: moduleColor }}>
+              {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
             </div>
-          </TooltipGlobal>
-        ) : (
-          <div className="mlg-module-chip">
-            <span className="mlg-module-chip__dot" style={{ backgroundColor: moduleColor, boxShadow: `0 0 8px ${moduleColor}, 0 0 3px ${moduleColor}cc` }} />
-            <span className="mlg-module-chip__label" style={{ color: moduleColor }}>{moduleName}</span>
           </div>
-        )}
-      </div>
+        </TooltipGlobal>
+      ) : (
+        <div className="mlg-logo-area">
+          <div className="mlg-logo-icon" style={{ color: moduleColor }}>
+            {moduleIcon ?? <LogoGlobal iconSize={26} iconColor={moduleColor} iconOnly />}
+          </div>
+          <div className="mlg-logo-info">
+            <span className="mlg-logo-name" style={{ color: moduleColor }}>{moduleName}</span>
+            <span className="mlg-logo-gravity">by Gravity</span>
+          </div>
+        </div>
+      )}
 
-      {/* ── Tenant ── */}
-      <div className="mlg-tenant-wrapper">
+      {/* ── Workspace switcher ── */}
+      <div className="mlg-tenant-wrapper" ref={wsRef}>
         {isCollapsed ? (
           <TooltipGlobal descricao={`${tenantName} · ${tenantPlan}`}>
             <div className="mlg-tenant">
@@ -189,7 +231,12 @@ export function MenuLateralGlobal({
             </div>
           </TooltipGlobal>
         ) : (
-          <div className="mlg-tenant">
+          <button
+            className={`mlg-tenant mlg-tenant--btn ${wsOpen ? 'mlg-tenant--open' : ''}`}
+            onClick={() => setWsOpen(o => !o)}
+            aria-expanded={wsOpen}
+            aria-haspopup="listbox"
+          >
             <div className="mlg-tenant-avatar" style={{ color: moduleColor, borderColor: `${moduleColor}40`, backgroundColor: `${moduleColor}2e` }}>
               {tenantName.charAt(0)}
             </div>
@@ -197,6 +244,64 @@ export function MenuLateralGlobal({
               <span className="mlg-tenant-name">{tenantName}</span>
               <span className="mlg-tenant-plan" style={{ color: moduleColor }}>{tenantPlan}</span>
             </div>
+            <CaretDown className={`mlg-tenant-chevron ${wsOpen ? 'open' : ''}`} size={13} weight="bold" />
+          </button>
+        )}
+
+        {/* Dropdown */}
+        {wsOpen && !isCollapsed && (
+          <div className="mlg-ws-dropdown" role="listbox">
+            {workspaces.length > 4 && (
+              <div className="mlg-ws-search">
+                <input
+                  className="mlg-ws-search__input"
+                  type="text"
+                  placeholder="Buscar workspace…"
+                  value={wsSearch}
+                  onChange={e => setWsSearch(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            )}
+            {filteredWorkspaces.map(ws => {
+              const isCurrent = ws.name === tenantName
+              return (
+                <button
+                  key={ws.id}
+                  className={`mlg-ws-item ${isCurrent ? 'mlg-ws-item--current' : ''}`}
+                  role="option"
+                  aria-selected={isCurrent}
+                  onClick={() => {
+                    if (!isCurrent) onSwitchWorkspace?.(ws.id)
+                    setWsOpen(false)
+                  }}
+                >
+                  <div className="mlg-ws-item-avatar" style={{ color: moduleColor, borderColor: `${moduleColor}40`, backgroundColor: `${moduleColor}2e` }}>
+                    {ws.name.charAt(0)}
+                  </div>
+                  <div className="mlg-ws-item-info">
+                    <span className="mlg-ws-item-name">{ws.name}</span>
+                    <span className="mlg-ws-item-plan">{ws.plan}</span>
+                  </div>
+                  {isCurrent && <Check size={13} weight="bold" style={{ color: moduleColor, flexShrink: 0 }} />}
+                </button>
+              )
+            })}
+
+            <div className="mlg-ws-divider" />
+
+            {onCreateWorkspace && (
+              <button className="mlg-ws-action" onClick={() => { onCreateWorkspace(); setWsOpen(false) }}>
+                <Plus size={14} weight="bold" />
+                Criar workspace
+              </button>
+            )}
+            {onManageWorkspace && (
+              <button className="mlg-ws-action" onClick={() => { onManageWorkspace(); setWsOpen(false) }}>
+                <Gear size={14} weight="duotone" />
+                Gerenciar workspace
+              </button>
+            )}
           </div>
         )}
       </div>

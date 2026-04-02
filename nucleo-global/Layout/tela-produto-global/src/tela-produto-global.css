@@ -4,7 +4,7 @@
 .tpg-layout {
   display: grid;
   grid-template-areas:
-    "topo    topo"
+    "lateral topo"
     "lateral conteudo";
   grid-template-rows: var(--header-height, 60px) 1fr;
   grid-template-columns: auto 1fr;
@@ -14,17 +14,15 @@
   background: var(--bg-body-dark, #0f172a);
 }
 
-/* ── Topo — ocupa as 2 colunas ── */
+/* ── Topo — ocupa só a coluna direita ── */
 .tpg-topo {
   grid-area: topo;
-  /* MenuTopoGlobal já tem position: sticky internamente */
 }
 
-/* ── Lateral ── */
+/* ── Lateral — span nas 2 linhas, do topo ao fundo ── */
 .tpg-lateral {
   grid-area: lateral;
   overflow: hidden;
-  /* MenuLateralGlobal controla sua própria largura e scroll */
 }
 
 /* ── Área de conteúdo ── */
@@ -66,3 +64,4 @@ body.light-theme .tpg-layout {
     display: none;
   }
 }
+

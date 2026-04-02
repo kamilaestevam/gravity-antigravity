@@ -22,7 +22,7 @@
 /* ── Lateral — span nas 2 linhas, do topo ao fundo ── */
 .tpg-lateral {
   grid-area: lateral;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ── Área de conteúdo ── */

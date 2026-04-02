@@ -1,14 +1,13 @@
 /**
  * useCardPreferences — preferências de cards por usuário (localStorage)
  *
- * Modelo:
- *  - CARDS_CATALOGO: todas as colunas da tabela que podem virar card
- *  - CARDS_PADRAO:   ids adicionados por padrão para novos usuários
- *  - prefs:          lista de cards que o usuário adicionou (ordem + visibilidade)
- *  - disponíveis:    colunas do catálogo ainda não adicionadas pelo usuário
+ * Sincronização entre abas e componentes via custom event:
+ *  - Toda escrita despacha 'pedido:cards-updated' no window
+ *  - Todo hook ouve o evento e re-lê o localStorage
+ *  - Funciona mesmo com múltiplas instâncias do hook na mesma página
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { CARDS_CATALOGO, CARDS_PADRAO } from './columnCatalog'
 
 export type { CardDefinicao } from './columnCatalog'
@@ -21,7 +20,8 @@ export interface CardPreferencia {
   visible: boolean
 }
 
-const STORAGE_KEY = 'pedido:cards-v2'
+const STORAGE_KEY   = 'pedido:cards-v2'
+const SYNC_EVENT    = 'pedido:cards-updated'
 
 const DEFAULT: CardPreferencia[] = CARDS_PADRAO.map(id => ({ id, visible: true }))
 
@@ -30,11 +30,15 @@ function carregarPrefs(): CardPreferencia[] {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT
     const salvas = JSON.parse(raw) as CardPreferencia[]
-    // Filtra ids que ainda existem no catálogo
     return salvas.filter(p => CARDS_CATALOGO.find(c => c.id === p.id))
   } catch {
     return DEFAULT
   }
+}
+
+function salvar(next: CardPreferencia[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  window.dispatchEvent(new CustomEvent(SYNC_EVENT))
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -42,9 +46,20 @@ function carregarPrefs(): CardPreferencia[] {
 export function useCardPreferences() {
   const [prefs, setPrefs] = useState<CardPreferencia[]>(carregarPrefs)
 
+  // Re-sincroniza quando outro componente (ou outra aba) atualiza
+  useEffect(() => {
+    function onSync() { setPrefs(carregarPrefs()) }
+    window.addEventListener(SYNC_EVENT, onSync)
+    window.addEventListener('storage',  onSync)   // outras abas
+    return () => {
+      window.removeEventListener(SYNC_EVENT, onSync)
+      window.removeEventListener('storage',  onSync)
+    }
+  }, [])
+
   const persistir = useCallback((next: CardPreferencia[]) => {
     setPrefs(next)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+    salvar(next)
   }, [])
 
   /** Colunas do catálogo ainda não adicionadas pelo usuário */
@@ -55,7 +70,7 @@ export function useCardPreferences() {
     setPrefs(prev => {
       if (prev.find(p => p.id === id)) return prev
       const next = [...prev, { id, visible: true }]
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      salvar(next)
       return next
     })
   }, [])
@@ -64,7 +79,7 @@ export function useCardPreferences() {
   const remover = useCallback((id: string) => {
     setPrefs(prev => {
       const next = prev.filter(p => p.id !== id)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      salvar(next)
       return next
     })
   }, [])
@@ -73,7 +88,7 @@ export function useCardPreferences() {
   const toggle = useCallback((id: string) => {
     setPrefs(prev => {
       const next = prev.map(p => p.id === id ? { ...p, visible: !p.visible } : p)
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+      salvar(next)
       return next
     })
   }, [])

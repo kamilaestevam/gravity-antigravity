@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MagnifyingGlass, Info, ArrowLeft, Cube, Hexagon, X } from '@phosphor-icons/react'
+import { MagnifyingGlass, Info, Cube, Hexagon, X } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
@@ -191,7 +191,6 @@ export function MenuTopoGlobal({
               '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
             } as React.CSSProperties}
           >
-            <ArrowLeft size={13} weight="bold" />
             <Hexagon size={13} weight="duotone" />
             Hub
           </button>

@@ -4,7 +4,14 @@
  * Comunica com o backend via processos-core (proxy Vite -> :8025)
  */
 
-import type { Pedido, PedidoItem } from './types'
+import type {
+  Pedido,
+  PedidoItem,
+  PedidosListResponse,
+  PedidoStatusConfig,
+  PedidoColunaConfig,
+  PedidoPreferenciasColunas,
+} from './types'
 
 let context = { tenantId: '', userId: '' }
 
@@ -94,6 +101,89 @@ export const pedidoItemApi = {
     request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}/pronta`, {
       method: 'PATCH',
       body: JSON.stringify({ quantidade_pronta: quantidade }),
+    }),
+}
+
+// ── Cursor pagination + inline edit ───────────────────────────────────────────
+
+export const pedidoVirtualApi = {
+  /** Listagem com cursor keyset — para TabelaVirtualGlobal */
+  listar: (params: {
+    cursor?: string
+    sort?: string
+    dir?: 'asc' | 'desc'
+    limit?: number
+    status?: string
+    busca?: string
+  } = {}) => {
+    const q = new URLSearchParams()
+    if (params.cursor) q.set('cursor', params.cursor)
+    if (params.sort)   q.set('sort', params.sort)
+    if (params.dir)    q.set('dir', params.dir)
+    if (params.limit)  q.set('limit', String(params.limit))
+    if (params.status) q.set('status', params.status)
+    if (params.busca)  q.set('busca', params.busca)
+    return request<PedidosListResponse>(`/api/v1/pedidos?${q}`)
+  },
+
+  /** Edição inline de um campo com optimistic lock (lança em 409) */
+  editarCampo: (id: string, campo: string, valor: unknown, version?: number) =>
+    request<Pedido>(`/api/v1/pedidos/${id}/campo`, {
+      method: 'PATCH',
+      body: JSON.stringify({ campo, valor, version }),
+    }),
+}
+
+// ── Configuração de status e colunas ──────────────────────────────────────────
+
+export const pedidoConfigApi = {
+  listarStatus: () =>
+    request<{ data: PedidoStatusConfig[] }>('/api/v1/pedidos/config/status'),
+
+  listarColunas: () =>
+    request<{ data: PedidoColunaConfig[] }>('/api/v1/pedidos/config/colunas'),
+
+  getPreferenciasUsuario: () =>
+    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias-usuario'),
+
+  salvarPreferenciasUsuario: (prefs: PedidoPreferenciasColunas) =>
+    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias-usuario', {
+      method: 'PUT',
+      body: JSON.stringify(prefs),
+    }),
+}
+
+// ── Ações em lote ─────────────────────────────────────────────────────────────
+
+export const pedidoLoteApi = {
+  mudarStatusPreview: (ids: string[], novoStatus: string) =>
+    request<{ total: number; afetados: { id: string; numero_pedido: string; status: string }[]; bloqueados: { id: string; numero: string; motivo: string }[] }>(
+      '/api/v1/pedidos/lote/status/preview',
+      { method: 'POST', body: JSON.stringify({ ids, status_novo: novoStatus }) }
+    ),
+
+  mudarStatusConfirmar: (ids: string[], novoStatus: string) =>
+    request<{ sucesso: number; erros: { id: string; motivo: string }[] }>('/api/v1/pedidos/lote/status/confirmar', {
+      method: 'POST',
+      body: JSON.stringify({ ids, status_novo: novoStatus }),
+    }),
+
+  cancelarPreview: (ids: string[]) =>
+    request<{ total: number; afetados: number; resumo: string[] }>(
+      '/api/v1/pedidos/lote/cancelar/preview',
+      { method: 'POST', body: JSON.stringify({ ids }) }
+    ),
+
+  cancelarConfirmar: (ids: string[]) =>
+    request<{ cancelados: number }>('/api/v1/pedidos/lote/cancelar/confirmar', {
+      method: 'POST',
+      body: JSON.stringify({ ids }),
+    }),
+
+  exportar: (ids: string[], formato: 'csv' | 'excel' = 'csv') =>
+    request<{ url: string; total: number }>('/api/v1/pedidos/lote/exportar', {
+      method: 'POST',
+      body: JSON.stringify({ ids, formato }),
     }),
 }
 

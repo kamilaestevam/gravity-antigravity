@@ -55,6 +55,7 @@ export default defineConfig({
       // ── Tabelas ──
       '@nucleo/tabela-global':                     nucleo('Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':             nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
+      '@nucleo/tabela-virtual-global':             nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils':                             nucleo('Utilidades/utils/src/index.ts'),
       '@nucleo/Utilidades/localization/i18n':      nucleo('Utilidades/Localization/i18n.ts'),
@@ -74,6 +75,7 @@ export default defineConfig({
       'i18next',
       '@phosphor-icons/react',
       '@clerk/clerk-react',
+      '@tanstack/react-virtual',
     ],
   },
 

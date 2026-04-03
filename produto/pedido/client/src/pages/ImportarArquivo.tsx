@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import {
   UploadSimple,
@@ -45,6 +46,7 @@ const FORMATO_ICONES: Record<string, React.ReactNode> = {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function ImportarArquivo() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -130,8 +132,8 @@ export default function ImportarArquivo() {
       cabecalho={
         <CabecalhoGlobal
           icone={<UploadSimple weight="duotone" size={22} />}
-          titulo="Importar Pedidos"
-          subtitulo="Importar pedidos a partir de arquivo (Excel, CSV, XML, TXT, JSON)"
+          titulo={t('pedido.importar.titulo', 'Importar Pedidos')}
+          subtitulo={t('pedido.importar.subtitulo', 'Importar pedidos a partir de arquivo (Excel, CSV, XML, TXT, JSON)')}
         />
       }
       acoes={
@@ -140,7 +142,7 @@ export default function ImportarArquivo() {
           icone={<ArrowLeft size={16} />}
           onClick={() => navigate('/pedidos')}
         >
-          Voltar
+          {t('comum.voltar', 'Voltar')}
         </BotaoGlobal>
       }
     >
@@ -168,10 +170,10 @@ export default function ImportarArquivo() {
           <FileArrowUp weight="duotone" size={48} style={{ color: 'var(--ws-accent, #6366f1)', opacity: 0.6 }} />
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text-primary, #e2e8f0)' }}>
-              Arraste um arquivo ou clique para selecionar
+              {t('pedido.importar.arrastar', 'Arraste um arquivo ou clique para selecionar')}
             </p>
             <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)', marginTop: '0.25rem' }}>
-              Formatos: Excel (.xlsx, .xls), CSV, XML, TXT, JSON
+              {t('pedido.importar.formatos', 'Formatos: Excel (.xlsx, .xls), CSV, XML, TXT, JSON')}
             </p>
           </div>
           <input
@@ -183,7 +185,7 @@ export default function ImportarArquivo() {
           />
           {processando && (
             <p style={{ fontSize: '0.8125rem', color: 'var(--ws-accent, #6366f1)' }}>
-              Processando arquivo...
+              {t('pedido.importar.processando', 'Processando arquivo...')}
             </p>
           )}
         </div>
@@ -222,7 +224,7 @@ export default function ImportarArquivo() {
                   setEtapa('upload')
                 }}
               >
-                Trocar
+                {t('pedido.importar.trocar', 'Trocar')}
               </BotaoGlobal>
             </div>
           )}
@@ -293,7 +295,7 @@ export default function ImportarArquivo() {
                 setEtapa('upload')
               }}
             >
-              Cancelar
+              {t('comum.cancelar', 'Cancelar')}
             </BotaoGlobal>
             <BotaoGlobal
               variante="primario"
@@ -301,7 +303,7 @@ export default function ImportarArquivo() {
               onClick={handleConfirmar}
               disabled={processando}
             >
-              {processando ? 'Importando...' : `Importar ${previewData.length} pedido(s)`}
+              {processando ? t('pedido.importar.importando', 'Importando...') : t('pedido.importar.importar_n', `Importar ${previewData.length} pedido(s)`, { count: previewData.length })}
             </BotaoGlobal>
           </div>
         </div>
@@ -330,7 +332,7 @@ export default function ImportarArquivo() {
             variante="primario"
             onClick={() => navigate('/pedidos')}
           >
-            Ver Pedidos
+            {t('pedido.importar.ver_pedidos', 'Ver Pedidos')}
           </BotaoGlobal>
         </div>
       )}

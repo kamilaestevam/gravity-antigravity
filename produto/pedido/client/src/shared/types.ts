@@ -93,6 +93,43 @@ export interface Pedido {
   updated_at: string
 }
 
+// ── Tipos para TabelaVirtualGlobal ────────────────────────────────────────────
+
+export interface PedidoStatusConfig {
+  id: string
+  nome: string
+  rotulo: string
+  cor: string
+  icone?: string
+  ordem: number
+  is_padrao: boolean
+  is_sistema: boolean
+}
+
+export interface PedidoColunaConfig {
+  id: string
+  nome: string
+  rotulo: string
+  tipo: 'texto' | 'numero' | 'data' | 'select' | 'booleano'
+  casas_decimais: number
+  opcoes?: { valor: string; rotulo: string }[]
+  ordem: number
+  filtravel: boolean
+  exibida_padrao: boolean
+}
+
+export interface PedidoPreferenciasColunas {
+  colunas_visiveis: string[]
+  colunas_largura?: Record<string, number>
+}
+
+export interface PedidosListResponse {
+  data: Pedido[]
+  nextCursor: string | null
+  total: number
+  hasMore: boolean
+}
+
 // ── Helpers de formatacao ─────────────────────────────────────────────────────
 
 export function fmtQuantidade(valor: number, casas: number = 2): string {

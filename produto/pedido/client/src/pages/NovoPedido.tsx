@@ -10,6 +10,7 @@
  */
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Package,
@@ -111,6 +112,7 @@ const gridStyle: React.CSSProperties = {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function NovoPedido() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const modoEdicao = Boolean(id)
@@ -156,8 +158,8 @@ export default function NovoPedido() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Package weight="duotone" size={22} />}
-          titulo={modoEdicao ? 'Editar Pedido' : 'Novo Pedido'}
-          subtitulo={modoEdicao ? `Editando pedido ${id}` : 'Criar novo pedido de compra/venda'}
+          titulo={modoEdicao ? t('pedido.editar', 'Editar Pedido') : t('pedido.novo_pedido')}
+          subtitulo={modoEdicao ? t('pedido.editando', `Editando pedido ${id}`, { id }) : t('pedido.criar_subtitulo', 'Criar novo pedido de compra/venda')}
         />
       }
       acoes={
@@ -167,7 +169,7 @@ export default function NovoPedido() {
             icone={<ArrowLeft size={16} />}
             onClick={() => navigate('/pedidos')}
           >
-            Voltar
+            {t('comum.voltar', 'Voltar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="primario"
@@ -175,7 +177,7 @@ export default function NovoPedido() {
             onClick={handleSalvar}
             disabled={salvando}
           >
-            {salvando ? 'Salvando...' : 'Salvar'}
+            {salvando ? t('comum.salvando', 'Salvando...') : t('comum.salvar', 'Salvar')}
           </BotaoGlobal>
         </div>
       }
@@ -190,7 +192,7 @@ export default function NovoPedido() {
           textTransform: 'uppercase',
           letterSpacing: '0.05em',
         }}>
-          Dados do Pedido
+          {t('pedido.dados_pedido', 'Dados do Pedido')}
         </h3>
 
         <div style={gridStyle}>
@@ -354,14 +356,14 @@ export default function NovoPedido() {
             textTransform: 'uppercase',
             letterSpacing: '0.05em',
           }}>
-            Itens do Pedido ({itens.length})
+            {t('pedido.itens_pedido', 'Itens do Pedido')} ({itens.length})
           </h3>
           <BotaoGlobal
             variante="secundario"
             icone={<Plus size={14} />}
             onClick={adicionarItem}
           >
-            Adicionar Item
+            {t('pedido.adicionar_item', 'Adicionar Item')}
           </BotaoGlobal>
         </div>
 

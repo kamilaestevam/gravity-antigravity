@@ -1,4 +1,4 @@
-import React, { cloneElement } from 'react'
+import React, { cloneElement, useState } from 'react'
 import { MenuTopoGlobal, type MenuTopoLocalizadorConfig, type MenuTopoUsuarioConfig } from '@nucleo/menu-topo-global'
 import { MenuLateralGlobal, type NavItem, type WorkspaceItem } from '@nucleo/menu-lateral-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -52,6 +52,7 @@ export function TelaProdutoGlobal({
   const meta        = getProdutoMeta(productId)
   const sidebarIcon = cloneElement(meta.icon, { size: 26 })
   const topoIcon    = cloneElement(meta.icon, { size: 18, weight: 'duotone' })
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
     <div className="tpg-layout">
@@ -65,15 +66,12 @@ export function TelaProdutoGlobal({
           moduleName={productName}
           moduleColor={meta.color}
           moduleIcon={sidebarIcon}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(p => !p)}
           workspaces={workspaces}
           onSwitchWorkspace={onSwitchWorkspace}
           onCreateWorkspace={onCreateWorkspace}
           onManageWorkspace={onManageWorkspace}
-          userName={usuario.userName}
-          userInitials={usuario.userInitials}
-          userRole={usuario.userRole}
-          onSignOut={usuario.onSignOut}
-          onNavigateHub={onNavigateHub}
         />
       </div>
 
@@ -86,6 +84,7 @@ export function TelaProdutoGlobal({
             productName={productName}
             productColor={meta.color}
             productIcon={topoIcon}
+            sidebarCollapsed={sidebarCollapsed}
             tooltipsDisabled={tooltipsDisabled}
             onToggleTooltips={onToggleTooltips}
             localizador={{

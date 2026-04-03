@@ -543,6 +543,122 @@
   opacity: 1;
 }
 
+/* ── Bottom: Hub + Usuário ────────────────────────────────────────────────── */
+.mlg-bottom {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.5rem 0.75rem 0.75rem;
+  border-top: 1px solid var(--ws-accent-border, rgba(129, 140, 248, 0.12));
+}
+
+.mlg-sidebar.collapsed .mlg-bottom {
+  padding: 0.5rem 0 0.75rem;
+  align-items: center;
+}
+
+.mlg-bottom-hub {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #818cf8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.15s;
+}
+
+.mlg-bottom-hub:hover {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+.mlg-sidebar.collapsed .mlg-bottom-hub {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.mlg-bottom-user {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem;
+  border-radius: 8px;
+  cursor: default;
+}
+
+.mlg-bottom-avatar {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mlg-bottom-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.mlg-bottom-user-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ws-text, #f1f5f9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mlg-bottom-user-role {
+  font-size: 0.6875rem;
+  color: var(--text-secondary, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mlg-bottom-signout {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.mlg-bottom-user:hover .mlg-bottom-signout {
+  opacity: 1;
+}
+
+.mlg-bottom-signout:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
 /* ── Light theme ─────────────────────────────────────────────────────────── */
 body.light-theme .mlg-sidebar {
   background: linear-gradient(180deg, rgba(79, 70, 229, 0.04) 0%, var(--ws-surface, #f8fafc) 120px);

@@ -24,7 +24,7 @@
 /* 2. LAYER: MÉTRICAS E AÇÕES INTERMEDIÁRIAS (Idêntico ao antigo ws-stats-row testado) */
 .pg-contexto-row {
   position: relative;
-  z-index: 20;
+  z-index: 40;
   display: flex;
   align-items: center;
   gap: 1rem;

@@ -58,7 +58,7 @@ export function MenuLateralGlobal({
   onManageWorkspace,
   defaultCollapsed = false,
   isCollapsed: controlledIsCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
 }: MenuLateralGlobalProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
@@ -309,9 +309,9 @@ export function MenuLateralGlobal({
       {/* ── Navigation ── */}
       <nav className="mlg-nav">
         {isCollapsed && <div className="mlg-nav-spacer" />}
-        
         {navItems.map(item => renderNavItem(item))}
       </nav>
+
     </aside>
   )
 }

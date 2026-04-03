@@ -1,9 +1,12 @@
 {
   "name": "@gravity/pedido",
   "private": true,
-  "workspaces": ["client"],
+  "workspaces": ["client", "server"],
   "scripts": {
     "dev": "cd client && npm run dev",
-    "build": "cd client && npm run build"
+    "dev:server": "cd server && npm run dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:server\"",
+    "build": "cd client && npm run build",
+    "build:server": "cd server && npm run build"
   }
 }

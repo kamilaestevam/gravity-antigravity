@@ -54,6 +54,9 @@ export default defineConfig({
       '@nucleo/modal-workspace-inicial-global':    nucleo('Modais/modal-workspace-inicial-global/src/index.ts'),
       // ── Dashboard ──
       '@nucleo/dashboard':                         nucleo('Dashboard/index.ts'),
+      // ── Modais ──
+      '@nucleo/modal-passo-passo-global':          nucleo('Modais/modal-passo-passo-global/src/index.ts'),
+      '@nucleo/query-builder-global':              nucleo('Dashboard/QueryBuilder/QueryBuilder.tsx'),
       // ── Tabelas ──
       '@nucleo/tabela-global':                     nucleo('Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':             nucleo('Tabelas/tabela-camadas-global/src/index.ts'),

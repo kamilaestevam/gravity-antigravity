@@ -10,9 +10,12 @@ import React, {
   useMemo,
   useRef,
   useEffect,
+  useLayoutEffect,
   useCallback,
   memo,
 } from 'react'
+import { createPortal } from 'react-dom'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
@@ -234,15 +237,20 @@ const GTVisibilidadeColunas = memo(function GTVisibilidadeColunas<T>({
   onToggle,
   onFechar,
   onReordenar,
+  onSelecionarTodos,
+  onRestaurarPadrao,
 }: {
   colunas: GTColuna<T>[]
   colunasVisiveis: string[]
   onToggle: (key: string) => void
   onFechar: () => void
   onReordenar?: (fromKey: string, toKey: string) => void
+  onSelecionarTodos?: () => void
+  onRestaurarPadrao?: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const dragKeyRef = useRef<string | null>(null)
+  const [busca, setBusca] = useState('')
 
   useEffect(() => {
     function fora(e: MouseEvent) {
@@ -254,45 +262,239 @@ const GTVisibilidadeColunas = memo(function GTVisibilidadeColunas<T>({
     return () => document.removeEventListener('mousedown', fora)
   }, [onFechar])
 
+  const colunasFiltradas = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    const lista = termo ? colunas.filter(c => c.label.toLowerCase().includes(termo)) : colunas
+    return [...lista].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+  }, [colunas, busca])
+
   return (
-    <div ref={ref} className="gtv-export-menu" style={{ minWidth: 220 }}>
-      {colunas.map(col => (
-        <label
-          key={col.key}
-          className="gtv-export-item"
-          draggable={!!onReordenar && !col.naoOcultavel}
-          onDragStart={() => { dragKeyRef.current = col.key }}
-          onDragOver={e => e.preventDefault()}
-          onDrop={() => {
-            if (dragKeyRef.current && dragKeyRef.current !== col.key) {
-              onReordenar?.(dragKeyRef.current, col.key)
-            }
-            dragKeyRef.current = null
-          }}
-          style={{ cursor: col.naoOcultavel ? 'not-allowed' : 'pointer', opacity: col.naoOcultavel ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6 }}
-        >
-          {onReordenar && !col.naoOcultavel && (
-            <svg width="10" height="14" viewBox="0 0 10 14" fill="none" aria-hidden="true"
-              style={{ cursor: 'grab', color: 'var(--gtv-muted, #64748b)', flexShrink: 0 }}>
-              <circle cx="3" cy="3"  r="1.2" fill="currentColor"/>
-              <circle cx="7" cy="3"  r="1.2" fill="currentColor"/>
-              <circle cx="3" cy="7"  r="1.2" fill="currentColor"/>
-              <circle cx="7" cy="7"  r="1.2" fill="currentColor"/>
-              <circle cx="3" cy="11" r="1.2" fill="currentColor"/>
-              <circle cx="7" cy="11" r="1.2" fill="currentColor"/>
+    <div ref={ref} className="gtv-export-menu" style={{ minWidth: 240 }}>
+      {/* ── Busca ── */}
+      <div className="gtv-col-busca">
+        <svg width="13" height="13" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" className="gtv-col-busca-icone">
+          <path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
+        </svg>
+        <input
+          type="text"
+          className="gtv-col-busca-input"
+          placeholder="Localizar coluna..."
+          value={busca}
+          onChange={e => setBusca(e.target.value)}
+          autoFocus
+        />
+        {busca && (
+          <button type="button" className="gtv-col-busca-clear" onClick={() => setBusca('')} aria-label="Limpar busca">
+            <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+              <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
             </svg>
-          )}
-          <input
-            type="checkbox"
-            checked={colunasVisiveis.includes(col.key)}
-            disabled={col.naoOcultavel}
-            onChange={() => !col.naoOcultavel && onToggle(col.key)}
-            style={{ marginRight: 4 }}
-          />
-          {col.label}
-        </label>
-      ))}
+          </button>
+        )}
+      </div>
+      {/* ── Ações em lote ── */}
+      <div className="gtv-col-acoes">
+        <button type="button" className="gtv-col-acao-btn" onClick={onSelecionarTodos}>
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+            <path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192Z"/>
+          </svg>
+          Selecionar tudo
+        </button>
+        <button type="button" className="gtv-col-acao-btn gtv-col-acao-btn--reset" onClick={onRestaurarPadrao}>
+          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+            <path d="M224,128a96,96,0,1,1-21.95-61.09,8,8,0,1,1-12.33,10.18A80,80,0,1,0,207.6,136H168a8,8,0,0,1,0-16h48a8,8,0,0,1,8,8Z"/>
+          </svg>
+          Restaurar padrão
+        </button>
+      </div>
+      {/* ── Lista ── */}
+      {colunasFiltradas.length === 0 ? (
+        <div className="gtv-col-vazio">Nenhuma coluna encontrada</div>
+      ) : (
+        colunasFiltradas.map(col => (
+          <label
+            key={col.key}
+            className="gtv-export-item"
+            draggable={!!onReordenar && !col.naoOcultavel}
+            onDragStart={() => { dragKeyRef.current = col.key }}
+            onDragOver={e => e.preventDefault()}
+            onDrop={() => {
+              if (dragKeyRef.current && dragKeyRef.current !== col.key) {
+                onReordenar?.(dragKeyRef.current, col.key)
+              }
+              dragKeyRef.current = null
+            }}
+            style={{ cursor: col.naoOcultavel ? 'not-allowed' : 'pointer', opacity: col.naoOcultavel ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            {onReordenar && !col.naoOcultavel && (
+              <svg width="10" height="14" viewBox="0 0 10 14" fill="none" aria-hidden="true"
+                style={{ cursor: 'grab', color: 'var(--gtv-muted, #64748b)', flexShrink: 0 }}>
+                <circle cx="3" cy="3"  r="1.2" fill="currentColor"/>
+                <circle cx="7" cy="3"  r="1.2" fill="currentColor"/>
+                <circle cx="3" cy="7"  r="1.2" fill="currentColor"/>
+                <circle cx="7" cy="7"  r="1.2" fill="currentColor"/>
+                <circle cx="3" cy="11" r="1.2" fill="currentColor"/>
+                <circle cx="7" cy="11" r="1.2" fill="currentColor"/>
+              </svg>
+            )}
+            <input
+              type="checkbox"
+              checked={colunasVisiveis.includes(col.key)}
+              disabled={col.naoOcultavel}
+              onChange={() => !col.naoOcultavel && onToggle(col.key)}
+              style={{ marginRight: 4 }}
+            />
+            {col.label}
+          </label>
+        ))
+      )}
     </div>
+  )
+})
+
+// ─── Subcomponente: Popover de edição ────────────────────────────────────────
+
+interface GTEditPopoverProps {
+  overlayInfo: { rect: DOMRect; id: string; campo: string; isFilho: boolean; colLabel: string }
+  valorEditando: unknown
+  salvando: boolean
+  onAtualizar: (valor: unknown) => void
+  onConfirmar: () => void
+  onCancelar: () => void
+}
+
+const POPOVER_W = 340
+
+const GTEditPopover = memo(function GTEditPopover({
+  overlayInfo,
+  valorEditando,
+  salvando,
+  onAtualizar,
+  onConfirmar,
+  onCancelar,
+}: GTEditPopoverProps) {
+  const { rect, colLabel } = overlayInfo
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const inputRef   = useRef<HTMLInputElement>(null)
+
+  // Posição inicial (abaixo da célula) — reajustada pelo useLayoutEffect
+  const [pos, setPos] = useState(() => {
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - POPOVER_W - 8))
+    return { top: rect.bottom + 8, left, arrowLeft: 16, flipUp: false }
+  })
+
+  // Reposiciona após medir altura real — evita corte na borda inferior
+  useLayoutEffect(() => {
+    const el = popoverRef.current
+    if (!el) return
+    const h = el.offsetHeight
+    const w = el.offsetWidth
+    const left     = Math.max(8, Math.min(rect.left, window.innerWidth - w - 8))
+    const arrowLeft = Math.max(12, Math.min(w - 20, (rect.left + rect.width / 2) - left))
+    const belowOk  = rect.bottom + h + 12 <= window.innerHeight
+    const top      = belowOk ? rect.bottom + 8 : Math.max(8, rect.top - h - 8)
+    setPos({ top, left, arrowLeft, flipUp: !belowOk })
+  }, [rect])
+
+  // Seleciona o texto ao montar para edição imediata
+  useEffect(() => {
+    const t = setTimeout(() => inputRef.current?.select(), 30)
+    return () => clearTimeout(t)
+  }, [])
+
+  return (
+    <>
+      {/* Backdrop — clique fora confirma */}
+      <div className="gtv-edit-popover-backdrop" onMouseDown={() => onConfirmar()} />
+
+      {/* Popover */}
+      <div
+        ref={popoverRef}
+        className={`gtv-edit-popover${pos.flipUp ? ' gtv-edit-popover--flip' : ''}`}
+        style={{ top: pos.top, left: pos.left }}
+        onMouseDown={e => e.stopPropagation()}
+      >
+        {/* Seta apontando para a célula */}
+        <div className="gtv-edit-popover-arrow" style={{ left: pos.arrowLeft }} />
+
+        {/* Header: nome do campo + fechar */}
+        <div className="gtv-edit-popover-header">
+          <span className="gtv-edit-popover-label">
+            <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+              <path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM51.31,160l96-96,32,32-96,96ZM48,179.31,76.69,208H48Zm160-96L176,115.31,140.69,80,163.31,57.37,208,102Z"/>
+            </svg>
+            {colLabel}
+          </span>
+          <button
+            type="button"
+            className="gtv-edit-popover-close"
+            onMouseDown={e => e.stopPropagation()}
+            onClick={() => onCancelar()}
+            aria-label="Cancelar edição"
+          >
+            <svg width="9" height="9" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+              <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+            </svg>
+          </button>
+        </div>
+
+        {/* Input */}
+        <div className="gtv-edit-popover-body">
+          <input
+            ref={inputRef}
+            autoFocus
+            className="gtv-edit-popover-input"
+            value={String(valorEditando ?? '')}
+            disabled={salvando}
+            onChange={e => onAtualizar(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+              if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+            }}
+            onBlur={() => onConfirmar()}
+          />
+        </div>
+
+        {/* Footer: hints + botões */}
+        <div className="gtv-edit-popover-footer">
+          <div className="gtv-edit-popover-hints" aria-hidden="true">
+            <kbd className="gtv-edit-popover-kbd">Enter</kbd>
+            <span>confirmar</span>
+            <span className="gtv-edit-popover-sep">·</span>
+            <kbd className="gtv-edit-popover-kbd">Esc</kbd>
+            <span>cancelar</span>
+          </div>
+          <div className="gtv-edit-popover-actions">
+            <button
+              type="button"
+              className="gtv-edit-popover-btn gtv-edit-popover-btn--ghost"
+              onMouseDown={e => e.stopPropagation()}
+              onClick={() => onCancelar()}
+              tabIndex={-1}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              className="gtv-edit-popover-btn gtv-edit-popover-btn--primary"
+              onMouseDown={e => e.stopPropagation()}
+              onClick={() => onConfirmar()}
+              disabled={salvando}
+              tabIndex={-1}
+            >
+              {salvando
+                ? <span className="gtv-spinner" aria-label="Salvando..." />
+                : <>
+                    <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                      <path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/>
+                    </svg>
+                    Confirmar
+                  </>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   )
 })
 
@@ -443,6 +645,53 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [colunasVisiveis, preferencias, onSalvarPreferencias],
   )
 
+  const selecionarTodasColunas = useCallback(() => {
+    const todas = colunas.map(c => c.key)
+    onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: todas })
+  }, [colunas, preferencias, onSalvarPreferencias])
+
+  const restaurarPadraoColunas = useCallback(() => {
+    const padrao = colunas.filter(c => !c.oculta).map(c => c.key)
+    onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
+  }, [colunas, preferencias, onSalvarPreferencias])
+
+  // ── Larguras de colunas (resize) ──────────────────────────────────────────────
+  const [larguraColunas, setLarguraColunas] = useState<Record<string, number>>(
+    () => preferencias?.larguras ?? {}
+  )
+  const largurasPref = preferencias?.larguras
+  useEffect(() => {
+    setLarguraColunas(largurasPref ?? {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [largurasPref])
+
+  const [resizingCol, setResizingCol] = useState<{
+    key: string
+    startX: number
+    startWidth: number
+  } | null>(null)
+  const rafRef = useRef<number | null>(null)
+
+  const getColWidth = useCallback(
+    (col: GTColuna<unknown>): number => {
+      const saved = larguraColunas[col.key]
+      if (saved != null) return saved
+      if (typeof col.largura === 'number') return col.largura
+      if (typeof col.largura === 'string') return parseInt(col.largura, 10) || 150
+      return 150
+    },
+    [larguraColunas]
+  )
+
+  // ── Overlay de edição ─────────────────────────────────────────────────────────
+  const [overlayInfo, setOverlayInfo] = useState<{
+    rect: DOMRect
+    id: string
+    campo: string
+    isFilho: boolean
+    colLabel: string
+  } | null>(null)
+
   // ── Expand/collapse ───────────────────────────────────────────────────────────
   const { expandidos, filhosCache, carregandoFilhos, toggle, atualizarFilhoNoCache } = useGTExpandir<T, C>(
     onCarregarFilhos,
@@ -452,17 +701,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const CABECALHO_HEIGHT = 40
 
   const larguraTotalColunas = useMemo(() => {
-    const colsW = colunasFiltradas.reduce((acc, col) => {
-      const w = typeof col.largura === 'number' ? col.largura
-              : typeof col.largura === 'string' ? parseInt(col.largura, 10) || 150
-              : 150
-      return acc + w
-    }, 0)
+    const colsW = colunasFiltradas.reduce(
+      (acc, col) => acc + getColWidth(col as GTColuna<unknown>),
+      0
+    )
     const checkW = acoesLote && acoesLote.length > 0 ? 40 : 0
     const expandW = onCarregarFilhos != null ? 40 : 0
     const acoesW  = acoes && acoes.length > 0 ? acoes.length * 32 + 16 : 0
     return colsW + checkW + expandW + acoesW
-  }, [colunasFiltradas, acoesLote, onCarregarFilhos, acoes])
+  }, [colunasFiltradas, acoesLote, onCarregarFilhos, acoes, getColWidth])
 
   /** left offset das colunas de dados frozen (após checkbox + expand) */
   const offsetFrozenDados = useMemo(() => {
@@ -578,6 +825,57 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return () => document.removeEventListener('mousedown', fora)
   }, [exportAberto])
 
+  // ── Fechar overlay ao sair do modo edição ────────────────────────────────────
+  useEffect(() => {
+    if (!editandoCelulaPai && !editandoCelulaFilho) {
+      setOverlayInfo(null)
+    }
+  }, [editandoCelulaPai, editandoCelulaFilho])
+
+  // ── Resize handle — mousemove/mouseup no document ─────────────────────────────
+  useEffect(() => {
+    if (!resizingCol) return
+
+    function onMouseMove(e: MouseEvent) {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+      rafRef.current = requestAnimationFrame(() => {
+        const delta = e.clientX - resizingCol!.startX
+        const novaLargura = Math.max(60, resizingCol!.startWidth + delta)
+        setLarguraColunas(prev => ({ ...prev, [resizingCol!.key]: novaLargura }))
+      })
+    }
+
+    function onMouseUp(e: MouseEvent) {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+      const delta = e.clientX - resizingCol.startX
+      const novaLargura = Math.max(60, resizingCol.startWidth + delta)
+      setLarguraColunas(prev => {
+        const novas = { ...prev, [resizingCol!.key]: novaLargura }
+        onSalvarPreferencias?.({
+          ...(preferencias ?? {}),
+          colunas_visiveis: colunasVisiveis,
+          larguras: novas,
+        })
+        return novas
+      })
+      setResizingCol(null)
+    }
+
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
+  }, [resizingCol, onSalvarPreferencias, preferencias, colunasVisiveis])
+
   // ─── Renderização de célula ──────────────────────────────────────────────────
 
   function renderCelula<I>(
@@ -613,11 +911,30 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeFrozen   = col.frozen ? ' gtv-celula--frozen' : ''
 
     const styleCelula: React.CSSProperties = {
-      ...(col.largura
-        ? { flex: `0 0 ${typeof col.largura === 'number' ? `${col.largura}px` : col.largura}` }
-        : undefined),
+      flex: `0 0 ${getColWidth(col as GTColuna<unknown>)}px`,
       ...(col.frozen ? { left: offsetFrozenDados } : undefined),
     }
+
+    // Overlay está ativo para esta célula específica
+    const overlayAtivo = overlayInfo?.id === id && overlayInfo?.campo === col.key
+
+    // Conteúdo renderizado da célula (fora do estado de edição)
+    const innerContent = col.render ? col.render(valor, item) : String(valor ?? '')
+
+    // Tooltip: valor bruto como descrição (independente de col.render)
+    const tooltipDescr = !estaEditando && !overlayAtivo && valor != null && valor !== ''
+      ? String(valor)
+      : podeEditar && !estaEditando && !overlayAtivo
+        ? 'Clique para editar'
+        : undefined
+
+    const celConteudo = tooltipDescr ? (
+      <TooltipGlobal titulo={col.label} descricao={tooltipDescr}>
+        <span className="gtv-celula-conteudo">{innerContent}</span>
+      </TooltipGlobal>
+    ) : (
+      <span className="gtv-celula-conteudo">{innerContent}</span>
+    )
 
     return (
       <div
@@ -627,12 +944,18 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         onClick={e => {
           if (podeEditar && !estaEditando) {
             e.stopPropagation()
+            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label })
             iniciarEdicao(id, col.key, valor)
           }
         }}
-        title={podeEditar && !estaEditando ? 'Clique para editar' : undefined}
       >
-        {estaEditando ? (
+        {estaEditando && overlayAtivo ? (
+          // Overlay ativo: mostra indicador visual, o input real está no popover flutuante
+          <span className="gtv-celula--editando-overlay">
+            {String(valorEditando ?? '')}
+          </span>
+        ) : estaEditando ? (
           <input
             autoFocus
             className="gtv-celula-input"
@@ -646,10 +969,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             onBlur={() => confirmarEdicao()}
             onClick={e => e.stopPropagation()}
           />
-        ) : col.render ? (
-          col.render(valor, item)
         ) : (
-          String(valor ?? '')
+          celConteudo
         )}
       </div>
     )
@@ -815,7 +1136,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const parcialSel = parcialmnteSelecionados(todosIds)
 
   return (
-    <div className="gtv-container" role="region" aria-label={ariaLabel}>
+    <div
+      className={`gtv-container${resizingCol ? ' gtv-container--resizing' : ''}`}
+      role="region"
+      aria-label={ariaLabel}
+    >
       {/* Abas de status */}
       {abas && abas.length > 0 && (
         <GTAbas abas={abas} abaAtiva={abaAtiva} onMudarAba={onMudarAba} />
@@ -876,6 +1201,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   onToggle={toggleColuna}
                   onFechar={() => setColunasAbertas(false)}
                   onReordenar={onSalvarPreferencias ? reorderColuna : undefined}
+                  onSelecionarTodos={selecionarTodasColunas}
+                  onRestaurarPadrao={restaurarPadraoColunas}
                 />
               )}
             </div>
@@ -998,11 +1325,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   ? ' gtv-th--right'
                   : ''
               const classeFrozen = col.frozen ? ' gtv-th--frozen' : ''
+              const colWidth = getColWidth(col as GTColuna<unknown>)
 
               const styleTh: React.CSSProperties = {
-                ...(col.largura
-                  ? { flex: `0 0 ${typeof col.largura === 'number' ? `${col.largura}px` : col.largura}` }
-                  : undefined),
+                flex: `0 0 ${colWidth}px`,
+                position: 'relative',
                 ...(col.frozen ? { left: offsetFrozenDados } : undefined),
               }
 
@@ -1031,6 +1358,31 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       )}
                     </span>
                   )}
+                  {/* Resize handle */}
+                  <div
+                    className="gtv-th-resize-handle"
+                    onMouseDown={e => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      setResizingCol({ key: col.key, startX: e.clientX, startWidth: colWidth })
+                    }}
+                    onDoubleClick={e => {
+                      e.stopPropagation()
+                      // Reset para largura padrão
+                      setLarguraColunas(prev => {
+                        const novo = { ...prev }
+                        delete novo[col.key]
+                        return novo
+                      })
+                      if (onSalvarPreferencias && preferencias) {
+                        const novas = { ...larguraColunas }
+                        delete novas[col.key]
+                        onSalvarPreferencias({ ...preferencias, colunas_visiveis: colunasVisiveis, larguras: novas })
+                      }
+                    }}
+                    title="Arrastar para redimensionar · Duplo clique para resetar"
+                    aria-hidden="true"
+                  />
                 </div>
               )
             })}
@@ -1110,6 +1462,19 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             )}
           </button>
         </div>
+      )}
+
+      {/* Overlay de edição — portal direto no body para evitar problemas de stacking context */}
+      {overlayInfo != null && (editandoCelulaPai != null || editandoCelulaFilho != null) && createPortal(
+        <GTEditPopover
+          overlayInfo={overlayInfo}
+          valorEditando={overlayInfo.isFilho ? valorEditandoFilho : valorEditandoPai}
+          salvando={overlayInfo.isFilho ? salvandoFilho : salvandoPai}
+          onAtualizar={overlayInfo.isFilho ? atualizarValorFilho : atualizarValorPai}
+          onConfirmar={overlayInfo.isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai}
+          onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}
+        />,
+        document.body
       )}
     </div>
   )

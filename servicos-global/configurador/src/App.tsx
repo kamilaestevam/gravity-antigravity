@@ -52,6 +52,9 @@ const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
 const Core = lazy(() => import('./pages/Core'), 'Core')
 const CoreDashboard = React.lazy(() => import('./pages/core/CoreDashboard'))
+const HistoricoTenant = React.lazy(() =>
+  import('../../../servicos-global/tenant/historico-global/src/Historico').then(m => ({ default: m.Historico }))
+)
 
 // Lazy-load dos produtos (carregados sob demanda quando o usuário navega)
 const SimulaCustoApp = React.lazy(() => import('../../../produto/simula-custo/client/src/App'))
@@ -227,7 +230,7 @@ export default function App() {
             <Route path="email" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Email — em desenvolvimento</div>} />
             <Route path="whatsapp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>WhatsApp — em desenvolvimento</div>} />
             <Route path="notificacoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Notificações — em desenvolvimento</div>} />
-            <Route path="historico" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Histórico — em desenvolvimento</div>} />
+            <Route path="historico" element={<React.Suspense fallback={<ProductLoading />}><HistoricoTenant /></React.Suspense>} />
             <Route path="conector-erp" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Conector ERP — em desenvolvimento</div>} />
             <Route path="configuracoes" element={<div style={{ padding: '2rem', color: 'var(--ws-muted)' }}>Configurações — em desenvolvimento</div>} />
           </Route>

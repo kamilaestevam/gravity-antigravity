@@ -112,7 +112,7 @@ html, body, #root {
   width: 100%;
   padding: 0.5rem 0.75rem 0.5rem 2.25rem;
   background: var(--bg-base);
-  border: 1px solid var(--bg-elevated);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 0.875rem;
@@ -122,8 +122,8 @@ html, body, #root {
 }
 
 .demo-search:focus {
-  border-color: var(--accent);
-  box-shadow: var(--focus-ring);
+  border-color: var(--text-secondary);
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.12);
 }
 
 .demo-search::placeholder {
@@ -253,7 +253,7 @@ html, body, #root {
   width: 100%;
   padding: 0.5rem 0.75rem;
   background: none;
-  border: 1px dashed var(--bg-elevated);
+  border: 1px dashed rgba(148, 163, 184, 0.25);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   font-size: 0.8rem;
@@ -265,7 +265,7 @@ html, body, #root {
 
 .demo-add-btn:hover {
   background: var(--bg-surface);
-  border-color: var(--accent);
+  border-color: var(--text-secondary);
   color: var(--text-primary);
 }
 
@@ -275,13 +275,13 @@ html, body, #root {
   gap: 0.35rem;
   padding: 0.4rem 0.75rem;
   background: var(--bg-surface);
-  border: 1px solid var(--bg-elevated);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
   font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
   font-family: inherit;
   white-space: nowrap;
 }

@@ -45,7 +45,7 @@ import {
   FileCsv,
   FileText,
   FileCode,
-  Brackets,
+  Code,
 } from '@phosphor-icons/react'
 import { getEstimativas, getEstimativasKpis, duplicarEstimativa, atualizarStatusEstimativa } from '../../shared/api'
 import type { Estimativa, EstimativasKpis, EstimativaStatus } from '../../shared/types'
@@ -244,7 +244,7 @@ export default function DashboardSimulaCusto() {
       { label: 'CSV',           icone: <FileCsv weight="duotone" size={16} />,  onClick: () => exportarCSV(dados, COLUNAS_EXPORT, { nomeArquivo: 'estimativas' }) },
       { label: 'TXT',           icone: <FileText weight="duotone" size={16} />, onClick: () => exportarTXT(dados, COLUNAS_EXPORT, { nomeArquivo: 'estimativas' }) },
       { label: 'XML',           icone: <FileCode weight="duotone" size={16} />, onClick: () => exportarXML(dados, COLUNAS_EXPORT, { nomeArquivo: 'estimativas' }) },
-      { label: 'JSON',          icone: <Brackets weight="duotone" size={16} />, onClick: () => exportarJSON(dados, COLUNAS_EXPORT, { nomeArquivo: 'estimativas' }) },
+      { label: 'JSON',          icone: <Code weight="duotone" size={16} />, onClick: () => exportarJSON(dados, COLUNAS_EXPORT, { nomeArquivo: 'estimativas' }) },
     ]
   }, [dadosFiltrados])
 

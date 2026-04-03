@@ -1,0 +1,31 @@
+/* Dashboard.css — Demo */
+
+.demo-db-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 2rem 1.5rem;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ── Faixa de cards ── */
+.demo-db-cards {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 6px;
+}
+
+.demo-db-cards::-webkit-scrollbar {
+  display: none;
+}
+
+.demo-db-cards .cg-card {
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  width: auto;
+}

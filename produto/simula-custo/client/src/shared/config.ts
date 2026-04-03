@@ -61,13 +61,11 @@ export const PRODUCT_CONFIG = {
     { id: 'section-estimativas', label: 'Estimativas', sectionDivider: true },
     { id: 'dashboard',     label: 'Dashboard',    icon: 'chart-pie-slice', source: 'product' as const },
     { id: 'estimativas',   label: 'Lista',         icon: 'list-bullets',   source: 'product' as const },
-    { id: 'importar',      label: 'Importar',      icon: 'upload',         source: 'product' as const },
     { id: 'kanban',        label: 'Kanban',         icon: 'kanban',         source: 'product' as const, disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
 
     // ── Serviços ─────────────────────────────────────────────────────────────
     { id: 'relatorios',    label: 'Relatórios',    icon: 'file-text',      source: 'product' as const },
     { id: 'historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  as const },
-    { id: 'gabi',          label: 'Gabi IA',        icon: 'sparkle',        source: 'tenant'  as const },
     { id: 'configuracoes', label: 'Configurações', icon: 'gear-six',       source: 'product' as const },
 
   ] satisfies NavigationItem[],

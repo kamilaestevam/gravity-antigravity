@@ -102,6 +102,7 @@ Antes de qualquer tarefa, o agente DEVE:
 
 | Skill | Caminho | Quando Consultar |
 |-------|---------|-----------------|
+| Nova Tela Produto | `skills/produtos/nova-tela-produto/SKILL.md` | **Criar/replicar tela de produto — padrão inviolável** |
 | SimulaCusto | `skills/produtos/simulacusto/SKILL.md` | Produto SimulaCusto, cálculo fiscal, NCM |
 
 ### UX

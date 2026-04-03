@@ -81,6 +81,9 @@ export default defineConfig({
       '@clerk/clerk-react',
       '@tanstack/react-virtual',
       'exceljs',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
     ],
   },
 

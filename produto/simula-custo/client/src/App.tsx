@@ -30,6 +30,7 @@ import {
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const EstimativasDashboard = lazy(() => import('./pages/estimativas/EstimativasDashboard'))
 const ImportarMassa        = lazy(() => import('./pages/importar/ImportarMassa'))
+const Configuracoes        = lazy(() => import('./pages/Configuracoes'))
 
 import DashboardSimulaCusto from './pages/dashboard/DashboardSimulaCusto'
 import EstimativasPage from './pages/estimativas/Estimativas'
@@ -82,6 +83,18 @@ const LoadingFallback = () => (
   </div>
 )
 
+// ── Labels de rota ────────────────────────────────────────────────────────────
+const ROUTE_LABELS: Record<string, string> = {
+  'dashboard':     'Dashboard',
+  'estimativas':   'Estimativas',
+  'nova':          'Nova Estimativa',
+  'importar':      'Importar',
+  'relatorios':    'Relatórios',
+  'historico':     'Histórico',
+  'kanban':        'Kanban',
+  'configuracoes': 'Configurações',
+}
+
 // ── Nós do ecossistema para o Localizador ─────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
   { id: 'gravity',      label: 'Gravity',     sublabel: 'workspace',      color: '#818cf8',     type: 'gravity',      status: 'accessible' },
@@ -122,7 +135,8 @@ export default function App() {
   }, [currentUser, setCurrentUser])
 
   useEffect(() => {
-    const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Dashboard'
+    const seg = location.pathname.split('/').filter(Boolean).pop() ?? 'dashboard'
+    const pageLabel = ROUTE_LABELS[seg] ?? seg.charAt(0).toUpperCase() + seg.slice(1)
     addEntry({
       productId:    PRODUCT_ID,
       productLabel: PRODUCT_NAME,
@@ -138,7 +152,9 @@ export default function App() {
     : '??'
 
   const navItems = mapNavigation(PRODUCT_CONFIG.navigation as any)
-  const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Dashboard'
+
+  const routeSegment = location.pathname.split('/').filter(Boolean).pop() ?? 'dashboard'
+  const pageLabel = ROUTE_LABELS[routeSegment] ?? routeSegment.charAt(0).toUpperCase() + routeSegment.slice(1)
 
   return (
     <TelaProdutoGlobal
@@ -183,7 +199,7 @@ export default function App() {
           <Route path="estimativas/:id"  element={<EstimativasPage />} />
           <Route path="importar"         element={<ImportarMassa />} />
           <Route path="relatorios"       element={<RelatoriosPage />} />
-          <Route path="configuracoes"    element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Configurações (Em breve)</div>} />
+          <Route path="configuracoes"    element={<Configuracoes />} />
           <Route path="kanban"           element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Kanban (Em breve)</div>} />
           <Route path="meu-espaco"       element={<GlobalDashboard />} />
           <Route path="meu-espaco/atividades" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Atividades (Tenant)</div>} />

@@ -1,0 +1,505 @@
+/* Configuracoes.css — Demo */
+
+/* ─── Layout geral ─────────────────────────────────────────────────────────── */
+
+.cfg-page {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── Sidebar ──────────────────────────────────────────────────────────────── */
+
+.cfg-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
+  padding: 1.5rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  background: var(--surface-2, rgba(255,255,255,0.02));
+  overflow-y: auto;
+}
+
+.cfg-sidebar__titulo {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted, #64748b);
+  padding: 0 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cfg-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cfg-sidebar__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border-radius: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
+  transition: background 0.15s, color 0.15s;
+  text-align: left;
+}
+
+.cfg-sidebar__item:hover:not(.cfg-sidebar__item--breve) {
+  background: var(--surface-hover, rgba(255,255,255,0.05));
+  color: var(--text-primary, #f1f5f9);
+}
+
+.cfg-sidebar__item--ativo {
+  background: var(--ws-accent-subtle, rgba(129,140,248,0.12));
+  color: var(--ws-accent, #818cf8);
+}
+
+.cfg-sidebar__item--ativo:hover {
+  background: var(--ws-accent-subtle, rgba(129,140,248,0.15));
+  color: var(--ws-accent, #818cf8);
+}
+
+.cfg-sidebar__item--breve {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.cfg-sidebar__item-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cfg-sidebar__item-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.cfg-badge-breve {
+  font-size: 0.58rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--surface-3, rgba(255,255,255,0.07));
+  color: var(--text-muted, #64748b);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ─── Conteúdo principal ───────────────────────────────────────────────────── */
+
+.cfg-conteudo {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.cfg-cards-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Seção ────────────────────────────────────────────────────────────────── */
+
+.cfg-secao {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.75rem 2rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
+}
+
+.cfg-secao:last-child {
+  border-bottom: none;
+}
+
+.cfg-secao__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cfg-secao__titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin: 0;
+}
+
+.cfg-secao__desc {
+  font-size: 0.72rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  margin-top: 3px;
+}
+
+/* ─── Pills de período ─────────────────────────────────────────────────────── */
+
+.cfg-periodo__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cfg-periodo__pill {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  background: none;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.cfg-periodo__pill:hover {
+  background: var(--surface-hover, rgba(255,255,255,0.05));
+  color: var(--text-primary, #f1f5f9);
+  border-color: var(--border-strong, rgba(255,255,255,0.18));
+}
+
+.cfg-periodo__pill--ativo {
+  background: var(--ws-accent, #818cf8);
+  border-color: var(--ws-accent, #818cf8);
+  color: #fff;
+}
+
+.cfg-periodo__pill--ativo:hover {
+  opacity: 0.9;
+}
+
+/* ─── Botão restaurar padrão ───────────────────────────────────────────────── */
+
+.cfg-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.09));
+  background: none;
+  color: var(--text-muted, #64748b);
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.cfg-reset-btn:hover {
+  background: var(--surface-hover, rgba(255,255,255,0.05));
+  color: var(--text-primary, #f1f5f9);
+  border-color: var(--border, rgba(255,255,255,0.15));
+}
+
+/* ─── Estado vazio ─────────────────────────────────────────────────────────── */
+
+.cfg-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  padding: 0.5rem 0;
+  margin: 0;
+}
+
+/* ─── Lista de cards ───────────────────────────────────────────────────────── */
+
+.cfg-cards-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ─── Cabeçalho da tabela de catálogo ─────────────────────────────────────── */
+
+.cfg-tabela-head {
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem 0.5rem;
+  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
+  margin-bottom: 0.25rem;
+}
+
+.cfg-tabela-head__col {
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #64748b);
+}
+
+.cfg-tabela-head__col--nome {
+  flex: 1;
+  padding-left: 30px;
+}
+
+.cfg-tabela-head__col--agg {
+  width: 72px;
+  text-align: center;
+}
+
+.cfg-tabela-head__col--acao {
+  width: 30px;
+}
+
+/* ─── Linha de card ────────────────────────────────────────────────────────── */
+
+.cfg-card-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.5rem;
+  border-radius: 8px;
+  background: var(--surface-card, rgba(255,255,255,0.03));
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.cfg-card-row:hover {
+  background: var(--surface-hover, rgba(255,255,255,0.055));
+}
+
+.cfg-card-row--oculto {
+  opacity: 0.45;
+}
+
+.cfg-card-row--disponivel {
+  background: transparent;
+  border-color: transparent;
+}
+
+.cfg-card-row--disponivel:hover {
+  background: var(--surface-hover, rgba(255,255,255,0.04));
+  border-color: var(--border-subtle, rgba(255,255,255,0.07));
+}
+
+/* ─── Drag handle ──────────────────────────────────────────────────────────── */
+
+.cfg-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted, #64748b);
+  cursor: grab;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.cfg-drag-handle:hover {
+  color: var(--text-secondary, #94a3b8);
+  background: var(--surface-hover, rgba(255,255,255,0.06));
+}
+
+.cfg-drag-handle:active { cursor: grabbing; }
+
+.cfg-drag-handle--ghost {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+/* ─── Info do card ─────────────────────────────────────────────────────────── */
+
+.cfg-card-row__info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.cfg-card-row__icone {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cfg-card-row__nome {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cfg-card-row__desc {
+  font-size: 0.68rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Badge de agregação ───────────────────────────────────────────────────── */
+
+.cfg-agg-badge {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--surface-3, rgba(255,255,255,0.07));
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  width: 72px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ─── Botão olho ───────────────────────────────────────────────────────────── */
+
+.cfg-eye-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 5px;
+  background: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.cfg-eye-btn:hover {
+  background: var(--surface-hover, rgba(255,255,255,0.07));
+  color: var(--text-secondary, #94a3b8);
+}
+
+.cfg-eye-btn--on { color: var(--ws-accent, #818cf8); }
+
+.cfg-eye-btn--on:hover {
+  color: var(--ws-accent, #818cf8);
+  background: var(--ws-accent-subtle, rgba(129,140,248,0.12));
+}
+
+/* ─── Botão remover ────────────────────────────────────────────────────────── */
+
+.cfg-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.cfg-remove-btn:hover {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+/* ─── Botão adicionar ──────────────────────────────────────────────────────── */
+
+.cfg-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.09));
+  border-radius: 6px;
+  background: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  padding: 0;
+}
+
+.cfg-add-btn:hover {
+  background: var(--ws-accent-subtle, rgba(129,140,248,0.14));
+  border-color: var(--ws-accent, #818cf8);
+  color: var(--ws-accent, #818cf8);
+}
+
+/* ─── Light theme ──────────────────────────────────────────────────────────── */
+
+[data-theme="light"] .cfg-sidebar {
+  background: rgba(0,0,0,0.015);
+  border-right-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .cfg-sidebar__item:hover:not(.cfg-sidebar__item--breve) {
+  background: rgba(0,0,0,0.04);
+  color: var(--text-primary, #0f172a);
+}
+
+[data-theme="light"] .cfg-sidebar__item--ativo {
+  background: rgba(99,102,241,0.08);
+  color: #6366f1;
+}
+
+[data-theme="light"] .cfg-secao {
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .cfg-periodo__pill {
+  border-color: rgba(0,0,0,0.12);
+  color: var(--text-secondary, #475569);
+}
+
+[data-theme="light"] .cfg-periodo__pill--ativo {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+[data-theme="light"] .cfg-card-row {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .cfg-card-row:hover { background: rgba(0,0,0,0.04); }
+
+[data-theme="light"] .cfg-card-row--disponivel {
+  background: transparent;
+  border-color: transparent;
+}
+
+[data-theme="light"] .cfg-card-row--disponivel:hover {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.07);
+}
+
+[data-theme="light"] .cfg-agg-badge  { background: rgba(0,0,0,0.06); }
+[data-theme="light"] .cfg-badge-breve { background: rgba(0,0,0,0.06); }
+[data-theme="light"] .cfg-tabela-head { border-bottom-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .cfg-add-btn    { border-color: rgba(0,0,0,0.1); }

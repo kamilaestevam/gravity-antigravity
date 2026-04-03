@@ -34,6 +34,8 @@ import './kanban-configuracoes.css'
 
 // ── Tipos públicos ─────────────────────────────────────────────────────────────
 
+export type AbaConfig = 'colunas' | 'card' | 'automacoes'
+
 export interface CampoCardDef {
   key:        string
   label:      string
@@ -59,6 +61,11 @@ export interface KanbanConfiguracoesProps {
   /** Chamado a cada mudança — permite sincronização em tempo real com o board */
   onChange?:   (config: KanbanConfigData) => void
   onCancelar?: () => void
+  /**
+   * Quando fornecido, a aba ativa é controlada externamente e a
+   * sidebar interna + footer são ocultados (modo embutido).
+   */
+  abaControlada?: AbaConfig
 }
 
 // ── Cores predefinidas ─────────────────────────────────────────────────────────
@@ -464,8 +471,6 @@ function RegraItem({ regra, colunas, camposRegra, onChange, onDelete }: RegraIte
 
 // ── Componente principal ───────────────────────────────────────────────────────
 
-type AbaConfig = 'colunas' | 'card' | 'automacoes'
-
 export function KanbanConfiguracoes({
   colunas:     colunasIniciais,
   camposCard:  camposIniciais,
@@ -474,11 +479,14 @@ export function KanbanConfiguracoes({
   onSalvar,
   onChange,
   onCancelar,
+  abaControlada,
 }: KanbanConfiguracoesProps) {
   const MAX_COLUNAS = 8
   const MAX_REGRAS  = 20
 
-  const [aba,         setAba]         = useState<AbaConfig>('colunas')
+  const [abaInterna,  setAbaInterna]  = useState<AbaConfig>('colunas')
+  const aba = abaControlada ?? abaInterna
+  function setAba(v: AbaConfig) { if (!abaControlada) setAbaInterna(v) }
   const [colunas,     setColunas]     = useState<KanbanColunaDef[]>(colunasIniciais)
   const [campos,      setCampos]      = useState<CampoCardDef[]>(camposIniciais)
   const [regras,      setRegras]      = useState<RegraKanban[]>(regrasIniciais)
@@ -604,38 +612,40 @@ export function KanbanConfiguracoes({
   const regrasAtivas = regras.filter(r => r.ativo).length
 
   return (
-    <div className="kc-shell">
-      {/* ── Sidebar ──────────────────────────────────────────────────────── */}
-      <div className="kc-sidebar">
-        <span className="kc-sidebar-titulo">CONFIGURAÇÕES</span>
+    <div className={`kc-shell${abaControlada ? ' kc-shell--embutido' : ''}`}>
+      {/* ── Sidebar — oculto no modo embutido ────────────────────────────── */}
+      {!abaControlada && (
+        <div className="kc-sidebar">
+          <span className="kc-sidebar-titulo">CONFIGURAÇÕES</span>
 
-        <button
-          className={`kc-menu-item ${aba === 'colunas' ? 'kc-menu-item--ativo' : ''}`}
-          onClick={() => setAba('colunas')}
-        >
-          <Kanban size={15} weight="duotone" />
-          Colunas
-        </button>
+          <button
+            className={`kc-menu-item ${aba === 'colunas' ? 'kc-menu-item--ativo' : ''}`}
+            onClick={() => setAba('colunas')}
+          >
+            <Kanban size={15} weight="duotone" />
+            Colunas
+          </button>
 
-        <button
-          className={`kc-menu-item ${aba === 'card' ? 'kc-menu-item--ativo' : ''}`}
-          onClick={() => setAba('card')}
-        >
-          <SquaresFour size={15} weight="duotone" />
-          Card
-        </button>
+          <button
+            className={`kc-menu-item ${aba === 'card' ? 'kc-menu-item--ativo' : ''}`}
+            onClick={() => setAba('card')}
+          >
+            <SquaresFour size={15} weight="duotone" />
+            Card
+          </button>
 
-        <button
-          className={`kc-menu-item ${aba === 'automacoes' ? 'kc-menu-item--ativo' : ''}`}
-          onClick={() => setAba('automacoes')}
-        >
-          <Lightning size={15} weight="duotone" />
-          Automações
-          {regrasAtivas > 0 && (
-            <span className="kc-menu-badge">{regrasAtivas}</span>
-          )}
-        </button>
-      </div>
+          <button
+            className={`kc-menu-item ${aba === 'automacoes' ? 'kc-menu-item--ativo' : ''}`}
+            onClick={() => setAba('automacoes')}
+          >
+            <Lightning size={15} weight="duotone" />
+            Automações
+            {regrasAtivas > 0 && (
+              <span className="kc-menu-badge">{regrasAtivas}</span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* ── Main ─────────────────────────────────────────────────────────── */}
       <div className="kc-main">
@@ -816,16 +826,18 @@ export function KanbanConfiguracoes({
           </div>
         )}
 
-        {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <div className="kc-footer">
-          {onCancelar && (
-            <button className="kc-btn-secondary" onClick={onCancelar}>Cancelar</button>
-          )}
-          <button className="kc-btn-primary" onClick={handleSalvar}>
-            <Check size={14} />
-            Salvar configurações
-          </button>
-        </div>
+        {/* ── Footer — oculto no modo embutido ─────────────────────────── */}
+        {!abaControlada && (
+          <div className="kc-footer">
+            {onCancelar && (
+              <button className="kc-btn-secondary" onClick={onCancelar}>Cancelar</button>
+            )}
+            <button className="kc-btn-primary" onClick={handleSalvar}>
+              <Check size={14} />
+              Salvar configurações
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -9,6 +9,12 @@
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
+/* Modo embutido: sem sidebar própria, sem background de página */
+.kc-shell--embutido {
+  background: transparent;
+  height: auto;
+}
+
 /* ── Sidebar ──────────────────────────────────────────────────────────────── */
 
 .kc-sidebar {

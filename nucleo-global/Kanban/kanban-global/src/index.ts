@@ -14,6 +14,7 @@ export type {
   RegraKanban,
 } from './tipos'
 export type {
+  AbaConfig,
   CampoCardDef,
   KanbanConfigData,
   KanbanConfiguracoesProps,

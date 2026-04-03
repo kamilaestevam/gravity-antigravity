@@ -8,7 +8,8 @@
 
 import React, { useMemo, useState } from 'react'
 import { KanbanGlobal } from '@nucleo/kanban-global'
-import type { KanbanItem, KanbanColunaDef } from '@nucleo/kanban-global'
+import type { KanbanItem } from '@nucleo/kanban-global'
+import { useKanbanConfig } from '../shared/useKanbanConfig'
 import {
   ListChecks,
   Spinner,
@@ -36,34 +37,14 @@ interface ItemKanbanDemo extends KanbanItem {
   prioridade:  Prioridade
 }
 
-// ── Colunas (replicando dati_control) ─────────────────────────────────────────
+// ── Ícones fixos por chave de coluna ─────────────────────────────────────────
 
-const COLUNAS: KanbanColunaDef[] = [
-  {
-    key:   'A Fazer',
-    label: 'A Fazer',
-    color: '#6366f1',
-    icon:  <ListChecks size={16} weight="duotone" color="#6366f1" />,
-  },
-  {
-    key:   'Em Andamento',
-    label: 'Em Andamento',
-    color: '#f59e0b',
-    icon:  <Spinner size={16} weight="duotone" color="#f59e0b" />,
-  },
-  {
-    key:   'Concluída',
-    label: 'Concluída',
-    color: '#10b981',
-    icon:  <CheckCircle size={16} weight="duotone" color="#10b981" />,
-  },
-  {
-    key:   'Cancelada',
-    label: 'Cancelada',
-    color: '#64748b',
-    icon:  <XCircle size={16} weight="duotone" color="#64748b" />,
-  },
-]
+const COLUNA_ICONES: Record<string, React.ReactNode> = {
+  'A Fazer':      <ListChecks size={16} weight="duotone" />,
+  'Em Andamento': <Spinner    size={16} weight="duotone" />,
+  'Concluída':    <CheckCircle size={16} weight="duotone" />,
+  'Cancelada':    <XCircle    size={16} weight="duotone" />,
+}
 
 // ── Paleta de prioridades ─────────────────────────────────────────────────────
 
@@ -93,8 +74,10 @@ function gerarData(diasOffset: number): string {
   return d.toISOString()
 }
 
+const COLUNAS_KEYS_DEFAULT = ['A Fazer', 'Em Andamento', 'Concluída', 'Cancelada']
+
 function gerarMock(): ItemKanbanDemo[] {
-  const colunaKeys = COLUNAS.map(c => c.key)
+  const colunaKeys = COLUNAS_KEYS_DEFAULT
   const nomes = [
     'Revisão de contrato', 'Proposta comercial', 'Análise fiscal', 'Relatório mensal',
     'Auditoria interna', 'Planejamento Q2', 'Entrega urgente', 'Reunião com cliente',
@@ -186,8 +169,15 @@ function KanbanCard({ item }: { item: ItemKanbanDemo }) {
 // ── Página ────────────────────────────────────────────────────────────────────
 
 export default function Kanban() {
+  const { config } = useKanbanConfig()
   const [itens, setItens] = useState<ItemKanbanDemo[]>(MOCK_INICIAL)
   const [busca, setBusca] = useState('')
+
+  // Injeta ícones fixos nas colunas vindas da config
+  const colunas = useMemo(
+    () => config.colunas.map(col => ({ ...col, icon: COLUNA_ICONES[col.key] })),
+    [config.colunas],
+  )
 
   const itensFiltrados = useMemo(() => {
     if (!busca.trim()) return itens
@@ -232,7 +222,7 @@ export default function Kanban() {
       {/* Kanban */}
       <div className="kb-board">
         <KanbanGlobal<ItemKanbanDemo>
-          colunas={COLUNAS}
+          colunas={colunas}
           itens={itensFiltrados}
           renderCard={(item) => <KanbanCard item={item} />}
           onMoverItem={handleMoverItem}

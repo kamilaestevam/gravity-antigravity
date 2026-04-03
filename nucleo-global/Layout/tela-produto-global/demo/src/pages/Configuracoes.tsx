@@ -1,11 +1,8 @@
 /**
  * Configuracoes.tsx — Configurações do Demo
  *
- * Categorias:
- *  ├── Cards  ← Período de comparação + DnD + toggle visibilidade + catálogo
- *  ├── Tabela      ← em breve
- *  ├── Notificações ← em breve
- *  └── Exportação  ← em breve
+ * Hub central de configurações do produto.
+ * Sidebar hierárquica: Cards | Kanban (Colunas · Card · Automações) | …
  */
 
 import React, { useState } from 'react'
@@ -13,7 +10,7 @@ import {
   SquaresFour, Table, Bell, DownloadSimple,
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Hash, CheckCircle, ArrowsClockwise, SealCheck, CurrencyDollar, ChartBar,
-  PencilSimple,
+  PencilSimple, Kanban as KanbanIcon, Lightning,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -25,10 +22,16 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { KanbanConfiguracoes } from '@nucleo/kanban-global'
+import type { AbaConfig } from '@nucleo/kanban-global'
 import {
   useCardPreferences, CARDS_CATALOGO,
   type CardPreferencia,
 } from '../shared/useCardPreferences'
+import {
+  useKanbanConfig,
+  CAMPOS_REGRA_DEFAULT,
+} from '../shared/useKanbanConfig'
 import './Configuracoes.css'
 
 // ── Período de comparação ─────────────────────────────────────────────────────
@@ -62,16 +65,33 @@ function origemVariant(origem: string): string {
   return 'meus'
 }
 
-// ── Categorias da sidebar ─────────────────────────────────────────────────────
+// ── Sidebar hierárquica ───────────────────────────────────────────────────────
 
-const CATEGORIAS = [
-  { id: 'cards',        label: 'Cards',        icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
-  { id: 'tabela',       label: 'Tabela',       icone: <Table          size={15} weight="duotone" />, ativo: false },
-  { id: 'notificacoes', label: 'Notificações', icone: <Bell           size={15} weight="duotone" />, ativo: false },
-  { id: 'exportacao',   label: 'Exportação',   icone: <DownloadSimple size={15} weight="duotone" />, ativo: false },
-] as const
+type SidebarItemTipo =
+  | { tipo: 'item'; id: string; label: string; icone: React.ReactNode; ativo: boolean }
+  | { tipo: 'grupo'; label: string }
+  | { tipo: 'sub';  id: string; label: string; icone: React.ReactNode; ativo: boolean }
 
-type CategoriaId = (typeof CATEGORIAS)[number]['id']
+const SIDEBAR_ITEMS: SidebarItemTipo[] = [
+  { tipo: 'item', id: 'cards',             label: 'Cards',        icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'grupo', label: 'KANBAN' },
+  { tipo: 'sub',  id: 'kanban-colunas',    label: 'Colunas',      icone: <KanbanIcon  size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'sub',  id: 'kanban-card',       label: 'Card',         icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'sub',  id: 'kanban-automacoes', label: 'Automações',   icone: <Lightning   size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'grupo', label: 'SISTEMA' },
+  { tipo: 'item', id: 'tabela',            label: 'Tabela',       icone: <Table          size={15} weight="duotone" />, ativo: false },
+  { tipo: 'item', id: 'notificacoes',      label: 'Notificações', icone: <Bell           size={15} weight="duotone" />, ativo: false },
+  { tipo: 'item', id: 'exportacao',        label: 'Exportação',   icone: <DownloadSimple size={15} weight="duotone" />, ativo: false },
+]
+
+type CategoriaId = string
+
+// Mapeia id de categoria para aba do KanbanConfiguracoes
+const KANBAN_ABA_MAP: Record<string, AbaConfig> = {
+  'kanban-colunas':    'colunas',
+  'kanban-card':       'card',
+  'kanban-automacoes': 'automacoes',
+}
 
 // ── Item sortável (DnD) ───────────────────────────────────────────────────────
 
@@ -208,6 +228,8 @@ export default function Configuracoes() {
   const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar } =
     useCardPreferences()
 
+  const { config: kanbanConfig, salvar: salvarKanban } = useKanbanConfig()
+
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
   }))
@@ -220,6 +242,12 @@ export default function Configuracoes() {
     reordenar(arrayMove(prefs, oldIndex, newIndex))
   }
 
+  function handleSidebarClick(id: string, ativo: boolean) {
+    if (ativo) setCategoria(id)
+  }
+
+  const kanbanAba = KANBAN_ABA_MAP[categoria]
+
   return (
     <div className="cfg-page">
 
@@ -227,31 +255,45 @@ export default function Configuracoes() {
       <aside className="cfg-sidebar">
         <p className="cfg-sidebar__titulo">Configurações</p>
         <nav className="cfg-sidebar__nav">
-          {CATEGORIAS.map(cat => (
-            <button
-              key={cat.id}
-              type="button"
-              className={[
-                'cfg-sidebar__item',
-                categoria === cat.id ? 'cfg-sidebar__item--ativo' : '',
-                !cat.ativo           ? 'cfg-sidebar__item--breve' : '',
-              ].filter(Boolean).join(' ')}
-              onClick={() => { if (cat.ativo) setCategoria(cat.id) }}
-            >
-              <span className="cfg-sidebar__item-icon">{cat.icone}</span>
-              <span className="cfg-sidebar__item-label">{cat.label}</span>
-              {!cat.ativo && <span className="cfg-badge-breve">Em breve</span>}
-            </button>
-          ))}
+          {SIDEBAR_ITEMS.map((item, idx) => {
+            if (item.tipo === 'grupo') {
+              return (
+                <span key={`grupo-${idx}`} className="cfg-sidebar__grupo">
+                  {item.label}
+                </span>
+              )
+            }
+
+            const isAtivo = categoria === item.id
+            const isSub   = item.tipo === 'sub'
+
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={[
+                  isSub ? 'cfg-sidebar__sub' : 'cfg-sidebar__item',
+                  isAtivo      ? 'cfg-sidebar__item--ativo' : '',
+                  !item.ativo  ? 'cfg-sidebar__item--breve' : '',
+                ].filter(Boolean).join(' ')}
+                onClick={() => handleSidebarClick(item.id, item.ativo)}
+              >
+                <span className="cfg-sidebar__item-icon">{item.icone}</span>
+                <span className="cfg-sidebar__item-label">{item.label}</span>
+                {!item.ativo && <span className="cfg-badge-breve">Em breve</span>}
+              </button>
+            )
+          })}
         </nav>
       </aside>
 
       {/* ── Conteúdo ── */}
       <main className="cfg-conteudo">
+
+        {/* ── Cards ── */}
         {categoria === 'cards' && (
           <div className="cfg-cards-wrapper">
 
-            {/* ── Período de comparação ── */}
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -275,7 +317,6 @@ export default function Configuracoes() {
               </div>
             </section>
 
-            {/* ── Meus cards ── */}
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -321,7 +362,6 @@ export default function Configuracoes() {
               )}
             </section>
 
-            {/* ── Colunas disponíveis ── */}
             {disponiveis.length > 0 && (
               <section className="cfg-secao">
                 <div className="cfg-secao__header">
@@ -380,6 +420,20 @@ export default function Configuracoes() {
 
           </div>
         )}
+
+        {/* ── Kanban (Colunas / Card / Automações) ── */}
+        {kanbanAba && (
+          <KanbanConfiguracoes
+            colunas={kanbanConfig.colunas}
+            camposCard={kanbanConfig.camposCard}
+            regras={kanbanConfig.regras}
+            camposRegra={CAMPOS_REGRA_DEFAULT}
+            abaControlada={kanbanAba}
+            onSalvar={salvarKanban}
+            onChange={salvarKanban}
+          />
+        )}
+
       </main>
     </div>
   )

@@ -5,7 +5,7 @@
 import React, { Suspense, lazy } from 'react'
 import { useTranslation } from 'react-i18next'
 
-const AtividadesView = lazy(() => import('./views/AtividadesView.js'))
+const AtividadesView = lazy(() => import('./views/AtividadesView'))
 
 export default function Atividades(): React.ReactElement {
   const { t } = useTranslation()

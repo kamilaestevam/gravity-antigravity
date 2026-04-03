@@ -1,0 +1,244 @@
+/* ── kanban-global.css ────────────────────────────────────────────────────── */
+/* Estilos do componente KanbanGlobal.                                         */
+/* Usa variáveis CSS do design system (--text-*, --dark-*, --radius-*).        */
+
+/* ── Grid de colunas ─────────────────────────────────────────────────────── */
+
+.kg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  align-items: start;
+  width: 100%;
+}
+
+/* ── Coluna ──────────────────────────────────────────────────────────────── */
+
+.kg-coluna {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--dark-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-md, 12px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: visible;
+}
+
+/* Cabeçalho da coluna */
+.kg-coluna-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-top-left-radius: var(--radius-md, 12px);
+  border-top-right-radius: var(--radius-md, 12px);
+  position: relative;
+}
+
+.kg-coluna-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main, #e2e8f0);
+}
+
+.kg-coluna-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+/* Badge de contagem */
+.kg-coluna-count {
+  border-radius: 20px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Botão de ordenação por coluna */
+.kg-sort-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  padding: 3px 5px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+
+.kg-sort-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main, #e2e8f0);
+}
+
+/* ── Zona de drop (corpo da coluna) ──────────────────────────────────────── */
+
+.kg-dropzone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 120px;
+  padding: 1rem;
+  border-radius: 0 0 var(--radius-md, 12px) var(--radius-md, 12px);
+  border: 2px solid transparent;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.kg-dropzone.kg-drag-over {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+
+.kg-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--text-muted, #64748b);
+  font-size: 0.82rem;
+  border: 1px dashed var(--dark-border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* ── Hint de drop ────────────────────────────────────────────────────────── */
+
+.kg-drop-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 2px dashed;
+  /* color e border-color definidos via style inline (cor da coluna) */
+}
+
+/* ── Card wrapper (draggable) ────────────────────────────────────────────── */
+
+.kg-card-wrapper {
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+
+.kg-card-wrapper:active {
+  cursor: grabbing;
+}
+
+.kg-card-wrapper.kg-dragging {
+  opacity: 0.35;
+  transform: scale(0.96) rotate(-1.5deg);
+}
+
+.kg-card-wrapper.kg-readonly {
+  cursor: pointer;
+}
+
+/* ── DragOverlay — card flutuando durante o drag ─────────────────────────── */
+
+.kg-overlay-card {
+  transform: rotate(2deg) scale(1.03);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  cursor: grabbing;
+  pointer-events: none;
+}
+
+/* ── Popover de ordenação ────────────────────────────────────────────────── */
+
+.kg-sort-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 9999;
+  background: var(--dark-surface, #1a2236);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.5rem 0;
+  min-width: 260px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  animation: kg-sort-in 0.18s ease;
+}
+
+@keyframes kg-sort-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.kg-sort-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  margin-bottom: 0.25rem;
+}
+
+.kg-sort-popover-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.kg-sort-popover-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  font-size: 1rem;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.kg-sort-popover-close:hover {
+  color: var(--text-main, #e2e8f0);
+}
+
+.kg-sort-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-main, #e2e8f0);
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.kg-sort-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.kg-sort-option.kg-sort-active {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.kg-sort-option-check {
+  margin-left: auto;
+  color: #6366f1;
+}

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useDraggable } from '@dnd-kit/core'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { DotsThreeVertical, BuildingOffice } from '@phosphor-icons/react'
 import { useKanban } from './KanbanContext'
 import type { KanbanItem } from './tipos'
@@ -31,11 +32,23 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     colunas.find(c => c.key === colunaKey)?.isReadOnly ?? false
   )
 
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id:       item.id,
     disabled: isReadOnlyEfetivo,
     data:     { colunaKey },
   })
+
+  const style: React.CSSProperties = {
+    transform:  CSS.Transform.toString(transform),
+    transition: transition ?? undefined,
+  }
 
   const isMoving = movingId === item.id
 
@@ -74,6 +87,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     <div
       ref={setNodeRef}
       className={classes}
+      style={style}
       data-testid={`${testIdPrefix}-card`}
       data-card-id={item.id}
       {...attributes}

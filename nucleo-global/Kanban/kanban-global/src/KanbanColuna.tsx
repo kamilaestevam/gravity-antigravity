@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import {
   SortDescending,
   SortAscending,
@@ -210,10 +211,17 @@ export function KanbanColuna({
               <div key={i} className="kg-skeleton-card" />
             ))}
 
-            {/* Cards */}
-            {!isLoading && itens.map(item => (
-              <KanbanCardWrapper key={item.id} item={item} colunaKey={coluna.key} />
-            ))}
+            {/* Cards — SortableContext habilita reorder dentro da coluna */}
+            {!isLoading && (
+              <SortableContext
+                items={itens.map(i => i.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {itens.map(item => (
+                  <KanbanCardWrapper key={item.id} item={item} colunaKey={coluna.key} />
+                ))}
+              </SortableContext>
+            )}
 
             {/* Empty state — só quando não está arrastando */}
             {!isLoading && itens.length === 0 && !isDraggingAny && (

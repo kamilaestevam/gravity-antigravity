@@ -10,6 +10,7 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
 import { KanbanColuna } from './KanbanColuna'
 import { KanbanContext, type KanbanContextValue } from './KanbanContext'
 import type { KanbanGlobalProps, KanbanItem, KanbanSortKey } from './tipos'
@@ -88,6 +89,8 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
   const [columnSorts, setColumnSorts] = useState<Record<string, KanbanSortKey>>({})
   // Optimistic: itemId → novaColunaKey enquanto move assíncrono está pendente
   const [pendingMoves, setPendingMoves] = useState<Record<string, string>>({})
+  // Ordem manual por coluna: colKey → array de item IDs (sobrescreve sortItems quando presente)
+  const [columnOrders, setColumnOrders] = useState<Record<string, string[]>>({})
 
   // Refs para evitar stale closure no useCallback estável
   const itensRef       = useRef(itens)
@@ -124,6 +127,18 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
       const efetivo = pendingMoves[i.id] ?? i.colunaKey
       return efetivo === colKey
     })
+
+    const manualOrder = columnOrders[colKey]
+    if (manualOrder) {
+      // Ordem manual: respeita sequência definida pelo usuário
+      const byId = new Map(colItems.map(i => [i.id, i]))
+      const ordered = manualOrder.flatMap(id => byId.has(id) ? [byId.get(id)!] : [])
+      // Itens novos que não estão no order ainda (chegaram depois) vão ao final
+      const inOrder = new Set(manualOrder)
+      colItems.filter(i => !inOrder.has(i.id)).forEach(i => ordered.push(i))
+      return ordered
+    }
+
     return sortItems(colItems, columnSorts[colKey] ?? 'newest', getItemLabel, getItemDate)
   }
 
@@ -183,8 +198,46 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
 
   async function handleDragEnd({ active, over }: DragEndEvent) {
     setActiveId(null)
-    if (!over || !onMoverItem) return
-    await handleMoverItemInternal(String(active.id), String(over.id))
+    if (!over) return
+
+    const activeItemId = String(active.id)
+    const overId       = String(over.id)
+
+    // Identifica se o over é uma coluna ou outro card
+    const overIsColuna = colunas.some(c => c.key === overId)
+
+    if (overIsColuna) {
+      // Drop sobre a coluna → mover para outra coluna (comportamento original)
+      if (onMoverItem) {
+        await handleMoverItemInternal(activeItemId, overId)
+      }
+      return
+    }
+
+    // Drop sobre outro card → reorder dentro da mesma coluna
+    const activeItem = itensFiltrados.find(i => i.id === activeItemId)
+    const overItem   = itensFiltrados.find(i => i.id === overId)
+    if (!activeItem || !overItem) return
+
+    const activeColKey = pendingMoves[activeItemId] ?? activeItem.colunaKey
+    const overColKey   = pendingMoves[overId]       ?? overItem.colunaKey
+
+    if (activeColKey === overColKey) {
+      // Reorder dentro da mesma coluna
+      const colItems = getColumnItems(activeColKey)
+      const ids      = colItems.map(i => i.id)
+      const oldIdx   = ids.indexOf(activeItemId)
+      const newIdx   = ids.indexOf(overId)
+      if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
+        setColumnOrders(prev => ({
+          ...prev,
+          [activeColKey]: arrayMove(ids, oldIdx, newIdx),
+        }))
+      }
+    } else if (onMoverItem) {
+      // Card caiu sobre card em coluna diferente → cross-column move
+      await handleMoverItemInternal(activeItemId, overColKey)
+    }
   }
 
   function handleDragCancel() {
@@ -193,6 +246,12 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
 
   function handleSortChange(colKey: string, sort: KanbanSortKey) {
     setColumnSorts(prev => ({ ...prev, [colKey]: sort }))
+    // Limpa ordem manual ao aplicar ordenação automática
+    setColumnOrders(prev => {
+      const next = { ...prev }
+      delete next[colKey]
+      return next
+    })
   }
 
   const activeItem = activeId ? itensFiltrados.find(i => i.id === activeId) : null

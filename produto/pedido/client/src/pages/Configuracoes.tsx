@@ -15,7 +15,10 @@ import {
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
+  ChartBar, ChartLine, ChartDonut, NumberSquareOne, PencilSimple, Check,
+  ChartBarHorizontal, Funnel,
 } from '@phosphor-icons/react'
+import { useDashboardStore, DEFAULT_WIDGETS } from '../stores/dashboardStore'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -139,6 +142,7 @@ function CardSortavel({
 
 const CATEGORIAS = [
   { id: 'cards',        label: 'Cards',        icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
+  { id: 'dashboard',    label: 'Dashboard',    icone: <ChartBar       size={15} weight="duotone" />, ativo: true  },
   { id: 'tabela',       label: 'Tabela',       icone: <Table          size={15} weight="duotone" />, ativo: false },
   { id: 'notificacoes', label: 'Notificações', icone: <Bell           size={15} weight="duotone" />, ativo: false },
   { id: 'exportacao',   label: 'Exportação',   icone: <DownloadSimple size={15} weight="duotone" />, ativo: false },
@@ -146,12 +150,42 @@ const CATEGORIAS = [
 
 type CategoriaId = (typeof CATEGORIAS)[number]['id']
 
+const CHART_TYPE_META: Record<string, { label: string; cor: string; icone: (size: number) => React.ReactNode }> = {
+  LINE:           { label: 'Linha',        cor: '#818cf8', icone: (s) => <ChartLine         size={s} weight="duotone" /> },
+  AREA:           { label: 'Área',         cor: '#6366f1', icone: (s) => <ChartLine         size={s} weight="fill"    /> },
+  BAR:            { label: 'Barras',       cor: '#34d399', icone: (s) => <ChartBar          size={s} weight="duotone" /> },
+  BAR_HORIZONTAL: { label: 'Barras H.',    cor: '#34d399', icone: (s) => <ChartBarHorizontal size={s} weight="duotone" /> },
+  DONUT:          { label: 'Donut',        cor: '#f59e0b', icone: (s) => <ChartDonut        size={s} weight="duotone" /> },
+  KPI_CARD:       { label: 'KPI',          cor: '#60a5fa', icone: (s) => <NumberSquareOne   size={s} weight="duotone" /> },
+  FUNNEL:         { label: 'Funil',        cor: '#fb923c', icone: (s) => <Funnel            size={s} weight="duotone" /> },
+}
+
+const CHART_TYPE_OPTIONS = Object.entries(CHART_TYPE_META).map(([type, meta]) => ({ type, ...meta }))
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function Configuracoes() {
   const { t } = useTranslation()
   const [categoria, setCategoria] = useState<CategoriaId>('cards')
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
+  const { widgets, removeWidget, updateWidget, setWidgets } = useDashboardStore()
+  const [editandoId, setEditandoId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editChartType, setEditChartType] = useState('')
+
+  function abrirEdicao(id: string) {
+    const w = widgets.find(x => x.id === id)
+    if (!w) return
+    setEditTitle(w.title)
+    setEditChartType(w.chart_type)
+    setEditandoId(id)
+  }
+
+  function salvarEdicao() {
+    if (!editandoId) return
+    updateWidget(editandoId, { title: editTitle, chart_type: editChartType as never })
+    setEditandoId(null)
+  }
 
   const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
 
@@ -318,6 +352,119 @@ export default function Configuracoes() {
               </section>
             )}
 
+          </div>
+        )}
+
+        {categoria === 'dashboard' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Widgets do Dashboard</h2>
+                  <p className="cfg-secao__desc">
+                    Gerencie os widgets exibidos no Dashboard · × para remover
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="cfg-reset-btn"
+                  onClick={() => setWidgets(DEFAULT_WIDGETS)}
+                >
+                  <ArrowCounterClockwise size={13} weight="bold" />
+                  Restaurar padrão
+                </button>
+              </div>
+
+              {widgets.length === 0 ? (
+                <p className="cfg-empty">Nenhum widget. Acesse o Dashboard e clique em "Adicionar widget".</p>
+              ) : (
+                <div className="cfg-cards-lista">
+                  {widgets.map(w => {
+                    const meta = CHART_TYPE_META[w.chart_type]
+                    const isEditing = editandoId === w.id
+                    return (
+                      <div key={w.id}>
+                        <div className={`cfg-card-row${isEditing ? ' cfg-card-row--editing' : ''}`}>
+                          {/* ícone do tipo de gráfico */}
+                          <span style={{ color: meta?.cor ?? 'var(--text-muted)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            {meta?.icone(18) ?? <ChartBar size={18} />}
+                          </span>
+
+                          <div className="cfg-card-row__info">
+                            <div>
+                              <p className="cfg-card-row__nome">{w.title}</p>
+                              <p className="cfg-card-row__desc">{meta?.label ?? w.chart_type} · {w.query_spec.fields.join(', ')}</p>
+                            </div>
+                          </div>
+
+                          <span className="cfg-agg-badge">{w.query_spec.operation}</span>
+
+                          <button
+                            type="button"
+                            className={`cfg-eye-btn${isEditing ? ' cfg-eye-btn--on' : ''}`}
+                            onClick={() => isEditing ? setEditandoId(null) : abrirEdicao(w.id)}
+                            aria-label="Editar widget"
+                          >
+                            <PencilSimple size={14} weight="bold" />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="cfg-remove-btn"
+                            onClick={() => removeWidget(w.id)}
+                            aria-label="Remover widget"
+                          >
+                            <X size={13} weight="bold" />
+                          </button>
+                        </div>
+
+                        {/* Painel de edição inline */}
+                        {isEditing && (
+                          <div className="cfg-edit-panel">
+                            <div className="cfg-edit-panel__field">
+                              <label className="cfg-edit-panel__label">Título</label>
+                              <input
+                                className="cfg-edit-panel__input"
+                                value={editTitle}
+                                onChange={e => setEditTitle(e.target.value)}
+                                maxLength={80}
+                                autoFocus
+                              />
+                            </div>
+
+                            <div className="cfg-edit-panel__field">
+                              <label className="cfg-edit-panel__label">Tipo de gráfico</label>
+                              <div className="cfg-edit-panel__chart-grid">
+                                {CHART_TYPE_OPTIONS.map(opt => (
+                                  <button
+                                    key={opt.type}
+                                    type="button"
+                                    className={`cfg-chart-opt${editChartType === opt.type ? ' cfg-chart-opt--ativo' : ''}`}
+                                    onClick={() => setEditChartType(opt.type)}
+                                  >
+                                    <span style={{ color: opt.cor }}>{opt.icone(20)}</span>
+                                    <span>{opt.label}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="cfg-edit-panel__actions">
+                              <button type="button" className="cfg-reset-btn" onClick={() => setEditandoId(null)}>
+                                Cancelar
+                              </button>
+                              <button type="button" className="cfg-save-btn" onClick={salvarEdicao}>
+                                <Check size={13} weight="bold" /> Salvar
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </section>
           </div>
         )}
 

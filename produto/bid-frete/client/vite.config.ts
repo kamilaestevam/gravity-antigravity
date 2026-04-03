@@ -30,6 +30,7 @@ export default defineConfig({
       '@nucleo/campo-geral-global': path.resolve(monorepoRoot, 'nucleo-global/Campos/campo-geral-global/src/index.ts'),
       '@nucleo/campo-select-global': path.resolve(monorepoRoot, 'nucleo-global/Campos/campo-select-global/src/index.ts'),
       '@nucleo/modal-global': path.resolve(monorepoRoot, 'nucleo-global/Modais/modal-global/src/index.ts'),
+      '@nucleo/modal-passo-passo-global': path.resolve(monorepoRoot, 'nucleo-global/Modais/modal-passo-passo-global/src/index.ts'),
       '@nucleo/modal-confirmar-excluir-global': path.resolve(monorepoRoot, 'nucleo-global/Modais/modal-confirmar-excluir-global/src/index.ts'),
       '@nucleo/modal-formulario-global': path.resolve(monorepoRoot, 'nucleo-global/Modais/modal-formulario-global/src/index.ts'),
       '@nucleo/utils': path.resolve(monorepoRoot, 'nucleo-global/Utilidades/utils/src/index.ts'),

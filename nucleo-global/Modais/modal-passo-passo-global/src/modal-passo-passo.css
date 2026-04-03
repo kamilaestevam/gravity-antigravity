@@ -1,0 +1,174 @@
+/**
+ * modal-passo-passo.css — Modal com navegação em passos
+ * Design System § 12 — Wizard Timeline (Stepper)
+ *
+ * Regras obrigatórias do Design System:
+ *   - .mpp-step-circle: min-width: 2rem e flex-shrink: 0 são OBRIGATÓRIOS
+ *   - .mpp-step-line: margin-top alinha com centro dos círculos
+ */
+
+/* ── Overlay ─────────────────────────────────────────────────────────────── */
+.mpp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: var(--space-4);
+  animation: mpp-fade-in 0.15s ease;
+}
+
+@keyframes mpp-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Dialog ──────────────────────────────────────────────────────────────── */
+.mpp-dialog {
+  background: var(--bg-base);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--mpp-largura, 480px);
+  height: var(--mpp-altura, 540px);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: mpp-slide-up 0.18s ease;
+}
+
+@keyframes mpp-slide-up {
+  from { transform: translateY(12px); opacity: 0.6; }
+  to   { transform: translateY(0);    opacity: 1;   }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.mpp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+.mpp-titulo {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mpp-fechar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+.mpp-fechar:hover { color: var(--text-primary); background: var(--bg-surface); }
+
+/* ── Stepper ─────────────────────────────────────────────────────────────── */
+.mpp-stepper-wrap {
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--border-default);
+  flex-shrink: 0;
+}
+
+.mpp-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  overflow-x: auto;
+}
+
+.mpp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 64px;
+  flex-shrink: 0; /* OBRIGATÓRIO — Design System § 12 */
+}
+
+/* Círculo — Design System § 12 */
+.mpp-step-circle {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;  /* OBRIGATÓRIO — sem isso o círculo deforma */
+  flex-shrink: 0;   /* OBRIGATÓRIO — sem isso o círculo encolhe */
+  border-radius: 50%;
+  background: var(--bg-surface, #334155);
+  border: 2px solid var(--bg-elevated, #475569);
+  color: var(--text-muted, #64748b);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.mpp-step--ativo .mpp-step-circle {
+  background: var(--accent, #6366f1);
+  border-color: var(--accent, #6366f1);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+.mpp-step--feito .mpp-step-circle {
+  background: var(--success, #22c55e);
+  border-color: var(--success, #22c55e);
+  color: #fff;
+}
+
+/* Label do step */
+.mpp-step-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-muted);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.mpp-step--ativo .mpp-step-label { color: var(--accent); }
+.mpp-step--feito .mpp-step-label { color: var(--success, #22c55e); }
+
+/* Conector entre steps */
+.mpp-step-conector {
+  flex: 1;
+  height: 2px;
+  background: var(--bg-elevated, #475569);
+  min-width: 20px;
+  margin-bottom: 1.375rem; /* alinha com centro dos círculos de 36px (label abaixo) */
+  transition: background 0.25s;
+}
+.mpp-step-conector--feito {
+  background: var(--success, #22c55e);
+}
+
+/* ── Área de conteúdo (scroll interno) ───────────────────────────────────── */
+.mpp-conteudo {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.mpp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-default);
+  flex-shrink: 0;
+}

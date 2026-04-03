@@ -27,6 +27,7 @@ import {
   CheckCircle,
 } from '@phosphor-icons/react'
 
+import { StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import { criarCotacao, dispararBids } from '../shared/api'
 import type {
   TipoOperacao,
@@ -41,44 +42,18 @@ import {
   INCOTERMS,
 } from '../shared/types'
 
-// ─── Stepper ─────────────────────────────────────────────────────────────────
+// ─── Passos do wizard ─────────────────────────────────────────────────────────
+// Usa StepperPassoPassoGlobal (@nucleo/modal-passo-passo-global) — Design System § 12
 
-interface StepConfig {
-  id: number
-  label: string
-  icon: React.ReactNode
-}
-
-const STEPS: StepConfig[] = [
-  { id: 1, label: 'Modal e Operação', icon: <Truck weight="duotone" size={16} /> },
-  { id: 2, label: 'Origem',           icon: <MapPin weight="duotone" size={16} /> },
-  { id: 3, label: 'Destino',          icon: <MapPin weight="duotone" size={16} /> },
-  { id: 4, label: 'Carga',            icon: <Package weight="duotone" size={16} /> },
-  { id: 5, label: 'Incoterm',         icon: <Scales weight="duotone" size={16} /> },
-  { id: 6, label: 'Fornecedores',     icon: <Users weight="duotone" size={16} /> },
-  { id: 7, label: 'Resumo',           icon: <FileText weight="duotone" size={16} /> },
+const STEPS = [
+  { id: 1, label: 'Modal e Operação', icone: <Truck weight="duotone" size={16} /> },
+  { id: 2, label: 'Origem',           icone: <MapPin weight="duotone" size={16} /> },
+  { id: 3, label: 'Destino',          icone: <MapPin weight="duotone" size={16} /> },
+  { id: 4, label: 'Carga',            icone: <Package weight="duotone" size={16} /> },
+  { id: 5, label: 'Incoterm',         icone: <Scales weight="duotone" size={16} /> },
+  { id: 6, label: 'Fornecedores',     icone: <Users weight="duotone" size={16} /> },
+  { id: 7, label: 'Resumo',           icone: <FileText weight="duotone" size={16} /> },
 ]
-
-function Stepper({ atual }: { atual: number }) {
-  return (
-    <div className="nc-stepper">
-      {STEPS.map((step, i) => {
-        const status = step.id < atual ? 'done' : step.id === atual ? 'active' : 'pending'
-        return (
-          <React.Fragment key={step.id}>
-            <div className={`nc-step nc-step--${status}`}>
-              <div className="nc-step-circle">
-                {status === 'done' ? <Check weight="bold" size={14} /> : step.icon}
-              </div>
-              <span className="nc-step-label">{step.label}</span>
-            </div>
-            {i < STEPS.length - 1 && <div className={`nc-step-line ${step.id < atual ? 'nc-step-line--done' : ''}`} />}
-          </React.Fragment>
-        )
-      })}
-    </div>
-  )
-}
 
 // ─── Form State ──────────────────────────────────────────────────────────────
 
@@ -547,7 +522,7 @@ export default function NovaCotacao() {
         />
       }
     >
-      <Stepper atual={step} />
+      <StepperPassoPassoGlobal passos={STEPS} passoAtual={step} />
 
       <div className="nc-form-card">
         {renderStep()}
@@ -584,71 +559,6 @@ export default function NovaCotacao() {
 
       <style>{`
         .nc-page { padding: 0; }
-
-        /* ── Stepper ── */
-        .nc-stepper {
-          display: flex;
-          align-items: center;
-          gap: 0;
-          padding: 1.5rem 0;
-          overflow-x: auto;
-        }
-
-        .nc-step {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 0.5rem;
-          min-width: 80px;
-          flex-shrink: 0;
-        }
-
-        .nc-step-circle {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          flex-shrink: 0;
-        }
-
-        .nc-step--pending .nc-step-circle {
-          background: var(--bg-surface, #334155);
-          color: var(--text-muted, #64748b);
-          border: 2px solid var(--bg-elevated, #475569);
-        }
-        .nc-step--active .nc-step-circle {
-          background: var(--accent, #6366f1);
-          color: #fff;
-          border: 2px solid var(--accent, #6366f1);
-          box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
-        }
-        .nc-step--done .nc-step-circle {
-          background: var(--success, #22c55e);
-          color: #fff;
-          border: 2px solid var(--success, #22c55e);
-        }
-
-        .nc-step-label {
-          font-size: 0.6875rem;
-          font-weight: 600;
-          text-align: center;
-          color: var(--text-muted, #64748b);
-          white-space: nowrap;
-        }
-        .nc-step--active .nc-step-label { color: var(--accent, #6366f1); }
-        .nc-step--done .nc-step-label { color: var(--success, #22c55e); }
-
-        .nc-step-line {
-          flex: 1;
-          height: 2px;
-          background: var(--bg-elevated, #475569);
-          min-width: 20px;
-          margin-top: -1.25rem;
-        }
-        .nc-step-line--done { background: var(--success, #22c55e); }
 
         /* ── Form Card ── */
         .nc-form-card {

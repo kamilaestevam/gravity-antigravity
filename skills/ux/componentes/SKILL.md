@@ -75,6 +75,34 @@ import { TabelaGlobal, type TabelaConfig } from '@nucleo/tabela-global'
 
 ---
 
+### ModalPassoPassoGlobal
+
+**Quando usar:** qualquer wizard ou fluxo guiado em múltiplos passos dentro de um modal — criação de widget, onboarding de funcionalidade, configuração multi-etapa.
+
+```typescript
+import { ModalPassoPassoGlobal, StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
+```
+
+**Capacidades:** overlay com backdrop, indicador de passos (Design System § 12), footer com Cancelar/Voltar/Próximo/Salvar, fechamento por Escape e clique fora, animação de entrada, acessibilidade (`role="dialog"`, `aria-current="step"`).
+
+**`StepperPassoPassoGlobal`** — exportado do mesmo pacote. Use quando o wizard é uma **página** (não um modal), como `NovaCotacao`. Renderiza apenas o indicador de passos sem overlay.
+
+```typescript
+// Modal com wizard
+<ModalPassoPassoGlobal titulo="Novo Widget" aberto={open} passos={PASSOS} passoAtual={step} ...>
+  {step === 1 && <Passo1 />}
+</ModalPassoPassoGlobal>
+
+// Página com wizard (sem modal)
+<StepperPassoPassoGlobal passos={PASSOS} passoAtual={step} />
+```
+
+**Quando NÃO usar:**
+- Para modais simples sem passos — usar `ModalGlobal`
+- Para confirmações — usar `ConfirmarGlobal`
+
+---
+
 ### ModalGlobal
 
 **Quando usar:** toda abertura de formulário de criação/edição, visualização de detalhes ou qualquer conteúdo que precisa de foco total do usuário.

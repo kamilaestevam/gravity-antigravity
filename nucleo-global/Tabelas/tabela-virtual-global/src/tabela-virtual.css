@@ -649,8 +649,10 @@
   width: 100%;
   border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
-  /* Isolamento de layout/paint por linha — crítico para escala em 1M rows */
-  contain: content;
+  /* contain: layout quebra position: sticky nas células frozen (Chromium).
+     contain: paint style preserva o benefício de paint-skip em linhas fora da tela
+     sem criar um novo formatting context que bloqueia sticky. */
+  contain: paint style;
   backface-visibility: hidden;
 }
 

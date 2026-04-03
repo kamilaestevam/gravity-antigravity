@@ -506,7 +506,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: var(--tcg-text);
+  color: var(--tcg-muted);
   border-bottom: 1px solid var(--tcg-border);
   white-space: nowrap;
   user-select: none;

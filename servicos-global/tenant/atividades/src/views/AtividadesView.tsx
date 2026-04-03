@@ -10,6 +10,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { StatusSalvarGlobal } from '@nucleo/Feedback/status-salvar-global/src/index'
 import type { StatusSalvar } from '@nucleo/Feedback/status-salvar-global/src/index'
+import { CalendarioCampoGlobal } from '@nucleo/Campos/campo-calendario-global/src/CalendarioCampoGlobal'
 import '../atividades.css'
 
 // ─── Constantes (espelham o Journey) ─────────────────────────────────────────
@@ -678,28 +679,60 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
   const [tipo,        setTipo]        = useState(atividade?.tipo ?? 'Tarefa')
   const [status,      setStatus]      = useState<KanbanStatus>((atividade?.status as KanbanStatus) ?? 'A Fazer')
   const [prioridade,  setPrioridade]  = useState(atividade?.prioridade ?? '')
-  const [dataAtvStr,  setDataAtvStr]  = useState(atividade?.data_atividade ? new Date(atividade.data_atividade).toISOString().slice(0,16) : '')
+  const [dataAtvDate, setDataAtvDate] = useState<Date | null>(
+    atividade?.data_atividade ? (() => { const d = new Date(atividade.data_atividade); d.setHours(0,0,0,0); return d })() : null
+  )
+  const [dataAtvTime, setDataAtvTime] = useState(
+    atividade?.data_atividade ? new Date(atividade.data_atividade).toTimeString().slice(0,5) : ''
+  )
   const [pPassoTit,   setPPassoTit]   = useState(atividade?.proximo_passo_titulo ?? '')
-  const [pPassoData,  setPPassoData]  = useState(atividade?.proximo_passo_data ? new Date(atividade.proximo_passo_data).toISOString().slice(0,10) : '')
-  const [lembreteEm,  setLembreteEm]  = useState(atividade?.lembrete_em ? new Date(atividade.lembrete_em).toISOString().slice(0,16) : '')
+  const [pPassoDate,  setPPassoDate]  = useState<Date | null>(
+    atividade?.proximo_passo_data ? (() => { const d = new Date(atividade.proximo_passo_data); d.setHours(0,0,0,0); return d })() : null
+  )
+  const [lembreteDate, setLembreteDate] = useState<Date | null>(
+    atividade?.lembrete_em ? (() => { const d = new Date(atividade.lembrete_em); d.setHours(0,0,0,0); return d })() : null
+  )
+  const [lembreteTime, setLembreteTime] = useState(
+    atividade?.lembrete_em ? new Date(atividade.lembrete_em).toTimeString().slice(0,5) : ''
+  )
   const [lemEmail,    setLemEmail]    = useState(atividade?.lembrete_email ?? false)
   const [lemWpp,      setLemWpp]      = useState(atividade?.lembrete_whatsapp ?? false)
   const [participantes, setParticipantes] = useState<Participante[]>(atividade?.participantes ?? [])
   const [newPart,     setNewPart]     = useState('')
 
-  // Dirty — qualquer campo diferente do estado inicial
-  const isDirty = titulo !== (atividade?.titulo ?? '')
-    || descricao !== (atividade?.descricao ?? '')
-    || tipo !== (atividade?.tipo ?? 'Tarefa')
-    || status !== ((atividade?.status ?? 'A Fazer') as KanbanStatus)
-    || prioridade !== (atividade?.prioridade ?? '')
-    || dataAtvStr !== (atividade?.data_atividade ? new Date(atividade.data_atividade).toISOString().slice(0,16) : '')
-    || pPassoTit !== (atividade?.proximo_passo_titulo ?? '')
-    || pPassoData !== (atividade?.proximo_passo_data ? new Date(atividade.proximo_passo_data).toISOString().slice(0,10) : '')
-    || lembreteEm !== (atividade?.lembrete_em ? new Date(atividade.lembrete_em).toISOString().slice(0,16) : '')
-    || lemEmail !== (atividade?.lembrete_email ?? false)
-    || lemWpp !== (atividade?.lembrete_whatsapp ?? false)
-    || participantes.length !== (atividade?.participantes.length ?? 0)
+  // Snapshot dos valores iniciais — capturado uma única vez no mount para isDirty correto
+  const initialRef = useRef({
+    titulo:        atividade?.titulo ?? '',
+    descricao:     atividade?.descricao ?? '',
+    tipo:          atividade?.tipo ?? 'Tarefa',
+    status:        (atividade?.status ?? 'A Fazer') as KanbanStatus,
+    prioridade:    atividade?.prioridade ?? '',
+    dataAtvDateStr: atividade?.data_atividade ? (() => { const d = new Date(atividade.data_atividade); d.setHours(0,0,0,0); return d.toDateString() })() : '',
+    dataAtvTime:   atividade?.data_atividade ? new Date(atividade.data_atividade).toTimeString().slice(0,5) : '',
+    pPassoTit:     atividade?.proximo_passo_titulo ?? '',
+    pPassoDateStr: atividade?.proximo_passo_data ? (() => { const d = new Date(atividade.proximo_passo_data); d.setHours(0,0,0,0); return d.toDateString() })() : '',
+    lembreteStr:   atividade?.lembrete_em ? (() => { const d = new Date(atividade.lembrete_em); d.setHours(0,0,0,0); return d.toDateString() })() : '',
+    lembreteTime:  atividade?.lembrete_em ? new Date(atividade.lembrete_em).toTimeString().slice(0,5) : '',
+    lemEmail:      atividade?.lembrete_email ?? false,
+    lemWpp:        atividade?.lembrete_whatsapp ?? false,
+    participantesLen: atividade?.participantes.length ?? 0,
+  })
+
+  // Dirty — compara contra snapshot inicial (imune a mudanças do prop atividade)
+  const isDirty = titulo !== initialRef.current.titulo
+    || descricao !== initialRef.current.descricao
+    || tipo !== initialRef.current.tipo
+    || status !== initialRef.current.status
+    || prioridade !== initialRef.current.prioridade
+    || (dataAtvDate?.toDateString() ?? '') !== initialRef.current.dataAtvDateStr
+    || dataAtvTime !== initialRef.current.dataAtvTime
+    || pPassoTit !== initialRef.current.pPassoTit
+    || (pPassoDate?.toDateString() ?? '') !== initialRef.current.pPassoDateStr
+    || (lembreteDate?.toDateString() ?? '') !== initialRef.current.lembreteStr
+    || lembreteTime !== initialRef.current.lembreteTime
+    || lemEmail !== initialRef.current.lemEmail
+    || lemWpp !== initialRef.current.lemWpp
+    || participantes.length !== initialRef.current.participantesLen
 
   // Timer
   const [timerSec,    setTimerSec]    = useState(0)
@@ -776,10 +809,18 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
         tipo,
         status,
         prioridade:            prioridade || undefined,
-        data_atividade:        dataAtvStr ? new Date(dataAtvStr).toISOString() : undefined,
+        data_atividade: dataAtvDate ? (() => {
+          const d = new Date(dataAtvDate)
+          if (dataAtvTime) { const [h, m] = dataAtvTime.split(':').map(Number); d.setHours(h, m, 0, 0) }
+          return d.toISOString()
+        })() : undefined,
         proximo_passo_titulo:  pPassoTit || undefined,
-        proximo_passo_data:    pPassoData ? new Date(pPassoData + 'T00:00:00').toISOString() : undefined,
-        lembrete_em:           lembreteEm ? new Date(lembreteEm).toISOString() : undefined,
+        proximo_passo_data:    pPassoDate ? pPassoDate.toISOString() : undefined,
+        lembrete_em: lembreteDate ? (() => {
+          const d = new Date(lembreteDate)
+          if (lembreteTime) { const [h, m] = lembreteTime.split(':').map(Number); d.setHours(h, m, 0, 0) }
+          return d.toISOString()
+        })() : undefined,
         lembrete_email:        lemEmail,
         lembrete_whatsapp:     lemWpp,
         participantes,
@@ -871,7 +912,13 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                 </div>
                 <div className="ativ-field">
                   <label>{t('atividades.modal.data_horario')}</label>
-                  <input type="datetime-local" value={dataAtvStr} onChange={e => setDataAtvStr(e.target.value)} />
+                  <CalendarioCampoGlobal
+                    valor={{ inicio: dataAtvDate, fim: null }}
+                    aoMudarValor={({ inicio }) => setDataAtvDate(inicio)}
+                  />
+                  {dataAtvDate && (
+                    <input type="time" value={dataAtvTime} onChange={e => setDataAtvTime(e.target.value)} style={{ marginTop: '0.35rem' }} />
+                  )}
                 </div>
               </div>
 
@@ -1000,21 +1047,24 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                 </div>
                 <div className="ativ-field">
                   <label>{t('atividades.modal.proximo_passo_data_label')}</label>
-                  <input type="date" value={pPassoData} onChange={e => setPPassoData(e.target.value)} />
+                  <CalendarioCampoGlobal
+                    valor={{ inicio: pPassoDate, fim: null }}
+                    aoMudarValor={({ inicio }) => setPPassoDate(inicio)}
+                  />
                 </div>
               </div>
-              {pPassoData && (
+              {pPassoDate && (
                 <div className="ativ-field" style={{ marginBottom: '0.85rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}>
                     <input type="checkbox" /> {t('atividades.modal.proximo_passo_email')}
                   </label>
                 </div>
               )}
-              {pPassoTit || pPassoData ? (
+              {pPassoTit || pPassoDate ? (
                 <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 'var(--radius-md)', padding: '0.85rem', fontSize: '0.83rem', color: '#10b981' }}>
                   {t('atividades.modal.proximo_passo_configurado')}{' '}
                   <strong>{pPassoTit}</strong>
-                  {pPassoData && ` · ${fmtDateShort(pPassoData + 'T00:00:00')}`}
+                  {pPassoDate && ` · ${fmtDateShort(pPassoDate.toISOString())}`}
                 </div>
               ) : (
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>
@@ -1031,7 +1081,13 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
               <div className="ativ-grid-2" style={{ marginBottom: '1rem' }}>
                 <div className="ativ-field">
                   <label>{t('atividades.modal.lembrete_data_hora')}</label>
-                  <input type="datetime-local" value={lembreteEm} onChange={e => setLembreteEm(e.target.value)} />
+                  <CalendarioCampoGlobal
+                    valor={{ inicio: lembreteDate, fim: null }}
+                    aoMudarValor={({ inicio }) => setLembreteDate(inicio)}
+                  />
+                  {lembreteDate && (
+                    <input type="time" value={lembreteTime} onChange={e => setLembreteTime(e.target.value)} style={{ marginTop: '0.35rem' }} />
+                  )}
                 </div>
                 <div className="ativ-field" style={{ justifyContent: 'flex-end', gap: '0.6rem' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', fontSize: '0.85rem' }}>
@@ -1044,10 +1100,10 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                   </label>
                 </div>
               </div>
-              {lembreteEm ? (
+              {lembreteDate ? (
                 <div style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 'var(--radius-md)', padding: '0.85rem', fontSize: '0.83rem', color: '#f59e0b' }}>
                   {t('atividades.modal.lembrete_agendado')}{' '}
-                  <strong>{fmtDate(lembreteEm + ':00')}</strong>
+                  <strong>{fmtDate((() => { const d = new Date(lembreteDate); if (lembreteTime) { const [h, m] = lembreteTime.split(':').map(Number); d.setHours(h, m, 0, 0) } return d.toISOString() })())}</strong>
                   {lemEmail && ' · E-mail'}{lemWpp && ' · WhatsApp'}
                 </div>
               ) : (

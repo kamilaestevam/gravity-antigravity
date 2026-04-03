@@ -48,6 +48,8 @@ export interface KanbanConfiguracoesProps {
   colunas:     KanbanColunaDef[]
   camposCard:  CampoCardDef[]
   onSalvar:    (config: KanbanConfigData) => void
+  /** Chamado a cada mudança — permite sincronização em tempo real com o board */
+  onChange?:   (config: KanbanConfigData) => void
   onCancelar?: () => void
 }
 
@@ -208,7 +210,9 @@ function ColunaSortItem({
           </div>
 
           <div className="kc-edit-field">
-            <label className="kc-edit-label">Limite WIP</label>
+            <label className="kc-edit-label" title="Máximo de cards simultâneos nesta coluna. Quando excedido, o badge fica vermelho.">
+              Máx. cards (WIP)
+            </label>
             <input
               className="kc-edit-input kc-edit-input--short"
               type="number"
@@ -304,12 +308,22 @@ export function KanbanConfiguracoes({
   colunas:    colunasIniciais,
   camposCard: camposIniciais,
   onSalvar,
+  onChange,
   onCancelar,
 }: KanbanConfiguracoesProps) {
+  const MAX_COLUNAS = 8
+
   const [aba,         setAba]         = useState<AbaConfig>('colunas')
   const [colunas,     setColunas]     = useState<KanbanColunaDef[]>(colunasIniciais)
   const [campos,      setCampos]      = useState<CampoCardDef[]>(camposIniciais)
   const [editandoKey, setEditandoKey] = useState<string | null>(null)
+
+  // Notifica o pai a cada mudança para que o board fique sincronizado em tempo real
+  const onChangeRef = useRef(onChange)
+  onChangeRef.current = onChange
+  useEffect(() => {
+    onChangeRef.current?.({ colunas, camposCard: campos })
+  }, [colunas, campos])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -338,6 +352,7 @@ export function KanbanConfiguracoes({
   }
 
   function handleNovaColuna() {
+    if (colunas.length >= MAX_COLUNAS) return
     const key  = `col-${Date.now()}`
     const nova: KanbanColunaDef = {
       key,
@@ -418,6 +433,9 @@ export function KanbanConfiguracoes({
                   Arraste para reordenar · lápis para editar · × para remover
                 </div>
               </div>
+              <span className={`kc-col-contador ${colunas.length >= MAX_COLUNAS ? 'kc-col-contador--cheio' : ''}`}>
+                {colunas.length}/{MAX_COLUNAS}
+              </span>
             </div>
 
             <DndContext sensors={sensors} onDragEnd={handleDragEndColunas}>
@@ -441,9 +459,14 @@ export function KanbanConfiguracoes({
               </SortableContext>
             </DndContext>
 
-            <button className="kc-add-btn" onClick={handleNovaColuna}>
+            <button
+              className="kc-add-btn"
+              onClick={handleNovaColuna}
+              disabled={colunas.length >= MAX_COLUNAS}
+              title={colunas.length >= MAX_COLUNAS ? `Limite de ${MAX_COLUNAS} colunas atingido` : undefined}
+            >
               <Plus size={14} />
-              Nova coluna
+              {colunas.length >= MAX_COLUNAS ? `Limite de ${MAX_COLUNAS} colunas atingido` : 'Nova coluna'}
             </button>
           </div>
         )}

@@ -525,10 +525,35 @@
   font-family: inherit;
 }
 
-.kc-add-btn:hover {
+.kc-add-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.03);
   border-color: rgba(148, 163, 184, 0.4);
   color: var(--text-primary, #f1f5f9);
+}
+
+.kc-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+/* Contador de colunas */
+
+.kc-col-contador {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+  white-space: nowrap;
+}
+
+.kc-col-contador--cheio {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 /* ── Footer ───────────────────────────────────────────────────────────────── */

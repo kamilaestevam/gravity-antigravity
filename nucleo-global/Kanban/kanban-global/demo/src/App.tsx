@@ -296,6 +296,13 @@ export default function App() {
     setItens(prev => prev.map(i => i.id === atualizado.id ? { ...i, ...atualizado } : i))
   }
 
+  // Sincroniza em tempo real enquanto o usuário edita as configurações
+  function handleChangeConfig(config: KanbanConfigData) {
+    setColunas(config.colunas)
+    setCamposCard(config.camposCard)
+  }
+
+  // Salvar explícito — aplica + volta para o board
   function handleSalvarConfig(config: KanbanConfigData) {
     setColunas(config.colunas)
     setCamposCard(config.camposCard)
@@ -399,6 +406,7 @@ export default function App() {
           <KanbanConfiguracoes
             colunas={colunas}
             camposCard={camposCard}
+            onChange={handleChangeConfig}
             onSalvar={handleSalvarConfig}
             onCancelar={() => setVista('board')}
           />

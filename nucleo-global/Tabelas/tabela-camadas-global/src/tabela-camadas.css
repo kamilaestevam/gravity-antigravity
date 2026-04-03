@@ -6,12 +6,12 @@
 
 /* ─── Tokens internos ─────────────────────────────────────────────────────── */
 .tcg-container {
-  --tcg-bg:           var(--bg-surface, #1e293b);
+  --tcg-bg:           var(--bg-base, #1e293b);
   --tcg-bg-alt:       var(--bg-body-dark, #0f172a);
   --tcg-bg-hover:     rgba(129, 140, 248, 0.04);
   --tcg-bg-filho:     rgba(10, 18, 36, 0.55);
   --tcg-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
-  --tcg-border-solid: var(--color-border, #334155);
+  --tcg-border-solid: var(--color-border, #2d3f55);
   --tcg-accent:       var(--accent, #818cf8);
   --tcg-text:         var(--text-primary, #f1f5f9);
   --tcg-muted:        var(--text-muted, #94a3b8);
@@ -858,8 +858,8 @@
 
 /* ── Light theme ─────────────────────────────────────────────────────────── */
 body.light-theme .tcg-container {
-  --tcg-bg:           var(--bg-surface, var(--bg-base, #f8fafc));
-  --tcg-bg-alt:       var(--bg-body-dark, var(--bg-body, #f1f5f9));
+  --tcg-bg:           var(--bg-base, #f8fafc);
+  --tcg-bg-alt:       var(--bg-body-dark, #f1f5f9);
   --tcg-bg-hover:     rgba(79, 70, 229, 0.04);
   --tcg-bg-filho:     rgba(79, 70, 229, 0.03);
   --tcg-border:       var(--border-default, #cbd5e1);

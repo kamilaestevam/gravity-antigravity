@@ -221,3 +221,58 @@ html, body, #root {
   opacity: 0.6;
   margin-top: 0.1rem;
 }
+
+/* ── Botões da demo ─────────────────────────────────────────────────────────── */
+
+.demo-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.demo-add-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--text-main);
+}
+
+.demo-btn-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--dark-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.demo-btn-loading--ativo {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: #818cf8;
+}
+
+.demo-spin {
+  animation: demo-spin 1s linear infinite;
+}
+
+@keyframes demo-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

@@ -13,6 +13,8 @@ import {
   User,
   CurrencyDollar,
   ArrowRight,
+  Plus,
+  CircleNotch,
 } from '@phosphor-icons/react'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -31,10 +33,29 @@ interface ItemDemo extends KanbanItem {
 // ── Colunas ───────────────────────────────────────────────────────────────────
 
 const COLUNAS: KanbanColunaDef[] = [
-  { key: 'A Fazer',      label: 'A Fazer',      color: '#6366f1', icon: <ListChecks  size={16} weight="duotone" color="#6366f1" /> },
-  { key: 'Em Andamento', label: 'Em Andamento', color: '#f59e0b', icon: <Spinner     size={16} weight="duotone" color="#f59e0b" /> },
-  { key: 'Concluída',    label: 'Concluída',    color: '#10b981', icon: <CheckCircle size={16} weight="duotone" color="#10b981" /> },
-  { key: 'Cancelada',    label: 'Cancelada',    color: '#64748b', icon: <XCircle     size={16} weight="duotone" color="#64748b" /> },
+  {
+    key: 'A Fazer', label: 'A Fazer', color: '#6366f1',
+    icon: <ListChecks size={16} weight="duotone" color="#6366f1" />,
+    colapsavel: true,
+    limiteWip: 8,
+  },
+  {
+    key: 'Em Andamento', label: 'Em Andamento', color: '#f59e0b',
+    icon: <Spinner size={16} weight="duotone" color="#f59e0b" />,
+    colapsavel: true,
+    limiteWip: 4,
+  },
+  {
+    key: 'Concluída', label: 'Concluída', color: '#10b981',
+    icon: <CheckCircle size={16} weight="duotone" color="#10b981" />,
+    colapsavel: true,
+  },
+  {
+    key: 'Cancelada', label: 'Cancelada', color: '#64748b',
+    icon: <XCircle size={16} weight="duotone" color="#64748b" />,
+    colapsavel: true,
+    isReadOnly: true, // não aceita drops
+  },
 ]
 
 // ── Prioridades ───────────────────────────────────────────────────────────────
@@ -77,6 +98,7 @@ const NOMES = [
 const MOCK_INICIAL: ItemDemo[] = NOMES.map((nome, i) => ({
   id:          `item-${i + 1}`,
   colunaKey:   COLUNAS[i % COLUNAS.length].key,
+  posicao:     i,
   nome,
   empresa:     EMPRESAS[i % EMPRESAS.length],
   responsavel: RESPONSAVEIS[i % RESPONSAVEIS.length],
@@ -145,8 +167,9 @@ function DemoCard({ item }: { item: ItemDemo }) {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [itens, setItens] = useState<ItemDemo[]>(MOCK_INICIAL)
-  const [busca, setBusca] = useState('')
+  const [itens,     setItens]     = useState<ItemDemo[]>(MOCK_INICIAL)
+  const [busca,     setBusca]     = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const itensFiltrados = useMemo(() => {
     if (!busca.trim()) return itens
@@ -159,11 +182,45 @@ export default function App() {
     )
   }, [itens, busca])
 
-  function handleMoverItem(itemId: string, novaColunaKey: string) {
+  // onMoverItem agora é async — componente faz update otimista + rollback
+  async function handleMoverItem(itemId: string, novaColunaKey: string, _posicao: number) {
+    // Simula latência de API
+    await new Promise(r => setTimeout(r, 400))
     setItens(prev =>
       prev.map(item => item.id === itemId ? { ...item, colunaKey: novaColunaKey } : item),
     )
   }
+
+  function handleCardClick(item: ItemDemo) {
+    alert(`Abrir: ${item.nome}`)
+  }
+
+  // Toolbar slot — componível pelo consumidor
+  const toolbar = (
+    <div className="demo-toolbar">
+      <div className="demo-search-wrap">
+        <MagnifyingGlass size={15} className="demo-search-icon" />
+        <input
+          type="text"
+          className="demo-search"
+          placeholder="Buscar por nome, empresa, responsável…"
+          value={busca}
+          onChange={e => setBusca(e.target.value)}
+        />
+      </div>
+      <span className="demo-total">
+        {itensFiltrados.length} item{itensFiltrados.length !== 1 ? 's' : ''}
+      </span>
+      <button
+        className={`demo-btn-loading ${isLoading ? 'demo-btn-loading--ativo' : ''}`}
+        onClick={() => setIsLoading(p => !p)}
+        title="Simular carregamento"
+      >
+        <CircleNotch size={14} className={isLoading ? 'demo-spin' : ''} />
+        {isLoading ? 'Carregando…' : 'Simular loading'}
+      </button>
+    </div>
+  )
 
   return (
     <div className="demo-shell">
@@ -174,41 +231,32 @@ export default function App() {
           <Kanban size={18} weight="duotone" color="#818cf8" />
           KanbanGlobal
         </div>
-        <span className="demo-header-badge">@nucleo/kanban-global</span>
+        <span className="demo-header-badge">@nucleo/kanban-global v2</span>
       </div>
 
       <div className="demo-content">
-
-        {/* Toolbar */}
-        <div className="demo-toolbar">
-          <div className="demo-search-wrap">
-            <MagnifyingGlass size={15} className="demo-search-icon" />
-            <input
-              type="text"
-              className="demo-search"
-              placeholder="Buscar por nome, empresa, responsável…"
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-            />
-          </div>
-          <span className="demo-total">
-            {itensFiltrados.length} item{itensFiltrados.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-
-        {/* Board */}
         <div className="demo-board">
           <KanbanGlobal<ItemDemo>
             colunas={COLUNAS}
             itens={itensFiltrados}
             renderCard={(item) => <DemoCard item={item} />}
             onMoverItem={handleMoverItem}
+            onCardClick={handleCardClick}
             emptyLabel="Nenhum item nesta fase"
             getItemLabel={(item) => item.nome}
             getItemDate={(item) => item.data}
+            isLoading={isLoading}
+            skeletonCount={3}
+            testIdPrefix="demo"
+            toolbarSlot={toolbar}
+            colunaFooterSlot={(col) => (
+              <button className="demo-add-btn" onClick={() => alert(`Novo item em: ${col.label}`)}>
+                <Plus size={13} />
+                Adicionar em {col.label}
+              </button>
+            )}
           />
         </div>
-
       </div>
     </div>
   )

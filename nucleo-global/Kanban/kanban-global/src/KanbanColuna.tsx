@@ -8,8 +8,11 @@ import {
   X,
   Tray,
   ArrowFatDown,
+  CaretRight,
+  CaretDown,
 } from '@phosphor-icons/react'
 import { KanbanCardWrapper } from './KanbanCardWrapper'
+import { useKanban } from './KanbanContext'
 import type { KanbanColunaDef, KanbanItem, KanbanSortKey } from './tipos'
 
 // ── Opções de ordenação ───────────────────────────────────────────────────────
@@ -22,71 +25,112 @@ const SORT_OPCOES: { value: KanbanSortKey; label: string; Icon: React.ElementTyp
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
-interface KanbanColunaProps<T extends KanbanItem> {
+interface KanbanColunaProps {
   coluna: KanbanColunaDef
-  itens: T[]
-  renderCard: (item: T, isDragging: boolean) => React.ReactNode
-  activeId: string | null
+  itens: KanbanItem[]
   sort: KanbanSortKey
   onSortChange: (sort: KanbanSortKey) => void
-  isReadOnly?: boolean
-  emptyLabel?: string
+  isLoading?: boolean
+  skeletonCount?: number
 }
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function KanbanColuna<T extends KanbanItem>({
+export function KanbanColuna({
   coluna,
   itens,
-  renderCard,
-  activeId,
   sort,
   onSortChange,
-  isReadOnly,
-  emptyLabel = 'Nenhum item',
-}: KanbanColunaProps<T>) {
-  const { setNodeRef, isOver } = useDroppable({ id: coluna.key })
-  const [showSort, setShowSort] = useState(false)
+  isLoading,
+  skeletonCount = 3,
+}: KanbanColunaProps) {
+  const {
+    isReadOnly: globalReadOnly,
+    emptyLabel,
+    activeId,
+    testIdPrefix,
+    colunaFooterSlot,
+  } = useKanban()
+
+  // isReadOnly desta coluna = global OU específico desta coluna
+  const isReadOnly = globalReadOnly || (coluna.isReadOnly ?? false)
+
+  const { setNodeRef, isOver } = useDroppable({
+    id: coluna.key,
+    disabled: isReadOnly,
+  })
+
+  const [showSort,   setShowSort]   = useState(false)
+  const [collapsed,  setCollapsed]  = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
 
-  // Fecha o popover ao clicar fora
+  // Fecha popover ao clicar fora
   useEffect(() => {
     if (!showSort) return
-    function handleClick(e: MouseEvent) {
+    function handle(e: MouseEvent) {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
         setShowSort(false)
       }
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
   }, [showSort])
-
-  const countStyle: React.CSSProperties = {
-    background: coluna.color + '20',
-    color: coluna.color,
-    border: `1px solid ${coluna.color}44`,
-  }
-
-  const dropzoneClass = ['kg-dropzone', isOver ? 'kg-drag-over' : ''].filter(Boolean).join(' ')
 
   const isDraggingAny = activeId !== null
 
-  return (
-    <div className="kg-coluna" style={{ zIndex: isOver ? 10 : 1 }}>
+  // WIP limit
+  const wip          = coluna.limiteWip
+  const wipExcedido  = wip !== undefined && itens.length > wip
 
-      {/* Cabeçalho */}
+  const countStyle: React.CSSProperties = {
+    background: coluna.color + '20',
+    color:      coluna.color,
+    border:     `1px solid ${coluna.color}44`,
+  }
+
+  const dropzoneClass = [
+    'kg-dropzone',
+    isOver ? 'kg-drag-over' : '',
+  ].filter(Boolean).join(' ')
+
+  const colunaClass = [
+    'kg-coluna',
+    collapsed ? 'kg-coluna-colapsada' : '',
+  ].filter(Boolean).join(' ')
+
+  return (
+    <div
+      className={colunaClass}
+      style={{ zIndex: isOver ? 10 : 1 }}
+      data-testid={`${testIdPrefix}-column`}
+      data-column-key={coluna.key}
+    >
+      {/* ── Cabeçalho ─────────────────────────────────────────────────────── */}
       <div className="kg-coluna-header">
         <div className="kg-coluna-titulo">
           {coluna.icon}
-          <span>{coluna.label}</span>
+          <span className="kg-coluna-titulo-label">{coluna.label}</span>
         </div>
 
         <div className="kg-coluna-acoes" ref={popoverRef}>
-          <span className="kg-coluna-count" style={countStyle}>
+          {/* Badge de contagem */}
+          <span
+            className="kg-coluna-count"
+            style={countStyle}
+            data-testid={`${testIdPrefix}-column-header`}
+          >
             {itens.length}
           </span>
 
-          {!isReadOnly && (
+          {/* Badge WIP */}
+          {wip !== undefined && (
+            <span className={`kg-wip-badge ${wipExcedido ? 'kg-wip-excedido' : ''}`}>
+              WIP {itens.length}/{wip}
+            </span>
+          )}
+
+          {/* Botão ordenação */}
+          {!isReadOnly && !collapsed && (
             <button
               className="kg-sort-btn"
               title="Ordenar coluna"
@@ -94,6 +138,18 @@ export function KanbanColuna<T extends KanbanItem>({
               aria-label={`Ordenar coluna ${coluna.label}`}
             >
               <SortDescending size={16} />
+            </button>
+          )}
+
+          {/* Botão colapsar */}
+          {coluna.colapsavel && (
+            <button
+              className="kg-collapse-btn"
+              title={collapsed ? 'Expandir coluna' : 'Colapsar coluna'}
+              onClick={() => setCollapsed(p => !p)}
+              aria-label={collapsed ? `Expandir ${coluna.label}` : `Colapsar ${coluna.label}`}
+            >
+              {collapsed ? <CaretRight size={14} /> : <CaretDown size={14} />}
             </button>
           )}
 
@@ -138,42 +194,53 @@ export function KanbanColuna<T extends KanbanItem>({
         </div>
       </div>
 
-      {/* Zona de drop */}
-      <div ref={setNodeRef} className={dropzoneClass}>
+      {/* ── Corpo (cards) ─────────────────────────────────────────────────── */}
+      {!collapsed && (
+        <>
+          <div ref={setNodeRef} className={dropzoneClass}>
 
-        {/* Cards */}
-        {itens.map(item => (
-          <KanbanCardWrapper
-            key={item.id}
-            item={item}
-            renderCard={renderCard}
-            isReadOnly={isReadOnly}
-          />
-        ))}
+            {/* Skeleton de carregamento */}
+            {isLoading && Array.from({ length: skeletonCount }).map((_, i) => (
+              <div key={i} className="kg-skeleton-card" />
+            ))}
 
-        {/* Empty state — só aparece quando não está arrastando */}
-        {itens.length === 0 && !isDraggingAny && (
-          <div className="kg-empty">
-            <Tray size={24} />
-            <span>{emptyLabel}</span>
+            {/* Cards */}
+            {!isLoading && itens.map(item => (
+              <KanbanCardWrapper key={item.id} item={item} colunaKey={coluna.key} />
+            ))}
+
+            {/* Empty state — só quando não está arrastando */}
+            {!isLoading && itens.length === 0 && !isDraggingAny && (
+              <div className="kg-empty">
+                <Tray size={24} />
+                <span>{emptyLabel}</span>
+              </div>
+            )}
+
+            {/* Hint de drop — aparece ao arrastar sobre esta coluna */}
+            {isOver && !isReadOnly && (
+              <div
+                className="kg-drop-hint"
+                style={{
+                  borderColor: coluna.color + '66',
+                  color:       coluna.color,
+                  background:  coluna.color + '0d',
+                }}
+              >
+                <ArrowFatDown size={14} weight="bold" />
+                Mover para {coluna.label}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Hint de drop — aparece quando arrastando sobre esta coluna */}
-        {isOver && (
-          <div
-            className="kg-drop-hint"
-            style={{
-              borderColor: coluna.color + '66',
-              color: coluna.color,
-              background: coluna.color + '0d',
-            }}
-          >
-            <ArrowFatDown size={14} weight="bold" />
-            Mover para {coluna.label}
-          </div>
-        )}
-      </div>
+          {/* Footer slot */}
+          {colunaFooterSlot && (
+            <div className="kg-coluna-footer">
+              {colunaFooterSlot(coluna)}
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }

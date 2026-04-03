@@ -2,6 +2,12 @@
 /* Estilos do componente KanbanGlobal.                                         */
 /* Usa variáveis CSS do design system (--text-*, --dark-*, --radius-*).        */
 
+/* ── Toolbar slot ────────────────────────────────────────────────────────── */
+
+.kg-toolbar-slot {
+  margin-bottom: 1rem;
+}
+
 /* ── Grid de colunas ─────────────────────────────────────────────────────── */
 
 .kg-grid {
@@ -10,6 +16,21 @@
   gap: 1rem;
   align-items: start;
   width: 100%;
+}
+
+/* Scroll horizontal em telas pequenas ou com muitas colunas */
+@media (max-width: 640px) {
+  .kg-grid {
+    grid-template-columns: repeat(auto-fill, 260px);
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    /* Snap de rolagem para colunas inteiras */
+    scroll-snap-type: x mandatory;
+  }
+
+  .kg-coluna {
+    scroll-snap-align: start;
+  }
 }
 
 /* ── Coluna ──────────────────────────────────────────────────────────────── */
@@ -22,9 +43,24 @@
   flex-direction: column;
   position: relative;
   overflow: visible;
+  transition: width 0.2s ease, min-width 0.2s ease;
 }
 
-/* Cabeçalho da coluna */
+/* Coluna colapsada — só o cabeçalho é visível */
+.kg-coluna-colapsada {
+  width: 56px;
+  min-width: 56px;
+}
+
+.kg-coluna-colapsada .kg-coluna-titulo-label {
+  display: none;
+}
+
+.kg-coluna-colapsada .kg-coluna-acoes {
+  display: none;
+}
+
+/* Cabeçalho */
 .kg-coluna-header {
   display: flex;
   align-items: center;
@@ -34,6 +70,20 @@
   border-top-left-radius: var(--radius-md, 12px);
   border-top-right-radius: var(--radius-md, 12px);
   position: relative;
+  gap: 0.5rem;
+}
+
+/* Coluna colapsada — header se torna vertical */
+.kg-coluna-colapsada .kg-coluna-header {
+  border-bottom: none;
+  padding: 0.75rem 0;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kg-coluna-colapsada .kg-collapse-btn {
+  display: flex;
 }
 
 .kg-coluna-titulo {
@@ -43,13 +93,21 @@
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--text-main, #e2e8f0);
+  min-width: 0;
+}
+
+.kg-coluna-titulo-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kg-coluna-acoes {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   position: relative;
+  flex-shrink: 0;
 }
 
 /* Badge de contagem */
@@ -61,7 +119,24 @@
   line-height: 1;
 }
 
-/* Botão de ordenação por coluna */
+/* Badge WIP */
+.kg-wip-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+}
+
+.kg-wip-excedido {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Botão de ordenação */
 .kg-sort-btn {
   background: none;
   border: none;
@@ -80,6 +155,26 @@
   color: var(--text-main, #e2e8f0);
 }
 
+/* Botão de colapsar */
+.kg-collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  padding: 3px 5px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.kg-collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main, #e2e8f0);
+}
+
 /* ── Zona de drop (corpo da coluna) ──────────────────────────────────────── */
 
 .kg-dropzone {
@@ -91,11 +186,57 @@
   border-radius: 0 0 var(--radius-md, 12px) var(--radius-md, 12px);
   border: 2px solid transparent;
   transition: background 0.18s, border-color 0.18s;
+  /* Scroll vertical por coluna */
+  max-height: var(--kg-coluna-max-height, 70vh);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar discreta */
+.kg-dropzone::-webkit-scrollbar {
+  width: 4px;
+}
+
+.kg-dropzone::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.kg-dropzone::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
 }
 
 .kg-dropzone.kg-drag-over {
   background: rgba(99, 102, 241, 0.06);
   border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* ── Footer da coluna ────────────────────────────────────────────────────── */
+
+.kg-coluna-footer {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom-left-radius: var(--radius-md, 12px);
+  border-bottom-right-radius: var(--radius-md, 12px);
+}
+
+/* ── Skeleton de carregamento ────────────────────────────────────────────── */
+
+.kg-skeleton-card {
+  height: 90px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  animation: kg-pulse 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.kg-skeleton-card:nth-child(2) { animation-delay: 0.2s; }
+.kg-skeleton-card:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes kg-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.7;  }
 }
 
 /* ── Empty state ─────────────────────────────────────────────────────────── */
@@ -126,7 +267,8 @@
   font-size: 0.8rem;
   font-weight: 600;
   border: 2px dashed;
-  /* color e border-color definidos via style inline (cor da coluna) */
+  flex-shrink: 0;
+  /* color e border-color via style inline (cor da coluna) */
 }
 
 /* ── Card wrapper (draggable) ────────────────────────────────────────────── */
@@ -135,6 +277,7 @@
   touch-action: none;
   cursor: grab;
   outline: none;
+  position: relative;
 }
 
 .kg-card-wrapper:active {
@@ -142,12 +285,150 @@
 }
 
 .kg-card-wrapper.kg-dragging {
-  opacity: 0.35;
+  opacity: 0.3;
   transform: scale(0.96) rotate(-1.5deg);
 }
 
 .kg-card-wrapper.kg-readonly {
   cursor: pointer;
+}
+
+/* Estado de move assíncrono pendente */
+.kg-card-wrapper.kg-moving {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.kg-moving-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  animation: kg-pulse-border 1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes kg-pulse-border {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1;   }
+}
+
+/* ── Botão "Mover para" ──────────────────────────────────────────────────── */
+
+.kg-mover-wrap {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 20;
+}
+
+.kg-mover-btn {
+  background: rgba(15, 20, 35, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--text-main, #e2e8f0);
+  padding: 3px 5px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  backdrop-filter: blur(4px);
+}
+
+/* Visível ao hover do wrapper */
+.kg-card-wrapper:hover .kg-mover-btn,
+.kg-card-wrapper:focus-within .kg-mover-btn {
+  opacity: 1;
+}
+
+/* Em touch (sem hover), mantém levemente visível */
+@media (hover: none) {
+  .kg-mover-btn {
+    opacity: 0.45;
+  }
+}
+
+.kg-mover-btn:hover {
+  background: rgba(99, 102, 241, 0.25);
+}
+
+/* ── Menu "Mover para" ───────────────────────────────────────────────────── */
+
+.kg-mover-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 9999;
+  background: var(--dark-surface, #1a2236);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.35rem 0;
+  min-width: 180px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  animation: kg-sort-in 0.14s ease;
+}
+
+.kg-mover-menu-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 0.75rem 0.4rem;
+}
+
+.kg-mover-opcao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--text-main, #e2e8f0);
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.12s;
+}
+
+.kg-mover-opcao:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.kg-mover-opcao:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.kg-mover-opcao-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.kg-mover-opcao-icon {
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+}
+
+/* ── Tenant badge (modo global) ──────────────────────────────────────────── */
+
+.kg-tenant-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  margin-top: 0.5rem;
+  width: fit-content;
 }
 
 /* ── DragOverlay — card flutuando durante o drag ─────────────────────────── */
@@ -208,6 +489,7 @@
   line-height: 1;
   display: flex;
   align-items: center;
+  transition: color 0.15s;
 }
 
 .kg-sort-popover-close:hover {

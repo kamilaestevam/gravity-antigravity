@@ -3,5 +3,6 @@ export type {
   KanbanColunaDef,
   KanbanItem,
   KanbanSortKey,
+  KanbanSortOpcao,
   KanbanGlobalProps,
 } from './tipos'

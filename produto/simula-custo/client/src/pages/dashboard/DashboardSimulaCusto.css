@@ -1,0 +1,200 @@
+/* DashboardSimulaCusto.css */
+
+/* ─── Layout principal ───────────────────────────────────────────────────── */
+
+.sc-db-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-bottom: 2rem;
+  min-height: 0;
+}
+
+@media (max-width: 1100px) {
+  .sc-db-grid { grid-template-columns: 1fr; }
+}
+
+.sc-db-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-height: 0;
+}
+
+/* ─── Panel genérico ─────────────────────────────────────────────────────── */
+
+.sc-db-panel {
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid rgba(129, 140, 248, 0.12);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.sc-db-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.sc-db-panel-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary, #f1f5f9);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sc-db-panel-legend {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+  align-items: center;
+}
+
+.sc-db-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 3px;
+  flex-shrink: 0;
+}
+
+.sc-db-dot--otimista  { background: #10b981; }
+.sc-db-dot--base      { background: #818cf8; }
+.sc-db-dot--pessimista { background: #ef4444; }
+
+/* ─── Botão ghost ────────────────────────────────────────────────────────── */
+
+.sc-db-btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--accent, #818cf8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: inherit;
+  padding: 0;
+  transition: opacity 0.15s;
+}
+
+.sc-db-btn-ghost:hover { opacity: 0.75; }
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+
+@keyframes sc-db-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.sc-db-skeleton-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
+  animation: sc-db-pulse 1.5s infinite;
+}
+
+.sc-db-skeleton-cell {
+  background: rgba(129, 140, 248, 0.1);
+  border-radius: 4px;
+  height: 0.65rem;
+  flex-shrink: 0;
+}
+
+/* ─── Gabi Insight ───────────────────────────────────────────────────────── */
+
+.sc-db-gabi {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 16px;
+  padding: 1.25rem;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+}
+
+.sc-db-gabi-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.sc-db-gabi-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sc-db-gabi-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.sc-db-gabi-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 0 0 1rem;
+}
+
+.sc-db-gabi-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sc-db-gabi-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.sc-db-gabi-btn:hover { background: rgba(255, 255, 255, 0.25); }
+
+/* ─── Panel de alerta ────────────────────────────────────────────────────── */
+
+.sc-db-panel-alerta {
+  border-left: 3px solid var(--warning, #f59e0b);
+}
+
+.sc-db-alerta-text {
+  font-size: 0.875rem;
+  color: var(--text-primary, #f1f5f9);
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+}
+
+.sc-db-alerta-tempo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+}
+
+/* ─── Chart placeholder ──────────────────────────────────────────────────── */
+
+.sc-db-chart {
+  padding: 0.5rem 0;
+}

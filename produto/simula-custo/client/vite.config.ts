@@ -60,6 +60,7 @@ export default defineConfig({
       // ── Utilidades ──
       '@nucleo/utils':                             nucleo('Utilidades/utils/src/index.ts'),
       '@nucleo/export-utils':                      nucleo('Utilidades/export-utils/exportUtils.ts'),
+      '@nucleo/Utilidades/localization/i18n':      nucleo('Utilidades/Localization/i18n.ts'),
       // ── Shell / serviços ──
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@shell':   path.resolve(monorepoRoot, 'servicos-global/shell'),

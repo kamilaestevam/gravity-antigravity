@@ -1035,21 +1035,23 @@
 /* ─── Tooltip em células ──────────────────────────────────────────────────── */
 
 /* Célula conteúdo: ocupa toda a largura, trunca com ellipsis */
-.gtv-celula-conteudo {
+/* Texto puro dentro de célula (sem render customizado) */
+.gtv-celula-text {
   display: block;
-  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
+  width: 100%;
 }
 
-/* Dentro de célula, o trigger do TooltipGlobal não deve quebrar o layout */
+/* TooltipGlobal dentro de célula: cresce para preencher a célula sem colapsar */
 .gtv-celula .tg-trigger {
-  display: flex;
-  width: 100%;
-  overflow: hidden;
+  flex: 1;
   min-width: 0;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Oculta o ícone ⓘ do TooltipGlobal nas células (muito denso para tabela) */

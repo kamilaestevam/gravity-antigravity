@@ -940,19 +940,24 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     // Conteúdo renderizado da célula (fora do estado de edição)
     const innerContent = col.render ? col.render(valor, item) : String(valor ?? '')
 
-    // Tooltip: valor bruto como descrição (independente de col.render)
-    const tooltipDescr = !estaEditando && !overlayAtivo && valor != null && valor !== ''
-      ? String(valor)
-      : podeEditar && !estaEditando && !overlayAtivo
-        ? 'Clique para editar'
-        : undefined
+    // Tooltip: só para células sem render customizado (texto puro).
+    // Células com render (badges, ícones) já são auto-descritivas.
+    // A descrição usa o valor bruto; fallback para dica de edição.
+    const tooltipDescr = !col.render && !estaEditando && !overlayAtivo
+      ? (valor != null && valor !== ''
+          ? String(valor)
+          : podeEditar ? 'Clique para editar' : undefined)
+      : undefined
 
+    // Para células com tooltip: o TooltipGlobal envolve um <span> simples.
+    // Para células sem tooltip: renderiza o conteúdo diretamente.
+    // Não usamos gtv-celula-conteudo (evita dependência circular de width).
     const celConteudo = tooltipDescr ? (
       <TooltipGlobal titulo={col.label} descricao={tooltipDescr}>
-        <span className="gtv-celula-conteudo">{innerContent}</span>
+        <span className="gtv-celula-text">{innerContent as string}</span>
       </TooltipGlobal>
     ) : (
-      <span className="gtv-celula-conteudo">{innerContent}</span>
+      <>{innerContent}</>
     )
 
     return (

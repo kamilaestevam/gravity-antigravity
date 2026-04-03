@@ -8,9 +8,9 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StatusSalvarGlobal } from '@nucleo/Feedback/status-salvar-global/src/index'
-import type { StatusSalvar } from '@nucleo/Feedback/status-salvar-global/src/index'
-import { CalendarioCampoGlobal } from '@nucleo/Campos/campo-calendario-global/src/CalendarioCampoGlobal'
+import { StatusSalvarGlobal } from '@nucleo/status-salvar-global'
+import type { StatusSalvar } from '@nucleo/status-salvar-global'
+import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import '../atividades.css'
 
 // ─── Constantes (espelham o Journey) ─────────────────────────────────────────

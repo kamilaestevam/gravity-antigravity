@@ -636,7 +636,37 @@
   padding-top: 1rem;
   border-top: 1px solid var(--bg-elevated);
 }
-.ativ-modal-actions__right { display: flex; gap: 0.5rem; }
+.ativ-modal-actions__right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Confirmação inline ao excluir */
+.ativ-confirm-del {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #f87171;
+}
+
+/* Aviso de fechar com alterações não salvas */
+.ativ-unsaved-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  color: #f59e0b;
+}
+.ativ-unsaved-warning span {
+  flex: 1;
+}
 
 /* ── Empty state ───────────────────────────────────────────────────────────── */
 .ativ-empty-state {

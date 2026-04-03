@@ -3173,7 +3173,10 @@
       "salvar": "💾 Save Changes",
       "salvando": "...",
       "confirmar_excluir": "Delete this activity?",
-      "titulo_obrigatorio": "Please enter a title for the activity."
+      "titulo_obrigatorio": "Please enter a title for the activity.",
+      "alteracoes_nao_salvas_fechar": "You have unsaved changes. Discard and close?",
+      "continuar_editando": "Continue editing",
+      "descartar_fechar": "Discard and close"
     }
   },
   "cronometro": {

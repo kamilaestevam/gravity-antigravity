@@ -3173,7 +3173,10 @@
       "salvar": "💾 Salvar Alterações",
       "salvando": "...",
       "confirmar_excluir": "Excluir esta atividade?",
-      "titulo_obrigatorio": "Informe um título para a atividade."
+      "titulo_obrigatorio": "Informe um título para a atividade.",
+      "alteracoes_nao_salvas_fechar": "Você tem alterações não salvas. Descartar e fechar?",
+      "continuar_editando": "Continuar editando",
+      "descartar_fechar": "Descartar e fechar"
     }
   },
   "cronometro": {

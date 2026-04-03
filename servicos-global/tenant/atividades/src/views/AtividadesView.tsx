@@ -8,6 +8,8 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { StatusSalvarGlobal } from '@nucleo/Feedback/status-salvar-global/src/index'
+import type { StatusSalvar } from '@nucleo/Feedback/status-salvar-global/src/index'
 import '../atividades.css'
 
 // ─── Constantes (espelham o Journey) ─────────────────────────────────────────
@@ -378,7 +380,7 @@ export default function AtividadesView(): React.ReactElement {
           onSave={async (data) => {
             const updated = await apiUpdate(modalAtv.id, data)
             setAtividades(prev => prev.map(a => a.id === modalAtv.id ? updated : a))
-            setModalAtvId(null)
+            // Modal fecha a si mesmo após exibir feedback de sucesso (setTimeout interno)
           }}
           onDelete={async () => {
             await apiDelete(modalAtv.id)
@@ -402,7 +404,7 @@ export default function AtividadesView(): React.ReactElement {
           onSave={async (data) => {
             const created = await apiCreate(data)
             setAtividades(prev => [created, ...prev])
-            setShowNewModal(false)
+            // Modal fecha a si mesmo após exibir feedback de sucesso
           }}
           onDelete={async () => { setShowNewModal(false) }}
           onSaveTimer={async () => { /* não aplica ao criar */ }}
@@ -664,8 +666,11 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
   const { t } = useTranslation()
   const isNew = !atividade
 
-  const [tab, setTab] = useState<ModalTab>('informacoes')
-  const [saving, setSaving] = useState(false)
+  const [tab,         setTab]         = useState<ModalTab>('informacoes')
+  const [saving,      setSaving]      = useState(false)
+  const [saveStatus,  setSaveStatus]  = useState<StatusSalvar>('idle')
+  const [tituloError, setTituloError] = useState('')
+  const [confirmDel,  setConfirmDel]  = useState(false)
 
   // Form state
   const [titulo,      setTitulo]      = useState(atividade?.titulo ?? '')
@@ -681,6 +686,20 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
   const [lemWpp,      setLemWpp]      = useState(atividade?.lembrete_whatsapp ?? false)
   const [participantes, setParticipantes] = useState<Participante[]>(atividade?.participantes ?? [])
   const [newPart,     setNewPart]     = useState('')
+
+  // Dirty — qualquer campo diferente do estado inicial
+  const isDirty = titulo !== (atividade?.titulo ?? '')
+    || descricao !== (atividade?.descricao ?? '')
+    || tipo !== (atividade?.tipo ?? 'Tarefa')
+    || status !== ((atividade?.status ?? 'A Fazer') as KanbanStatus)
+    || prioridade !== (atividade?.prioridade ?? '')
+    || dataAtvStr !== (atividade?.data_atividade ? new Date(atividade.data_atividade).toISOString().slice(0,16) : '')
+    || pPassoTit !== (atividade?.proximo_passo_titulo ?? '')
+    || pPassoData !== (atividade?.proximo_passo_data ? new Date(atividade.proximo_passo_data).toISOString().slice(0,10) : '')
+    || lembreteEm !== (atividade?.lembrete_em ? new Date(atividade.lembrete_em).toISOString().slice(0,16) : '')
+    || lemEmail !== (atividade?.lembrete_email ?? false)
+    || lemWpp !== (atividade?.lembrete_whatsapp ?? false)
+    || participantes.length !== (atividade?.participantes.length ?? 0)
 
   // Timer
   const [timerSec,    setTimerSec]    = useState(0)
@@ -716,12 +735,20 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
   // Cleanup timer on unmount
   useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current) }, [])
 
-  // Fecha com ESC
+  // Fecha com ESC — avisa se houver alterações não salvas
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isDirty) {
+          setSaveStatus('dirty')
+        } else {
+          onClose()
+        }
+      }
+    }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  }, [onClose, isDirty])
 
   function addParticipant() {
     const nome = newPart.trim()
@@ -735,8 +762,13 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
   }
 
   async function handleSave() {
-    if (!titulo.trim()) { alert(t('atividades.modal.titulo_obrigatorio')); return }
+    if (!titulo.trim()) {
+      setTituloError(t('atividades.modal.titulo_obrigatorio'))
+      return
+    }
+    setTituloError('')
     setSaving(true)
+    setSaveStatus('saving')
     try {
       await onSave({
         titulo,
@@ -752,6 +784,10 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
         lembrete_whatsapp:     lemWpp,
         participantes,
       } as Partial<Atividade>)
+      setSaveStatus('success')
+      setTimeout(() => onClose(), 1500)
+    } catch {
+      setSaveStatus('error')
     } finally {
       setSaving(false)
     }
@@ -845,8 +881,14 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                 <input
                   placeholder={t('atividades.modal.titulo_placeholder')}
                   value={titulo}
-                  onChange={e => setTitulo(e.target.value)}
+                  onChange={e => { setTitulo(e.target.value); if (tituloError) setTituloError('') }}
+                  style={tituloError ? { borderColor: '#ef4444' } : undefined}
                 />
+                {tituloError && (
+                  <span style={{ color: '#ef4444', fontSize: '0.78rem', marginTop: '0.25rem', display: 'block' }}>
+                    {tituloError}
+                  </span>
+                )}
               </div>
               <div className="ativ-field" style={{ marginBottom: '1rem' }}>
                 <label>{t('atividades.modal.descricao_label')}</label>
@@ -1019,17 +1061,64 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
           {/* Ações do Modal */}
           <div className="ativ-modal-actions">
             {!isNew ? (
-              <button className="ativ-btn-danger" onClick={async () => { if (confirm(t('atividades.modal.confirmar_excluir'))) await onDelete() }}>
-                {t('atividades.modal.excluir')}
-              </button>
+              confirmDel ? (
+                <div className="ativ-confirm-del">
+                  <span>{t('atividades.modal.confirmar_excluir')}</span>
+                  <button className="ativ-btn-secondary" onClick={() => setConfirmDel(false)}>
+                    {t('atividades.modal.cancelar')}
+                  </button>
+                  <button className="ativ-btn-danger" onClick={async () => { setConfirmDel(false); await onDelete() }}>
+                    {t('atividades.modal.excluir')}
+                  </button>
+                </div>
+              ) : (
+                <button className="ativ-btn-danger" onClick={() => setConfirmDel(true)}>
+                  {t('atividades.modal.excluir')}
+                </button>
+              )
             ) : <div />}
+
             <div className="ativ-modal-actions__right">
-              <button className="ativ-btn-secondary" onClick={onClose}>{t('atividades.modal.cancelar')}</button>
-              <button className="ativ-btn-primary" onClick={handleSave} disabled={saving}>
+              <StatusSalvarGlobal
+                status={isDirty && saveStatus === 'idle' ? 'dirty' : saveStatus}
+                textIdle="Sem alterações"
+                textDirty="Alterações não salvas"
+                textSaving={t('atividades.modal.salvando')}
+                textSuccess="Salvo com sucesso"
+                textError="Erro ao salvar"
+                hideOnIdle={false}
+                autoResetMs={0}
+              />
+              <button
+                className="ativ-btn-secondary"
+                onClick={() => {
+                  if (isDirty && saveStatus !== 'success') {
+                    setSaveStatus('dirty')
+                  } else {
+                    onClose()
+                  }
+                }}
+              >
+                {t('atividades.modal.cancelar')}
+              </button>
+              <button className="ativ-btn-primary" onClick={handleSave} disabled={saving || saveStatus === 'success'}>
                 {saving ? t('atividades.modal.salvando') : t('atividades.modal.salvar')}
               </button>
             </div>
           </div>
+
+          {/* Aviso de fechar com alterações não salvas */}
+          {saveStatus === 'dirty' && (
+            <div className="ativ-unsaved-warning">
+              <span>{t('atividades.modal.alteracoes_nao_salvas_fechar')}</span>
+              <button className="ativ-btn-secondary" onClick={() => setSaveStatus('idle')}>
+                {t('atividades.modal.continuar_editando')}
+              </button>
+              <button className="ativ-btn-danger" onClick={onClose}>
+                {t('atividades.modal.descartar_fechar')}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

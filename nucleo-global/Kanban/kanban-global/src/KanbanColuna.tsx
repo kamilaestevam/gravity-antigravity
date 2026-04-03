@@ -105,8 +105,14 @@ export function KanbanColuna({
       data-testid={`${testIdPrefix}-column`}
       data-column-key={coluna.key}
     >
-      {/* ── Cabeçalho ─────────────────────────────────────────────────────── */}
-      <div className="kg-coluna-header">
+      {/* ── Cabeçalho — gradiente + borda colorida por coluna ────────────── */}
+      <div
+        className="kg-coluna-header"
+        style={{
+          background:   `linear-gradient(135deg, ${coluna.color}14 0%, transparent 65%)`,
+          borderBottom: `2px solid ${coluna.color}50`,
+        }}
+      >
         <div className="kg-coluna-titulo">
           {coluna.icon}
           <span className="kg-coluna-titulo-label">{coluna.label}</span>

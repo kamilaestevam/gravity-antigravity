@@ -34,7 +34,8 @@ html, body, #root {
   align-items: center;
   justify-content: space-between;
   padding: 0.875rem 1.5rem;
-  border-bottom: 1px solid var(--dark-border);
+  background: #0d1525;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
@@ -92,19 +93,20 @@ html, body, #root {
 .demo-search {
   width: 100%;
   padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--dark-border);
+  background: #1a2744;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  color: var(--text-main);
+  color: #f1f5f9;
   font-size: 0.875rem;
   outline: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   font-family: inherit;
 }
 
 .demo-search:focus {
-  border-color: rgba(99, 102, 241, 0.5);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(99, 102, 241, 0.6);
+  background: #1e2d42;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
 
 .demo-search::placeholder {
@@ -130,34 +132,39 @@ html, body, #root {
 /* ── Card ──────────────────────────────────────────────────────────────────── */
 
 .kb-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--dark-border);
+  /* Camada 3: card claramente acima da coluna (#131d2e) */
+  background: #1e2d42;
+  border: 1px solid rgba(255, 255, 255, 0.11);
   border-radius: 10px;
-  padding: 0.85rem;
+  padding: 0.875rem;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
   user-select: none;
 }
 
 .kb-card:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(99, 102, 241, 0.3);
+  background: #253650;
+  border-color: rgba(99, 102, 241, 0.45);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(99, 102, 241, 0.15);
 }
 
 .kb-card-prioridade {
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
+  top: 0.65rem;
+  right: 0.65rem;
   border-radius: 20px;
-  padding: 0.1rem 0.5rem;
-  font-size: 0.7rem;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.68rem;
   font-weight: 700;
   line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 .kb-card-empresa {
@@ -165,15 +172,15 @@ html, body, #root {
   align-items: center;
   gap: 0.3rem;
   font-size: 0.7rem;
-  color: var(--text-muted);
+  color: #7c8fa6;
   padding-right: 4.5rem;
 }
 
 .kb-card-nome {
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   line-height: 1.4;
-  color: var(--text-main);
+  color: #f1f5f9;
   padding-right: 4.5rem;
 }
 
@@ -182,11 +189,11 @@ html, body, #root {
   align-items: center;
   gap: 0.3rem;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #7c8fa6;
 }
 
 .kb-card-atrasado {
-  color: #ef4444;
+  color: #f87171;
   font-weight: 600;
 }
 
@@ -194,9 +201,9 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .kb-card-responsavel,
@@ -204,12 +211,13 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.69rem;
-  color: var(--text-muted);
+  font-size: 0.7rem;
+  color: #7c8fa6;
 }
 
 .kb-card-valor {
-  color: rgba(99, 102, 241, 0.8);
+  color: #818cf8;
+  font-weight: 600;
 }
 
 .kb-card-hint {
@@ -217,8 +225,7 @@ html, body, #root {
   align-items: center;
   gap: 0.2rem;
   font-size: 0.68rem;
-  color: var(--text-muted);
-  opacity: 0.6;
+  color: #4a5568;
   margin-top: 0.1rem;
 }
 

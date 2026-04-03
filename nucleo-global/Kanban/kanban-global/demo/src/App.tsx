@@ -124,7 +124,7 @@ function DemoCard({ item }: { item: ItemDemo }) {
   )
 
   return (
-    <div className="kb-card" style={{ borderLeft: `3px solid ${pc}` }}>
+    <div className="kb-card" style={{ borderLeft: `4px solid ${pc}` }}>
       <span
         className="kb-card-prioridade"
         style={{ background: pc + '20', color: pc, border: `1px solid ${pc}44` }}

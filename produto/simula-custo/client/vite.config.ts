@@ -56,8 +56,10 @@ export default defineConfig({
       // ── Tabelas ──
       '@nucleo/tabela-global':                     nucleo('Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':             nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
+      '@nucleo/tabela-virtual-global':             nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils':                             nucleo('Utilidades/utils/src/index.ts'),
+      '@nucleo/export-utils':                      nucleo('Utilidades/export-utils/exportUtils.ts'),
       // ── Shell / serviços ──
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@shell':   path.resolve(monorepoRoot, 'servicos-global/shell'),
@@ -76,6 +78,7 @@ export default defineConfig({
       'i18next',
       '@phosphor-icons/react',
       '@clerk/clerk-react',
+      '@tanstack/react-virtual',
     ],
   },
 

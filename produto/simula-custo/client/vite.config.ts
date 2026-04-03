@@ -80,6 +80,7 @@ export default defineConfig({
       '@phosphor-icons/react',
       '@clerk/clerk-react',
       '@tanstack/react-virtual',
+      'exceljs',
     ],
   },
 

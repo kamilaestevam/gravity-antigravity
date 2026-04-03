@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -116,6 +117,7 @@ type TabKey = 'info' | 'precos' | 'avaliacoes'
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function DetalheFornecedor() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { id } = useParams()
   const [fornecedor, setFornecedor] = useState<Fornecedor | null>(null)
@@ -150,7 +152,7 @@ export default function DetalheFornecedor() {
   const colunasPrecos: TabelaGlobalColuna<TabelaPreco>[] = [
     {
       key: 'origem_nome',
-      label: 'Origem → Destino',
+      label: t('bidfrete.detalhe_fornecedor.col_rota'),
       tipo: 'texto',
       largura: 240,
       render: (_val: string, item: TabelaPreco) => (
@@ -161,27 +163,27 @@ export default function DetalheFornecedor() {
     },
     {
       key: 'modal',
-      label: 'Modal',
+      label: t('bidfrete.detalhe_fornecedor.col_modal'),
       tipo: 'texto',
       largura: 100,
       render: (val: ModalFrete) => MODAL_LABELS[val] ?? val,
     },
     {
       key: 'modalidade',
-      label: 'Modalidade',
+      label: t('bidfrete.detalhe_fornecedor.col_modalidade'),
       tipo: 'texto',
       largura: 100,
       render: (val: ModalidadeCarga) => MODALIDADE_LABELS[val] ?? val,
     },
     {
       key: 'moeda',
-      label: 'Moeda',
+      label: t('bidfrete.detalhe_fornecedor.col_moeda'),
       tipo: 'texto',
       largura: 70,
     },
     {
       key: 'valor_frete',
-      label: 'Frete',
+      label: t('bidfrete.detalhe_fornecedor.col_frete'),
       tipo: 'numero',
       largura: 110,
       align: 'right',
@@ -193,7 +195,7 @@ export default function DetalheFornecedor() {
     },
     {
       key: 'taxas_origem',
-      label: 'Taxas',
+      label: t('bidfrete.detalhe_fornecedor.col_taxas'),
       tipo: 'numero',
       largura: 110,
       align: 'right',
@@ -205,17 +207,17 @@ export default function DetalheFornecedor() {
     },
     {
       key: 'transit_time_dias',
-      label: 'Transit Time',
+      label: t('bidfrete.detalhe_fornecedor.col_transit'),
       tipo: 'numero',
       largura: 100,
       align: 'right',
       render: (val: number) => (
-        <span style={{ fontSize: '0.8125rem' }}>{val} dias</span>
+        <span style={{ fontSize: '0.8125rem' }}>{val} {t('bidfrete.detalhe_cotacao.dias')}</span>
       ),
     },
     {
       key: 'validade_fim',
-      label: 'Validade',
+      label: t('bidfrete.detalhe_fornecedor.col_validade'),
       tipo: 'periodo',
       largura: 110,
       render: (val: string) => dataBR(val),
@@ -239,9 +241,9 @@ export default function DetalheFornecedor() {
   // ─── Render ───────────────────────────────────────────────────────────
 
   const TABS: { key: TabKey; label: string; count?: number }[] = [
-    { key: 'info', label: 'Informacoes' },
-    { key: 'precos', label: 'Tabela de Precos', count: tabela.length },
-    { key: 'avaliacoes', label: 'Avaliacoes', count: avaliacoes.length },
+    { key: 'info', label: t('bidfrete.detalhe_fornecedor.tab_info') },
+    { key: 'precos', label: t('bidfrete.detalhe_fornecedor.tab_precos'), count: tabela.length },
+    { key: 'avaliacoes', label: t('bidfrete.detalhe_fornecedor.tab_avaliacoes'), count: avaliacoes.length },
   ]
 
   return (
@@ -250,14 +252,14 @@ export default function DetalheFornecedor() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Buildings weight="duotone" size={22} />}
-          titulo={fornecedor?.nome ?? 'Carregando...'}
+          titulo={fornecedor?.nome ?? t('bidfrete.detalhe_fornecedor.carregando')}
           subtitulo={fornecedor?.nome_fantasia ?? undefined}
           acoes={
             <button
               className="btn btn-secondary"
               onClick={() => navigate('/fornecedores')}
             >
-              <ArrowLeft weight="bold" size={14} /> Voltar
+              <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
             </button>
           }
         />
@@ -268,7 +270,7 @@ export default function DetalheFornecedor() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           height: '40vh', color: 'var(--text-muted, #64748b)', fontSize: '0.875rem',
         }}>
-          Carregando fornecedor...
+          {t('bidfrete.detalhe_fornecedor.carregando')}
         </div>
       ) : fornecedor ? (
         <>
@@ -276,7 +278,7 @@ export default function DetalheFornecedor() {
           <div className="bf-det-metrics">
             <div className="bf-det-metric">
               <div className="bf-det-metric-icon"><Star weight="duotone" size={18} style={{ color: 'var(--warning, #f59e0b)' }} /></div>
-              <div className="bf-det-metric-label">Rating Global</div>
+              <div className="bf-det-metric-label">{t('bidfrete.detalhe_fornecedor.rating_global')}</div>
               <div className="bf-det-metric-value">
                 {fornecedor.rating_global != null ? fornecedor.rating_global.toFixed(1) : '—'}
               </div>
@@ -284,28 +286,28 @@ export default function DetalheFornecedor() {
             </div>
             <div className="bf-det-metric">
               <div className="bf-det-metric-icon"><Percent weight="duotone" size={18} style={{ color: 'var(--accent, #6366f1)' }} /></div>
-              <div className="bf-det-metric-label">Taxa Resposta</div>
+              <div className="bf-det-metric-label">{t('bidfrete.detalhe_fornecedor.taxa_resposta')}</div>
               <div className="bf-det-metric-value">
                 {fornecedor.taxa_resposta != null ? `${fornecedor.taxa_resposta.toFixed(0)}%` : '—'}
               </div>
             </div>
             <div className="bf-det-metric">
               <div className="bf-det-metric-icon"><ChartBar weight="duotone" size={18} style={{ color: 'var(--success, #22c55e)' }} /></div>
-              <div className="bf-det-metric-label">Taxa Aprovacao</div>
+              <div className="bf-det-metric-label">{t('bidfrete.detalhe_fornecedor.taxa_aprovacao')}</div>
               <div className="bf-det-metric-value">
                 {fornecedor.taxa_aprovacao != null ? `${fornecedor.taxa_aprovacao.toFixed(0)}%` : '—'}
               </div>
             </div>
             <div className="bf-det-metric">
               <div className="bf-det-metric-icon"><Timer weight="duotone" size={18} style={{ color: 'var(--warning, #f59e0b)' }} /></div>
-              <div className="bf-det-metric-label">Tempo Medio Resposta</div>
+              <div className="bf-det-metric-label">{t('bidfrete.detalhe_fornecedor.tempo_medio')}</div>
               <div className="bf-det-metric-value">
                 {fornecedor.tempo_medio_resposta != null ? `${fornecedor.tempo_medio_resposta}h` : '—'}
               </div>
             </div>
             <div className="bf-det-metric">
               <div className="bf-det-metric-icon"><FileText weight="duotone" size={18} style={{ color: 'var(--text-secondary, #94a3b8)' }} /></div>
-              <div className="bf-det-metric-label">Total Cotacoes</div>
+              <div className="bf-det-metric-label">{t('bidfrete.detalhe_fornecedor.total_cotacoes')}</div>
               <div className="bf-det-metric-value">{fornecedor.total_cotacoes}</div>
             </div>
           </div>
@@ -332,7 +334,7 @@ export default function DetalheFornecedor() {
               <div className="bf-det-info-grid">
                 <InfoField
                   icon={<Buildings weight="duotone" size={16} />}
-                  label="Tipo"
+                  label={t('bidfrete.detalhe_fornecedor.field_tipo')}
                   value={
                     <Badge
                       label={TIPO_FORNECEDOR_LABELS[fornecedor.tipo]}
@@ -343,27 +345,27 @@ export default function DetalheFornecedor() {
                 />
                 <InfoField
                   icon={<IdentificationCard weight="duotone" size={16} />}
-                  label="CNPJ"
+                  label={t('bidfrete.detalhe_fornecedor.field_cnpj')}
                   value={fornecedor.cnpj ?? '—'}
                 />
                 <InfoField
                   icon={<EnvelopeSimple weight="duotone" size={16} />}
-                  label="Email"
+                  label={t('bidfrete.detalhe_fornecedor.field_email')}
                   value={fornecedor.email}
                 />
                 <InfoField
                   icon={<Phone weight="duotone" size={16} />}
-                  label="Telefone"
+                  label={t('bidfrete.detalhe_fornecedor.field_telefone')}
                   value={fornecedor.telefone ?? '—'}
                 />
                 <InfoField
                   icon={<WhatsappLogo weight="duotone" size={16} />}
-                  label="WhatsApp"
+                  label={t('bidfrete.detalhe_fornecedor.field_whatsapp')}
                   value={fornecedor.whatsapp ?? '—'}
                 />
                 <InfoField
                   icon={<Globe weight="duotone" size={16} />}
-                  label="Website"
+                  label={t('bidfrete.detalhe_fornecedor.field_website')}
                   value={fornecedor.website ? (
                     <a
                       href={fornecedor.website}
@@ -377,12 +379,12 @@ export default function DetalheFornecedor() {
                 />
                 <InfoField
                   icon={<Flag weight="duotone" size={16} />}
-                  label="Pais"
+                  label={t('bidfrete.detalhe_fornecedor.field_pais')}
                   value={fornecedor.pais ?? '—'}
                 />
                 <InfoField
                   icon={<MapPin weight="duotone" size={16} />}
-                  label="Cidade"
+                  label={t('bidfrete.detalhe_fornecedor.field_cidade')}
                   value={fornecedor.cidade ?? '—'}
                 />
                 <InfoField
@@ -390,7 +392,7 @@ export default function DetalheFornecedor() {
                     ? <CheckCircle weight="duotone" size={16} />
                     : <XCircle weight="duotone" size={16} />
                   }
-                  label="Status"
+                  label={t('bidfrete.detalhe_fornecedor.field_status')}
                   value={
                     <Badge
                       label={STATUS_FORNECEDOR_LABELS[fornecedor.status]}
@@ -401,17 +403,17 @@ export default function DetalheFornecedor() {
                 />
                 <InfoField
                   icon={<CheckCircle weight="duotone" size={16} />}
-                  label="Aceita cotacao aberta"
-                  value={fornecedor.aceita_cotacao_aberta ? 'Sim' : 'Nao'}
+                  label={t('bidfrete.detalhe_fornecedor.field_aceita_aberta')}
+                  value={fornecedor.aceita_cotacao_aberta ? t('bidfrete.detalhe_fornecedor.sim') : t('bidfrete.detalhe_fornecedor.nao')}
                 />
                 <InfoField
                   icon={<Timer weight="duotone" size={16} />}
-                  label="Resposta automatica"
-                  value={fornecedor.resposta_automatica ? 'Sim' : 'Nao'}
+                  label={t('bidfrete.detalhe_fornecedor.field_resposta_automatica')}
+                  value={fornecedor.resposta_automatica ? t('bidfrete.detalhe_fornecedor.sim') : t('bidfrete.detalhe_fornecedor.nao')}
                 />
                 <InfoField
                   icon={<FileText weight="duotone" size={16} />}
-                  label="Cadastrado em"
+                  label={t('bidfrete.detalhe_fornecedor.field_cadastrado_em')}
                   value={dataBR(fornecedor.created_at)}
                 />
               </div>
@@ -425,8 +427,8 @@ export default function DetalheFornecedor() {
                   colunas={colunasPrecos}
                   idKey="id"
                   carregando={false}
-                  mensagemVazio="Nenhuma tabela de precos cadastrada"
-                  tooltipBusca="Buscar por origem ou destino"
+                  mensagemVazio={t('bidfrete.detalhe_fornecedor.vazio_precos')}
+                  tooltipBusca={t('bidfrete.detalhe_fornecedor.buscar_precos')}
                 />
               </div>
             )}
@@ -437,7 +439,7 @@ export default function DetalheFornecedor() {
                 {avaliacoes.length === 0 ? (
                   <div className="bf-det-avaliacao-empty">
                     <Star weight="duotone" size={32} style={{ opacity: 0.3, color: 'var(--text-muted)' }} />
-                    <span>Nenhuma avaliacao registrada</span>
+                    <span>{t('bidfrete.detalhe_fornecedor.vazio_avaliacoes')}</span>
                   </div>
                 ) : (
                   avaliacoes.map(av => (
@@ -449,19 +451,19 @@ export default function DetalheFornecedor() {
                       </div>
                       <div className="bf-det-avaliacao-cats">
                         <div className="bf-det-avaliacao-cat">
-                          <span className="bf-det-avaliacao-cat-label">Frete</span>
+                          <span className="bf-det-avaliacao-cat-label">{t('bidfrete.detalhe_fornecedor.cat_frete')}</span>
                           <Stars rating={av.nota_frete} size={12} />
                         </div>
                         <div className="bf-det-avaliacao-cat">
-                          <span className="bf-det-avaliacao-cat-label">Atendimento</span>
+                          <span className="bf-det-avaliacao-cat-label">{t('bidfrete.detalhe_fornecedor.cat_atendimento')}</span>
                           <Stars rating={av.nota_atendimento} size={12} />
                         </div>
                         <div className="bf-det-avaliacao-cat">
-                          <span className="bf-det-avaliacao-cat-label">Prazo</span>
+                          <span className="bf-det-avaliacao-cat-label">{t('bidfrete.detalhe_fornecedor.cat_prazo')}</span>
                           <Stars rating={av.nota_prazo} size={12} />
                         </div>
                         <div className="bf-det-avaliacao-cat">
-                          <span className="bf-det-avaliacao-cat-label">Confiabilidade</span>
+                          <span className="bf-det-avaliacao-cat-label">{t('bidfrete.detalhe_fornecedor.cat_confiabilidade')}</span>
                           <Stars rating={av.nota_confiabilidade} size={12} />
                         </div>
                       </div>
@@ -482,7 +484,7 @@ export default function DetalheFornecedor() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           height: '40vh', color: 'var(--text-muted, #64748b)', fontSize: '0.875rem',
         }}>
-          Fornecedor nao encontrado
+          {t('bidfrete.detalhe_fornecedor.nao_encontrado')}
         </div>
       )}
 

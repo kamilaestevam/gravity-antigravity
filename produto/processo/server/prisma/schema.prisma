@@ -1,9 +1,13 @@
+// schema.prisma — GERADO AUTOMATICAMENTE por compose-schema.js
+// NAO EDITAR DIRETAMENTE. Edite schema.base.prisma ou fragment.prisma.
+
 // schema.base.prisma — Processo
 // Composto via scripts/compose-schema.js -> gera schema.prisma final
 // Skill: antigravity-criar-produto (Passo 8)
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated"
 }
 
 datasource db {
@@ -13,6 +17,8 @@ datasource db {
 
 // Modelos especificos do Processo sao definidos em fragment.prisma
 // e compostos automaticamente pelo script compose-schema.js
+
+
 // fragment.prisma — Processo
 // Composto via scripts/compose-schema.js no schema final do produto.
 // REGRA: todo model DEVE ter tenant_id (snake_case) e os indices obrigatorios.
@@ -82,10 +88,15 @@ model Pedido {
   numero          String   // Numero da PO
   exportador_nome String?
   exportador_pais String?  // ISO 2 letras
-  valor_fob       Float    @default(0)
+  valor_fob       Decimal  @default(0) @db.Decimal(18,6)
   moeda           String   @default("USD")
-  peso_bruto      Float    @default(0)
+  peso_bruto      Decimal  @default(0) @db.Decimal(18,6)
   status          String   @default("pendente") // pendente | confirmado | embarcado
+  status_id       String?  // FK to PedidoStatus (null = status built-in)
+  campos_custom   Json?    // Colunas customizadas do tenant (JSONB + GIN index)
+
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   processo        Processo     @relation(fields: [processo_id], references: [id], onDelete: Cascade)
   itens           PedidoItem[]
@@ -93,6 +104,8 @@ model Pedido {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, processo_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, status_id])
   @@map("pedidos")
 }
 
@@ -106,12 +119,16 @@ model PedidoItem {
   numero_item    String  // Numero sequencial do item
   descricao      String
   ncm            String? // NCM do item
-  quantidade     Float   @default(0)
+  quantidade     Decimal @default(0) @db.Decimal(18,6)
   unidade        String  @default("UN") // UN | KG | M | etc
-  valor_unitario Float   @default(0)
-  valor_total    Float   @default(0)
+  valor_unitario Decimal @default(0) @db.Decimal(18,6)
+  valor_total    Decimal @default(0) @db.Decimal(18,6)
   moeda          String  @default("USD")
   status_li      String  @default("pendente") // pendente | deferida | indeferida
+  campos_custom  Json?   // Colunas customizadas do tenant
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
 
   pedido         Pedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
 
@@ -235,4 +252,89 @@ model DadosTecnicos {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@map("dados_tecnicos")
+}
+
+// ─── Configuração da Tabela de Pedidos ─────────────────────────────────────────
+
+// Status customizáveis por tenant (geram as "abas" da tabela)
+model PedidoStatus {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+
+  nome       String   // slug: "aguardando_embarque"
+  rotulo     String   // label: "Aguardando Embarque"
+  cor        String   // hex: "#6366F1"
+  icone      String?
+  ordem      Int      @default(0)
+  is_padrao  Boolean  @default(false)
+  is_sistema Boolean  @default(false) // built-in — não pode ser deletado
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_status")
+}
+
+// Colunas customizadas criadas pelo tenant (máx 30)
+model PedidoColuna {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+
+  nome           String   // slug interno (imutável após criação)
+  rotulo         String   // label exibido ao usuário
+  tipo           String   // 'texto' | 'numero' | 'data' | 'select' | 'booleano'
+  casas_decimais Int      @default(2)
+  opcoes         Json?    // para tipo 'select': [{valor, rotulo}]
+  ordem          Int      @default(0)
+  filtravel      Boolean  @default(true)
+  exibida_padrao Boolean  @default(false)
+  index_criado   Boolean  @default(false) // expression index no PG
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_colunas")
+}
+
+// Preferência de colunas por usuário (cross-device, no banco)
+model PedidoPreferenciaUsuario {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String
+
+  colunas_visiveis String[]
+  colunas_largura  Json?    // { key: larguraEmPx }
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("pedido_preferencias_usuario")
+}
+
+// Preferência padrão de colunas por workspace (fallback)
+model PedidoPreferenciaPadrao {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+
+  colunas_visiveis String[]
+  colunas_largura  Json?
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_preferencias_padrao")
 }

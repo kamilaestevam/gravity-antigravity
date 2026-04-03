@@ -10,6 +10,7 @@ import {
   Rocket,
   Star,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 
 const PRODUCTS: Record<string, {
   name: string
@@ -117,6 +118,7 @@ const PRODUCTS: Record<string, {
 }
 
 export function ProdutoDetalhe() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
 
@@ -130,10 +132,10 @@ export function ProdutoDetalhe() {
   if (!product) {
     return (
       <div style={{ textAlign: 'center', padding: '6rem 1.5rem' }}>
-        <p style={{ fontSize: '5rem', fontWeight: 800, color: 'var(--bg-elevated)', lineHeight: 1 }}>404</p>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>Produto nao encontrado</h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>O produto que voce procura nao existe no catalogo.</p>
-        <Link to="/produtos" className="btn btn-primary">Ver Todos os Produtos</Link>
+        <p style={{ fontSize: '5rem', fontWeight: 800, color: 'var(--bg-elevated)', lineHeight: 1 }}>{t('marketplace.produto_detalhe.nao_encontrado_404')}</p>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '1rem 0 0.5rem' }}>{t('marketplace.produto_detalhe.nao_encontrado_titulo')}</h1>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{t('marketplace.produto_detalhe.nao_encontrado_desc')}</p>
+        <Link to="/produtos" className="btn btn-primary">{t('marketplace.produto_detalhe.ver_todos')}</Link>
       </div>
     )
   }
@@ -145,7 +147,7 @@ export function ProdutoDetalhe() {
         <div className="container">
           <Link to="/produtos" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem', textDecoration: 'none' }}>
             <ArrowLeft size={14} />
-            Voltar para Produtos
+            {t('marketplace.produto_detalhe.voltar')}
           </Link>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1rem' }}>
@@ -177,7 +179,7 @@ export function ProdutoDetalhe() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
                   }}>
-                    Em breve
+                    {t('marketplace.produto_detalhe.em_breve')}
                   </span>
                 )}
               </div>
@@ -191,7 +193,7 @@ export function ProdutoDetalhe() {
                 <Star key={i} size={14} color={i < Math.floor(product.rating) ? 'var(--warning)' : 'var(--bg-elevated)'} weight="fill" />
               ))}
             </div>
-            <span style={{ color: 'var(--text-muted)' }}>{product.rating} ({product.reviews} avaliacoes)</span>
+            <span style={{ color: 'var(--text-muted)' }}>{product.rating} ({product.reviews} {t('marketplace.produto_detalhe.avaliacoes')})</span>
           </div>
         </div>
       </section>
@@ -209,7 +211,7 @@ export function ProdutoDetalhe() {
             ))}
           </div>
 
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>Recursos inclusos</h2>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>{t('marketplace.produto_detalhe.recursos')}</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2.5rem' }}>
             {product.features.map(f => (
               <div key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -227,7 +229,7 @@ export function ProdutoDetalhe() {
                 className="btn btn-primary btn-lg"
                 style={{ justifyContent: 'center' }}
               >
-                Entrar na Waitlist
+                {t('marketplace.produto_detalhe.entrar_waitlist')}
               </a>
             ) : (
               <>
@@ -237,10 +239,10 @@ export function ProdutoDetalhe() {
                   style={{ justifyContent: 'center' }}
                 >
                   <Rocket size={18} weight="duotone" />
-                  Comecar Trial Gratis
+                  {t('marketplace.produto_detalhe.comecar_trial')}
                 </Link>
                 <Link to="/precos" className="btn btn-secondary btn-lg">
-                  Ver Precos
+                  {t('marketplace.produto_detalhe.ver_precos')}
                   <ArrowRight size={15} />
                 </Link>
               </>

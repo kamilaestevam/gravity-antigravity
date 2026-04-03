@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Truck,
   CheckCircle,
@@ -62,6 +63,7 @@ const MODAL_ICONS: Record<ModalFrete, React.ReactNode> = {
 
 export default function ResponderPublico() {
   const { token } = useParams()
+  const { t } = useTranslation()
 
   const [pageState, setPageState] = useState<PageState>('loading')
   const [cotacao, setCotacao] = useState<CotacaoPublica | null>(null)
@@ -120,7 +122,7 @@ export default function ResponderPublico() {
     if (!token) return
 
     if (!form.valor_frete || !form.transit_time_dias || !form.validade) {
-      setErro('Preencha os campos obrigatorios: Valor Frete, Transit Time e Validade')
+      setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
       return
     }
 
@@ -156,7 +158,7 @@ export default function ResponderPublico() {
       <div className="rp-fullscreen">
         <div className="rp-card rp-card--center">
           <Truck weight="duotone" size={48} style={{ color: 'var(--accent, #6366f1)', opacity: 0.5 }} />
-          <p className="rp-text-muted">Carregando cotacao...</p>
+          <p className="rp-text-muted">{t('bidfrete.portal.publico.carregando')}</p>
         </div>
         <style>{rpStyles}</style>
       </div>
@@ -168,13 +170,9 @@ export default function ResponderPublico() {
       <div className="rp-fullscreen">
         <div className="rp-card rp-card--center">
           <WarningCircle weight="duotone" size={64} style={{ color: 'var(--danger, #ef4444)' }} />
-          <h2 className="rp-title">Link Invalido ou Expirado</h2>
-          <p className="rp-text-muted">
-            Este link de cotacao nao e mais valido. Ele pode ter expirado ou ja ter sido utilizado.
-          </p>
-          <p className="rp-text-muted">
-            Entre em contato com o comprador para solicitar um novo link.
-          </p>
+          <h2 className="rp-title">{t('bidfrete.portal.publico.invalido_titulo')}</h2>
+          <p className="rp-text-muted">{t('bidfrete.portal.publico.invalido_desc')}</p>
+          <p className="rp-text-muted">{t('bidfrete.portal.publico.invalido_contato')}</p>
         </div>
         <style>{rpStyles}</style>
       </div>
@@ -186,11 +184,8 @@ export default function ResponderPublico() {
       <div className="rp-fullscreen">
         <div className="rp-card rp-card--center">
           <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success, #22c55e)' }} />
-          <h2 className="rp-title">Obrigado pela sua proposta</h2>
-          <p className="rp-text-muted">
-            Sua resposta foi enviada com sucesso e sera analisada pelo comprador.
-            Voce sera notificado sobre o resultado.
-          </p>
+          <h2 className="rp-title">{t('bidfrete.portal.publico.obrigado_titulo')}</h2>
+          <p className="rp-text-muted">{t('bidfrete.portal.publico.obrigado_desc')}</p>
         </div>
         <style>{rpStyles}</style>
       </div>
@@ -206,41 +201,41 @@ export default function ResponderPublico() {
         <div className="rp-header">
           <Truck weight="duotone" size={32} style={{ color: 'var(--accent, #6366f1)' }} />
           <div>
-            <h1 className="rp-title">BID Frete — Resposta de Cotacao</h1>
+            <h1 className="rp-title">BID Frete — {t('bidfrete.portal.responder.titulo')}</h1>
             {cotacao?.fornecedor_nome && (
-              <p className="rp-text-muted">Bem-vindo, {cotacao.fornecedor_nome}</p>
+              <p className="rp-text-muted">{cotacao.fornecedor_nome}</p>
             )}
           </div>
         </div>
 
         {/* Quote Details */}
         <div className="rp-details">
-          <h3 className="rp-section-title">Detalhes da Cotacao</h3>
+          <h3 className="rp-section-title">{t('bidfrete.portal.responder.detalhes')}</h3>
           <div className="rp-detail-grid">
             <div className="rp-detail-item">
-              <span className="rp-detail-label">Numero</span>
+              <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_numero')}</span>
               <span className="rp-detail-value rp-mono">{cotacao?.numero ?? '—'}</span>
             </div>
             <div className="rp-detail-item">
-              <span className="rp-detail-label">Rota</span>
+              <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_rota')}</span>
               <span className="rp-detail-value">
                 <MapPin weight="duotone" size={14} />
                 {cotacao?.origem_nome ?? '—'} &rarr; {cotacao?.destino_nome ?? '—'}
               </span>
             </div>
             <div className="rp-detail-item">
-              <span className="rp-detail-label">Modal</span>
+              <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_modal')}</span>
               <span className="rp-detail-value">
                 {cotacao?.modal ? MODAL_ICONS[cotacao.modal] : null}
                 {cotacao?.modal ? MODAL_LABELS[cotacao.modal] : '—'}
               </span>
             </div>
             <div className="rp-detail-item">
-              <span className="rp-detail-label">Incoterm</span>
+              <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_incoterm')}</span>
               <span className="rp-detail-value">{cotacao?.incoterm ?? '—'}</span>
             </div>
             <div className="rp-detail-item rp-detail-wide">
-              <span className="rp-detail-label">Carga</span>
+              <span className="rp-detail-label">{t('bidfrete.portal.responder.campo_carga')}</span>
               <span className="rp-detail-value">
                 <Package weight="duotone" size={14} />
                 {cotacao?.descricao_mercadoria ?? '—'}
@@ -253,16 +248,16 @@ export default function ResponderPublico() {
 
         {/* Response Form */}
         <form className="rp-form" onSubmit={handleSubmit}>
-          <h3 className="rp-section-title">Sua Proposta</h3>
+          <h3 className="rp-section-title">{t('bidfrete.portal.responder.proposta')}</h3>
           <div className="rp-form-grid">
             <div className="rp-field">
-              <label className="rp-label">Moeda *</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_moeda')}</label>
               <select className="rp-input" value={form.moeda} onChange={e => handleChange('moeda', e.target.value)}>
                 {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div className="rp-field">
-              <label className="rp-label">Valor Frete *</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_valor_frete')}</label>
               <input
                 className="rp-input rp-input--mono"
                 type="number"
@@ -274,7 +269,7 @@ export default function ResponderPublico() {
               />
             </div>
             <div className="rp-field">
-              <label className="rp-label">Taxas Origem</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_taxas_origem')}</label>
               <input
                 className="rp-input rp-input--mono"
                 type="number"
@@ -286,7 +281,7 @@ export default function ResponderPublico() {
               />
             </div>
             <div className="rp-field">
-              <label className="rp-label">Taxas Destino</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_taxas_destino')}</label>
               <input
                 className="rp-input rp-input--mono"
                 type="number"
@@ -299,7 +294,7 @@ export default function ResponderPublico() {
             </div>
 
             <div className="rp-field rp-field--wide">
-              <label className="rp-label">Total</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_total')}</label>
               <div className="rp-total-display">
                 <CurrencyDollar weight="duotone" size={18} />
                 <span className="rp-total-valor">{form.moeda} {fmtTotal}</span>
@@ -307,7 +302,7 @@ export default function ResponderPublico() {
             </div>
 
             <div className="rp-field">
-              <label className="rp-label">Transit Time (dias) *</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_transit')}</label>
               <input
                 className="rp-input rp-input--mono"
                 type="number"
@@ -318,7 +313,7 @@ export default function ResponderPublico() {
               />
             </div>
             <div className="rp-field">
-              <label className="rp-label">Free Time (dias)</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_free_time')}</label>
               <input
                 className="rp-input rp-input--mono"
                 type="number"
@@ -329,7 +324,7 @@ export default function ResponderPublico() {
               />
             </div>
             <div className="rp-field">
-              <label className="rp-label">Validade *</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_validade')}</label>
               <input
                 className="rp-input"
                 type="date"
@@ -338,7 +333,7 @@ export default function ResponderPublico() {
               />
             </div>
             <div className="rp-field">
-              <label className="rp-label">Transbordos</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_transbordos')}</label>
               <input
                 className="rp-input rp-input--mono"
                 type="number"
@@ -349,7 +344,7 @@ export default function ResponderPublico() {
               />
             </div>
             <div className="rp-field">
-              <label className="rp-label">Escalas</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_escalas')}</label>
               <input
                 className="rp-input"
                 type="text"
@@ -359,7 +354,7 @@ export default function ResponderPublico() {
               />
             </div>
             <div className="rp-field rp-field--wide">
-              <label className="rp-label">Observacoes</label>
+              <label className="rp-label">{t('bidfrete.portal.responder.campo_observacoes')}</label>
               <textarea
                 className="rp-input rp-textarea"
                 rows={3}
@@ -373,7 +368,7 @@ export default function ResponderPublico() {
           {erro && <p className="rp-erro">{erro}</p>}
 
           <button className="rp-btn-submit" type="submit" disabled={enviando}>
-            {enviando ? 'Enviando...' : 'Enviar Proposta'}
+            {enviando ? t('bidfrete.portal.responder.enviando') : t('bidfrete.portal.responder.enviar')}
           </button>
         </form>
       </div>

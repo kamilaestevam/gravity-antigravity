@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { 
-  Calculator, 
-  Globe, 
-  IdentificationCard, 
-  CurrencyDollar, 
+import { useTranslation } from 'react-i18next'
+import {
+  Calculator,
+  Globe,
+  IdentificationCard,
+  CurrencyDollar,
   Percent,
   MapPin
 } from '@phosphor-icons/react'
@@ -48,13 +49,14 @@ const FORM_DEFAULTS: SimulacaoInput = {
   aliquotaICMS: 0.18,
 }
 
-export function ModalSimulacao({ 
-  aberto, 
-  aoFechar, 
-  aoSimular, 
+export function ModalSimulacao({
+  aberto,
+  aoFechar,
+  aoSimular,
   loading = false,
-  dadosIniciais 
+  dadosIniciais
 }: ModalSimulacaoProps) {
+  const { t } = useTranslation()
   const [form, setForm] = useState<SimulacaoInput>(FORM_DEFAULTS)
 
   useEffect(() => {
@@ -78,13 +80,13 @@ export function ModalSimulacao({
       aoFechar={aoFechar}
       aoSalvar={handleSalvar}
       icone={<Calculator size={24} weight="duotone" />}
-      titulo="Simular Novo Custo"
-      subtitulo="Informe os dados do produto e alíquotas para cálculo de Landed Cost"
+      titulo={t('simulacusto.modal_simulacao.titulo')}
+      subtitulo={t('simulacusto.modal_simulacao.subtitulo')}
       tamanho="lg"
       altura="720px"
-      dirty={true} // Sempre permite simular se os campos obrigatórios estiverem preenchidos
+      dirty={true}
       podesSalvar={podesSimular && !loading}
-      textoSalvar={loading ? "Calculando..." : "Simular Custo"}
+      textoSalvar={loading ? t('simulacusto.formulario.calculando') : t('simulacusto.formulario.simular_custo')}
     >
       <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         
@@ -92,11 +94,11 @@ export function ModalSimulacao({
         <div>
           <SecaoFormularioGlobal
             icone={<Globe size={16} weight="duotone" />}
-            titulo="Produto & Operação"
+            titulo={t('simulacusto.modal_simulacao.secao_produto')}
           />
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <GeralCampoGlobal label="NCM (8 dígitos)" obrigatorio>
+            <GeralCampoGlobal label={t('simulacusto.formulario.ncm')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
@@ -109,7 +111,7 @@ export function ModalSimulacao({
               </div>
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label="País de Origem (ISO)" obrigatorio>
+            <GeralCampoGlobal label={t('simulacusto.formulario.pais_origem')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <Globe size={16} />
                 <input
@@ -122,7 +124,7 @@ export function ModalSimulacao({
               </div>
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label="UF de Desembaraço" obrigatorio>
+            <GeralCampoGlobal label={t('simulacusto.formulario.uf_desembaraco')} obrigatorio>
               <div className="ws-input-icon-wrap">
                 <MapPin size={16} />
                 <input
@@ -137,7 +139,7 @@ export function ModalSimulacao({
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-            <GeralCampoGlobal label="Valor do Produto" obrigatorio>
+            <GeralCampoGlobal label={t('simulacusto.formulario.valor_produto')} obrigatorio>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <div className="ws-input-icon-wrap" style={{ flex: 1 }}>
                   <CurrencyDollar size={16} />
@@ -160,7 +162,7 @@ export function ModalSimulacao({
               </div>
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label="Frete Internacional">
+            <GeralCampoGlobal label={t('simulacusto.formulario.frete_internacional')}>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <div className="ws-input-icon-wrap" style={{ flex: 1 }}>
                   <CurrencyDollar size={16} />
@@ -189,7 +191,7 @@ export function ModalSimulacao({
         <div>
           <SecaoFormularioGlobal
             icone={<Percent size={16} weight="duotone" />}
-            titulo="Alíquotas"
+            titulo={t('simulacusto.formulario.aliquotas')}
           />
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
@@ -231,7 +233,7 @@ export function ModalSimulacao({
                 onChange={e => update('aliquotaICMS', (parseFloat(e.target.value) || 0) / 100)} 
               />
             </GeralCampoGlobal>
-            <GeralCampoGlobal label="Redução II — Acordos (%)">
+            <GeralCampoGlobal label={t('simulacusto.formulario.reducao_ii')}>
               <input 
                 type="number" min={0} max={100} step="0.01" placeholder="0.00"
                 value={((form.reducaoII ?? 0) * 100) || ''}

@@ -12,7 +12,7 @@ const mockPrisma = {
 }
 
 vi.mock('../../servicos-global/tenant/generated/index.js', () => ({
-  PrismaClient: vi.fn().mockImplementation(() => mockPrisma),
+  PrismaClient: vi.fn().mockImplementation(function() { return mockPrisma }),
   ActorType: { USER: 'USER', API: 'API', AI: 'AI', JOB: 'JOB', INTEGRATION: 'INTEGRATION' },
   AlertStatus: { PENDING: 'PENDING', REVIEWED: 'REVIEWED', ESCALATED: 'ESCALATED' },
 }))

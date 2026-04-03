@@ -512,21 +512,43 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
     resetToDefault,
     setAllVisible,
     clearAllVisible,
+    columnOrder, setColumnOrder,
   } = useTablePersistence({
     tableId: tableId || 'tcg-default',
     initialKeys: colunas.map(c => c.key as string),
     defaultHiddenKeys: colunas.filter(c => (c as any).oculta).map(c => c.key as string),
   })
 
+  // Colunas pai ordenadas conforme columnOrder persistido
+  const colunasOrdenadas = useMemo(() => {
+    if (!tableId || !columnOrder || columnOrder.length === 0) return colunas
+    return [...colunas].sort((a, b) => {
+      const ia = columnOrder.indexOf(a.key as string)
+      const ib = columnOrder.indexOf(b.key as string)
+      if (ia === -1) return 1
+      if (ib === -1) return -1
+      return ia - ib
+    })
+  }, [colunas, tableId, columnOrder])
+
   const colunasVisiveis = useMemo(() =>
-    tableId ? colunas.filter(c => isVisible(c.key as string)) : colunas,
-    [colunas, tableId, isVisible]
+    tableId ? colunasOrdenadas.filter(c => isVisible(c.key as string)) : colunasOrdenadas,
+    [colunasOrdenadas, tableId, isVisible]
   )
 
   const colunasFilhasVisiveis = useMemo(() =>
     tableId ? colunasFilhas.filter(c => isVisible(c.key as string)) : colunasFilhas,
     [colunasFilhas, tableId, isVisible]
   )
+
+  function handleReordenarColunas(de: number, para: number) {
+    if (!setColumnOrder) return
+    const chaves = colunasOrdenadas.map(c => c.key as string)
+    const nova = [...chaves]
+    const [item] = nova.splice(de, 1)
+    nova.splice(para, 0, item)
+    setColumnOrder(nova)
+  }
 
   const [visibilidadeAberta, setVisibilidadeAberta] = useState(false)
   const visibilidadeBtnRef = useRef<HTMLButtonElement>(null)
@@ -773,6 +795,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
                   onHideAll={clearAllVisible}
                   onFechar={() => setVisibilidadeAberta(false)}
                   triggerRef={visibilidadeBtnRef as React.RefObject<HTMLButtonElement | null>}
+                  onReordenar={handleReordenarColunas}
                 />
               )}
             </div>
@@ -790,7 +813,7 @@ export function TabelaCamadasGlobal<T = any, C = any>(props: TabelaCamadasGlobal
               {exportMenuAberto && (
                 <div className="tcg-export-menu">
                   {acoesExportacao.map((acao, i) => (
-                    <button key={i} type="button" className="tcg-export-item" onClick={() => { acao.onClick(); setExportMenuAberto(false) }}>
+                    <button key={i} type="button" className="tcg-export-item" onClick={() => { acao.onClick(dadosFiltrados); setExportMenuAberto(false) }}>
                       {acao.icone}
                       {acao.label}
                     </button>

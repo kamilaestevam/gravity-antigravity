@@ -79,6 +79,7 @@ function PopoverFiltro({
   triggerRef,
   onOrdenar, onToggleValor, onFiltrarNumero, onLimpar, onFechar,
 }: PopoverProps) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   const [buscaLocal, setBuscaLocal] = useState('')
   const [pos, setPos] = useState({ top: 0, left: 0 })
@@ -158,9 +159,9 @@ function PopoverFiltro({
 
       {/* Sort pills */}
       <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
-        <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>Ordenar</p>
+        <p style={{ fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569', marginBottom: '0.375rem' }}>{t('tabela.ordenar')}</p>
         <div style={{ display: 'flex', gap: '0.375rem' }}>
-          {([['asc', 'Cresc.', <ArrowUp key="u" size={12} weight="bold" />], ['desc', 'Decresc.', <ArrowDown key="d" size={12} weight="bold" />]] as [Direcao, string, React.ReactNode][]).map(([dir, rot, ico]) => {
+          {([['asc', t('tabela.crescente'), <ArrowUp key="u" size={12} weight="bold" />], ['desc', t('tabela.decrescente'), <ArrowDown key="d" size={12} weight="bold" />]] as [Direcao, string, React.ReactNode][]).map(([dir, rot, ico]) => {
             const ativo = sortAtivo && ordenacao?.direcao === dir
             return (
               <button key={dir} type="button" onClick={() => { onOrdenar(coluna, dir); onFechar() }} style={pillStyle(ativo)}
@@ -176,14 +177,14 @@ function PopoverFiltro({
       {/* Valores da coluna — checkboxes */}
       {tipo === 'texto' && (
         <div style={{ borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
-          <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>Filtrar por</p>
+          <p style={{ padding: '0.45rem 0.875rem 0.25rem', fontSize: '0.6rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>{t('tabela.filtrar_por')}</p>
 
           {valoresDisponiveis.length > 5 && (
             <div style={{ padding: '0.25rem 0.625rem', position: 'relative' }}>
               <span style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b', display: 'flex', lineHeight: 0 }}>
                 <MagnifyingGlass size={11} weight="bold" />
               </span>
-              <input type="text" placeholder="Buscar…" value={buscaLocal}
+              <input type="text" placeholder={t('tabela.buscar')} value={buscaLocal}
                 onChange={e => setBuscaLocal(e.target.value)}
                 style={{ ...inputStyle, paddingLeft: '1.6rem', fontSize: '0.75rem' }}
                 onFocus={e => { e.currentTarget.style.borderColor = '#818cf8' }}
@@ -194,7 +195,7 @@ function PopoverFiltro({
 
           <div style={{ maxHeight: '180px', overflowY: 'auto', padding: '0.3rem 0.5rem', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
             {valoresFiltrados.length === 0 ? (
-              <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>Nenhum valor</p>
+              <p style={{ fontSize: '0.75rem', color: '#475569', padding: '0.5rem', textAlign: 'center' }}>{t('tabela.sem_valor')}</p>
             ) : valoresFiltrados.map(v => {
               const selecionado = valoresSelecionados.has(v)
               return (
@@ -222,14 +223,14 @@ function PopoverFiltro({
       {/* Número (intervalo) */}
       {tipo === 'numero' && (
         <div style={{ padding: '0.5rem 0.625rem', borderBottom: '1px solid rgba(129,140,248,0.08)' }}>
-          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Intervalo</p>
+          <p style={{ fontSize: '0.6rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>{t('tabela.intervalo')}</p>
           <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
             {(['usuariosMin', 'usuariosMax'] as const).map((campo, i) => (
               <input key={campo}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                placeholder={i === 0 ? 'Mín' : 'Máx'}
+                placeholder={i === 0 ? t('tabela.minimo') : t('tabela.maximo')}
                 autoComplete="off"
                 value={filtros[campo]}
                 onChange={e => {
@@ -251,7 +252,7 @@ function PopoverFiltro({
           style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', width: '100%', padding: '0.35rem 0.5rem', borderRadius: '6px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '0.8125rem', fontFamily: 'inherit', transition: 'color 0.12s' }}
           onMouseEnter={e => { e.currentTarget.style.color = '#f87171' }}
           onMouseLeave={e => { e.currentTarget.style.color = '#64748b' }}>
-          <X size={12} weight="bold" /> Limpar filtro
+          <X size={12} weight="bold" /> {t('tabela.limpar_filtro')}
         </button>
       </div>
     </div>,
@@ -522,7 +523,7 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
             <MagnifyingGlass size={14} weight="bold" />
           </span>
-          <input type="search" placeholder="Localizar" value={busca}
+          <input type="search" placeholder={t('tabela.localizar')} value={busca}
             onChange={e => { setBusca(e.target.value); setPagina(1) }}
             style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
             onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
@@ -584,7 +585,7 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: 'auto', padding: '0.2rem 0.65rem', borderRadius: '9999px', background: 'transparent', border: '1px solid rgba(239,68,68,0.25)', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
             onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.5)' }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.25)' }}>
-            <X size={11} weight="bold" /> Limpar
+            <X size={11} weight="bold" /> {t('tabela.limpar')}
           </button>
         </div>
       )}
@@ -633,8 +634,8 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
                 {...thProps}
               />
               <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid rgba(129,140,248,0.1)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
-                <TooltipGlobal titulo="Comandos" descricao="Ações rápidas disponíveis para este registro">
-                  <span>Ações</span>
+                <TooltipGlobal titulo={t('tabela.acoes')} descricao={t('tabela.tooltip_acoes')}>
+                  <span>{t('tabela.acoes')}</span>
                 </TooltipGlobal>
               </th>
             </tr>
@@ -644,8 +645,8 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
               <tr>
                 <td colSpan={7} style={{ textAlign: 'center', padding: '3rem 1rem', color: '#64748b' }}>
                   {chips.length > 0 || busca
-                    ? <span>Nenhum resultado. <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>Limpar filtros</button></span>
-                    : 'Nenhum workspace cadastrado.'
+                    ? <span>{t('tabela.sem_resultado')} <button type="button" onClick={limparTudo} style={{ background: 'none', border: 'none', color: '#818cf8', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit', fontSize: 'inherit' }}>{t('tabela.limpar_filtros')}</button></span>
+                    : t('tabela.sem_filtro')
                   }
                 </td>
               </tr>
@@ -740,7 +741,7 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
       {/* Paginação */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid rgba(129,140,248,0.08)', background: 'rgba(129,140,248,0.02)' }}>
         <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
-          {resultado.length === 0 ? 'Nenhum registro' : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} de ${resultado.length}`}
+          {resultado.length === 0 ? t('tabela.nenhum_registro') : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} ${t('tabela.de')} ${resultado.length}`}
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
           <button type="button" onClick={() => setPagina(1)} disabled={pagSafe === 1} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === 1 ? 0.3 : 1 }}>«</button>
@@ -750,7 +751,7 @@ export function TabelaWorkspaces({ dados, onSuspender, onExcluir }: TabelaWorksp
           <button type="button" onClick={() => setPagina(totalPags)} disabled={pagSafe === totalPags} style={{ padding: '0.3rem 0.5rem', minWidth: '2rem', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer', background: 'transparent', border: '1px solid transparent', color: '#94a3b8', fontFamily: 'inherit', opacity: pagSafe === totalPags ? 0.3 : 1 }}>»</button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: '#64748b' }}>
-          por página:
+          {t('tabela.por_pagina_label')}
           <select value={porPagina} onChange={e => { setPorPagina(Number(e.target.value)); setPagina(1) }}
             style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.12)', borderRadius: '6px', padding: '0.25rem 0.5rem', color: '#f1f5f9', fontSize: '0.8125rem', fontFamily: 'inherit', cursor: 'pointer' }}>
             {[10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}

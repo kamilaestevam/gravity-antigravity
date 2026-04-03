@@ -174,17 +174,17 @@ export function Financeiro() {
       render: (v) => <code style={{ fontSize: '0.8125rem', color: '#818cf8', background: 'rgba(129,140,248,0.08)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>{v}</code>
     },
     {
-      key: 'competencia', label: 'Competência', tipo: 'texto',
+      key: 'competencia', label: t('workspace.financial.col_competencia'), tipo: 'texto',
       tooltipTitulo: 'Mês/Ano', tooltipDescricao: 'Período de faturamento da fatura.',
       render: (v) => <span style={{ fontWeight: 600 }}>{v}</span>
     },
     {
-      key: 'descricao', label: 'Descrição', tipo: 'texto',
+      key: 'descricao', label: t('workspace.financial.col_descricao'), tipo: 'texto',
       tooltipTitulo: 'Serviços Cobrados', tooltipDescricao: 'Resumo dos produtos em uso.',
       render: (v) => <span style={{ color: 'var(--ws-muted)', maxWidth: '260px', display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v}</span>
     },
     {
-      key: 'valor', label: 'Valor', tipo: 'texto',
+      key: 'valor', label: t('workspace.financial.col_valor'), tipo: 'texto',
       tooltipTitulo: 'Valor a Pagar', tooltipDescricao: 'Passe o mouse para ver a composição detalhada.',
       render: (v, item) => (
         <span
@@ -204,12 +204,12 @@ export function Financeiro() {
       )
     },
     {
-      key: 'vencimento', label: 'Vencimento', tipo: 'texto',
+      key: 'vencimento', label: t('workspace.financial.col_vencimento'), tipo: 'texto',
       tooltipTitulo: 'Dia do Vencimento', tooltipDescricao: 'Data limite para pagamento.',
       render: (v, item) => <span style={{ color: item.status === 'Atrasado' ? '#f87171' : 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('workspace.financial.col_status'), tipo: 'texto',
       tooltipTitulo: 'Status da Fatura', tooltipDescricao: 'Qual a situação atual do boleto.',
       render: (v) => {
         const statusMap: Record<string, string> = {
@@ -230,12 +230,12 @@ export function Financeiro() {
 
   const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoCatalogo>[] = [
     {
-      key: 'nome', label: 'Produto', tipo: 'texto',
+      key: 'nome', label: t('workspace.financial.col_produto'), tipo: 'texto',
       tooltipTitulo: 'Produto Contratado', tooltipDescricao: 'Identificação do serviço cadastrado no catálogo Gravity.',
       render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>
     },
     {
-      key: 'tipoCobranca', label: 'Cobrança', tipo: 'texto',
+      key: 'tipoCobranca', label: t('workspace.financial.col_cobranca'), tipo: 'texto',
       tooltipTitulo: 'Tipo de Cobrança', tooltipDescricao: 'Métrica usada para cobrança deste produto.',
       render: (v) => (
         <span style={{
@@ -247,7 +247,7 @@ export function Financeiro() {
       )
     },
     {
-      key: 'precoUnitario', label: 'Valor Unitário', tipo: 'texto',
+      key: 'precoUnitario', label: t('workspace.financial.col_valor_unitario'), tipo: 'texto',
       tooltipTitulo: 'Preço Base', tooltipDescricao: 'Valor cobrado por unidade ou uso adicional além da franquia.',
       render: (v, item) => {
         if (item.faixasPreco && item.faixasPreco.length > 0) {
@@ -263,7 +263,7 @@ export function Financeiro() {
       }
     },
     {
-      key: 'qtdUsuariosBase', label: 'Franquia Free', tipo: 'texto',
+      key: 'qtdUsuariosBase', label: t('workspace.financial.col_franquia'), tipo: 'texto',
       tooltipTitulo: 'Franquia Inclusa', tooltipDescricao: 'Quantidade de uso incluída sem cobrança adicional.',
       render: (v, item) => (
         <span style={{ color: item.qtdUsuariosBase ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtdUsuariosBase ? 600 : 400 }}>
@@ -272,7 +272,7 @@ export function Financeiro() {
       )
     },
     {
-      key: 'limiteUsuarios', label: 'Usuários', tipo: 'texto',
+      key: 'limiteUsuarios', label: t('workspace.financial.col_usuarios'), tipo: 'texto',
       tooltipTitulo: 'Configuração de Usuários', tooltipDescricao: 'Verificação do limite de usuários do produto.',
       render: (v, item) => (
         <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>
@@ -281,7 +281,7 @@ export function Financeiro() {
       )
     },
     {
-      key: 'horasHelpDesk', label: 'Help Desk', tipo: 'texto',
+      key: 'horasHelpDesk', label: t('workspace.financial.col_helpdesk'), tipo: 'texto',
       tooltipTitulo: 'Suporte Técnico', tooltipDescricao: 'Horas mensais de help desk incluídas.',
       render: (v) => (
         <span style={{ color: Number(v) > 0 ? '#fbbf24' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: Number(v) > 0 ? 600 : 400 }}>
@@ -290,7 +290,7 @@ export function Financeiro() {
       )
     },
     {
-      key: 'id', label: 'Negociação', tipo: 'texto',
+      key: 'id', label: t('workspace.financial.col_negociacao'), tipo: 'texto',
       tooltipTitulo: 'Acordo Especial', tooltipDescricao: 'Verifica se esta organização possui condições exclusivas.',
       render: (_v, item) => {
         const neg = getNegociacao(item.id)
@@ -371,7 +371,7 @@ export function Financeiro() {
       cabecalho={
         <CabecalhoGlobal
           titulo={t('workspace.financial.titulo')}
-          subtitulo="Acompanhe faturas, boletos e notas fiscais da sua conta Gravity."
+          subtitulo={t('workspace.financial.subtitulo')}
           icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
         />
       }

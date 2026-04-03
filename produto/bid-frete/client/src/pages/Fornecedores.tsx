@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -81,6 +82,7 @@ function Stars({ rating }: { rating: number | null }) {
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function Fornecedores() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [fornecedores, setFornecedores] = useState<Fornecedor[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -123,7 +125,7 @@ export default function Fornecedores() {
   const colunas: TabelaGlobalColuna<Fornecedor>[] = [
     {
       key: 'nome',
-      label: 'Nome',
+      label: t('bidfrete.fornecedores.col_nome'),
       tipo: 'texto',
       largura: 220,
       render: (val: string, item: Fornecedor) => (
@@ -137,7 +139,7 @@ export default function Fornecedores() {
     },
     {
       key: 'email',
-      label: 'Email',
+      label: t('bidfrete.fornecedores.col_email'),
       tipo: 'texto',
       largura: 200,
       render: (val: string) => (
@@ -146,7 +148,7 @@ export default function Fornecedores() {
     },
     {
       key: 'tipo',
-      label: 'Tipo',
+      label: t('bidfrete.fornecedores.col_tipo'),
       tipo: 'texto',
       largura: 140,
       render: (val: TipoFornecedor) => {
@@ -169,7 +171,7 @@ export default function Fornecedores() {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('comum.status'),
       tipo: 'texto',
       largura: 120,
       render: (val: StatusFornecedor) => {
@@ -192,14 +194,14 @@ export default function Fornecedores() {
     },
     {
       key: 'rating_global',
-      label: 'Rating',
+      label: t('bidfrete.fornecedores.col_rating'),
       tipo: 'numero',
       largura: 150,
       render: (val: number | null) => <Stars rating={val} />,
     },
     {
       key: 'total_cotacoes',
-      label: 'Total Cotacoes',
+      label: t('bidfrete.fornecedores.col_total_cotacoes'),
       tipo: 'numero',
       largura: 120,
       align: 'right',
@@ -215,7 +217,7 @@ export default function Fornecedores() {
     {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
-      tooltip: 'Ver detalhes',
+      tooltip: t('bidfrete.fornecedores.ver_detalhes'),
       onClick: (item: Fornecedor) => navigate(`/fornecedores/${item.id}`),
     },
   ]
@@ -228,12 +230,12 @@ export default function Fornecedores() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Buildings weight="duotone" size={22} />}
-          titulo="Fornecedores"
-          subtitulo="Gerencie seus agentes de carga, armadores e transportadoras"
+          titulo={t('bidfrete.fornecedores.titulo')}
+          subtitulo={t('bidfrete.fornecedores.subtitulo')}
           acoes={
             <button className="btn btn-primary">
               <Plus weight="bold" size={16} />
-              Novo Fornecedor
+              {t('bidfrete.fornecedores.novo_fornecedor')}
             </button>
           }
         />
@@ -243,19 +245,19 @@ export default function Fornecedores() {
       <div className="bf-forn-top">
         <div className="bf-forn-kpis">
           <CardBasicoGlobal
-            titulo="Total Fornecedores"
+            titulo={t('bidfrete.fornecedores.kpi_total')}
             icone={<Buildings weight="duotone" size={16} />}
             valor={total}
             className="bf-forn-kpi"
           />
           <CardBasicoGlobal
-            titulo="Ativos"
+            titulo={t('bidfrete.fornecedores.kpi_ativos')}
             icone={<CheckCircle weight="duotone" size={16} />}
             valor={ativos}
             className="bf-forn-kpi"
           />
           <CardBasicoGlobal
-            titulo="Inativos"
+            titulo={t('bidfrete.fornecedores.kpi_inativos')}
             icone={<XCircle weight="duotone" size={16} />}
             valor={inativos}
             className="bf-forn-kpi"
@@ -263,7 +265,7 @@ export default function Fornecedores() {
           <div className="bf-forn-kpi bf-forn-rating-card">
             <div className="bf-forn-rating-label">
               <Star weight="duotone" size={16} style={{ color: 'var(--warning, #f59e0b)' }} />
-              <span>Rating Medio</span>
+              <span>{t('bidfrete.fornecedores.kpi_rating_medio')}</span>
             </div>
             <div className="bf-forn-rating-value">
               {ratingMedio > 0 ? ratingMedio.toFixed(1) : '—'}
@@ -284,7 +286,7 @@ export default function Fornecedores() {
         </div>
 
         <CardGraficoGlobal
-          titulo="Fornecedores por tipo"
+          titulo={t('bidfrete.fornecedores.grafico_por_tipo')}
           icone={<ChartPieSlice weight="duotone" size={16} />}
           total={total}
           valorPrincipal={total}
@@ -304,7 +306,7 @@ export default function Fornecedores() {
             <MagnifyingGlass weight="bold" size={16} />
             <input
               type="text"
-              placeholder="Buscar fornecedor por nome ou email..."
+              placeholder={t('bidfrete.fornecedores.buscar_placeholder')}
               value={busca}
               onChange={e => setBusca(e.target.value)}
               className="bf-forn-search-input"
@@ -317,7 +319,7 @@ export default function Fornecedores() {
               onChange={e => setFiltroTipo(e.target.value)}
               className="bf-forn-filter-select"
             >
-              <option value="">Todos os tipos</option>
+              <option value="">{t('bidfrete.fornecedores.todos_tipos')}</option>
               {(Object.keys(TIPO_FORNECEDOR_LABELS) as TipoFornecedor[]).map(tipo => (
                 <option key={tipo} value={tipo}>{TIPO_FORNECEDOR_LABELS[tipo]}</option>
               ))}
@@ -331,8 +333,8 @@ export default function Fornecedores() {
           acoes={acoes}
           idKey="id"
           carregando={carregando}
-          mensagemVazio="Nenhum fornecedor encontrado"
-          tooltipBusca="Buscar por nome ou email"
+          mensagemVazio={t('bidfrete.fornecedores.vazio')}
+          tooltipBusca={t('bidfrete.fornecedores.buscar_tabela')}
           aoClicarLinha={(item: Fornecedor) => navigate(`/fornecedores/${item.id}`)}
         />
       </div>

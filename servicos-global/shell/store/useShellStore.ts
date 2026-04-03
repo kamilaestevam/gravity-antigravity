@@ -123,6 +123,17 @@ export const useShellStore = create<ShellState>()(
         currentTheme: state.currentTheme,
         tooltipsDisabled: state.tooltipsDisabled,
       }),
+      // Reaplica a classe no body ao hidratar do localStorage (ex: refresh de página)
+      onRehydrateStorage: () => (state) => {
+        if (state?.currentTheme === 'light') {
+          document.body.classList.add('light-theme')
+        } else {
+          document.body.classList.remove('light-theme')
+        }
+        if (state?.tooltipsDisabled) {
+          document.body.classList.add('tooltips-disabled')
+        }
+      },
     }
   )
 )

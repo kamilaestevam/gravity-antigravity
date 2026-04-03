@@ -19,7 +19,8 @@ import {
   GearSix,
 } from '@phosphor-icons/react'
 
-const Dashboard    = lazy(() => import('./pages/Dashboard'))
+const Dashboard     = lazy(() => import('./pages/Dashboard'))
+const Lista         = lazy(() => import('./pages/Lista'))
 const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 
 // ── Identidade do Demo ────────────────────────────────────────────────────────
@@ -129,7 +130,7 @@ export default function App() {
         <Routes>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard"     element={<Dashboard />} />
-          <Route path="lista"         element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Lista (Em breve)</div>} />
+          <Route path="lista"         element={<Lista />} />
           <Route path="kanban"        element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Kanban (Em breve)</div>} />
           <Route path="configuracoes" element={<Configuracoes />} />
           <Route path="*"             element={<Navigate to="dashboard" replace />} />

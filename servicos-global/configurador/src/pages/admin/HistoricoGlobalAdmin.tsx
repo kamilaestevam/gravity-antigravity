@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Desktop, User, Robot, Export, DownloadSimple, HardDrives,
+  Desktop, User, Robot, Export, DownloadSimple,
   Info, Funnel, Warning, CheckCircle, ArrowsClockwise,
-  Globe, Cpu, Gear, Shield, CaretDown, CaretUp, Hash
+  Globe, Cpu, Gear, Hash
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'

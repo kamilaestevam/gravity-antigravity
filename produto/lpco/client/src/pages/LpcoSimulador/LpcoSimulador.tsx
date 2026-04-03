@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -36,6 +37,7 @@ interface ResultadoSimulacao {
 }
 
 export default function LpcoSimulador() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [ncm, setNcm] = useState('')
   const [operacao, setOperacao] = useState<TipoOperacao>('IMPORTACAO')
@@ -45,7 +47,7 @@ export default function LpcoSimulador() {
 
   const handleSimular = useCallback(async () => {
     if (ncm.length !== 8 || !/^\d{8}$/.test(ncm)) {
-      setErro('NCM deve ter exatamente 8 digitos')
+      setErro(t('lpco.ncm_validacao'))
       return
     }
 
@@ -76,7 +78,7 @@ export default function LpcoSimulador() {
     <div style={{ padding: '1.5rem', maxWidth: 800, margin: '0 auto' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        <TooltipGlobal titulo="Voltar" descricao="Retornar para a lista de LPCOs">
+        <TooltipGlobal titulo={t('comum.voltar')} descricao={t('lpco.voltar_lista')}>
           <button
             onClick={() => navigate('/lpco')}
             type="button"
@@ -90,10 +92,10 @@ export default function LpcoSimulador() {
         </TooltipGlobal>
         <div>
           <h1 style={{ margin: 0, fontSize: '1.375rem', fontWeight: 700, color: 'var(--ws-text, #f1f5f9)' }}>
-            Simulador de Tratamento Administrativo
+            {t('lpco.simulador_titulo')}
           </h1>
           <p style={{ margin: '0.25rem 0 0', fontSize: '0.8125rem', color: 'var(--ws-muted, #94a3b8)' }}>
-            Informe o NCM para verificar quais orgaos anuentes exigem LPCO
+            {t('lpco.simulador_subtitulo')}
           </p>
         </div>
       </div>
@@ -106,7 +108,7 @@ export default function LpcoSimulador() {
       }}>
         <div style={{ flex: '1 1 200px' }}>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--ws-muted, #94a3b8)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            NCM (8 digitos)
+            {t('lpco.ncm_8_digitos')}
           </label>
           <input
             type="text"
@@ -131,7 +133,7 @@ export default function LpcoSimulador() {
 
         <div style={{ flex: '0 0 160px' }}>
           <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--ws-muted, #94a3b8)', marginBottom: '0.375rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Operacao
+            {t('lpco.operacao')}
           </label>
           <select
             value={operacao}
@@ -143,8 +145,8 @@ export default function LpcoSimulador() {
               color: 'var(--ws-text, #f1f5f9)', outline: 'none',
             }}
           >
-            <option value="IMPORTACAO">Importacao</option>
-            <option value="EXPORTACAO">Exportacao</option>
+            <option value="IMPORTACAO">{t('lpco.importacao')}</option>
+            <option value="EXPORTACAO">{t('lpco.exportacao')}</option>
           </select>
         </div>
 
@@ -155,7 +157,7 @@ export default function LpcoSimulador() {
           disabled={loading || ncm.length !== 8}
         >
           <MagnifyingGlass weight="bold" size={16} />
-          {loading ? 'Consultando...' : 'Simular'}
+          {loading ? t('lpco.consultando') : t('lpco.simular')}
         </BotaoGlobal>
       </div>
 
@@ -191,10 +193,10 @@ export default function LpcoSimulador() {
             )}
             <span style={{ fontSize: '0.9375rem', color: 'var(--ws-text, #f1f5f9)' }}>
               NCM <strong style={{ fontFamily: 'monospace' }}>{resultado.ncm}</strong>
-              {' (cap. {resultado.capitulo}) — '}
+              {`(cap. ${resultado.capitulo}) — `}
               {resultado.total > 0
-                ? `${resultado.total} orgao(s) anuente(s) identificado(s)`
-                : 'Nenhum tratamento administrativo identificado'
+                ? `${resultado.total} ${t('lpco.orgaos_identificados')}`
+                : t('lpco.sem_tratamento')
               }
             </span>
           </div>
@@ -232,7 +234,7 @@ export default function LpcoSimulador() {
                         background: orgao.obrigatorio ? 'rgba(251,191,36,0.12)' : 'rgba(99,102,241,0.08)',
                         color: orgao.obrigatorio ? '#fbbf24' : 'var(--ws-muted, #94a3b8)',
                       }}>
-                        {orgao.obrigatorio ? 'Obrigatorio' : 'Condicional'}
+                        {orgao.obrigatorio ? t('lpco.obrigatorio') : t('lpco.condicional')}
                       </span>
                     </div>
                     <p style={{ margin: '0.25rem 0 0', fontSize: '0.8125rem', color: 'var(--ws-muted, #94a3b8)' }}>
@@ -258,7 +260,7 @@ export default function LpcoSimulador() {
             fontSize: '0.75rem', color: 'var(--ws-muted, #64748b)',
           }}>
             <Info weight="fill" size={12} />
-            Fonte: {resultado.fonte === 'base_local' ? 'Base local Gravity' : 'API Portal Unico Siscomex'}
+            {t('lpco.fonte_label')} {resultado.fonte === 'base_local' ? t('lpco.fonte_local') : t('lpco.fonte_api')}
           </div>
         </div>
       )}

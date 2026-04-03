@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
   AlertCircle,
@@ -249,6 +250,7 @@ interface ResponderPublicoProps {
 }
 
 export default function ResponderPublico({ token, disabled = false }: ResponderPublicoProps) {
+  const { t } = useTranslation()
   const [detalhes, setDetalhes] = useState<CotacaoPublica | null>(null)
   const [pageState, setPageState] = useState<PageState>('loading')
   const [enviando, setEnviando] = useState(false)
@@ -334,11 +336,11 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
     if (!token) return
 
     if (!form.taxa_oferecida || taxaOferecida <= 0) {
-      setErro('Informe uma taxa valida')
+      setErro(t('bidcambio.portal.responder.erro_taxa'))
       return
     }
     if (!form.validade_minutos || parseInt(form.validade_minutos, 10) <= 0) {
-      setErro('Informe a validade em minutos')
+      setErro(t('bidcambio.portal.responder.erro_validade'))
       return
     }
 
@@ -375,11 +377,10 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
           <div style={st.center}>
             <CheckCircle size={80} style={{ color: 'var(--success, #22c55e)' }} />
             <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary, #f1f5f9)', margin: 0 }}>
-              Proposta enviada com sucesso
+              {t('bidcambio.portal.publico.sucesso_titulo')}
             </h2>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', maxWidth: 400 }}>
-              Sua proposta foi registrada e sera analisada pelo comprador.
-              Voce pode fechar esta pagina.
+              {t('bidcambio.portal.publico.sucesso_desc')}
             </p>
           </div>
         </div>
@@ -394,12 +395,12 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
       <div style={st.page}>
         <div style={st.container}>
           <div style={st.logo}>
-            <h1 style={st.logoText}>BID Cambio</h1>
-            <p style={st.logoSub}>Proposta de Cambio</p>
+            <h1 style={st.logoText}>{t('bidcambio.portal.publico.titulo')}</h1>
+            <p style={st.logoSub}>{t('bidcambio.portal.publico.proposta_label')}</p>
           </div>
           <div style={st.center}>
             <Loader2 size={48} style={{ opacity: 0.3, animation: 'spin 1s linear infinite' }} />
-            <p>Carregando cotacao...</p>
+            <p>{t('bidcambio.portal.publico.carregando')}</p>
           </div>
         </div>
       </div>
@@ -411,12 +412,12 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
       <div style={st.page}>
         <div style={st.container}>
           <div style={st.logo}>
-            <h1 style={st.logoText}>BID Cambio</h1>
+            <h1 style={st.logoText}>{t('bidcambio.portal.publico.titulo')}</h1>
           </div>
           <div style={st.center}>
             <ShieldAlert size={48} style={{ color: 'var(--danger, #ef4444)', opacity: 0.6 }} />
             <p style={{ color: 'var(--danger, #ef4444)' }}>
-              Token invalido ou cotacao expirada.
+              {t('bidcambio.portal.publico.token_invalido')}
             </p>
           </div>
         </div>
@@ -429,11 +430,11 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
       <div style={st.page}>
         <div style={st.container}>
           <div style={st.logo}>
-            <h1 style={st.logoText}>BID Cambio</h1>
+            <h1 style={st.logoText}>{t('bidcambio.portal.publico.titulo')}</h1>
           </div>
           <div style={st.center}>
             <AlertCircle size={48} style={{ opacity: 0.3 }} />
-            <p>Token nao informado. Verifique o link recebido.</p>
+            <p>{t('bidcambio.portal.publico.token_nao_informado')}</p>
           </div>
         </div>
       </div>
@@ -445,8 +446,8 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
       <div style={{ ...st.page, opacity: 0.5 }}>
         <div style={st.container}>
           <div style={st.logo}>
-            <h1 style={st.logoText}>BID Cambio</h1>
-            <p style={st.logoSub}>Portal desabilitado</p>
+            <h1 style={st.logoText}>{t('bidcambio.portal.publico.titulo')}</h1>
+            <p style={st.logoSub}>{t('bidcambio.portal.config.desabilitado')}</p>
           </div>
         </div>
       </div>
@@ -459,7 +460,7 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
     <div style={st.page}>
       <div style={st.container}>
         <div style={st.logo}>
-          <h1 style={st.logoText}>BID Cambio</h1>
+          <h1 style={st.logoText}>{t('bidcambio.portal.publico.titulo')}</h1>
           <p style={st.logoSub}>
             Proposta de Cambio{detalhes?.corretora_nome ? ` — ${detalhes.corretora_nome}` : ''}
           </p>
@@ -467,7 +468,7 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
 
         {/* Quotation Details */}
         <div style={st.card}>
-          <h3 style={st.sectionTitle}>Detalhes da Cotacao</h3>
+          <h3 style={st.sectionTitle}>{t('bidcambio.portal.responder.detalhes_cotacao')}</h3>
           <div style={st.detailGrid}>
             <div>
               <div style={st.detailLabel}>Moeda</div>
@@ -508,10 +509,10 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
 
         {/* Form */}
         <form style={st.card} onSubmit={handleSubmit}>
-          <h3 style={st.sectionTitle}>Sua Proposta</h3>
+          <h3 style={st.sectionTitle}>{t('bidcambio.portal.responder.sua_proposta')}</h3>
           <div style={st.formGrid}>
             <div style={st.field}>
-              <label style={st.label}>Taxa Oferecida (4 decimais) *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.taxa_oferecida')}</label>
               <input
                 style={st.input}
                 type="number"
@@ -541,7 +542,7 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
               </div>
             </div>
             <div style={st.field}>
-              <label style={st.label}>IOF % *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.iof')}</label>
               <input
                 style={st.input}
                 type="number"
@@ -553,7 +554,7 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
               />
             </div>
             <div style={st.field}>
-              <label style={st.label}>Validade em minutos *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.validade_minutos')}</label>
               <input
                 style={st.input}
                 type="number"
@@ -563,7 +564,7 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
               />
             </div>
             <div style={st.field}>
-              <label style={st.label}>Liquidacao Proposta *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.liquidacao_proposta')}</label>
               <select
                 style={st.selectInput}
                 value={form.liquidacao_proposta}
@@ -575,7 +576,7 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
               </select>
             </div>
             <div style={{ ...st.field, ...st.fieldWide }}>
-              <label style={st.label}>Condicoes / Observacoes</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.observacoes')}</label>
               <textarea
                 style={st.textarea}
                 rows={3}
@@ -598,7 +599,7 @@ export default function ResponderPublico({ token, disabled = false }: ResponderP
             disabled={enviando}
           >
             <Send size={16} />
-            {enviando ? 'Enviando...' : 'Enviar Proposta'}
+            {enviando ? t('bidcambio.portal.responder.enviando') : t('bidcambio.portal.responder.enviar')}
           </button>
         </form>
       </div>

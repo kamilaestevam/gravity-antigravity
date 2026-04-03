@@ -10,6 +10,7 @@ import {
   Briefcase,
 } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { useTranslation } from 'react-i18next'
 
 interface OnboardingPreviewProps {
   open: boolean
@@ -19,27 +20,38 @@ interface OnboardingPreviewProps {
 type AccentColor = '#818cf8' | '#818cf8' | '#34d399' | '#f472b6' | '#fb923c'
 type UserProfile = 'Dev' | 'Designer' | 'Manager' | null
 
-const ACCENT_COLORS: { value: AccentColor; label: string }[] = [
-  { value: '#818cf8', label: 'Azul Céu' },
-  { value: '#818cf8', label: 'Violeta' },
-  { value: '#34d399', label: 'Esmeralda' },
-  { value: '#f472b6', label: 'Rosa' },
-  { value: '#fb923c', label: 'Âmbar' },
-]
-
-const STEPS = ['Personalizar', 'Perfil', 'Dashboard']
-
-const MOCK_ACTIVITIES = [
-  { id: 1, label: 'Proposta enviada', value: 'R$ 48.000', status: 'success' },
-  { id: 2, label: 'Reunião agendada', value: 'Amanhã 14h', status: 'warning' },
-  { id: 3, label: 'Simulação Comex', value: '3 itens', status: 'accent' },
-]
-
 export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
+  const { t } = useTranslation()
   const [step, setStep] = useState(0)
   const [accent, setAccent] = useState<AccentColor>('#818cf8')
   const [profile, setProfile] = useState<UserProfile>(null)
   const [previewAccent, setPreviewAccent] = useState<AccentColor | null>(null)
+
+  const ACCENT_COLORS: { value: AccentColor; label: string }[] = [
+    { value: '#818cf8', label: t('marketplace.onboarding.azul_ceu') },
+    { value: '#818cf8', label: t('marketplace.onboarding.violeta') },
+    { value: '#34d399', label: t('marketplace.onboarding.esmeralda') },
+    { value: '#f472b6', label: t('marketplace.onboarding.rosa') },
+    { value: '#fb923c', label: t('marketplace.onboarding.ambar') },
+  ]
+
+  const STEPS = [
+    t('marketplace.onboarding.passo_personalizar'),
+    t('marketplace.onboarding.passo_perfil'),
+    t('marketplace.onboarding.passo_dashboard'),
+  ]
+
+  const MOCK_ACTIVITIES = [
+    { id: 1, label: t('marketplace.onboarding.atividade_proposta'), value: 'R$ 48.000', status: 'success' },
+    { id: 2, label: t('marketplace.onboarding.atividade_reuniao'), value: 'Amanhã 14h', status: 'warning' },
+    { id: 3, label: t('marketplace.onboarding.atividade_simulacao'), value: '3 itens', status: 'accent' },
+  ]
+
+  const previewTabs = [
+    t('marketplace.onboarding.tab_atividades'),
+    t('marketplace.onboarding.tab_relatorios'),
+    t('marketplace.onboarding.tab_email'),
+  ]
 
   // Volta ao step 0 ao abrir
   useEffect(() => {
@@ -73,7 +85,7 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Preview do Gravity"
+        aria-label={t('marketplace.onboarding.aria_label')}
         style={{
           position: 'fixed',
           top: '50%',
@@ -120,7 +132,7 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
           <button
             className="btn btn-ghost btn-sm"
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label={t('marketplace.onboarding.fechar')}
             style={{ padding: '0.375rem', marginLeft: '1rem' }}
           >
             <X size={18} />
@@ -134,10 +146,10 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
             <div>
               <Palette size={32} color={currentAccent} weight="duotone" style={{ marginBottom: '1rem' }} />
               <h2 style={{ fontSize: '1.375rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                Qual a cara da sua empresa?
+                {t('marketplace.onboarding.qual_cara')}
               </h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                Escolha uma cor e veja o sistema se adaptar em tempo real.
+                {t('marketplace.onboarding.escolha_cor')}
               </p>
 
               <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
@@ -179,7 +191,7 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <Lightning size={16} color={currentAccent} weight="duotone" />
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: currentAccent, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Preview em tempo real
+                    {t('marketplace.onboarding.preview_tempo_real')}
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.625rem' }}>
@@ -188,33 +200,33 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                   <div style={{ height: '8px', flex: 1, background: 'var(--bg-elevated)', borderRadius: '99px' }} />
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {['Atividades', 'Relatórios', 'Email'].map(t => (
+                  {previewTabs.map((tab, idx) => (
                     <span
-                      key={t}
+                      key={tab}
                       style={{
                         padding: '0.25rem 0.75rem',
-                        background: t === 'Atividades' ? `${currentAccent}20` : 'transparent',
-                        color: t === 'Atividades' ? currentAccent : 'var(--text-muted)',
+                        background: idx === 0 ? `${currentAccent}20` : 'transparent',
+                        color: idx === 0 ? currentAccent : 'var(--text-muted)',
                         borderRadius: '99px',
                         fontSize: '0.75rem',
                         fontWeight: 600,
-                        border: t === 'Atividades' ? `1px solid ${currentAccent}40` : '1px solid transparent',
+                        border: idx === 0 ? `1px solid ${currentAccent}40` : '1px solid transparent',
                       }}
                     >
-                      {t}
+                      {tab}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <TooltipGlobal descricao="Avançar para a seleção de perfil">
+              <TooltipGlobal descricao={t('marketplace.onboarding.tooltip_avancar')}>
                 <button
                   className="btn btn-primary"
                   id="onboarding-next-step1"
                   onClick={() => setStep(1)}
                   style={{ background: currentAccent, width: '100%', justifyContent: 'center' }}
                 >
-                  Ficou perfeito! Próximo
+                  {t('marketplace.onboarding.ficou_perfeito')}
                 </button>
               </TooltipGlobal>
             </div>
@@ -224,17 +236,17 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
           {step === 1 && (
             <div>
               <h2 style={{ fontSize: '1.375rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-                Você é...
+                {t('marketplace.onboarding.voce_e')}
               </h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                Vamos personalizar sua experiência de acordo com seu papel.
+                {t('marketplace.onboarding.personalizar_experiencia')}
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
                 {([
-                  { value: 'Dev', label: 'Desenvolvedor', desc: 'APIs, integrações, código', icon: <Code size={24} weight="duotone" /> },
-                  { value: 'Designer', label: 'Designer', desc: 'UI, UX, componentes', icon: <Pencil size={24} weight="duotone" /> },
-                  { value: 'Manager', label: 'Gestor/Fundador', desc: 'Métricas, crescimento, equipe', icon: <Briefcase size={24} weight="duotone" /> },
+                  { value: 'Dev', label: t('marketplace.onboarding.dev_label'), desc: t('marketplace.onboarding.dev_desc'), icon: <Code size={24} weight="duotone" /> },
+                  { value: 'Designer', label: t('marketplace.onboarding.designer_label'), desc: t('marketplace.onboarding.designer_desc'), icon: <Pencil size={24} weight="duotone" /> },
+                  { value: 'Manager', label: t('marketplace.onboarding.manager_label'), desc: t('marketplace.onboarding.manager_desc'), icon: <Briefcase size={24} weight="duotone" /> },
                 ] as { value: UserProfile; label: string; desc: string; icon: React.ReactNode }[]).map(opt => (
                   <button
                     key={opt.value}
@@ -272,7 +284,7 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                 ))}
               </div>
 
-              <TooltipGlobal descricao="Finalizar configuração e visualizar dashboard personalizado">
+              <TooltipGlobal descricao={t('marketplace.onboarding.tooltip_finalizar')}>
                 <button
                   className="btn btn-primary"
                   id="onboarding-next-step2"
@@ -280,7 +292,7 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                   disabled={!profile}
                   style={{ background: currentAccent, width: '100%', justifyContent: 'center' }}
                 >
-                  Continuar
+                  {t('marketplace.onboarding.continuar')}
                 </button>
               </TooltipGlobal>
             </div>
@@ -293,17 +305,17 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                 <CheckCircle size={28} color="var(--success)" weight="duotone" />
                 <div>
                   <h2 style={{ fontSize: '1.125rem', fontWeight: 700 }}>
-                    Seu workspace está pronto!
+                    {t('marketplace.onboarding.workspace_pronto')}
                   </h2>
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>Veja como fica com dados reais</p>
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>{t('marketplace.onboarding.dados_reais')}</p>
                 </div>
               </div>
 
               {/* KPI Cards Mock */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
                 {[
-                  { label: 'Receita Mês', value: 'R$ 284k', icon: <ChartBar size={16} weight="duotone" /> },
-                  { label: 'Atividades', value: '47', icon: <Lightning size={16} weight="duotone" /> },
+                  { label: t('marketplace.onboarding.kpi_receita'), value: 'R$ 284k', icon: <ChartBar size={16} weight="duotone" /> },
+                  { label: t('marketplace.onboarding.kpi_atividades'), value: '47', icon: <Lightning size={16} weight="duotone" /> },
                 ].map(kpi => (
                   <div key={kpi.label} className="kpi-card" style={{ padding: '1rem' }}>
                     <span style={{ color: currentAccent }}>{kpi.icon}</span>
@@ -340,18 +352,18 @@ export function OnboardingPreview({ open, onClose }: OnboardingPreviewProps) {
                 ))}
               </div>
 
-              <TooltipGlobal descricao="Iniciar teste gratuito de 14 dias — sem necessidade de cartão">
+              <TooltipGlobal descricao={t('marketplace.onboarding.tooltip_iniciar_trial')}>
                 <a
                   href={`${import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'}/trial?trial=true&profile=${profile?.toLowerCase()}`}
                   className="btn btn-gradient"
                   id="onboarding-start-trial"
                   style={{ width: '100%', justifyContent: 'center' }}
                 >
-                  Começar Trial Grátis — 14 dias
+                  {t('marketplace.onboarding.comecar_trial')}
                 </a>
               </TooltipGlobal>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.625rem' }}>
-                Sem cartão. Sem compromisso.
+                {t('marketplace.onboarding.sem_cartao')}
               </p>
             </div>
           )}

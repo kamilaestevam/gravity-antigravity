@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutDashboard,
   Clock,
@@ -177,6 +178,7 @@ interface PortalDashboardProps {
 }
 
 export default function PortalDashboard({ disabled = false, onNavigate }: PortalDashboardProps) {
+  const { t } = useTranslation()
   const [kpis, setKpis] = useState<PortalKPIs | null>(null)
   const [pageState, setPageState] = useState<PageState>('loading')
 
@@ -220,42 +222,42 @@ export default function PortalDashboard({ disabled = false, onNavigate }: Portal
   const kpiCards = [
     {
       icon: <Clock size={18} />,
-      label: 'Cotacoes Pendentes',
+      label: t('bidcambio.portal.dashboard.cotacoes_pendentes'),
       value: String(kpis?.cotacoes_pendentes ?? 0),
       color: 'var(--warning, #f59e0b)',
       bg: 'rgba(245,158,11,0.15)',
     },
     {
       icon: <Send size={18} />,
-      label: 'Respostas Enviadas',
+      label: t('bidcambio.portal.dashboard.respostas_enviadas'),
       value: String(kpis?.respostas_enviadas ?? 0),
       color: 'var(--accent, #6366f1)',
       bg: 'rgba(99,102,241,0.15)',
     },
     {
       icon: <CheckCircle size={18} />,
-      label: 'Respostas Aprovadas',
+      label: t('bidcambio.portal.dashboard.respostas_aprovadas'),
       value: String(kpis?.respostas_aprovadas ?? 0),
       color: 'var(--success, #22c55e)',
       bg: 'rgba(34,197,94,0.15)',
     },
     {
       icon: <Percent size={18} />,
-      label: 'Taxa de Conversao',
+      label: t('bidcambio.portal.dashboard.taxa_conversao'),
       value: fmtPct(kpis?.taxa_conversao ?? 0),
       color: 'var(--accent, #6366f1)',
       bg: 'rgba(99,102,241,0.15)',
     },
     {
       icon: <DollarSign size={18} />,
-      label: 'Volume Total Operado',
+      label: t('bidcambio.portal.dashboard.volume_total'),
       value: fmtBRL(kpis?.volume_total_brl ?? 0),
       color: 'var(--success, #22c55e)',
       bg: 'rgba(34,197,94,0.15)',
     },
     {
       icon: <Timer size={18} />,
-      label: 'Tempo Medio Resposta',
+      label: t('bidcambio.portal.dashboard.tempo_medio'),
       value: `${kpis?.tempo_medio_resposta_min ?? 0} min`,
       color: 'var(--warning, #f59e0b)',
       bg: 'rgba(245,158,11,0.15)',
@@ -264,22 +266,22 @@ export default function PortalDashboard({ disabled = false, onNavigate }: Portal
 
   const actionCards = [
     {
-      title: 'Cotacoes Pendentes',
-      desc: 'Responda cotacoes antes do prazo',
+      title: t('bidcambio.portal.cotacoes_pendentes.titulo'),
+      desc: t('bidcambio.portal.dashboard.card_cotacoes_desc'),
       icon: <FileText size={20} />,
       path: '/portal/cotacoes-pendentes',
       color: 'var(--accent, #6366f1)',
     },
     {
-      title: 'Minhas Respostas',
-      desc: 'Acompanhe o status das propostas',
+      title: t('bidcambio.portal.minhas_respostas.titulo'),
+      desc: t('bidcambio.portal.dashboard.card_respostas_desc'),
       icon: <Send size={20} />,
       path: '/portal/minhas-respostas',
       color: 'var(--warning, #f59e0b)',
     },
     {
-      title: 'Meu Desempenho',
-      desc: 'Veja seu rating e metricas',
+      title: t('bidcambio.portal.meu_desempenho.titulo'),
+      desc: t('bidcambio.portal.dashboard.card_desempenho_desc'),
       icon: <TrendingUp size={20} />,
       path: '/portal/meu-desempenho',
       color: 'var(--success, #22c55e)',
@@ -385,7 +387,7 @@ export default function PortalDashboard({ disabled = false, onNavigate }: Portal
           color: 'var(--text-secondary, #94a3b8)',
           fontSize: '0.875rem',
         }}>
-          Nenhuma atividade registrada ainda. Aguarde o recebimento de cotacoes.
+          {t('bidcambio.portal.dashboard.nenhuma_atividade')}
         </div>
       )}
 

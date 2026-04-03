@@ -305,6 +305,52 @@ O ícone nunca tem `margin` próprio — o espaçamento é controlado pelo **fle
 
 ---
 
+## 10 — Sistema de Cores por Zona e Produto
+
+> **Referência completa:** `documentos-tecnicos/UX/cores.html`
+
+### Dois Tiers de Cor
+
+| Tier | Quem | Cor | Lógica |
+|------|------|-----|--------|
+| **1 — Plataforma** | HUB, Core, Admin | `#818cf8` (Gravity Indigo) | Unidade institucional |
+| **1 — Plataforma** | Configurador | `#f472b6` (Pink 400) | Workspace admin — diferente dos produtos |
+| **2 — Produto** | 8 produtos COMEX | Cor individual | Identidade única por produto |
+
+### Cores por Produto (Fonte: `@nucleo/logo-produtos`)
+
+```typescript
+import { getProdutoMeta } from '@nucleo/logo-produtos'
+// getProdutoMeta(productId).color → cor de acento
+
+// SimulaCusto    → '#34d399'  Emerald 400
+// Pedido         → '#f59e0b'  Amber 400
+// BID Câmbio     → '#06b6d4'  Cyan 500
+// BID Frete      → '#60a5fa'  Blue 400
+// LPCO           → '#f43f5e'  Rose 500
+// NF Importação  → '#c084fc'  Purple 400
+// Processo       → '#facc15'  Yellow 400
+// Financeiro COMEX → '#f472b6' Pink 400
+```
+
+### Os 3 Pontos de Contato (ÚNICA aplicação da cor de produto)
+
+| Ponto | Onde | CSS |
+|-------|------|-----|
+| ① Chip do produto | Topbar — lado esquerdo | `background: linear-gradient(135deg, {color}18, {color}08)` |
+| ② Dot da sidebar | Item ativo — indicador | `background: {color}` — circle 6×6px |
+| ③ Fundo item ativo | Menu lateral — selecionado | `background: {color}12; color: {color}` |
+
+### Regras Invioláveis
+
+- **Cor de acento via prop** — nunca hardcoded em componente. Vem de `getProdutoMeta(productId).color`
+- **Máximo 3 pontos de contato** — nunca em fundos de página, botões, titles, badges de status
+- **KPI cards** — único card que aceita cor: `border-top: 2px solid {color}`
+- **Botões primários** — sempre `var(--accent)` (#6366f1 indigo), nunca cor do produto
+- **Fonte única de verdade** — `nucleo-global/Logo/produtos/src/produtos.tsx` (PRODUTO_META)
+
+---
+
 ## 11 — Select Box Customizada
 
 > **Regra:** nunca usar `<select>` nativo do HTML. Usar sempre o componente `advanced-select`.

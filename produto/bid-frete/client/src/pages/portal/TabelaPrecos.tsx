@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -78,6 +79,7 @@ const fmtData = (iso: string) =>
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function TabelaPrecos() {
+  const { t } = useTranslation()
   const [precos, setPrecos] = useState<TabelaPreco[]>([])
   const [carregando, setCarregando] = useState(true)
   const [formAberto, setFormAberto] = useState(false)
@@ -236,12 +238,12 @@ export default function TabelaPrecos() {
       cabecalho={
         <CabecalhoGlobal
           icone={<CurrencyDollar weight="duotone" size={22} />}
-          titulo="Tabela de Precos"
-          subtitulo="Gerencie suas rotas e precos padrao"
+          titulo={t('bidfrete.portal.tabela_precos.titulo')}
+          subtitulo={t('bidfrete.portal.tabela_precos.subtitulo')}
           acoes={
             <button className="tp-btn tp-btn--primary" onClick={abrirNovo}>
               <Plus weight="bold" size={14} />
-              Nova Rota
+              {t('bidfrete.portal.tabela_precos.nova_rota')}
             </button>
           }
         />
@@ -252,7 +254,7 @@ export default function TabelaPrecos() {
         <div className="tp-form-wrapper">
           <div className="tp-form-header">
             <h3 className="tp-form-title">
-              {editandoId ? 'Editar Rota' : 'Nova Rota'}
+              {editandoId ? t('bidfrete.portal.tabela_precos.editar_rota') : t('bidfrete.portal.tabela_precos.nova_rota')}
             </h3>
             <button className="tp-btn-icon" onClick={fecharForm}>
               <X weight="bold" size={16} />
@@ -260,7 +262,7 @@ export default function TabelaPrecos() {
           </div>
           <div className="tp-form-grid">
             <div className="tp-field">
-              <label className="tp-label">Origem</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_origem')}</label>
               <input
                 className="tp-input"
                 type="text"
@@ -270,7 +272,7 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Destino</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_destino')}</label>
               <input
                 className="tp-input"
                 type="text"
@@ -280,25 +282,25 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Modal</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_modal')}</label>
               <select className="tp-input" value={form.modal} onChange={e => handleChange('modal', e.target.value)}>
                 {MODAIS.map(m => <option key={m} value={m}>{MODAL_LABELS[m]}</option>)}
               </select>
             </div>
             <div className="tp-field">
-              <label className="tp-label">Modalidade</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_modalidade')}</label>
               <select className="tp-input" value={form.modalidade} onChange={e => handleChange('modalidade', e.target.value)}>
                 {MODALIDADES.map(m => <option key={m} value={m}>{MODALIDADE_LABELS[m]}</option>)}
               </select>
             </div>
             <div className="tp-field">
-              <label className="tp-label">Moeda</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_moeda')}</label>
               <select className="tp-input" value={form.moeda} onChange={e => handleChange('moeda', e.target.value)}>
                 {MOEDAS.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div className="tp-field">
-              <label className="tp-label">Valor Frete</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_valor_frete')}</label>
               <input
                 className="tp-input tp-input--mono"
                 type="number"
@@ -310,7 +312,7 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Taxas Origem</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_taxas_origem')}</label>
               <input
                 className="tp-input tp-input--mono"
                 type="number"
@@ -322,7 +324,7 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Taxas Destino</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_taxas_destino')}</label>
               <input
                 className="tp-input tp-input--mono"
                 type="number"
@@ -334,7 +336,7 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Transit Time (dias)</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_transit')}</label>
               <input
                 className="tp-input tp-input--mono"
                 type="number"
@@ -345,7 +347,7 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Free Time (dias)</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_free_time')}</label>
               <input
                 className="tp-input tp-input--mono"
                 type="number"
@@ -356,7 +358,7 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Validade Inicio</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_validade_inicio')}</label>
               <input
                 className="tp-input"
                 type="date"
@@ -365,7 +367,7 @@ export default function TabelaPrecos() {
               />
             </div>
             <div className="tp-field">
-              <label className="tp-label">Validade Fim</label>
+              <label className="tp-label">{t('bidfrete.portal.tabela_precos.campo_validade_fim')}</label>
               <input
                 className="tp-input"
                 type="date"
@@ -376,11 +378,11 @@ export default function TabelaPrecos() {
           </div>
           <div className="tp-form-actions">
             <button className="tp-btn tp-btn--secondary" onClick={fecharForm}>
-              Cancelar
+              {t('bidfrete.portal.tabela_precos.cancelar')}
             </button>
             <button className="tp-btn tp-btn--primary" onClick={handleSalvar}>
               <FloppyDisk weight="bold" size={14} />
-              {editandoId ? 'Salvar Alteracoes' : 'Adicionar Rota'}
+              {editandoId ? t('bidfrete.portal.tabela_precos.salvar_alteracoes') : t('bidfrete.portal.tabela_precos.adicionar_rota')}
             </button>
           </div>
         </div>
@@ -392,8 +394,8 @@ export default function TabelaPrecos() {
         acoes={acoes}
         idKey="id"
         carregando={carregando}
-        mensagemVazio="Nenhuma rota cadastrada na tabela de precos"
-        tooltipBusca="Buscar por origem, destino ou modal"
+        mensagemVazio={t('bidfrete.portal.tabela_precos.vazio')}
+        tooltipBusca={t('bidfrete.portal.tabela_precos.buscar')}
       />
 
       <style>{`

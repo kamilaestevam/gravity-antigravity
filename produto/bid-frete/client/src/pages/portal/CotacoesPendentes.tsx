@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
@@ -66,6 +67,7 @@ function calcCountdown(prazo: string | null): { label: string; urgente: boolean 
 
 export default function CotacoesPendentes() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [bids, setBids] = useState<BidRequest[]>([])
   const [carregando, setCarregando] = useState(true)
 
@@ -89,20 +91,20 @@ export default function CotacoesPendentes() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Envelope weight="duotone" size={22} />}
-          titulo="Cotacoes Pendentes"
-          subtitulo={`${bids.length} cotacao(oes) aguardando sua resposta`}
+          titulo={t('bidfrete.portal.cotacoes_pendentes.titulo')}
+          subtitulo={`${bids.length} cotação(ões) aguardando sua resposta`}
         />
       }
     >
       {carregando ? (
         <div className="cp-loading">
           <ClockCountdown weight="duotone" size={48} style={{ opacity: 0.3 }} />
-          <p>Carregando cotacoes...</p>
+          <p>{t('bidfrete.portal.cotacoes_pendentes.carregando')}</p>
         </div>
       ) : bids.length === 0 ? (
         <div className="cp-empty">
           <Envelope weight="duotone" size={48} style={{ opacity: 0.3 }} />
-          <p>Nenhuma cotacao pendente no momento</p>
+          <p>{t('bidfrete.portal.cotacoes_pendentes.vazio')}</p>
         </div>
       ) : (
         <div className="cp-grid">
@@ -161,7 +163,7 @@ export default function CotacoesPendentes() {
                   className="cp-btn-responder"
                   onClick={() => navigate(`/portal/responder/${bid.id}`)}
                 >
-                  Responder
+                  {t('bidfrete.portal.responder.titulo')}
                   <ArrowRight weight="bold" size={14} />
                 </button>
               </div>

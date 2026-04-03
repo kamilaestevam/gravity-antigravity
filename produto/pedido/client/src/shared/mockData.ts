@@ -125,10 +125,10 @@ export const MOCK_PEDIDOS_RESPONSE: PedidosListResponse = {
       condicao_pagamento: '100% Antecipado',
       data_emissao_pedido: '2026-03-22',
       numero_proforma: 'PRO-2026/002',
-      numero_invoice: '',
+      numero_invoice: null,
       referencia_importador: 'REF-IMP-002',
-      referencia_exportador: '',
-      referencia_fabricante: '',
+      referencia_exportador: null,
+      referencia_fabricante: null,
       itens: [
         {
           id: 'item-002-a',
@@ -344,10 +344,10 @@ export const MOCK_PEDIDOS_RESPONSE: PedidosListResponse = {
       condicao_pagamento: '100% Antecipado',
       data_emissao_pedido: '2026-02-05',
       numero_proforma: 'PRO-2026/004',
-      numero_invoice: '',
+      numero_invoice: null,
       referencia_importador: 'REF-IMP-004',
       referencia_exportador: 'TSS-2026-0205',
-      referencia_fabricante: '',
+      referencia_fabricante: null,
       itens: [
         {
           id: 'item-005-a',

@@ -105,7 +105,7 @@ function getScreenContext(path: string): ScreenContext {
     }
 
   // /workspace/financeiro
-  if (path.includes('/financeiro'))
+  if (path.includes('/workspace/financeiro'))
     return {
       welcome: 'Acompanhe faturas, pagamentos e o historico financeiro da sua conta.',
       actions: [
@@ -134,6 +134,39 @@ function getScreenContext(path: string): ScreenContext {
         { label: 'Como gerenciar tenants?', icon: <Question size={16} /> },
         { label: 'Onde vejo metricas globais?', icon: <ArrowRight size={16} /> },
         { label: 'Como funciona o deploy?', icon: <RocketLaunch size={16} /> },
+      ],
+    }
+
+  // /produto/bid-frete
+  if (path.includes('/bid-frete'))
+    return {
+      welcome: 'Voce esta no Bid Frete — cotacao inteligente de frete internacional. Posso te ajudar a comparar fretes, entender INCOTERMS e escolher a melhor opcao!',
+      actions: [
+        { label: 'Como cotar frete internacional?', icon: <Question size={16} /> },
+        { label: 'O que sao INCOTERMS?', icon: <Sparkle size={16} /> },
+        { label: 'Como comparar cotacoes?', icon: <ArrowRight size={16} /> },
+      ],
+    }
+
+  // /produto/bid-cambio
+  if (path.includes('/bid-cambio'))
+    return {
+      welcome: 'Voce esta no Bid Cambio — comparacao de taxas de cambio para suas operacoes de comercio exterior. Posso te ajudar a encontrar a melhor taxa!',
+      actions: [
+        { label: 'Como funciona o Bid Cambio?', icon: <Question size={16} /> },
+        { label: 'Como comparar taxas?', icon: <ArrowRight size={16} /> },
+        { label: 'Qual e a melhor hora para fechar cambio?', icon: <Sparkle size={16} /> },
+      ],
+    }
+
+  // /produto/financeiro-comex
+  if (path.includes('/financeiro-comex'))
+    return {
+      welcome: 'Voce esta no Financeiro COMEX — gestao financeira das suas operacoes de importacao e exportacao. Posso te ajudar com DREs, provisoes e controle de custos!',
+      actions: [
+        { label: 'Como lancar um custo de importacao?', icon: <Question size={16} /> },
+        { label: 'Como gerar relatorio financeiro?', icon: <ArrowRight size={16} /> },
+        { label: 'Como controlar provisoes cambiais?', icon: <Sparkle size={16} /> },
       ],
     }
 
@@ -659,7 +692,7 @@ export function GabiOnboardingWidget({ userName, pathname }: GabiOnboardingWidge
         suggestions = data.suggestions
       }
     } catch {
-      fullText = MOCK_RESPONSES[msg] || DEFAULT_RESPONSE
+      fullText = MOCK_RESPONSES[msg] || 'Nao consegui me conectar ao servidor da IA no momento. Verifique se o servico Gabi esta ativo e tente novamente em instantes.'
     }
 
     // Phase 2: Thinking done — start typewriter

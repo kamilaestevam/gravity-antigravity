@@ -12,6 +12,7 @@ import { requireMasterRole } from '../middleware/requireMasterRole.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
+import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
 
 export const usersRouter = Router()
 
@@ -203,6 +204,13 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       data: { role: parsed.data.role },
       select: { id: true, email: true, role: true },
     })
+
+    securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
+      targetUserId: req.params.id,
+      oldRole: user.role,
+      newRole: parsed.data.role,
+    }).catch(() => {})
+
     res.json({ user: updated })
   } catch (err) {
     next(err)

@@ -204,11 +204,11 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
               <input type="text" placeholder="https://api.onesource.com/v2" defaultValue="https://api.onesourcetax.com/tax/v2"/>
             </div>
             <div className="ws-field">
-              <label>Ambiente</label>
+              <label>{t('workspace.connectors.campo_ambiente')}</label>
               <SelectGlobal
                 opcoes={[
-                  { valor: 'sandbox', rotulo: 'Sandbox (Testes)' },
-                  { valor: 'production', rotulo: 'Production' },
+                  { valor: 'sandbox', rotulo: t('workspace.connectors.opt_sandbox') },
+                  { valor: 'production', rotulo: t('workspace.connectors.opt_production') },
                 ]}
                 valor={ambiente}
                 aoMudarValor={(v) => setAmbiente(String(v ?? 'production'))}
@@ -219,11 +219,11 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
 
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Grant Type</label>
+              <label>{t('workspace.connectors.campo_grant_type')}</label>
               <SelectGlobal
                 opcoes={[
-                  { valor: 'client_credentials', rotulo: 'Client Credentials' },
-                  { valor: 'authorization_code', rotulo: 'Authorization Code' },
+                  { valor: 'client_credentials', rotulo: t('workspace.connectors.opt_client_credentials') },
+                  { valor: 'authorization_code', rotulo: t('workspace.connectors.opt_authorization_code') },
                 ]}
                 valor={grantType}
                 aoMudarValor={(v) => setGrantType(String(v ?? 'client_credentials'))}
@@ -231,17 +231,17 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
               />
             </div>
             <div className="ws-field">
-              <label>Token Expiry (segundos)</label>
+              <label>{t('workspace.connectors.campo_token_expiry')}</label>
               <input type="number" placeholder="3600" defaultValue={3600}/>
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', borderTop: '1px solid var(--ws-accent-border)', paddingTop: '1.25rem' }}>
             <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14}/>} onClick={handleSaveOAuth}>
-              {oauthSaved ? 'Credenciais Salvas ✓' : 'Salvar Credenciais'}
+              {oauthSaved ? t('workspace.connectors.btn_credenciais_salvas') : t('workspace.connectors.btn_salvar_credenciais')}
             </BotaoGlobal>
             <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<ArrowSquareOut weight="bold" size={14}/>}>
-              Documentação ONESOURCE
+              {t('workspace.connectors.btn_doc_onesource')}
             </BotaoGlobal>
           </div>
         </div>
@@ -252,10 +252,10 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
         <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
-              <ArrowsLeftRight weight="duotone" size={14} color="#ff6900"/> Mapeamento De-Para — Campos Fiscais
+              <ArrowsLeftRight weight="duotone" size={14} color="#ff6900"/> {t('workspace.connectors.secao_depara_fiscal')}
             </p>
             <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Plus weight="bold" size={13}/>} onClick={addRow}>
-              Adicionar Campo
+              {t('workspace.connectors.btn_adicionar_campo')}
             </BotaoGlobal>
           </div>
 
@@ -264,8 +264,7 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
             borderRadius: '8px', padding: '0.75rem 1rem', fontSize: '0.8125rem',
             color: 'var(--ws-muted)', lineHeight: 1.55,
           }}>
-            Configure o mapeamento entre os campos do Gravity e os campos do ONESOURCE Tax Determination.
-            Estes mapeamentos são usados na chamada <code style={{ color: '#ff6900', background: 'rgba(255,105,0,0.1)', padding: '0.1rem 0.375rem', borderRadius: '4px' }}>POST /tax/v2/calculate</code>.
+            {t('workspace.connectors.depara_info_onesource')}
           </div>
 
           <div style={{
@@ -279,9 +278,9 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
               background: 'rgba(129,140,248,0.05)', borderBottom: '1px solid var(--ws-accent-border)',
             }}>
               <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>#</span>
-              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Campo Gravity</span>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{t('workspace.connectors.depara_col_gravity')}</span>
               <span/>
-              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Campo ONESOURCE</span>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{t('workspace.connectors.depara_col_onesource')}</span>
               <span/>
             </div>
 
@@ -325,10 +324,10 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
 
           <div style={{ display: 'flex', gap: '1rem' }}>
             <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14}/>}>
-              Salvar Mapeamento
+              {t('workspace.connectors.btn_salvar_mapeamento')}
             </BotaoGlobal>
             <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<CloudArrowUp weight="bold" size={14}/>}>
-              Importar CSV
+              {t('workspace.connectors.btn_importar_csv')}
             </BotaoGlobal>
           </div>
         </div>
@@ -338,7 +337,7 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
       {subTab === 'teste' && (
         <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <p className="ws-section-title" style={{ margin: 0 }}>
-            <Lightning weight="duotone" size={14} color="#ff6900"/> Teste de Conexão — ONESOURCE
+            <Lightning weight="duotone" size={14} color="#ff6900"/> {t('workspace.connectors.secao_teste_onesource')}
           </p>
 
           {/* Test card */}
@@ -364,16 +363,16 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
 
               <div style={{ textAlign: 'center' }}>
                 <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-text)', margin: '0 0 0.25rem' }}>
-                  {testStatus === 'idle' && 'Pronto para testar'}
-                  {testStatus === 'testing' && 'Conectando ao ONESOURCE...'}
-                  {testStatus === 'success' && 'Conexão estabelecida com sucesso!'}
-                  {testStatus === 'error' && 'Falha na conexão'}
+                  {testStatus === 'idle' && t('workspace.connectors.teste_idle_titulo')}
+                  {testStatus === 'testing' && t('workspace.connectors.teste_testando_titulo')}
+                  {testStatus === 'success' && t('workspace.connectors.teste_success_titulo')}
+                  {testStatus === 'error' && t('workspace.connectors.teste_error_titulo')}
                 </p>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', margin: 0 }}>
-                  {testStatus === 'idle' && 'Clique abaixo para validar as credenciais OAuth 2.0 e a conectividade com a API ONESOURCE.'}
-                  {testStatus === 'testing' && 'Autenticando via OAuth 2.0 e verificando endpoint /tax/v2/health...'}
-                  {testStatus === 'success' && 'Token obtido com sucesso. Latência: 142ms · Região: us-east-1'}
-                  {testStatus === 'error' && 'Verifique Client ID / Secret e tente novamente. HTTP 401 Unauthorized.'}
+                  {testStatus === 'idle' && t('workspace.connectors.teste_idle_onesource_desc')}
+                  {testStatus === 'testing' && t('workspace.connectors.teste_testando_onesource_desc')}
+                  {testStatus === 'success' && t('workspace.connectors.teste_success_onesource_desc')}
+                  {testStatus === 'error' && t('workspace.connectors.teste_error_onesource_desc')}
                 </p>
               </div>
 
@@ -384,7 +383,7 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
                 onClick={handleTest}
                 style={{ marginTop: '0.5rem' }}
               >
-                {testStatus === 'testing' ? 'Testando...' : testStatus === 'error' ? 'Tentar Novamente' : 'Iniciar Teste'}
+                {testStatus === 'testing' ? t('workspace.connectors.teste_testando') : testStatus === 'error' ? t('workspace.connectors.teste_tentar_novamente') : t('workspace.connectors.teste_iniciar')}
               </BotaoGlobal>
             </div>
 
@@ -395,7 +394,7 @@ function OnesourceConfig({ onBack }: { onBack: () => void }) {
                 display: 'flex', flexDirection: 'column', gap: '0.5rem',
               }}>
                 <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--ws-muted)', margin: 0 }}>
-                  Detalhes do Teste
+                  {t('workspace.connectors.teste_detalhes')}
                 </p>
                 {[
                   { label: 'OAuth Token', value: testStatus === 'success' ? 'Obtido (expires_in: 3600s)' : 'Falha — 401', ok: testStatus === 'success' },
@@ -433,6 +432,7 @@ const INITIAL_DEPARA_SAP: DeParaRowSAP[] = [
 
 /* ── SAP Config Panel ──────────────────────────────────── */
 function SapConfig({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation()
   const [subTab, setSubTab] = useState<'odata' | 'depara' | 'teste'>('odata')
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
   const [saved, setSaved] = useState(false)
@@ -486,7 +486,7 @@ function SapConfig({ onBack }: { onBack: () => void }) {
           </div>
         </div>
         <span className="ws-badge ws-badge-success" style={{ gap: '0.375rem' }}>
-          <CloudCheck weight="bold" size={11}/> Conectado
+          <CloudCheck weight="bold" size={11}/> {t('workspace.connectors.status.conectado')}
         </span>
       </div>
 
@@ -494,7 +494,7 @@ function SapConfig({ onBack }: { onBack: () => void }) {
       <div className="ws-tabs" style={{ margin: 0 }}>
         <button className={`ws-tab${subTab === 'odata' ? ' active' : ''}`} onClick={() => setSubTab('odata')}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-            <Database weight="bold" size={13}/> Conexão OData
+            <Database weight="bold" size={13}/> {t('workspace.connectors.aba_odata')}
           </span>
         </button>
         <button className={`ws-tab${subTab === 'depara' ? ' active' : ''}`} onClick={() => setSubTab('depara')}>
@@ -513,16 +513,16 @@ function SapConfig({ onBack }: { onBack: () => void }) {
       {subTab === 'odata' && (
         <div className="ws-form-card ws-fade-up" style={{ marginBottom: 0 }}>
           <p className="ws-section-title" style={{ margin: 0 }}>
-            <Database weight="duotone" size={14} color="#0070f2"/> Configurações do Conector ERP/SAP
+            <Database weight="duotone" size={14} color="#0070f2"/> {t('workspace.connectors.secao_erp_sap')}
           </p>
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Protocolo de Integração</label>
+              <label>{t('workspace.connectors.campo_protocolo')}</label>
               <SelectGlobal
                 opcoes={[
-                  { valor: 'odata', rotulo: 'OData v4 (SAP)' },
-                  { valor: 'rest', rotulo: 'REST API Genérica' },
-                  { valor: 'jdbc', rotulo: 'JDBC/ODBC DB' },
+                  { valor: 'odata', rotulo: t('workspace.connectors.opt_odata') },
+                  { valor: 'rest', rotulo: t('workspace.connectors.opt_rest') },
+                  { valor: 'jdbc', rotulo: t('workspace.connectors.opt_jdbc') },
                 ]}
                 valor="odata"
                 aoMudarValor={() => {}}
@@ -530,17 +530,17 @@ function SapConfig({ onBack }: { onBack: () => void }) {
               />
             </div>
             <div className="ws-field">
-              <label>Base URL do seu ERP</label>
+              <label>{t('workspace.connectors.campo_base_url')}</label>
               <input type="text" placeholder="https://sap.minhaempresa.com.br/odata" defaultValue="https://s4hana.gravity.internal/odata/v4" />
             </div>
           </div>
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Usuário de Integração</label>
+              <label>{t('workspace.connectors.campo_usuario_integracao')}</label>
               <input type="text" placeholder="Ex: gravity_sync" defaultValue="gravity_sync_prod" />
             </div>
             <div className="ws-field">
-              <label>Senha ou Token (Criptografada em AES-256)</label>
+              <label>{t('workspace.connectors.campo_senha_token')}</label>
               <div style={{ position: 'relative' }}>
                 <input type="password" placeholder="••••••••••••••" defaultValue="secretpassword" style={{ paddingRight: '2.5rem' }} />
                 <ShieldCheck size={18} color="#10b981" style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} />
@@ -549,10 +549,10 @@ function SapConfig({ onBack }: { onBack: () => void }) {
           </div>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', borderTop: '1px solid var(--ws-accent-border)', paddingTop: '1.25rem' }}>
             <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14} />} onClick={handleSave}>
-              {saved ? 'Credenciais Salvas ✓' : 'Salvar Credenciais'}
+              {saved ? t('workspace.connectors.btn_credenciais_salvas') : t('workspace.connectors.btn_salvar_credenciais')}
             </BotaoGlobal>
             <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<ArrowSquareOut weight="bold" size={14} />}>
-              Documentação SAP OData
+              {t('workspace.connectors.btn_doc_sap')}
             </BotaoGlobal>
           </div>
         </div>
@@ -563,10 +563,10 @@ function SapConfig({ onBack }: { onBack: () => void }) {
         <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
-              <ArrowsLeftRight weight="duotone" size={14} color="#0070f2"/> Mapeamento De-Para — Objetos SAP
+              <ArrowsLeftRight weight="duotone" size={14} color="#0070f2"/> {t('workspace.connectors.secao_depara_sap')}
             </p>
             <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<Plus weight="bold" size={13}/>} onClick={addRow}>
-              Adicionar Campo
+              {t('workspace.connectors.btn_adicionar_campo')}
             </BotaoGlobal>
           </div>
 
@@ -575,8 +575,7 @@ function SapConfig({ onBack }: { onBack: () => void }) {
             borderRadius: '8px', padding: '0.75rem 1rem', fontSize: '0.8125rem',
             color: 'var(--ws-muted)', lineHeight: 1.55,
           }}>
-            Configure o mapeamento entre os campos do Gravity e os campos do SAP S/4HANA (via OData).
-            Esses mapeamentos são usados durante o espelhamento de Master Data e Documentos.
+            {t('workspace.connectors.depara_info_sap')}
           </div>
 
           <div style={{
@@ -590,9 +589,9 @@ function SapConfig({ onBack }: { onBack: () => void }) {
               background: 'rgba(129,140,248,0.05)', borderBottom: '1px solid var(--ws-accent-border)',
             }}>
               <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>#</span>
-              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Campo Gravity</span>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{t('workspace.connectors.depara_col_gravity')}</span>
               <span/>
-              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Campo SAP</span>
+              <span style={{ fontSize: '0.6875rem', fontWeight: 700, color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{t('workspace.connectors.depara_col_sap')}</span>
               <span/>
             </div>
 
@@ -636,10 +635,10 @@ function SapConfig({ onBack }: { onBack: () => void }) {
 
           <div style={{ display: 'flex', gap: '1rem' }}>
             <BotaoGlobal variante="primario" tamanho="pequeno" icone={<CheckCircle weight="bold" size={14}/>}>
-              Salvar Mapeamento
+              {t('workspace.connectors.btn_salvar_mapeamento')}
             </BotaoGlobal>
             <BotaoGlobal variante="fantasma" tamanho="pequeno" icone={<CloudArrowUp weight="bold" size={14}/>}>
-              Importar CSV
+              {t('workspace.connectors.btn_importar_csv')}
             </BotaoGlobal>
           </div>
         </div>
@@ -649,7 +648,7 @@ function SapConfig({ onBack }: { onBack: () => void }) {
       {subTab === 'teste' && (
         <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <p className="ws-section-title" style={{ margin: 0 }}>
-            <Lightning weight="duotone" size={14} color="#0070f2"/> Teste de Conexão — SAP
+            <Lightning weight="duotone" size={14} color="#0070f2"/> {t('workspace.connectors.secao_teste_sap')}
           </p>
 
           {/* Test card */}
@@ -675,16 +674,16 @@ function SapConfig({ onBack }: { onBack: () => void }) {
 
               <div style={{ textAlign: 'center' }}>
                 <p style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--ws-text)', margin: '0 0 0.25rem' }}>
-                  {testStatus === 'idle' && 'Pronto para testar'}
-                  {testStatus === 'testing' && 'Conectando ao SAP S/4HANA...'}
-                  {testStatus === 'success' && 'Conexão estabelecida com sucesso!'}
-                  {testStatus === 'error' && 'Falha na conexão'}
+                  {testStatus === 'idle' && t('workspace.connectors.teste_idle_titulo')}
+                  {testStatus === 'testing' && t('workspace.connectors.teste_testando_titulo')}
+                  {testStatus === 'success' && t('workspace.connectors.teste_success_titulo')}
+                  {testStatus === 'error' && t('workspace.connectors.teste_error_titulo')}
                 </p>
                 <p style={{ fontSize: '0.8125rem', color: 'var(--ws-muted)', margin: 0 }}>
-                  {testStatus === 'idle' && 'Clique abaixo para testar a comunicação OData v4.'}
-                  {testStatus === 'testing' && 'Verificando a metadata do serviço OData e endpoint /sap/opu/odata/...'}
-                  {testStatus === 'success' && 'OData metadata recuperada com sucesso. Latência: 45ms'}
-                  {testStatus === 'error' && 'Conexão recusada. Verifique as credenciais e o status do Gateway.'}
+                  {testStatus === 'idle' && t('workspace.connectors.teste_idle_sap_desc')}
+                  {testStatus === 'testing' && t('workspace.connectors.teste_testando_sap_desc')}
+                  {testStatus === 'success' && t('workspace.connectors.teste_success_sap_desc')}
+                  {testStatus === 'error' && t('workspace.connectors.teste_error_sap_desc')}
                 </p>
               </div>
 
@@ -695,7 +694,7 @@ function SapConfig({ onBack }: { onBack: () => void }) {
                 onClick={handleTest}
                 style={{ marginTop: '0.5rem' }}
               >
-                {testStatus === 'testing' ? 'Testando...' : testStatus === 'error' ? 'Tentar Novamente' : 'Iniciar Teste'}
+                {testStatus === 'testing' ? t('workspace.connectors.teste_testando') : testStatus === 'error' ? t('workspace.connectors.teste_tentar_novamente') : t('workspace.connectors.teste_iniciar')}
               </BotaoGlobal>
             </div>
 
@@ -706,7 +705,7 @@ function SapConfig({ onBack }: { onBack: () => void }) {
                 display: 'flex', flexDirection: 'column', gap: '0.5rem',
               }}>
                 <p style={{ fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--ws-muted)', margin: 0 }}>
-                  Detalhes do Teste
+                  {t('workspace.connectors.teste_detalhes')}
                 </p>
                 {[
                   { label: 'Autenticação (Basic)', value: testStatus === 'success' ? 'OK' : 'Falha — 401', ok: testStatus === 'success' },
@@ -799,7 +798,7 @@ function ConnectorCard({ c, onClick }: { c: Conector; onClick: () => void }) {
       }}>
         <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)' }}>{c.categoria} · {c.versao}</span>
         <span style={{ fontSize: '0.75rem', fontWeight: 600, color: c.corPrimaria, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-          Configurar <ArrowSquareOut weight="bold" size={12}/>
+          {t('workspace.connectors.card_configurar')} <ArrowSquareOut weight="bold" size={12}/>
         </span>
       </div>
     </div>
@@ -838,8 +837,8 @@ export function Conectores() {
         <div className="ws-form-card">
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem 0', gap: '1rem' }}>
              <Lock weight="duotone" size={48} color="var(--ws-muted)" />
-             <p style={{ margin: 0, fontWeight: 600, color: 'var(--ws-text)' }}>Em desenvolvimento</p>
-             <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--ws-muted)' }}>O conector para {c?.nome} estará disponível em breve.</p>
+             <p style={{ margin: 0, fontWeight: 600, color: 'var(--ws-text)' }}>{t('workspace.connectors.em_desenvolvimento')}</p>
+             <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--ws-muted)' }}>{t('workspace.connectors.em_desenvolvimento_desc', { nome: c?.nome })}</p>
           </div>
         </div>
       </div>
@@ -850,10 +849,10 @@ export function Conectores() {
     <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <p className="ws-section-title" style={{ margin: 0 }}>
-          <Globe weight="duotone" size={14} color="#818cf8"/> Marketplace de Integrações
+          <Globe weight="duotone" size={14} color="#818cf8"/> {t('workspace.connectors.marketplace_titulo')}
         </p>
         <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
-          {CONECTORES.length} conectores disponíveis
+          {t('workspace.connectors.marketplace_count', { count: CONECTORES.length })}
         </span>
       </div>
 

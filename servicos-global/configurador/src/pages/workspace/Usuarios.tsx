@@ -303,7 +303,7 @@ export function Usuarios() {
       render: (v) => <span style={{ display: 'inline-flex', padding: '0.2rem 0.625rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', background: v === 'Ativo' ? 'rgba(52,211,153,0.12)' : 'rgba(248,113,113,0.12)', color: v === 'Ativo' ? '#34d399' : '#f87171', border: `1px solid ${v === 'Ativo' ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)'}` }}>{v}</span>
     },
     {
-      key: 'id', label: 'Acesso', tipo: 'texto',
+      key: 'id', label: t('workspace.users.tabela_acesso'), tipo: 'texto',
       tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Workspaces às quais este usuário tem acesso liberado',
       render: (_, item) => {
         const isMaster = item.tipo === 'Master'
@@ -372,7 +372,7 @@ export function Usuarios() {
 
   const COLUNAS_FILIAIS: TabelaGlobalColuna<TenantUser>[] = [
     {
-      key: 'nome', label: 'Usuário', tipo: 'texto',
+      key: 'nome', label: t('workspace.users.tabela.usuario'), tipo: 'texto',
       tooltipTitulo: 'Usuário', tooltipDescricao: 'Nome completo e identificação visual do usuário',
       render: (_, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
@@ -389,17 +389,17 @@ export function Usuarios() {
       )
     },
     {
-      key: 'email', label: 'E-mail', tipo: 'texto',
+      key: 'email', label: t('workspace.users.tabela.email'), tipo: 'texto',
       tooltipTitulo: 'E-mail', tooltipDescricao: 'E-mail de acesso utilizado no login da plataforma',
       render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v}</span>
     },
     {
-      key: 'tipo', label: 'Tipo', tipo: 'texto',
+      key: 'tipo', label: t('workspace.users.tabela.tipo'), tipo: 'texto',
       tooltipTitulo: 'Tipo', tooltipDescricao: 'Define as permissões base: Master, Standard ou Fornecedor',
       render: (v) => <span style={{ padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', ...(v === 'Master' ? { color: '#818cf8', background: 'rgba(129,140,248,0.1)' } : v === 'Admin' ? { color: '#06b6d4', background: 'rgba(6,182,212,0.1)' } : v === 'Fornecedor' ? { color: '#fbbf24', background: 'rgba(245,158,11,0.1)' } : { color: '#94a3b8', background: 'rgba(255,255,255,0.05)' }) }}>{v as string}</span>
     },
     {
-      key: 'id', label: 'Empresas vinculadas', tipo: 'texto',
+      key: 'id', label: t('workspace.users.tabela_empresas_vinculadas'), tipo: 'texto',
       tooltipTitulo: 'Empresas vinculadas', tooltipDescricao: 'Workspaces às quais este usuário tem acesso liberado',
       render: (_, item) => {
         const isMaster = item.tipo === 'Master'
@@ -432,13 +432,13 @@ export function Usuarios() {
         <CabecalhoGlobal
           icone={<Users weight="duotone" size={22} />}
           titulo={t('workspace.users.titulo')}
-          subtitulo="Gerencie quem pode acessar a plataforma e em quais empresas cada pessoa está habilitada"
+          subtitulo={t('workspace.users.subtitulo')}
         />
       }
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total de Usuários"
+            titulo={t('workspace.users.total')}
             valor={users.length}
             icone={<Users weight="duotone" size={18} />}
             periodos={[
@@ -462,7 +462,7 @@ export function Usuarios() {
             }
           />
           <CardBasicoGlobal
-            titulo="Acessos Concedidos"
+            titulo={t('workspace.users.acessos_concedidos')}
             valor={totalVinculos}
             icone={<UserCircleCheck weight="duotone" size={18} />}
             variante="sucesso"
@@ -484,7 +484,7 @@ export function Usuarios() {
             }
           />
           <CardBasicoGlobal
-            titulo="Média de Acessos Concedidos"
+            titulo={t('workspace.users.media_acessos')}
             valor={mediaEspacosPorUsuario}
             icone={<ChartPieSlice weight="duotone" size={18} />}
             variante="padrao"
@@ -506,14 +506,14 @@ export function Usuarios() {
             }
           />
           <CardGraficoGlobal
-            titulo="Total Workspaces"
+            titulo={t('workspace.users.total_workspaces')}
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#8b5cf6' }} />}
             total={users.length}
             valorPrincipal={usuariosComAcesso}
             corGauge="#8b5cf6"
             legenda={[
-              { label: 'Com acesso', valor: usuariosComAcesso, cor: '#8b5cf6' },
-              { label: 'Sem acesso', valor: users.length - usuariosComAcesso, cor: '#64748b' },
+              { label: t('workspace.users.com_acesso'), valor: usuariosComAcesso, cor: '#8b5cf6' },
+              { label: t('workspace.users.sem_acesso'), valor: users.length - usuariosComAcesso, cor: '#64748b' },
             ]}
             tooltip={
               <>
@@ -548,7 +548,7 @@ export function Usuarios() {
               onClick={() => setShowForm(true)}
               icone={<User size={18} />}
             >
-              Convidar Usuário
+              {t('workspace.users.botao_convidar')}
             </BotaoGlobal>
           </TooltipGlobal>
         </div>
@@ -587,9 +587,9 @@ export function Usuarios() {
                       dados={vinculados}
                       tooltipBusca="Filtrar workspaces por nome ou ID comercial"
                       colunas={[
-                        { 
-                          key: 'nome', 
-                          label: 'Nome do Workspace',
+                        {
+                          key: 'nome',
+                          label: t('workspace.users.nome_workspace'),
                           tipo: 'texto', 
                           render: (v, item) => {
                             const nome = v as string;
@@ -608,9 +608,9 @@ export function Usuarios() {
                             )
                           }
                         },
-                        { key: 'id', label: 'ID Técnica', tipo: 'texto', render: (v) => <code style={{ fontSize: '0.625rem', opacity: 0.6 }}>{v as string}</code> },
+                        { key: 'id', label: t('workspace.users.id_tecnica'), tipo: 'texto', render: (v) => <code style={{ fontSize: '0.625rem', opacity: 0.6 }}>{v as string}</code> },
                         { 
-                          key: 'id', label: 'Privilégio', tipo: 'texto', 
+                          key: 'id', label: t('workspace.users.privilegio'), tipo: 'texto',
                           render: () => (
                             <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
                               {usuario.tipo === 'Master' ? 'Acesso Total (Master)' : 'Acesso Padrão'}
@@ -618,7 +618,7 @@ export function Usuarios() {
                           )
                         },
                         {
-                          key: 'id', label: 'Status no Workspace', tipo: 'texto', align: 'right',
+                          key: 'id', label: t('workspace.users.status_workspace'), tipo: 'texto', align: 'right',
                           render: () => (
                              <span style={{ fontSize: '0.6875rem', color: '#34d399', fontWeight: 700 }}>HABILITADO</span>
                           )
@@ -645,8 +645,8 @@ export function Usuarios() {
         aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard') }}
         aoSalvar={handleInvite}
         icone={<User size={20} weight="duotone" />}
-        titulo="Convidar Usuário"
-        subtitulo="Preencha os dados para convidar um novo usuário para o workspace"
+        titulo={t('workspace.users.modal_convidar_titulo')}
+        subtitulo={t('workspace.users.modal_convidar_subtitulo')}
         tamanho="md"
         altura="480px"
         dirty={!!(fNome || fEmail)}

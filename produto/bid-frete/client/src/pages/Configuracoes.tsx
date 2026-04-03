@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
@@ -73,14 +74,15 @@ function TabGeral({ config, onChange }: {
   config: ConfigGeral
   onChange: (c: ConfigGeral) => void
 }) {
+  const { t } = useTranslation()
   return (
     <div className="bf-cfg-section">
       <div className="bf-cfg-card">
         <div className="bf-cfg-row">
           <div className="bf-cfg-row-info">
-            <span className="bf-cfg-row-label">Resposta automática</span>
+            <span className="bf-cfg-row-label">{t('bidfrete.configuracoes.resposta_automatica')}</span>
             <span className="bf-cfg-row-desc">
-              Envia confirmação de recebimento automaticamente aos fornecedores
+              {t('bidfrete.configuracoes.resposta_automatica_desc')}
             </span>
           </div>
           <Toggle
@@ -93,9 +95,9 @@ function TabGeral({ config, onChange }: {
 
         <div className="bf-cfg-row">
           <div className="bf-cfg-row-info">
-            <span className="bf-cfg-row-label">Prazo padrão de resposta</span>
+            <span className="bf-cfg-row-label">{t('bidfrete.configuracoes.prazo_padrao')}</span>
             <span className="bf-cfg-row-desc">
-              Tempo limite (em horas) para fornecedores responderem uma cotação
+              {t('bidfrete.configuracoes.prazo_padrao_desc')}
             </span>
           </div>
           <div className="bf-cfg-input-group">
@@ -107,7 +109,7 @@ function TabGeral({ config, onChange }: {
               max={720}
               onChange={(e) => onChange({ ...config, prazoPadraoHoras: Number(e.target.value) || 0 })}
             />
-            <span className="bf-cfg-input-suffix">horas</span>
+            <span className="bf-cfg-input-suffix">{t('bidfrete.configuracoes.horas')}</span>
           </div>
         </div>
 
@@ -115,9 +117,9 @@ function TabGeral({ config, onChange }: {
 
         <div className="bf-cfg-row">
           <div className="bf-cfg-row-info">
-            <span className="bf-cfg-row-label">Canais padrão de disparo</span>
+            <span className="bf-cfg-row-label">{t('bidfrete.configuracoes.canais_disparo')}</span>
             <span className="bf-cfg-row-desc">
-              Canais utilizados para enviar solicitações de cotação
+              {t('bidfrete.configuracoes.canais_disparo_desc')}
             </span>
           </div>
           <div className="bf-cfg-checkboxes">
@@ -149,6 +151,7 @@ function TabConectores({ conectores, onToggle, onTestar }: {
   onToggle: (id: string, ativo: boolean) => void
   onTestar: (id: string) => void
 }) {
+  const { t } = useTranslation()
   return (
     <div className="bf-cfg-section">
       <div className="bf-cfg-connectors">
@@ -174,14 +177,14 @@ function TabConectores({ conectores, onToggle, onTestar }: {
                   <>
                     <span className={`bf-cfg-dot ${c.ultimoTeste.sucesso ? 'bf-cfg-dot--green' : 'bf-cfg-dot--red'}`} />
                     <span className="bf-cfg-connector-test-info">
-                      {c.ultimoTeste.sucesso ? 'Conectado' : 'Falha'}
+                      {c.ultimoTeste.sucesso ? t('bidfrete.configuracoes.conectado') : t('bidfrete.configuracoes.falha')}
                       <span className="bf-cfg-connector-test-date"> — {c.ultimoTeste.data}</span>
                     </span>
                   </>
                 ) : (
                   <>
                     <span className="bf-cfg-dot bf-cfg-dot--muted" />
-                    <span className="bf-cfg-connector-test-info">Nunca testado</span>
+                    <span className="bf-cfg-connector-test-info">{t('bidfrete.configuracoes.nunca_testado')}</span>
                   </>
                 )}
               </div>
@@ -190,7 +193,7 @@ function TabConectores({ conectores, onToggle, onTestar }: {
                 onClick={() => onTestar(c.id)}
               >
                 <ArrowsClockwise weight="bold" size={14} />
-                Testar Conexão
+                {t('bidfrete.configuracoes.testar_conexao')}
               </button>
             </div>
           </div>
@@ -243,11 +246,8 @@ function TabNotificacoes({ rows, onChange }: {
 
 // ─── Componente Principal ───────────────────────────────────────────────────
 
-const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: 'geral', label: 'Geral', icon: <Faders weight="duotone" size={16} /> },
-  { key: 'conectores', label: 'Conectores', icon: <Plugs weight="duotone" size={16} /> },
-  { key: 'notificacoes', label: 'Notificações', icon: <Bell weight="duotone" size={16} /> },
-]
+// TABS is built inside the component to allow t() usage
+
 
 const CONECTORES_INICIAIS: Conector[] = [
   { id: 'sap', nome: 'SAP OData', tipo: 'ERP', ativo: true, ultimoTeste: { sucesso: true, data: '28/03/2026' } },
@@ -270,6 +270,12 @@ const CONFIG_INICIAL: ConfigGeral = {
 }
 
 export default function Configuracoes() {
+  const { t } = useTranslation()
+  const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
+    { key: 'geral', label: t('bidfrete.configuracoes.tab_geral'), icon: <Faders weight="duotone" size={16} /> },
+    { key: 'conectores', label: t('bidfrete.configuracoes.tab_conectores'), icon: <Plugs weight="duotone" size={16} /> },
+    { key: 'notificacoes', label: t('bidfrete.configuracoes.tab_notificacoes'), icon: <Bell weight="duotone" size={16} /> },
+  ]
   const [tab, setTab] = useState<TabKey>('geral')
   const [config, setConfig] = useState<ConfigGeral>(CONFIG_INICIAL)
   const [conectores, setConectores] = useState<Conector[]>(CONECTORES_INICIAIS)
@@ -312,8 +318,8 @@ export default function Configuracoes() {
       cabecalho={
         <CabecalhoGlobal
           icone={<GearSix weight="duotone" size={22} />}
-          titulo="Configurações"
-          subtitulo="Conectores, notificações e preferências"
+          titulo={t('bidfrete.configuracoes.titulo')}
+          subtitulo={t('bidfrete.configuracoes.subtitulo')}
         />
       }
     >
@@ -352,10 +358,10 @@ export default function Configuracoes() {
           {salvoMsg ? (
             <span className="bf-cfg-saved-msg">
               <CheckCircle weight="fill" size={16} />
-              Configurações salvas
+              {t('bidfrete.configuracoes.salvas')}
             </span>
           ) : (
-            <span className="bf-cfg-dirty-msg">Alterações não salvas</span>
+            <span className="bf-cfg-dirty-msg">{t('bidfrete.configuracoes.nao_salvas')}</span>
           )}
           <button
             className="bf-cfg-btn-save"
@@ -363,7 +369,7 @@ export default function Configuracoes() {
             disabled={salvando || !isDirty}
           >
             <FloppyDisk weight="bold" size={16} />
-            {salvando ? 'Salvando...' : 'Salvar'}
+            {salvando ? t('bidfrete.configuracoes.salvando') : t('bidfrete.configuracoes.salvar')}
           </button>
         </div>
       </div>

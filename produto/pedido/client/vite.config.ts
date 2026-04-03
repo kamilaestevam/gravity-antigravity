@@ -14,7 +14,7 @@ export default defineConfig({
   plugins: [react()],
 
   resolve: {
-    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom'],
+    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'react-grid-layout', 'react-resizable'],
     alias: {
       // ── Botoes ──
       '@nucleo/botao-global':                     nucleo('Botoes/botao-global/src/index.ts'),
@@ -52,6 +52,8 @@ export default defineConfig({
       '@nucleo/modal-sem-sessoes-global':          nucleo('Modais/modal-sem-sessoes-global/src/index.ts'),
       '@nucleo/modal-campo-select-global':         nucleo('Modais/modal-select-global/src/index.ts'),
       '@nucleo/modal-workspace-inicial-global':    nucleo('Modais/modal-workspace-inicial-global/src/index.ts'),
+      // ── Dashboard ──
+      '@nucleo/dashboard':                         nucleo('Dashboard/index.ts'),
       // ── Tabelas ──
       '@nucleo/tabela-global':                     nucleo('Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':             nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
@@ -77,17 +79,19 @@ export default defineConfig({
       '@clerk/clerk-react',
       '@tanstack/react-virtual',
       'exceljs',
+      'react-grid-layout',
+      'react-resizable',
     ],
   },
 
   server: {
-    port: 5178,
+    port: 5179,
     fs: {
       allow: [monorepoRoot],
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:8025',
+        target: 'http://localhost:8026',
         changeOrigin: true,
       },
     },

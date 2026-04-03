@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { X, EnvelopeSimple, ArrowRight, CheckCircle } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useExitIntent } from '../../hooks/useExitIntent'
+import { useTranslation } from 'react-i18next'
 
 export function ExitIntentDrawer() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
@@ -41,22 +43,22 @@ export function ExitIntentDrawer() {
       <aside
         className={`drawer ${open ? 'open' : ''}`}
         role="complementary"
-        aria-label="Salvar progresso"
+        aria-label={t('marketplace.exit_intent.salvar_progresso')}
         aria-hidden={!open}
       >
         <div className="drawer-header">
           <div>
             <p className="text-micro" style={{ color: 'var(--warning)', marginBottom: '0.25rem' }}>
-              Antes de ir...
+              {t('marketplace.exit_intent.antes_ir')}
             </p>
             <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>
-              Salve seu progresso
+              {t('marketplace.exit_intent.salvar_progresso')}
             </h3>
           </div>
           <button
             className="btn btn-ghost btn-sm"
             onClick={handleClose}
-            aria-label="Fechar"
+            aria-label={t('marketplace.exit_intent.fechar')}
             style={{ padding: '0.375rem' }}
           >
             <X size={18} />
@@ -67,16 +69,15 @@ export function ExitIntentDrawer() {
           {!sent ? (
             <>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-                Vimos que você explorou o <strong style={{ color: 'var(--text-primary)' }}>Gravity</strong>.
-                Quer receber um link para continuar de onde parou?
+                {t('marketplace.exit_intent.descricao')}
               </p>
 
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {[
-                    '14 dias grátis sem cartão',
-                    'Setup em menos de 60 segundos',
-                    'Cancele quando quiser',
+                    t('marketplace.exit_intent.dias_gratis'),
+                    t('marketplace.exit_intent.setup_rapido'),
+                    t('marketplace.exit_intent.cancele'),
                   ].map(item => (
                     <div key={item} className="feature-item">
                       <div className="feature-item-icon">
@@ -93,7 +94,7 @@ export function ExitIntentDrawer() {
               <form onSubmit={handleSubmit}>
                 <div className="input-group" style={{ marginBottom: '1rem' }}>
                   <label htmlFor="exit-email">
-                    Seu melhor e-mail
+                    {t('marketplace.exit_intent.seu_email')}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <EnvelopeSimple
@@ -111,7 +112,7 @@ export function ExitIntentDrawer() {
                       type="email"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
-                      placeholder="voce@empresa.com.br"
+                      placeholder={t('marketplace.exit_intent.placeholder_email')}
                       required
                       autoFocus
                       style={{ paddingLeft: '2.25rem', width: '100%' }}
@@ -119,24 +120,24 @@ export function ExitIntentDrawer() {
                   </div>
                 </div>
 
-                <TooltipGlobal descricao="Enviar link de acesso para o seu e-mail e continuar de onde parou">
+                <TooltipGlobal descricao={t('marketplace.exit_intent.tooltip_enviar')}>
                   <button type="submit" className="btn btn-gradient" id="exit-intent-submit" style={{ width: '100%', justifyContent: 'center' }}>
-                    Salvar e Continuar Depois
+                    {t('marketplace.exit_intent.salvar_continuar')}
                     <ArrowRight size={16} weight="bold" />
                   </button>
                 </TooltipGlobal>
               </form>
 
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.875rem' }}>
-                Sem spam. Apenas um link. Prometido.
+                {t('marketplace.exit_intent.sem_spam')}
               </p>
             </>
           ) : (
             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
               <CheckCircle size={48} color="var(--success)" weight="duotone" style={{ margin: '0 auto 1rem' }} />
-              <h3 style={{ marginBottom: '0.5rem' }}>Perfeito!</h3>
+              <h3 style={{ marginBottom: '0.5rem' }}>{t('marketplace.exit_intent.perfeito')}</h3>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                Link salvo. Redirecionando para o setup...
+                {t('marketplace.exit_intent.redirecionando')}
               </p>
             </div>
           )}

@@ -11,6 +11,7 @@ import { dirname, join } from 'path'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { dashboardRouter } from './routes/dashboard.js'
+import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { lancamentosRouter } from './routes/lancamentos.js'
 import { importarRouter } from './routes/importar.js'
 import { numerarioRouter } from './routes/numerario.js'
@@ -92,6 +93,7 @@ app.use(tenantIsolationMiddleware)
 
 // --- 8. Rotas do Produto ---
 app.use('/api/v1/financeiro', dashboardRouter)
+app.use('/api/v1/financeiro/dashboard', dashboardWidgetsRouter)
 app.use('/api/v1/financeiro', lancamentosRouter)
 app.use('/api/v1/financeiro', importarRouter)
 app.use('/api/v1/financeiro', numerarioRouter)

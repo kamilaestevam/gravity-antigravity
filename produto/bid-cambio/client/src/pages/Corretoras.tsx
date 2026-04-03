@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Building2,
   Search,
@@ -45,6 +46,7 @@ const BADGE_COLORS: Record<string, { bg: string; color: string }> = {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function Corretoras() {
+  const { t } = useTranslation()
   const [corretoras, setCorretoras] = useState<Corretora[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -105,11 +107,11 @@ export default function Corretoras() {
       <div style={containerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <Building2 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Corretoras</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.corretoras.titulo')}</h1>
         </div>
         <div style={{ background: 'var(--bg-surface, #334155)', borderRadius: 12, padding: '3rem', textAlign: 'center' }}>
           <Loader2 size={28} style={{ color: 'var(--accent, #6366f1)', animation: 'spin 1s linear infinite' }} />
-          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>Carregando corretoras...</p>
+          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>{t('bidcambio.corretoras.carregando')}</p>
         </div>
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -123,14 +125,14 @@ export default function Corretoras() {
       <div style={containerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <Building2 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Corretoras</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.corretoras.titulo')}</h1>
         </div>
         <div style={{ background: 'var(--bg-surface, #334155)', borderRadius: 12, padding: '2rem', textAlign: 'center' }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger, #ef4444)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Erro ao carregar</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('comum.erro_carregar')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1rem' }}>{error}</p>
           <button onClick={carregar} style={btnPrimary}>
-            <RefreshCw size={14} /> Tentar novamente
+            <RefreshCw size={14} /> {t('acoes.tentar_novamente')}
           </button>
         </div>
       </div>
@@ -145,15 +147,15 @@ export default function Corretoras() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Building2 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Corretoras</h1>
+            <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.corretoras.titulo')}</h1>
           </div>
-          <button style={btnPrimary}><Plus size={14} /> Adicionar Corretora</button>
+          <button style={btnPrimary}><Plus size={14} /> {t('bidcambio.corretoras.adicionar')}</button>
         </div>
         <div style={{ background: 'var(--bg-surface, #334155)', borderRadius: 12, padding: '3rem', textAlign: 'center' }}>
           <Building2 size={40} style={{ color: 'var(--text-muted, #64748b)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Nenhuma corretora cadastrada</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('bidcambio.corretoras.nenhuma')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            Adicione corretoras de cambio para comecar a enviar cotacoes.
+            {t('bidcambio.corretoras.nenhuma_desc')}
           </p>
         </div>
       </div>
@@ -168,7 +170,7 @@ export default function Corretoras() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Building2 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Corretoras</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.corretoras.titulo')}</h1>
           <span style={{
             fontSize: '0.6875rem', fontWeight: 700, color: 'var(--accent, #6366f1)',
             background: 'rgba(99,102,241,0.15)', padding: '0.15rem 0.5rem', borderRadius: 9999,
@@ -176,7 +178,7 @@ export default function Corretoras() {
             {corretoras.length}
           </span>
         </div>
-        <button style={btnPrimary}><Plus size={14} /> Adicionar Corretora</button>
+        <button style={btnPrimary}><Plus size={14} /> {t('bidcambio.corretoras.adicionar')}</button>
       </div>
 
       {/* Filters */}
@@ -191,7 +193,7 @@ export default function Corretoras() {
           <Search size={14} style={{ color: 'var(--text-muted, #64748b)' }} />
           <input
             type="text"
-            placeholder="Buscar corretora..."
+            placeholder={t('bidcambio.corretoras.buscar')}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             style={{
@@ -202,13 +204,13 @@ export default function Corretoras() {
           />
         </div>
         <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)} style={selectStyle}>
-          <option value="">Todos os tipos</option>
+          <option value="">{t('comum.todos_tipos')}</option>
           {(Object.entries(TIPO_CORRETORA_LABELS) as [TipoCorretora, string][]).map(([key, label]) => (
             <option key={key} value={key}>{label}</option>
           ))}
         </select>
         <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)} style={selectStyle}>
-          <option value="">Todos os status</option>
+          <option value="">{t('comum.todos_status')}</option>
           {(Object.entries(STATUS_CORRETORA_LABELS) as [StatusCorretora, string][]).map(([key, label]) => (
             <option key={key} value={key}>{label}</option>
           ))}
@@ -221,7 +223,7 @@ export default function Corretoras() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--bg-elevated, #475569)' }}>
-                {['Nome', 'Tipo', 'Email', 'Status', 'Rating', 'Moedas', 'Acoes'].map((h) => (
+                {[t('tabela.nome'), t('tabela.tipo'), t('tabela.email'), t('tabela.status'), t('tabela.rating'), t('tabela.moedas'), t('tabela.acoes')].map((h) => (
                   <th key={h} style={{
                     padding: '0.75rem 0.75rem', textAlign: 'left',
                     fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase',
@@ -323,7 +325,7 @@ export default function Corretoras() {
                           color: 'var(--text-secondary, #94a3b8)', cursor: 'pointer', fontFamily: 'inherit',
                         }}
                       >
-                        Detalhes
+                        {t('acoes.detalhes')}
                       </button>
                     </td>
                   </tr>

@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   CreditCard,
   X,
@@ -61,6 +62,7 @@ export interface PagamentoData {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave, disabled = false }: ModalPagamentoProps) {
+  const { t } = useTranslation()
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -133,7 +135,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
       })
       setSuccess(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao salvar pagamento')
+      setError(err instanceof Error ? err.message : t('comum.erro_salvar'))
     } finally {
       setSaving(false)
     }
@@ -238,11 +240,11 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
         <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
             <CheckCircle2 size={48} style={{ color: 'var(--success, #22c55e)', marginBottom: '1rem' }} />
-            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>Pagamento registrado</h3>
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.5rem' }}>{t('bidcambio.modal_pagamento.sucesso')}</h3>
             <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1.5rem' }}>
-              {selectedParcelas.size} parcela(s) marcada(s) como paga(s).
+              {t('bidcambio.modal_pagamento.parcelas_pagas', { count: selectedParcelas.size })}
             </p>
-            <button onClick={() => { reset(); onClose() }} style={btnPrimary}>Fechar</button>
+            <button onClick={() => { reset(); onClose() }} style={btnPrimary}>{t('acoes.fechar')}</button>
           </div>
         </div>
       </div>
@@ -259,7 +261,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <CreditCard size={18} style={{ color: 'var(--accent, #6366f1)' }} />
             <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>
-              Registrar Pagamento
+              {t('bidcambio.modal_pagamento.titulo')}
             </h3>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
@@ -285,12 +287,12 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
         {step === 1 && (
           <div>
             <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
-              Selecionar parcela(s) para pagamento
+              {t('bidcambio.modal_pagamento.selecionar_parcelas')}
             </h4>
 
             {parcelasDisponiveis.length === 0 ? (
               <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem' }}>
-                Nenhuma parcela disponivel para pagamento.
+                {t('bidcambio.modal_pagamento.nenhuma_parcela')}
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
@@ -318,7 +320,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                       />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>
-                          Parcela {p.numero_parcela} — Vencimento: {dataBR(p.data_vencimento)}
+                          {t('bidcambio.modal_pagamento.parcela_num', { num: p.numero_parcela })} — {t('bidcambio.modal_pagamento.vencimento')}: {dataBR(p.data_vencimento)}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
                           {STATUS_PARCELA_LABELS[p.status]} — {moeda} {fmtMoney(p.valor_moeda_estrangeira)}
@@ -360,7 +362,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                 marginBottom: '1rem',
               }}>
                 <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                  {selectedParcelas.size} parcela(s) selecionada(s)
+                  {t('bidcambio.modal_pagamento.parcelas_selecionadas', { count: selectedParcelas.size })}
                 </span>
                 <span style={{ fontSize: '1rem', fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>
                   {moeda} {fmtMoney(totalSelecionado)}
@@ -374,12 +376,12 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
         {step === 2 && (
           <div>
             <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
-              Dados do contrato de cambio
+              {t('bidcambio.modal_pagamento.dados_contrato')}
             </h4>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div>
-                <label style={labelStyle}>Contrato de Cambio</label>
+                <label style={labelStyle}>{t('bidcambio.modal_pagamento.contrato')}</label>
                 <input
                   type="text"
                   value={contratoCambio}
@@ -390,7 +392,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                 />
               </div>
               <div>
-                <label style={labelStyle}>Banco / Corretora</label>
+                <label style={labelStyle}>{t('bidcambio.modal_pagamento.banco_corretora')}</label>
                 <input
                   type="text"
                   value={bancoCorretora}
@@ -404,7 +406,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div>
-                <label style={labelStyle}>Taxa de Fechamento</label>
+                <label style={labelStyle}>{t('bidcambio.modal_pagamento.taxa_fechamento')}</label>
                 <input
                   type="number"
                   value={taxaFechamento}
@@ -417,7 +419,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                 />
               </div>
               <div>
-                <label style={labelStyle}>Valor em R$</label>
+                <label style={labelStyle}>{t('bidcambio.modal_pagamento.valor_brl')}</label>
                 <input
                   type="number"
                   value={valorBrl}
@@ -438,18 +440,18 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
               marginBottom: '1rem',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Valor ME</span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.modal_pagamento.valor_me')}</span>
                 <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>{moeda} {fmtMoney(totalSelecionado)}</span>
               </div>
               {Number(taxaFechamento) > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Taxa</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.detalhe_cotacao.taxa')}</span>
                   <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 600 }}>{fmtRate(Number(taxaFechamento))}</span>
                 </div>
               )}
               {Number(valorBrl) > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Valor BRL</span>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.modal_pagamento.valor_brl_label')}</span>
                   <span style={{ fontFamily: "'DM Mono', monospace", fontWeight: 700, color: 'var(--accent, #6366f1)' }}>R$ {fmtMoney(Number(valorBrl))}</span>
                 </div>
               )}
@@ -461,7 +463,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
         {step === 3 && (
           <div>
             <h4 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 0.75rem' }}>
-              Comprovante (opcional)
+              {t('bidcambio.modal_pagamento.comprovante')}
             </h4>
 
             <div
@@ -490,17 +492,17 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                   <FileText size={28} style={{ color: 'var(--accent, #6366f1)', marginBottom: '0.5rem' }} />
                   <p style={{ fontWeight: 600, margin: '0 0 0.25rem', fontSize: '0.875rem' }}>{comprovanteFile.name}</p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
-                    {(comprovanteFile.size / 1024).toFixed(0)} KB — Clique para trocar
+                    {(comprovanteFile.size / 1024).toFixed(0)} KB — {t('bidcambio.modal_pagamento.clique_trocar')}
                   </p>
                 </>
               ) : (
                 <>
                   <Upload size={28} style={{ color: 'var(--text-muted, #64748b)', marginBottom: '0.5rem' }} />
                   <p style={{ fontWeight: 600, margin: '0 0 0.25rem', fontSize: '0.875rem' }}>
-                    Clique para enviar comprovante
+                    {t('bidcambio.modal_pagamento.clique_enviar')}
                   </p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
-                    PDF, JPG ou PNG
+                    {t('bidcambio.modal_pagamento.formatos')}
                   </p>
                 </>
               )}
@@ -508,7 +510,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
 
             {comprovanteFile && (
               <div style={{ marginBottom: '1rem' }}>
-                <label style={labelStyle}>Nome do arquivo (opcional)</label>
+                <label style={labelStyle}>{t('bidcambio.modal_pagamento.nome_arquivo')}</label>
                 <input
                   type="text"
                   value={comprovanteNome}
@@ -531,13 +533,13 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                 style={btnSecondary}
                 disabled={disabled || saving}
               >
-                <ChevronLeft size={14} /> Voltar
+                <ChevronLeft size={14} /> {t('acoes.voltar')}
               </button>
             )}
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button onClick={onClose} style={btnSecondary} disabled={saving}>
-              Cancelar
+              {t('acoes.cancelar')}
             </button>
             {step < 3 ? (
               <button
@@ -549,7 +551,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                   cursor: (step === 1 && !canGoStep2) || (step === 2 && !canGoStep3) ? 'not-allowed' : 'pointer',
                 }}
               >
-                Proximo <ChevronRight size={14} />
+                {t('acoes.proximo')} <ChevronRight size={14} />
               </button>
             ) : (
               <button
@@ -563,7 +565,7 @@ export default function ModalPagamento({ open, onClose, parcelas, moeda, onSave,
                 }}
               >
                 {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <CheckCircle2 size={14} />}
-                {saving ? 'Salvando...' : 'Salvar Pagamento'}
+                {saving ? t('comum.salvando') : t('bidcambio.modal_pagamento.salvar')}
               </button>
             )}
           </div>

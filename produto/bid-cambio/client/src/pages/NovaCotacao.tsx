@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ArrowLeftRight,
   Send,
@@ -110,6 +111,7 @@ const gridRow3: React.CSSProperties = {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function NovaCotacao() {
+  const { t } = useTranslation()
   // ── Form state ──
   const [moeda, setMoeda] = useState<MoedaCambio>('USD')
   const [valor, setValor] = useState<string>('')
@@ -164,11 +166,11 @@ export default function NovaCotacao() {
   const handleSubmit = useCallback(async () => {
     setError(null)
     if (!valor || Number(valor) <= 0) {
-      setError('Informe um valor valido.')
+      setError(t('bidcambio.nova_cotacao.erro_valor'))
       return
     }
     if (selectedCorretoras.size === 0) {
-      setError('Selecione ao menos uma corretora.')
+      setError(t('bidcambio.nova_cotacao.erro_corretora'))
       return
     }
 
@@ -207,13 +209,13 @@ export default function NovaCotacao() {
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem 2rem' }}>
           <CheckCircle2 size={48} style={{ color: 'var(--success, #22c55e)', marginBottom: '1rem' }} />
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 0.5rem' }}>
-            Cotacao criada e disparada
+            {t('bidcambio.nova_cotacao.sucesso')}
           </h2>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 0.5rem' }}>
             Numero: <strong style={{ color: 'var(--accent, #6366f1)', fontFamily: "'DM Mono', monospace" }}>{createdCotacao.numero}</strong>
           </p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1.5rem' }}>
-            Enviada para {selectedCorretoras.size} corretora(s).
+            {t('bidcambio.nova_cotacao.sucesso_corretoras', { count: selectedCorretoras.size })}
           </p>
           <button
             onClick={() => {
@@ -226,7 +228,7 @@ export default function NovaCotacao() {
             }}
             style={btnSecondary}
           >
-            <Plus size={14} /> Nova Cotacao
+            <Plus size={14} /> {t('bidcambio.nova_cotacao.nova')}
           </button>
         </div>
       </div>
@@ -240,7 +242,7 @@ export default function NovaCotacao() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
         <ArrowLeftRight size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-        <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Nova Cotacao de Cambio</h1>
+        <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.nova_cotacao.titulo')}</h1>
       </div>
 
       {/* Error */}
@@ -258,12 +260,12 @@ export default function NovaCotacao() {
       {/* Dados Principais */}
       <div style={cardStyle}>
         <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 1rem', color: 'var(--text-primary, #f1f5f9)' }}>
-          Dados da Operacao
+          {t('bidcambio.nova_cotacao.dados_operacao')}
         </h3>
 
         <div style={gridRow}>
           <div>
-            <label style={labelStyle}>Moeda</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.moeda')}</label>
             <select
               value={moeda}
               onChange={(e) => setMoeda(e.target.value as MoedaCambio)}
@@ -276,7 +278,7 @@ export default function NovaCotacao() {
             </select>
           </div>
           <div>
-            <label style={labelStyle}>Valor</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.valor')}</label>
             <input
               type="number"
               value={valor}
@@ -292,7 +294,7 @@ export default function NovaCotacao() {
 
         <div style={gridRow3}>
           <div>
-            <label style={labelStyle}>Tipo Operacao</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.tipo_operacao')}</label>
             <select
               value={tipoOperacao}
               onChange={(e) => setTipoOperacao(e.target.value as TipoOperacaoCambio)}
@@ -305,7 +307,7 @@ export default function NovaCotacao() {
             </select>
           </div>
           <div>
-            <label style={labelStyle}>Modalidade</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.modalidade')}</label>
             <select
               value={modalidade}
               onChange={(e) => setModalidade(e.target.value as ModalidadeCambio)}
@@ -318,7 +320,7 @@ export default function NovaCotacao() {
             </select>
           </div>
           <div>
-            <label style={labelStyle}>Liquidacao</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.liquidacao')}</label>
             <select
               value={liquidacao}
               onChange={(e) => setLiquidacao(e.target.value as LiquidacaoCambio)}
@@ -334,7 +336,7 @@ export default function NovaCotacao() {
 
         <div style={gridRow}>
           <div>
-            <label style={labelStyle}>Prazo de Resposta</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.prazo_resposta')}</label>
             <input
               type="datetime-local"
               value={prazoResposta}
@@ -344,7 +346,7 @@ export default function NovaCotacao() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Total de Parcelas</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.total_parcelas')}</label>
             <input
               type="number"
               value={totalParcelas}
@@ -361,11 +363,11 @@ export default function NovaCotacao() {
       {/* Referencia */}
       <div style={cardStyle}>
         <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 1rem', color: 'var(--text-primary, #f1f5f9)' }}>
-          Referencias (opcional)
+          {t('bidcambio.nova_cotacao.referencias')}
         </h3>
         <div style={gridRow3}>
           <div>
-            <label style={labelStyle}>Referencia Processo</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.ref_processo')}</label>
             <input
               type="text"
               value={referenciaProcesso}
@@ -376,7 +378,7 @@ export default function NovaCotacao() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Numero Pedido / Invoice</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.num_pedido')}</label>
             <input
               type="text"
               value={numeroPedido}
@@ -387,7 +389,7 @@ export default function NovaCotacao() {
             />
           </div>
           <div>
-            <label style={labelStyle}>Exportador</label>
+            <label style={labelStyle}>{t('bidcambio.nova_cotacao.exportador')}</label>
             <input
               type="text"
               value={exportador}
@@ -399,7 +401,7 @@ export default function NovaCotacao() {
           </div>
         </div>
         <div>
-          <label style={labelStyle}>Descricao</label>
+          <label style={labelStyle}>{t('bidcambio.nova_cotacao.descricao')}</label>
           <textarea
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
@@ -423,11 +425,11 @@ export default function NovaCotacao() {
         {loadingCorretoras ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted, #64748b)' }}>
             <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-            <span style={{ fontSize: '0.875rem' }}>Carregando corretoras...</span>
+            <span style={{ fontSize: '0.875rem' }}>{t('bidcambio.nova_cotacao.carregando_corretoras')}</span>
           </div>
         ) : corretoras.length === 0 ? (
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            Nenhuma corretora ativa cadastrada.
+            {t('bidcambio.nova_cotacao.nenhuma_corretora')}
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -489,7 +491,7 @@ export default function NovaCotacao() {
           }}
         >
           {submitting ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Send size={16} />}
-          {submitting ? 'Disparando...' : 'Disparar Cotacao'}
+          {submitting ? t('bidcambio.nova_cotacao.disparando') : t('bidcambio.nova_cotacao.disparar')}
         </button>
       </div>
 

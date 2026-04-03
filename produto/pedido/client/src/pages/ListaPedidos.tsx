@@ -10,6 +10,7 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { useShellStore } from '@gravity/shell'
 import {
   Package,
   Plus,
@@ -19,16 +20,15 @@ import {
   Copy,
   CurrencyDollar,
   Scales,
-  Cube,
   Warning,
-  CheckCircle,
-  Coins,
   ArrowRight,
-  Gauge,
-  Money,
   DownloadSimple,
   ArrowsClockwise,
   X,
+  UploadSimple,
+  CheckSquare,
+  ArrowsLeftRight,
+  PencilLine,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -49,6 +49,7 @@ import {
   pedidoVirtualApi,
   pedidoConfigApi,
   pedidoLoteApi,
+  pedidoItemApi,
 } from '../shared/api'
 import type {
   Pedido,
@@ -84,6 +85,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     naoOcultavel: true,
+    frozen: true,
     tooltipTitulo: 'Número do Pedido',
     tooltipDescricao: 'Identificador único do documento comercial (PO/SO)',
     largura: 140,
@@ -394,10 +396,59 @@ const COLUNAS_EXPORT: ColunasExport[] = [
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
+// ── Helper: traduz erro de API em mensagem clara para o usuário ───────────────
+
+function mensagemErro(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err ?? '')
+  const low = msg.toLowerCase()
+
+  // ── Erros HTTP por código exato ────────────────────────────────────────────
+  if (msg.includes('HTTP 400'))
+    return 'Dados inválidos. Verifique o valor informado e tente novamente.'
+  if (msg.includes('HTTP 401'))
+    return 'Sessão expirada. Recarregue a página e faça login novamente.'
+  if (msg.includes('HTTP 403'))
+    return 'Sem permissão para editar este campo.'
+  if (msg.includes('HTTP 404'))
+    return 'Registro não encontrado. Atualize a página.'
+  if (msg.includes('HTTP 409'))
+    return 'Conflito de edição — outra aba já alterou este registro. Valor restaurado.'
+  if (msg.includes('HTTP 422'))
+    return 'Valor inválido para este campo. Verifique o formato esperado.'
+  if (msg.includes('HTTP 429'))
+    return 'Muitas requisições. Aguarde alguns segundos e tente novamente.'
+  if (/HTTP 5\d\d/.test(msg))
+    return 'Erro interno do servidor. Tente novamente em instantes.'
+
+  // ── Resposta inválida do servidor (JSON parse error) ──────────────────────
+  if (low.includes('unexpected token') || low.includes('is not valid json') || low.includes('syntaxerror'))
+    return 'O servidor retornou uma resposta inválida. Tente novamente ou contate o suporte.'
+
+  // ── Erros de rede / conectividade ─────────────────────────────────────────
+  if (low.includes('failed to fetch') || low.includes('networkerror') || low.includes('network request failed'))
+    return 'Sem conexão com o servidor. Verifique sua rede e tente novamente.'
+  if (low.includes('timeout') || low.includes('timed out'))
+    return 'A requisição demorou demais. Verifique sua conexão e tente novamente.'
+  if (low.includes('aborted') || low.includes('abort'))
+    return 'A operação foi cancelada. Tente novamente.'
+
+  // ── Mensagem da API com conteúdo útil — exibir diretamente ───────────────
+  // Mensagens curtas sem prefixo HTTP vêm do backend e são legíveis
+  // ex: "O campo incoterm deve ser FOB, CIF ou EXW"
+  if (msg.length > 0 && msg.length <= 120 && !msg.startsWith('HTTP'))
+    return msg
+
+  // ── Fallback genérico ─────────────────────────────────────────────────────
+  return 'Erro ao salvar. Tente novamente ou contate o suporte.'
+}
+
+// ── Componente ────────────────────────────────────────────────────────────────
+
 export default function ListaPedidos() {
   const { t } = useTranslation()
   const { visiveis: cardsVisiveis } = useCardPreferences()
   const navigate = useNavigate()
+  const addNotification = useShellStore(s => s.addNotification)
 
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
@@ -406,6 +457,9 @@ export default function ListaPedidos() {
   const [temMais, setTemMais]               = useState(false)
   const [cursor, setCursor]                 = useState<string | undefined>(undefined)
   const [total, setTotal]                   = useState(0)
+
+  // ── Seleção de pedidos (bubbled do TabelaVirtualGlobal) ──────────────────────
+  const [pedidosSelecionados, setPedidosSelecionados] = useState<Pedido[]>([])
 
   // ── Estado do modal Transferir ───────────────────────────────────────────────
   const [modalTransferir, setModalTransferir] = useState<{ item: PedidoItem; pedidoId: string } | null>(null)
@@ -583,12 +637,36 @@ export default function ListaPedidos() {
     carregarInicial(abaAtiva, sortCampo, sortDir, termo)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir])
 
-  // ── Edição inline ────────────────────────────────────────────────────────────
+  // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
     const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
     setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
     return atualizado
   }, [])
+
+  // ── Edição inline (filho / item) ──────────────────────────────────────────────
+  const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
+    // Localiza o item no estado atual para saber o pedidoId
+    const pedido = pedidos.find(p => p.itens?.some(i => i.id === id))
+    if (!pedido) throw new Error('Não foi possível localizar o pedido deste item. Recarregue a página.')
+
+    const atualizado = await pedidoItemApi.atualizar(pedido.id, id, { [campo]: valor } as Partial<PedidoItem>)
+      .catch(() => {
+        if (import.meta.env.DEV) {
+          const item = pedido.itens?.find(i => i.id === id)
+          if (item) return { ...item, [campo]: valor } as PedidoItem
+        }
+        throw new Error(`Erro ao editar campo ${campo}`)
+      })
+
+    // Atualiza o item dentro do pedido no estado
+    setPedidos(prev => prev.map(p =>
+      p.id === pedido.id
+        ? { ...p, itens: p.itens?.map(i => i.id === id ? atualizado : i) }
+        : p,
+    ))
+    return atualizado
+  }, [pedidos])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   const handleCarregarFilhos = useCallback(async (pedido: Pedido): Promise<PedidoItem[]> => {
@@ -796,15 +874,86 @@ export default function ListaPedidos() {
           acoes={ACOES_PAI}
           acoesLote={acoesLote}
           acoesExportacao={acoesExportacao}
+          onSelecaoMudar={setPedidosSelecionados}
+
           acoesBarra={
-            <BotaoGlobal
-              variante="primario"
-              tamanho="sm"
-              icone={<Plus size={14} weight="bold" />}
-              onClick={() => { navigate('novo') }}
-            >
-              Novo Pedido
-            </BotaoGlobal>
+            <>
+              <BotaoGlobal
+                variante="primario"
+                tamanho="pequeno"
+                icone={<Plus size={14} weight="bold" />}
+                onClick={() => { navigate('novo') }}
+              >
+                Novo
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
+                icone={<UploadSimple size={14} weight="duotone" />}
+                onClick={() => { console.info('[Pedido] Importar') }}
+              >
+                Importar
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
+                icone={<CheckSquare size={14} weight="duotone" />}
+                disabled={pedidosSelecionados.length === 0}
+                onClick={async () => {
+                  const ids = pedidosSelecionados.map(p => p.id)
+                  try {
+                    const preview = await pedidoLoteApi.mudarStatusPreview(ids, 'consolidado')
+                    const resumo = preview.afetados.map(a => `✓ ${a.numero_pedido} → ${a.status}`).join('\n')
+                    if (window.confirm(`${resumo}\n\nConsolidar pedidos selecionados?`)) {
+                      await pedidoLoteApi.mudarStatusConfirmar(ids, 'consolidado')
+                      await carregarInicial()
+                    }
+                  } catch (err) {
+                    setErroLote(err instanceof Error ? err.message : 'Erro ao consolidar')
+                  }
+                }}
+              >
+                Consolidar{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
+                icone={<ArrowsLeftRight size={14} weight="duotone" />}
+                disabled={pedidosSelecionados.length === 0}
+                onClick={() => { console.info('[Pedido] Transferir lote:', pedidosSelecionados.map(p => p.id)) }}
+              >
+                Transferir{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
+                icone={<PencilLine size={14} weight="duotone" />}
+                disabled={pedidosSelecionados.length === 0}
+                onClick={() => { console.info('[Pedido] Editar em massa:', pedidosSelecionados.map(p => p.id)) }}
+              >
+                Editar em Massa{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="perigo"
+                tamanho="pequeno"
+                icone={<Trash size={14} weight="duotone" />}
+                disabled={pedidosSelecionados.length === 0}
+                onClick={async () => {
+                  const ids = pedidosSelecionados.map(p => p.id)
+                  try {
+                    const preview = await pedidoLoteApi.cancelarPreview(ids)
+                    if (window.confirm(`${preview.resumo.join('\n')}\n\nExcluir/cancelar pedidos selecionados?`)) {
+                      await pedidoLoteApi.cancelarConfirmar(ids)
+                      await carregarInicial()
+                    }
+                  } catch (err) {
+                    setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
+                  }
+                }}
+              >
+                Excluir{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+              </BotaoGlobal>
+            </>
           }
 
           onBuscar={handleBuscar}
@@ -813,8 +962,29 @@ export default function ListaPedidos() {
           sortCampo={sortCampo}
           sortDir={sortDir}
 
-          camposEditaveis={['numero_invoice', 'numero_proforma', 'referencia_importador']}
+          camposEditaveis={[
+            'numero_pedido',
+            'exportador_nome',
+            'fabricante_nome',
+            'referencia_importador',
+            'referencia_exportador',
+            'numero_proforma',
+            'numero_invoice',
+            'incoterm',
+          ]}
           onEditar={handleEditar}
+
+          camposEditaveisFilhos={[
+            'part_number',
+            'ncm',
+            'descricao',
+            'unidade_comercializada_item',
+            'valor_unitario',
+          ]}
+          onEditarFilho={handleEditarFilho}
+
+          onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
+          onErroAoSalvar={(msg) => addNotification({ type: 'error', message: mensagemErro(msg) })}
 
           preferencias={preferencias}
           onSalvarPreferencias={handleSalvarPreferencias}
@@ -826,7 +996,7 @@ export default function ListaPedidos() {
           emptyAction={
             <BotaoGlobal
               variante="primario"
-              tamanho="sm"
+              tamanho="pequeno"
               icone={<Plus size={14} weight="bold" />}
               onClick={() => { navigate('novo') }}
             >

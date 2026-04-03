@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -25,12 +26,8 @@ import { MODAL_LABELS } from '../../shared/types'
 
 type FiltroTab = 'TODAS' | 'PENDENTES' | 'APROVADAS' | 'REPROVADAS'
 
-const TABS: { key: FiltroTab; label: string }[] = [
-  { key: 'TODAS', label: 'Todas' },
-  { key: 'PENDENTES', label: 'Pendentes' },
-  { key: 'APROVADAS', label: 'Aprovadas' },
-  { key: 'REPROVADAS', label: 'Reprovadas' },
-]
+// Labels initialized in component since they need t()
+const TAB_KEYS: FiltroTab[] = ['TODAS', 'PENDENTES', 'APROVADAS', 'REPROVADAS']
 
 interface RespostaComCotacao extends BidResponse {
   cotacao?: {
@@ -70,9 +67,17 @@ const fmtData = (iso: string) =>
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function MinhasRespostas() {
+  const { t } = useTranslation()
   const [respostas, setRespostas] = useState<RespostaComCotacao[]>([])
   const [carregando, setCarregando] = useState(true)
   const [filtro, setFiltro] = useState<FiltroTab>('TODAS')
+
+  const TABS: { key: FiltroTab; label: string }[] = [
+    { key: 'TODAS', label: t('comum.todos') },
+    { key: 'PENDENTES', label: t('comum.pendente') },
+    { key: 'APROVADAS', label: t('bidfrete.portal.dashboard.aprovadas') },
+    { key: 'REPROVADAS', label: 'Reprovadas' },
+  ]
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -211,7 +216,7 @@ export default function MinhasRespostas() {
       cabecalho={
         <CabecalhoGlobal
           icone={<PaperPlaneTilt weight="duotone" size={22} />}
-          titulo="Minhas Respostas"
+          titulo={t('bidfrete.portal.minhas_respostas.titulo')}
           subtitulo={`${respostas.length} resposta(s) enviadas`}
         />
       }
@@ -237,8 +242,8 @@ export default function MinhasRespostas() {
         colunas={colunas}
         idKey="id"
         carregando={carregando}
-        mensagemVazio="Nenhuma resposta encontrada"
-        tooltipBusca="Buscar por cotacao ou rota"
+        mensagemVazio={t('bidfrete.portal.minhas_respostas.vazio')}
+        tooltipBusca={t('bidfrete.portal.minhas_respostas.buscar')}
       />
 
       <style>{`

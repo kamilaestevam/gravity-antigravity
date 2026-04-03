@@ -307,7 +307,7 @@ export function Assinaturas() {
       }
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('workspace.subscriptions.tabela_status'), tipo: 'texto',
       tooltipTitulo: 'Status do Produto',
       tooltipDescricao: 'Indica se o módulo está operacional, em teste ou suspenso.',
       render: (v) => {
@@ -428,13 +428,13 @@ export function Assinaturas() {
         <CabecalhoGlobal
           icone={<CreditCard weight="duotone" size={22} color="#818cf8" />}
           titulo={t('workspace.subscriptions.titulo')}
-          subtitulo="Gerencie seus planos, produtos contratados e upgrades"
+          subtitulo={t('workspace.subscriptions.subtitulo')}
         />
       }
       stats={
         <>
           <StatCardGlobal
-            titulo="Produtos Ativos"
+            titulo={t('workspace.subscriptions.produtos_ativos')}
             icone={<Package weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>{totalAtivos}</span>}
             subtexto={produtos.length > 0 ? `${produtos.length} no total` : 'Sem produtos'}
@@ -453,7 +453,7 @@ export function Assinaturas() {
             }
           />
           <StatCardGlobal
-            titulo="Custo Fixo Estimado"
+            titulo={t('workspace.subscriptions.custo_fixo')}
             icone={<CurrencyDollar weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>R$ {custoSaaSAtivos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>}
             subtexto="Mensalidade SaaS"
@@ -472,7 +472,7 @@ export function Assinaturas() {
             }
           />
           <StatCardGlobal
-            titulo="Acessos Suspensos"
+            titulo={t('workspace.subscriptions.acessos_suspensos')}
             icone={<WarningCircle weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.75rem' }}>{totalSuspensos}</span>}
             subtexto={totalSuspensos === 0 ? 'Tudo operacional' : 'Requer atenção'}
@@ -492,7 +492,7 @@ export function Assinaturas() {
     >
       {/* Produtos contratados — TabelaGlobal */}
       <p className="ws-section-title" style={{ marginBottom: '0.875rem', marginTop: '0.25rem' }}>
-        Produtos Contratados
+        {t('workspace.subscriptions.secao_contratados')}
       </p>
       <div style={{ marginBottom: '2rem' }}>
         {carregando ? (
@@ -526,9 +526,9 @@ export function Assinaturas() {
                     }))}
                   tooltipBusca="Filtrar workspaces habilitados nesta assinatura"
                   colunas={[
-                    { 
-                      key: 'nome', 
-                      label: 'Nome do Workspace',
+                    {
+                      key: 'nome',
+                      label: t('workspace.subscriptions.subtabela_nome_workspace'),
                       tipo: 'texto', 
                       render: (v) => {
                         const nome = v as string;
@@ -548,8 +548,8 @@ export function Assinaturas() {
                         )
                       }
                     },
-                    { 
-                      key: 'status', label: 'Status do Serviço', tipo: 'texto', 
+                    {
+                      key: 'status', label: t('workspace.subscriptions.subtabela_status_servico'), tipo: 'texto',
                       render: (v) => {
                         const ativo = v === 'Ativo'
                         const suspenso = produto.status === 'Suspenso'
@@ -579,8 +579,8 @@ export function Assinaturas() {
                         )
                       }
                     },
-                    { 
-                      key: 'id', label: 'Ações', tipo: 'texto', align: 'right',
+                    {
+                      key: 'id', label: t('workspace.subscriptions.subtabela_acoes'), tipo: 'texto', align: 'right',
                       render: (_v, wsItem) => {
                         const ativo = produto.workspacesHabilitados.includes(wsItem.nome)
                         return (
@@ -639,7 +639,7 @@ export function Assinaturas() {
 
       {/* Upsell cards dinâmicos do catalogService */}
       <p className="ws-section-title ws-fade-up ws-fade-up-d2" style={{ marginBottom: '0.875rem' }}>
-        Produtos Disponíveis para Contratar
+        {t('workspace.subscriptions.secao_disponiveis')}
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }} className="ws-fade-up ws-fade-up-d2">
         {catalogProdutos.map(p => (

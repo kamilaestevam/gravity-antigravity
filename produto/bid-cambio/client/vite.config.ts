@@ -34,6 +34,7 @@ export default defineConfig({
       '@nucleo/logo-global': nucleo('Layout', 'logo-global'),
       '@nucleo/usuario-global': nucleo('Layout', 'usuario-global'),
       '@nucleo/menu-lateral-global': nucleo('Layout', 'menu-lateral-global'),
+      '@nucleo/localizador-global': nucleo('Layout', 'localizador-global'),
       // -- Nucleo Global: Modais --
       '@nucleo/modal-global': nucleo('Modais', 'modal-global'),
       '@nucleo/modal-confirmar-excluir-global': nucleo('Modais', 'modal-confirmar-excluir-global'),

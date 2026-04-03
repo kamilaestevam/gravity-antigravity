@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   ArrowLeftRight,
   ChevronLeft,
@@ -108,6 +109,7 @@ interface DetalheCotacaoProps {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativo }: DetalheCotacaoProps) {
+  const { t } = useTranslation()
   const [cotacao, setCotacao] = useState<CotacaoCambio | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -119,7 +121,7 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
       const data = await getCotacaoDetalhe(cotacaoId)
       setCotacao(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar cotacao')
+      setError(err instanceof Error ? err.message : t('comum.erro_carregar'))
     } finally {
       setLoading(false)
     }
@@ -153,11 +155,11 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
             </button>
           )}
           <ArrowLeftRight size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Detalhe da Cotacao</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.detalhe_cotacao.titulo')}</h1>
         </div>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
           <Loader2 size={28} style={{ color: 'var(--accent, #6366f1)', animation: 'spin 1s linear infinite' }} />
-          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>Carregando...</p>
+          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>{t('comum.carregando')}</p>
         </div>
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -171,14 +173,14 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
       <div style={containerStyle}>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem' }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger, #ef4444)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Erro ao carregar</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('comum.erro_carregar')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1rem' }}>{error}</p>
           <button onClick={carregar} style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.5rem 1.25rem', borderRadius: 9999, fontSize: '0.875rem', fontWeight: 600,
             border: 'none', background: 'var(--accent, #6366f1)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit',
           }}>
-            <RefreshCw size={14} /> Tentar novamente
+            <RefreshCw size={14} /> {t('acoes.tentar_novamente')}
           </button>
         </div>
       </div>
@@ -192,9 +194,9 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
       <div style={containerStyle}>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
           <ArrowLeftRight size={40} style={{ color: 'var(--text-muted, #64748b)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Cotacao nao encontrada</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('bidcambio.detalhe_cotacao.nao_encontrada')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            A cotacao solicitada nao existe ou foi removida.
+            {t('bidcambio.detalhe_cotacao.nao_encontrada_desc')}
           </p>
         </div>
       </div>
@@ -219,10 +221,10 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
           <ArrowLeftRight size={22} style={{ color: 'var(--accent, #6366f1)' }} />
           <div>
             <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-              Cotacao {cotacao.numero}
+              {t('bidcambio.detalhe_cotacao.cotacao_num')} {cotacao.numero}
             </h1>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
-              Criada em {dataBR(cotacao.created_at)}
+              {t('bidcambio.detalhe_cotacao.criada_em')} {dataBR(cotacao.created_at)}
             </span>
           </div>
         </div>
@@ -236,7 +238,7 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
               background: 'var(--accent, #6366f1)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
-            <BarChart3 size={14} /> Ver Comparativo
+            <BarChart3 size={14} /> {t('bidcambio.detalhe_cotacao.ver_comparativo')}
           </button>
         )}
       </div>
@@ -254,19 +256,19 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
-          <InfoRow label="Valor Moeda Estrangeira" value={`${cotacao.moeda} ${fmtMoney(cotacao.valor_moeda_estrangeira)}`} />
-          <InfoRow label="Valor BRL Estimado" value={`R$ ${fmtMoney(cotacao.valor_brl_estimado)}`} />
-          <InfoRow label="PTAX Referencia" value={fmtRate(cotacao.taxa_cambio_referencia)} />
-          <InfoRow label="Taxa Aprovada" value={fmtRate(cotacao.taxa_aprovada)} />
-          <InfoRow label="Tipo Operacao" value={OPERACAO_CAMBIO_LABELS[cotacao.tipo_operacao]} />
-          <InfoRow label="Modalidade" value={MODALIDADE_CAMBIO_LABELS[cotacao.modalidade]} />
-          <InfoRow label="Liquidacao" value={LIQUIDACAO_LABELS[cotacao.liquidacao]} />
-          <InfoRow label="Data Liquidacao" value={dataBR(cotacao.data_liquidacao)} />
-          <InfoRow label="Parcelas" value={`${cotacao.total_parcelas}`} />
-          <InfoRow label="Prazo Resposta" value={datetimeBR(cotacao.prazo_resposta)} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.valor_me')} value={`${cotacao.moeda} ${fmtMoney(cotacao.valor_moeda_estrangeira)}`} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.valor_brl_estimado')} value={`R$ ${fmtMoney(cotacao.valor_brl_estimado)}`} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.ptax_referencia')} value={fmtRate(cotacao.taxa_cambio_referencia)} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.taxa_aprovada')} value={fmtRate(cotacao.taxa_aprovada)} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.tipo_operacao')} value={OPERACAO_CAMBIO_LABELS[cotacao.tipo_operacao]} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.modalidade')} value={MODALIDADE_CAMBIO_LABELS[cotacao.modalidade]} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.liquidacao')} value={LIQUIDACAO_LABELS[cotacao.liquidacao]} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.data_liquidacao')} value={dataBR(cotacao.data_liquidacao)} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.parcelas')} value={`${cotacao.total_parcelas}`} />
+          <InfoRow label={t('bidcambio.detalhe_cotacao.prazo_resposta')} value={datetimeBR(cotacao.prazo_resposta)} />
           {cotacao.saving_valor != null && (
             <InfoRow
-              label="Saving"
+              label={t('bidcambio.detalhe_cotacao.saving')}
               value={
                 <span style={{ color: 'var(--success, #22c55e)' }}>
                   R$ {fmtMoney(cotacao.saving_valor)} ({cotacao.saving_percentual?.toFixed(1)}%)
@@ -274,15 +276,15 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
               }
             />
           )}
-          {cotacao.referencia_interna && <InfoRow label="Referencia Interna" value={cotacao.referencia_interna} />}
-          {cotacao.invoice_numero && <InfoRow label="Invoice" value={cotacao.invoice_numero} />}
-          {cotacao.processo_id && <InfoRow label="Processo" value={cotacao.processo_id} />}
+          {cotacao.referencia_interna && <InfoRow label={t('bidcambio.detalhe_cotacao.referencia_interna')} value={cotacao.referencia_interna} />}
+          {cotacao.invoice_numero && <InfoRow label={t('bidcambio.detalhe_cotacao.invoice')} value={cotacao.invoice_numero} />}
+          {cotacao.processo_id && <InfoRow label={t('bidcambio.detalhe_cotacao.processo')} value={cotacao.processo_id} />}
         </div>
 
         {cotacao.descricao && (
           <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--bg-base, #1e293b)', borderRadius: 8 }}>
             <span style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-muted, #64748b)' }}>
-              Descricao
+              {t('tabela.descricao')}
             </span>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', margin: '0.25rem 0 0' }}>
               {cotacao.descricao}
@@ -296,13 +298,13 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
           <Send size={16} style={{ color: 'var(--accent, #6366f1)' }} />
           <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: 0 }}>
-            Corretoras Contatadas ({cotacao.bid_requests?.length ?? 0})
+            {t('bidcambio.detalhe_cotacao.corretoras_contatadas')} ({cotacao.bid_requests?.length ?? 0})
           </h3>
         </div>
 
         {!cotacao.bid_requests || cotacao.bid_requests.length === 0 ? (
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            Nenhuma corretora contatada ainda.
+            {t('bidcambio.detalhe_cotacao.nenhuma_corretora')}
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -323,7 +325,7 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
                       {req.corretora?.nome ?? 'Corretora'}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
-                      {req.canal} — Enviado em {datetimeBR(req.enviado_em)}
+                      {req.canal} — {t('bidcambio.detalhe_cotacao.enviado_em')} {datetimeBR(req.enviado_em)}
                     </div>
                   </div>
                 </div>
@@ -350,13 +352,13 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
           <BarChart3 size={16} style={{ color: 'var(--accent, #6366f1)' }} />
           <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: 0 }}>
-            Propostas Recebidas ({cotacao.bid_responses?.length ?? 0})
+            {t('bidcambio.detalhe_cotacao.propostas_recebidas')} ({cotacao.bid_responses?.length ?? 0})
           </h3>
         </div>
 
         {!cotacao.bid_responses || cotacao.bid_responses.length === 0 ? (
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            Nenhuma proposta recebida ainda.
+            {t('bidcambio.detalhe_cotacao.nenhuma_proposta')}
           </p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -381,19 +383,19 @@ export default function DetalheCotacao({ cotacaoId, onBack, onNavigateComparativ
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem' }}>
                     <div>
-                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>Taxa</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>{t('bidcambio.comparativo.col_taxa')}</span>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: "'DM Mono', monospace" }}>{fmtRate(resp.taxa_cambio)}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>Spread</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>{t('bidcambio.comparativo.col_spread')}</span>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: "'DM Mono', monospace" }}>{fmtRate(resp.spread)}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>Valor Total BRL</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>{t('bidcambio.comparativo.col_valor_total')}</span>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: "'DM Mono', monospace" }}>R$ {fmtMoney(resp.valor_total_brl)}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>Validade</span>
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', display: 'block' }}>{t('bidcambio.detalhe_cotacao.validade')}</span>
                       <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{datetimeBR(resp.validade)}</span>
                     </div>
                   </div>

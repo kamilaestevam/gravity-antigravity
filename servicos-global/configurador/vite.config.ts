@@ -34,6 +34,7 @@ export default defineConfig({
       '@nucleo/view-toggle-global': path.resolve(__dirname, '../../nucleo-global/Layout/view-toggle-global/src/index.ts'),
       '@nucleo/menu-lateral-global': path.resolve(__dirname, '../../nucleo-global/Layout/menu-lateral-global/src/index.ts'),
       '@nucleo/language-switcher-global': path.resolve(__dirname, '../../nucleo-global/Layout/language-switcher-global/src/index.ts'),
+      '@nucleo/localizador-global': path.resolve(__dirname, '../../nucleo-global/Layout/localizador-global/src/index.ts'),
       // ── Modais ──
       '@nucleo/modal-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-global/src/index.ts'),
       '@nucleo/modal-formulario-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-formulario-global/src/index.ts'),
@@ -66,6 +67,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react-i18next', 'i18next', 'zustand', '@clerk/clerk-react'],
     // @phosphor-icons/react REMOVIDO — pre-bundleia 5000+ ícones desnecessariamente
+    exclude: ['@nucleo/localizador-global'],
   },
   build: {
     rollupOptions: {

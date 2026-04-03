@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Truck,
@@ -92,27 +92,6 @@ const XML_EADAPTOR = `<?xml version="1.0" encoding="UTF-8"?>
 /* ─── Steps definition ──────────────────────────────────────────── */
 type StepId = 0 | 1 | 2
 
-const STEPS = [
-  {
-    id: 0 as StepId,
-    label: 'Configuração da Conexão',
-    sublabel: 'Credenciais & Environment',
-    icon: <GlobeHemisphereWest weight="duotone" size={18} />,
-  },
-  {
-    id: 1 as StepId,
-    label: 'Mapeamento eAdaptor',
-    sublabel: 'Preview do XML & Validação',
-    icon: <Code weight="duotone" size={18} />,
-  },
-  {
-    id: 2 as StepId,
-    label: 'Envio de Documentação',
-    sublabel: 'Certificado & Aprovação',
-    icon: <FileArrowUp weight="duotone" size={18} />,
-  },
-]
-
 /* ─── XML highlight helper ─────────────────────────────────────── */
 function HighlightedXML({ xml }: { xml: string }) {
   return (
@@ -125,6 +104,11 @@ function HighlightedXML({ xml }: { xml: string }) {
 /* ─── Component ─────────────────────────────────────────────────── */
 export function ConectorCargoWise() {
   const { t } = useTranslation()
+  const STEPS = useMemo(() => [
+    { id: 0 as StepId, label: t('workspace.cargowise.step0_label'), sublabel: t('workspace.cargowise.step0_sublabel'), icon: <GlobeHemisphereWest weight="duotone" size={18} /> },
+    { id: 1 as StepId, label: t('workspace.cargowise.step1_label'), sublabel: t('workspace.cargowise.step1_sublabel'), icon: <Code weight="duotone" size={18} /> },
+    { id: 2 as StepId, label: t('workspace.cargowise.step2_label'), sublabel: t('workspace.cargowise.step2_sublabel'), icon: <FileArrowUp weight="duotone" size={18} /> },
+  ], [t])
   const [step, setStep] = useState<StepId>(0)
   const [copied, setCopied] = useState(false)
   const [fileUploaded, setFileUploaded] = useState<string | null>(null)
@@ -179,32 +163,32 @@ export function ConectorCargoWise() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Truck weight="duotone" size={24} color="#818cf8" />}
-          titulo="Conector CargoWise"
-          subtitulo="Integração nativa via eAdaptor XML — implantação guiada em 3 etapas"
+          titulo={t('workspace.cargowise.titulo')}
+          subtitulo={t('workspace.cargowise.subtitulo')}
         />
       }
       stats={
         <>
           <StatCardGlobal
-            titulo="Status da Implantação"
-            valor="Em Implantação"
-            subtexto={`Etapa ${step + 1} de 3`}
+            titulo={t('workspace.cargowise.stat_status_implantacao')}
+            valor={t('workspace.cargowise.stat_status_valor')}
+            subtexto={t('workspace.cargowise.stat_status_subtexto', { etapa: step + 1 })}
             variante="aviso"
           />
           <StatCardGlobal
-            titulo="Protocolo"
+            titulo={t('workspace.cargowise.stat_protocolo')}
             valor="eAdaptor"
-            subtexto="CargoWise One nativo"
+            subtexto={t('workspace.cargowise.stat_protocolo_subtexto')}
             variante="primario"
           />
           <StatCardGlobal
-            titulo="Ambiente Ativo"
+            titulo={t('workspace.cargowise.stat_ambiente')}
             valor={env === 'uat' ? 'UAT' : t('workspace.cargowise.producao')}
             subtexto={env === 'uat' ? t('workspace.cargowise.homologacao') : t('workspace.cargowise.go_live')}
             variante={env === 'uat' ? 'aviso' : 'sucesso'}
           />
           <StatCardGlobal
-            titulo="Documentação"
+            titulo={t('workspace.cargowise.stat_documentacao')}
             valor={docSent ? t('workspace.cargowise.doc_enviada') : fileUploaded ? t('workspace.cargowise.aguardando_envio') : t('comum.pendente')}
             subtexto={docSent ? t('workspace.cargowise.pdf_recebido') : t('workspace.cargowise.certificado_implantacao')}
             variante={docSent ? 'sucesso' : 'padrao'}
@@ -251,7 +235,7 @@ export function ConectorCargoWise() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
               <GlobeHemisphereWest weight="duotone" size={14} color="#818cf8" />
-              Credenciais do CargoWise eAdaptor
+              {t('workspace.cargowise.secao_credenciais')}
             </p>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               {(['uat', 'production'] as const).map(e => (
@@ -265,7 +249,7 @@ export function ConectorCargoWise() {
                       : 'https://live.cargowise.com/eAdaptor')
                   }}
                 >
-                  {e === 'uat' ? '🧪 UAT / Homologação' : '🚀 Produção'}
+                  {e === 'uat' ? t('workspace.cargowise.btn_uat') : t('workspace.cargowise.btn_producao_env')}
                 </button>
               ))}
             </div>
@@ -274,14 +258,14 @@ export function ConectorCargoWise() {
           {/* Environment banner */}
           <div className={`cw-env-banner cw-env-banner--${env}`} style={{ marginBottom: '1.5rem' }}>
             {env === 'uat'
-              ? <><Info size={14} /> Você está em modo <strong>UAT</strong>. Nenhuma operação real será afetada.</>
-              : <><Warning size={14} weight="fill" /> Você está em modo <strong>Produção</strong>. As ações terão efeito real no CargoWise.</>
+              ? <><Info size={14} /> {t('workspace.cargowise.banner_uat')}</>
+              : <><Warning size={14} weight="fill" /> {t('workspace.cargowise.banner_producao')}</>
             }
           </div>
 
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Server URL do eAdaptor</label>
+              <label>{t('workspace.cargowise.campo_server_url')}</label>
               <input
                 type="text"
                 value={serverUrl}
@@ -290,7 +274,7 @@ export function ConectorCargoWise() {
               />
             </div>
             <div className="ws-field">
-              <label>Enterprise Code</label>
+              <label>{t('workspace.cargowise.campo_enterprise_code')}</label>
               <input
                 type="text"
                 value={enterpriseCode}
@@ -302,7 +286,7 @@ export function ConectorCargoWise() {
 
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Usuário do CargoWise</label>
+              <label>{t('workspace.cargowise.campo_usuario')}</label>
               <input
                 type="text"
                 value={username}
@@ -311,7 +295,7 @@ export function ConectorCargoWise() {
               />
             </div>
             <div className="ws-field">
-              <label>Senha (AES-256)</label>
+              <label>{t('workspace.cargowise.campo_senha')}</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="password"
@@ -331,7 +315,7 @@ export function ConectorCargoWise() {
 
           <div className="ws-form-row">
             <div className="ws-field">
-              <label>Staff Code</label>
+              <label>{t('workspace.cargowise.campo_staff_code')}</label>
               <input
                 type="text"
                 value={staffCode}
@@ -340,12 +324,12 @@ export function ConectorCargoWise() {
               />
             </div>
             <div className="ws-field">
-              <label>Timeout da Requisição (ms)</label>
+              <label>{t('workspace.cargowise.campo_timeout')}</label>
               <SelectGlobal
                 opcoes={[
-                  { valor: '15000', rotulo: '15 000 ms (Rápido)' },
-                  { valor: '30000', rotulo: '30 000 ms (Padrão)' },
-                  { valor: '60000', rotulo: '60 000 ms (Lento / Payloads grandes)' },
+                  { valor: '15000', rotulo: t('workspace.cargowise.timeout_rapido') },
+                  { valor: '30000', rotulo: t('workspace.cargowise.timeout_padrao') },
+                  { valor: '60000', rotulo: t('workspace.cargowise.timeout_lento') },
                 ]}
                 valor={timeout}
                 aoMudarValor={(v) => setTimeout_(String(v ?? '30000'))}
@@ -356,7 +340,7 @@ export function ConectorCargoWise() {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--ws-accent-border)' }}>
             <BotaoGlobal variante="fantasma" tamanho="pequeno">
-              Testar Conexão
+              {t('workspace.cargowise.btn_testar_conexao')}
             </BotaoGlobal>
             <BotaoGlobal
               variante="primario"
@@ -365,7 +349,7 @@ export function ConectorCargoWise() {
               disabled={!canAdvanceStep0}
               onClick={() => setStep(1)}
             >
-              Avançar para Mapeamento
+              {t('workspace.cargowise.btn_avancar_mapeamento')}
             </BotaoGlobal>
           </div>
         </div>
@@ -380,12 +364,10 @@ export function ConectorCargoWise() {
             <Info size={16} weight="duotone" color="#818cf8" style={{ flexShrink: 0, marginTop: 2 }} />
             <div>
               <p style={{ fontWeight: 600, color: 'var(--ws-text)', marginBottom: '0.25rem', fontSize: '0.875rem' }}>
-                O que é o eAdaptor?
+                {t('workspace.cargowise.eadaptor_titulo')}
               </p>
               <p style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem', lineHeight: 1.6, margin: 0 }}>
-                O <strong style={{ color: 'var(--ws-text)' }}>eAdaptor</strong> é o barramento oficial do CargoWise One para troca de dados XML. 
-                A Gravity o utiliza para enviar declarações DI/DUE, documentos de embarque e dados de processo 
-                de forma padronizada e rastreável. O XML abaixo é gerado automaticamente a partir do seu processo.
+                {t('workspace.cargowise.eadaptor_desc')}
               </p>
             </div>
           </div>
@@ -399,7 +381,7 @@ export function ConectorCargoWise() {
                   UniversalTransaction.xml — GVT-2026-00438
                 </span>
                 <span className="ws-badge ws-badge-warning" style={{ fontSize: '0.7rem' }}>
-                  <HourglassMedium weight="fill" size={10} /> BL Pendente
+                  <HourglassMedium weight="fill" size={10} /> {t('workspace.cargowise.bl_pendente')}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -424,7 +406,7 @@ export function ConectorCargoWise() {
                   tamanho="pequeno"
                   icone={<DownloadSimple weight="bold" size={13} />}
                 >
-                  Download
+                  {t('workspace.cargowise.download')}
                 </BotaoGlobal>
               </div>
             </div>
@@ -437,11 +419,10 @@ export function ConectorCargoWise() {
               <HourglassMedium weight="duotone" size={15} color="#fbbf24" style={{ flexShrink: 0 }} />
               <div>
                 <p style={{ fontWeight: 600, color: '#fbbf24', margin: '0 0 0.125rem', fontSize: '0.8125rem' }}>
-                  Documento <code style={{ fontSize: '0.75rem' }}>BL</code> aguardando PDF
+                  {t('workspace.cargowise.alerta_bl_titulo')}
                 </p>
                 <p style={{ color: 'var(--ws-muted)', fontSize: '0.78125rem', margin: 0 }}>
-                  O Bill of Lading ainda não foi recebido. O eAdaptor ficará <strong style={{ color: 'var(--ws-text)' }}>pausado neste campo</strong> até o upload do PDF.
-                  Avance para a próxima etapa para enviar o arquivo.
+                  {t('workspace.cargowise.alerta_bl_desc')}
                 </p>
               </div>
             </div>
@@ -451,7 +432,7 @@ export function ConectorCargoWise() {
           <div className="ws-form-card">
             <p className="ws-section-title" style={{ marginBottom: '1rem' }}>
               <CheckCircle weight="duotone" size={14} color="#818cf8" />
-              Mapeamento de Campos Validado
+              {t('workspace.cargowise.secao_mapeamento')}
             </p>
             <div className="cw-mapping-grid">
               {[
@@ -489,7 +470,7 @@ export function ConectorCargoWise() {
               icone={<ArrowLeft weight="bold" size={14} />}
               onClick={() => setStep(0)}
             >
-              Voltar
+              {t('workspace.cargowise.btn_voltar')}
             </BotaoGlobal>
             <BotaoGlobal
               variante="primario"
@@ -497,7 +478,7 @@ export function ConectorCargoWise() {
               icone={<ArrowRight weight="bold" size={14} />}
               onClick={() => setStep(2)}
             >
-              Avançar para Documentação
+              {t('workspace.cargowise.btn_avancar_documentacao')}
             </BotaoGlobal>
           </div>
         </div>
@@ -515,10 +496,9 @@ export function ConectorCargoWise() {
                 <div className="cw-await-hero__pulse" />
               </div>
               <div>
-                <h2 className="cw-await-hero__title">Aguardando o Bill of Lading (PDF)</h2>
+                <h2 className="cw-await-hero__title">{t('workspace.cargowise.hero_titulo')}</h2>
                 <p className="cw-await-hero__desc">
-                  O eAdaptor está pronto mas o campo <code>Document[BL]</code> está <strong>pausado</strong> à espera do PDF do conhecimento de embarque. 
-                  Faça o upload abaixo para liberar a sincronização com o CargoWise.
+                  {t('workspace.cargowise.hero_desc')}
                 </p>
               </div>
             </div>
@@ -547,7 +527,7 @@ export function ConectorCargoWise() {
                   <div>
                     <p style={{ fontWeight: 700, color: 'var(--ws-text)', margin: '0 0 0.25rem' }}>{fileUploaded}</p>
                     <p style={{ color: '#34d399', fontSize: '0.8125rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      <CheckCircle weight="fill" size={13} /> PDF carregado com sucesso
+                      <CheckCircle weight="fill" size={13} /> {t('workspace.cargowise.upload_sucesso')}
                     </p>
                   </div>
                   <button
@@ -562,10 +542,10 @@ export function ConectorCargoWise() {
                   <FileArrowUp weight="duotone" size={40} color={isDragging ? '#818cf8' : '#475569'} style={{ transition: 'color 0.2s' }} />
                   <div>
                     <p style={{ fontWeight: 600, color: 'var(--ws-text)', margin: '0 0 0.25rem', fontSize: '0.9375rem' }}>
-                      {isDragging ? 'Solte o PDF aqui' : 'Arraste o BL aqui ou clique para escolher'}
+                      {isDragging ? t('workspace.cargowise.upload_soltar') : t('workspace.cargowise.upload_arrastar')}
                     </p>
                     <p style={{ color: 'var(--ws-muted)', fontSize: '0.8125rem', margin: 0 }}>
-                      Somente <strong>PDF</strong> · Máximo 30 MB
+                      {t('workspace.cargowise.upload_restricao')}
                     </p>
                   </div>
                 </div>
@@ -578,15 +558,15 @@ export function ConectorCargoWise() {
             <div className="ws-form-card">
               <p className="ws-section-title" style={{ marginBottom: '1rem' }}>
                 <Envelope weight="duotone" size={14} color="#818cf8" />
-                Pacote de Documentação para Implantação
+                {t('workspace.cargowise.secao_pacote')}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                 {[
-                  { label: 'Contrato de Implantação assinado', status: 'ok' },
-                  { label: 'Invoice & Packing List (PDF gerado pelo Gravity)', status: 'ok' },
-                  { label: 'Autorização de Acesso ao CargoWise', status: 'ok' },
-                  { label: 'Bill of Lading — BL (PDF embarcador)', status: fileUploaded ? 'ok' : 'pending' },
-                  { label: 'Certificado de Origem (opcional)', status: 'opcional' },
+                  { label: t('workspace.cargowise.doc_contrato'), status: 'ok' },
+                  { label: t('workspace.cargowise.doc_invoice'), status: 'ok' },
+                  { label: t('workspace.cargowise.doc_autorizacao'), status: 'ok' },
+                  { label: t('workspace.cargowise.doc_bl'), status: fileUploaded ? 'ok' : 'pending' },
+                  { label: t('workspace.cargowise.doc_certificado'), status: 'opcional' },
                 ].map((doc, i) => (
                   <div key={i} className={`cw-doc-row cw-doc-row--${doc.status}`}>
                     <div className="cw-doc-row__icon">
@@ -599,7 +579,7 @@ export function ConectorCargoWise() {
                     </div>
                     <span>{doc.label}</span>
                     <span className={`ws-badge ${doc.status === 'ok' ? 'ws-badge-success' : doc.status === 'pending' ? 'ws-badge-warning' : ''}`} style={{ marginLeft: 'auto', fontSize: '0.7rem' }}>
-                      {doc.status === 'ok' ? 'Pronto' : doc.status === 'pending' ? 'Pendente' : 'Opcional'}
+                      {doc.status === 'ok' ? t('workspace.cargowise.status_pronto') : doc.status === 'pending' ? t('workspace.cargowise.status_pendente') : t('workspace.cargowise.status_opcional')}
                     </span>
                   </div>
                 ))}
@@ -612,7 +592,7 @@ export function ConectorCargoWise() {
                   icone={<ArrowLeft weight="bold" size={14} />}
                   onClick={() => setStep(1)}
                 >
-                  Voltar ao XML
+                  {t('workspace.cargowise.btn_voltar_xml')}
                 </BotaoGlobal>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   <BotaoGlobal
@@ -620,7 +600,7 @@ export function ConectorCargoWise() {
                     tamanho="pequeno"
                     icone={<Envelope weight="bold" size={14} />}
                   >
-                    Enviar por E-mail
+                    {t('workspace.cargowise.btn_enviar_email')}
                   </BotaoGlobal>
                   <BotaoGlobal
                     variante="primario"
@@ -646,17 +626,15 @@ export function ConectorCargoWise() {
               <div className="cw-success-card__icon">
                 <SealCheck weight="fill" size={56} color="#34d399" />
               </div>
-              <h2 className="cw-success-card__title">Documentação Enviada!</h2>
+              <h2 className="cw-success-card__title">{t('workspace.cargowise.success_titulo')}</h2>
               <p className="cw-success-card__desc">
-                O pacote de documentação foi recebido pela equipe Gravity. 
-                A implantação do conector CargoWise está sendo finalizada. 
-                Você receberá um e-mail de confirmação com o resultado da homologação em até <strong>24 horas úteis</strong>.
+                {t('workspace.cargowise.success_desc')}
               </p>
               <div className="cw-success-steps">
                 {[
-                  { label: 'Documentação Recebida', done: true },
-                  { label: 'Validação pela Equipe Gravity', done: false },
-                  { label: 'Ativação em Produção', done: false },
+                  { label: t('workspace.cargowise.success_step1'), done: true },
+                  { label: t('workspace.cargowise.success_step2'), done: false },
+                  { label: t('workspace.cargowise.success_step3'), done: false },
                 ].map((s, i) => (
                   <div key={i} className="cw-success-step">
                     <div className={`cw-success-step__dot ${s.done ? 'cw-success-step__dot--done' : ''}`}>
@@ -672,10 +650,10 @@ export function ConectorCargoWise() {
                   tamanho="pequeno"
                   onClick={() => { setDocSent(false); setFileUploaded(null); setStep(0) }}
                 >
-                  Reiniciar Implantação
+                  {t('workspace.cargowise.btn_reiniciar')}
                 </BotaoGlobal>
                 <BotaoGlobal variante="primario" tamanho="pequeno" icone={<DownloadSimple weight="bold" size={14} />}>
-                  Baixar Comprovante
+                  {t('workspace.cargowise.btn_baixar_comprovante')}
                 </BotaoGlobal>
               </div>
             </div>

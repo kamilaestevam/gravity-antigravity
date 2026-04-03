@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useShellStore } from '@gravity/shell'
+import { useShellStore, ToastContainer } from '@gravity/shell'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -9,9 +9,10 @@ import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
-const ListaPedidos   = lazy(() => import('./pages/ListaPedidos'))
-const Configuracoes  = lazy(() => import('./pages/Configuracoes'))
-const NovoPedido     = lazy(() => import('./pages/NovoPedido'))
+const ListaPedidos     = lazy(() => import('./pages/ListaPedidos'))
+const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
+const NovoPedido       = lazy(() => import('./pages/NovoPedido'))
+const DashboardPedido  = lazy(() => import('./pages/DashboardPedido'))
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -156,10 +157,12 @@ export function App() {
         onSignOut:             () => { clearCurrentUser(); window.location.href = '/' },
       }}
     >
+      <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/"       element={<Navigate to="pedidos" replace />} />
           <Route path="pedidos"              element={<ListaPedidos />} />
+          <Route path="pedidos/dashboard"    element={<DashboardPedido />} />
           <Route path="pedidos/novo"         element={<NovoPedido />} />
           <Route path="pedidos/:id/editar"   element={<NovoPedido />} />
           <Route path="configuracoes"        element={<Configuracoes />} />

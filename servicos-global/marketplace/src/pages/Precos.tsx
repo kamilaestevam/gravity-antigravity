@@ -7,6 +7,7 @@ import {
   Rocket,
   Star,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 
 type Billing = 'anual' | 'mensal'
 
@@ -67,6 +68,7 @@ const PLANS = [
 ]
 
 export function Precos() {
+  const { t } = useTranslation()
   const [billing, setBilling] = useState<Billing>('anual')
   const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
 
@@ -75,12 +77,12 @@ export function Precos() {
       {/* Header */}
       <section className="section-sm" style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--bg-elevated)' }}>
         <div className="container" style={{ textAlign: 'center' }}>
-          <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem' }}>Planos</p>
+          <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem' }}>{t('marketplace.precos.badge')}</p>
           <h1 className="text-h1" style={{ marginBottom: '0.75rem' }}>
-            Simples. Transparente. <span className="gradient-text">Justo.</span>
+            {t('marketplace.precos.titulo')} <span className="gradient-text">{t('marketplace.precos.titulo_destaque')}</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '480px', margin: '0 auto 1.5rem', fontSize: '1.0625rem' }}>
-            Comece grátis por 14 dias. Sem cartão. Escale conforme cresce.
+            {t('marketplace.precos.subtitulo')}
           </p>
 
           {/* Toggle Anual / Mensal */}
@@ -91,20 +93,20 @@ export function Precos() {
                 id="billing-anual"
                 onClick={() => setBilling('anual')}
               >
-                Anual
+                {t('marketplace.precos.anual')}
               </button>
               <button
                 className={`tab-pill ${billing === 'mensal' ? 'active' : ''}`}
                 id="billing-mensal"
                 onClick={() => setBilling('mensal')}
               >
-                Mensal
+                {t('marketplace.precos.mensal')}
               </button>
             </div>
             {billing === 'anual' && (
               <span className="badge badge-success">
                 <Star size={11} weight="fill" />
-                Economize 23%
+                {t('marketplace.precos.economize')}
               </span>
             )}
           </div>
@@ -135,9 +137,9 @@ export function Precos() {
                 <div>
                   {plan.custom ? (
                     <div>
-                      <p style={{ fontSize: '1.75rem', fontWeight: 800 }}>Personalizado</p>
+                      <p style={{ fontSize: '1.75rem', fontWeight: 800 }}>{t('marketplace.precos.personalizado')}</p>
                       <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                        Fale com nossa equipe de vendas
+                        {t('marketplace.precos.fale_equipe')}
                       </p>
                     </div>
                   ) : (
@@ -147,11 +149,11 @@ export function Precos() {
                         <span style={{ fontSize: '2.5rem', fontWeight: 800, color: plan.popular ? 'var(--accent)' : 'var(--text-primary)' }}>
                           {billing === 'anual' ? plan.priceAnual : plan.priceMensal}
                         </span>
-                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>/mês</span>
+                        <span style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{t('marketplace.checkout.por_mes')}</span>
                       </div>
                       {billing === 'anual' && (
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                          Cobrado anualmente
+                          {t('marketplace.precos.cobrado_anualmente')}
                         </p>
                       )}
                     </div>
@@ -167,7 +169,7 @@ export function Precos() {
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
                     <ChatCircle size={16} weight="duotone" />
-                    Falar com Vendas
+                    {t('marketplace.precos.falar_vendas')}
                   </a>
                 ) : (
                   <a
@@ -177,7 +179,7 @@ export function Precos() {
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
                     <Rocket size={16} weight="duotone" />
-                    Começar com {plan.name}
+                    {t('marketplace.precos.comecar_com', { plano: plan.name })}
                     <ArrowRight size={15} />
                   </a>
                 )}
@@ -210,8 +212,7 @@ export function Precos() {
           {/* FAQ Inline */}
           <div style={{ maxWidth: '520px', margin: '3rem auto 0', textAlign: 'center' }}>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>
-              Todos os planos incluem acesso completo durante os 14 dias de trial.
-              Sem taxa de setup. Dados exportáveis a qualquer momento.
+              {t('marketplace.precos.faq_info')}
             </p>
           </div>
         </div>

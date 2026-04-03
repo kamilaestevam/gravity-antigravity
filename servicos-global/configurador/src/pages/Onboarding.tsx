@@ -4,7 +4,7 @@ import { useUser, SignIn, useAuth, useClerk } from '@clerk/clerk-react'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Storefront, Buildings, ArrowLeft } from '@phosphor-icons/react'
+import { Storefront, Buildings, ArrowLeft, Sparkle, RocketLaunch, Users, ShoppingBagOpen } from '@phosphor-icons/react'
 import './workspace/workspace.css'
 
 export function Onboarding() {
@@ -229,10 +229,89 @@ export function Onboarding() {
 
       </div>
 
+      {/* GABI AI — card de boas-vindas (canto superior direito) */}
+      <div style={{
+        position: 'fixed',
+        top: '2rem',
+        right: '2rem',
+        width: '300px',
+        background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+        borderRadius: '20px',
+        padding: '1.25rem 1.5rem',
+        color: '#fff',
+        boxShadow: '0 12px 32px rgba(79,70,229,0.4)',
+        overflow: 'hidden',
+        animation: 'onbFadeUp 0.5s 0.3s cubic-bezier(0.16,1,0.3,1) both',
+        zIndex: 10,
+      }}>
+        {/* watermark */}
+        <div style={{ position: 'absolute', top: '50%', right: '-30px', transform: 'translateY(-50%) rotate(15deg)', color: 'rgba(255,255,255,0.05)', pointerEvents: 'none', lineHeight: 0 }}>
+          <Sparkle weight="fill" size={160} />
+        </div>
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.875rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ width: 26, height: 26, borderRadius: '8px', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', top: '-1px' }}>
+                <Sparkle weight="fill" size={13} color="#fff" />
+              </div>
+              <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' }}>GABI AI · Insights</span>
+            </div>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.6875rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', boxShadow: '0 0 6px rgba(255,255,255,0.8)', animation: 'onbLivePulse 2s ease infinite', display: 'inline-block' }} />
+              ao vivo
+            </span>
+          </div>
+
+          {/* Dicas */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+            {/* Dica 1 */}
+            <div style={{ background: 'rgba(10,4,20,0.3)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '0.75rem 0.875rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#a5f3fc' }}>
+                <RocketLaunch size={11} weight="fill" />
+                Passo 1 · Configurar
+              </div>
+              <p style={{ fontSize: '0.8rem', lineHeight: 1.5, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+                Digite o <strong style={{ color: '#fff' }}>nome da sua empresa</strong> ao lado para criar sua organização na plataforma.
+              </p>
+            </div>
+
+            {/* Dica 2 */}
+            <div style={{ background: 'rgba(10,4,20,0.3)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '0.75rem 0.875rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#a5f3fc' }}>
+                <ShoppingBagOpen size={11} weight="fill" />
+                Passo 2 · Explorar
+              </div>
+              <p style={{ fontSize: '0.8rem', lineHeight: 1.5, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+                Na <strong style={{ color: '#fff' }}>Gravity Store</strong> você encontra módulos para câmbio, frete, fiscal e muito mais.
+              </p>
+            </div>
+
+            {/* Dica 3 */}
+            <div style={{ background: 'rgba(10,4,20,0.3)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', padding: '0.75rem 0.875rem', display: 'flex', flexDirection: 'column', gap: '0.375rem', boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#a5f3fc' }}>
+                <Users size={11} weight="fill" />
+                Passo 3 · Equipe
+              </div>
+              <p style={{ fontSize: '0.8rem', lineHeight: 1.5, color: 'rgba(255,255,255,0.85)', margin: 0 }}>
+                Após criar sua organização, <strong style={{ color: '#fff' }}>convide sua equipe</strong> e defina permissões por perfil.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       <style>{`
         @keyframes onbFadeUp {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes onbLivePulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.35; }
         }
       `}</style>
     </div>

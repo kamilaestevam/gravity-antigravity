@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -140,6 +141,7 @@ function InfoRow({ label, value, mono }: { label: string; value: string; mono?: 
 // ─── Componente Principal ────────────────────────────────────────────────────
 
 export default function DetalheCotacao() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [cotacao, setCotacao] = useState<Cotacao | null>(null)
@@ -171,14 +173,14 @@ export default function DetalheCotacao() {
   const bidColunas: TabelaGlobalColuna<BidRequest>[] = [
     {
       key: 'fornecedor_id',
-      label: 'Fornecedor',
+      label: t('bidfrete.comparativo.fornecedor'),
       tipo: 'texto',
       largura: 200,
       render: (_val: string, row: BidRequest) => row.fornecedor?.nome ?? row.fornecedor_id.slice(0, 8),
     },
     {
       key: 'canal',
-      label: 'Canal',
+      label: t('bidfrete.detalhe_cotacao.canal'),
       tipo: 'texto',
       largura: 100,
       render: (val: string) => {
@@ -190,7 +192,7 @@ export default function DetalheCotacao() {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('comum.status'),
       tipo: 'texto',
       largura: 130,
       render: (val: StatusBidRequest) => (
@@ -199,14 +201,14 @@ export default function DetalheCotacao() {
     },
     {
       key: 'enviado_em',
-      label: 'Enviado em',
+      label: t('bidfrete.detalhe_cotacao.enviado_em'),
       tipo: 'periodo',
       largura: 140,
       render: (val: string | null) => dataHoraBR(val),
     },
     {
       key: 'respondido_em',
-      label: 'Respondido em',
+      label: t('bidfrete.detalhe_cotacao.respondido_em'),
       tipo: 'periodo',
       largura: 140,
       render: (val: string | null) => dataHoraBR(val),
@@ -218,7 +220,7 @@ export default function DetalheCotacao() {
   if (carregando || !cotacao) {
     return (
       <PaginaGlobal
-        cabecalho={<CabecalhoGlobal icone={<FileText weight="duotone" size={22} />} titulo="Carregando..." />}
+        cabecalho={<CabecalhoGlobal icone={<FileText weight="duotone" size={22} />} titulo={t('comum.carregando')} />}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)' }}>
           <Clock weight="duotone" size={32} style={{ animation: 'spin 1s linear infinite' }} />
@@ -240,16 +242,16 @@ export default function DetalheCotacao() {
           acoes={
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button className="dc-btn dc-btn--secondary" onClick={() => navigate('/cotacoes')}>
-                <ArrowLeft weight="bold" size={14} /> Voltar
+                <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
               </button>
               {cotacao.status === 'AGUARDANDO_APROVACAO' && (
                 <button className="dc-btn dc-btn--primary" onClick={() => navigate(`/cotacoes/${id}/comparativo`)}>
-                  <Ranking weight="bold" size={14} /> Comparativo
+                  <Ranking weight="bold" size={14} /> {t('bidfrete.detalhe_cotacao.comparativo')}
                 </button>
               )}
               {cotacao.status === 'RASCUNHO' && (
                 <button className="dc-btn dc-btn--danger" onClick={async () => { await excluirCotacao(cotacao.id); navigate('/cotacoes') }}>
-                  <Trash weight="bold" size={14} /> Excluir
+                  <Trash weight="bold" size={14} /> {t('comum.excluir')}
                 </button>
               )}
             </div>
@@ -260,7 +262,7 @@ export default function DetalheCotacao() {
       {/* Status Badge */}
       <div className="dc-status-bar">
         <Badge label={STATUS_LABELS[cotacao.status]} variante={STATUS_BADGE[cotacao.status]} />
-        <span className="dc-status-date">Criada em {dataBR(cotacao.created_at)}</span>
+        <span className="dc-status-date">{t('bidfrete.detalhe_cotacao.criada_em')} {dataBR(cotacao.created_at)}</span>
         {cotacao.saving_percentual != null && cotacao.saving_percentual > 0 && (
           <span className="dc-saving-badge">
             Saving: {cotacao.saving_percentual.toFixed(1)}%
@@ -274,13 +276,13 @@ export default function DetalheCotacao() {
       {/* Tabs */}
       <div className="dc-tabs">
         <button className={`dc-tab ${tab === 'dados' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('dados')}>
-          Dados da Cotação
+          {t('bidfrete.detalhe_cotacao.tab_dados')}
         </button>
         <button className={`dc-tab ${tab === 'bids' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('bids')}>
-          Disparos ({bids.length})
+          {t('bidfrete.detalhe_cotacao.tab_disparos')} ({bids.length})
         </button>
         <button className={`dc-tab ${tab === 'respostas' ? 'dc-tab--ativo' : ''}`} onClick={() => setTab('respostas')}>
-          Respostas ({cotacao.bid_responses?.length ?? 0})
+          {t('bidfrete.detalhe_cotacao.tab_respostas')} ({cotacao.bid_responses?.length ?? 0})
         </button>
       </div>
 
@@ -289,32 +291,32 @@ export default function DetalheCotacao() {
         <div className="dc-card">
           <div className="dc-info-grid">
             <div className="dc-info-col">
-              <InfoRow label="Tipo de Operação" value={OPERACAO_LABELS[cotacao.tipo_operacao]} />
-              <InfoRow label="Modal" value={MODAL_LABELS[cotacao.modal]} />
-              <InfoRow label="Modalidade" value={MODALIDADE_LABELS[cotacao.modalidade]} />
-              <InfoRow label="Incoterm" value={cotacao.incoterm} mono />
-              <InfoRow label="Visibilidade" value={cotacao.visibilidade === 'ABERTA' ? 'Aberta' : 'Direcionada'} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.tipo_operacao')} value={OPERACAO_LABELS[cotacao.tipo_operacao]} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.modal')} value={MODAL_LABELS[cotacao.modal]} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.modalidade')} value={MODALIDADE_LABELS[cotacao.modalidade]} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.incoterm')} value={cotacao.incoterm} mono />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.visibilidade')} value={cotacao.visibilidade === 'ABERTA' ? t('bidfrete.nova_cotacao.tipo_aberta') : t('bidfrete.nova_cotacao.tipo_direcionada')} />
             </div>
             <div className="dc-info-col">
-              <InfoRow label="Origem" value={`${cotacao.origem_nome} (${cotacao.origem_codigo})`} />
-              <InfoRow label="País Origem" value={cotacao.origem_pais} />
-              <InfoRow label="Destino" value={`${cotacao.destino_nome} (${cotacao.destino_codigo})`} />
-              <InfoRow label="País Destino" value={cotacao.destino_pais} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.origem')} value={`${cotacao.origem_nome} (${cotacao.origem_codigo})`} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.pais_origem')} value={cotacao.origem_pais} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.destino')} value={`${cotacao.destino_nome} (${cotacao.destino_codigo})`} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.pais_destino')} value={cotacao.destino_pais} />
             </div>
             <div className="dc-info-col">
-              <InfoRow label="Mercadoria" value={cotacao.descricao_mercadoria} />
-              <InfoRow label="NCM" value={cotacao.ncm ?? '—'} mono />
-              <InfoRow label="Quantidade" value={String(cotacao.quantidade)} />
-              <InfoRow label="Peso" value={cotacao.peso_kg ? `${cotacao.peso_kg.toLocaleString('pt-BR')} Kg` : '—'} />
-              <InfoRow label="Cubagem" value={cotacao.cubagem_m3 ? `${cotacao.cubagem_m3} m³` : '—'} />
-              {cotacao.tipo_container && <InfoRow label="Container" value={cotacao.tipo_container} />}
+              <InfoRow label={t('bidfrete.detalhe_cotacao.mercadoria')} value={cotacao.descricao_mercadoria} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.ncm')} value={cotacao.ncm ?? '—'} mono />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.quantidade')} value={String(cotacao.quantidade)} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.peso')} value={cotacao.peso_kg ? `${cotacao.peso_kg.toLocaleString('pt-BR')} Kg` : '—'} />
+              <InfoRow label={t('bidfrete.detalhe_cotacao.cubagem')} value={cotacao.cubagem_m3 ? `${cotacao.cubagem_m3} m³` : '—'} />
+              {cotacao.tipo_container && <InfoRow label={t('bidfrete.detalhe_cotacao.container')} value={cotacao.tipo_container} />}
             </div>
           </div>
 
           {/* Valor alvo */}
           {cotacao.valor_alvo != null && (
             <div className="dc-target">
-              <span className="dc-target-label">Valor alvo:</span>
+              <span className="dc-target-label">{t('bidfrete.detalhe_cotacao.valor_alvo')}:</span>
               <span className="dc-target-value">{cotacao.moeda_alvo} {cotacao.valor_alvo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
           )}
@@ -323,7 +325,7 @@ export default function DetalheCotacao() {
           {cotacao.valor_aprovado != null && (
             <div className="dc-aprovado">
               <CheckCircle weight="fill" size={20} style={{ color: 'var(--success)' }} />
-              <span>Aprovado: <strong>{cotacao.moeda_aprovada ?? 'USD'} {cotacao.valor_aprovado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></span>
+              <span>{t('bidfrete.detalhe_cotacao.aprovado')}: <strong>{cotacao.moeda_aprovada ?? 'USD'} {cotacao.valor_aprovado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></span>
               {cotacao.saving_valor != null && (
                 <span style={{ color: 'var(--success)', fontWeight: 700 }}>
                   Saving: {usd(cotacao.saving_valor)} ({cotacao.saving_percentual?.toFixed(1)}%)
@@ -341,8 +343,8 @@ export default function DetalheCotacao() {
             dados={bids}
             colunas={bidColunas}
             idKey="id"
-            mensagemVazio="Nenhum disparo realizado"
-            tooltipBusca="Buscar por fornecedor"
+            mensagemVazio={t('bidfrete.detalhe_cotacao.vazio_disparos')}
+            tooltipBusca={t('bidfrete.detalhe_cotacao.buscar_fornecedor')}
           />
         </div>
       )}
@@ -353,7 +355,7 @@ export default function DetalheCotacao() {
           {(!cotacao.bid_responses || cotacao.bid_responses.length === 0) ? (
             <div className="dc-empty">
               <PaperPlaneTilt weight="duotone" size={40} style={{ opacity: 0.3 }} />
-              <p>Nenhuma resposta recebida ainda</p>
+              <p>{t('bidfrete.detalhe_cotacao.vazio_respostas')}</p>
             </div>
           ) : (
             <div className="dc-responses-list">
@@ -361,39 +363,39 @@ export default function DetalheCotacao() {
                 <div key={resp.id} className={`dc-response-card ${resp.aprovada ? 'dc-response-card--aprovada' : ''}`}>
                   <div className="dc-resp-header">
                     <span className="dc-resp-fornecedor">{resp.fornecedor?.nome ?? 'Fornecedor'}</span>
-                    {resp.aprovada && <Badge label="Aprovada" variante="success" />}
+                    {resp.aprovada && <Badge label={t('bidfrete.comparativo.aprovar')} variante="success" />}
                   </div>
                   <div className="dc-resp-grid">
                     <div className="dc-resp-item">
-                      <span className="dc-resp-label">Frete</span>
+                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_frete')}</span>
                       <span className="dc-resp-value">{resp.moeda} {resp.valor_frete.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item">
-                      <span className="dc-resp-label">Taxas Origem</span>
+                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_taxas_origem')}</span>
                       <span className="dc-resp-value">{resp.moeda} {resp.taxas_origem.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item">
-                      <span className="dc-resp-label">Taxas Destino</span>
+                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_taxas_destino')}</span>
                       <span className="dc-resp-value">{resp.moeda} {resp.taxas_destino.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item dc-resp-item--destaque">
-                      <span className="dc-resp-label">Total</span>
+                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_total')}</span>
                       <span className="dc-resp-value">{resp.moeda} {resp.valor_total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     <div className="dc-resp-item">
-                      <span className="dc-resp-label">Transit Time</span>
-                      <span className="dc-resp-value">{resp.transit_time_dias} dias</span>
+                      <span className="dc-resp-label">{t('bidfrete.comparativo.transit_time')}</span>
+                      <span className="dc-resp-value">{resp.transit_time_dias} {t('bidfrete.detalhe_cotacao.dias')}</span>
                     </div>
                     <div className="dc-resp-item">
-                      <span className="dc-resp-label">Free Time</span>
-                      <span className="dc-resp-value">{resp.free_time_dias ?? '—'} dias</span>
+                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_free_time')}</span>
+                      <span className="dc-resp-value">{resp.free_time_dias ?? '—'} {t('bidfrete.detalhe_cotacao.dias')}</span>
                     </div>
                     <div className="dc-resp-item">
-                      <span className="dc-resp-label">Transbordos</span>
+                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_transbordos')}</span>
                       <span className="dc-resp-value">{resp.transbordos}</span>
                     </div>
                     <div className="dc-resp-item">
-                      <span className="dc-resp-label">Validade</span>
+                      <span className="dc-resp-label">{t('bidfrete.detalhe_cotacao.resp_validade')}</span>
                       <span className="dc-resp-value">{dataBR(resp.validade)}</span>
                     </div>
                   </div>

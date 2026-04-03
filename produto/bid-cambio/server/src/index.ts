@@ -21,6 +21,7 @@ import { portalRouter } from './routes/portal.js'
 import { portalPublicRouter } from './routes/portalPublic.js'
 import { avaliacoesRouter } from './routes/avaliacoes.js'
 import { dashboardRouter } from './routes/dashboard.js'
+import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { preferenciasRouter } from './routes/preferencias.js'
 import { startCronJobs } from './services/cronJobs.js'
 import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
@@ -113,6 +114,7 @@ app.use('/api/v1/bid-cambio/corretoras', corretorasRouter)
 app.use('/api/v1/bid-cambio/portal', portalRouter)
 app.use('/api/v1/bid-cambio/avaliacoes', avaliacoesRouter)
 app.use('/api/v1/bid-cambio/dashboard', dashboardRouter)
+app.use('/api/v1/bid-cambio/dashboard', dashboardWidgetsRouter)
 
 // --- 10. SPA Fallback ---
 app.get('*', (_req: Request, res: Response) => {

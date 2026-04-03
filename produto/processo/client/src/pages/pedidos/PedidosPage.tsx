@@ -1,334 +1,496 @@
 /**
  * PedidosPage.tsx — Pedidos de compra vinculados ao processo
  *
- * TabelaCamadasGlobal: pedidos como camada pai, itens como camada filha.
- * Segue padroes do Configurador (Workspaces.tsx / Organizacao.tsx).
+ * TabelaVirtualGlobal: pedidos como nível pai, itens como nível filho.
+ * Dados 100% da API — cursor pagination, edição inline, lote, exportação.
  */
 
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import {
-  Package,
-  Plus,
-  Eye,
-  PencilSimple,
-  CurrencyDollar,
-  Scales,
-  Cube,
-} from '@phosphor-icons/react'
-import { PaginaGlobal } from '@nucleo/pagina-global'
-import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { CardBasicoGlobal } from '@nucleo/card-global'
-import { TabelaCamadasGlobal } from '@nucleo/tabela-camadas-global'
-import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
+import React, { useState, useEffect, useCallback } from 'react'
+import { Package, Plus, Eye, PencilSimple, X } from '@phosphor-icons/react'
+import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
+import type {
+  GTColuna,
+  GTAcao,
+  GTAcaoLote,
+  GTAcaoExport,
+  GTAbaTipo,
+  GTPreferencias,
+} from '@nucleo/tabela-virtual-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
-import type { TCGColuna, TCGAcao } from '@nucleo/tabela-camadas-global'
+import type {
+  PedidoRico,
+  PedidoItemRico,
+  PedidoStatusConfig,
+} from '../../shared/types'
+import {
+  getPedidos,
+  getPedidoItens,
+  editarCampoPedido,
+  getPedidosStatus,
+  getPreferenciasUsuario,
+  salvarPreferenciasUsuario,
+  exportarPedidos,
+} from '../../shared/api'
 
-// ── Tipos locais ──────────────────────────────────────────────────────────────
+// ── Env / IDs ─────────────────────────────────────────────────────────────────
 
-interface PedidoItem {
-  id: string
-  numero_item: number
-  descricao: string
-  ncm: string
-  quantidade: number
-  unidade: string
-  valor_total: number
-  status_li: string
-}
-
-interface Pedido {
-  id: string
-  numero: string
-  exportador_nome: string
-  status: string
-  valor_fob: number
-  moeda: string
-  peso_bruto: number
-  data_pedido: string
-  itens: PedidoItem[]
-}
+const tenantId = import.meta.env.VITE_TENANT_ID ?? 'tenant-demo'
+const userId = import.meta.env.VITE_USER_ID ?? 'user-demo'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const fmtUSD = (val: number) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(val)
+const fmtUSD = (val: string | number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(Number(val))
+
+const fmtDecimal = (val: string | number) =>
+  Number(val).toLocaleString('pt-BR', { maximumFractionDigits: 2 })
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString('pt-BR')
 
-const fmtPeso = (val: number) =>
-  val.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
-
-// ── Status maps ───────────────────────────────────────────────────────────────
-
-const STATUS_PEDIDO_LABELS: Record<string, string> = {
-  pendente: 'Pendente',
-  confirmado: 'Confirmado',
-  em_transito: 'Em Transito',
-  desembaracado: 'Desembaracado',
-  entregue: 'Entregue',
-  cancelado: 'Cancelado',
-}
-
-const STATUS_LI_LABELS: Record<string, string> = {
-  pendente: 'Pendente',
-  deferida: 'Deferida',
-  indeferida: 'Indeferida',
-  dispensada: 'Dispensada',
-}
-
-// ── Mock data ─────────────────────────────────────────────────────────────────
-
-const PEDIDOS_MOCK: Pedido[] = [
-  {
-    id: 'ped-001',
-    numero: 'PO-2026/001',
-    exportador_nome: 'Shanghai Electronics Co.',
-    status: 'confirmado',
-    valor_fob: 84_250.00,
-    moeda: 'USD',
-    peso_bruto: 12_450.80,
-    data_pedido: '2026-01-15',
-    itens: [
-      { id: 'item-001', numero_item: 1, descricao: 'Placa controladora PCB modelo X-200', ncm: '8542.31.90', quantidade: 5000, unidade: 'UN', valor_total: 35_000.00, status_li: 'deferida' },
-      { id: 'item-002', numero_item: 2, descricao: 'Capacitor ceramico SMD 100nF', ncm: '8532.24.10', quantidade: 50_000, unidade: 'UN', valor_total: 12_500.00, status_li: 'dispensada' },
-      { id: 'item-003', numero_item: 3, descricao: 'Conector USB-C macho SMT', ncm: '8536.69.90', quantidade: 10_000, unidade: 'UN', valor_total: 18_750.00, status_li: 'deferida' },
-      { id: 'item-004', numero_item: 4, descricao: 'Dissipador de calor aluminio 40x40mm', ncm: '7616.99.00', quantidade: 5000, unidade: 'UN', valor_total: 18_000.00, status_li: 'pendente' },
-    ],
-  },
-  {
-    id: 'ped-002',
-    numero: 'PO-2026/002',
-    exportador_nome: 'Dongguan Plastics Ltd.',
-    status: 'pendente',
-    valor_fob: 23_800.00,
-    moeda: 'USD',
-    peso_bruto: 6_320.50,
-    data_pedido: '2026-02-08',
-    itens: [
-      { id: 'item-005', numero_item: 1, descricao: 'Carcaca plastica ABS injetada modelo G-5', ncm: '3926.90.90', quantidade: 3000, unidade: 'UN', valor_total: 15_000.00, status_li: 'pendente' },
-      { id: 'item-006', numero_item: 2, descricao: 'Tampa traseira policarbonato transparente', ncm: '3920.61.00', quantidade: 3000, unidade: 'UN', valor_total: 8_800.00, status_li: 'pendente' },
-    ],
-  },
-]
-
-// ── Colunas pai ───────────────────────────────────────────────────────────────
-
-const colunasPai: TCGColuna<Pedido>[] = [
-  {
-    key: 'numero',
-    label: 'Numero',
-    tooltipTitulo: 'Numero do Pedido',
-    tooltipDescricao: 'Identificador unico do pedido de compra no processo',
-  },
-  {
-    key: 'exportador_nome',
-    label: 'Exportador',
-    tooltipTitulo: 'Exportador',
-    tooltipDescricao: 'Fornecedor internacional responsavel pelo envio da mercadoria',
-  },
-  {
-    key: 'status',
-    label: 'Status',
-    tooltipTitulo: 'Status do Pedido',
-    tooltipDescricao: 'Situacao atual do pedido dentro do fluxo de importacao',
-    render: (_val: string, row: Pedido) => (
-      <StatusBadgeGlobal valor={STATUS_PEDIDO_LABELS[row.status] ?? row.status} genero="masculino" />
-    ),
-  },
-  {
-    key: 'valor_fob',
-    label: 'Valor FOB',
-    align: 'right',
-    tooltipTitulo: 'Valor FOB',
-    tooltipDescricao: 'Valor total da mercadoria no ponto de embarque em dolares',
-    render: (_val: number, row: Pedido) => <span>{fmtUSD(row.valor_fob)}</span>,
-  },
-  {
-    key: 'peso_bruto',
-    label: 'Peso Bruto (kg)',
-    align: 'right',
-    tooltipTitulo: 'Peso Bruto',
-    tooltipDescricao: 'Peso total do pedido incluindo embalagem em quilogramas',
-    render: (_val: number, row: Pedido) => <span>{fmtPeso(row.peso_bruto)}</span>,
-  },
-  {
-    key: 'data_pedido',
-    label: 'Data Pedido',
-    tooltipTitulo: 'Data do Pedido',
-    tooltipDescricao: 'Data em que o pedido de compra foi emitido ao exportador',
-    render: (_val: string, row: Pedido) => <span>{fmtDate(row.data_pedido)}</span>,
-  },
-]
-
-// ── Colunas filha ─────────────────────────────────────────────────────────────
-
-const colunasFilha: TCGColuna<PedidoItem>[] = [
-  {
-    key: 'numero_item',
-    label: 'Item',
-    tooltipTitulo: 'Numero do Item',
-    tooltipDescricao: 'Sequencial do item dentro do pedido de compra',
-    render: (_val: number, row: PedidoItem) => (
-      <span>{String(row.numero_item).padStart(3, '0')}</span>
-    ),
-  },
-  {
-    key: 'descricao',
-    label: 'Descricao',
-    tooltipTitulo: 'Descricao do Item',
-    tooltipDescricao: 'Nome comercial da mercadoria conforme fatura do exportador',
-  },
-  {
-    key: 'ncm',
-    label: 'NCM',
-    tooltipTitulo: 'NCM',
-    tooltipDescricao: 'Codigo da Nomenclatura Comum do Mercosul para classificacao fiscal',
-    render: (_val: string, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
-        {row.ncm}
-      </span>
-    ),
-  },
-  {
-    key: 'quantidade',
-    label: 'Qtd.',
-    align: 'right',
-    tooltipTitulo: 'Quantidade',
-    tooltipDescricao: 'Volume adquirido do item na unidade de medida informada',
-    render: (_val: number, row: PedidoItem) => (
-      <span>{row.quantidade.toLocaleString('pt-BR')} {row.unidade}</span>
-    ),
-  },
-  {
-    key: 'valor_total',
-    label: 'Valor Total',
-    align: 'right',
-    tooltipTitulo: 'Valor Total',
-    tooltipDescricao: 'Valor FOB total do item em dolares americanos',
-    render: (_val: number, row: PedidoItem) => <span>{fmtUSD(row.valor_total)}</span>,
-  },
-  {
-    key: 'status_li',
-    label: 'Status LI',
-    tooltipTitulo: 'Status da LI',
-    tooltipDescricao: 'Situacao da Licenca de Importacao junto aos orgaos anuentes',
-    render: (_val: string, row: PedidoItem) => (
-      <StatusBadgeGlobal valor={STATUS_LI_LABELS[row.status_li] ?? row.status_li} genero="feminino" />
-    ),
-  },
-]
-
-// ── Acoes pai ─────────────────────────────────────────────────────────────────
-
-const acoesPai: TCGAcao<Pedido>[] = [
-  {
-    id: 'ver',
-    tooltip: 'Ver detalhes do pedido',
-    icone: <Eye size={16} weight="duotone" />,
-    onClick: (row: Pedido) => {
-      console.log('Ver pedido:', row.id)
-    },
-  },
-  {
-    id: 'editar',
-    tooltip: 'Editar dados do pedido',
-    icone: <PencilSimple size={16} weight="duotone" />,
-    onClick: (row: Pedido) => {
-      console.log('Editar pedido:', row.id)
-    },
-  },
-]
-
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function PedidosPage() {
-  const { t } = useTranslation()
-  const [carregando] = useState(false)
-  const pedidos = PEDIDOS_MOCK
+  const [pedidos, setPedidos] = useState<PedidoRico[]>([])
+  const [cursor, setCursor] = useState<string | undefined>()
+  const [temMais, setTemMais] = useState(false)
+  const [carregandoMais, setCarregandoMais] = useState(false)
+  const [carregando, setCarregando] = useState(true)
+  const [abaAtiva, setAbaAtiva] = useState('todos')
+  const [busca, setBusca] = useState('')
+  const [sortCampo, setSortCampo] = useState('created_at')
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
+  const [statusList, setStatusList] = useState<PedidoStatusConfig[]>([])
+  const [preferencias, setPreferencias] = useState<GTPreferencias | undefined>()
 
-  // Stats calculados
-  const totalPedidos = pedidos.length
-  const valorFobTotal = pedidos.reduce((acc, p) => acc + p.valor_fob, 0)
-  const pesoTotal = pedidos.reduce((acc, p) => acc + p.peso_bruto, 0)
+  // ── Carregamento inicial ───────────────────────────────────────────────────
 
-  // Estado vazio
-  const semPedidos = pedidos.length === 0
+  useEffect(() => {
+    async function init() {
+      setCarregando(true)
+      try {
+        const [statusData, prefsData, listData] = await Promise.all([
+          getPedidosStatus(tenantId),
+          getPreferenciasUsuario(tenantId, userId),
+          getPedidos(tenantId, { sort: sortCampo, dir: sortDir, limit: 50 }),
+        ])
+        setStatusList(statusData)
+        if (prefsData) {
+          setPreferencias({
+            colunas_visiveis: prefsData.colunas_visiveis,
+            larguras: prefsData.colunas_largura,
+          })
+        }
+        setPedidos(listData.data)
+        setCursor(listData.cursor_proximo)
+        setTemMais(listData.tem_mais)
+      } catch {
+        // erros silenciosos — tabela exibirá estado vazio
+      } finally {
+        setCarregando(false)
+      }
+    }
+    void init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  return (
-    <PaginaGlobal
-      className="ws-fade-up"
-      layout="lista"
-      cabecalho={
-        <CabecalhoGlobal
-          icone={<Package weight="duotone" size={22} />}
-          titulo={t('processo.menu.pedidos')}
-          subtitulo={t('pedido.subtitulo_processo', 'Pedidos de compra vinculados ao processo')}
-        />
+  // ── Recarregar ao mudar aba / busca / sort ────────────────────────────────
+
+  const recarregar = useCallback(
+    async (
+      novoStatus: string,
+      novaBusca: string,
+      novoCampo: string,
+      novoDir: 'asc' | 'desc'
+    ) => {
+      setCarregando(true)
+      try {
+        const resp = await getPedidos(tenantId, {
+          sort: novoCampo,
+          dir: novoDir,
+          limit: 50,
+          status: novoStatus !== 'todos' ? novoStatus : undefined,
+          busca: novaBusca || undefined,
+        })
+        setPedidos(resp.data)
+        setCursor(resp.cursor_proximo)
+        setTemMais(resp.tem_mais)
+      } catch {
+        // silencioso
+      } finally {
+        setCarregando(false)
       }
-      stats={
-        <>
-          <CardBasicoGlobal
-            titulo={t('pedido.total_pedidos')}
-            icone={<Cube weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
-            valor={totalPedidos}
-            subtexto={`${pedidos.reduce((a, p) => a + p.itens.length, 0)} ${t('pedido.itens_total')}`}
-          />
-          <CardBasicoGlobal
-            titulo={t('pedido.valor_total')}
-            icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
-            valor={fmtUSD(valorFobTotal)}
-            variante="sucesso"
-            subtexto={t('pedido.soma_pedidos')}
-          />
-          <CardBasicoGlobal
-            titulo={t('pedido.peso_total', 'Peso Total')}
-            icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-            valor={`${fmtPeso(pesoTotal)} kg`}
-            variante="aviso"
-            subtexto={t('pedido.peso_acumulado', 'Peso bruto acumulado')}
-          />
-        </>
-      }
-      acoes={
-        <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
-          {t('pedido.novo_pedido')}
-        </BotaoGlobal>
-      }
-    >
-      {semPedidos && !carregando ? (
-        <div
-          className="ws-fade-up ws-fade-up-d1"
+    },
+    []
+  )
+
+  // ── Aba ───────────────────────────────────────────────────────────────────
+
+  function handleMudarAba(aba: string) {
+    setAbaAtiva(aba)
+    void recarregar(aba, busca, sortCampo, sortDir)
+  }
+
+  // ── Busca ─────────────────────────────────────────────────────────────────
+
+  function handleBuscar(termo: string) {
+    setBusca(termo)
+    void recarregar(abaAtiva, termo, sortCampo, sortDir)
+  }
+
+  // ── Ordenação ─────────────────────────────────────────────────────────────
+
+  function handleOrdenar(campo: string, dir: 'asc' | 'desc') {
+    setSortCampo(campo)
+    setSortDir(dir)
+    void recarregar(abaAtiva, busca, campo, dir)
+  }
+
+  // ── Load more ─────────────────────────────────────────────────────────────
+
+  async function carregarMais() {
+    if (!temMais || carregandoMais || !cursor) return
+    setCarregandoMais(true)
+    try {
+      const resp = await getPedidos(tenantId, {
+        cursor,
+        sort: sortCampo,
+        dir: sortDir,
+        limit: 50,
+        status: abaAtiva !== 'todos' ? abaAtiva : undefined,
+        busca: busca || undefined,
+      })
+      setPedidos(prev => [...prev, ...resp.data])
+      setCursor(resp.cursor_proximo)
+      setTemMais(resp.tem_mais)
+    } catch {
+      // silencioso
+    } finally {
+      setCarregandoMais(false)
+    }
+  }
+
+  // ── Carregar filhos (itens do pedido) ─────────────────────────────────────
+
+  async function carregarItens(pedido: PedidoRico): Promise<PedidoItemRico[]> {
+    return getPedidoItens(tenantId, pedido.id)
+  }
+
+  // ── Edição inline ─────────────────────────────────────────────────────────
+
+  async function handleEditar(id: string, campo: string, valor: unknown): Promise<PedidoRico> {
+    const pedido = pedidos.find(p => p.id === id)
+    const updatedAt = pedido?.updated_at ?? new Date().toISOString()
+    const atualizado = await editarCampoPedido(tenantId, id, campo, valor, updatedAt)
+    setPedidos(prev => prev.map(p => (p.id === id ? atualizado : p)))
+    return atualizado
+  }
+
+  // ── Salvar preferências ───────────────────────────────────────────────────
+
+  async function handleSalvarPreferencias(prefs: GTPreferencias) {
+    setPreferencias(prefs)
+    await salvarPreferenciasUsuario(tenantId, userId, {
+      colunas_visiveis: prefs.colunas_visiveis,
+      colunas_largura: prefs.larguras,
+    })
+  }
+
+  // ── Abas ──────────────────────────────────────────────────────────────────
+
+  const abas: GTAbaTipo[] = [
+    { valor: 'todos', label: 'Todos' },
+    ...statusList.map(s => ({
+      valor: s.nome,
+      label: s.rotulo,
+      cor: s.cor,
+    })),
+  ]
+
+  // ── Colunas pai ───────────────────────────────────────────────────────────
+
+  const colunasPai: GTColuna<PedidoRico>[] = [
+    {
+      key: 'numero',
+      label: 'Nº Pedido',
+      sortavel: true,
+      naoOcultavel: true,
+      largura: 140,
+      tooltipTitulo: 'Número do Pedido',
+      tooltipDescricao: 'Identificador único do pedido de compra no processo',
+    },
+    {
+      key: 'exportador_nome',
+      label: 'Exportador',
+      sortavel: true,
+      largura: 200,
+      tooltipTitulo: 'Exportador',
+      tooltipDescricao: 'Fornecedor internacional responsável pelo envio da mercadoria',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      largura: 130,
+      tooltipTitulo: 'Status do Pedido',
+      tooltipDescricao: 'Situação atual do pedido dentro do fluxo de importação',
+      render: (_val: unknown, row: PedidoRico) => {
+        const cfg = statusList.find(s => s.nome === row.status)
+        const rotulo = cfg?.rotulo ?? row.status
+        const cor = cfg?.cor ?? '#6b7280'
+        return (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.375rem',
+              padding: '0.125rem 0.5rem',
+              borderRadius: '9999px',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              background: `${cor}22`,
+              color: cor,
+              border: `1px solid ${cor}44`,
+            }}
+          >
+            {rotulo}
+          </span>
+        )
+      },
+    },
+    {
+      key: 'valor_fob',
+      label: 'Valor FOB',
+      align: 'right',
+      sortavel: true,
+      largura: 130,
+      tooltipTitulo: 'Valor FOB',
+      tooltipDescricao: 'Valor total da mercadoria no ponto de embarque em dólares',
+      render: (_val: unknown, row: PedidoRico) => <span>{fmtUSD(row.valor_fob)}</span>,
+    },
+    {
+      key: 'moeda',
+      label: 'Moeda',
+      largura: 80,
+      tooltipTitulo: 'Moeda',
+      tooltipDescricao: 'Moeda utilizada no pedido de compra',
+    },
+    {
+      key: 'peso_bruto',
+      label: 'Peso Bruto (kg)',
+      align: 'right',
+      largura: 130,
+      tooltipTitulo: 'Peso Bruto',
+      tooltipDescricao: 'Peso total do pedido incluindo embalagem em quilogramas',
+      render: (_val: unknown, row: PedidoRico) => <span>{fmtDecimal(row.peso_bruto)}</span>,
+    },
+    {
+      key: 'created_at',
+      label: 'Data',
+      sortavel: true,
+      largura: 110,
+      tooltipTitulo: 'Data de Criação',
+      tooltipDescricao: 'Data em que o pedido foi registrado no sistema',
+      render: (_val: unknown, row: PedidoRico) => <span>{fmtDate(row.created_at)}</span>,
+    },
+  ]
+
+  // ── Colunas filha ─────────────────────────────────────────────────────────
+
+  const colunasFilha: GTColuna<PedidoItemRico>[] = [
+    {
+      key: 'numero_item',
+      label: 'Item',
+      largura: 70,
+      tooltipTitulo: 'Número do Item',
+      tooltipDescricao: 'Sequencial do item dentro do pedido de compra',
+    },
+    {
+      key: 'descricao',
+      label: 'Descrição',
+      largura: 250,
+      tooltipTitulo: 'Descrição do Item',
+      tooltipDescricao: 'Nome comercial da mercadoria conforme fatura do exportador',
+    },
+    {
+      key: 'ncm',
+      label: 'NCM',
+      largura: 110,
+      tooltipTitulo: 'NCM',
+      tooltipDescricao: 'Código da Nomenclatura Comum do Mercosul para classificação fiscal',
+      render: (_val: unknown, row: PedidoItemRico) =>
+        row.ncm ? (
+          <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+            {row.ncm}
+          </span>
+        ) : null,
+    },
+    {
+      key: 'quantidade',
+      label: 'Qtd.',
+      align: 'right',
+      largura: 100,
+      tooltipTitulo: 'Quantidade',
+      tooltipDescricao: 'Volume adquirido do item na unidade de medida informada',
+      render: (_val: unknown, row: PedidoItemRico) => (
+        <span>
+          {fmtDecimal(row.quantidade)} {row.unidade}
+        </span>
+      ),
+    },
+    {
+      key: 'valor_total',
+      label: 'Valor Total',
+      align: 'right',
+      largura: 120,
+      tooltipTitulo: 'Valor Total',
+      tooltipDescricao: 'Valor FOB total do item em dólares americanos',
+      render: (_val: unknown, row: PedidoItemRico) => <span>{fmtUSD(row.valor_total)}</span>,
+    },
+    {
+      key: 'status_li',
+      label: 'LI',
+      largura: 100,
+      tooltipTitulo: 'Status da LI',
+      tooltipDescricao: 'Situação da Licença de Importação junto aos órgãos anuentes',
+      render: (_val: unknown, row: PedidoItemRico) => (
+        <span
           style={{
-            display: 'flex',
-            flexDirection: 'column',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.75rem',
-            padding: '4rem 2rem',
-            color: 'var(--ws-muted)',
+            padding: '0.125rem 0.5rem',
+            borderRadius: '9999px',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            background: 'var(--ws-surface-2, #f3f4f6)',
+            color: 'var(--ws-muted, #6b7280)',
           }}
         >
-          <Package weight="duotone" size={48} style={{ opacity: 0.4 }} />
-          <span style={{ fontSize: '0.875rem' }}>{t('pedido.vazio_processo', 'Nenhum pedido cadastrado para este processo')}</span>
-        </div>
-      ) : (
-        <TabelaCamadasGlobal<Pedido, PedidoItem>
-          dados={pedidos}
-          colunas={colunasPai}
-          colunasFilhas={colunasFilha}
-          filhos={(pedido) => pedido.itens ?? []}
-          acoes={acoesPai}
-          itemId={(pedido) => pedido.id}
-          placeholderBusca={t('pedido.buscar')}
-          campoBusca="numero"
-          mensagemVazio={t('pedido.vazio_filtro')}
-          carregando={carregando}
-          itensPorPagina={10}
-        />
-      )}
-    </PaginaGlobal>
+          {row.status_li}
+        </span>
+      ),
+    },
+  ]
+
+  // ── Ações de linha ────────────────────────────────────────────────────────
+
+  const acoes: GTAcao<PedidoRico>[] = [
+    {
+      id: 'ver',
+      tooltip: 'Ver detalhes',
+      icone: <Eye size={16} weight="duotone" />,
+      onClick: (row: PedidoRico) => {
+        // navegação para detalhe do pedido — implementar rota
+        void row
+      },
+    },
+    {
+      id: 'editar',
+      tooltip: 'Editar pedido',
+      icone: <PencilSimple size={16} weight="duotone" />,
+      onClick: (row: PedidoRico) => {
+        void row
+      },
+    },
+    {
+      id: 'cancelar',
+      tooltip: 'Cancelar pedido',
+      icone: <X size={16} weight="duotone" />,
+      variant: 'danger',
+      visivel: (row: PedidoRico) => row.status !== 'cancelado',
+      onClick: (row: PedidoRico) => {
+        void row
+      },
+    },
+  ]
+
+  // ── Ações em lote ─────────────────────────────────────────────────────────
+
+  const acoesLote: GTAcaoLote<PedidoRico>[] = [
+    {
+      id: 'exportar_lote',
+      label: 'Exportar selecionados',
+      onClick: async (itens: PedidoRico[]) => {
+        await exportarPedidos(tenantId, itens.map(i => i.id), 'csv')
+      },
+    },
+    {
+      id: 'cancelar_lote',
+      label: 'Cancelar selecionados',
+      variant: 'danger',
+      onClick: (_itens: PedidoRico[]) => {
+        // abrir modal de confirmação
+      },
+    },
+  ]
+
+  // ── Ações de exportação ───────────────────────────────────────────────────
+
+  const acoesExportacao: GTAcaoExport[] = [
+    {
+      label: 'CSV',
+      onClick: async () => {
+        await exportarPedidos(tenantId, pedidos.map(p => p.id), 'csv')
+      },
+    },
+    {
+      label: 'Excel',
+      onClick: async () => {
+        await exportarPedidos(tenantId, pedidos.map(p => p.id), 'xlsx')
+      },
+    },
+    {
+      label: 'JSON',
+      onClick: async () => {
+        await exportarPedidos(tenantId, pedidos.map(p => p.id), 'json')
+      },
+    },
+  ]
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  return (
+    <div style={{ height: '100%' }}>
+      <TabelaVirtualGlobal<PedidoRico, PedidoItemRico>
+        dados={pedidos}
+        colunas={colunasPai}
+        itemId={(p: PedidoRico) => p.id}
+        colunasFilhas={colunasFilha}
+        onCarregarFilhos={carregarItens}
+        filhoId={(filho: PedidoItemRico) => filho.id}
+        temMais={temMais}
+        carregandoMais={carregandoMais}
+        onCarregarMais={() => void carregarMais()}
+        abas={abas}
+        abaAtiva={abaAtiva}
+        onMudarAba={handleMudarAba}
+        acoes={acoes}
+        acoesLote={acoesLote}
+        acoesExportacao={acoesExportacao}
+        acoesBarra={
+          <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
+            Novo Pedido
+          </BotaoGlobal>
+        }
+        onBuscar={handleBuscar}
+        placeholderBusca="Buscar pedidos..."
+        onOrdenar={handleOrdenar}
+        sortCampo={sortCampo}
+        sortDir={sortDir}
+        camposEditaveis={['exportador_nome', 'moeda', 'status']}
+        onEditar={handleEditar}
+        preferencias={preferencias}
+        onSalvarPreferencias={prefs => void handleSalvarPreferencias(prefs)}
+        carregando={carregando}
+        emptyIcon={<Package weight="duotone" size={48} />}
+        emptyTitle="Nenhum pedido encontrado"
+        emptyDescription="Crie o primeiro pedido ou ajuste os filtros"
+        emptyAction={
+          <BotaoGlobal variante="primario" icone={<Plus size={16} />}>
+            Novo Pedido
+          </BotaoGlobal>
+        }
+        ariaLabel="Tabela de pedidos de compra"
+      />
+    </div>
   )
 }

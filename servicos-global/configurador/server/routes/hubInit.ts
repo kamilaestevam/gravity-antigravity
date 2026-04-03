@@ -24,7 +24,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     const tenantId = req.auth.tenantId
 
     // Tudo em paralelo — 1 único requireAuth
-    const [tenant, companies, configs, catalogProducts] = await Promise.all([
+    const [tenant, companies, configs, catalogProducts, globalProducts] = await Promise.all([
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
       prisma.productConfig.findMany({
@@ -36,10 +36,22 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         select: { id: true, name: true, slug: true, description: true, status: true },
         orderBy: { created_at: 'desc' },
       }).catch(() => []),
+      // Catálogo secundário (GlobalProduct) — inclui produtos Em Breve
+      prisma.globalProduct.findMany({
+        select: { id: true, name: true, slug: true, description: true, status: true },
+        orderBy: { created_at: 'desc' },
+      }).catch(() => []),
     ])
 
+    // Merge catálogos: Product tem precedência; GlobalProduct complementa
+    const productSlugs = new Set(catalogProducts.map((p: { slug: string }) => p.slug))
+    const mergedCatalog = [
+      ...catalogProducts,
+      ...globalProducts.filter((gp: { slug: string }) => !productSlugs.has(gp.slug)),
+    ]
+
     // Enriquece produtos contratados com dados do catálogo
-    const catalogMap = new Map(catalogProducts.map(p => [p.slug, p]))
+    const catalogMap = new Map(mergedCatalog.map((p: { slug: string }) => [p.slug, p]))
 
     const products = configs.map(c => ({
       product_key: c.product_key,
@@ -53,7 +65,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       tenant,
       companies,
       products,
-      catalog: catalogProducts,
+      catalog: mergedCatalog,
     })
   } catch (err) {
     next(err)

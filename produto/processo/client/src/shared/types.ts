@@ -261,3 +261,73 @@ export interface UploadDocumentoInput {
   arquivo: File
   observacoes?: string
 }
+
+// ─── Pedido (novo modelo rico) ───────────────────────────────────────────────
+
+export interface PedidoRico {
+  id: string
+  tenant_id: string
+  numero: string              // numero PO
+  exportador_nome?: string
+  exportador_pais?: string
+  status: string
+  status_id?: string
+  valor_fob: string           // Decimal vem como string do Prisma
+  moeda: string
+  peso_bruto: string          // Decimal
+  data_pedido?: string
+  campos_custom?: Record<string, unknown>
+  created_at: string
+  updated_at: string
+  itens?: PedidoItemRico[]
+}
+
+export interface PedidoItemRico {
+  id: string
+  pedido_id: string
+  numero_item: string
+  descricao: string
+  ncm?: string
+  quantidade: string          // Decimal
+  unidade: string
+  valor_unitario: string      // Decimal
+  valor_total: string         // Decimal
+  moeda: string
+  status_li: string
+  campos_custom?: Record<string, unknown>
+}
+
+export interface PedidoStatusConfig {
+  id: string
+  nome: string
+  rotulo: string
+  cor: string
+  icone?: string
+  ordem: number
+  is_padrao: boolean
+  is_sistema: boolean
+}
+
+export interface PedidoColunaConfig {
+  id: string
+  nome: string
+  rotulo: string
+  tipo: 'texto' | 'numero' | 'data' | 'select' | 'booleano'
+  casas_decimais: number
+  opcoes?: { valor: string; rotulo: string }[]
+  ordem: number
+  filtravel: boolean
+  exibida_padrao: boolean
+  index_criado: boolean
+}
+
+export interface PedidoPreferencias {
+  colunas_visiveis: string[]
+  colunas_largura?: Record<string, number>
+}
+
+export interface PedidosListResponse {
+  data: PedidoRico[]
+  cursor_proximo?: string
+  tem_mais: boolean
+}

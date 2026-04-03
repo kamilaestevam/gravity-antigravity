@@ -9,6 +9,7 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { lpcoRouter } from './routes/lpco.js'
@@ -107,6 +108,7 @@ app.use('/api/v1/lpcos', lpcoHistoricoRouter)
 app.use('/api/v1/lpcos', lpcoPortalRouter)
 app.use('/api/v1/credenciais', credenciaisRouter)
 app.use('/api/v1/simulador-ta', simuladorTARouter)
+app.use('/api/v1/lpcos/dashboard', dashboardWidgetsRouter)
 
 // --- 9. SPA Fallback (producao) ---
 app.get('*', (_req: Request, res: Response) => {

@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   PenLine,
   ArrowLeft,
@@ -292,6 +293,7 @@ interface ResponderCotacaoProps {
 }
 
 export default function ResponderCotacao({ bidRequestId, disabled = false, onVoltar }: ResponderCotacaoProps) {
+  const { t } = useTranslation()
   const [detalhes, setDetalhes] = useState<CotacaoDetalhes | null>(null)
   const [pageState, setPageState] = useState<PageState>('loading')
   const [enviando, setEnviando] = useState(false)
@@ -377,11 +379,11 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
     if (!bidRequestId) return
 
     if (!form.taxa_oferecida || taxaOferecida <= 0) {
-      setErro('Informe uma taxa valida')
+      setErro(t('bidcambio.portal.responder.erro_taxa'))
       return
     }
     if (!form.validade_minutos || parseInt(form.validade_minutos, 10) <= 0) {
-      setErro('Informe a validade em minutos')
+      setErro(t('bidcambio.portal.responder.erro_validade'))
       return
     }
 
@@ -417,12 +419,12 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
         <div style={st.successWrap}>
           <CheckCircle size={64} style={{ color: 'var(--success, #22c55e)' }} />
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary, #f1f5f9)', margin: 0 }}>
-            Proposta enviada com sucesso
+            {t('bidcambio.portal.responder.proposta_enviada')}
           </h2>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', maxWidth: 400 }}>
-            Sua proposta foi registrada e sera analisada pelo comprador.
+            {t('bidcambio.portal.responder.proposta_desc')}
           </p>
-          <button onClick={onVoltar} style={st.submitBtn}>Voltar para Pendentes</button>
+          <button onClick={onVoltar} style={st.submitBtn}>{t('bidcambio.portal.responder.voltar_pendentes')}</button>
         </div>
       </div>
     )
@@ -435,11 +437,11 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
       <div style={st.page}>
         <div style={st.header}>
           <div style={st.headerIcon}><PenLine size={22} /></div>
-          <div><h1 style={st.title}>Responder Cotacao</h1></div>
+          <div><h1 style={st.title}>{t('bidcambio.portal.responder.titulo')}</h1></div>
         </div>
         <div style={st.center}>
           <Loader2 size={48} style={{ opacity: 0.3, animation: 'spin 1s linear infinite' }} />
-          <p>Carregando cotacao...</p>
+          <p>{t('bidcambio.portal.responder.carregando')}</p>
         </div>
       </div>
     )
@@ -450,12 +452,12 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
       <div style={st.page}>
         <div style={st.header}>
           <div style={st.headerIcon}><PenLine size={22} /></div>
-          <div><h1 style={st.title}>Responder Cotacao</h1></div>
+          <div><h1 style={st.title}>{t('bidcambio.portal.responder.titulo')}</h1></div>
         </div>
         <div style={st.center}>
           <AlertCircle size={48} style={{ color: 'var(--danger, #ef4444)', opacity: 0.6 }} />
           <p style={{ color: 'var(--danger, #ef4444)' }}>Erro ao carregar cotacao.</p>
-          <button onClick={carregar} style={st.submitBtn}>Tentar novamente</button>
+          <button onClick={carregar} style={st.submitBtn}>{t('comum.tentar_novamente')}</button>
         </div>
       </div>
     )
@@ -466,11 +468,11 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
       <div style={st.page}>
         <div style={st.header}>
           <div style={st.headerIcon}><PenLine size={22} /></div>
-          <div><h1 style={st.title}>Responder Cotacao</h1></div>
+          <div><h1 style={st.title}>{t('bidcambio.portal.responder.titulo')}</h1></div>
         </div>
         <div style={st.center}>
           <AlertCircle size={48} style={{ opacity: 0.3 }} />
-          <p>Cotacao nao encontrada ou expirada.</p>
+          <p>{t('bidcambio.portal.responder.expirada')}</p>
         </div>
       </div>
     )
@@ -481,7 +483,7 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
       <div style={{ ...st.page, opacity: 0.5, pointerEvents: 'none' }}>
         <div style={st.header}>
           <div style={st.headerIcon}><PenLine size={22} /></div>
-          <div><h1 style={st.title}>Responder Cotacao</h1><p style={st.subtitle}>Desabilitado</p></div>
+          <div><h1 style={st.title}>{t('bidcambio.portal.responder.titulo')}</h1><p style={st.subtitle}>{t('bidcambio.portal.config.desabilitado')}</p></div>
         </div>
         <div style={st.center}>
           <Settings size={48} style={{ opacity: 0.3 }} />
@@ -498,12 +500,12 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
       <div style={st.header}>
         <div style={st.headerIcon}><PenLine size={22} /></div>
         <div>
-          <h1 style={st.title}>Responder Cotacao</h1>
-          <p style={st.subtitle}>Envie sua proposta de cambio</p>
+          <h1 style={st.title}>{t('bidcambio.portal.responder.titulo')}</h1>
+          <p style={st.subtitle}>{t('bidcambio.portal.responder.subtitulo')}</p>
         </div>
         {onVoltar && (
           <button style={st.backBtn} onClick={onVoltar}>
-            <ArrowLeft size={14} /> Voltar
+            <ArrowLeft size={14} /> {t('bidcambio.portal.responder.voltar')}
           </button>
         )}
       </div>
@@ -511,7 +513,7 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
       <div style={st.layout}>
         {/* Left: Quotation Details */}
         <div style={st.detailsCard}>
-          <h3 style={st.sectionTitle}>Detalhes da Cotacao</h3>
+          <h3 style={st.sectionTitle}>{t('bidcambio.portal.responder.detalhes_cotacao')}</h3>
           <div style={st.detailGrid}>
             <div>
               <div style={st.detailLabel}>Moeda</div>
@@ -554,10 +556,10 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
 
         {/* Right: Form */}
         <form style={st.formCard} onSubmit={handleSubmit}>
-          <h3 style={st.sectionTitle}>Sua Proposta</h3>
+          <h3 style={st.sectionTitle}>{t('bidcambio.portal.responder.sua_proposta')}</h3>
           <div style={st.formGrid}>
             <div style={st.field}>
-              <label style={st.label}>Taxa Oferecida (4 decimais) *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.taxa_oferecida')}</label>
               <input
                 style={st.input}
                 type="number"
@@ -590,7 +592,7 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
             </div>
 
             <div style={st.field}>
-              <label style={st.label}>IOF % *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.iof')}</label>
               <input
                 style={st.input}
                 type="number"
@@ -603,7 +605,7 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
             </div>
 
             <div style={st.field}>
-              <label style={st.label}>Validade em minutos *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.validade_minutos')}</label>
               <input
                 style={st.input}
                 type="number"
@@ -614,7 +616,7 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
             </div>
 
             <div style={st.field}>
-              <label style={st.label}>Liquidacao Proposta *</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.liquidacao_proposta')}</label>
               <select
                 style={st.select}
                 value={form.liquidacao_proposta}
@@ -627,7 +629,7 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
             </div>
 
             <div style={{ ...st.field, ...st.fieldWide }}>
-              <label style={st.label}>Condicoes / Observacoes</label>
+              <label style={st.label}>{t('bidcambio.portal.responder.observacoes')}</label>
               <textarea
                 style={st.textarea}
                 rows={3}
@@ -649,7 +651,7 @@ export default function ResponderCotacao({ bidRequestId, disabled = false, onVol
             }}
             disabled={enviando}
           >
-            {enviando ? 'Enviando...' : 'Enviar Proposta'}
+            {enviando ? t('bidcambio.portal.responder.enviando') : t('bidcambio.portal.responder.enviar')}
           </button>
         </form>
       </div>

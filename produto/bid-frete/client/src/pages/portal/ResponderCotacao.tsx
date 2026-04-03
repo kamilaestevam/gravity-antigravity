@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
@@ -63,6 +64,7 @@ const MODAL_ICONS: Record<ModalFrete, React.ReactNode> = {
 export default function ResponderCotacao() {
   const { bidRequestId } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [bid, setBid] = useState<BidRequest | null>(null)
   const [carregando, setCarregando] = useState(true)
@@ -119,7 +121,7 @@ export default function ResponderCotacao() {
     if (!bidRequestId) return
 
     if (!form.valor_frete || !form.transit_time_dias || !form.validade) {
-      setErro('Preencha os campos obrigatorios: Valor Frete, Transit Time e Validade')
+      setErro(t('bidfrete.portal.publico.campos_obrigatorios'))
       return
     }
 
@@ -154,16 +156,16 @@ export default function ResponderCotacao() {
         cabecalho={
           <CabecalhoGlobal
             icone={<CheckCircle weight="duotone" size={22} />}
-            titulo="Resposta Enviada"
+            titulo={t('bidfrete.portal.responder.titulo_enviada')}
           />
         }
       >
         <div className="rc-sucesso">
           <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success, #22c55e)' }} />
-          <h2 className="rc-sucesso-title">Resposta enviada com sucesso</h2>
-          <p className="rc-sucesso-desc">Sua proposta foi registrada e sera analisada pelo comprador.</p>
+          <h2 className="rc-sucesso-title">{t('bidfrete.portal.responder.sucesso')}</h2>
+          <p className="rc-sucesso-desc">{t('bidfrete.portal.responder.sucesso_desc')}</p>
           <button className="rc-btn rc-btn--primary" onClick={() => navigate('/portal/pendentes')}>
-            Voltar para Pendentes
+            {t('bidfrete.portal.responder.voltar_pendentes')}
           </button>
         </div>
         <style>{rcStyles}</style>
@@ -177,49 +179,49 @@ export default function ResponderCotacao() {
       cabecalho={
         <CabecalhoGlobal
           icone={<PencilSimple weight="duotone" size={22} />}
-          titulo="Responder Cotacao"
+          titulo={t('bidfrete.portal.responder.titulo')}
           acoes={
             <button className="rc-btn rc-btn--secondary" onClick={() => navigate('/portal/pendentes')}>
-              <ArrowLeft weight="bold" size={14} /> Voltar
+              <ArrowLeft weight="bold" size={14} /> {t('bidfrete.portal.responder.voltar')}
             </button>
           }
         />
       }
     >
       {carregando ? (
-        <div className="rc-loading">Carregando...</div>
+        <div className="rc-loading">{t('comum.carregando')}</div>
       ) : (
         <div className="rc-layout">
           {/* Detalhes Read-Only */}
           <div className="rc-details">
-            <h3 className="rc-section-title">Detalhes da Cotacao</h3>
+            <h3 className="rc-section-title">{t('bidfrete.portal.responder.detalhes')}</h3>
             <div className="rc-detail-grid">
               <div className="rc-detail-item">
-                <span className="rc-detail-label">Numero</span>
+                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_numero')}</span>
                 <span className="rc-detail-value rc-mono">
                   {cotacao?.numero ?? bid?.cotacao_id.slice(0, 8).toUpperCase() ?? '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
-                <span className="rc-detail-label">Rota</span>
+                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_rota')}</span>
                 <span className="rc-detail-value">
                   <MapPin weight="duotone" size={14} />
                   {cotacao?.origem_nome ?? '—'} &rarr; {cotacao?.destino_nome ?? '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
-                <span className="rc-detail-label">Modal</span>
+                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_modal')}</span>
                 <span className="rc-detail-value">
                   {cotacao?.modal ? MODAL_ICONS[cotacao.modal] : null}
                   {cotacao?.modal ? MODAL_LABELS[cotacao.modal] : '—'}
                 </span>
               </div>
               <div className="rc-detail-item">
-                <span className="rc-detail-label">Incoterm</span>
+                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_incoterm')}</span>
                 <span className="rc-detail-value">{cotacao?.incoterm ?? '—'}</span>
               </div>
               <div className="rc-detail-item rc-detail-wide">
-                <span className="rc-detail-label">Carga</span>
+                <span className="rc-detail-label">{t('bidfrete.portal.responder.campo_carga')}</span>
                 <span className="rc-detail-value">
                   <Package weight="duotone" size={14} />
                   {cotacao?.descricao_mercadoria ?? '—'}
@@ -233,11 +235,11 @@ export default function ResponderCotacao() {
 
           {/* Form */}
           <form className="rc-form" onSubmit={handleSubmit}>
-            <h3 className="rc-section-title">Sua Proposta</h3>
+            <h3 className="rc-section-title">{t('bidfrete.portal.responder.proposta')}</h3>
 
             <div className="rc-form-grid">
               <div className="rc-field">
-                <label className="rc-label">Moeda *</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_moeda')}</label>
                 <select
                   className="rc-input"
                   value={form.moeda}
@@ -248,7 +250,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Valor Frete *</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_valor_frete')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -261,7 +263,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Taxas Origem</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_taxas_origem')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -274,7 +276,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Taxas Destino</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_taxas_destino')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -288,7 +290,7 @@ export default function ResponderCotacao() {
 
               {/* Total auto-calculated */}
               <div className="rc-field rc-field--total">
-                <label className="rc-label">Total</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_total')}</label>
                 <div className="rc-total-display">
                   <CurrencyDollar weight="duotone" size={18} />
                   <span className="rc-total-valor">{form.moeda} {fmtTotal}</span>
@@ -296,7 +298,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Transit Time (dias) *</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_transit')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -308,7 +310,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Free Time (dias)</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_free_time')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -320,7 +322,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Validade *</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_validade')}</label>
                 <input
                   className="rc-input"
                   type="date"
@@ -330,7 +332,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Transbordos</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_transbordos')}</label>
                 <input
                   className="rc-input rc-input--mono"
                   type="number"
@@ -342,7 +344,7 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field">
-                <label className="rc-label">Escalas</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_escalas')}</label>
                 <input
                   className="rc-input"
                   type="text"
@@ -353,11 +355,11 @@ export default function ResponderCotacao() {
               </div>
 
               <div className="rc-field rc-field--wide">
-                <label className="rc-label">Observacoes</label>
+                <label className="rc-label">{t('bidfrete.portal.responder.campo_observacoes')}</label>
                 <textarea
                   className="rc-input rc-textarea"
                   rows={3}
-                  placeholder="Informacoes adicionais sobre a proposta..."
+                  placeholder={t('bidfrete.portal.responder.campo_observacoes')}
                   value={form.observacoes}
                   onChange={e => handleChange('observacoes', e.target.value)}
                 />
@@ -371,7 +373,7 @@ export default function ResponderCotacao() {
               type="submit"
               disabled={enviando}
             >
-              {enviando ? 'Enviando...' : 'Enviar Resposta'}
+              {enviando ? t('bidfrete.portal.responder.enviando') : t('bidfrete.portal.responder.enviar')}
             </button>
           </form>
         </div>

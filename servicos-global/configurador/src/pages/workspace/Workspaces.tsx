@@ -344,13 +344,13 @@ export function Workspaces() {
         <CabecalhoGlobal
           icone={<Buildings weight="duotone" size={22} />}
           titulo={t('workspace.workspaces.titulo')}
-          subtitulo="Gerencie todos os workspaces cadastrados na sua organização"
+          subtitulo={t('workspace.workspaces.subtitulo')}
         />
       }
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Total de Workspaces"
+            titulo={t('workspace.workspaces.total')}
             icone={<TreeStructure weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={empresas.length}
             periodos={[
@@ -374,7 +374,7 @@ export function Workspaces() {
             }
           />
           <CardBasicoGlobal
-            titulo="Workspaces Ativos"
+            titulo={t('workspace.workspaces.ativos')}
             icone={<CheckCircle weight="duotone" size={16} style={{ color: '#34d399' }} />}
             valor={ativas}
             variante="sucesso"
@@ -404,14 +404,14 @@ export function Workspaces() {
             }
           />
           <CardGraficoGlobal
-            titulo="Status dos Workspaces"
+            titulo={t('workspace.workspaces.status_dos')}
             icone={<ChartPieSlice weight="duotone" size={16} style={{ color: '#818cf8' }} />}
             total={empresas.length}
             valorPrincipal={ativas}
             corGauge="#34d399"
             legenda={[
-              { label: 'Ativas',    valor: ativas,    cor: 'green'  },
-              { label: 'Suspensas', valor: suspensas, cor: 'yellow' },
+              { label: t('workspace.workspaces.ativas'),    valor: ativas,    cor: 'green'  },
+              { label: t('workspace.workspaces.suspensas'), valor: suspensas, cor: 'yellow' },
             ]}
             tooltip={
               <>
@@ -444,7 +444,7 @@ export function Workspaces() {
             icone={showForm && !empresaEditando ? <X weight="bold" size={15} /> : <Plus weight="bold" size={15} />}
             onClick={() => { setEmpresaEditando(null); setShowForm(true); }}
           >
-            {showForm && !empresaEditando ? 'Cancelar' : 'Novo Workspace'}
+            {showForm && !empresaEditando ? t('workspace.workspaces.cancelar') : t('workspace.workspaces.novo_workspace')}
           </BotaoGlobal>
         </TooltipGlobal>
       }

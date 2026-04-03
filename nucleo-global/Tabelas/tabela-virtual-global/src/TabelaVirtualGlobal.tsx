@@ -316,6 +316,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   acoesLote,
   acoesExportacao,
   acoesBarra,
+  onSelecaoMudar,
   onBuscar,
   placeholderBusca = 'Buscar...',
   onFiltrar,
@@ -324,6 +325,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   sortDir,
   camposEditaveis = [],
   onEditar,
+  camposEditaveisFilhos = [],
+  onEditarFilho,
+  onSalvoComSucesso,
+  onErroAoSalvar,
   preferencias,
   onSalvarPreferencias,
   carregando,
@@ -439,9 +444,32 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   )
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
-  const { expandidos, filhosCache, carregandoFilhos, toggle } = useGTExpandir<T, C>(
+  const { expandidos, filhosCache, carregandoFilhos, toggle, atualizarFilhoNoCache } = useGTExpandir<T, C>(
     onCarregarFilhos,
   )
+
+  // ── Largura total e offsets para scroll horizontal ────────────────────────────
+  const CABECALHO_HEIGHT = 40
+
+  const larguraTotalColunas = useMemo(() => {
+    const colsW = colunasFiltradas.reduce((acc, col) => {
+      const w = typeof col.largura === 'number' ? col.largura
+              : typeof col.largura === 'string' ? parseInt(col.largura, 10) || 150
+              : 150
+      return acc + w
+    }, 0)
+    const checkW = acoesLote && acoesLote.length > 0 ? 40 : 0
+    const expandW = onCarregarFilhos != null ? 40 : 0
+    const acoesW  = acoes && acoes.length > 0 ? acoes.length * 32 + 16 : 0
+    return colsW + checkW + expandW + acoesW
+  }, [colunasFiltradas, acoesLote, onCarregarFilhos, acoes])
+
+  /** left offset das colunas de dados frozen (após checkbox + expand) */
+  const offsetFrozenDados = useMemo(() => {
+    const checkW = acoesLote && acoesLote.length > 0 ? 40 : 0
+    const expandW = onCarregarFilhos != null ? 40 : 0
+    return checkW + expandW
+  }, [acoesLote, onCarregarFilhos])
 
   // ── Seleção ───────────────────────────────────────────────────────────────────
   const {
@@ -457,8 +485,40 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const todosIds = useMemo(() => dados.map(itemId), [dados, itemId])
 
   // ── Edição inline ─────────────────────────────────────────────────────────────
-  const { editandoCelula, valorEditando, salvando, iniciarEdicao, atualizarValor, confirmarEdicao, cancelarEdicao } =
-    useGTInlineEdit<T>(onEditar)
+  const {
+    editandoCelula: editandoCelulaPai,
+    valorEditando: valorEditandoPai,
+    salvando: salvandoPai,
+    iniciarEdicao: iniciarEdicaoPai,
+    atualizarValor: atualizarValorPai,
+    confirmarEdicao: confirmarEdicaoPai,
+    cancelarEdicao: cancelarEdicaoPai,
+  } = useGTInlineEdit<T>(
+    onEditar,
+    undefined,
+    onSalvoComSucesso,
+    onErroAoSalvar,
+  )
+
+  const atualizarFilhoCacheCallback = useCallback(
+    (filho: C) => atualizarFilhoNoCache(filho, filhoId),
+    [atualizarFilhoNoCache, filhoId],
+  )
+
+  const {
+    editandoCelula: editandoCelulaFilho,
+    valorEditando: valorEditandoFilho,
+    salvando: salvandoFilho,
+    iniciarEdicao: iniciarEdicaoFilho,
+    atualizarValor: atualizarValorFilho,
+    confirmarEdicao: confirmarEdicaoFilho,
+    cancelarEdicao: cancelarEdicaoFilho,
+  } = useGTInlineEdit<C>(
+    onEditarFilho,
+    atualizarFilhoCacheCallback,
+    onSalvoComSucesso,
+    onErroAoSalvar,
+  )
 
   // ── Flat rows para o virtualizador ────────────────────────────────────────────
   const linhasVirtuais = useMemo(
@@ -475,6 +535,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     estimateSize: (i) =>
       linhasVirtuais[i]?.tipo === 'filho' ? childRowHeight : rowHeight,
     overscan,
+    paddingStart: CABECALHO_HEIGHT,
   })
 
   // ── Load more via intersection ────────────────────────────────────────────────
@@ -502,6 +563,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [dados, selecionados, itemId],
   )
 
+  useEffect(() => {
+    onSelecaoMudar?.(itensSelecionados)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itensSelecionados])
+
   // ── Fechar menus ao clicar fora ───────────────────────────────────────────────
   useEffect(() => {
     if (!exportAberto) return
@@ -521,8 +587,18 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     isFilho: boolean,
   ) {
     const valor = (item as Record<string, unknown>)[col.key]
+
+    const editandoCelula  = isFilho ? editandoCelulaFilho  : editandoCelulaPai
+    const valorEditando   = isFilho ? valorEditandoFilho   : valorEditandoPai
+    const salvando        = isFilho ? salvandoFilho        : salvandoPai
+    const iniciarEdicao   = isFilho ? iniciarEdicaoFilho   : iniciarEdicaoPai
+    const atualizarValor  = isFilho ? atualizarValorFilho  : atualizarValorPai
+    const confirmarEdicao = isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai
+    const cancelarEdicao  = isFilho ? cancelarEdicaoFilho  : cancelarEdicaoPai
+
     const podeEditar =
-      (camposEditaveis.includes(col.key) || col.editavel) && !!onEditar
+      ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || col.editavel) &&
+      !!(isFilho ? onEditarFilho : onEditar)
     const estaEditando =
       editandoCelula?.id === id && editandoCelula?.campo === col.key
 
@@ -532,18 +608,29 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         ? ' gtv-celula--right'
         : ''
 
-    const classeIndent = isFilho ? ' gtv-celula--filho-indent' : ''
+    const classeIndent   = isFilho ? ' gtv-celula--filho-indent' : ''
     const classeEditavel = podeEditar ? ' gtv-celula--editavel' : ''
+    const classeFrozen   = col.frozen ? ' gtv-celula--frozen' : ''
+
+    const styleCelula: React.CSSProperties = {
+      ...(col.largura
+        ? { flex: `0 0 ${typeof col.largura === 'number' ? `${col.largura}px` : col.largura}` }
+        : undefined),
+      ...(col.frozen ? { left: offsetFrozenDados } : undefined),
+    }
 
     return (
       <div
         key={col.key}
-        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}`}
-        style={col.largura ? { flex: `0 0 ${col.largura}` } : undefined}
-        onDoubleClick={() => {
-          if (podeEditar) iniciarEdicao(id, col.key, valor)
+        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFrozen}`}
+        style={styleCelula}
+        onClick={e => {
+          if (podeEditar && !estaEditando) {
+            e.stopPropagation()
+            iniciarEdicao(id, col.key, valor)
+          }
         }}
-        title={podeEditar ? 'Clique duas vezes para editar' : undefined}
+        title={podeEditar && !estaEditando ? 'Clique para editar' : undefined}
       >
         {estaEditando ? (
           <input
@@ -553,7 +640,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             disabled={salvando}
             onChange={e => atualizarValor(e.target.value)}
             onKeyDown={e => {
-              if (e.key === 'Enter') confirmarEdicao()
+              if (e.key === 'Enter') { e.preventDefault(); confirmarEdicao() }
               if (e.key === 'Escape') cancelarEdicao()
             }}
             onBlur={() => confirmarEdicao()}
@@ -588,7 +675,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       <div className={classeLinha}>
         {/* Checkbox */}
         {acoesLote && acoesLote.length > 0 && (
-          <div className="gtv-celula gtv-celula--check">
+          <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
             <input
               type="checkbox"
               className="gtv-checkbox"
@@ -602,7 +689,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
         {/* Botão expand */}
         {onCarregarFilhos && (
-          <div className="gtv-celula gtv-celula--expand">
+          <div
+            className="gtv-celula gtv-celula--expand gtv-celula--frozen"
+            style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+          >
             {carregando_ ? (
               <span className="gtv-spinner" aria-label="Carregando filhos..." />
             ) : (
@@ -667,12 +757,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       <div className="gtv-linha gtv-linha--filho">
         {/* Espaço para alinhar com checkbox pai */}
         {acoesLote && acoesLote.length > 0 && (
-          <div className="gtv-celula gtv-celula--check" />
+          <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }} />
         )}
 
         {/* Conector hierárquico */}
         {onCarregarFilhos && (
-          <div className="gtv-celula gtv-celula--expand">
+          <div
+            className="gtv-celula gtv-celula--expand gtv-celula--frozen"
+            style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+          >
             <span className="gtv-conector" aria-hidden="true">└</span>
           </div>
         )}
@@ -753,6 +846,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
           {/* Slot de ações da barra */}
           {acoesBarra}
+
+          {/* Indicador de salvamento */}
+          {(salvandoPai || salvandoFilho) && (
+            <span className="gtv-salvando" aria-live="polite">
+              <span className="gtv-spinner" aria-hidden="true" />
+              Salvando...
+            </span>
+          )}
         </div>
 
         <div className="gtv-toolbar-direita">
@@ -852,12 +953,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       {carregando ? (
         <GTSkeleton rowHeight={rowHeight} />
       ) : (
-        <>
-          {/* Cabeçalho sticky — sempre visível (inclusive no estado vazio) */}
-          <div className="gtv-cabecalho" role="row">
+        <div
+          ref={parentRef}
+          className="gtv-tabela-scroll"
+          role="rowgroup"
+          aria-label="Linhas da tabela"
+        >
+          {/* Cabeçalho sticky — dentro do scroll para alinhar horizontalmente */}
+          <div className="gtv-cabecalho" role="row" style={{ minWidth: larguraTotalColunas }}>
             {/* Checkbox cabeçalho */}
             {acoesLote && acoesLote.length > 0 && (
-              <div className="gtv-th gtv-th--check" role="columnheader" aria-label="Selecionar todos">
+              <div className="gtv-th gtv-th--check gtv-th--frozen" role="columnheader" aria-label="Selecionar todos" style={{ left: 0 }}>
                 <input
                   type="checkbox"
                   className="gtv-checkbox"
@@ -873,13 +979,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
             {/* Expand col */}
             {onCarregarFilhos && (
-              <div className="gtv-th gtv-th--expand" role="columnheader" />
+              <div
+                className="gtv-th gtv-th--expand gtv-th--frozen"
+                role="columnheader"
+                style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+              />
             )}
 
             {/* Colunas de dados */}
             {colunasFiltradas.map(col => {
-              const sortAtivo = sortLocal?.campo === col.key
-              const classeSort = col.sortavel
+              const sortAtivo   = sortLocal?.campo === col.key
+              const classeSort  = col.sortavel
                 ? ` gtv-th--sort${sortAtivo ? ' gtv-th--sorted' : ''}`
                 : ''
               const classeAlign = col.align === 'center'
@@ -887,13 +997,21 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 : col.align === 'right'
                   ? ' gtv-th--right'
                   : ''
+              const classeFrozen = col.frozen ? ' gtv-th--frozen' : ''
+
+              const styleTh: React.CSSProperties = {
+                ...(col.largura
+                  ? { flex: `0 0 ${typeof col.largura === 'number' ? `${col.largura}px` : col.largura}` }
+                  : undefined),
+                ...(col.frozen ? { left: offsetFrozenDados } : undefined),
+              }
 
               return (
                 <div
                   key={col.key}
                   role="columnheader"
-                  className={`gtv-th${classeSort}${classeAlign}`}
-                  style={col.largura ? { flex: `0 0 ${col.largura}` } : undefined}
+                  className={`gtv-th${classeSort}${classeAlign}${classeFrozen}`}
+                  style={styleTh}
                   onClick={() => col.sortavel && handleSort(col.key)}
                   aria-sort={
                     sortAtivo
@@ -932,17 +1050,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               emptyAction={emptyAction}
             />
           ) : (
-            <>
-          {/* Scroll virtual */}
-          <div
-            ref={parentRef}
-            className="gtv-tabela-scroll"
-            role="rowgroup"
-            aria-label="Linhas da tabela"
-          >
             <div
               className="gtv-tabela-inner"
-              style={{ height: totalSize }}
+              style={{ height: totalSize, minWidth: larguraTotalColunas }}
             >
               {virtualItems.map(virtualItem => {
                 const linha = linhasVirtuais[virtualItem.index]
@@ -957,7 +1067,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       position: 'absolute',
                       top: 0,
                       left: 0,
-                      right: 0,
+                      width: larguraTotalColunas,
                       transform: `translateY(${virtualItem.start}px)`,
                     }}
                     role="row"
@@ -978,30 +1088,28 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 />
               )}
             </div>
-          </div>
+          )}
+        </div>
+      )}
 
-          {/* Rodapé: carregar mais (botão manual) */}
-          {temMais && onCarregarMais && (
-            <div className="gtv-rodape">
-              <button
-                className="gtv-carregar-mais-btn"
-                disabled={carregandoMais}
-                onClick={onCarregarMais}
-              >
-                {carregandoMais ? (
-                  <>
-                    <span className="gtv-spinner" />
-                    Carregando...
-                  </>
-                ) : (
-                  'Carregar mais'
-                )}
-              </button>
-            </div>
-          )}
-            </>
-          )}
-        </>
+      {/* Rodapé: carregar mais — fora do scroll para não deslocar */}
+      {!carregando && temMais && onCarregarMais && (
+        <div className="gtv-rodape">
+          <button
+            className="gtv-carregar-mais-btn"
+            disabled={carregandoMais}
+            onClick={onCarregarMais}
+          >
+            {carregandoMais ? (
+              <>
+                <span className="gtv-spinner" />
+                Carregando...
+              </>
+            ) : (
+              'Carregar mais'
+            )}
+          </button>
+        </div>
       )}
     </div>
   )

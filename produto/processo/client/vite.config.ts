@@ -36,6 +36,7 @@ export default defineConfig({
       // ── Tabelas ──
       '@nucleo/tabela-camadas-global': path.resolve(monorepoRoot, 'nucleo-global/Tabelas/tabela-camadas-global/src/index.ts'),
       '@nucleo/tabela-global': path.resolve(monorepoRoot, 'nucleo-global/Tabelas/tabela-global/src/index.ts'),
+      '@nucleo/tabela-virtual-global': path.resolve(monorepoRoot, 'nucleo-global/Tabelas/tabela-virtual-global/src/index.ts'),
       // ── Mensageria ──
       '@nucleo/mensageria-global': path.resolve(monorepoRoot, 'nucleo-global/Mensageria Global/mensageria-global/src/index.ts'),
       // ── Utilidades ──

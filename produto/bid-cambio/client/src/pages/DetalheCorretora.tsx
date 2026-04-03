@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Building2,
   ChevronLeft,
@@ -95,6 +96,7 @@ interface DetalheCorretoraProps {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorretoraProps) {
+  const { t } = useTranslation()
   const [corretora, setCorretora] = useState<Corretora | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -106,7 +108,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
       const data = await getCorretoraDetalhe(corretoraId)
       setCorretora(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar corretora')
+      setError(err instanceof Error ? err.message : t('comum.erro_carregar'))
     } finally {
       setLoading(false)
     }
@@ -134,11 +136,11 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {onBack && <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><ChevronLeft size={20} /></button>}
           <Building2 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Detalhe da Corretora</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.detalhe_corretora.titulo')}</h1>
         </div>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
           <Loader2 size={28} style={{ color: 'var(--accent, #6366f1)', animation: 'spin 1s linear infinite' }} />
-          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>Carregando...</p>
+          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>{t('comum.carregando')}</p>
         </div>
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -152,14 +154,14 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
       <div style={containerStyle}>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem' }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger, #ef4444)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Erro ao carregar</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('comum.erro_carregar')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1rem' }}>{error}</p>
           <button onClick={carregar} style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.5rem 1.25rem', borderRadius: 9999, fontSize: '0.875rem', fontWeight: 600,
             border: 'none', background: 'var(--accent, #6366f1)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit',
           }}>
-            <RefreshCw size={14} /> Tentar novamente
+            <RefreshCw size={14} /> {t('acoes.tentar_novamente')}
           </button>
         </div>
       </div>
@@ -173,7 +175,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
       <div style={containerStyle}>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
           <Building2 size={40} style={{ color: 'var(--text-muted, #64748b)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Corretora nao encontrada</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('bidcambio.detalhe_corretora.nao_encontrada')}</p>
         </div>
       </div>
     )
@@ -222,12 +224,12 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
         <div style={cardStyle}>
           <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <FileText size={16} style={{ color: 'var(--accent, #6366f1)' }} />
-            Informacoes
+            {t('bidcambio.detalhe_corretora.informacoes')}
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Tipo</span>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('tabela.tipo')}</span>
               <span style={{
                 fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent, #6366f1)',
                 background: 'rgba(99,102,241,0.15)', padding: '0.1rem 0.4rem', borderRadius: 9999,
@@ -242,14 +244,14 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Email</span>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('tabela.email')}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem' }}>
                 <Mail size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.email}
               </div>
             </div>
             {corretora.telefone && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Telefone</span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('tabela.telefone')}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem' }}>
                   <Phone size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.telefone}
                 </div>
@@ -257,22 +259,22 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
             )}
             {corretora.website && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Website</span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('tabela.website')}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem' }}>
                   <Globe size={12} style={{ color: 'var(--text-muted)' }} /> {corretora.website}
                 </div>
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Aceita Cotacao Aberta</span>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.detalhe_corretora.aceita_cotacao')}</span>
               <span style={{ fontSize: '0.875rem', fontWeight: 600, color: corretora.aceita_cotacao_aberta ? 'var(--success, #22c55e)' : 'var(--text-muted, #64748b)' }}>
-                {corretora.aceita_cotacao_aberta ? 'Sim' : 'Nao'}
+                {corretora.aceita_cotacao_aberta ? t('comum.sim') : t('comum.nao')}
               </span>
             </div>
 
             {/* Moedas */}
             <div>
-              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '0.35rem' }}>Moedas Atendidas</span>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '0.35rem' }}>{t('bidcambio.detalhe_corretora.moedas_atendidas')}</span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
                 {corretora.moedas_atendidas.map((m) => (
                   <span key={m} style={{
@@ -291,7 +293,7 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
         <div style={cardStyle}>
           <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Star size={16} style={{ color: 'var(--warning, #f59e0b)' }} />
-            Avaliacao
+            {t('bidcambio.detalhe_corretora.avaliacao')}
           </h3>
 
           {/* Score Global */}
@@ -316,19 +318,19 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
             </div>
             <div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.05em' }}>
-                Score Global
+                {t('bidcambio.detalhe_corretora.score_global')}
               </div>
               <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                {corretora.total_cotacoes} cotacoes | Spread medio: {corretora.spread_medio?.toFixed(4) ?? '—'}
+                {corretora.total_cotacoes} {t('bidcambio.detalhe_corretora.cotacoes')} | {t('bidcambio.detalhe_corretora.spread_medio')}: {corretora.spread_medio?.toFixed(4) ?? '—'}
               </div>
             </div>
           </div>
 
           {/* 4 Criteria */}
-          <RatingBar label="Taxa" icon={<TrendingDown size={14} />} value={ratingTaxa} />
-          <RatingBar label="Agilidade" icon={<Zap size={14} />} value={ratingAgilidade} />
-          <RatingBar label="Atendimento" icon={<HeadphonesIcon size={14} />} value={ratingAtendimento} />
-          <RatingBar label="Confiabilidade" icon={<Shield size={14} />} value={ratingConfiabilidade} />
+          <RatingBar label={t('bidcambio.detalhe_corretora.rating_taxa')} icon={<TrendingDown size={14} />} value={ratingTaxa} />
+          <RatingBar label={t('bidcambio.detalhe_corretora.rating_agilidade')} icon={<Zap size={14} />} value={ratingAgilidade} />
+          <RatingBar label={t('bidcambio.detalhe_corretora.rating_atendimento')} icon={<HeadphonesIcon size={14} />} value={ratingAtendimento} />
+          <RatingBar label={t('bidcambio.detalhe_corretora.rating_confiabilidade')} icon={<Shield size={14} />} value={ratingConfiabilidade} />
 
           {/* Stats */}
           <div style={{
@@ -337,19 +339,19 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
             borderTop: '1px solid var(--bg-elevated, #475569)',
           }}>
             <div>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>Taxa Resposta</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.taxa_resposta')}</span>
               <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.taxa_resposta != null ? `${corretora.taxa_resposta.toFixed(0)}%` : '—'}</div>
             </div>
             <div>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>Taxa Aprovacao</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.taxa_aprovacao')}</span>
               <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.taxa_aprovacao != null ? `${corretora.taxa_aprovacao.toFixed(0)}%` : '—'}</div>
             </div>
             <div>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>Tempo Medio Resposta</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.tempo_medio_resposta')}</span>
               <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.tempo_medio_resposta != null ? `${corretora.tempo_medio_resposta}h` : '—'}</div>
             </div>
             <div>
-              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>Total Cotacoes</span>
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', fontWeight: 600 }}>{t('bidcambio.detalhe_corretora.total_cotacoes')}</span>
               <div style={{ fontSize: '1.125rem', fontWeight: 700 }}>{corretora.total_cotacoes}</div>
             </div>
           </div>
@@ -360,10 +362,10 @@ export default function DetalheCorretora({ corretoraId, onBack }: DetalheCorreto
       <div style={cardStyle}>
         <h3 style={{ fontSize: '0.875rem', fontWeight: 600, margin: '0 0 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <Clock size={16} style={{ color: 'var(--accent, #6366f1)' }} />
-          Historico de Respostas
+          {t('bidcambio.detalhe_corretora.historico')}
         </h3>
         <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-          O historico detalhado de respostas (aprovadas / rejeitadas) sera carregado a partir das cotacoes da corretora.
+          {t('bidcambio.detalhe_corretora.historico_placeholder')}
         </p>
       </div>
 

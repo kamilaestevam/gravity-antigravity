@@ -50,6 +50,7 @@ const TENANT_SERVICES: string[] = [
   'agendamento',
   'gabi',
   'preferencias-usuario',
+  'processos-core',  // Pedido, PedidoItem, Processo, PedidoStatus, PedidoColuna, PedidoPreferencias
 ]
 
 // ---------------------------------------------------------------------------

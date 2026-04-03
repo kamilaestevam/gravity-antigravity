@@ -32,25 +32,48 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
       throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
     }
 
-    const companyProducts = await prisma.companyProduct.findMany({
-      where: { company_id: companyId, tenant_id: req.auth.tenantId },
-      orderBy: { created_at: 'desc' },
-    })
+    const [companyProducts, tenantConfigs] = await Promise.all([
+      prisma.companyProduct.findMany({
+        where: { company_id: companyId, tenant_id: req.auth.tenantId },
+        orderBy: { created_at: 'desc' },
+      }),
+      // Fallback: produtos contratados no tenant mas ainda não ativados no workspace
+      prisma.productConfig.findMany({
+        where: { tenant_id: req.auth.tenantId, is_active: true },
+      }),
+    ])
+
+    // Merge: prefere companyProduct; preenche com productConfig se não existir
+    const companyKeys = new Set(companyProducts.map(cp => cp.product_key))
+    const fallbackConfigs = tenantConfigs.filter(tc => !companyKeys.has(tc.product_key))
+
+    const allKeys = [
+      ...companyProducts.map(cp => cp.product_key),
+      ...fallbackConfigs.map(tc => tc.product_key),
+    ]
 
     // Enriquece com dados do catálogo
-    const slugs = companyProducts.map(cp => cp.product_key)
-    const catalog = await prisma.globalProduct.findMany({
-      where: { slug: { in: slugs } },
+    const catalog = await prisma.product.findMany({
+      where: { slug: { in: allKeys } },
     })
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
 
-    const products = companyProducts.map(cp => ({
-      id: cp.id,
-      product_key: cp.product_key,
-      is_active: cp.is_active,
-      activated_at: cp.created_at,
-      catalog: catalogMap.get(cp.product_key) ?? null,
-    }))
+    const products = [
+      ...companyProducts.map(cp => ({
+        id: cp.id,
+        product_key: cp.product_key,
+        is_active: cp.is_active,
+        activated_at: cp.created_at,
+        catalog: catalogMap.get(cp.product_key) ?? null,
+      })),
+      ...fallbackConfigs.map(tc => ({
+        id: tc.id,
+        product_key: tc.product_key,
+        is_active: true,
+        activated_at: tc.created_at,
+        catalog: catalogMap.get(tc.product_key) ?? null,
+      })),
+    ]
 
     res.json({ products })
   } catch (err) {

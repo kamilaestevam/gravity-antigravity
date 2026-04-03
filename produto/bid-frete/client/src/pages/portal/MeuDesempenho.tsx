@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
@@ -82,6 +83,7 @@ const fmtData = (iso: string) =>
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function MeuDesempenho() {
+  const { t } = useTranslation()
   const [dados, setDados] = useState<DesempenhoData | null>(null)
   const [carregando, setCarregando] = useState(true)
 
@@ -102,11 +104,11 @@ export default function MeuDesempenho() {
   if (carregando) {
     return (
       <PaginaGlobal
-        cabecalho={<CabecalhoGlobal icone={<Star weight="duotone" size={22} />} titulo="Meu Desempenho" />}
+        cabecalho={<CabecalhoGlobal icone={<Star weight="duotone" size={22} />} titulo={t('bidfrete.portal.meu_desempenho.titulo')} />}
       >
         <div className="md-loading">
           <ChartBar weight="duotone" size={48} style={{ opacity: 0.3 }} />
-          <p>Carregando metricas...</p>
+          <p>{t('comum.carregando')}</p>
         </div>
         <style>{mdStyles}</style>
       </PaginaGlobal>
@@ -122,8 +124,8 @@ export default function MeuDesempenho() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Star weight="duotone" size={22} />}
-          titulo="Meu Desempenho"
-          subtitulo="Suas metricas de performance e avaliacoes recebidas"
+          titulo={t('bidfrete.portal.meu_desempenho.titulo')}
+          subtitulo={t('bidfrete.portal.meu_desempenho.subtitulo')}
         />
       }
     >
@@ -131,7 +133,7 @@ export default function MeuDesempenho() {
       <div className="md-rating-hero">
         <div className="md-rating-number">{rating.toFixed(1)}</div>
         <StarRating nota={rating} tamanho={28} />
-        <span className="md-rating-sub">Rating Global</span>
+        <span className="md-rating-sub">{t('bidfrete.portal.dashboard.rating')}</span>
       </div>
 
       {/* 4 Metric Cards */}
@@ -141,48 +143,48 @@ export default function MeuDesempenho() {
             <PaperPlaneTilt weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor">{dados?.cotacoes_recebidas ?? 0}</span>
-          <span className="md-metric-label">Cotacoes Recebidas</span>
+          <span className="md-metric-label">{t('bidfrete.portal.dashboard.card_pendentes_titulo')}</span>
         </div>
         <div className="md-metric-card">
           <div className="md-metric-icon" style={{ color: 'var(--warning, #f59e0b)' }}>
             <ClockCountdown weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor">{dados?.cotacoes_respondidas ?? 0}</span>
-          <span className="md-metric-label">Respondidas</span>
+          <span className="md-metric-label">{t('bidfrete.portal.dashboard.respondidas')}</span>
         </div>
         <div className="md-metric-card">
           <div className="md-metric-icon" style={{ color: 'var(--success, #22c55e)' }}>
             <CheckCircle weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor">{dados?.cotacoes_aprovadas ?? 0}</span>
-          <span className="md-metric-label">Aprovadas</span>
+          <span className="md-metric-label">{t('bidfrete.portal.dashboard.aprovadas')}</span>
         </div>
         <div className="md-metric-card">
           <div className="md-metric-icon" style={{ color: 'var(--danger, #ef4444)' }}>
             <Timer weight="duotone" size={20} />
           </div>
           <span className="md-metric-valor md-mono">{dados?.tempo_medio_horas ?? 0}h</span>
-          <span className="md-metric-label">Tempo Medio</span>
+          <span className="md-metric-label">{t('bidfrete.portal.meu_desempenho.cat_prazo')}</span>
         </div>
       </div>
 
       <div className="md-bottom-grid">
         {/* Rating por Categoria */}
         <div className="md-cat-section">
-          <h3 className="md-section-title">Rating por Categoria</h3>
+          <h3 className="md-section-title">{t('bidfrete.portal.dashboard.rating')}</h3>
           <div className="md-cat-list">
-            <ProgressBar label="Frete" valor={cats.frete} nota={cats.frete} />
-            <ProgressBar label="Atendimento" valor={cats.atendimento} nota={cats.atendimento} />
-            <ProgressBar label="Prazo" valor={cats.prazo} nota={cats.prazo} />
-            <ProgressBar label="Confiabilidade" valor={cats.confiabilidade} nota={cats.confiabilidade} />
+            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_frete')} valor={cats.frete} nota={cats.frete} />
+            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_atendimento')} valor={cats.atendimento} nota={cats.atendimento} />
+            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_prazo')} valor={cats.prazo} nota={cats.prazo} />
+            <ProgressBar label={t('bidfrete.portal.meu_desempenho.cat_confiabilidade')} valor={cats.confiabilidade} nota={cats.confiabilidade} />
           </div>
         </div>
 
         {/* Avaliacoes Recentes */}
         <div className="md-aval-section">
-          <h3 className="md-section-title">Avaliacoes Recentes</h3>
+          <h3 className="md-section-title">{t('bidfrete.portal.meu_desempenho.subtitulo')}</h3>
           {(!dados?.avaliacoes_recentes || dados.avaliacoes_recentes.length === 0) ? (
-            <p className="md-aval-vazio">Nenhuma avaliacao recebida ainda</p>
+            <p className="md-aval-vazio">{t('comum.nenhum_resultado')}</p>
           ) : (
             <div className="md-aval-list">
               {dados.avaliacoes_recentes.map(aval => (

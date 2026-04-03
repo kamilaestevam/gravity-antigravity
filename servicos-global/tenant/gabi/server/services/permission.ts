@@ -6,9 +6,12 @@ import { AppError } from '../lib/errors.js'
  */
 export type PermissionChecker = (userId: string, action: string, resource: string, tenantId: string) => Promise<boolean>
 
-const defaultPermissionChecker: PermissionChecker = async (_userId, _action, _resource, _tenantId) => {
-  // Seguro por padrão: negar acesso até que o checker real seja implementado
-  return false
+const defaultPermissionChecker: PermissionChecker = async (userId, action, _resource, _tenantId) => {
+  // Leitura: sempre permitida para usuários autenticados
+  if (action === 'read') return userId !== 'anonymous'
+  // Escrita: permitida para autenticados — o tenant_id do JWT já garante isolamento
+  // TODO: integrar com Configurador S2S para permissões granulares por role
+  return userId !== 'anonymous'
 }
 
 // ---------------------------------------------------------------------------

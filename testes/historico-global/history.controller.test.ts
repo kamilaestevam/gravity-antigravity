@@ -38,7 +38,7 @@ vi.mock(
 )
 
 vi.mock('../../servicos-global/tenant/generated/index.js', () => ({
-  PrismaClient: vi.fn().mockImplementation(() => mockPrisma),
+  PrismaClient: vi.fn().mockImplementation(function() { return mockPrisma }),
   Prisma: {},
 }))
 

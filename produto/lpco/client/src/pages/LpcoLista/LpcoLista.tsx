@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { TabelaGlobal } from '@nucleo/tabela-global'
 import type { TabelaGlobalColuna, TabelaGlobalAcao } from '@nucleo/tabela-global'
@@ -124,19 +125,20 @@ interface StatCard {
 }
 
 function StatsBar({ stats, onFilter }: { stats: Record<string, number>; onFilter: (status: LpcoStatus | null) => void }) {
+  const { t } = useTranslation()
   const cards: StatCard[] = [
-    { label: 'Total', value: stats.total ?? 0, icon: <Files weight="duotone" size={20} />, color: 'var(--lp-accent)' },
-    { label: 'Rascunho', value: stats.rascunho ?? 0, icon: <Clock weight="duotone" size={20} />, color: '#94a3b8', filterStatus: 'rascunho' },
-    { label: 'Em Analise', value: stats.em_analise ?? 0, icon: <ArrowClockwise weight="duotone" size={20} />, color: '#60a5fa', filterStatus: 'em_analise' },
-    { label: 'Em Exigencia', value: stats.em_exigencia ?? 0, icon: <Warning weight="duotone" size={20} />, color: '#fbbf24', filterStatus: 'em_exigencia' },
-    { label: 'Deferida', value: stats.deferida ?? 0, icon: <CheckCircle weight="duotone" size={20} />, color: '#34d399', filterStatus: 'deferida' },
-    { label: 'Indeferida', value: stats.indeferida ?? 0, icon: <Prohibit weight="duotone" size={20} />, color: '#f87171', filterStatus: 'indeferida' },
+    { label: t('lpco.stats.total'), value: stats.total ?? 0, icon: <Files weight="duotone" size={20} />, color: 'var(--lp-accent)' },
+    { label: t('lpco.stats.rascunho'), value: stats.rascunho ?? 0, icon: <Clock weight="duotone" size={20} />, color: '#94a3b8', filterStatus: 'rascunho' },
+    { label: t('lpco.stats.em_analise'), value: stats.em_analise ?? 0, icon: <ArrowClockwise weight="duotone" size={20} />, color: '#60a5fa', filterStatus: 'em_analise' },
+    { label: t('lpco.stats.em_exigencia'), value: stats.em_exigencia ?? 0, icon: <Warning weight="duotone" size={20} />, color: '#fbbf24', filterStatus: 'em_exigencia' },
+    { label: t('lpco.stats.deferida'), value: stats.deferida ?? 0, icon: <CheckCircle weight="duotone" size={20} />, color: '#34d399', filterStatus: 'deferida' },
+    { label: t('lpco.stats.indeferida'), value: stats.indeferida ?? 0, icon: <Prohibit weight="duotone" size={20} />, color: '#f87171', filterStatus: 'indeferida' },
   ]
 
   return (
     <div className="lp-stats-bar">
       {cards.map(card => (
-        <TooltipGlobal key={card.label} titulo={card.label} descricao={`Filtrar por ${card.label}`}>
+        <TooltipGlobal key={card.label} titulo={card.label} descricao={t('lpco.filtrar_por_label', { label: card.label })}>
           <button
             className="lp-stat-card"
             onClick={() => onFilter(card.filterStatus ?? null)}
@@ -162,6 +164,7 @@ const fmtDate = (iso: string | null) =>
 // ── Componente Principal ────────────────────────────────────────────────────
 
 export default function LpcoLista() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [lpcos, setLpcos] = useState<Lpco[]>([])
   const [loading, setLoading] = useState(true)
@@ -203,43 +206,43 @@ export default function LpcoLista() {
       label: 'ID',
       tipo: 'texto',
       largura: 180,
-      tooltipTitulo: 'Identificador',
-      tooltipDescricao: 'ID corporativo do LPCO',
+      tooltipTitulo: t('lpco.col.identificador'),
+      tooltipDescricao: t('lpco.col.identificador_desc'),
       render: (val: string) => (
         <span style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{val}</span>
       ),
     },
     {
       key: 'orgao_anuente',
-      label: 'Orgao',
+      label: t('lpco.col.orgao'),
       tipo: 'texto',
       largura: 100,
-      tooltipTitulo: 'Orgao Anuente',
-      tooltipDescricao: 'Orgao responsavel pela analise do LPCO',
+      tooltipTitulo: t('lpco.dados.orgao_anuente'),
+      tooltipDescricao: t('lpco.col.orgao_desc'),
     },
     {
       key: 'modelo_lpco',
-      label: 'Modelo',
+      label: t('lpco.dados.modelo'),
       tipo: 'texto',
       largura: 90,
     },
     {
       key: 'tipo_operacao',
-      label: 'Operacao',
+      label: t('lpco.operacao'),
       tipo: 'texto',
       largura: 110,
       render: (val: string) => TIPO_OPERACAO_LABELS[val as keyof typeof TIPO_OPERACAO_LABELS] ?? val,
     },
     {
       key: 'tipo_lpco',
-      label: 'Tipo',
+      label: t('lpco.dados.tipo_lpco'),
       tipo: 'texto',
       largura: 140,
       render: (val: string) => TIPO_LPCO_LABELS[val as keyof typeof TIPO_LPCO_LABELS] ?? val,
     },
     {
       key: 'pais_procedencia',
-      label: 'Pais',
+      label: t('lpco.col.pais'),
       tipo: 'texto',
       largura: 60,
       align: 'center',
@@ -258,14 +261,14 @@ export default function LpcoLista() {
     },
     {
       key: 'numero_portal',
-      label: 'N. Portal',
+      label: t('lpco.dados.n_portal'),
       tipo: 'texto',
       largura: 150,
       render: (val: string | null) => val ?? '—',
     },
     {
       key: 'canal_entrada',
-      label: 'Canal',
+      label: t('lpco.dados.canal_entrada'),
       tipo: 'texto',
       largura: 100,
       render: (val: string) => {
@@ -278,24 +281,24 @@ export default function LpcoLista() {
     },
     {
       key: 'created_at',
-      label: 'Criado em',
+      label: t('lpco.dados.criado_em'),
       tipo: 'periodo',
       largura: 110,
       render: (val: string) => fmtDate(val),
     },
-  ], [])
+  ], [t])
 
   const acoes: TabelaGlobalAcao<Lpco>[] = useMemo(() => [
     {
       id: 'ver',
       icone: <Eye weight="duotone" size={16} />,
-      tooltip: 'Ver detalhes',
+      tooltip: t('lpco.ver_detalhes'),
       onClick: (item) => navigate(`/lpco/${item.id}`),
     },
     {
       id: 'duplicar',
       icone: <Copy weight="duotone" size={16} />,
-      tooltip: 'Duplicar',
+      tooltip: t('lpco.duplicar'),
       onClick: async (item) => {
         try {
           const novo = await lpcoApi.duplicar(item.id)
@@ -317,20 +320,20 @@ export default function LpcoLista() {
       <div className="lp-lista-header">
         <div className="lp-lista-title-row">
           <div>
-            <h1 className="lp-lista-title">LPCOs</h1>
+            <h1 className="lp-lista-title">{t('lpco.titulo')}</h1>
             <p className="lp-lista-subtitle">
-              Licencas, Permissoes, Certificados e Outros Documentos
+              {t('lpco.subtitulo')}
             </p>
           </div>
           <div className="lp-lista-actions">
-            <TooltipGlobal titulo="Simulador TA" descricao="Verificar tratamento administrativo por NCM">
+            <TooltipGlobal titulo={t('lpco.simulador_ta')} descricao={t('lpco.simulador_ta_desc')}>
               <BotaoGlobal
                 variante="fantasma"
                 tamanho="medio"
                 onClick={() => navigate('/lpco/simulador')}
               >
                 <MagnifyingGlass weight="duotone" size={16} />
-                Simulador TA
+                {t('lpco.simulador_ta')}
               </BotaoGlobal>
             </TooltipGlobal>
             <BotaoGlobal
@@ -339,7 +342,7 @@ export default function LpcoLista() {
               onClick={() => navigate('/lpco/novo')}
             >
               <Plus weight="bold" size={16} />
-              Novo LPCO
+              {t('lpco.novo')}
             </BotaoGlobal>
           </div>
         </div>
@@ -351,7 +354,7 @@ export default function LpcoLista() {
         {filtroStatus && (
           <div className="lp-filtro-ativo">
             <Funnel weight="fill" size={14} />
-            <span>Filtrando por: <strong>{STATUS_LABELS[filtroStatus]}</strong></span>
+            <span>{t('lpco.filtrando_por')} <strong>{STATUS_LABELS[filtroStatus]}</strong></span>
             <button onClick={() => setFiltroStatus(null)} type="button" className="lp-filtro-limpar">
               <XCircle weight="fill" size={16} />
             </button>
@@ -374,7 +377,7 @@ export default function LpcoLista() {
             colunas={colunas}
             acoes={acoes}
             idKey="id"
-            mensagemVazio="Nenhum LPCO encontrado"
+            mensagemVazio={t('lpco.nenhum_encontrado')}
             itensPorPagina={20}
           />
         )}

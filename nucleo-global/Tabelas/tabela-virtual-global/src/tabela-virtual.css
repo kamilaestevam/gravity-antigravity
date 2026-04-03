@@ -30,6 +30,8 @@
   border: 1px solid var(--gtv-border);
   overflow: hidden;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* Funciona tanto como filho de height:100% quanto como filho flex */
+  flex: 1 1 0;
   height: 100%;
   min-height: 0;
 }
@@ -404,6 +406,56 @@
 .gtv-th--center { justify-content: center; }
 .gtv-th--right  { justify-content: flex-end; }
 
+/* ─── Colunas congeladas (frozen) ─────────────────────────────────────────── */
+.gtv-th--frozen {
+  position: sticky;
+  z-index: 11;
+  background: var(--gtv-bg);
+}
+
+.gtv-th--frozen::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--gtv-border);
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.25);
+}
+
+.gtv-celula--frozen {
+  position: sticky;
+  z-index: 2;
+  background: var(--gtv-bg);
+}
+
+.gtv-celula--frozen::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--gtv-border);
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Frozen em linha filho */
+.gtv-linha--filho .gtv-celula--frozen {
+  background: var(--gtv-bg-filho);
+}
+
+/* Frozen em linha selecionada */
+.gtv-linha--selecionada .gtv-celula--frozen {
+  background: #1f2d47;
+}
+
+/* Frozen em linha expandida */
+.gtv-linha--expandida .gtv-celula--frozen {
+  background: #1d2b3e;
+}
+
 .gtv-th--sort {
   cursor: pointer;
 }
@@ -434,7 +486,7 @@
 /* ─── Scroll virtual ──────────────────────────────────────────────────────── */
 .gtv-tabela-scroll {
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   flex: 1 1 0;
   min-height: 0;
   position: relative;
@@ -443,6 +495,7 @@
 
 .gtv-tabela-scroll::-webkit-scrollbar {
   width: 6px;
+  height: 6px; /* scrollbar horizontal */
 }
 
 .gtv-tabela-scroll::-webkit-scrollbar-track {
@@ -458,23 +511,29 @@
   background: rgba(129, 140, 248, 0.4);
 }
 
+.gtv-tabela-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 /* Container interno com altura total das linhas virtuais */
 .gtv-tabela-inner {
   width: 100%;
   position: relative;
+  will-change: transform;
 }
 
-/* ─── Linha virtual (posicionada de forma absoluta) ──────────────────────── */
+/* ─── Linha virtual ───────────────────────────────────────────────────────── */
+/* Posicionamento absoluto fica no wrapper do virtualizer (div pai).          */
+/* .gtv-linha deve ficar no fluxo normal para measureElement medir altura.   */
 .gtv-linha {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
+  width: 100%;
   border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
-  will-change: transform;
+  /* Isolamento de layout/paint por linha — crítico para escala em 1M rows */
+  contain: content;
+  backface-visibility: hidden;
 }
 
 .gtv-linha:hover {
@@ -552,11 +611,14 @@
 
 .gtv-celula--editavel {
   cursor: text;
+  position: relative;
 }
 
 .gtv-celula--editavel:hover {
-  background: rgba(129, 140, 248, 0.04);
+  background: rgba(129, 140, 248, 0.07);
   border-radius: 4px;
+  outline: 1px dashed rgba(129, 140, 248, 0.4);
+  outline-offset: -1px;
 }
 
 /* ─── Input de edição inline ──────────────────────────────────────────────── */
@@ -607,6 +669,16 @@
 
 .gtv-chevron-icon--aberto {
   transform: rotate(90deg);
+}
+
+/* Indicador "Salvando..." na toolbar */
+.gtv-salvando {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--gtv-text-muted, #94a3b8);
+  user-select: none;
 }
 
 /* Spinner de loading filho */
@@ -696,6 +768,13 @@
   display: flex;
   gap: 0.375rem;
   justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.gtv-linha:hover .gtv-acoes-grupo,
+.gtv-linha:focus-within .gtv-acoes-grupo {
+  opacity: 1;
 }
 
 .gtv-acao-btn {
@@ -896,6 +975,19 @@ body.light-theme .gtv-linha--selecionada {
 
 body.light-theme .gtv-linha--selecionada:hover {
   background: rgba(79, 70, 229, 0.07) !important;
+}
+
+body.light-theme .gtv-th--frozen,
+body.light-theme .gtv-celula--frozen {
+  background: var(--gtv-bg);
+}
+
+body.light-theme .gtv-linha--filho .gtv-celula--frozen {
+  background: var(--gtv-bg-filho);
+}
+
+body.light-theme .gtv-linha--selecionada .gtv-celula--frozen {
+  background: rgba(79, 70, 229, 0.06);
 }
 
 body.light-theme .gtv-conector {

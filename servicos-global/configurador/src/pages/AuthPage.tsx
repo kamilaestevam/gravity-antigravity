@@ -1,9 +1,11 @@
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LoginGlobal } from '@nucleo/login-global'
 import { Atom, CursorClick, Coins, ShieldCheck } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 import './auth.css'
 
 export function AuthPage() {
+  const { t } = useTranslation()
   return (
     <div className="auth-root">
 
@@ -19,39 +21,38 @@ export function AuthPage() {
 
           {/* Headline */}
           <h1 className="auth-headline">
-            O marketplace de sua{' '}
+            {t('auth.headline')}{' '}
             <span className="auth-headline-accent">
-              eficiência operacional.
+              {t('auth.headline_destaque')}
             </span>
           </h1>
 
           <p className="auth-subheadline">
-            Módulos independentes ou conectados para escalar seu negócio. 
-            Reduza a digitação manual com IA e assuma o controle real dos seus custos.
+            {t('auth.subheadline')}
           </p>
 
           {/* Features */}
           <div className="auth-features">
             {[
-              { 
-                icon: <Atom size={20} weight="duotone" className="auth-feature-icon" />, 
-                title: 'Ecossistema Modular', 
-                desc: 'Produtos que operam de forma isolada ou em harmonia, sem perda de dados.' 
+              {
+                icon: <Atom size={20} weight="duotone" className="auth-feature-icon" />,
+                title: t('auth.ecossistema_titulo'),
+                desc: t('auth.ecossistema_desc')
               },
-              { 
-                icon: <CursorClick size={20} weight="duotone" className="auth-feature-icon" />, 
-                title: 'Zero Digitação', 
-                desc: 'A Gabi AI automatiza processos braçais e elimina erros de preenchimento.' 
+              {
+                icon: <CursorClick size={20} weight="duotone" className="auth-feature-icon" />,
+                title: t('auth.zero_digitacao_titulo'),
+                desc: t('auth.zero_digitacao_desc')
               },
-              { 
-                icon: <Coins size={20} weight="duotone" className="auth-feature-icon" />, 
-                title: 'Gestão de Custos', 
-                desc: 'Visibilidade total e controle financeiro integrado a cada módulo do sistema.' 
+              {
+                icon: <Coins size={20} weight="duotone" className="auth-feature-icon" />,
+                title: t('auth.gestao_custos_titulo'),
+                desc: t('auth.gestao_custos_desc')
               },
-              { 
-                icon: <ShieldCheck size={20} weight="duotone" className="auth-feature-icon" />, 
-                title: 'Padrão Enterprise', 
-                desc: 'Privacidade absoluta com isolamento total por tenant em arquitetura SaaS.' 
+              {
+                icon: <ShieldCheck size={20} weight="duotone" className="auth-feature-icon" />,
+                title: t('auth.padrao_enterprise_titulo'),
+                desc: t('auth.padrao_enterprise_desc')
               },
             ].map((f, i) => (
               <div key={f.title} className="auth-feature" style={{ '--i': i } as any}>

@@ -135,6 +135,12 @@ export const pedidoVirtualApi = {
     request<Pedido>(`/api/v1/pedidos/${id}/campo`, {
       method: 'PATCH',
       body: JSON.stringify({ campo, valor, version }),
+    }).catch(err => {
+      if (import.meta.env.DEV) {
+        const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === id)
+        if (pedido) return { ...pedido, [campo]: valor } as Pedido
+      }
+      throw err
     }),
 }
 

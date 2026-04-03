@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   BarChart3,
   Trophy,
@@ -63,10 +64,10 @@ const TAG_STYLES: Record<string, { bg: string; color: string; icon: React.ReactN
 
 type SortKey = 'taxa' | 'spread' | 'rating'
 
-const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-  { key: 'taxa', label: 'Menor Taxa' },
-  { key: 'spread', label: 'Menor Spread' },
-  { key: 'rating', label: 'Maior Rating' },
+const SORT_OPTIONS: { key: SortKey; labelKey: string }[] = [
+  { key: 'taxa', labelKey: 'bidcambio.comparativo.menor_taxa' },
+  { key: 'spread', labelKey: 'bidcambio.comparativo.menor_spread' },
+  { key: 'rating', labelKey: 'bidcambio.comparativo.maior_rating' },
 ]
 
 // ─── Props ─────────────────────────────────────────────────────────────────
@@ -79,6 +80,7 @@ interface ComparativoProps {
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
+  const { t } = useTranslation()
   const [respostas, setRespostas] = useState<BidResponseCambio[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -179,11 +181,11 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {onBack && <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><ChevronLeft size={20} /></button>}
           <BarChart3 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Comparativo</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.comparativo.titulo')}</h1>
         </div>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
           <Loader2 size={28} style={{ color: 'var(--accent, #6366f1)', animation: 'spin 1s linear infinite' }} />
-          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>Carregando ranking...</p>
+          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>{t('bidcambio.comparativo.carregando')}</p>
         </div>
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -197,14 +199,14 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
       <div style={containerStyle}>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem' }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger, #ef4444)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Erro ao carregar</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('comum.erro_carregar')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1rem' }}>{error}</p>
           <button onClick={carregar} style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.5rem 1.25rem', borderRadius: 9999, fontSize: '0.875rem', fontWeight: 600,
             border: 'none', background: 'var(--accent, #6366f1)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit',
           }}>
-            <RefreshCw size={14} /> Tentar novamente
+            <RefreshCw size={14} /> {t('comum.tentar_novamente')}
           </button>
         </div>
       </div>
@@ -219,13 +221,13 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {onBack && <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><ChevronLeft size={20} /></button>}
           <BarChart3 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Comparativo</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.comparativo.titulo')}</h1>
         </div>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
           <BarChart3 size={40} style={{ color: 'var(--text-muted, #64748b)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Nenhuma proposta recebida</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('bidcambio.comparativo.sem_propostas')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: 0 }}>
-            Aguarde as corretoras enviarem suas propostas.
+            {t('bidcambio.comparativo.aguardar_propostas')}
           </p>
         </div>
       </div>
@@ -242,14 +244,14 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
           {onBack && <button onClick={onBack} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex' }}><ChevronLeft size={20} /></button>}
           <BarChart3 size={22} style={{ color: 'var(--accent, #6366f1)' }} />
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-            Comparativo ({respostas.length} proposta{respostas.length !== 1 ? 's' : ''})
+            {t('bidcambio.comparativo.titulo')} ({respostas.length} {respostas.length !== 1 ? t('bidcambio.comparativo.propostas') : t('bidcambio.comparativo.proposta')})
           </h1>
         </div>
 
         {/* Sort */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <ArrowUpDown size={14} style={{ color: 'var(--text-muted, #64748b)' }} />
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>Ordenar:</span>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.comparativo.ordenar')}</span>
           {SORT_OPTIONS.map((opt) => (
             <button
               key={opt.key}
@@ -261,7 +263,7 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
                 color: sortBy === opt.key ? '#fff' : 'var(--text-secondary, #94a3b8)',
               }}
             >
-              {opt.label}
+              {t(opt.labelKey)}
             </button>
           ))}
         </div>
@@ -285,7 +287,7 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--bg-elevated, #475569)' }}>
-                {['#', 'Corretora', 'Taxa', 'Spread', 'Valor Total BRL', 'IOF', 'Validade', 'Rating', 'Tags', 'Status', 'Acoes'].map((h) => (
+                {[t('bidcambio.comparativo.col_rank'), t('bidcambio.comparativo.col_corretora'), t('bidcambio.comparativo.col_taxa'), t('bidcambio.comparativo.col_spread'), t('bidcambio.comparativo.col_valor_total'), t('bidcambio.comparativo.col_iof'), t('bidcambio.comparativo.col_validade'), t('bidcambio.comparativo.col_rating'), t('bidcambio.comparativo.col_tags'), t('bidcambio.comparativo.col_status'), t('bidcambio.comparativo.col_acoes')].map((h) => (
                   <th key={h} style={{
                     padding: '0.75rem 0.5rem', textAlign: 'left',
                     fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase',
@@ -405,19 +407,19 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
                                 style={{ ...btnPrimary, opacity: submitting ? 0.5 : 1 }}
                               >
                                 {submitting ? <Loader2 size={10} style={{ animation: 'spin 1s linear infinite' }} /> : <Check size={10} />}
-                                Confirmar
+                                {t('bidcambio.comparativo.confirmar')}
                               </button>
                               <button onClick={() => setConfirmAprovar(null)} style={{ ...btnDanger, background: 'var(--bg-elevated, #475569)', color: 'var(--text-secondary)' }}>
-                                <X size={10} /> Cancelar
+                                <X size={10} /> {t('bidcambio.comparativo.cancelar')}
                               </button>
                             </>
                           ) : (
                             <>
                               <button onClick={() => setConfirmAprovar(resp.id)} style={btnPrimary}>
-                                <Check size={10} /> Aprovar
+                                <Check size={10} /> {t('bidcambio.comparativo.aprovar')}
                               </button>
                               <button onClick={() => setRejectId(resp.id)} style={{ ...btnDanger }}>
-                                <X size={10} /> Rejeitar
+                                <X size={10} /> {t('bidcambio.comparativo.rejeitar')}
                               </button>
                             </>
                           )}
@@ -449,18 +451,18 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
               border: '1px solid var(--bg-elevated, #475569)',
             }}
           >
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 1rem' }}>Rejeitar Proposta</h3>
+            <h3 style={{ fontSize: '1rem', fontWeight: 700, margin: '0 0 1rem' }}>{t('bidcambio.comparativo.rejeitar_proposta')}</h3>
             <label style={{
               display: 'block', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase',
               letterSpacing: '0.05em', color: 'var(--text-muted, #64748b)', marginBottom: '0.35rem',
             }}>
-              Motivo da rejeicao
+              {t('bidcambio.comparativo.motivo_rejeicao')}
             </label>
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
               rows={3}
-              placeholder="Informe o motivo..."
+              placeholder={t('bidcambio.comparativo.motivo_placeholder')}
               style={{
                 width: '100%', padding: '0.6rem 0.75rem', borderRadius: 8,
                 border: '1px solid var(--bg-elevated, #475569)',
@@ -478,7 +480,7 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
                   color: 'var(--text-secondary, #94a3b8)', cursor: 'pointer', fontFamily: 'inherit',
                 }}
               >
-                Cancelar
+                {t('bidcambio.comparativo.cancelar')}
               </button>
               <button
                 onClick={() => { setRejectId(null); setRejectReason('') }}
@@ -488,7 +490,7 @@ export default function Comparativo({ cotacaoId, onBack }: ComparativoProps) {
                   opacity: !rejectReason.trim() ? 0.5 : 1,
                 }}
               >
-                <X size={14} /> Rejeitar
+                <X size={14} /> {t('bidcambio.comparativo.rejeitar')}
               </button>
             </div>
           </div>

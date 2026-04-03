@@ -1,8 +1,10 @@
 import { PaginaGlobal } from '@nucleo/pagina-global'
+import { useTranslation } from 'react-i18next'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { Copy } from '@phosphor-icons/react'
 
 export default function DespesaTemplate() {
+  const { t } = useTranslation()
   return (
     <PaginaGlobal
       className="ws-fade-up"
@@ -10,14 +12,14 @@ export default function DespesaTemplate() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Copy weight="duotone" size={22} />}
-          titulo="Templates de Despesas"
-          subtitulo="Configure templates de despesas automaticas"
+          titulo={t('nf_importacao.config.template_titulo')}
+          subtitulo={t('nf_importacao.config.template_subtitulo')}
         />
       }
     >
       <div style={{ padding: '2rem', color: 'var(--ws-muted)', textAlign: 'center' }}>
         <Copy weight="duotone" size={48} style={{ opacity: 0.4 }} />
-        <p style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>Em desenvolvimento</p>
+        <p style={{ marginTop: '0.75rem', fontSize: '0.875rem' }}>{t('nf_importacao.em_desenvolvimento')}</p>
       </div>
     </PaginaGlobal>
   )

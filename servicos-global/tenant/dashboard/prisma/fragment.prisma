@@ -1,35 +1,132 @@
-// servicos-global/tenant/dashboard/prisma/fragment.prisma
+// fragment.prisma — Dashboard Service
+// NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
+// Coordenador compõe via scripts/compose-tenant-schema.ts
 
-model ConfigDashboard {
-  id             String   @id @default(cuid())
-  tenant_id      String
-  product_id     String?
-  user_id        String?
-  widgets_layout Json?    // Layout grid state
-  refresh_rate   Int      @default(300000) // Default 5 min polling
+enum DashboardMode {
+  PRODUCT
+  GENERAL
+}
 
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+enum WidgetType {
+  CATALOG
+  CUSTOM
+  GABI
+}
+
+enum ChartType {
+  KPI_CARD
+  LINE
+  BAR
+  BAR_HORIZONTAL
+  DONUT
+  HISTOGRAM
+  FUNNEL
+  GAUGE
+  MAP
+  TABLE
+  AREA
+}
+
+model DashboardConfig {
+  id         String        @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String
+  name       String        @default("Meu Dashboard")
+  mode       DashboardMode @default(PRODUCT)
+  layout     Json          @default("[]")
+  filters    Json?
+  is_default Boolean       @default(false)
+  widgets    DashboardWidget[]
+  alerts     DashboardAlert[]
+  shares     DashboardShare[]
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
 }
 
-model MetricaSnapshot {
-  id            String   @id @default(cuid())
-  tenant_id     String
-  product_id    String?
-  metric_name   String
-  value         Float
-  unit          String?
-  snapshot_date DateTime @default(now())
-
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+model DashboardWidget {
+  id           String          @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String
+  dashboard_id String
+  widget_key   String
+  widget_type  WidgetType      @default(CATALOG)
+  chart_type   ChartType       @default(KPI_CARD)
+  title        String
+  query_spec   Json
+  position     Json            @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
+  config       Json?
+  dashboard    DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  // Extra index heavily used for aggregation
-  @@index([tenant_id, metric_name, snapshot_date])
+  @@index([tenant_id, user_id])
+}
+
+model DashboardMetricSnapshot {
+  id          String   @id @default(cuid())
+  tenant_id   String
+  product_id  String
+  user_id     String?
+  metric_key  String
+  dimensions  Json?
+  value       Json
+  period_from DateTime
+  period_to   DateTime
+  captured_at DateTime @default(now())
+
+  @@unique([tenant_id, product_id, metric_key, period_from, period_to])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model DashboardAlert {
+  id             String          @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String
+  dashboard_id   String
+  widget_id      String?
+  metric_key     String
+  condition      String
+  threshold      Json
+  channels       String[]        @default([])
+  is_active      Boolean         @default(true)
+  last_triggered DateTime?
+  dashboard      DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model DashboardShare {
+  id              String          @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String
+  dashboard_id    String
+  share_token     String          @unique @default(cuid())
+  channel         String
+  recipient_email String?
+  recipient_phone String?
+  snapshot_data   Json?
+  expires_at      DateTime?
+  dashboard       DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  created_at      DateTime        @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([share_token])
+  @@index([tenant_id, user_id])
 }

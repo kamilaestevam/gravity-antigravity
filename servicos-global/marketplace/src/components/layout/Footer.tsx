@@ -2,8 +2,10 @@ import { Link } from 'react-router-dom'
 import { GithubLogo, LinkedinLogo } from '@phosphor-icons/react'
 import '../../styles/footer.css'
 import { LogoGlobal } from '@nucleo/logo-global'
+import { useTranslation } from 'react-i18next'
 
 export function Footer() {
+  const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
 
   return (
@@ -16,8 +18,7 @@ export function Footer() {
               <LogoGlobal iconSize={24} iconColor="var(--accent)" />
             </div>
             <p className="footer__tagline">
-              Plataforma SaaS B2B modular. Serviços compartilhados,
-              produtos especializados, multi-tenant nativo.
+              {t('marketplace.footer.tagline')}
             </p>
             <div className="footer__socials">
               <a href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
@@ -31,45 +32,45 @@ export function Footer() {
 
           {/* Links: Produto */}
           <div className="footer__col">
-            <h4 className="footer__col-title text-micro">Produto</h4>
+            <h4 className="footer__col-title text-micro">{t('marketplace.footer.produto')}</h4>
             <nav>
-              <Link to="/produtos" className="footer__link">Catálogo</Link>
-              <Link to="/precos" className="footer__link">Preços</Link>
-              <Link to="/trial" className="footer__link">Trial Gratuito</Link>
-              <Link to="/produtos/simulador-comex" className="footer__link">Simulador Comex</Link>
+              <Link to="/produtos" className="footer__link">{t('marketplace.footer.catalogo')}</Link>
+              <Link to="/precos" className="footer__link">{t('marketplace.footer.precos')}</Link>
+              <Link to="/trial" className="footer__link">{t('marketplace.footer.trial')}</Link>
+              <Link to="/produtos/simulador-comex" className="footer__link">{t('marketplace.footer.simulador_comex')}</Link>
             </nav>
           </div>
 
           {/* Links: Empresa */}
           <div className="footer__col">
-            <h4 className="footer__col-title text-micro">Empresa</h4>
+            <h4 className="footer__col-title text-micro">{t('marketplace.footer.empresa')}</h4>
             <nav>
-              <a href="#" className="footer__link">Sobre</a>
-              <a href="#" className="footer__link">Blog</a>
-              <a href="#" className="footer__link">Carreiras</a>
-              <a href="#" className="footer__link">Contato</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.sobre')}</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.blog')}</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.carreiras')}</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.contato')}</a>
             </nav>
           </div>
 
           {/* Links: Legal */}
           <div className="footer__col">
-            <h4 className="footer__col-title text-micro">Legal</h4>
+            <h4 className="footer__col-title text-micro">{t('marketplace.footer.legal')}</h4>
             <nav>
-              <a href="#" className="footer__link">Termos de Uso</a>
-              <a href="#" className="footer__link">Privacidade</a>
-              <a href="#" className="footer__link">Cookies</a>
-              <a href="#" className="footer__link">LGPD</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.termos')}</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.privacidade')}</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.cookies')}</a>
+              <a href="#" className="footer__link">{t('marketplace.footer.lgpd')}</a>
             </nav>
           </div>
         </div>
 
         <div className="footer__bottom">
           <p className="footer__copyright">
-            © {currentYear} Gravity. Todos os direitos reservados.
+            {t('marketplace.footer.copyright', { year: currentYear })}
           </p>
           <div className="footer__badges">
-            <span className="badge badge-success">Status: Online</span>
-            <span className="badge badge-accent">LGPD Compliant</span>
+            <span className="badge badge-success">{t('marketplace.footer.status_online')}</span>
+            <span className="badge badge-accent">{t('marketplace.footer.lgpd_compliant')}</span>
           </div>
         </div>
       </div>

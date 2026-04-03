@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Clock,
   ArrowRight,
@@ -192,6 +193,7 @@ interface CotacoesPendentesProps {
 }
 
 export default function CotacoesPendentes({ disabled = false, onResponder }: CotacoesPendentesProps) {
+  const { t } = useTranslation()
   const [cotacoes, setCotacoes] = useState<CotacaoPendente[]>([])
   const [pageState, setPageState] = useState<PageState>('loading')
   const [filtroMoeda, setFiltroMoeda] = useState<MoedaCambio | ''>('')
@@ -255,12 +257,12 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
         <div style={s.header}>
           <div style={s.headerIcon}><Clock size={22} /></div>
           <div>
-            <h1 style={s.title}>Cotacoes Pendentes</h1>
+            <h1 style={s.title}>{t('bidcambio.portal.cotacoes_pendentes.titulo')}</h1>
           </div>
         </div>
         <div style={s.center}>
           <Loader2 size={48} style={{ opacity: 0.3, animation: 'spin 1s linear infinite' }} />
-          <p>Carregando cotacoes pendentes...</p>
+          <p>{t('bidcambio.portal.cotacoes_pendentes.carregando')}</p>
         </div>
       </div>
     )
@@ -271,12 +273,12 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
       <div style={s.page}>
         <div style={s.header}>
           <div style={s.headerIcon}><Clock size={22} /></div>
-          <div><h1 style={s.title}>Cotacoes Pendentes</h1></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.cotacoes_pendentes.titulo')}</h1></div>
         </div>
         <div style={s.center}>
           <AlertCircle size={48} style={{ color: 'var(--danger, #ef4444)', opacity: 0.6 }} />
-          <p style={{ color: 'var(--danger, #ef4444)' }}>Erro ao carregar cotacoes. Tente novamente.</p>
-          <button onClick={carregar} style={{ ...s.btnResponder }}>Tentar novamente</button>
+          <p style={{ color: 'var(--danger, #ef4444)' }}>{t('comum.erro_carregar')}</p>
+          <button onClick={carregar} style={{ ...s.btnResponder }}>{t('comum.tentar_novamente')}</button>
         </div>
       </div>
     )
@@ -288,8 +290,8 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
         <div style={s.header}>
           <div style={s.headerIcon}><Clock size={22} /></div>
           <div>
-            <h1 style={s.title}>Cotacoes Pendentes</h1>
-            <p style={s.subtitle}>Portal desabilitado</p>
+            <h1 style={s.title}>{t('bidcambio.portal.cotacoes_pendentes.titulo')}</h1>
+            <p style={s.subtitle}>{t('bidcambio.portal.config.desabilitado')}</p>
           </div>
         </div>
         <div style={s.center}>
@@ -305,7 +307,7 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
       <div style={s.header}>
         <div style={s.headerIcon}><Clock size={22} /></div>
         <div>
-          <h1 style={s.title}>Cotacoes Pendentes</h1>
+          <h1 style={s.title}>{t('bidcambio.portal.cotacoes_pendentes.titulo')}</h1>
           <p style={s.subtitle}>{filtradas.length} cotacao(oes) aguardando sua resposta</p>
         </div>
       </div>
@@ -318,7 +320,7 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
           value={filtroMoeda}
           onChange={(e) => setFiltroMoeda(e.target.value as MoedaCambio | '')}
         >
-          <option value="">Todas as moedas</option>
+          <option value="">{t('bidcambio.portal.cotacoes_pendentes.todas_moedas')}</option>
           {MOEDAS_FILTRO.map((m) => (
             <option key={m} value={m}>{MOEDA_CAMBIO_LABELS[m]} ({m})</option>
           ))}
@@ -328,31 +330,31 @@ export default function CotacoesPendentes({ disabled = false, onResponder }: Cot
       {pageState === 'empty' || filtradas.length === 0 ? (
         <div style={s.center}>
           <Inbox size={48} style={{ opacity: 0.3 }} />
-          <p>Nenhuma cotacao pendente no momento</p>
+          <p>{t('bidcambio.portal.cotacoes_pendentes.vazio')}</p>
         </div>
       ) : (
         <div style={{ borderRadius: 12, overflow: 'hidden' }}>
           <table style={s.table}>
             <thead>
               <tr>
-                <th style={s.th}>Comprador</th>
-                <th style={s.th}>Moeda</th>
+                <th style={s.th}>{t('bidcambio.portal.cotacoes_pendentes.col_comprador')}</th>
+                <th style={s.th}>{t('bidcambio.portal.cotacoes_pendentes.col_moeda')}</th>
                 <th
                   style={{ ...s.th, ...s.thSortable }}
                   onClick={() => toggleSort('valor_moeda_estrangeira')}
                 >
-                  Valor <ArrowUpDown size={10} style={{ marginLeft: 4 }} />
+                  {t('bidcambio.portal.cotacoes_pendentes.col_valor')} <ArrowUpDown size={10} style={{ marginLeft: 4 }} />
                 </th>
-                <th style={s.th}>Tipo Operacao</th>
-                <th style={s.th}>Liquidacao</th>
+                <th style={s.th}>{t('bidcambio.portal.cotacoes_pendentes.col_tipo')}</th>
+                <th style={s.th}>{t('bidcambio.portal.cotacoes_pendentes.col_liquidacao')}</th>
                 <th
                   style={{ ...s.th, ...s.thSortable }}
                   onClick={() => toggleSort('recebido_em')}
                 >
-                  Recebido em <ArrowUpDown size={10} style={{ marginLeft: 4 }} />
+                  {t('bidcambio.portal.cotacoes_pendentes.col_recebido')} <ArrowUpDown size={10} style={{ marginLeft: 4 }} />
                 </th>
-                <th style={s.th}>Validade</th>
-                <th style={{ ...s.th, textAlign: 'center' }}>Acoes</th>
+                <th style={s.th}>{t('bidcambio.portal.cotacoes_pendentes.col_validade')}</th>
+                <th style={{ ...s.th, textAlign: 'center' }}>{t('bidcambio.portal.cotacoes_pendentes.col_acoes')}</th>
               </tr>
             </thead>
             <tbody>

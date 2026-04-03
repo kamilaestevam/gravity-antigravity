@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Settings,
   Save,
@@ -257,6 +258,7 @@ interface ConfigCorretoraProps {
 }
 
 export default function ConfigCorretora({ disabled = false }: ConfigCorretoraProps) {
+  const { t } = useTranslation()
   const [config, setConfig] = useState<ConfigData>({
     razao_social: '',
     nome_fantasia: '',
@@ -314,7 +316,7 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
 
   async function handleSave() {
     if (!config.email) {
-      setErro('Email e obrigatorio')
+      setErro(t('bidcambio.portal.config.erro_email'))
       return
     }
     setSalvando(true)
@@ -345,11 +347,11 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
       <div style={s.page}>
         <div style={s.header}>
           <div style={s.headerIcon}><Settings size={22} /></div>
-          <div><h1 style={s.title}>Configuracoes</h1></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.config.titulo')}</h1></div>
         </div>
         <div style={s.center}>
           <Loader2 size={48} style={{ opacity: 0.3, animation: 'spin 1s linear infinite' }} />
-          <p>Carregando configuracoes...</p>
+          <p>{t('bidcambio.portal.config.carregando')}</p>
         </div>
       </div>
     )
@@ -360,12 +362,12 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
       <div style={s.page}>
         <div style={s.header}>
           <div style={s.headerIcon}><Settings size={22} /></div>
-          <div><h1 style={s.title}>Configuracoes</h1></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.config.titulo')}</h1></div>
         </div>
         <div style={s.center}>
           <AlertCircle size={48} style={{ color: 'var(--danger, #ef4444)', opacity: 0.6 }} />
-          <p style={{ color: 'var(--danger, #ef4444)' }}>Erro ao carregar configuracoes.</p>
-          <button onClick={carregar} style={s.saveBtn}>Tentar novamente</button>
+          <p style={{ color: 'var(--danger, #ef4444)' }}>{t('bidcambio.portal.config.erro_carregar')}</p>
+          <button onClick={carregar} style={s.saveBtn}>{t('acoes.tentar_novamente')}</button>
         </div>
       </div>
     )
@@ -376,11 +378,11 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
       <div style={{ ...s.page, opacity: 0.5, pointerEvents: 'none' }}>
         <div style={s.header}>
           <div style={s.headerIcon}><Settings size={22} /></div>
-          <div><h1 style={s.title}>Configuracoes</h1><p style={s.subtitle}>Desabilitado</p></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.config.titulo')}</h1><p style={s.subtitle}>{t('comum.desabilitado')}</p></div>
         </div>
         <div style={s.center}>
           <Settings size={48} style={{ opacity: 0.3 }} />
-          <p>Funcionalidade desabilitada.</p>
+          <p>{t('comum.funcionalidade_desabilitada')}</p>
         </div>
       </div>
     )
@@ -392,13 +394,13 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
         <div style={s.header}>
           <div style={s.headerIcon}><Settings size={22} /></div>
           <div>
-            <h1 style={s.title}>Configuracoes</h1>
-            <p style={s.subtitle}>Perfil da corretora</p>
+            <h1 style={s.title}>{t('bidcambio.portal.config.titulo')}</h1>
+            <p style={s.subtitle}>{t('bidcambio.portal.config.perfil_corretora')}</p>
           </div>
         </div>
         <div style={s.center}>
           <Building2 size={48} style={{ opacity: 0.3 }} />
-          <p>Nenhum dado de perfil encontrado. Contate o administrador.</p>
+          <p>{t('bidcambio.portal.config.nenhum_dado')}</p>
         </div>
       </div>
     )
@@ -411,38 +413,38 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
       <div style={s.header}>
         <div style={s.headerIcon}><Settings size={22} /></div>
         <div>
-          <h1 style={s.title}>Configuracoes</h1>
-          <p style={s.subtitle}>Gerencie o perfil e preferencias da sua corretora</p>
+          <h1 style={s.title}>{t('bidcambio.portal.config.titulo')}</h1>
+          <p style={s.subtitle}>{t('bidcambio.portal.config.gerencie')}</p>
         </div>
       </div>
 
-      {/* Dados da Empresa (read-only) */}
+      {/* {t('bidcambio.portal.config.dados_empresa')} (read-only) */}
       <div style={s.card}>
         <h3 style={s.sectionTitle}>
           <Building2 size={16} />
-          Dados da Empresa
+          {t('bidcambio.portal.config.dados_empresa')}
         </h3>
         <div style={s.formGrid}>
           <div style={s.field}>
-            <label style={s.label}>Razao Social</label>
+            <label style={s.label}>{t('bidcambio.portal.config.razao_social')}</label>
             <input style={s.inputReadonly} value={config.razao_social} readOnly />
           </div>
           <div style={s.field}>
-            <label style={s.label}>Nome Fantasia</label>
+            <label style={s.label}>{t('bidcambio.portal.config.nome_fantasia')}</label>
             <input style={s.inputReadonly} value={config.nome_fantasia} readOnly />
           </div>
           <div style={s.field}>
-            <label style={s.label}>CNPJ</label>
+            <label style={s.label}>{t('bidcambio.portal.config.cnpj')}</label>
             <input style={s.inputReadonly} value={config.cnpj} readOnly />
           </div>
         </div>
       </div>
 
-      {/* Contato (editavel) */}
+      {/* {t('bidcambio.portal.config.contato')} (editavel) */}
       <div style={s.card}>
         <h3 style={s.sectionTitle}>
           <User size={16} />
-          Contato
+          {t('bidcambio.portal.config.contato')}
         </h3>
         <div style={s.formGrid}>
           <div style={s.field}>
@@ -470,7 +472,7 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
             />
           </div>
           <div style={s.field}>
-            <label style={s.label}>Nome do Contato</label>
+            <label style={s.label}>Nome do {t('bidcambio.portal.config.contato')}</label>
             <input
               style={s.input}
               type="text"
@@ -480,7 +482,7 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
             />
           </div>
           <div style={s.field}>
-            <label style={s.label}>Cargo</label>
+            <label style={s.label}>{t('bidcambio.portal.config.cargo')}</label>
             <input
               style={s.input}
               type="text"
@@ -492,11 +494,11 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
         </div>
       </div>
 
-      {/* Moedas Operadas */}
+      {/* {t('bidcambio.portal.config.moedas_operadas')} */}
       <div style={s.card}>
         <h3 style={s.sectionTitle}>
           <Globe size={16} />
-          Moedas Operadas
+          {t('bidcambio.portal.config.moedas_operadas')}
         </h3>
         <div style={s.checkboxGrid}>
           {MOEDAS_DISPONIVEIS.map((moeda) => {
@@ -530,8 +532,8 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
         </h3>
         <div style={s.toggleRow}>
           <div>
-            <div style={s.toggleLabel}>Portal habilitado</div>
-            <p style={s.toggleDesc}>Quando desabilitado, voce nao recebera novas cotacoes pelo portal</p>
+            <div style={s.toggleLabel}>{t('bidcambio.portal.config.portal_habilitado')}</div>
+            <p style={s.toggleDesc}>{t('bidcambio.portal.config.portal_desc')}</p>
           </div>
           <button
             style={{
@@ -561,13 +563,13 @@ export default function ConfigCorretora({ disabled = false }: ConfigCorretoraPro
           disabled={salvando}
         >
           <Save size={16} />
-          {salvando ? 'Salvando...' : 'Salvar Configuracoes'}
+          {salvando ? t('bidcambio.portal.config.salvando') : t('bidcambio.portal.config.salvar')}
         </button>
 
         {sucesso && (
           <div style={s.successMsg}>
             <CheckCircle size={16} />
-            Configuracoes salvas com sucesso
+            {t('bidcambio.portal.config.sucesso')}
           </div>
         )}
       </div>

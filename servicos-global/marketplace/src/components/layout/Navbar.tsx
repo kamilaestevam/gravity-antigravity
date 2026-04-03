@@ -7,9 +7,11 @@ import {
 
 import '../../styles/navbar.css'
 import { LogoGlobal } from '@nucleo/logo-global'
+import { useTranslation } from 'react-i18next'
 
 
 export function Navbar() {
+  const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
@@ -25,21 +27,21 @@ export function Navbar() {
   }, [location.pathname])
 
   const navLinks = [
-    { label: 'Produtos', to: '/produtos' },
-    { label: 'Preços', to: '/precos' },
-    { label: 'Trial', to: '/trial' },
+    { label: t('marketplace.navbar.produtos'), to: '/produtos' },
+    { label: t('marketplace.navbar.precos'), to: '/precos' },
+    { label: t('marketplace.navbar.trial'), to: '/trial' },
   ]
 
   return (
     <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
       <div className="container navbar__inner">
         {/* Logo */}
-        <Link to="/" className="navbar__logo" aria-label="Gravity Home" style={{ textDecoration: 'none' }}>
+        <Link to="/" className="navbar__logo" aria-label={t('marketplace.navbar.aria_home')} style={{ textDecoration: 'none' }}>
           <LogoGlobal iconColor="var(--accent)" />
         </Link>
 
         {/* Links Desktop */}
-        <nav className="navbar__links" aria-label="Navegação principal">
+        <nav className="navbar__links" aria-label={t('marketplace.navbar.aria_nav')}>
           {navLinks.map(link => (
             <Link
               key={link.to}
@@ -54,10 +56,10 @@ export function Navbar() {
         {/* CTAs Desktop */}
         <div className="navbar__ctas">
           <Link to="/trial" className="btn btn-secondary btn-sm">
-            Teste Grátis
+            {t('marketplace.navbar.teste_gratis')}
           </Link>
           <Link to="/checkout" className="btn btn-primary btn-sm">
-            Começar Agora
+            {t('marketplace.navbar.comecar_agora')}
           </Link>
         </div>
 
@@ -65,7 +67,7 @@ export function Navbar() {
         <button
           className="navbar__hamburger"
           onClick={() => setMenuOpen(o => !o)}
-          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-label={menuOpen ? t('marketplace.navbar.fechar_menu') : t('marketplace.navbar.abrir_menu')}
           aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={22} /> : <List size={22} />}
@@ -86,10 +88,10 @@ export function Navbar() {
           ))}
           <div className="navbar__mobile-ctas">
             <Link to="/trial" className="btn btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-              Teste Grátis
+              {t('marketplace.navbar.teste_gratis')}
             </Link>
             <Link to="/checkout" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-              Começar Agora
+              {t('marketplace.navbar.comecar_agora')}
             </Link>
           </div>
         </div>

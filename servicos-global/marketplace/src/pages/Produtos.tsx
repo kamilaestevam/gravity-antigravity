@@ -7,6 +7,7 @@ import {
   Calculator,
   Star,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 
 const PRODUCTS = [
   {
@@ -69,6 +70,7 @@ const PRODUCTS = [
 ]
 
 export function Produtos() {
+  const { t } = useTranslation()
   const CONFIGURADOR = import.meta.env.VITE_CONFIGURADOR_URL ?? 'https://configurador.gravity.com.br'
 
   return (
@@ -76,13 +78,12 @@ export function Produtos() {
       {/* Header */}
       <section className="section-sm" style={{ background: 'var(--bg-base)', borderBottom: '1px solid var(--bg-elevated)' }}>
         <div className="container">
-          <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem' }}>Catálogo</p>
+          <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.75rem' }}>{t('marketplace.produtos.badge')}</p>
           <h1 className="text-h1" style={{ marginBottom: '0.75rem' }}>
-            Produtos <span className="gradient-text">especializados</span>
+            {t('marketplace.produtos.titulo')}<span className="gradient-text">{t('marketplace.produtos.titulo_destaque')}</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '540px', fontSize: '1.0625rem' }}>
-            Cada produto consome os serviços compartilhados da plataforma.
-            Você paga uma vez pelos serviços, usa em todos os produtos.
+            {t('marketplace.produtos.subtitulo')}
           </p>
         </div>
       </section>
@@ -112,7 +113,7 @@ export function Produtos() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
                   }}>
-                    Em breve
+                    {t('marketplace.produtos.em_breve')}
                   </div>
                 )}
 
@@ -155,7 +156,7 @@ export function Produtos() {
                       <Star key={i} size={12} color={i < Math.floor(p.rating) ? 'var(--warning)' : 'var(--bg-elevated)'} weight="fill" />
                     ))}
                   </div>
-                  <span style={{ color: 'var(--text-muted)' }}>{p.rating} ({p.reviews} avaliações)</span>
+                  <span style={{ color: 'var(--text-muted)' }}>{p.rating} ({p.reviews} {t('marketplace.produtos.avaliacoes')})</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: 'auto' }}>
@@ -166,14 +167,14 @@ export function Produtos() {
                         className="btn btn-secondary"
                         style={{ flex: 1, justifyContent: 'center' }}
                       >
-                        Teste Grátis
+                        {t('marketplace.produtos.teste_gratis')}
                       </Link>
                       <Link
                         to={`/produtos/${p.id}`}
                         className="btn btn-primary"
                         style={{ flex: 1, justifyContent: 'center' }}
                       >
-                        Ver Detalhes
+                        {t('marketplace.produtos.ver_detalhes')}
                         <ArrowRight size={15} />
                       </Link>
                     </>
@@ -183,7 +184,7 @@ export function Produtos() {
                       className="btn btn-secondary"
                       style={{ flex: 1, justifyContent: 'center' }}
                     >
-                      Entrar na Waitlist
+                      {t('marketplace.produtos.entrar_waitlist')}
                     </a>
                   )}
                 </div>

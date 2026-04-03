@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Settings,
   Save,
@@ -118,6 +119,7 @@ const DEFAULT_CONFIG: LocalConfig = {
 }
 
 export default function Configuracoes() {
+  const { t } = useTranslation()
   const [config, setConfig] = useState<LocalConfig>(DEFAULT_CONFIG)
   const [originalConfig, setOriginalConfig] = useState<LocalConfig>(DEFAULT_CONFIG)
   const [loading, setLoading] = useState(true)
@@ -188,11 +190,11 @@ export default function Configuracoes() {
       <div style={containerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <Settings size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Configuracoes</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.configuracoes.titulo')}</h1>
         </div>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '3rem' }}>
           <Loader2 size={28} style={{ color: 'var(--accent, #6366f1)', animation: 'spin 1s linear infinite' }} />
-          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>Carregando preferencias...</p>
+          <p style={{ color: 'var(--text-muted, #64748b)', marginTop: '0.75rem' }}>{t('bidcambio.configuracoes.carregando')}</p>
         </div>
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -206,18 +208,18 @@ export default function Configuracoes() {
       <div style={containerStyle}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
           <Settings size={22} style={{ color: 'var(--accent, #6366f1)' }} />
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Configuracoes</h1>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.configuracoes.titulo')}</h1>
         </div>
         <div style={{ ...cardStyle, textAlign: 'center', padding: '2rem' }}>
           <AlertTriangle size={32} style={{ color: 'var(--danger, #ef4444)' }} />
-          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>Erro ao carregar</p>
+          <p style={{ fontWeight: 600, margin: '0.75rem 0 0.5rem' }}>{t('comum.erro_carregar')}</p>
           <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '0.875rem', margin: '0 0 1rem' }}>{error}</p>
           <button onClick={carregar} style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
             padding: '0.5rem 1.25rem', borderRadius: 9999, fontSize: '0.875rem', fontWeight: 600,
             border: 'none', background: 'var(--accent, #6366f1)', color: '#fff', cursor: 'pointer', fontFamily: 'inherit',
           }}>
-            <RefreshCw size={14} /> Tentar novamente
+            <RefreshCw size={14} /> {t('comum.tentar_novamente')}
           </button>
         </div>
       </div>
@@ -232,8 +234,8 @@ export default function Configuracoes() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
         <Settings size={22} style={{ color: 'var(--accent, #6366f1)' }} />
         <div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Configuracoes</h1>
-          <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>Preferencias do BID Cambio</span>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>{t('bidcambio.configuracoes.titulo')}</h1>
+          <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)' }}>{t('bidcambio.configuracoes.preferencias_titulo')}</span>
         </div>
       </div>
 
@@ -253,8 +255,8 @@ export default function Configuracoes() {
       <div style={cardStyle}>
         <ConfigRow
           icon={<CalendarClock size={16} />}
-          label="Mostrar cambios pagos no financeiro"
-          description="Exibe os cambios ja pagos na visao financeira consolidada"
+          label={t('bidcambio.configuracoes.mostrar_cambios_pagos')}
+          description={t('bidcambio.configuracoes.mostrar_cambios_pagos_desc')}
         >
           <Toggle
             checked={config.mostrarCambiosPagos}
@@ -267,8 +269,8 @@ export default function Configuracoes() {
 
         <ConfigRow
           icon={<Bell size={16} />}
-          label="Alertar por email sobre vencimentos"
-          description="Envia email quando uma parcela esta proxima do vencimento"
+          label={t('bidcambio.configuracoes.alertar_vencimentos')}
+          description={t('bidcambio.configuracoes.alertar_vencimentos_desc')}
         >
           <Toggle
             checked={config.alertarVencimentoEmail}
@@ -282,7 +284,7 @@ export default function Configuracoes() {
             <Divider />
             <div style={{ padding: '0.75rem 1.25rem 0.75rem 3.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>Alertar com</span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>{t('bidcambio.configuracoes.alertar_com')}</span>
                 <input
                   type="number"
                   value={config.alertarVencimentoDias}
@@ -303,7 +305,7 @@ export default function Configuracoes() {
                     outline: 'none',
                   }}
                 />
-                <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>dia(s) de antecedencia</span>
+                <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>{t('bidcambio.configuracoes.dias_antecedencia')}</span>
               </div>
             </div>
           </>
@@ -313,8 +315,8 @@ export default function Configuracoes() {
 
         <ConfigRow
           icon={<Send size={16} />}
-          label="Enviar email ao exportador apos pagamento"
-          description="Notifica o exportador automaticamente quando o cambio e pago"
+          label={t('bidcambio.configuracoes.enviar_email_exportador')}
+          description={t('bidcambio.configuracoes.enviar_email_exportador_desc')}
         >
           <Toggle
             checked={config.enviarEmailExportador}
@@ -327,8 +329,8 @@ export default function Configuracoes() {
 
         <ConfigRow
           icon={<Mail size={16} />}
-          label="Enviar nos fins de semana"
-          description="Permite que cotacoes e alertas sejam enviados em sabados e domingos"
+          label={t('bidcambio.configuracoes.enviar_fins_semana')}
+          description={t('bidcambio.configuracoes.enviar_fins_semana_desc')}
         >
           <Toggle
             checked={config.enviarFimDeSemana}
@@ -364,11 +366,11 @@ export default function Configuracoes() {
         }}>
           {savedMsg ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--success, #22c55e)' }}>
-              <CheckCircle2 size={16} /> Configuracoes salvas
+              <CheckCircle2 size={16} /> {t('bidcambio.configuracoes.salvas')}
             </span>
           ) : (
             <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--warning, #f59e0b)' }}>
-              Alteracoes nao salvas
+              {t('bidcambio.configuracoes.nao_salvas')}
             </span>
           )}
           <button
@@ -384,7 +386,7 @@ export default function Configuracoes() {
             }}
           >
             {saving ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={14} />}
-            {saving ? 'Salvando...' : 'Salvar'}
+            {saving ? t('bidcambio.configuracoes.salvando') : t('bidcambio.configuracoes.salvar')}
           </button>
         </div>
       </div>

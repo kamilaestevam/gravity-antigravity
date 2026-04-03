@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { tenantService } from '../services/tenantService.js'
 import { AppError } from '../lib/appError.js'
+import { AuditService } from '../../../tenant/historico-global/server/services/audit.service.js'
 
 export const tenantsRouter = Router()
 
@@ -105,7 +106,23 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
         'VALIDATION_ERROR'
       )
     }
+    const before = await tenantService.getTenantById(req.auth.tenantId)
     const tenant = await tenantService.updateTenant(req.auth.tenantId, parsed.data)
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      module: 'configuracao',
+      resource_type: 'Organização',
+      resource_id: req.auth.tenantId,
+      action: 'UPDATE',
+      action_detail: `Atualizou dados da organização: ${Object.keys(parsed.data).join(', ')}`,
+      before: before ?? undefined,
+      after: tenant,
+    }).catch(() => {})
+
     res.json({ tenant })
   } catch (err) {
     next(err)
@@ -143,6 +160,20 @@ tenantsRouter.post('/companies', requireAuth, async (req, res, next) => {
       req.auth.tenantId,
       parsed.data
     )
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      module: 'configuracao',
+      resource_type: 'Empresa Filha',
+      resource_id: company.id,
+      action: 'CREATE',
+      action_detail: `Criou empresa filha "${company.name}"`,
+      after: company,
+    }).catch(() => {})
+
     res.status(201).json({ company })
   } catch (err) {
     next(err)
@@ -168,6 +199,20 @@ tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
       req.params.id,
       parsed.data
     )
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      module: 'configuracao',
+      resource_type: 'Empresa Filha',
+      resource_id: req.params.id,
+      action: 'UPDATE',
+      action_detail: `Atualizou empresa filha: ${Object.keys(parsed.data).join(', ')}`,
+      after: company,
+    }).catch(() => {})
+
     res.json({ company })
   } catch (err) {
     next(err)
@@ -181,6 +226,19 @@ tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
 tenantsRouter.delete('/companies/:id', requireAuth, async (req, res, next) => {
   try {
     await tenantService.deleteCompany(req.auth.tenantId, req.params.id)
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      module: 'configuracao',
+      resource_type: 'Empresa Filha',
+      resource_id: req.params.id,
+      action: 'DELETE',
+      action_detail: `Removeu empresa filha ${req.params.id}`,
+    }).catch(() => {})
+
     res.status(204).end()
   } catch (err) {
     next(err)

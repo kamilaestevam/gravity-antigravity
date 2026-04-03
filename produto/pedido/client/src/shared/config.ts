@@ -50,7 +50,7 @@ export const PRODUCT_CONFIG = {
 
     // ── Pedidos ──────────────────────────────────────────────────────────────
     { id: 'section-pedidos',   label: 'Pedidos',    sectionDivider: true },
-    { id: 'pedidos/dashboard', label: 'Dashboard',  icon: 'chart-pie-slice',         source: 'product', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+    { id: 'pedidos/dashboard', label: 'Dashboard',  icon: 'chart-pie-slice',         source: 'product' },
     { id: 'pedidos',           label: 'Lista',       icon: 'list-bullets',            source: 'product' },
     { id: 'pedidos/kanban',    label: 'Kanban',       icon: 'kanban',                  source: 'product', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
 
@@ -65,6 +65,6 @@ export const PRODUCT_CONFIG = {
     importacao_arquivo:     true,
     integracao_erp:         true,
     smart_read:             false,
-    dashboard_analitico:    false,
+    dashboard_analitico:    true,
   },
 } as const

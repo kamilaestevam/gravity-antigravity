@@ -3,18 +3,20 @@
  * Fase 2 do produto — usa PaginaGlobal + CabecalhoGlobal.
  */
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { Upload } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 
 export default function ImportarMassa() {
+  const { t } = useTranslation()
   return (
     <PaginaGlobal
       layout="formulario"
       cabecalho={
         <CabecalhoGlobal
-          titulo="Importar em Massa"
-          subtitulo="Carregue múltiplas simulações via planilha Excel ou CSV"
+          titulo={t('simulacusto.importar_massa.titulo')}
+          subtitulo={t('simulacusto.importar_massa.subtitulo')}
           icone={<Upload weight="duotone" size={22} color="#818cf8" />}
         />
       }
@@ -32,7 +34,7 @@ export default function ImportarMassa() {
       }}>
         <Upload weight="duotone" size={48} style={{ opacity: 0.3 }} />
         <p style={{ fontSize: '0.9375rem', maxWidth: 400 }}>
-          Funcionalidade disponível na <strong style={{ color: 'var(--ws-accent, #818cf8)' }}>Fase 2</strong> do SimulaCusto.
+          {t('simulacusto.importar_massa.fase_2', 'Funcionalidade disponível na Fase 2 do SimulaCusto.')}
         </p>
       </div>
     </PaginaGlobal>

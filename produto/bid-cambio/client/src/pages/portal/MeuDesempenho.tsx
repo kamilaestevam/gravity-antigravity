@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   TrendingUp,
   Star,
@@ -255,6 +256,7 @@ interface MeuDesempenhoProps {
 }
 
 export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) {
+  const { t } = useTranslation()
   const [dados, setDados] = useState<DesempenhoData | null>(null)
   const [pageState, setPageState] = useState<PageState>('loading')
 
@@ -291,11 +293,11 @@ export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) 
       <div style={s.page}>
         <div style={s.header}>
           <div style={s.headerIcon}><TrendingUp size={22} /></div>
-          <div><h1 style={s.title}>Meu Desempenho</h1></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.meu_desempenho.titulo')}</h1></div>
         </div>
         <div style={s.center}>
           <Loader2 size={48} style={{ opacity: 0.3, animation: 'spin 1s linear infinite' }} />
-          <p>Carregando metricas...</p>
+          <p>{t('bidcambio.portal.meu_desempenho.carregando')}</p>
         </div>
       </div>
     )
@@ -306,7 +308,7 @@ export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) 
       <div style={s.page}>
         <div style={s.header}>
           <div style={s.headerIcon}><TrendingUp size={22} /></div>
-          <div><h1 style={s.title}>Meu Desempenho</h1></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.meu_desempenho.titulo')}</h1></div>
         </div>
         <div style={s.center}>
           <AlertCircle size={48} style={{ color: 'var(--danger, #ef4444)', opacity: 0.6 }} />
@@ -330,7 +332,7 @@ export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) 
       <div style={{ ...s.page, opacity: 0.5, pointerEvents: 'none' }}>
         <div style={s.header}>
           <div style={s.headerIcon}><TrendingUp size={22} /></div>
-          <div><h1 style={s.title}>Meu Desempenho</h1><p style={s.subtitle}>Desabilitado</p></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.meu_desempenho.titulo')}</h1><p style={s.subtitle}>{t('bidcambio.portal.config.desabilitado')}</p></div>
         </div>
         <div style={s.center}>
           <Settings size={48} style={{ opacity: 0.3 }} />
@@ -346,13 +348,13 @@ export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) 
         <div style={s.header}>
           <div style={s.headerIcon}><TrendingUp size={22} /></div>
           <div>
-            <h1 style={s.title}>Meu Desempenho</h1>
-            <p style={s.subtitle}>Suas metricas de performance</p>
+            <h1 style={s.title}>{t('bidcambio.portal.meu_desempenho.titulo')}</h1>
+            <p style={s.subtitle}>{t('bidcambio.portal.meu_desempenho.subtitulo')}</p>
           </div>
         </div>
         <div style={s.center}>
           <BarChart3 size={48} style={{ opacity: 0.3 }} />
-          <p>Nenhuma metrica disponivel ainda. Responda cotacoes para gerar seus indicadores.</p>
+          <p>{t('bidcambio.portal.meu_desempenho.vazio')}</p>
         </div>
       </div>
     )
@@ -366,8 +368,8 @@ export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) 
       <div style={s.header}>
         <div style={s.headerIcon}><TrendingUp size={22} /></div>
         <div>
-          <h1 style={s.title}>Meu Desempenho</h1>
-          <p style={s.subtitle}>Suas metricas de performance e avaliacoes</p>
+          <h1 style={s.title}>{t('bidcambio.portal.meu_desempenho.titulo')}</h1>
+          <p style={s.subtitle}>{t('bidcambio.portal.meu_desempenho.subtitulo')}</p>
         </div>
       </div>
 
@@ -378,21 +380,21 @@ export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) 
             <Percent size={20} />
           </div>
           <span style={s.kpiValue}>{fmtPct(dados?.taxa_resposta ?? 0)}</span>
-          <span style={s.kpiLabel}>Taxa de Resposta</span>
+          <span style={s.kpiLabel}>{t('bidcambio.portal.meu_desempenho.taxa_resposta')}</span>
         </div>
         <div style={s.kpiCard}>
           <div style={{ ...s.kpiIconWrap, background: 'rgba(34,197,94,0.15)', color: 'var(--success, #22c55e)' }}>
             <CheckCircle size={20} />
           </div>
           <span style={s.kpiValue}>{fmtPct(dados?.taxa_aprovacao ?? 0)}</span>
-          <span style={s.kpiLabel}>Taxa de Aprovacao</span>
+          <span style={s.kpiLabel}>{t('bidcambio.portal.meu_desempenho.taxa_aprovacao')}</span>
         </div>
         <div style={s.kpiCard}>
           <div style={{ ...s.kpiIconWrap, background: 'rgba(245,158,11,0.15)', color: 'var(--warning, #f59e0b)' }}>
             <Clock size={20} />
           </div>
           <span style={s.kpiValue}>{dados?.tempo_medio_resposta_min ?? 0} min</span>
-          <span style={s.kpiLabel}>Tempo Medio Resposta</span>
+          <span style={s.kpiLabel}>{t('bidcambio.portal.meu_desempenho.tempo_medio')}</span>
         </div>
       </div>
 
@@ -402,26 +404,26 @@ export default function MeuDesempenho({ disabled = false }: MeuDesempenhoProps) 
           {new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(rating)}
         </div>
         <StarRating nota={rating} tamanho={28} />
-        <span style={s.ratingSub}>Score Global</span>
+        <span style={s.ratingSub}>{t('bidcambio.portal.meu_desempenho.score_global')}</span>
       </div>
 
       {/* Bottom Grid */}
       <div style={s.bottomGrid}>
         {/* Rating por Categoria */}
         <div style={s.card}>
-          <h3 style={s.sectionTitle}>Rating por Categoria</h3>
-          <ProgressBar label="Taxa" valor={cats.taxa} />
-          <ProgressBar label="Agilidade" valor={cats.agilidade} />
-          <ProgressBar label="Atendimento" valor={cats.atendimento} />
-          <ProgressBar label="Confiabilidade" valor={cats.confiabilidade} />
+          <h3 style={s.sectionTitle}>{t('bidcambio.portal.meu_desempenho.rating_categoria')}</h3>
+          <ProgressBar label={t('bidcambio.portal.meu_desempenho.taxa')} valor={cats.taxa} />
+          <ProgressBar label={t('bidcambio.portal.meu_desempenho.agilidade')} valor={cats.agilidade} />
+          <ProgressBar label={t('bidcambio.portal.meu_desempenho.atendimento')} valor={cats.atendimento} />
+          <ProgressBar label={t('bidcambio.portal.meu_desempenho.confiabilidade')} valor={cats.confiabilidade} />
         </div>
 
         {/* Chart Placeholder */}
         <div style={s.card}>
-          <h3 style={s.sectionTitle}>Evolucao Historica</h3>
+          <h3 style={s.sectionTitle}>{t('bidcambio.portal.meu_desempenho.evolucao_historica')}</h3>
           <div style={s.chartPlaceholder}>
             <BarChart3 size={32} style={{ opacity: 0.4 }} />
-            <p style={{ margin: 0 }}>Grafico de evolucao em breve</p>
+            <p style={{ margin: 0 }}>{t('bidcambio.portal.meu_desempenho.grafico_breve')}</p>
           </div>
         </div>
       </div>

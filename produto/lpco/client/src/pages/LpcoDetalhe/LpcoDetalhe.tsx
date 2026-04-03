@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
@@ -117,6 +118,7 @@ const s = {
 // ── Componente ──────────────────────────────────────────────────────────────
 
 export default function LpcoDetalhe() {
+  const { t } = useTranslation()
   const { id, tab } = useParams<{ id: string; tab?: string }>()
   const navigate = useNavigate()
   const [lpco, setLpco] = useState<Lpco | null>(null)
@@ -142,13 +144,13 @@ export default function LpcoDetalhe() {
   useEffect(() => { fetchData() }, [fetchData])
 
   const tabs: TabDef[] = useMemo(() => [
-    { id: 'dados', label: 'Dados', icon: <ClipboardText weight="duotone" size={16} /> },
-    { id: 'itens', label: 'Itens', icon: <Package weight="duotone" size={16} />, badge: lpco?.itens?.length },
-    { id: 'exigencias', label: 'Exigencias', icon: <Warning weight="duotone" size={16} />, badge: lpco?.exigencias?.length },
-    { id: 'vinculos', label: 'Vinculos', icon: <LinkSimple weight="duotone" size={16} />, badge: lpco?.vinculos?.length },
-    { id: 'documentos', label: 'Documentos', icon: <FileText weight="duotone" size={16} /> },
-    { id: 'historico', label: 'Historico', icon: <ClockCounterClockwise weight="duotone" size={16} /> },
-  ], [lpco])
+    { id: 'dados', label: t('lpco.abas.dados'), icon: <ClipboardText weight="duotone" size={16} /> },
+    { id: 'itens', label: t('lpco.abas.itens'), icon: <Package weight="duotone" size={16} />, badge: lpco?.itens?.length },
+    { id: 'exigencias', label: t('lpco.abas.exigencias'), icon: <Warning weight="duotone" size={16} />, badge: lpco?.exigencias?.length },
+    { id: 'vinculos', label: t('lpco.abas.vinculos'), icon: <LinkSimple weight="duotone" size={16} />, badge: lpco?.vinculos?.length },
+    { id: 'documentos', label: t('lpco.abas.documentos'), icon: <FileText weight="duotone" size={16} /> },
+    { id: 'historico', label: t('lpco.abas.historico'), icon: <ClockCounterClockwise weight="duotone" size={16} /> },
+  ], [lpco, t])
 
   const orgaoNome = useMemo(() => {
     if (!lpco) return ''
@@ -171,7 +173,7 @@ export default function LpcoDetalhe() {
   if (!lpco) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted, #94a3b8)' }}>
-        LPCO nao encontrado
+        {t('lpco.nao_encontrado')}
       </div>
     )
   }
@@ -196,7 +198,7 @@ export default function LpcoDetalhe() {
               <StatusBadgeGlobal valor={STATUS_LABELS[lpco.status]} genero="feminino" />
             </div>
             <p style={{ margin: '0.25rem 0 0', fontSize: '0.8125rem', color: 'var(--ws-muted, #94a3b8)' }}>
-              {lpco.orgao_anuente} — {orgaoNome} — Modelo {lpco.modelo_lpco}
+              {lpco.orgao_anuente} — {orgaoNome} — {t('lpco.dados.modelo')} {lpco.modelo_lpco}
             </p>
           </div>
         </div>
@@ -205,18 +207,18 @@ export default function LpcoDetalhe() {
           {lpco.status === 'rascunho' && (
             <BotaoGlobal variante="primario" tamanho="medio" onClick={() => lpcoApi.registrar(lpco.id).then(fetchData).catch(() => {})}>
               <PaperPlaneTilt weight="bold" size={14} />
-              Registrar
+              {t('lpco.registrar', 'Registrar')}
             </BotaoGlobal>
           )}
           {!['cancelada', 'deferida', 'indeferida'].includes(lpco.status) && (
             <BotaoGlobal variante="fantasma" tamanho="medio" onClick={() => lpcoApi.cancelar(lpco.id, 'Cancelamento manual').then(fetchData).catch(() => {})}>
               <XCircle weight="bold" size={14} />
-              Cancelar
+              {t('lpco.cancelar', 'Cancelar')}
             </BotaoGlobal>
           )}
           <BotaoGlobal variante="fantasma" tamanho="medio" onClick={() => lpcoApi.duplicar(lpco.id).then(novo => navigate(`/lpco/${novo.id}`)).catch(() => {})}>
             <Copy weight="bold" size={14} />
-            Duplicar
+            {t('lpco.duplicar', 'Duplicar')}
           </BotaoGlobal>
         </div>
       </div>
@@ -260,38 +262,38 @@ export default function LpcoDetalhe() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '0.75rem' }}>
           {/* Classificacao */}
           <div style={s.card}>
-            <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>Classificacao</h3>
-            <div style={s.row}><span style={s.label}>Tipo Operacao</span><span style={s.value}>{TIPO_OPERACAO_LABELS[lpco.tipo_operacao]}</span></div>
-            <div style={s.row}><span style={s.label}>Tipo LPCO</span><span style={s.value}>{TIPO_LPCO_LABELS[lpco.tipo_lpco]}</span></div>
-            <div style={s.row}><span style={s.label}>Orgao Anuente</span><span style={s.value}>{lpco.orgao_anuente}</span></div>
-            <div style={s.row}><span style={s.label}>Modelo</span><span style={s.value}>{lpco.modelo_lpco}</span></div>
-            <div style={s.row}><span style={s.label}>Canal Entrada</span><span style={s.value}>{CANAL_ENTRADA_LABELS[lpco.canal_entrada]}</span></div>
+            <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>{t('lpco.dados.classificacao')}</h3>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.tipo_operacao')}</span><span style={s.value}>{TIPO_OPERACAO_LABELS[lpco.tipo_operacao]}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.tipo_lpco')}</span><span style={s.value}>{TIPO_LPCO_LABELS[lpco.tipo_lpco]}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.orgao_anuente')}</span><span style={s.value}>{lpco.orgao_anuente}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.modelo')}</span><span style={s.value}>{lpco.modelo_lpco}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.canal_entrada')}</span><span style={s.value}>{CANAL_ENTRADA_LABELS[lpco.canal_entrada]}</span></div>
           </div>
 
           {/* Dados Gerais */}
           <div style={s.card}>
-            <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>Dados Gerais</h3>
-            <div style={s.row}><span style={s.label}>Pais Procedencia</span><span style={s.value}>{lpco.pais_procedencia}</span></div>
-            <div style={s.row}><span style={s.label}>Fundamento Legal</span><span style={s.value}>{lpco.fundamento_legal}</span></div>
-            <div style={s.row}><span style={s.label}>N. Portal</span><span style={{ ...s.value, fontFamily: 'monospace' }}>{lpco.numero_portal ?? '—'}</span></div>
-            <div style={s.row}><span style={s.label}>Pedido Origem</span><span style={s.value}>{lpco.pedido_origem_id ?? '—'}</span></div>
+            <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>{t('lpco.dados.dados_gerais')}</h3>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.pais_procedencia')}</span><span style={s.value}>{lpco.pais_procedencia}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.fundamento_legal')}</span><span style={s.value}>{lpco.fundamento_legal}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.n_portal')}</span><span style={{ ...s.value, fontFamily: 'monospace' }}>{lpco.numero_portal ?? '—'}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.pedido_origem')}</span><span style={s.value}>{lpco.pedido_origem_id ?? '—'}</span></div>
           </div>
 
           {/* Datas */}
           <div style={s.card}>
-            <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>Datas e Vigencia</h3>
-            <div style={s.row}><span style={s.label}>Criado em</span><span style={s.value}>{fmtDate(lpco.created_at)}</span></div>
-            <div style={s.row}><span style={s.label}>Registrado em</span><span style={s.value}>{fmtDate(lpco.data_registro)}</span></div>
-            <div style={s.row}><span style={s.label}>Deferido em</span><span style={s.value}>{fmtDate(lpco.data_deferimento)}</span></div>
-            <div style={s.row}><span style={s.label}>Vigencia Inicio</span><span style={s.value}>{fmtDate(lpco.data_vigencia_inicio)}</span></div>
-            <div style={s.row}><span style={s.label}>Vigencia Fim</span><span style={s.value}>{fmtDate(lpco.data_vigencia_fim)}</span></div>
+            <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>{t('lpco.dados.datas_vigencia')}</h3>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.criado_em')}</span><span style={s.value}>{fmtDate(lpco.created_at)}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.registrado_em')}</span><span style={s.value}>{fmtDate(lpco.data_registro)}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.deferido_em')}</span><span style={s.value}>{fmtDate(lpco.data_deferimento)}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.vigencia_inicio')}</span><span style={s.value}>{fmtDate(lpco.data_vigencia_inicio)}</span></div>
+            <div style={s.row}><span style={s.label}>{t('lpco.dados.vigencia_fim')}</span><span style={s.value}>{fmtDate(lpco.data_vigencia_fim)}</span></div>
           </div>
 
           {/* Saldo (se Flex) */}
           {lpco.tipo_lpco === 'FLEX' && (
             <div style={s.card}>
-              <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>Saldo (LPCO Flex)</h3>
-              <div style={s.row}><span style={s.label}>Qtd Deferida</span><span style={s.value}>{lpco.quantidade_deferida ?? '—'} {lpco.unidade_medida_saldo ?? ''}</span></div>
+              <h3 style={{ ...s.label, marginBottom: '0.75rem', fontSize: '0.75rem' }}>{t('lpco.dados.saldo_flex')}</h3>
+              <div style={s.row}><span style={s.label}>{t('lpco.dados.qtd_deferida')}</span><span style={s.value}>{lpco.quantidade_deferida ?? '—'} {lpco.unidade_medida_saldo ?? ''}</span></div>
             </div>
           )}
         </div>
@@ -300,14 +302,14 @@ export default function LpcoDetalhe() {
       {activeTab === 'itens' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {(lpco.itens ?? []).length === 0 && (
-            <p style={{ color: 'var(--ws-muted, #94a3b8)', textAlign: 'center', padding: '2rem' }}>Nenhum item</p>
+            <p style={{ color: 'var(--ws-muted, #94a3b8)', textAlign: 'center', padding: '2rem' }}>{t('lpco.item.nenhum_item')}</p>
           )}
           {(lpco.itens ?? []).map((item, i) => (
             <div key={item.id} style={s.card}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                 <div>
                   <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: '#6366f1', fontWeight: 600 }}>
-                    Item {i + 1} — NCM {item.ncm}
+                    {t('lpco.item.item_numero', { numero: i + 1 })} — NCM {item.ncm}
                   </span>
                   <p style={{ margin: '0.25rem 0 0', fontSize: '0.9375rem', color: 'var(--ws-text, #f1f5f9)', fontWeight: 500 }}>
                     {item.descricao_produto}
@@ -316,11 +318,11 @@ export default function LpcoDetalhe() {
                 <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)' }}>{item.id}</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '0.5rem', marginTop: '0.5rem' }}>
-                <div><span style={s.label}>Fabricante</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{item.fabricante ?? '—'}</span></div>
-                <div><span style={s.label}>Qtd Estatistica</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{item.quantidade_estatistica.toLocaleString('pt-BR')} {item.unidade_medida}</span></div>
-                <div><span style={s.label}>Peso Liquido</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{fmtPeso(item.peso_liquido)} kg</span></div>
-                <div><span style={s.label}>VMLE</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{fmtCurrency(item.vmle, item.moeda)}</span></div>
-                <div><span style={s.label}>Incoterm</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{item.condicao_venda ?? '—'}</span></div>
+                <div><span style={s.label}>{t('lpco.item.fabricante')}</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{item.fabricante ?? '—'}</span></div>
+                <div><span style={s.label}>{t('lpco.item.qtd_estatistica')}</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{item.quantidade_estatistica.toLocaleString('pt-BR')} {item.unidade_medida}</span></div>
+                <div><span style={s.label}>{t('lpco.item.peso_liquido')}</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{fmtPeso(item.peso_liquido)} kg</span></div>
+                <div><span style={s.label}>{t('lpco.item.vmle')}</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{fmtCurrency(item.vmle, item.moeda)}</span></div>
+                <div><span style={s.label}>{t('lpco.item.incoterm')}</span><br /><span style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)' }}>{item.condicao_venda ?? '—'}</span></div>
               </div>
             </div>
           ))}
@@ -330,7 +332,7 @@ export default function LpcoDetalhe() {
       {activeTab === 'exigencias' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {(lpco.exigencias ?? []).length === 0 && (
-            <p style={{ color: 'var(--ws-muted, #94a3b8)', textAlign: 'center', padding: '2rem' }}>Nenhuma exigencia</p>
+            <p style={{ color: 'var(--ws-muted, #94a3b8)', textAlign: 'center', padding: '2rem' }}>{t('lpco.exigencia.nenhuma')}</p>
           )}
           {(lpco.exigencias ?? []).map(ex => (
             <div key={ex.id} style={{
@@ -340,7 +342,7 @@ export default function LpcoDetalhe() {
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                 <span style={{ fontWeight: 600, color: 'var(--ws-text, #f1f5f9)' }}>
-                  Exigencia #{ex.numero_exigencia}
+                  {t('lpco.exigencia.numero')} {ex.numero_exigencia}
                 </span>
                 <StatusBadgeGlobal
                   valor={ex.status === 'pendente' ? 'Pendente' : ex.status === 'respondida' ? 'Respondida' : ex.status === 'aceita' ? 'Aceita' : 'Rejeitada'}
@@ -351,13 +353,13 @@ export default function LpcoDetalhe() {
                 {ex.descricao_exigencia}
               </p>
               <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)' }}>
-                <span>Recebida: {fmtDate(ex.data_exigencia)}</span>
-                {ex.prazo_resposta && <span>Prazo: {fmtDate(ex.prazo_resposta)}</span>}
-                {ex.data_resposta && <span>Respondida: {fmtDate(ex.data_resposta)}</span>}
+                <span>{t('lpco.exigencia.recebida')} {fmtDate(ex.data_exigencia)}</span>
+                {ex.prazo_resposta && <span>{t('lpco.exigencia.prazo')} {fmtDate(ex.prazo_resposta)}</span>}
+                {ex.data_resposta && <span>{t('lpco.exigencia.respondida')} {fmtDate(ex.data_resposta)}</span>}
               </div>
               {ex.resposta && (
                 <div style={{ marginTop: '0.75rem', padding: '0.625rem', background: 'rgba(99,102,241,0.06)', borderRadius: '6px' }}>
-                  <span style={{ ...s.label, fontSize: '0.625rem' }}>Resposta</span>
+                  <span style={{ ...s.label, fontSize: '0.625rem' }}>{t('lpco.exigencia.resposta')}</span>
                   <p style={{ fontSize: '0.8125rem', color: 'var(--ws-text, #f1f5f9)', margin: '0.25rem 0 0' }}>{ex.resposta}</p>
                 </div>
               )}
@@ -370,7 +372,7 @@ export default function LpcoDetalhe() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {(lpco.vinculos ?? []).length === 0 && (
             <p style={{ color: 'var(--ws-muted, #94a3b8)', textAlign: 'center', padding: '2rem' }}>
-              Nenhum vinculo — {lpco.status === 'deferida' ? 'vincule a uma DUIMP ou DU-E' : 'disponivel apos deferimento'}
+              {t('lpco.vinculo.nenhum')} — {lpco.status === 'deferida' ? t('lpco.vinculo.vincule_a') : t('lpco.vinculo.disponivel_apos')}
             </p>
           )}
           {(lpco.vinculos ?? []).map(v => (
@@ -386,7 +388,7 @@ export default function LpcoDetalhe() {
               </div>
               {v.quantidade_vinculada != null && (
                 <span style={{ fontSize: '0.8125rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '0.25rem', display: 'block' }}>
-                  Qtd vinculada: {v.quantidade_vinculada} {v.unidade_medida ?? ''}
+                  {t('lpco.vinculo.qtd_vinculada')} {v.quantidade_vinculada} {v.unidade_medida ?? ''}
                 </span>
               )}
             </div>
@@ -397,14 +399,14 @@ export default function LpcoDetalhe() {
       {activeTab === 'documentos' && (
         <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--ws-muted, #94a3b8)' }}>
           <FileText weight="duotone" size={40} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
-          <p>Area de documentos — upload disponivel apos integracao com storage</p>
+          <p>{t('lpco.documentos.upload_desc')}</p>
         </div>
       )}
 
       {activeTab === 'historico' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
           {historico.length === 0 && (
-            <p style={{ color: 'var(--ws-muted, #94a3b8)', textAlign: 'center', padding: '2rem' }}>Nenhum evento</p>
+            <p style={{ color: 'var(--ws-muted, #94a3b8)', textAlign: 'center', padding: '2rem' }}>{t('lpco.historico.nenhum_evento')}</p>
           )}
           {historico.map((ev, i) => (
             <div key={ev.id} style={{

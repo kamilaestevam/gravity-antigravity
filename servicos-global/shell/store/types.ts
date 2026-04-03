@@ -19,6 +19,7 @@ export interface CurrentUser {
   avatarUrl?: string
   tenantId?: string
   tenantName?: string
+  role?: string
 }
 
 export interface AllowedProduct {

@@ -6,6 +6,7 @@ import {
   LockSimple,
   SealCheck,
 } from '@phosphor-icons/react'
+import { useTranslation } from 'react-i18next'
 
 interface PaywallDrawerProps {
   open: boolean
@@ -22,6 +23,7 @@ export function PaywallDrawer({
   produto = 'simulador-comex',
   plano = 'profissional',
 }: PaywallDrawerProps) {
+  const { t } = useTranslation()
   const [cardNumber, setCardNumber] = useState('')
   const [cardValid, setCardValid] = useState<boolean | null>(null)
 
@@ -56,22 +58,22 @@ export function PaywallDrawer({
       <aside
         className={`drawer ${open ? 'open' : ''}`}
         role="complementary"
-        aria-label="Upgrade para Pro"
+        aria-label={t('marketplace.paywall.aria_label')}
         aria-hidden={!open}
       >
         <div className="drawer-header">
           <div>
             <p className="text-micro" style={{ color: 'var(--accent)', marginBottom: '0.25rem' }}>
-              Feature Pro
+              {t('marketplace.paywall.feature_pro')}
             </p>
             <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>
-              Desbloqueie acesso completo
+              {t('marketplace.paywall.desbloquear')}
             </h3>
           </div>
           <button
             className="btn btn-ghost btn-sm"
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label={t('marketplace.paywall.fechar')}
             style={{ padding: '0.375rem' }}
           >
             <X size={18} />
@@ -83,7 +85,7 @@ export function PaywallDrawer({
           <div className="toast-warning" style={{ marginBottom: '1.5rem' }}>
             <LockSimple size={18} weight="duotone" />
             <span>
-              <strong>{featureName}</strong> requer plano Profissional.
+              <strong>{featureName}</strong> {t('marketplace.paywall.requer_plano')}
             </span>
           </div>
 
@@ -98,7 +100,7 @@ export function PaywallDrawer({
             position: 'relative',
           }}>
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'var(--warning-10)', border: '1px solid rgba(245,158,11,0.4)', borderRadius: '8px', padding: '0.375rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--warning)', whiteSpace: 'nowrap' }}>
-              🔒 Plano Pro
+              🔒 {t('marketplace.paywall.plano_pro')}
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', filter: 'blur(4px)' }}>
               <div style={{ height: '10px', flex: 2, background: 'var(--bg-elevated)', borderRadius: '99px' }} />
@@ -114,7 +116,7 @@ export function PaywallDrawer({
           {/* Formulário de cartão — demo/sandbox, não processa */}
           <div style={{ marginBottom: '1.25rem' }}>
             <div className="input-group" style={{ marginBottom: '0.875rem' }}>
-              <label htmlFor="paywall-card">Número do cartão</label>
+              <label htmlFor="paywall-card">{t('marketplace.paywall.numero_cartao')}</label>
               <div style={{ position: 'relative' }}>
                 <CreditCard
                   size={16}
@@ -155,11 +157,11 @@ export function PaywallDrawer({
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <div className="input-group">
-                <label htmlFor="paywall-expiry">Validade</label>
+                <label htmlFor="paywall-expiry">{t('marketplace.paywall.validade')}</label>
                 <input id="paywall-expiry" type="text" placeholder="MM/AA" maxLength={5} />
               </div>
               <div className="input-group">
-                <label htmlFor="paywall-cvv">CVV</label>
+                <label htmlFor="paywall-cvv">{t('marketplace.paywall.cvv')}</label>
                 <input id="paywall-cvv" type="text" placeholder="000" maxLength={3} />
               </div>
             </div>
@@ -167,7 +169,7 @@ export function PaywallDrawer({
 
           {/* Security badges */}
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-            {['SSL Criptografado', 'Stripe Seguro', 'LGPD'].map(badge => (
+            {[t('marketplace.paywall.ssl'), t('marketplace.paywall.stripe'), t('marketplace.paywall.lgpd')].map(badge => (
               <div key={badge} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--success)' }}>
                 <SealCheck size={14} weight="duotone" />
                 <span>{badge}</span>
@@ -181,11 +183,11 @@ export function PaywallDrawer({
             onClick={handleConfirm}
             style={{ width: '100%', justifyContent: 'center' }}
           >
-            Confirmar e Ir para Setup
+            {t('marketplace.paywall.confirmar')}
           </button>
 
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.75rem' }}>
-            Você será redirecionado para o Configurador para finalizar o pagamento com segurança.
+            {t('marketplace.paywall.redirecionamento')}
           </p>
         </div>
       </aside>

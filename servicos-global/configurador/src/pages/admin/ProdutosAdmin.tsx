@@ -133,7 +133,7 @@ export function ProdutosAdmin() {
       setProdutos(prods)
       setNegociacoes(negs)
     } catch (err) {
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar produtos.' })
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.products.msg_erro_carregar') })
     } finally {
       setLoading(false)
       setCarregando(false)
@@ -156,7 +156,7 @@ export function ProdutosAdmin() {
 
       addNotification({
         type: 'success',
-        message: `Status de "${produto.nome}" alterado para ${novoStatus}.`
+        message: t('admin.products.msg_status_alterado', { nome: produto.nome, status: novoStatus })
       })
 
       logEvent({
@@ -168,7 +168,7 @@ export function ProdutosAdmin() {
     } catch (err) {
       addNotification({
         type: 'error',
-        message: 'Erro ao atualizar status: ' + (err instanceof Error ? err.message : 'Desconhecido')
+        message: t('admin.products.msg_erro_status') + (err instanceof Error ? err.message : t('admin.products.msg_desconhecido'))
       })
     }
   }
@@ -440,12 +440,12 @@ export function ProdutosAdmin() {
             titulo={t('admin.products.card_total')}
             icone={<BoxArrowUp weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
             valor={produtos.length}
-            subtexto="No catálogo oficial"
+            subtexto={t('admin.products.card_total_subtexto')}
             tooltip={
               <>
-                <p className="cg-tooltip__title">Portfólio de Soluções</p>
-                <div className="cg-tooltip__row"><span>Produtos Mapeados</span> <strong>{produtos.length}</strong></div>
-                <div className="cg-tooltip__row"><span>Disponibilidade</span> <strong>Global</strong></div>
+                <p className="cg-tooltip__title">{t('admin.products.card_total_tooltip_titulo')}</p>
+                <div className="cg-tooltip__row"><span>{t('admin.products.card_total_tooltip_mapeados')}</span> <strong>{produtos.length}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.products.card_total_tooltip_disponibilidade')}</span> <strong>{t('admin.products.card_total_tooltip_global')}</strong></div>
               </>
             }
           />
@@ -453,13 +453,13 @@ export function ProdutosAdmin() {
             titulo={t('admin.products.card_ativos')}
             icone={<Tag weight="duotone" size={16} style={{ color: '#34d399' }} />}
             valor={produtos.filter(p => p.status === 'Ativo').length}
-            subtexto="Disponíveis para assinatura"
+            subtexto={t('admin.products.card_ativos_subtexto')}
             variante="sucesso"
             tooltip={
               <>
-                <p className="cg-tooltip__title">Status Comercial</p>
-                <div className="cg-tooltip__row"><span>Ativos no Catálogo</span> <strong>{produtos.filter(p => p.status === 'Ativo').length}</strong></div>
-                <div className="cg-tooltip__row"><span>Checkout Habilitado</span> <strong>Sim</strong></div>
+                <p className="cg-tooltip__title">{t('admin.products.card_ativos_tooltip_titulo')}</p>
+                <div className="cg-tooltip__row"><span>{t('admin.products.card_ativos_tooltip_label')}</span> <strong>{produtos.filter(p => p.status === 'Ativo').length}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.products.card_ativos_tooltip_checkout')}</span> <strong>{t('admin.products.opcao_sim')}</strong></div>
               </>
             }
           />
@@ -467,13 +467,13 @@ export function ProdutosAdmin() {
             titulo={t('admin.products.card_negociacoes')}
             icone={<Users weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
             valor={negociacoes.length}
-            subtexto="Condições exclusivas de clientes"
+            subtexto={t('admin.products.card_negociacoes_subtexto')}
             variante="aviso"
             tooltip={
               <>
-                <p className="cg-tooltip__title">Acordos Especiais</p>
-                <div className="cg-tooltip__row"><span>Contratos de Exceção</span> <strong>{negociacoes.length}</strong></div>
-                <div className="cg-tooltip__row"><span>Taxa de Conversão</span> <strong>Alta</strong></div>
+                <p className="cg-tooltip__title">{t('admin.products.card_negociacoes_tooltip_titulo')}</p>
+                <div className="cg-tooltip__row"><span>{t('admin.products.card_negociacoes_tooltip_label')}</span> <strong>{negociacoes.length}</strong></div>
+                <div className="cg-tooltip__row"><span>{t('admin.products.card_negociacoes_tooltip_taxa')}</span> <strong>{t('admin.products.card_negociacoes_tooltip_alta')}</strong></div>
               </>
             }
           />
@@ -577,7 +577,7 @@ export function ProdutosAdmin() {
             handleFecharModal()
             addNotification({
               type: 'success',
-              message: produtoEditando ? `Produto "${formNome}" atualizado com sucesso!` : `Produto "${formNome}" criado com sucesso!`
+              message: produtoEditando ? t('admin.products.msg_produto_atualizado', { nome: formNome }) : t('admin.products.msg_produto_criado', { nome: formNome })
             })
             // Refresh em background — sem flash de loading
             Promise.all([
@@ -609,7 +609,7 @@ export function ProdutosAdmin() {
             tooltipDescricao: 'Dados principais e categoria do produto no catálogo.',
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo={t('admin.products.aba_dados_basicos')} tooltip="Identificação e configuração geral do produto" />
+                <SecaoFormularioGlobal icone={<Tag size={16} weight="duotone" />} titulo={t('admin.products.aba_dados_basicos')} tooltip={t('admin.overview.dados_basicos_tooltip')} />
 
                 <GeralCampoGlobal
                   label={t('admin.products.campo_nome_produto')}
@@ -619,7 +619,7 @@ export function ProdutosAdmin() {
                 >
                   <div className="ws-input-icon-wrap">
                     <ShoppingBagOpen size={16} />
-                    <input placeholder="Ex: Gravity Analytics" style={{ width: '100%' }} value={formNome} onChange={e => dirty(() => setFormNome(e.target.value))} />
+                    <input placeholder={t('admin.products.campo_nome_placeholder')} style={{ width: '100%' }} value={formNome} onChange={e => dirty(() => setFormNome(e.target.value))} />
                   </div>
                 </GeralCampoGlobal>
 
@@ -631,7 +631,7 @@ export function ProdutosAdmin() {
                 >
                   <div className="ws-input-icon-wrap">
                     <Tag size={16} />
-                    <input placeholder="Ex: Dashboards e BI em tempo real" style={{ width: '100%' }} value={formDescricao} onChange={e => dirty(() => setFormDescricao(e.target.value))} />
+                    <input placeholder={t('admin.products.campo_descricao_placeholder')} style={{ width: '100%' }} value={formDescricao} onChange={e => dirty(() => setFormDescricao(e.target.value))} />
                   </div>
                 </GeralCampoGlobal>
 
@@ -655,7 +655,7 @@ export function ProdutosAdmin() {
                           dirty(() => setFormDataLancamento(''))
                         }
                       }}
-                      placeholder="Selecione a data..."
+                      placeholder={t('admin.products.campo_data_placeholder')}
                     />
                   </GeralCampoGlobal>
 
@@ -726,8 +726,8 @@ export function ProdutosAdmin() {
                   tooltipDescricao="Define se haverá um custo único de ativação ou implantação"
                 >
                   <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                    <TogBtn val="sim" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label="Sim" />
-                    <TogBtn val="nao" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label="Não" />
+                    <TogBtn val="sim" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label={t('admin.products.campo_setup_sim')} />
+                    <TogBtn val="nao" cur={temSetup} set={v => setTemSetup(v as 'sim' | 'nao')} label={t('admin.products.campo_setup_nao')} />
                   </div>
                 </GeralCampoGlobal>
 
@@ -753,7 +753,7 @@ export function ProdutosAdmin() {
                     >
                       <div className="ws-input-icon-wrap">
                         <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaSetup)}</span>
-                        <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorSetup} onChange={e => dirty(() => setValorSetup(mascaraMoeda(e.target.value)))} />
+                        <input placeholder={t('admin.products.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorSetup} onChange={e => dirty(() => setValorSetup(mascaraMoeda(e.target.value)))} />
                       </div>
                     </GeralCampoGlobal>
                   </div>
@@ -806,7 +806,7 @@ export function ProdutosAdmin() {
                   >
                     <div className="ws-input-icon-wrap">
                       <Tag size={16} />
-                      <input type="number" placeholder="Ex: 10" style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
+                      <input type="number" placeholder={t('admin.products.campo_qtd_placeholder')} style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
                     </div>
                   </GeralCampoGlobal>
                 </div>
@@ -819,7 +819,7 @@ export function ProdutosAdmin() {
                   >
                     <div className="ws-input-icon-wrap">
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
-                      <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorUnitario} onChange={e => dirty(() => setValorUnitario(mascaraMoeda(e.target.value)))} />
+                      <input placeholder={t('admin.products.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorUnitario} onChange={e => dirty(() => setValorUnitario(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
                   <GeralCampoGlobal
@@ -829,7 +829,7 @@ export function ProdutosAdmin() {
                   >
                     <div className="ws-input-icon-wrap">
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
-                      <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorMinimo} onChange={e => dirty(() => setValorMinimo(mascaraMoeda(e.target.value)))} />
+                      <input placeholder={t('admin.products.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorMinimo} onChange={e => dirty(() => setValorMinimo(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
                   <GeralCampoGlobal
@@ -839,14 +839,14 @@ export function ProdutosAdmin() {
                   >
                     <div className="ws-input-icon-wrap">
                       <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
-                      <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorTotal} onChange={e => dirty(() => setValorTotal(mascaraMoeda(e.target.value)))} />
+                      <input placeholder={t('admin.products.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorTotal} onChange={e => dirty(() => setValorTotal(mascaraMoeda(e.target.value)))} />
                     </div>
                   </GeralCampoGlobal>
                 </div>
 
                 <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1.25rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                    <TooltipGlobal titulo="TABELA DE FAIXAS" descricao="Estrutura de precificação progressiva por volume de unidades.">
+                    <TooltipGlobal titulo={t('admin.products.tiers_tooltip_titulo')} descricao={t('admin.products.tiers_tooltip_desc')}>
                       <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
                         <Stack size={18} weight="duotone" color="var(--color-primary)" /> {t('admin.products.tiers_titulo')}
                       </p>
@@ -907,7 +907,7 @@ export function ProdutosAdmin() {
                               </div>
                             </GeralCampoGlobal>
 
-                            <GeralCampoGlobal label="Valor da Camada">
+                            <GeralCampoGlobal label={t('admin.products.tier_valor')}>
                               <div className="ws-input-icon-wrap">
                                 <span style={{ fontSize: '0.875rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaProduto)}</span>
                                 <input style={{ width: '100%', border: 'none', background: 'transparent', color: 'var(--ws-text)', fontSize: '0.875rem', fontWeight: 600, outline: 'none' }} value={f.valor} onChange={e => updateFaixa({ valor: mascaraMoeda(e.target.value) })} />
@@ -930,8 +930,8 @@ export function ProdutosAdmin() {
                   ) : (
                     <div style={{ padding: '2.5rem', border: '2px dashed rgba(255,255,255,0.04)', borderRadius: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.01)' }}>
                       <div style={{ opacity: 0.4, marginBottom: '0.75rem' }}><Sliders size={32} weight="duotone" /></div>
-                      <p style={{ margin: 0, color: 'var(--ws-muted)', fontSize: '0.8125rem', fontWeight: 500 }}>Nenhuma faixa configurada.</p>
-                      <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem' }}>O sistema utilizará o valor unitário base definido acima.</p>
+                      <p style={{ margin: 0, color: 'var(--ws-muted)', fontSize: '0.8125rem', fontWeight: 500 }}>{t('admin.products.tiers_vazio')}</p>
+                      <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem' }}>{t('admin.products.tiers_vazio_detalhe')}</p>
                     </div>
                   )}
                 </div>
@@ -940,42 +940,42 @@ export function ProdutosAdmin() {
           },
           {
             id: 'usuarios',
-            rotulo: 'Usuários',
-            tooltipTitulo: 'LICENCIAMENTO',
-            tooltipDescricao: 'Regras de cobrança por assento e usuários excedentes.',
+            rotulo: t('admin.products.aba_usuarios'),
+            tooltipTitulo: t('admin.products.aba_usuarios_tooltip_titulo'),
+            tooltipDescricao: t('admin.products.aba_usuarios_tooltip_desc'),
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Users size={16} weight="duotone" />} titulo="Usuários" />
+                <SecaoFormularioGlobal icone={<Users size={16} weight="duotone" />} titulo={t('admin.products.aba_usuarios')} />
 
-                <GeralCampoGlobal 
-                  label="Quantidade de Usuários"
-                  tooltipTitulo="CONTROLE DE ACESSO"
-                  tooltipDescricao="Define se o produto possui limite fixo de usuários ou é ilimitado"
+                <GeralCampoGlobal
+                  label={t('admin.products.campo_qtd_usuarios')}
+                  tooltipTitulo={t('admin.products.campo_qtd_usuarios_tooltip_titulo')}
+                  tooltipDescricao={t('admin.products.campo_qtd_usuarios_tooltip_desc')}
                 >
                   <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                    <TogBtn val="ilimitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label="Ilimitada" />
-                    <TogBtn val="limitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label="Limitada" />
+                    <TogBtn val="ilimitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label={t('admin.products.campo_qtd_ilimitada')} />
+                    <TogBtn val="limitada" cur={limiteUsuarios} set={v => setLimiteUsuarios(v as 'ilimitada' | 'limitada')} label={t('admin.products.campo_qtd_limitada')} />
                   </div>
                 </GeralCampoGlobal>
 
                 {limiteUsuarios === 'limitada' && (
                   <>
-                    <GeralCampoGlobal 
-                      label="Quantidade"
-                      tooltipTitulo="LIMITE DE ASSENTOS"
-                      tooltipDescricao="Total de usuários permitidos antes da cobrança de excedentes"
+                    <GeralCampoGlobal
+                      label={t('admin.products.campo_quantidade')}
+                      tooltipTitulo={t('admin.products.campo_quantidade_tooltip_titulo')}
+                      tooltipDescricao={t('admin.products.campo_quantidade_tooltip_desc')}
                     >
                       <div className="ws-input-icon-wrap">
                         <Users size={16} />
-                        <input type="number" placeholder="Ex: 10" style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
+                        <input type="number" placeholder={t('admin.products.campo_qtd_placeholder')} style={{ width: '100%' }} value={qtdUsuarios} onChange={e => dirty(() => setQtdUsuarios(e.target.value))} />
                       </div>
                     </GeralCampoGlobal>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      <GeralCampoGlobal 
-                        label="Moeda"
-                        tooltipTitulo="MOEDA DO EXCEDENTE"
-                        tooltipDescricao="Moeda aplicada para o faturamento de usuários adicionais"
+                      <GeralCampoGlobal
+                        label={t('admin.products.campo_moeda')}
+                        tooltipTitulo={t('admin.products.campo_moeda_excedente_tooltip_titulo')}
+                        tooltipDescricao={t('admin.products.campo_moeda_excedente_tooltip_desc')}
                       >
                         <SelectGlobal
                           opcoes={MOEDAS_OPCOES}
@@ -985,14 +985,14 @@ export function ProdutosAdmin() {
                           buscavel
                         />
                       </GeralCampoGlobal>
-                      <GeralCampoGlobal 
-                        label="Valor por Usuário Adicional"
-                        tooltipTitulo="CUSTO EXTRA"
-                        tooltipDescricao="Preço unitário por cada novo usuário acima da franquia"
+                      <GeralCampoGlobal
+                        label={t('admin.products.campo_valor_usuario_adicional')}
+                        tooltipTitulo={t('admin.products.campo_valor_usuario_adicional_tooltip_titulo')}
+                        tooltipDescricao={t('admin.products.campo_valor_usuario_adicional_tooltip_desc')}
                       >
                         <div className="ws-input-icon-wrap">
                           <span style={{ fontSize: '0.8125rem', fontWeight: 700, minWidth: '24px', textAlign: 'center', color: 'var(--ws-muted)' }}>{getSimboloMoeda(moedaUsuario)}</span>
-                          <input placeholder="0,00" style={{ width: '100%' }} inputMode="numeric" value={valorUsuarioAdicional} onChange={e => dirty(() => setValorUsuarioAdicional(mascaraMoeda(e.target.value)))} />
+                          <input placeholder={t('admin.products.campo_valor_placeholder')} style={{ width: '100%' }} inputMode="numeric" value={valorUsuarioAdicional} onChange={e => dirty(() => setValorUsuarioAdicional(mascaraMoeda(e.target.value)))} />
                         </div>
                       </GeralCampoGlobal>
                     </div>
@@ -1003,28 +1003,28 @@ export function ProdutosAdmin() {
           },
           {
             id: 'help-desk',
-            rotulo: 'Help Desk',
-            tooltipTitulo: 'SUPORTE TÉCNICO',
-            tooltipDescricao: 'Franquia de horas mensais e custo de hora adicional.',
+            rotulo: t('admin.products.aba_help_desk'),
+            tooltipTitulo: t('admin.products.aba_help_desk_tooltip_titulo'),
+            tooltipDescricao: t('admin.products.aba_help_desk_tooltip_desc'),
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Headset size={16} weight="duotone" />} titulo="Help Desk" />
+                <SecaoFormularioGlobal icone={<Headset size={16} weight="duotone" />} titulo={t('admin.products.aba_help_desk')} />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal 
-                    label="Total de Horas Mensais"
-                    tooltipTitulo="SUPORTE INCLUÍDO"
-                    tooltipDescricao="Cota de horas de suporte técnico disponíveis por mês"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_horas_mensais')}
+                    tooltipTitulo={t('admin.products.campo_horas_mensais_tooltip_titulo')}
+                    tooltipDescricao={t('admin.products.campo_horas_mensais_tooltip_desc')}
                   >
                     <div className="ws-input-icon-wrap">
                       <Clock size={16} />
-                      <input type="number" placeholder="Ex: 10" style={{ width: '100%' }} value={totalHoras} onChange={e => dirty(() => setTotalHoras(e.target.value))} />
+                      <input type="number" placeholder={t('admin.products.campo_qtd_placeholder')} style={{ width: '100%' }} value={totalHoras} onChange={e => dirty(() => setTotalHoras(e.target.value))} />
                     </div>
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal 
-                    label="Moeda do Adicional por Hora"
-                    tooltipTitulo="MOEDA DE SUPORTE"
-                    tooltipDescricao="Moeda para cobrança de horas técnicas excedentes"
+                  <GeralCampoGlobal
+                    label={t('admin.products.campo_moeda_hora_adicional')}
+                    tooltipTitulo={t('admin.products.campo_moeda_hora_adicional_tooltip_titulo')}
+                    tooltipDescricao={t('admin.products.campo_moeda_hora_adicional_tooltip_desc')}
                   >
                     <SelectGlobal
                       opcoes={MOEDAS_OPCOES}
@@ -1040,27 +1040,27 @@ export function ProdutosAdmin() {
           },
           {
             id: 'negociacao',
-            rotulo: 'Negociação',
-            tooltipTitulo: 'CONDIÇÃO ESPECIAL',
-            tooltipDescricao: 'Preço exclusivo vinculado a uma organização específica.',
+            rotulo: t('admin.products.aba_negociacao'),
+            tooltipTitulo: t('admin.products.aba_negociacao_tooltip_titulo'),
+            tooltipDescricao: t('admin.products.aba_negociacao_tooltip_desc'),
             conteudo: (
               <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo="Negociação Especial" tooltip="Condição de preço exclusiva para uma organização" />
+                <SecaoFormularioGlobal icone={<Handshake size={16} weight="duotone" />} titulo={t('admin.products.negociacao_titulo')} tooltip={t('admin.products.negociacao_tooltip')} />
 
-                <GeralCampoGlobal 
-                  label="Vincular Organização?"
-                  tooltipTitulo="FOCO COMERCIAL"
-                  tooltipDescricao="Permite definir uma condição de preço exclusiva para um cliente"
+                <GeralCampoGlobal
+                  label={t('admin.products.campo_vincular_org')}
+                  tooltipTitulo={t('admin.products.campo_vincular_org_tooltip_titulo')}
+                  tooltipDescricao={t('admin.products.campo_vincular_org_tooltip_desc')}
                 >
                   <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                    <TogBtn val="nao" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Não" />
-                    <TogBtn val="sim" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label="Sim" />
+                    <TogBtn val="nao" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label={t('admin.products.opcao_nao')} />
+                    <TogBtn val="sim" cur={vincularOrg} set={v => dirty(() => setVincularOrg(v as 'sim' | 'nao'))} label={t('admin.products.opcao_sim')} />
                   </div>
                 </GeralCampoGlobal>
 
                 {vincularOrg === 'sim' && (
                   <>
-                    <GeralCampoGlobal label="Empresa / Organização" obrigatorio>
+                    <GeralCampoGlobal label={t('admin.products.campo_empresa_org')} obrigatorio>
                       <SelectGlobal
                         opcoes={[
                           { valor: 'Importas SA', rotulo: 'Importas SA' },
@@ -1072,20 +1072,20 @@ export function ProdutosAdmin() {
                         valor={orgSelecionada}
                         aoMudarValor={v => dirty(() => setOrgSelecionada(v ? String(v) : null))}
                         iconeEsquerda={<Buildings size={16} />}
-                        placeholder="Selecionar organização..."
+                        placeholder={t('admin.products.campo_empresa_org_placeholder')}
                         buscavel
                       />
                     </GeralCampoGlobal>
 
 
-                    <GeralCampoGlobal label="Vigência">
+                    <GeralCampoGlobal label={t('admin.products.campo_vigencia')}>
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', marginBottom: '0.5rem' }}>
-                        <TogBtn val="nao" cur={vigenciaIlimitada} set={v => dirty(() => setVigenciaIlimitada(v as 'sim' | 'nao'))} label="Com data" />
-                        <TogBtn val="sim" cur={vigenciaIlimitada} set={v => dirty(() => { setVigenciaIlimitada(v as 'sim' | 'nao'); setVigenciaPeriodo({ inicio: null, fim: null }) })} label="Ilimitada" />
+                        <TogBtn val="nao" cur={vigenciaIlimitada} set={v => dirty(() => setVigenciaIlimitada(v as 'sim' | 'nao'))} label={t('admin.products.vigencia_com_data')} />
+                        <TogBtn val="sim" cur={vigenciaIlimitada} set={v => dirty(() => { setVigenciaIlimitada(v as 'sim' | 'nao'); setVigenciaPeriodo({ inicio: null, fim: null }) })} label={t('admin.products.vigencia_ilimitada')} />
                       </div>
                       {vigenciaIlimitada === 'nao' && (
                         <CalendarioCampoGlobal
-                          placeholder="Selecione o período de vigência..."
+                          placeholder={t('admin.products.vigencia_placeholder')}
                           valor={vigenciaPeriodo}
                           aoMudarValor={v => dirty(() => setVigenciaPeriodo(v))}
                         />
@@ -1093,14 +1093,14 @@ export function ProdutosAdmin() {
                       {vigenciaIlimitada === 'sim' && (
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.375rem 0.875rem', borderRadius: '9999px', background: 'rgba(129,140,248,0.08)', border: '1px solid rgba(129,140,248,0.2)', color: '#818cf8', fontSize: '0.8125rem', fontWeight: 600 }}>
                           <Infinity size={15} weight="bold" />
-                          Sem data de expiração
+                          {t('admin.products.vigencia_sem_expiracao')}
                         </div>
                       )}
                     </GeralCampoGlobal>
 
                     {orgSelecionada && (
                       <div style={{ padding: '0.75rem 1rem', borderRadius: 8, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#10b981' }}>Preview da Negociação</span>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#10b981' }}>{t('admin.products.negociacao_preview_titulo')}</span>
                         <span style={{ fontSize: '0.875rem', color: 'var(--ws-text)' }}>
                           <strong>{orgSelecionada}</strong>{vigenciaNeg ? ` · ${vigenciaNeg}` : ''}
                         </span>
@@ -1124,18 +1124,18 @@ export function ProdutosAdmin() {
           const nome = produtoParaExcluir.nome
           await catalogApiService.deleteProduto(produtoParaExcluir.id)
           setProdutoParaExcluir(null)
-          addNotification({ type: 'success', message: `Produto "${nome}" excluído com sucesso.` })
+          addNotification({ type: 'success', message: t('admin.products.msg_produto_excluido', { nome }) })
           carregarDados()
         } catch (err) {
           addNotification({
             type: 'error',
-            message: 'Erro ao excluir: ' + (err instanceof Error ? err.message : 'Desconhecido')
+            message: t('admin.products.msg_erro_excluir') + (err instanceof Error ? err.message : t('admin.products.msg_desconhecido'))
           })
         }
       }}
-      titulo="Excluir Produto do Catálogo"
-      descricao={<>Tem certeza de que deseja remover <strong>{produtoParaExcluir?.nome}</strong> do catálogo de produtos?</>}
-      nomeItem="Esta ação é irreversível. Todos os vínculos com organizações e negociações especiais serão removidos."
+      titulo={t('admin.products.excluir_titulo')}
+      descricao={<>{t('admin.products.excluir_descricao_pre')} <strong>{produtoParaExcluir?.nome}</strong> {t('admin.products.excluir_descricao_pos')}</>}
+      nomeItem={t('admin.products.excluir_aviso')}
     />
     </>
   )

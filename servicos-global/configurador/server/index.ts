@@ -145,6 +145,7 @@ app.use(errorHandler)
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, async () => {
     console.log(`[configurador] Servidor rodando na porta ${PORT}`)
+
     // Sincronizar catálogo de produtos com a lista canônica a cada startup
     try {
       const { productCatalogService } = await import('./services/productCatalogService.js')
@@ -152,6 +153,21 @@ if (process.env.NODE_ENV !== 'test') {
       console.log('[configurador] Catálogo de produtos sincronizado')
     } catch (err) {
       console.error('[configurador] Falha ao sincronizar catálogo de produtos:', err)
+    }
+
+    // Inicializar pg-boss e worker de audit logs
+    const tenantDbUrl = process.env.TENANT_DATABASE_URL
+    if (tenantDbUrl) {
+      try {
+        const { initPgBoss } = await import('../../tenant/historico-global/server/queue/pg-boss.js')
+        const { startAuditWorker } = await import('../../tenant/historico-global/server/queue/audit-worker.js')
+        await initPgBoss(tenantDbUrl)
+        await startAuditWorker()
+      } catch (err) {
+        console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)
+      }
+    } else {
+      console.warn('[configurador] TENANT_DATABASE_URL ausente — audit logs desativados')
     }
   })
 }

@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
@@ -44,6 +45,7 @@ const fmtNum = (val: number) =>
 
 export default function PortalDashboard() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [kpis, setKpis] = useState<PortalKPIs | null>(null)
   const [carregando, setCarregando] = useState(true)
 
@@ -63,22 +65,22 @@ export default function PortalDashboard() {
 
   const actionCards = [
     {
-      titulo: 'Cotacoes Pendentes',
-      descricao: 'Responda cotacoes abertas antes do prazo',
+      titulo: t('bidfrete.portal.dashboard.card_pendentes_titulo'),
+      descricao: t('bidfrete.portal.dashboard.card_pendentes_desc'),
       icone: <Envelope weight="duotone" size={24} />,
       rota: '/portal/pendentes',
       cor: 'var(--accent, #6366f1)',
     },
     {
-      titulo: 'Minhas Respostas',
-      descricao: 'Acompanhe o status das suas propostas',
+      titulo: t('bidfrete.portal.dashboard.card_respostas_titulo'),
+      descricao: t('bidfrete.portal.dashboard.card_respostas_desc'),
       icone: <PaperPlaneTilt weight="duotone" size={24} />,
       rota: '/portal/respostas',
       cor: 'var(--warning, #f59e0b)',
     },
     {
-      titulo: 'Meu Desempenho',
-      descricao: 'Veja seu rating e metricas de performance',
+      titulo: t('bidfrete.portal.dashboard.card_desempenho_titulo'),
+      descricao: t('bidfrete.portal.dashboard.card_desempenho_desc'),
       icone: <ChartBar weight="duotone" size={24} />,
       rota: '/portal/desempenho',
       cor: 'var(--success, #22c55e)',
@@ -91,27 +93,27 @@ export default function PortalDashboard() {
       cabecalho={
         <CabecalhoGlobal
           icone={<ChartPieSlice weight="duotone" size={22} />}
-          titulo="Portal do Fornecedor"
-          subtitulo="Visao geral das suas cotacoes e desempenho"
+          titulo={t('bidfrete.portal.dashboard.titulo')}
+          subtitulo={t('bidfrete.portal.dashboard.subtitulo')}
         />
       }
     >
       {/* KPI Cards */}
       <div className="pd-kpis">
         <CardBasicoGlobal
-          titulo="Pendentes"
+          titulo={t('bidfrete.portal.dashboard.pendentes')}
           icone={<ClockCountdown weight="duotone" size={16} />}
           valor={kpis?.pendentes ?? 0}
           className="pd-kpi-card"
         />
         <CardBasicoGlobal
-          titulo="Respondidas"
+          titulo={t('bidfrete.portal.dashboard.respondidas')}
           icone={<PaperPlaneTilt weight="duotone" size={16} />}
           valor={kpis?.respondidas ?? 0}
           className="pd-kpi-card"
         />
         <CardBasicoGlobal
-          titulo="Aprovadas"
+          titulo={t('bidfrete.portal.dashboard.aprovadas')}
           icone={<CheckCircle weight="duotone" size={16} />}
           valor={kpis?.aprovadas ?? 0}
           className="pd-kpi-card"
@@ -120,14 +122,14 @@ export default function PortalDashboard() {
           <div className="pd-kpi-icon">
             <Percent weight="duotone" size={16} />
           </div>
-          <span className="pd-kpi-label">Taxa Resposta</span>
+          <span className="pd-kpi-label">{t('bidfrete.portal.dashboard.taxa_resposta')}</span>
           <span className="pd-kpi-valor">{(kpis?.taxa_resposta ?? 0).toFixed(1)}%</span>
         </div>
         <div className="pd-kpi-card pd-kpi-custom">
           <div className="pd-kpi-icon">
             <Star weight="duotone" size={16} />
           </div>
-          <span className="pd-kpi-label">Rating</span>
+          <span className="pd-kpi-label">{t('bidfrete.portal.dashboard.rating')}</span>
           <span className="pd-kpi-valor">{(kpis?.rating ?? 0).toFixed(1)}</span>
           <div className="pd-stars">
             {[1, 2, 3, 4, 5].map(i => (
@@ -148,7 +150,7 @@ export default function PortalDashboard() {
           <CurrencyDollar weight="duotone" size={28} />
         </div>
         <div className="pd-highlight-info">
-          <span className="pd-highlight-label">Total Valor Aprovado</span>
+          <span className="pd-highlight-label">{t('bidfrete.portal.dashboard.total_aprovado')}</span>
           <span className="pd-highlight-valor">
             {kpis?.moeda_aprovada ?? 'USD'} {fmtNum(kpis?.valor_aprovado ?? 0)}
           </span>

@@ -14,7 +14,7 @@ export function Contato() {
     email: '',
     empresa: '',
     mensagem: plano === 'enterprise'
-      ? 'Tenho interesse no plano Enterprise. Gostaria de agendar uma conversa com o time de vendas.'
+      ? t('contato.msg_inicial_enterprise')
       : '',
   })
   const [enviado, setEnviado] = useState(false)
@@ -67,7 +67,7 @@ export function Contato() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>Email</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>{t('comum.email')}</label>
                 <input
                   type="email"
                   required
@@ -77,7 +77,7 @@ export function Contato() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>Empresa</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>{t('comum.empresa')}</label>
                 <input
                   type="text"
                   required
@@ -87,7 +87,7 @@ export function Contato() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>Mensagem</label>
+                <label style={{ fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', display: 'block' }}>{t('comum.mensagem')}</label>
                 <textarea
                   required
                   rows={4}
@@ -97,7 +97,7 @@ export function Contato() {
                 />
               </div>
               <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                Enviar Mensagem
+                {t('contato.btn_enviar')}
               </button>
             </form>
           )}

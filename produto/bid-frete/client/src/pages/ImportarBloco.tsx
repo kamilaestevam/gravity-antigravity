@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -170,6 +171,7 @@ function parseCSV(content: string): ParsedRow[] {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function ImportarBloco() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -315,11 +317,11 @@ export default function ImportarBloco() {
         )
       },
     },
-    { key: 'tipo_operacao', label: 'Tipo', largura: '110px' },
-    { key: 'modal', label: 'Modal', largura: '100px' },
+    { key: 'tipo_operacao', label: t('bidfrete.importar.col_tipo'), largura: '110px' },
+    { key: 'modal', label: t('bidfrete.importar.col_modal'), largura: '100px' },
     {
       key: 'origem_codigo',
-      label: 'Origem',
+      label: t('bidfrete.importar.col_origem'),
       largura: '90px',
       renderizar: (v) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
@@ -327,16 +329,16 @@ export default function ImportarBloco() {
     },
     {
       key: 'destino_codigo',
-      label: 'Destino',
+      label: t('bidfrete.importar.col_destino'),
       largura: '90px',
       renderizar: (v) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem' }}>{String(v)}</span>
       ),
     },
-    { key: 'descricao_mercadoria', label: 'Mercadoria' },
+    { key: 'descricao_mercadoria', label: t('bidfrete.importar.col_mercadoria') },
     {
       key: 'incoterm',
-      label: 'Incoterm',
+      label: t('bidfrete.importar.col_incoterm'),
       largura: '80px',
       alinhamento: 'center',
       renderizar: (v) => (
@@ -347,7 +349,7 @@ export default function ImportarBloco() {
     },
     {
       key: 'quantidade',
-      label: 'Qtd',
+      label: t('bidfrete.importar.col_qtd'),
       largura: '64px',
       alinhamento: 'right',
       renderizar: (v) => (
@@ -356,7 +358,7 @@ export default function ImportarBloco() {
     },
     {
       key: 'erros',
-      label: 'Erros',
+      label: t('bidfrete.importar.col_erros'),
       renderizar: (v) => {
         const text = String(v)
         if (!text) return null
@@ -509,15 +511,15 @@ export default function ImportarBloco() {
         cabecalho={
           <CabecalhoGlobal
             icone={<Upload weight="duotone" size={22} />}
-            titulo="Importar Cotacoes em Lote"
+            titulo={t('bidfrete.importar.titulo')}
             subtitulo={
               phase === 'upload'
-                ? 'Faca upload de um arquivo CSV para criar cotacoes em massa'
+                ? t('bidfrete.importar.subtitulo_upload')
                 : phase === 'preview'
-                  ? `${fileName} — ${rows.length} linha(s) carregada(s)`
+                  ? `${fileName} — ${rows.length} ${t('bidfrete.importar.linhas_carregadas')}`
                   : phase === 'creating'
-                    ? 'Criando cotacoes...'
-                    : 'Importacao concluida'
+                    ? t('bidfrete.importar.criando')
+                    : t('bidfrete.importar.concluida')
             }
             acoes={
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -526,14 +528,14 @@ export default function ImportarBloco() {
                     className="importar-bloco-pill-btn importar-bloco-pill-btn--danger"
                     onClick={handleReset}
                   >
-                    <Trash weight="duotone" size={14} /> Limpar
+                    <Trash weight="duotone" size={14} /> {t('bidfrete.importar.limpar')}
                   </button>
                 )}
                 <button
                   className="importar-bloco-pill-btn importar-bloco-pill-btn--secondary"
                   onClick={() => navigate('/cotacoes')}
                 >
-                  <ArrowLeft weight="bold" size={14} /> Voltar
+                  <ArrowLeft weight="bold" size={14} /> {t('comum.voltar')}
                 </button>
               </div>
             }
@@ -565,14 +567,14 @@ export default function ImportarBloco() {
                     color: 'var(--text-primary, #f1f5f9)',
                     margin: '0 0 0.35rem 0',
                   }}>
-                    Arraste um arquivo CSV aqui
+                    {t('bidfrete.importar.dropzone_titulo')}
                   </p>
                   <p style={{
                     fontSize: '0.8rem',
                     color: 'var(--text-muted, #64748b)',
                     margin: 0,
                   }}>
-                    ou clique para selecionar — aceita .csv e .xlsx
+                    {t('bidfrete.importar.dropzone_subtitulo')}
                   </p>
                 </div>
                 <span
@@ -589,7 +591,7 @@ export default function ImportarBloco() {
                     marginTop: '0.25rem',
                   }}
                 >
-                  <FileCsv weight="duotone" size={16} /> Selecionar arquivo
+                  <FileCsv weight="duotone" size={16} /> {t('bidfrete.importar.selecionar_arquivo')}
                 </span>
                 <input
                   ref={fileInputRef}
@@ -617,15 +619,15 @@ export default function ImportarBloco() {
                     fontWeight: 600,
                     color: 'var(--text-primary, #f1f5f9)',
                   }}>
-                    Colunas esperadas no arquivo
+                    {t('bidfrete.importar.colunas_esperadas')}
                   </p>
                 </div>
                 <table className="importar-bloco-cols-table">
                   <thead>
                     <tr>
-                      <th>Coluna</th>
-                      <th>Descricao</th>
-                      <th>Exemplo</th>
+                      <th>{t('bidfrete.importar.th_coluna')}</th>
+                      <th>{t('bidfrete.importar.th_descricao')}</th>
+                      <th>{t('bidfrete.importar.th_exemplo')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -691,7 +693,7 @@ export default function ImportarBloco() {
                   onClick={handleCreate}
                 >
                   <FileArrowUp weight="duotone" size={16} />
-                  Criar {validCount} cotacao{validCount !== 1 ? '(oes)' : ''}
+                  {t('bidfrete.importar.criar_cotacoes', { count: validCount })}
                 </button>
               </div>
 
@@ -701,8 +703,8 @@ export default function ImportarBloco() {
                 dados={rows}
                 itensPorPagina={25}
                 buscaGlobal
-                buscaPlaceholder="Buscar nas linhas importadas..."
-                mensagemVazia="Nenhuma linha encontrada no arquivo."
+                buscaPlaceholder={t('bidfrete.importar.buscar_placeholder')}
+                mensagemVazia={t('bidfrete.importar.vazio')}
               />
             </>
           )}
@@ -722,14 +724,14 @@ export default function ImportarBloco() {
                 fontWeight: 600,
                 color: 'var(--text-primary, #f1f5f9)',
               }}>
-                Criando cotacoes...
+                {t('bidfrete.importar.criando')}
               </p>
               <p style={{
                 margin: 0,
                 fontSize: '0.8rem',
                 color: 'var(--text-muted, #64748b)',
               }}>
-                Processando {validCount} linha{validCount !== 1 ? 's' : ''} valida{validCount !== 1 ? 's' : ''}
+                {t('bidfrete.importar.processando', { count: validCount })}
               </p>
             </div>
           )}
@@ -758,7 +760,7 @@ export default function ImportarBloco() {
                   fontWeight: 700,
                   color: 'var(--text-primary, #f1f5f9)',
                 }}>
-                  Importacao concluida
+                  {t('bidfrete.importar.concluida')}
                 </p>
                 <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
                   <span

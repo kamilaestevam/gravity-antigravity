@@ -13,6 +13,7 @@ import { simulateRouter } from './routes/simulate.js'
 import { estimativasRouter } from './routes/estimativas.js'
 import { masterDataRouter } from './routes/masterData.js'
 import { dashboardRouter } from './routes/dashboard.js'
+import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { tokenPool } from './services/tokenPool.js'
@@ -95,6 +96,7 @@ app.use(apiObservability('simula-custo'))
 app.use('/api/v1/simula-custo', simulateRouter)
 app.use('/api/v1/simula-custo/estimativas', estimativasRouter)
 app.use('/api/v1/dashboard', dashboardRouter)
+app.use('/api/v1/simula-custo/dashboard', dashboardWidgetsRouter)
 
 // ─── 9. SPA Fallback (serve o client React para qualquer rota não-API) ─────────
 app.get('*', (_req: Request, res: Response) => {

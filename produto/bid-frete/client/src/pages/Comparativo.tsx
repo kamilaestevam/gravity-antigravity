@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -53,12 +54,6 @@ interface SortOption {
   icone: React.ReactNode
 }
 
-const SORT_OPTIONS: SortOption[] = [
-  { key: 'score_total',      label: 'Score Total',  icone: <Trophy weight="duotone" size={14} /> },
-  { key: 'valor_total',      label: 'Preco',        icone: <CurrencyDollar weight="duotone" size={14} /> },
-  { key: 'transit_time_dias', label: 'Transit Time', icone: <Timer weight="duotone" size={14} /> },
-  { key: 'rating',           label: 'Rating',       icone: <Star weight="duotone" size={14} /> },
-]
 
 // ─── Badge helpers ──────────────────────────────────────────────────────────
 
@@ -139,6 +134,7 @@ function ModalOverlay({ aberto, titulo, icone, children, onFechar }: ModalProps)
 // ─── Componente Principal ───────────────────────────────────────────────────
 
 export default function Comparativo() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
 
@@ -160,6 +156,13 @@ export default function Comparativo() {
 
   // Resultado pos-aprovacao
   const [resultadoAprovacao, setResultadoAprovacao] = useState<Cotacao | null>(null)
+
+  const SORT_OPTIONS: SortOption[] = [
+    { key: 'score_total',       label: t('bidfrete.comparativo.score_total'),  icone: <Trophy weight="duotone" size={14} /> },
+    { key: 'valor_total',       label: t('bidfrete.comparativo.preco'),         icone: <CurrencyDollar weight="duotone" size={14} /> },
+    { key: 'transit_time_dias', label: t('bidfrete.comparativo.transit_time'),  icone: <Timer weight="duotone" size={14} /> },
+    { key: 'rating',            label: t('bidfrete.comparativo.rating'),         icone: <Star weight="duotone" size={14} /> },
+  ]
 
   const carregar = useCallback(async () => {
     if (!id) return
@@ -245,7 +248,7 @@ export default function Comparativo() {
   const colunas: TabelaGlobalColuna<BidResponse>[] = [
     {
       key: 'score_total' as keyof BidResponse,
-      label: 'Rank',
+      label: t('bidfrete.comparativo.rank'),
       tipo: 'numero',
       largura: 70,
       render: (_val: number | null, _row: BidResponse, index?: number) => (
@@ -254,7 +257,7 @@ export default function Comparativo() {
     },
     {
       key: 'fornecedor_id',
-      label: 'Fornecedor',
+      label: t('bidfrete.comparativo.fornecedor'),
       tipo: 'texto',
       largura: 180,
       render: (_val: string, row: BidResponse) => (
@@ -268,7 +271,7 @@ export default function Comparativo() {
     },
     {
       key: 'valor_frete',
-      label: 'Valor Frete',
+      label: t('bidfrete.detalhe_cotacao.resp_frete'),
       tipo: 'numero',
       largura: 130,
       align: 'right',
@@ -278,7 +281,7 @@ export default function Comparativo() {
     },
     {
       key: 'taxas_origem',
-      label: 'Taxas Origem',
+      label: t('bidfrete.detalhe_cotacao.resp_taxas_origem'),
       tipo: 'numero',
       largura: 120,
       align: 'right',
@@ -288,7 +291,7 @@ export default function Comparativo() {
     },
     {
       key: 'taxas_destino',
-      label: 'Taxas Destino',
+      label: t('bidfrete.detalhe_cotacao.resp_taxas_destino'),
       tipo: 'numero',
       largura: 120,
       align: 'right',
@@ -298,7 +301,7 @@ export default function Comparativo() {
     },
     {
       key: 'valor_total',
-      label: 'Total',
+      label: t('bidfrete.detalhe_cotacao.resp_total'),
       tipo: 'numero',
       largura: 130,
       align: 'right',
@@ -308,7 +311,7 @@ export default function Comparativo() {
     },
     {
       key: 'transit_time_dias',
-      label: 'Transit Time',
+      label: t('bidfrete.comparativo.transit_time'),
       tipo: 'numero',
       largura: 110,
       align: 'center',
@@ -321,7 +324,7 @@ export default function Comparativo() {
     },
     {
       key: 'free_time_dias',
-      label: 'Free Time',
+      label: t('bidfrete.detalhe_cotacao.resp_free_time'),
       tipo: 'numero',
       largura: 100,
       align: 'center',
@@ -331,7 +334,7 @@ export default function Comparativo() {
     },
     {
       key: 'transbordos',
-      label: 'Transbordos',
+      label: t('bidfrete.detalhe_cotacao.resp_transbordos'),
       tipo: 'numero',
       largura: 100,
       align: 'center',
@@ -343,7 +346,7 @@ export default function Comparativo() {
     },
     {
       key: 'score_total' as keyof BidResponse,
-      label: 'Rating',
+      label: t('bidfrete.comparativo.rating'),
       tipo: 'numero',
       largura: 90,
       align: 'center',
@@ -353,7 +356,7 @@ export default function Comparativo() {
     },
     {
       key: 'validade',
-      label: 'Validade',
+      label: t('bidfrete.detalhe_cotacao.resp_validade'),
       tipo: 'periodo',
       largura: 110,
       render: (val: string) => dataBR(val),
@@ -364,7 +367,7 @@ export default function Comparativo() {
     {
       id: 'aprovar',
       icone: <CheckCircle weight="duotone" size={16} />,
-      tooltip: 'Aprovar esta resposta',
+      tooltip: t('bidfrete.comparativo.aprovar'),
       onClick: (item: BidResponse) => abrirModalAprovar(item),
     },
   ]
@@ -379,8 +382,8 @@ export default function Comparativo() {
         cabecalho={
           <CabecalhoGlobal
             icone={<Confetti weight="duotone" size={22} />}
-            titulo="Resposta Aprovada"
-            subtitulo={`Cotacao ${resultadoAprovacao.numero}`}
+            titulo={t('bidfrete.comparativo.titulo_aprovada')}
+            subtitulo={`${t('bidfrete.cotacoes.titulo')} ${resultadoAprovacao.numero}`}
           />
         }
       >
@@ -388,16 +391,16 @@ export default function Comparativo() {
           <div className="bf-aprovacao-result-icon">
             <CheckCircle weight="duotone" size={64} />
           </div>
-          <h2 className="bf-aprovacao-result-titulo">Aprovacao confirmada</h2>
+          <h2 className="bf-aprovacao-result-titulo">{t('bidfrete.comparativo.aprovacao_confirmada')}</h2>
           <p className="bf-aprovacao-result-sub">
-            Fornecedor selecionado: <strong>{respostaSelecionada?.fornecedor?.nome ?? 'Fornecedor'}</strong>
+            {t('bidfrete.comparativo.fornecedor_selecionado')}: <strong>{respostaSelecionada?.fornecedor?.nome ?? t('bidfrete.comparativo.fornecedor')}</strong>
           </p>
 
           {resultadoAprovacao.saving_valor != null && resultadoAprovacao.saving_valor > 0 && (
             <div className="bf-saving-card">
               <div className="bf-saving-header">
                 <CurrencyDollar weight="duotone" size={18} />
-                <span>Saving obtido</span>
+                <span>{t('bidfrete.comparativo.saving_obtido')}</span>
               </div>
               <div className="bf-saving-valores">
                 <span className="bf-saving-valor">
@@ -415,10 +418,10 @@ export default function Comparativo() {
           <div className="bf-aprovacao-result-acoes">
             <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
               <ArrowLeft weight="bold" size={14} />
-              Ver cotacao
+              {t('bidfrete.comparativo.ver_cotacao')}
             </button>
             <button className="btn btn-primary" onClick={() => navigate('/cotacoes')}>
-              Voltar para cotacoes
+              {t('bidfrete.comparativo.voltar_cotacoes')}
             </button>
           </div>
         </div>
@@ -434,17 +437,17 @@ export default function Comparativo() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Ranking weight="duotone" size={22} />}
-          titulo="Comparativo de Respostas"
-          subtitulo={cotacao ? `${cotacao.numero} — ${cotacao.origem_nome} → ${cotacao.destino_nome}` : 'Ranking, aprovacao e rejeicao'}
+          titulo={t('bidfrete.comparativo.titulo')}
+          subtitulo={cotacao ? `${cotacao.numero} — ${cotacao.origem_nome} → ${cotacao.destino_nome}` : t('bidfrete.comparativo.subtitulo')}
           acoes={
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
               <button className="btn btn-danger-outline" onClick={() => setModalReprovar(true)} disabled={respostas.length === 0}>
                 <XCircle weight="duotone" size={16} />
-                Reprovar Todas
+                {t('bidfrete.comparativo.reprovar')}
               </button>
               <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
                 <ArrowLeft weight="bold" size={14} />
-                Voltar
+                {t('comum.voltar')}
               </button>
             </div>
           }
@@ -453,7 +456,7 @@ export default function Comparativo() {
     >
       {/* ════════ Sort Buttons ════════ */}
       <div className="bf-sort-bar">
-        <span className="bf-sort-label">Ordenar por:</span>
+        <span className="bf-sort-label">{t('bidfrete.comparativo.ordenar_por')}:</span>
         {SORT_OPTIONS.map(opt => (
           <button
             key={opt.key}
@@ -480,7 +483,7 @@ export default function Comparativo() {
           <div className="bf-summary-card">
             <Package weight="duotone" size={18} />
             <div>
-              <span className="bf-summary-label">Valor alvo</span>
+              <span className="bf-summary-label">{t('bidfrete.detalhe_cotacao.valor_alvo')}</span>
               <span className="bf-summary-valor bf-mono">
                 {cotacao.valor_alvo != null ? moeda(cotacao.valor_alvo, cotacao.moeda_alvo) : '—'}
               </span>
@@ -489,7 +492,7 @@ export default function Comparativo() {
           <div className="bf-summary-card">
             <Trophy weight="duotone" size={18} />
             <div>
-              <span className="bf-summary-label">Melhor oferta</span>
+              <span className="bf-summary-label">{t('bidfrete.comparativo.melhor_oferta')}</span>
               <span className="bf-summary-valor bf-mono">
                 {moeda(respostasOrdenadas[0]?.valor_total ?? 0, respostasOrdenadas[0]?.moeda ?? 'USD')}
               </span>
@@ -498,7 +501,7 @@ export default function Comparativo() {
           <div className="bf-summary-card">
             <Timer weight="duotone" size={18} />
             <div>
-              <span className="bf-summary-label">Menor transit</span>
+              <span className="bf-summary-label">{t('bidfrete.comparativo.menor_transit')}</span>
               <span className="bf-summary-valor bf-mono">
                 {Math.min(...respostas.map(r => r.transit_time_dias))}d
               </span>
@@ -507,7 +510,7 @@ export default function Comparativo() {
           <div className="bf-summary-card">
             <Star weight="duotone" size={18} />
             <div>
-              <span className="bf-summary-label">Maior rating</span>
+              <span className="bf-summary-label">{t('bidfrete.comparativo.maior_rating')}</span>
               <span className="bf-summary-valor bf-mono">
                 {Math.max(...respostas.map(r => r.fornecedor?.rating_global ?? 0)).toFixed(1)}
               </span>
@@ -520,11 +523,11 @@ export default function Comparativo() {
       {!carregando && respostas.length === 0 ? (
         <div className="bf-empty-state">
           <Ranking weight="duotone" size={48} />
-          <h3>Nenhuma resposta recebida</h3>
-          <p>As respostas dos fornecedores aparecerao aqui para comparacao e aprovacao.</p>
+          <h3>{t('bidfrete.comparativo.sem_respostas')}</h3>
+          <p>{t('bidfrete.comparativo.aguardar')}</p>
           <button className="btn btn-secondary" onClick={() => navigate(`/cotacoes/${id}`)}>
             <ArrowLeft weight="bold" size={14} />
-            Voltar para a cotacao
+            {t('bidfrete.comparativo.voltar_cotacao')}
           </button>
         </div>
       ) : (
@@ -535,8 +538,8 @@ export default function Comparativo() {
             acoes={acoes}
             idKey="id"
             carregando={carregando}
-            mensagemVazio="Nenhuma resposta recebida"
-            tooltipBusca="Buscar por fornecedor"
+            mensagemVazio={t('bidfrete.comparativo.sem_respostas')}
+            tooltipBusca={t('bidfrete.detalhe_cotacao.buscar_fornecedor')}
           />
         </div>
       )}
@@ -544,50 +547,50 @@ export default function Comparativo() {
       {/* ════════ Modal Aprovar ════════ */}
       <ModalOverlay
         aberto={modalAprovar}
-        titulo="Confirmar Aprovacao"
+        titulo={t('bidfrete.comparativo.modal_aprovar')}
         icone={<CheckCircle weight="duotone" size={20} style={{ color: 'var(--success, #22c55e)' }} />}
         onFechar={() => setModalAprovar(false)}
       >
         {respostaSelecionada && (
           <>
             <p className="bf-modal-text">
-              Aprovar a resposta do fornecedor <strong>{respostaSelecionada.fornecedor?.nome ?? 'Fornecedor'}</strong>?
+              {t('bidfrete.comparativo.modal_aprovar_pergunta', { fornecedor: respostaSelecionada.fornecedor?.nome ?? t('bidfrete.comparativo.fornecedor') })}
             </p>
             <div className="bf-modal-detail-grid">
               <div className="bf-modal-detail">
-                <span className="bf-modal-detail-label">Valor total</span>
+                <span className="bf-modal-detail-label">{t('bidfrete.detalhe_cotacao.resp_total')}</span>
                 <span className="bf-modal-detail-valor bf-mono">
                   {moeda(respostaSelecionada.valor_total, respostaSelecionada.moeda)}
                 </span>
               </div>
               <div className="bf-modal-detail">
-                <span className="bf-modal-detail-label">Transit time</span>
+                <span className="bf-modal-detail-label">{t('bidfrete.comparativo.transit_time')}</span>
                 <span className="bf-modal-detail-valor bf-mono">{respostaSelecionada.transit_time_dias}d</span>
               </div>
               <div className="bf-modal-detail">
-                <span className="bf-modal-detail-label">Transbordos</span>
+                <span className="bf-modal-detail-label">{t('bidfrete.detalhe_cotacao.resp_transbordos')}</span>
                 <span className="bf-modal-detail-valor bf-mono">
-                  {respostaSelecionada.transbordos === 0 ? 'Direto' : respostaSelecionada.transbordos}
+                  {respostaSelecionada.transbordos === 0 ? t('bidfrete.comparativo.direto') : respostaSelecionada.transbordos}
                 </span>
               </div>
               <div className="bf-modal-detail">
-                <span className="bf-modal-detail-label">Validade</span>
+                <span className="bf-modal-detail-label">{t('bidfrete.detalhe_cotacao.resp_validade')}</span>
                 <span className="bf-modal-detail-valor">{dataBR(respostaSelecionada.validade)}</span>
               </div>
             </div>
             {respostaSelecionada.observacoes && (
               <div className="bf-modal-obs">
-                <span className="bf-modal-detail-label">Observacoes</span>
+                <span className="bf-modal-detail-label">{t('bidfrete.comparativo.observacoes')}</span>
                 <p>{respostaSelecionada.observacoes}</p>
               </div>
             )}
             <div className="bf-modal-acoes">
               <button className="btn btn-secondary" onClick={() => setModalAprovar(false)} disabled={aprovando}>
-                Cancelar
+                {t('comum.cancelar')}
               </button>
               <button className="btn btn-success" onClick={handleAprovar} disabled={aprovando}>
                 <CheckCircle weight="bold" size={16} />
-                {aprovando ? 'Aprovando...' : 'Confirmar Aprovacao'}
+                {aprovando ? t('bidfrete.comparativo.aprovando') : t('bidfrete.comparativo.confirmar_aprovacao')}
               </button>
             </div>
           </>
@@ -597,23 +600,23 @@ export default function Comparativo() {
       {/* ════════ Modal Reprovar ════════ */}
       <ModalOverlay
         aberto={modalReprovar}
-        titulo="Reprovar Todas as Respostas"
+        titulo={t('bidfrete.comparativo.modal_reprovar')}
         icone={<Warning weight="duotone" size={20} style={{ color: 'var(--danger, #ef4444)' }} />}
         onFechar={() => setModalReprovar(false)}
       >
         <p className="bf-modal-text">
-          Esta acao reprovara todas as {respostas.length} resposta{respostas.length !== 1 ? 's' : ''} desta cotacao. Informe o motivo:
+          {t('bidfrete.comparativo.modal_reprovar_desc', { count: respostas.length })}
         </p>
         <textarea
           className="bf-modal-textarea"
-          placeholder="Motivo da reprovacao (obrigatorio)"
+          placeholder={t('bidfrete.comparativo.motivo_placeholder')}
           value={motivoReprovar}
           onChange={e => setMotivoReprovar(e.target.value)}
           rows={4}
         />
         <div className="bf-modal-acoes">
           <button className="btn btn-secondary" onClick={() => setModalReprovar(false)} disabled={reprovando}>
-            Cancelar
+            {t('comum.cancelar')}
           </button>
           <button
             className="btn btn-danger"
@@ -621,7 +624,7 @@ export default function Comparativo() {
             disabled={reprovando || !motivoReprovar.trim()}
           >
             <XCircle weight="bold" size={16} />
-            {reprovando ? 'Reprovando...' : 'Confirmar Reprovacao'}
+            {reprovando ? t('bidfrete.comparativo.reprovando') : t('bidfrete.comparativo.confirmar_reprovacao')}
           </button>
         </div>
       </ModalOverlay>

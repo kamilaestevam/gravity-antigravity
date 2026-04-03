@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Send,
   CheckCircle,
@@ -244,6 +245,7 @@ interface MinhasRespostasProps {
 }
 
 export default function MinhasRespostas({ disabled = false }: MinhasRespostasProps) {
+  const { t } = useTranslation()
   const [respostas, setRespostas] = useState<RespostaHistorico[]>([])
   const [pageState, setPageState] = useState<PageState>('loading')
   const [filtro, setFiltro] = useState<FiltroStatus>('')
@@ -297,11 +299,11 @@ export default function MinhasRespostas({ disabled = false }: MinhasRespostasPro
       <div style={s.page}>
         <div style={s.header}>
           <div style={s.headerIcon}><Send size={22} /></div>
-          <div><h1 style={s.title}>Minhas Respostas</h1></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.minhas_respostas.titulo')}</h1></div>
         </div>
         <div style={s.center}>
           <Loader2 size={48} style={{ opacity: 0.3, animation: 'spin 1s linear infinite' }} />
-          <p>Carregando respostas...</p>
+          <p>{t('bidcambio.portal.minhas_respostas.carregando')}</p>
         </div>
       </div>
     )
@@ -312,7 +314,7 @@ export default function MinhasRespostas({ disabled = false }: MinhasRespostasPro
       <div style={s.page}>
         <div style={s.header}>
           <div style={s.headerIcon}><Send size={22} /></div>
-          <div><h1 style={s.title}>Minhas Respostas</h1></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.minhas_respostas.titulo')}</h1></div>
         </div>
         <div style={s.center}>
           <AlertCircle size={48} style={{ color: 'var(--danger, #ef4444)', opacity: 0.6 }} />
@@ -336,7 +338,7 @@ export default function MinhasRespostas({ disabled = false }: MinhasRespostasPro
       <div style={{ ...s.page, opacity: 0.5, pointerEvents: 'none' }}>
         <div style={s.header}>
           <div style={s.headerIcon}><Send size={22} /></div>
-          <div><h1 style={s.title}>Minhas Respostas</h1><p style={s.subtitle}>Desabilitado</p></div>
+          <div><h1 style={s.title}>{t('bidcambio.portal.minhas_respostas.titulo')}</h1><p style={s.subtitle}>{t('bidcambio.portal.config.desabilitado')}</p></div>
         </div>
         <div style={s.center}>
           <Settings size={48} style={{ opacity: 0.3 }} />
@@ -351,7 +353,7 @@ export default function MinhasRespostas({ disabled = false }: MinhasRespostasPro
       <div style={s.header}>
         <div style={s.headerIcon}><Send size={22} /></div>
         <div>
-          <h1 style={s.title}>Minhas Respostas</h1>
+          <h1 style={s.title}>{t('bidcambio.portal.minhas_respostas.titulo')}</h1>
           <p style={s.subtitle}>{respostas.length} resposta(s) enviada(s)</p>
         </div>
       </div>
@@ -378,7 +380,7 @@ export default function MinhasRespostas({ disabled = false }: MinhasRespostasPro
       {pageState === 'empty' || filtradas.length === 0 ? (
         <div style={s.center}>
           <Inbox size={48} style={{ opacity: 0.3 }} />
-          <p>Nenhuma resposta encontrada</p>
+          <p>{t('bidcambio.portal.minhas_respostas.vazio')}</p>
         </div>
       ) : (
         <>
@@ -386,13 +388,13 @@ export default function MinhasRespostas({ disabled = false }: MinhasRespostasPro
             <table style={s.table}>
               <thead>
                 <tr>
-                  <th style={s.th}>Comprador</th>
-                  <th style={s.th}>Moeda</th>
-                  <th style={s.th}>Valor</th>
-                  <th style={s.th}>Taxa Oferecida</th>
-                  <th style={s.th}>Spread</th>
-                  <th style={s.th}>Status</th>
-                  <th style={s.th}>Respondido em</th>
+                  <th style={s.th}>{t('bidcambio.portal.minhas_respostas.col_comprador')}</th>
+                  <th style={s.th}>{t('bidcambio.portal.minhas_respostas.col_moeda')}</th>
+                  <th style={s.th}>{t('bidcambio.portal.minhas_respostas.col_valor')}</th>
+                  <th style={s.th}>{t('bidcambio.portal.minhas_respostas.col_taxa')}</th>
+                  <th style={s.th}>{t('bidcambio.portal.minhas_respostas.col_spread')}</th>
+                  <th style={s.th}>{t('bidcambio.portal.minhas_respostas.col_status')}</th>
+                  <th style={s.th}>{t('bidcambio.portal.minhas_respostas.col_respondido')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -440,7 +442,7 @@ export default function MinhasRespostas({ disabled = false }: MinhasRespostasPro
                 <ChevronLeft size={16} />
               </button>
               <span style={s.pageInfo}>
-                Pagina {pagina} de {totalPages}
+                {t('bidcambio.portal.minhas_respostas.pagina')} {pagina} {t('bidcambio.portal.minhas_respostas.de')} {totalPages}
               </span>
               <button
                 style={{ ...s.pageBtn, ...(pagina >= totalPages ? s.pageBtnDisabled : {}) }}

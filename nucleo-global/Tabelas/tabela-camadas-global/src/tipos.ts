@@ -39,10 +39,11 @@ export interface TCGAcao<T = any> {
 
 // ─── Ação de exportação ────────────────────────────────────────────────────────
 
-export interface TCGAcaoExport {
+export interface TCGAcaoExport<T = any> {
   label: string
   icone?: ReactNode
-  onClick: () => void
+  /** Recebe os dados filtrados/visíveis no momento da exportação */
+  onClick: (dados: T[]) => void
 }
 
 // ─── Ações em lote ─────────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ export interface TabelaCamadasGlobalProps<T = any, C = any> {
   filhos: (item: T) => C[]
   acoes?: TCGAcao<T>[]
   acoesFilhas?: TCGAcao<C>[]
-  acoesExportacao?: TCGAcaoExport[]
+  acoesExportacao?: TCGAcaoExport<T>[]
   placeholderBusca?: string
   campoBusca?: keyof T
   mensagemVazio?: string

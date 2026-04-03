@@ -95,22 +95,22 @@ export function LogTestes() {
     }, 1500)
   }
   const colunas: TabelaGlobalColuna<LogTeste>[] = [
-    { 
-      key: 'data', label: 'DATA', tipo: 'texto',
-      tooltipTitulo: 'Data de Execução',
-      tooltipDescricao: 'Data em que a bateria de testes foi disparada pelo runner.'
+    {
+      key: 'data', label: t('admin.tests.col_data'), tipo: 'texto',
+      tooltipTitulo: t('admin.tests.tooltip_data'),
+      tooltipDescricao: t('admin.tests.tooltip_data_desc')
     },
-    { 
-      key: 'hora', label: 'HORA', tipo: 'texto',
-      tooltipTitulo: 'Horário de Início',
-      tooltipDescricao: 'Horário exato do início da execução desta suíte de testes.'
+    {
+      key: 'hora', label: t('admin.tests.col_hora'), tipo: 'texto',
+      tooltipTitulo: t('admin.tests.tooltip_hora'),
+      tooltipDescricao: t('admin.tests.tooltip_hora_desc')
     },
-    { 
-      key: 'tipo', 
-      label: 'TIPO', 
+    {
+      key: 'tipo',
+      label: t('admin.tests.col_tipo'),
       tipo: 'texto',
-      tooltipTitulo: 'Categoria do Teste',
-      tooltipDescricao: 'Define se o teste é Unitário, E2E (End-to-End) ou Funcional.',
+      tooltipTitulo: t('admin.tests.tooltip_tipo'),
+      tooltipDescricao: t('admin.tests.tooltip_tipo_desc'),
       render: (v: TipoTeste) => (
         <span style={{
           display: 'inline-flex', padding: '0.15rem 0.6rem', borderRadius: '4px',
@@ -123,23 +123,23 @@ export function LogTestes() {
         </span>
       )
     },
-    { 
-      key: 'modulo', label: 'MÓDULO', tipo: 'texto',
-      tooltipTitulo: 'Módulo Alvo',
-      tooltipDescricao: 'Identifica qual microsserviço ou área do sistema está sendo validada.'
+    {
+      key: 'modulo', label: t('admin.tests.col_modulo'), tipo: 'texto',
+      tooltipTitulo: t('admin.tests.tooltip_modulo'),
+      tooltipDescricao: t('admin.tests.tooltip_modulo_desc')
     },
-    { 
-      key: 'teste', label: 'O QUE FOI TESTADO', tipo: 'texto', 
-      tooltipTitulo: 'Contexto do Teste',
-      tooltipDescricao: 'Descrição da funcionalidade específica ou fluxo de usuário testado.',
+    {
+      key: 'teste', label: t('admin.tests.col_teste'), tipo: 'texto',
+      tooltipTitulo: t('admin.tests.tooltip_teste'),
+      tooltipDescricao: t('admin.tests.tooltip_teste_desc'),
       render: (v) => <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{v}</span> 
     },
-    { 
-      key: 'resultado', 
-      label: 'RESULTADO', 
+    {
+      key: 'resultado',
+      label: t('admin.tests.col_resultado'),
       tipo: 'texto',
-      tooltipTitulo: 'Status da Execução',
-      tooltipDescricao: 'Indica se todas as asserções do teste passaram (APROVADO) ou se houve falha (REPROVADO).',
+      tooltipTitulo: t('admin.tests.tooltip_resultado'),
+      tooltipDescricao: t('admin.tests.tooltip_resultado_desc'),
       render: (v: Resultado) => {
         const pass = v === 'APROVADO'
         return (
@@ -156,10 +156,10 @@ export function LogTestes() {
         )
       }
     },
-    { 
-      key: 'duracao', label: 'DURAÇÃO', tipo: 'texto', 
-      tooltipTitulo: 'Tempo de Resposta',
-      tooltipDescricao: 'Duração total do processamento do teste, incluindo setup e teardown.',
+    {
+      key: 'duracao', label: t('admin.tests.col_duracao'), tipo: 'texto',
+      tooltipTitulo: t('admin.tests.tooltip_duracao'),
+      tooltipDescricao: t('admin.tests.tooltip_duracao_desc'),
       render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span> 
     },
   ]
@@ -168,7 +168,7 @@ export function LogTestes() {
     if (item.resultado === 'APROVADO') return (
        <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', margin: '0.5rem 1rem' }}>
           <CheckCircle size={20} weight="fill" /> 
-          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Teste passou com sucesso. Nenhuma ação necessária.</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t('admin.tests.expandido_sucesso')}</span>
        </div>
     )
 
@@ -179,7 +179,7 @@ export function LogTestes() {
           <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(239,68,68,0.1)', padding: '0.6rem 1rem', borderBottom: '1px solid rgba(239,68,68,0.15)' }}>
                <Warning size={16} color="#ef4444" weight="bold" />
-               <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#f87171' }}>Mensagem de Erro</span>
+               <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#f87171' }}>{t('admin.tests.expandido_erro_titulo')}</span>
             </div>
             <div style={{ padding: '1rem' }}>
                <code style={{ color: '#fca5a5', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.85rem', wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
@@ -207,8 +207,8 @@ export function LogTestes() {
                       <Sparkle size={18} weight="fill" />
                    </div>
                    <div>
-                     <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>Análise Especialista IA</h4>
-                     <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>Troubleshooting automatizado por Gabi AI</p>
+                     <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{t('admin.tests.expandido_ia_titulo')}</h4>
+                     <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>{t('admin.tests.expandido_ia_subtitulo')}</p>
                    </div>
                 </div>
                 {/* Botões de Ação Global para o Erro */}
@@ -230,9 +230,9 @@ export function LogTestes() {
                      onMouseLeave={e => { if(loadingCode !== item.id) e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(139, 92, 246, 0.4)' }}
                    >
                      {loadingCode === item.id ? (
-                        <>Processando Alterações...</>
+                        <>{t('admin.tests.expandido_ia_processando')}</>
                      ) : (
-                        <><Wrench size={16} weight="fill" /> Corrigir Código (1 Clique)</>
+                        <><Wrench size={16} weight="fill" /> {t('admin.tests.expandido_ia_corrigir')}</>
                      )}
                    </button>
                    <button
@@ -256,15 +256,15 @@ export function LogTestes() {
                {/* Resumo e Motivos */}
                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>O que é o erro</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_o_que_e')}</span>
                     <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{item.aiAnalise.erroResumo}</strong>
                   </div>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>Motivo</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_motivo')}</span>
                     <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>{item.aiAnalise.motivo}</p>
                   </div>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>Onde</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_onde')}</span>
                     <code style={{ display: 'inline-block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'var(--font-mono, monospace)' }}>
                        {item.aiAnalise.arquivo}
                     </code>
@@ -274,7 +274,7 @@ export function LogTestes() {
                {/* Sugestão de Código e Preview de Alteração */}
                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>Correção Sugerida</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_correcao')}</span>
                     <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>{item.aiAnalise.sugestaoCorrecao}</p>
                   </div>
                   
@@ -294,10 +294,10 @@ export function LogTestes() {
                   {item.aiAnalise.provaVisual && (
                     <div style={{ marginTop: '1rem' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#f87171', marginBottom: '0.5rem' }}>
-                        📸 Prova Visual (QA E2E)
+                        📸 {t('admin.tests.expandido_ia_prova_visual')}
                       </span>
                       <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(239, 68, 68, 0.4)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-                        <img src={item.aiAnalise.provaVisual} alt="Evidência do Erro" style={{ width: '100%', display: 'block' }} />
+                        <img src={item.aiAnalise.provaVisual} alt={t('admin.tests.expandido_ia_evidencia_alt')} style={{ width: '100%', display: 'block' }} />
                       </div>
                     </div>
                   )}
@@ -343,7 +343,7 @@ export function LogTestes() {
               }
             `}
           </style>
-          <TooltipGlobal descricao="Gerenciar e configurar horários de execução automática dos testes">
+          <TooltipGlobal descricao={t('admin.tests.tooltip_agendamento')}>
             <button
                type="button"
                onClick={() => setModalAgendamentoAberto(true)}
@@ -360,10 +360,10 @@ export function LogTestes() {
                onMouseLeave={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)'}
             >
               <Clock size={16} weight={agendamentoAtivo ? "fill" : "bold"} style={{ color: agendamentoAtivo ? '#10b981' : 'inherit' }} />
-              Agendamento ativo
+              {t('admin.tests.btn_agendamento')}
             </button>
           </TooltipGlobal>
-          <TooltipGlobal descricao="Disparar manualmente a execução de toda a suíte de testes em todos os módulos">
+          <TooltipGlobal descricao={t('admin.tests.tooltip_rodar')}>
             <button
                style={{ 
                  display: 'flex', alignItems: 'center', gap: '0.5rem', 
@@ -374,7 +374,7 @@ export function LogTestes() {
                onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
                onMouseLeave={e => e.currentTarget.style.filter = 'none'}
             >
-              <PlayCircle size={16} weight="bold" /> Rodar Todos os Testes
+              <PlayCircle size={16} weight="bold" /> {t('admin.tests.btn_rodar')}
             </button>
           </TooltipGlobal>
         </div>
@@ -386,21 +386,21 @@ export function LogTestes() {
             valor={aprovadosCount}
             icone={<CheckCircle weight="duotone" size={18} />}
             variante="sucesso"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>Quantidade de suítes de teste (unitários, integração e e2e) que completaram toda asserção sem falhas ou gargalos e cumpriram a pipeline de CI.</span>}
+            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.tests.card_aprovados_tooltip')}</span>}
           />
           <CardBasicoGlobal
             titulo={t('admin.tests.card_reprovados')}
             valor={reprovadosCount}
             icone={<XCircle weight="duotone" size={18} />}
             variante="perigo"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>Conjunto de testes que não atenderam às premissas de asserção definidas, retornando códigos de erro de validação ou timeouts durante a execução.</span>}
+            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.tests.card_reprovados_tooltip')}</span>}
           />
           <CardBasicoGlobal
             titulo={t('admin.tests.card_erro')}
             valor={erroCount}
             icone={<Warning weight="duotone" size={18} />}
             variante="aviso"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>Testes sinalizados com crash completo (OOM, pânico de sistema ou erro de parser de sintaxe) cujo processo travou inesperadamente no runner.</span>}
+            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.tests.card_erro_tooltip')}</span>}
           />
         </>
       }
@@ -412,10 +412,10 @@ export function LogTestes() {
           colunas={colunas}
           idKey="id"
           renderExpandido={renderExpandido}
-          mensagemVazio="Nenhum log encontrado."
-          mensagemSemFiltro="Pipeline de testes aguardando execução."
-          tooltipBusca="Localizar teste por nome, módulo ou tipo"
-          tooltipExpandir="Ver análise técnica da IA e motivos detalhados de falhas ou sucessos"
+          mensagemVazio={t('admin.tests.vazio')}
+          mensagemSemFiltro={t('admin.tests.vazio_filtro')}
+          tooltipBusca={t('admin.tests.tooltip_busca')}
+          tooltipExpandir={t('admin.tests.tooltip_expandir')}
         
         acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
       />

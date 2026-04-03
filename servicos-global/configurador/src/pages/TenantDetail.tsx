@@ -214,13 +214,13 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
 
   const COLUNAS_AUDIT: TabelaGlobalColuna<LogAuditoria>[] = [
     {
-      key: 'quando', label: 'QUANDO', tipo: 'periodo',
+      key: 'quando', label: t('admin.tenant_detail.audit.quando'), tipo: 'periodo',
       tooltipTitulo: 'Timestamp (UTC)',
       tooltipDescricao: 'Data/hora (ISO-8601) em que o evento foi gravado na tabela de auditoria.',
       render: (v) => <span style={{ color: '#cbd5e1', fontSize: '0.8125rem' }}>{formatDate(v as string)}</span>
     },
     {
-      key: 'quemNome', label: 'QUEM', tipo: 'texto',
+      key: 'quemNome', label: t('admin.tenant_detail.audit.quem'), tipo: 'texto',
       tooltipTitulo: 'Identity Context',
       tooltipDescricao: 'Ator autenticado ou sistema que originou a ação.',
       render: (v, item) => {
@@ -236,7 +236,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
       }
     },
     {
-      key: 'acao', label: 'AÇÃO', tipo: 'texto',
+      key: 'acao', label: t('admin.tenant_detail.audit.acao'), tipo: 'texto',
       tooltipTitulo: 'Event Type',
       tooltipDescricao: 'Taxonomia da operação registrada.',
       render: (v) => {
@@ -253,7 +253,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
       }
     },
     {
-      key: 'oQueFoiFeito', label: 'O QUE FOI FEITO', tipo: 'texto',
+      key: 'oQueFoiFeito', label: t('admin.tenant_detail.audit.o_que_foi_feito'), tipo: 'texto',
       tooltipTitulo: 'Event Payload',
       tooltipDescricao: 'Descrição legível do que foi modificado.',
       render: (v, item) => (
@@ -278,7 +278,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
       )
     },
     {
-      key: 'entidade', label: 'ENTIDADE', tipo: 'texto',
+      key: 'entidade', label: t('admin.tenant_detail.audit.entidade'), tipo: 'texto',
       tooltipTitulo: 'Target Entity',
       tooltipDescricao: 'Módulo alvo da ação.',
       render: (v) => <span style={{ color: '#94a3b8' }}>{v as string}</span>
@@ -289,7 +289,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
 
   const COLUNAS_WS: TabelaGlobalColuna<Workspace>[] = [
     {
-      key: 'nome', label: 'Workspace', tipo: 'texto',
+      key: 'nome', label: t('admin.tenant_detail.workspaces.workspace'), tipo: 'texto',
       render: (_v, item) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
@@ -300,19 +300,19 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
       )
     },
     {
-      key: 'subdominio', label: 'Subdomínio', tipo: 'texto',
+      key: 'subdominio', label: t('admin.tenant_detail.workspaces.subdominio'), tipo: 'texto',
       render: (v) => <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>{v as string}.gravity.com.br</code>
     },
     {
-      key: 'status', label: 'Status', tipo: 'texto',
+      key: 'status', label: t('admin.tenant_detail.workspaces.status'), tipo: 'texto',
       render: (v) => <StatusBadgeGlobal valor={v as string} />
     },
     {
-      key: 'plano', label: 'Plano', tipo: 'texto',
+      key: 'plano', label: t('admin.tenant_detail.workspaces.plano'), tipo: 'texto',
       render: (v) => <span style={{ color: '#94a3b8', fontSize: '0.8125rem' }}>{v as string}</span>
     },
     {
-      key: 'usuarios', label: 'Usuários', align: 'center', tipo: 'texto',
+      key: 'usuarios', label: t('admin.tenant_detail.workspaces.usuarios'), align: 'center', tipo: 'texto',
       render: (v) => <span style={{ fontWeight: 600 }}>{v as number}</span>
     },
   ]
@@ -320,17 +320,17 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
   // ── Ações de exportação ───────────────────────────────────────────────────
 
   const acoesExport: TabelaExportAcao<LogAuditoria>[] = [
-    { label: 'Exportar CSV', icone: <Export size={14} />, onClick: () => {} },
-    { label: 'Backup JSON', icone: <DownloadSimple size={14} />, onClick: () => {} },
+    { label: t('admin.tenant_detail.export.exportar_csv'), icone: <Export size={14} />, onClick: () => {} },
+    { label: t('admin.tenant_detail.export.backup_json'), icone: <DownloadSimple size={14} />, onClick: () => {} },
   ]
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
 
   const TABS: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-    { key: 'auditoria', label: 'Histórico de Auditoria', icon: <ClockCounterClockwise size={15} weight="bold" /> },
-    { key: 'workspaces', label: `Workspaces (${totalWs})`, icon: <TreeStructure size={15} weight="bold" /> },
-    { key: 'usuarios', label: `Usuários (${tenant._count.users})`, icon: <UsersThree size={15} weight="bold" /> },
-    { key: 'billing', label: 'Faturamento', icon: <CreditCard size={15} weight="bold" /> },
+    { key: 'auditoria', label: t('admin.tenant_detail.tabs.auditoria'), icon: <ClockCounterClockwise size={15} weight="bold" /> },
+    { key: 'workspaces', label: `${t('admin.tenant_detail.tabs.workspaces')} (${totalWs})`, icon: <TreeStructure size={15} weight="bold" /> },
+    { key: 'usuarios', label: `${t('admin.tenant_detail.tabs.usuarios')} (${tenant._count.users})`, icon: <UsersThree size={15} weight="bold" /> },
+    { key: 'billing', label: t('admin.tenant_detail.tabs.faturamento'), icon: <CreditCard size={15} weight="bold" /> },
   ]
 
   return (
@@ -483,9 +483,9 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
             {[
-              { label: 'Total de Usuários', value: tenant._count.users },
-              { label: 'Empresas Vinculadas', value: tenant._count.companies },
-              { label: 'Produtos Contratados', value: tenant.subscriptions.length },
+              { label: t('admin.tenant_detail.stats.total_usuarios'), value: tenant._count.users },
+              { label: t('admin.tenant_detail.stats.empresas_vinculadas'), value: tenant._count.companies },
+              { label: t('admin.tenant_detail.stats.produtos_contratados'), value: tenant.subscriptions.length },
             ].map(({ label, value }) => (
               <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '16px' }}>
                 <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>{label}</div>

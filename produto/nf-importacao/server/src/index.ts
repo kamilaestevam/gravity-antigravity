@@ -9,6 +9,7 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
+import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { nfImportacaoRouter } from './routes/nfImportacao.js'
@@ -107,6 +108,7 @@ app.use('/api/v1/nf-importacao', nfImportarRouter)
 app.use('/api/v1/nf-importacao', nfDocumentoRouter)
 app.use('/api/v1/nf-importacao', nfHistoricoRouter)
 app.use('/api/v1/nf-importacao/config', configRouter)
+app.use('/api/v1/nf-importacao/dashboard', dashboardWidgetsRouter)
 
 // --- 9. SPA Fallback (producao) ---
 app.get('*', (_req: Request, res: Response) => {

@@ -101,7 +101,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
             <div style={{ background: 'rgba(56, 189, 248, 0.2)', padding: '6px', borderRadius: '8px', display: 'flex' }}>
               <Info size={16} weight="bold" color="#38bdf8" />
             </div>
-            <span>{t('admin.tests.agendamento.config_banner')}</span>
+            <span>{t('admin.tests.agendamento.banner_info')}</span>
           </div>
 
           {/* Agendamento Automático */}
@@ -161,17 +161,17 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f8fafc', fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   <input type="checkbox" checked={dados.tipos.unitarios} onChange={e => updateDados({tipos: {...dados.tipos, unitarios: e.target.checked}})} 
                          style={{ accentColor: '#6366f1', width: '18px', height: '18px', borderRadius: '4px' }} />
-                  <span>UNITÁRIOS</span>
+                  <span>{t('admin.tests.agendamento.tipo_unitarios')}</span>
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f8fafc', fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   <input type="checkbox" checked={dados.tipos.funcionais} onChange={e => updateDados({tipos: {...dados.tipos, funcionais: e.target.checked}})}
                          style={{ accentColor: '#6366f1', width: '18px', height: '18px', borderRadius: '4px' }} />
-                  <span>🧪 FUNCIONAIS</span>
+                  <span>🧪 {t('admin.tests.agendamento.tipo_funcionais')}</span>
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#f8fafc', fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   <input type="checkbox" checked={dados.tipos.e2e} onChange={e => updateDados({tipos: {...dados.tipos, e2e: e.target.checked}})}
                          style={{ accentColor: '#6366f1', width: '18px', height: '18px', borderRadius: '4px' }} />
-                  <span>🖥️ END-TO-END</span>
+                  <span>🖥️ {t('admin.tests.agendamento.tipo_e2e')}</span>
                 </label>
               </div>
             </GeralCampoGlobal>
@@ -197,7 +197,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#6366f1', letterSpacing: '0.1em' }}>
-              <EnvelopeSimple size={14} weight="fill" /> DESTINATÁRIOS DE ALERTAS
+              <EnvelopeSimple size={14} weight="fill" /> {t('admin.tests.agendamento.secao_destinatarios')}
             </h4>
             <button 
               onClick={() => setMostrarFormAlerta(!mostrarFormAlerta)}
@@ -221,7 +221,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
               <GeralCampoGlobal label={t('admin.tests.agendamento.campo_nome_receptor')}>
                 <input 
                   className="ws-input-pure"
-                  placeholder="Ex: João Silva" 
+                  placeholder={t('admin.tests.agendamento.campo_nome_receptor_placeholder')}
                   value={novoAlerta.nome}
                   onChange={e => setNovoAlerta({...novoAlerta, nome: e.target.value})}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
@@ -230,7 +230,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
               <GeralCampoGlobal label={t('admin.tests.agendamento.campo_contato')}>
                 <input 
                   className="ws-input-pure"
-                  placeholder="joao@email.com" 
+                  placeholder={t('admin.tests.agendamento.campo_contato_placeholder')}
                   value={novoAlerta.contato}
                   onChange={e => setNovoAlerta({...novoAlerta, contato: e.target.value})}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff' }}
@@ -266,7 +266,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
               dados={alertas}
               colunas={colunasAlertas}
               idKey="id"
-              mensagemVazio="Nenhum alerta configurado."
+              mensagemVazio={t('admin.tests.agendamento.alertas_vazio')}
             />
           </div>
         </div>
@@ -278,7 +278,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
       conteudo: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
           <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#10b981', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
-            <Play size={14} weight="fill" /> DISPARO SOB DEMANDA
+            <Play size={14} weight="fill" /> {t('admin.tests.agendamento.secao_disparo')}
           </h4>
           
           <div style={{ background: 'rgba(15, 23, 42, 0.3)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -288,12 +288,12 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0', fontSize: '0.875rem' }}>
                     <input type="checkbox" checked={dadosManual.tipos.unitarios} onChange={e => setDadosManual({...dadosManual, tipos: {...dadosManual.tipos, unitarios: e.target.checked}})}
                            style={{ accentColor: '#38bdf8', width: '17px', height: '17px' }} />
-                    Unitários
+                    {t('admin.tests.agendamento.tipo_unitarios')}
                   </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0', fontSize: '0.875rem' }}>
                     <input type="checkbox" checked={dadosManual.tipos.funcionais} onChange={e => setDadosManual({...dadosManual, tipos: {...dadosManual.tipos, funcionais: e.target.checked}})}
                            style={{ accentColor: '#38bdf8', width: '17px', height: '17px' }} />
-                    🧪 Funcionais
+                    🧪 {t('admin.tests.agendamento.tipo_funcionais')}
                   </label>
                 </div>
               </GeralCampoGlobal>
@@ -335,7 +335,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
       conteudo: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
           <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#eab308', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
-            <Clock size={14} weight="duotone" /> STATUS DO AGENDADOR
+            <Clock size={14} weight="duotone" /> {t('admin.tests.agendamento.secao_status')}
           </h4>
           
           <div className="em-grid em-grid--2">

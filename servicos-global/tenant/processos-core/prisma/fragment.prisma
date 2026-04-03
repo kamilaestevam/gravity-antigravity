@@ -3,16 +3,17 @@
 // MÓDULOS: Pedido de Compra/Venda, Tarefas Logísticas, Containers, Faturas.
 
 // ============================================
-// 1. GERENCIADOR DE PEDIDOS 
+// 1. GERENCIADOR DE PEDIDOS
 // ============================================
 model Pedido {
   id         String @id // (O Chassi / Robôs) Chave Primária PK. Ex: pedi_id_0000001/26
-  tenant_id  String // (O Workspace/Filial) Importador ou Exportador    
+  tenant_id  String // (O Workspace/Filial) Importador ou Exportador
   company_id String // (A Organização Matriz) Dona da Assinatura do Software
 
   tipo_operacao String // importacao (PO - Purchase Order) | exportacao (SO - Sales Order)
   numero_pedido String // (A Placa / Humanos) Referência Comercial. Ex: PO-8912, N° Pedido Totvs
   status        String @default("aberto") // aberto, transferencia, consolidado, cancelado
+  status_id     String? // FK to PedidoStatus (null = built-in status)
 
   // Parceiros Negociais Internacionais
   importacao_exportador_id String? // Se importacao: A Fábrica/Fornecedor (Exterior)
@@ -21,7 +22,7 @@ model Pedido {
   // DADOS COMERCIAIS GLOBAIS (Capa do Pedido)
   incoterm                               String?
   moeda_pedido                           String  @default("USD") // Lista de moedas padrão do sistema gravity
-  valor_total_pedido                     Float? // O somatório de todos os valores totais dos itens do pedido
+  valor_total_pedido                     Decimal? @db.Decimal(18,6) // O somatório de todos os valores totais dos itens do pedido
   casas_decimais_total_pedido            Int     @default(2) // Precisão (Ex: 3)
   quantidade_total_pedido                Float? // O somatório de todas as quantidades comercializadas dos itens do pedido
   casas_decimais_quantidade_total_pedido Int     @default(2) // Precisão (Ex: 3)
@@ -31,15 +32,16 @@ model Pedido {
   cobertura_cambial  String  @default("com_cobertura") // com_cobertura | sem_cobertura
   condicao_pagamento String? // Ex: 30% Antecipado, 70% Contra-Documento
 
-  valor_total_cambio   Float? // O montante do boleto cambial real fechado
+  valor_total_cambio   Decimal? @db.Decimal(18,6) // O montante do boleto cambial real fechado
   moeda_cambio         String? // Padrão cruzado: Ex: BRL (Saindo) -> USD (Comprando)
-  taxa_cambio_estimada Float? // A PTAX alvo/estimada na hora do fechamento da PO
+  taxa_cambio_estimada Decimal? @db.Decimal(18,6) // A PTAX alvo/estimada na hora do fechamento da PO
   contrato_cambio_id   String? // [FOREIGN KEY] Aponta para a tabela 'ContratoCambio'
 
   data_emissao_pedido DateTime @default(now()) // Nome corrigido sem barra/hifen
 
   // --- METADADOS POLIMÓRFICOS (AGILITY TIER 1) ---
   detalhes_operacionais Json? // Absorve atributos customizados de Exportador/Fabricante
+  campos_custom         Json? // custom columns storage (JSONB + GIN index in SQL)
 
   // Lista Fatiável de Itens (A ORDEM 1:N SALVA!)
   itens PedidoItem[]
@@ -47,7 +49,12 @@ model Pedido {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  @@index([tenant_id])
   @@index([tenant_id, company_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, status_id])
+  @@index([tenant_id, tipo_operacao])
+  @@index([tenant_id, data_emissao_pedido])
   @@map("pedidos_comerciais")
 }
 
@@ -61,27 +68,33 @@ model PedidoItem {
   // Identidade do Produto (Padrão Ouro de Comércio Exterior)
   sequencia_item              Int? // Sequencial da Linha no Documento/Processo (Ex: 10, 20)
   part_number                 String // Chave do cadastro interno (SKU Interno Estável)
-  ncm                         String // Classificação Fiscal 
+  ncm                         String // Classificação Fiscal
   descricao                   String
   unidade_comercializada_item String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
   // Controle de Quantidades
-  quantidade_inicial        Float
-  quantidade_atual          Float
-  quantidade_pronta         Float @default(0)
-  quantidade_transferida    Float @default(0)
-  quantidade_cancelada      Float @default(0)
+  quantidade_inicial        Decimal @db.Decimal(18,6)
+  quantidade_atual          Decimal @db.Decimal(18,6)
+  quantidade_pronta         Decimal @default(0) @db.Decimal(18,6)
+  quantidade_transferida    Decimal @default(0) @db.Decimal(18,6)
+  quantidade_cancelada      Decimal @default(0) @db.Decimal(18,6)
   casas_decimais_quantidade Int   @default(2)
 
   // Valores da Linha
   moeda_item                String @default("USD")
-  valor_item                Float? // O somatório individual desta linha (unitariOxquantidade)
-  valor_unitario            Float?
+  valor_item                Decimal? @db.Decimal(18,6) // O somatório individual desta linha (unitariOxquantidade)
+  valor_unitario            Decimal? @db.Decimal(18,6)
   casas_decimais_total_item Int    @default(2)
+
+  campos_custom Json? // custom columns storage
 
   pedido             Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
   embarques_efetivos ProcessoItem[]
 
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
   @@index([tenant_id, company_id])
   @@index([pedido_id])
   @@map("pedido_itens")
@@ -129,7 +142,7 @@ model Processo {
   moeda_pedido                String  @default("USD")
   valor_total_pedido          Float?
   incoterm                    String?
-  premio_seguro_internacional Float?
+  premio_seguro_internacional Decimal? @db.Decimal(18,6)
 
   // LOGÍSTICA DE FRETE
   modal_frete_internacional                     String? // Maritimo LCL, Maritimo FCL, Aereo, Rodoviario, Ferroviario
@@ -143,16 +156,16 @@ model Processo {
   moeda_frete_internacional                     String? @default("USD")
   tipo_frete_internacional                      String? // collect / prepaid
   proposta_frete_internacional                  String?
-  valor_frete_internacional_estimado            Float?
-  valor_total_frete_internacional               Float?
-  valor_total_taxas_origem_frete_internacional  Float?
-  valor_total_taxas_destino_frete_internacional Float?
+  valor_frete_internacional_estimado            Decimal? @db.Decimal(18,6)
+  valor_total_frete_internacional               Decimal? @db.Decimal(18,6)
+  valor_total_taxas_origem_frete_internacional  Decimal? @db.Decimal(18,6)
+  valor_total_taxas_destino_frete_internacional Decimal? @db.Decimal(18,6)
 
   // DADOS DA CARGA FÍSICA GLOBAL
   tipo_volume              String? // caixa, container, pallet, etc. Lista padrão de volumes do gravity
   quantidade_total_volumes Int?    @default(0)
-  peso_bruto_total         Float?  @default(0)
-  peso_liquido_total       Float?  @default(0)
+  peso_bruto_total         Decimal? @default(0) @db.Decimal(18,6)
+  peso_liquido_total       Decimal? @default(0) @db.Decimal(18,6)
 
   // A LINHA DO TEMPO (TRACKING ABSOLUTO - MASTER COMEX)
   data_pedido                            DateTime?
@@ -212,11 +225,11 @@ model Processo {
   // NOTA: Invoices foram para ProcessoFatura e Containers para ProcessoContainer
 
   // Tributos Acumulados
-  total_imposto_ii     Float? @default(0)
-  total_imposto_ipi    Float? @default(0)
-  total_imposto_pis    Float? @default(0)
-  total_imposto_cofins Float? @default(0)
-  total_imposto_icms   Float? @default(0)
+  total_imposto_ii     Decimal? @default(0) @db.Decimal(18,6)
+  total_imposto_ipi    Decimal? @default(0) @db.Decimal(18,6)
+  total_imposto_pis    Decimal? @default(0) @db.Decimal(18,6)
+  total_imposto_cofins Decimal? @default(0) @db.Decimal(18,6)
+  total_imposto_icms   Decimal? @default(0) @db.Decimal(18,6)
 
   // --- METADADOS POLIMÓRFICOS (AGILITY TIER 1) ---
   detalhes_fiscais     Json?  // (Absorve os 300 campos da DUIMP, NF, MAPA...)
@@ -243,11 +256,11 @@ model ProcessoFatura {
   company_id  String
   processo_id String
 
-  tipo_fatura   String // proforma | commercial_invoice | freight_invoice | tax_invoice 
+  tipo_fatura   String // proforma | commercial_invoice | freight_invoice | tax_invoice
   numero_fatura String // (Acomoda os 'numero_commercial_invoice', etc)
   moeda_fatura  String @default("USD")
-  valor_total   Float
-  valor_pago    Float  @default(0)
+  valor_total   Decimal @db.Decimal(18,6)
+  valor_pago    Decimal @default(0) @db.Decimal(18,6)
 
   data_vencimento  DateTime?
   status_pagamento String    @default("pendente") // pendente, pago, parcial
@@ -273,13 +286,13 @@ model ProcessoItem {
   descricao_po   String
   descricao_en   String?
 
-  quantidade                  Float
+  quantidade                  Decimal @db.Decimal(18,6)
   unidade_comercializada_item String?
-  valor_unitario              Float
-  valor_total                 Float
+  valor_unitario              Decimal @db.Decimal(18,6)
+  valor_total                 Decimal @db.Decimal(18,6)
 
-  peso_liquido_unitario Float?
-  peso_bruto_unitario   Float?
+  peso_liquido_unitario Decimal? @db.Decimal(18,6)
+  peso_bruto_unitario   Decimal? @db.Decimal(18,6)
 
   // --- METADADOS POLIMÓRFICOS (AGILITY TIER 1) ---
   detalhes_do_produto Json? // Absorve Especificações, Lotes e Campos Extensos da NCM
@@ -302,8 +315,8 @@ model ProcessoContainer {
   numero_container String
   numero_lacre     String?
   tipo_container   String // 20Dry, 40HQ, 40Nor, LCL
-  tara             Float?
-  peso_bruto       Float?
+  tara             Decimal? @db.Decimal(18,6)
+  peso_bruto       Decimal? @db.Decimal(18,6)
 
   data_devolucao_prevista DateTime?
   data_devolucao_real     DateTime?
@@ -314,4 +327,90 @@ model ProcessoContainer {
   @@index([tenant_id, company_id])
   @@index([processo_id])
   @@map("processo_containers")
+}
+
+// ============================================
+// 5. CONFIGURAÇÃO DA TABELA DE PEDIDOS
+// ============================================
+
+// Status customizável por tenant (as "abas" da tabela)
+model PedidoStatus {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+
+  nome       String   // slug/valor: "aguardando_embarque"
+  rotulo     String   // label exibido: "Aguardando Embarque"
+  cor        String   // hex: "#6366F1"
+  icone      String?  // nome do ícone Phosphor
+  ordem      Int      @default(0)
+  is_padrao  Boolean  @default(false) // status aplicado em novos pedidos
+  is_sistema Boolean  @default(false) // status built-in que não pode ser deletado
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("pedido_status")
+}
+
+// Colunas customizadas criadas pelo tenant (até 30 por tenant)
+model PedidoColuna {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+
+  nome           String   // slug interno (nunca usado em SQL direto, só como key no JSONB)
+  rotulo         String   // label exibido ao usuário
+  tipo           String   // 'texto' | 'numero' | 'data' | 'select' | 'booleano'
+  casas_decimais Int      @default(2)  // para tipo 'numero'
+  opcoes         Json?    // para tipo 'select': [{valor, rotulo}]
+  ordem          Int      @default(0)
+  filtravel      Boolean  @default(true)
+  exibida_padrao Boolean  @default(false)
+  index_criado   Boolean  @default(false) // true quando expression index foi criado no PG
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("pedido_colunas")
+}
+
+// Preferência de colunas por usuário (persistência cross-device)
+model PedidoPreferenciaUsuario {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+  user_id    String   // clerk_id do usuário
+
+  colunas_visiveis String[]  // keys das colunas visíveis, na ordem
+  colunas_largura  Json?     // {key: larguraEmPx}
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("pedido_preferencias_usuario")
+}
+
+// Preferência padrão de colunas por workspace (fallback quando usuário não tem preferência)
+model PedidoPreferenciaPadrao {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+
+  colunas_visiveis String[]
+  colunas_largura  Json?
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id])
+  @@index([tenant_id])
+  @@map("pedido_preferencias_padrao")
 }

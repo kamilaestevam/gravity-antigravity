@@ -340,7 +340,7 @@ export function AdminFinanceiro() {
           icone={<Receipt weight="duotone" size={22} color="#818cf8" />}
           acoes={
             <BotaoGlobal
-              texto={t('admin.financial.btn_lancar_fatura')}
+              texto={t('admin.financial.btn_lancar')}
               icone={<Plus weight="bold" />}
               variante="sucesso"
               onClick={abrirModalNovo}
@@ -351,53 +351,53 @@ export function AdminFinanceiro() {
       stats={
         <>
           <StatCardGlobal
-            titulo="A Receber (Aberto)"
+            titulo={t('admin.financial.card_a_receber')}
             icone={<ChartLineUp weight="duotone" size={16} />}
             valor={<span style={{ fontSize: '1.5rem' }}>{faturasAbertas.length ? `R$ ${totalAberto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}</span>}
-            subtexto={`${faturasAbertas.length} faturas pendentes`}
+            subtexto={t('admin.financial.card_a_receber_subtexto', { count: faturasAbertas.length })}
             variante="padrao"
             tooltip={
               <>
-                <p className="cg-tooltip__title">PROJEÇÃO</p>
+                <p className="cg-tooltip__title">{t('admin.financial.card_a_receber_tooltip_titulo')}</p>
                 <div className="cg-tooltip__row">
-                  <span>Volume a receber</span>
+                  <span>{t('admin.financial.card_a_receber_tooltip_label')}</span>
                   <strong>{faturasAbertas.length} docs</strong>
                 </div>
               </>
             }
           />
           <StatCardGlobal
-            titulo="Risco Inadimplência"
+            titulo={t('admin.financial.card_risco')}
             valor={<span style={{ fontSize: '1.5rem' }}>{inadimplencias.length ? `R$ ${totalInadimplencia.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'}</span>}
             variante={inadimplencias.length ? 'perigo' : 'sucesso'}
             tooltip={
               <>
-                <p className="cg-tooltip__title">ANÁLISE DE ATRASO</p>
+                <p className="cg-tooltip__title">{t('admin.financial.card_risco_tooltip_titulo')}</p>
                 <div className="cg-tooltip__row">
-                  <span>Clientes em atraso</span>
+                  <span>{t('admin.financial.card_risco_tooltip_clientes')}</span>
                   <strong>{new Set(inadimplencias.map(i => i.cliente)).size}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>Faturas em atraso</span>
+                  <span>{t('admin.financial.card_risco_tooltip_faturas')}</span>
                   <strong>{inadimplencias.length}</strong>
                 </div>
               </>
             }
           />
           <StatCardGlobal
-            titulo="Performance"
+            titulo={t('admin.financial.card_performance')}
             valor={<span style={{ fontSize: '1.75rem' }}>{((faturasLocal.filter(f => f.status === 'Pago').length / (faturasLocal.length || 1)) * 100).toFixed(0)}%</span>}
-            subtexto="Taxa de recebimento"
+            subtexto={t('admin.financial.card_performance_subtexto')}
             variante="sucesso"
             tooltip={
               <>
-                <p className="cg-tooltip__title">EFICIÊNCIA</p>
+                <p className="cg-tooltip__title">{t('admin.financial.card_performance_tooltip_titulo')}</p>
                 <div className="cg-tooltip__row">
-                  <span>Recebidas</span>
+                  <span>{t('admin.financial.card_performance_tooltip_recebidas')}</span>
                   <strong>{faturasLocal.filter(x => x.status === 'Pago').length}</strong>
                 </div>
                 <div className="cg-tooltip__row">
-                  <span>Total emitido</span>
+                  <span>{t('admin.financial.card_performance_tooltip_total')}</span>
                   <strong>{faturasLocal.length}</strong>
                 </div>
               </>
@@ -410,7 +410,7 @@ export function AdminFinanceiro() {
       {/* Tabela de faturamento global */}
       <p className="ws-section-title ws-fade-up ws-fade-up-d2">
         <Buildings weight="duotone" size={14} color="#818cf8" />
-        Faturamento por Cliente e Base
+        {t('admin.financial.secao_faturamento')}
       </p>
       <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
         <TabelaGlobal<FaturaGlobal>
@@ -420,17 +420,17 @@ export function AdminFinanceiro() {
           acoesExportacao={getAcoesExportacaoPadrao(COLUNAS, 'dados_tabela', 'Exportação de Dados')}
           acoes={[
             {
-              id: 'anexar', icone: <Paperclip weight="bold" size={15} />, tooltip: 'Anexar Boleto / NF-e',
+              id: 'anexar', icone: <Paperclip weight="bold" size={15} />, tooltip: t('admin.financial.acao_anexar'),
               onClick: (f) => abrirModalEditar(f),
             },
             {
-              id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: 'Baixar Documentos',
+              id: 'nfe', icone: <DownloadSimple weight="bold" size={15} />, tooltip: t('admin.financial.acao_baixar'),
               onClick: (f) => handleDownload('Pack PDF', f.num),
             },
             {
               id: 'excluir',
               icone: <Trash size={15} weight="bold" />,
-              tooltip: 'Excluir Fatura',
+              tooltip: t('admin.financial.acao_excluir'),
               onClick: (f) => setFaturaParaExcluir(f),
               renderCustom: (f) => (
                 <button
@@ -445,11 +445,11 @@ export function AdminFinanceiro() {
               )
             }
           ]}
-          tooltipExpandir="Ver detalhamento completo da composição desta fatura"
+          tooltipExpandir={t('admin.financial.tabela_expandir_tooltip')}
           renderExpandido={(fatura) => (
             <div style={{ padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
               <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                <Receipt size={18} weight="duotone" color="var(--color-primary)" /> Detalhamento da Fatura {fatura.num} · <span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>{fatura.cliente} · {fatura.competencia}</span>
+                <Receipt size={18} weight="duotone" color="var(--color-primary)" /> {t('admin.financial.expandido_titulo')} {fatura.num} · <span style={{ color: 'var(--ws-muted)', fontWeight: 400 }}>{fatura.cliente} · {fatura.competencia}</span>
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {(fatura.composicao ?? []).map((comp, idx) => (
@@ -476,14 +476,14 @@ export function AdminFinanceiro() {
                 ))}
               </div>
               <div style={{ marginTop: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ws-muted)' }}>Total da Fatura</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--ws-muted)' }}>{t('admin.financial.expandido_total')}</span>
                 <strong style={{ fontFamily: 'monospace', fontSize: '1.0625rem', fontWeight: 800, color: 'var(--ws-text)' }}>{fatura.valor}</strong>
               </div>
             </div>
           )}
-          mensagemVazio="Nenhuma fatura encontrada."
-          mensagemSemFiltro="Sem faturas geradas no período."
-          tooltipBusca="Localizar fatura por número, cliente ou produto"
+          mensagemVazio={t('admin.financial.vazio')}
+          mensagemSemFiltro={t('admin.financial.vazio_filtro')}
+          tooltipBusca={t('admin.financial.tooltip_busca')}
         />
       </div>
 
@@ -497,7 +497,7 @@ export function AdminFinanceiro() {
         color: 'var(--ws-muted)',
         lineHeight: 1.6,
       }}>
-        💡 <strong style={{ color: 'var(--ws-text)' }}>Gestão Manual</strong> — Utilize o botão "Lançar Fatura" para registrar cobranças manuais ou o ícone de clipe (<Paperclip size={12} />) para anexar boletos e notas fiscais em faturas existentes.
+        💡 <strong style={{ color: 'var(--ws-text)' }}>{t('admin.financial.info_gestao_manual')}</strong> — {t('admin.financial.info_gestao_desc')}
       </div>
 
       {/* Modal de Cadastro/Edição de Fatura */}
@@ -505,37 +505,37 @@ export function AdminFinanceiro() {
         aberto={modalAberto}
         aoFechar={() => setModalAberto(false)}
         aoSalvar={handleSalvar}
-        titulo={faturaEditando ? `Editar Fatura ${faturaEditando.num}` : 'Lançar Nova Fatura'}
-        subtitulo="Preencha os dados de faturamento e anexe os documentos necessários."
+        titulo={faturaEditando ? t('admin.financial.modal_editar_titulo', { num: faturaEditando.num }) : t('admin.financial.modal_novo_titulo')}
+        subtitulo={t('admin.financial.modal_subtitulo')}
         icone={<Receipt weight="duotone" size={24} />}
         tamanho="lg"
         tipoAbas="pill"
         abas={[
           {
             id: 'dados',
-            rotulo: 'Dados da Fatura',
+            rotulo: t('admin.financial.aba_dados'),
             conteudo: (
               <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <SecaoFormularioGlobal titulo="Identificação" icone={<Buildings size={16} />} />
+                <SecaoFormularioGlobal titulo={t('admin.financial.secao_identificacao')} icone={<Buildings size={16} />} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal label="Cliente / Organização">
-                    <input type="text" className="ws-input" value={formData.cliente} onChange={e => setFormData({...formData, cliente: e.target.value})} placeholder="Ex: Importas SA" />
+                  <GeralCampoGlobal label={t('admin.financial.campo_cliente')}>
+                    <input type="text" className="ws-input" value={formData.cliente} onChange={e => setFormData({...formData, cliente: e.target.value})} placeholder={t('admin.financial.campo_cliente_placeholder')} />
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal label="Produto">
-                    <input type="text" className="ws-input" value={formData.produto} onChange={e => setFormData({...formData, produto: e.target.value})} placeholder="Ex: Gravity Journey" />
+                  <GeralCampoGlobal label={t('admin.financial.campo_produto')}>
+                    <input type="text" className="ws-input" value={formData.produto} onChange={e => setFormData({...formData, produto: e.target.value})} placeholder={t('admin.financial.campo_produto_placeholder')} />
                   </GeralCampoGlobal>
                 </div>
-                
-                <SecaoFormularioGlobal titulo="Valores e Prazos" icone={<CalendarBlank size={16} />} />
+
+                <SecaoFormularioGlobal titulo={t('admin.financial.secao_valores_prazos')} icone={<CalendarBlank size={16} />} />
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                  <GeralCampoGlobal label="Competência">
-                    <input type="text" className="ws-input" value={formData.competencia} onChange={e => setFormData({...formData, competencia: e.target.value})} placeholder="Ex: Abr/2025" />
+                  <GeralCampoGlobal label={t('admin.financial.campo_competencia')}>
+                    <input type="text" className="ws-input" value={formData.competencia} onChange={e => setFormData({...formData, competencia: e.target.value})} placeholder={t('admin.financial.campo_competencia_placeholder')} />
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal label="Vencimento">
+                  <GeralCampoGlobal label={t('admin.financial.campo_vencimento')}>
                     <input type="date" className="ws-input" value={formData.vencimento} onChange={e => setFormData({...formData, vencimento: e.target.value})} />
                   </GeralCampoGlobal>
-                  <GeralCampoGlobal label="Valor Total">
-                    <input type="text" className="ws-input" value={formData.valor} onChange={e => setFormData({...formData, valor: e.target.value})} placeholder="R$ 0,00" />
+                  <GeralCampoGlobal label={t('admin.financial.campo_valor_total')}>
+                    <input type="text" className="ws-input" value={formData.valor} onChange={e => setFormData({...formData, valor: e.target.value})} placeholder={t('admin.financial.campo_valor_placeholder')} />
                   </GeralCampoGlobal>
                 </div>
               </div>
@@ -543,11 +543,11 @@ export function AdminFinanceiro() {
           },
           {
             id: 'arquivos',
-            rotulo: 'Documentos (PDF)',
+            rotulo: t('admin.financial.aba_documentos'),
             conteudo: (
               <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <SecaoFormularioGlobal titulo="Anexos da Fatura" icone={<Paperclip size={16} weight="duotone" />} marginBottom={0} />
+                  <SecaoFormularioGlobal titulo={t('admin.financial.anexos_titulo')} icone={<Paperclip size={16} weight="duotone" />} marginBottom={0} />
                   <button 
                     type="button" 
                     onClick={() => setDocsLocal([...docsLocal, { id: `d${Date.now()}`, nome: 'Aguardando PDF...', tipo: 'Outros', status: 'Pendente' }])}
@@ -555,7 +555,7 @@ export function AdminFinanceiro() {
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.15)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.4)' }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(52,211,153,0.08)'; e.currentTarget.style.borderColor = 'rgba(52,211,153,0.25)' }}
                   >
-                    <Plus size={14} weight="bold" /> Adicionar Documento
+                    <Plus size={14} weight="bold" /> {t('admin.financial.btn_adicionar_doc')}
                   </button>
                 </div>
                 
@@ -566,8 +566,8 @@ export function AdminFinanceiro() {
                       dados={docsLocal}
                       idKey="id"
                       colunas={[
-                        { 
-                          key: 'tipo', label: 'Tipo de Documento', tipo: 'texto', largura: '200px',
+                        {
+                          key: 'tipo', label: t('admin.financial.doc_coluna_tipo'), tipo: 'texto', largura: '200px',
                           render: (v, item) => (
                             <SelectGlobal
                               valor={v}
@@ -584,7 +584,7 @@ export function AdminFinanceiro() {
                           )
                         },
                         {
-                          key: 'nome', label: 'Arquivo / Link', tipo: 'texto',
+                          key: 'nome', label: t('admin.financial.doc_coluna_arquivo'), tipo: 'texto',
                           render: (v, item) => (
                             <div style={{ 
                               display: 'flex', alignItems: 'center', gap: '8px', 
@@ -609,13 +609,13 @@ export function AdminFinanceiro() {
                                   padding: '3px 8px', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap'
                                 }}
                               >
-                                {item.status === 'Anexado' ? 'Trocar' : 'Anexar'}
+                                {item.status === 'Anexado' ? t('admin.financial.doc_trocar') : t('admin.financial.doc_anexar')}
                               </button>
                             </div>
                           )
                         },
                         {
-                          key: 'status', label: 'Status', tipo: 'texto', align: 'center', largura: '100px',
+                          key: 'status', label: t('admin.financial.doc_coluna_status'), tipo: 'texto', align: 'center', largura: '100px',
                           render: (v) => (
                             <span style={{ 
                               display: 'inline-flex', alignItems: 'center', gap: '4px', 
@@ -632,18 +632,18 @@ export function AdminFinanceiro() {
                         {
                           id: 'remover',
                           icone: <Trash size={14} color="#ef4444" />,
-                          tooltip: 'Excluir documento',
+                          tooltip: t('admin.financial.acao_excluir'),
                           onClick: (item) => setDocsLocal(prev => prev.filter(d => d.id !== item.id))
                         }
                       ]}
-                      mensagemVazio="Nenhum documento anexado."
+                      mensagemVazio={t('admin.financial.doc_sem_anexo')}
                     />
                   </div>
                 ) : (
                   <div style={{ padding: '2.5rem', border: '2px dashed rgba(255,255,255,0.04)', borderRadius: '12px', textAlign: 'center', background: 'rgba(255,255,255,0.01)' }}>
                     <div style={{ opacity: 0.4, marginBottom: '0.75rem' }}><Paperclip size={32} weight="duotone" /></div>
-                    <p style={{ margin: 0, color: 'var(--ws-muted)', fontSize: '0.8125rem', fontWeight: 500 }}>Nenhum documento anexado.</p>
-                    <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem' }}>Utilize o botão acima para adicionar boletos, notas ou relatórios.</p>
+                    <p style={{ margin: 0, color: 'var(--ws-muted)', fontSize: '0.8125rem', fontWeight: 500 }}>{t('admin.financial.doc_sem_anexo')}</p>
+                    <p style={{ margin: '4px 0 0 0', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem' }}>{t('admin.financial.doc_aviso')}</p>
                   </div>
                 )}
 
@@ -655,7 +655,7 @@ export function AdminFinanceiro() {
                   fontSize: '0.75rem',
                   color: '#fbbf24'
                 }}>
-                  ⚠️ Os arquivos anexados ficarão disponíveis imediatamente para o cliente na área "Financeiro" do workspace dele.
+                  ⚠️ {t('admin.financial.doc_aviso')}
                 </div>
 
                 {/* Input de arquivo oculto para funcionalidade real */}
@@ -675,12 +675,12 @@ export function AdminFinanceiro() {
       {/* Modal de Exclusão */}
       <ModalExclusao
         aberto={!!faturaParaExcluir}
-        titulo="Excluir Fatura"
+        titulo={t('admin.financial.excluir_titulo')}
         descricao={
           <>
-            Você está prestes a excluir permanentemente a fatura <strong>{faturaParaExcluir?.num}</strong> do cliente <strong>{faturaParaExcluir?.cliente}</strong>.
+            {t('admin.financial.excluir_desc_1')} <strong>{faturaParaExcluir?.num}</strong> {t('admin.financial.excluir_desc_2')} <strong>{faturaParaExcluir?.cliente}</strong>.
             <br /><br />
-            Esta ação não poderá ser desfeita.
+            {t('admin.financial.excluir_irreversivel')}
           </>
         }
         nomeItem={`${faturaParaExcluir?.num} — ${faturaParaExcluir?.cliente}`}
@@ -713,7 +713,7 @@ export function AdminFinanceiro() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', paddingBottom: '0.625rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <Receipt weight="duotone" size={16} color="#818cf8" />
           <div>
-            <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#818cf8' }}>COMPOSIÇÃO DA FATURA {faturaTooltip.num}</p>
+            <p style={{ margin: 0, fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#818cf8' }}>{t('admin.financial.popover_titulo')} {faturaTooltip.num}</p>
             <p style={{ margin: 0, fontSize: '0.6875rem', color: 'var(--ws-muted)' }}>{faturaTooltip.cliente} · {faturaTooltip.competencia} · {faturaTooltip.produto}</p>
           </div>
         </div>
@@ -748,15 +748,15 @@ export function AdminFinanceiro() {
 
         {/* Divider + Total */}
         <div style={{ marginTop: '0.75rem', paddingTop: '0.625rem', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>Total da Fatura</span>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>{t('admin.financial.expandido_total')}</span>
           <strong style={{ fontFamily: 'monospace', fontSize: '1.0625rem', fontWeight: 800, color: 'var(--ws-text)' }}>{faturaTooltip.valor}</strong>
         </div>
 
         {/* Legenda */}
         <div style={{ marginTop: '0.625rem', display: 'flex', gap: '1rem', fontSize: '0.625rem', color: 'var(--ws-muted)' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8' }} /> Base</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24' }} /> Adicional</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399' }} /> Desconto</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#818cf8' }} /> {t('admin.financial.legenda_base')}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fbbf24' }} /> {t('admin.financial.legenda_adicional')}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399' }} /> {t('admin.financial.legenda_desconto')}</span>
         </div>
       </div>,
       document.body

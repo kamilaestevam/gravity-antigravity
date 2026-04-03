@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import {
@@ -182,6 +183,7 @@ function Field({
 
 export default function NovaCotacao() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [salvando, setSalvando] = useState(false)
@@ -247,7 +249,7 @@ export default function NovaCotacao() {
       case 1:
         return (
           <div className="nc-step-content">
-            <h3 className="nc-section-title">Tipo de Operação</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.tipo_operacao')}</h3>
             <div className="nc-options-row">
               {(['IMPORTACAO', 'EXPORTACAO'] as TipoOperacao[]).map(op => (
                 <OptionButton
@@ -260,7 +262,7 @@ export default function NovaCotacao() {
               ))}
             </div>
 
-            <h3 className="nc-section-title">Modal de Frete</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.modal_frete')}</h3>
             <div className="nc-options-row">
               <OptionButton
                 selected={form.modal === 'MARITIMO'}
@@ -282,7 +284,7 @@ export default function NovaCotacao() {
               />
             </div>
 
-            <h3 className="nc-section-title">Modalidade</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.modalidade')}</h3>
             <div className="nc-options-row">
               {form.modal === 'MARITIMO' && (
                 <>
@@ -299,7 +301,7 @@ export default function NovaCotacao() {
                   <OptionButton selected={form.modalidade === 'RODOVIARIO_LTL'} onClick={() => set('modalidade', 'RODOVIARIO_LTL')} icon={<Van weight="duotone" size={18} />} label="LTL — Carga Fracionada" />
                 </>
               )}
-              {!form.modal && <p className="nc-hint">Selecione o modal primeiro</p>}
+              {!form.modal && <p className="nc-hint">{t('bidfrete.nova_cotacao.selecionar_modal_primeiro')}</p>}
             </div>
           </div>
         )
@@ -308,15 +310,15 @@ export default function NovaCotacao() {
       case 2:
         return (
           <div className="nc-step-content">
-            <h3 className="nc-section-title">Porto / Aeroporto de Origem</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.porto_origem')}</h3>
             <div className="nc-fields-grid">
-              <Field label="Código UN/LOCODE" required>
+              <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
                 <input className="nc-input" placeholder="Ex: CNSHA" value={form.origem_codigo} onChange={e => set('origem_codigo', e.target.value.toUpperCase())} />
               </Field>
-              <Field label="Nome" required>
+              <Field label={t('bidfrete.nova_cotacao.nome')} required>
                 <input className="nc-input" placeholder="Ex: Shanghai" value={form.origem_nome} onChange={e => set('origem_nome', e.target.value)} />
               </Field>
-              <Field label="País">
+              <Field label={t('bidfrete.nova_cotacao.pais')}>
                 <input className="nc-input" placeholder="Ex: China" value={form.origem_pais} onChange={e => set('origem_pais', e.target.value)} />
               </Field>
             </div>
@@ -327,15 +329,15 @@ export default function NovaCotacao() {
       case 3:
         return (
           <div className="nc-step-content">
-            <h3 className="nc-section-title">Porto / Aeroporto de Destino</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.porto_destino')}</h3>
             <div className="nc-fields-grid">
-              <Field label="Código UN/LOCODE" required>
+              <Field label={t('bidfrete.nova_cotacao.codigo_locode')} required>
                 <input className="nc-input" placeholder="Ex: BRSSZ" value={form.destino_codigo} onChange={e => set('destino_codigo', e.target.value.toUpperCase())} />
               </Field>
-              <Field label="Nome" required>
+              <Field label={t('bidfrete.nova_cotacao.nome')} required>
                 <input className="nc-input" placeholder="Ex: Santos" value={form.destino_nome} onChange={e => set('destino_nome', e.target.value)} />
               </Field>
-              <Field label="País">
+              <Field label={t('bidfrete.nova_cotacao.pais')}>
                 <input className="nc-input" placeholder="Ex: Brasil" value={form.destino_pais} onChange={e => set('destino_pais', e.target.value)} />
               </Field>
             </div>
@@ -346,26 +348,26 @@ export default function NovaCotacao() {
       case 4:
         return (
           <div className="nc-step-content">
-            <h3 className="nc-section-title">Dados da Mercadoria</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.dados_mercadoria')}</h3>
             <div className="nc-fields-grid">
-              <Field label="Descrição da Mercadoria" required>
+              <Field label={t('bidfrete.nova_cotacao.descricao_mercadoria')} required>
                 <input className="nc-input" placeholder="Ex: Peças automotivas" value={form.descricao_mercadoria} onChange={e => set('descricao_mercadoria', e.target.value)} />
               </Field>
-              <Field label="NCM (8 dígitos)">
+              <Field label={t('bidfrete.nova_cotacao.ncm')}>
                 <input className="nc-input" placeholder="Ex: 87089990" value={form.ncm} onChange={e => set('ncm', e.target.value.replace(/\D/g, '').slice(0, 8))} />
               </Field>
-              <Field label="Quantidade" required>
+              <Field label={t('bidfrete.nova_cotacao.quantidade')} required>
                 <input className="nc-input" type="number" min={1} value={form.quantidade} onChange={e => set('quantidade', parseInt(e.target.value) || 1)} />
               </Field>
               {form.modal === 'MARITIMO' && (
-                <Field label="Tipo de Container">
+                <Field label={t('bidfrete.nova_cotacao.tipo_container')}>
                   <input className="nc-input" placeholder="Ex: 40' HC" value={form.tipo_container} onChange={e => set('tipo_container', e.target.value)} />
                 </Field>
               )}
-              <Field label="Peso (Kg)">
+              <Field label={t('bidfrete.nova_cotacao.peso_kg')}>
                 <input className="nc-input" type="number" placeholder="Ex: 12000" value={form.peso_kg} onChange={e => set('peso_kg', e.target.value)} />
               </Field>
-              <Field label="Cubagem (m³)">
+              <Field label={t('bidfrete.nova_cotacao.cubagem_m3')}>
                 <input className="nc-input" type="number" placeholder="Ex: 33.2" value={form.cubagem_m3} onChange={e => set('cubagem_m3', e.target.value)} />
               </Field>
             </div>
@@ -376,7 +378,7 @@ export default function NovaCotacao() {
       case 5:
         return (
           <div className="nc-step-content">
-            <h3 className="nc-section-title">Incoterm</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.incoterm')}</h3>
             <div className="nc-incoterm-grid">
               {INCOTERMS.map(inc => (
                 <button
@@ -391,13 +393,13 @@ export default function NovaCotacao() {
             </div>
             {form.incoterm === 'EXW' && (
               <div style={{ marginTop: '1rem' }}>
-                <Field label="CEP de coleta (obrigatório para EXW)" required>
+                <Field label={t('bidfrete.nova_cotacao.cep_coleta')} required>
                   <input className="nc-input" placeholder="Ex: 01310-100" value={form.cep_destino} onChange={e => set('cep_destino', e.target.value)} />
                 </Field>
               </div>
             )}
             <div className="nc-fields-grid" style={{ marginTop: '1.5rem' }}>
-              <Field label="Prazo para respostas">
+              <Field label={t('bidfrete.nova_cotacao.prazo_respostas')}>
                 <input className="nc-input" type="datetime-local" value={form.prazo_resposta} onChange={e => set('prazo_resposta', e.target.value)} />
               </Field>
             </div>
@@ -408,33 +410,33 @@ export default function NovaCotacao() {
       case 6:
         return (
           <div className="nc-step-content">
-            <h3 className="nc-section-title">Visibilidade da Cotação</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.visibilidade')}</h3>
             <div className="nc-options-row">
               <OptionButton
                 selected={form.visibilidade === 'DIRECIONADA'}
                 onClick={() => set('visibilidade', 'DIRECIONADA')}
                 icon={<Users weight="duotone" size={20} />}
-                label="Direcionada — Escolher fornecedores"
+                label={t('bidfrete.nova_cotacao.direcionada_label')}
               />
               <OptionButton
                 selected={form.visibilidade === 'ABERTA'}
                 onClick={() => set('visibilidade', 'ABERTA')}
                 icon={<Users weight="duotone" size={20} />}
-                label="Aberta — Todos os fornecedores"
+                label={t('bidfrete.nova_cotacao.aberta_label')}
               />
             </div>
 
             <div className="nc-toggle-row" style={{ marginTop: '1.5rem' }}>
               <label className="nc-toggle">
                 <input type="checkbox" checked={form.anonima} onChange={e => set('anonima', e.target.checked)} />
-                <span className="nc-toggle-label">Cotação anônima (ocultar nome da empresa)</span>
+                <span className="nc-toggle-label">{t('bidfrete.nova_cotacao.anonima_label')}</span>
               </label>
             </div>
 
             <p className="nc-hint" style={{ marginTop: '1rem' }}>
               {form.visibilidade === 'DIRECIONADA'
-                ? 'Após criar a cotação, você poderá selecionar os fornecedores e os canais de disparo.'
-                : 'Todos os fornecedores cadastrados que aceitam cotação aberta receberão a solicitação.'}
+                ? t('bidfrete.nova_cotacao.hint_direcionada')
+                : t('bidfrete.nova_cotacao.hint_aberta')}
             </p>
           </div>
         )
@@ -443,13 +445,13 @@ export default function NovaCotacao() {
       case 7:
         return (
           <div className="nc-step-content">
-            <h3 className="nc-section-title">Resumo da Cotação</h3>
+            <h3 className="nc-section-title">{t('bidfrete.nova_cotacao.resumo_cotacao')}</h3>
 
             <div className="nc-fields-grid" style={{ marginBottom: '1.5rem' }}>
-              <Field label="Valor alvo (opcional)">
+              <Field label={t('bidfrete.nova_cotacao.valor_alvo')}>
                 <input className="nc-input" type="number" placeholder="Ex: 5000" value={form.valor_alvo} onChange={e => set('valor_alvo', e.target.value)} />
               </Field>
-              <Field label="Moeda">
+              <Field label={t('bidfrete.nova_cotacao.moeda')}>
                 <select className="nc-input" value={form.moeda_alvo} onChange={e => set('moeda_alvo', e.target.value)}>
                   <option value="USD">USD</option>
                   <option value="BRL">BRL</option>
@@ -460,37 +462,37 @@ export default function NovaCotacao() {
 
             <div className="nc-summary">
               <div className="nc-summary-row">
-                <span className="nc-summary-label">Operação</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_operacao')}</span>
                 <span className="nc-summary-value">{form.tipo_operacao ? OPERACAO_LABELS[form.tipo_operacao as TipoOperacao] : '—'}</span>
               </div>
               <div className="nc-summary-row">
-                <span className="nc-summary-label">Modal / Modalidade</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_modal')}</span>
                 <span className="nc-summary-value">
                   {form.modal ? MODAL_LABELS[form.modal as ModalFrete] : '—'} / {form.modalidade ? MODALIDADE_LABELS[form.modalidade as ModalidadeCarga] : '—'}
                 </span>
               </div>
               <div className="nc-summary-row">
-                <span className="nc-summary-label">Rota</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_rota')}</span>
                 <span className="nc-summary-value">{form.origem_nome || '—'} → {form.destino_nome || '—'}</span>
               </div>
               <div className="nc-summary-row">
-                <span className="nc-summary-label">Mercadoria</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_mercadoria')}</span>
                 <span className="nc-summary-value">{form.descricao_mercadoria || '—'}</span>
               </div>
               <div className="nc-summary-row">
-                <span className="nc-summary-label">NCM</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_ncm')}</span>
                 <span className="nc-summary-value" style={{ fontFamily: 'DM Mono, monospace' }}>{form.ncm || '—'}</span>
               </div>
               <div className="nc-summary-row">
-                <span className="nc-summary-label">Quantidade / Peso</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_qtd_peso')}</span>
                 <span className="nc-summary-value">{form.quantidade} un | {form.peso_kg ? `${form.peso_kg} Kg` : '—'}</span>
               </div>
               <div className="nc-summary-row">
-                <span className="nc-summary-label">Incoterm</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_incoterm')}</span>
                 <span className="nc-summary-value" style={{ fontWeight: 700, color: 'var(--accent)' }}>{form.incoterm || '—'}</span>
               </div>
               <div className="nc-summary-row">
-                <span className="nc-summary-label">Visibilidade</span>
+                <span className="nc-summary-label">{t('bidfrete.nova_cotacao.resumo_visibilidade')}</span>
                 <span className="nc-summary-value">{form.visibilidade === 'ABERTA' ? 'Aberta' : 'Direcionada'}{form.anonima ? ' (Anônima)' : ''}</span>
               </div>
             </div>
@@ -510,17 +512,17 @@ export default function NovaCotacao() {
         cabecalho={
           <CabecalhoGlobal
             icone={<CheckCircle weight="duotone" size={22} />}
-            titulo="Cotação Criada"
+            titulo={t('bidfrete.nova_cotacao.titulo')}
           />
         }
       >
         <div className="nc-sucesso">
           <CheckCircle weight="duotone" size={64} style={{ color: 'var(--success)' }} />
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>Cotação criada com sucesso!</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Agora você pode disparar para os fornecedores.</p>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>{t('bidfrete.nova_cotacao.criado_sucesso')}</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{t('bidfrete.nova_cotacao.criado_desc')}</p>
           <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-            <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>Ver cotações</button>
-            {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/cotacoes/${cotacaoId}`)}>Ver detalhes</button>}
+            <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>{t('bidfrete.nova_cotacao.ver_cotacoes')}</button>
+            {cotacaoId && <button className="nc-btn nc-btn--primary" onClick={() => navigate(`/cotacoes/${cotacaoId}`)}>{t('bidfrete.nova_cotacao.ver_detalhes')}</button>}
           </div>
         </div>
       </PaginaGlobal>
@@ -535,11 +537,11 @@ export default function NovaCotacao() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Truck weight="duotone" size={22} />}
-          titulo="Nova Cotação de Frete"
+          titulo={t('bidfrete.nova_cotacao.titulo')}
           subtitulo={`Etapa ${step} de 7 — ${STEPS[step - 1].label}`}
           acoes={
             <button className="nc-btn nc-btn--secondary" onClick={() => navigate('/cotacoes')}>
-              <ArrowLeft weight="bold" size={14} /> Cancelar
+              <ArrowLeft weight="bold" size={14} /> {t('comum.cancelar')}
             </button>
           }
         />
@@ -558,7 +560,7 @@ export default function NovaCotacao() {
           disabled={step === 1}
           onClick={() => setStep(s => s - 1)}
         >
-          <ArrowLeft weight="bold" size={14} /> Anterior
+          <ArrowLeft weight="bold" size={14} /> {t('comum.anterior')}
         </button>
         <div className="nc-footer-spacer" />
         {step < 7 ? (
@@ -567,7 +569,7 @@ export default function NovaCotacao() {
             disabled={!canNext()}
             onClick={() => setStep(s => s + 1)}
           >
-            Próximo <ArrowRight weight="bold" size={14} />
+            {t('comum.proximo')} <ArrowRight weight="bold" size={14} />
           </button>
         ) : (
           <button
@@ -575,7 +577,7 @@ export default function NovaCotacao() {
             disabled={salvando}
             onClick={handleSubmit}
           >
-            {salvando ? 'Criando...' : 'Criar Cotação'} <Check weight="bold" size={14} />
+            {salvando ? t('bidfrete.nova_cotacao.criando') : t('bidfrete.nova_cotacao.criar')} <Check weight="bold" size={14} />
           </button>
         )}
       </div>

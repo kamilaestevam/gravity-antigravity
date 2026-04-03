@@ -7,6 +7,7 @@ export type {
   KanbanSortKey,
   KanbanSortOpcao,
   KanbanGlobalProps,
+  KanbanLabels,
   TipoCampo,
   CampoRegra,
   OperadorRegra,

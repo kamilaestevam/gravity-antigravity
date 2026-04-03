@@ -16,12 +16,12 @@ import { KanbanCardWrapper } from './KanbanCardWrapper'
 import { useKanban } from './KanbanContext'
 import type { KanbanColunaDef, KanbanItem, KanbanSortKey } from './tipos'
 
-// ── Opções de ordenação ───────────────────────────────────────────────────────
+// ── Opções de ordenação (labels resolvidos via KanbanLabels no render) ────────
 
-const SORT_OPCOES: { value: KanbanSortKey; label: string; Icon: React.ElementType }[] = [
-  { value: 'newest', label: 'Mais recente primeiro', Icon: SortDescending },
-  { value: 'oldest', label: 'Mais antigo primeiro',  Icon: SortAscending  },
-  { value: 'alpha',  label: 'Ordem alfabética',      Icon: TextAa         },
+const SORT_KEYS: { value: KanbanSortKey; Icon: React.ElementType }[] = [
+  { value: 'newest', Icon: SortDescending },
+  { value: 'oldest', Icon: SortAscending  },
+  { value: 'alpha',  Icon: TextAa         },
 ]
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -51,6 +51,7 @@ export function KanbanColuna({
     activeId,
     testIdPrefix,
     colunaFooterSlot,
+    labels,
   } = useKanban()
 
   // isReadOnly desta coluna = global OU específico desta coluna
@@ -105,6 +106,8 @@ export function KanbanColuna({
       style={{ zIndex: isOver ? 10 : 1 }}
       data-testid={`${testIdPrefix}-column`}
       data-column-key={coluna.key}
+      role="region"
+      aria-label={coluna.label}
     >
       {/* ── Cabeçalho — gradiente + borda colorida por coluna ────────────── */}
       <div
@@ -140,9 +143,9 @@ export function KanbanColuna({
           {!isReadOnly && !collapsed && (
             <button
               className="kg-sort-btn"
-              title="Ordenar coluna"
+              title={`${labels.sortButtonTitle} ${coluna.label}`}
               onClick={() => setShowSort(p => !p)}
-              aria-label={`Ordenar coluna ${coluna.label}`}
+              aria-label={`${labels.sortButtonTitle} ${coluna.label}`}
             >
               <SortDescending size={16} />
             </button>
@@ -152,9 +155,9 @@ export function KanbanColuna({
           {coluna.colapsavel && (
             <button
               className="kg-collapse-btn"
-              title={collapsed ? 'Expandir coluna' : 'Colapsar coluna'}
+              title={collapsed ? `${labels.expandTitle} ${coluna.label}` : `${labels.collapseTitle} ${coluna.label}`}
               onClick={() => setCollapsed(p => !p)}
-              aria-label={collapsed ? `Expandir ${coluna.label}` : `Colapsar ${coluna.label}`}
+              aria-label={collapsed ? `${labels.expandTitle} ${coluna.label}` : `${labels.collapseTitle} ${coluna.label}`}
             >
               {collapsed ? <CaretRight size={14} /> : <CaretDown size={14} />}
             </button>
@@ -164,18 +167,21 @@ export function KanbanColuna({
           {showSort && (
             <div className="kg-sort-popover" role="menu">
               <div className="kg-sort-popover-header">
-                <span className="kg-sort-popover-title">Ordenar lista</span>
+                <span className="kg-sort-popover-title">{labels.sortPopoverTitle}</span>
                 <button
                   className="kg-sort-popover-close"
                   onClick={() => setShowSort(false)}
-                  aria-label="Fechar ordenação"
+                  aria-label={labels.sortPopoverClose}
                 >
                   <X size={14} />
                 </button>
               </div>
 
-              {SORT_OPCOES.map(({ value, label, Icon }) => {
-                const isActive = sort === value
+              {SORT_KEYS.map(({ value, Icon }) => {
+                const isActive   = sort === value
+                const sortLabel  = value === 'newest' ? labels.sortNewest
+                                 : value === 'oldest' ? labels.sortOldest
+                                 : labels.sortAlpha
                 return (
                   <button
                     key={value}
@@ -187,7 +193,7 @@ export function KanbanColuna({
                     }}
                   >
                     <Icon size={16} />
-                    {label}
+                    {sortLabel}
                     {isActive && (
                       <span className="kg-sort-option-check">
                         <Check size={14} weight="bold" />
@@ -204,7 +210,12 @@ export function KanbanColuna({
       {/* ── Corpo (cards) ─────────────────────────────────────────────────── */}
       {!collapsed && (
         <>
-          <div ref={setNodeRef} className={dropzoneClass}>
+          <div
+            ref={setNodeRef}
+            className={dropzoneClass}
+            role="list"
+            aria-label={`Cards de ${coluna.label}`}
+          >
 
             {/* Skeleton de carregamento */}
             {isLoading && Array.from({ length: skeletonCount }).map((_, i) => (
@@ -242,7 +253,7 @@ export function KanbanColuna({
                 }}
               >
                 <ArrowFatDown size={14} weight="bold" />
-                Mover para {coluna.label}
+                {labels.dropHintPrefix} {coluna.label}
               </div>
             )}
           </div>

@@ -13,7 +13,25 @@ import {
 import { arrayMove } from '@dnd-kit/sortable'
 import { KanbanColuna } from './KanbanColuna'
 import { KanbanContext, type KanbanContextValue } from './KanbanContext'
-import type { KanbanGlobalProps, KanbanItem, KanbanSortKey } from './tipos'
+import type { KanbanGlobalProps, KanbanItem, KanbanLabels, KanbanSortKey } from './tipos'
+
+// ── Labels padrão pt-BR ───────────────────────────────────────────────────────
+
+const DEFAULT_LABELS: Required<KanbanLabels> = {
+  sortNewest:       'Mais recente primeiro',
+  sortOldest:       'Mais antigo primeiro',
+  sortAlpha:        'Ordem alfabética',
+  sortPopoverTitle: 'Ordenar lista',
+  sortPopoverClose: 'Fechar ordenação',
+  sortButtonTitle:  'Ordenar coluna',
+  collapseTitle:    'Colapsar coluna',
+  expandTitle:      'Expandir coluna',
+  dropHintPrefix:   'Mover para',
+  moveCardTitle:     'Mover para…',
+  moveCardAriaLabel: 'Mover card para outra coluna',
+  moveCardMenuLabel: 'Mover para',
+  movingAriaLabel:   'Movendo…',
+}
 import './kanban-global.css'
 
 // ── Ordenação local por coluna ────────────────────────────────────────────────
@@ -83,7 +101,11 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
   colunaFooterSlot,
   testIdPrefix = 'kg',
   modoGlobal = false,
+  onReorderItem,
+  labels,
 }: KanbanGlobalProps<T>) {
+
+  const resolvedLabels: Required<KanbanLabels> = { ...DEFAULT_LABELS, ...labels }
   const [activeId, setActiveId]       = useState<string | null>(null)
   const [movingId, setMovingId]       = useState<string | null>(null)
   const [columnSorts, setColumnSorts] = useState<Record<string, KanbanSortKey>>({})
@@ -93,12 +115,14 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
   const [columnOrders, setColumnOrders] = useState<Record<string, string[]>>({})
 
   // Refs para evitar stale closure no useCallback estável
-  const itensRef       = useRef(itens)
-  const pendingRef     = useRef(pendingMoves)
-  const onMoverRef     = useRef(onMoverItem)
-  itensRef.current     = itens
-  pendingRef.current   = pendingMoves
-  onMoverRef.current   = onMoverItem
+  const itensRef        = useRef(itens)
+  const pendingRef      = useRef(pendingMoves)
+  const onMoverRef      = useRef(onMoverItem)
+  const onReorderRef    = useRef(onReorderItem)
+  itensRef.current      = itens
+  pendingRef.current    = pendingMoves
+  onMoverRef.current    = onMoverItem
+  onReorderRef.current  = onReorderItem
 
   // Todos os sensores: mouse, teclado e toque
   const sensors = useSensors(
@@ -229,10 +253,9 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
       const oldIdx   = ids.indexOf(activeItemId)
       const newIdx   = ids.indexOf(overId)
       if (oldIdx !== -1 && newIdx !== -1 && oldIdx !== newIdx) {
-        setColumnOrders(prev => ({
-          ...prev,
-          [activeColKey]: arrayMove(ids, oldIdx, newIdx),
-        }))
+        const newIds = arrayMove(ids, oldIdx, newIdx)
+        setColumnOrders(prev => ({ ...prev, [activeColKey]: newIds }))
+        onReorderRef.current?.(activeColKey, newIds)
       }
     } else if (onMoverItem) {
       // Card caiu sobre card em coluna diferente → cross-column move
@@ -270,11 +293,12 @@ export function KanbanGlobal<T extends KanbanItem = KanbanItem>({
       colunaFooterSlot,
       onMoverItemInternal: handleMoverItemInternal,
       onCardClick: onCardClick as KanbanContextValue['onCardClick'],
+      labels:      resolvedLabels,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [colunasRender, renderCard, isReadOnly, onMoverItem, emptyLabel,
      activeId, movingId, testIdPrefix, modoGlobal, colunaFooterSlot,
-     handleMoverItemInternal, onCardClick],
+     handleMoverItemInternal, onCardClick, resolvedLabels],
   )
 
   return (

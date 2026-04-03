@@ -86,6 +86,29 @@ export interface RegraKanban {
   prioridade:    number
 }
 
+// ── i18n — Labels customizáveis ───────────────────────────────────────────────
+
+/** Textos exibidos pelo KanbanGlobal — substitua para i18n ou renomeação */
+export interface KanbanLabels {
+  // Ordenação
+  sortNewest?:       string   // 'Mais recente primeiro'
+  sortOldest?:       string   // 'Mais antigo primeiro'
+  sortAlpha?:        string   // 'Ordem alfabética'
+  sortPopoverTitle?: string   // 'Ordenar lista'
+  sortPopoverClose?: string   // 'Fechar ordenação'
+  sortButtonTitle?:  string   // 'Ordenar coluna'
+  // Colapsar
+  collapseTitle?: string      // 'Colapsar coluna'
+  expandTitle?:   string      // 'Expandir coluna'
+  // Drop
+  dropHintPrefix?: string     // 'Mover para'
+  // Card — menu mover
+  moveCardTitle?:     string  // 'Mover para…'
+  moveCardAriaLabel?: string  // 'Mover card para outra coluna'
+  moveCardMenuLabel?: string  // 'Mover para'
+  movingAriaLabel?:   string  // 'Movendo…'
+}
+
 // ── Props do componente principal ─────────────────────────────────────────────
 
 export interface KanbanGlobalProps<T extends KanbanItem = KanbanItem> {
@@ -139,4 +162,15 @@ export interface KanbanGlobalProps<T extends KanbanItem = KanbanItem> {
    * Exibe tenantLabel nos cards como badge de empresa.
    */
   modoGlobal?: boolean
+  /**
+   * Chamado quando o usuário reordena itens dentro da mesma coluna via drag-and-drop.
+   * itemIds = nova ordem completa dos IDs naquela coluna.
+   * Permite persistir a ordem manual no servidor.
+   */
+  onReorderItem?: (colunaKey: string, itemIds: string[]) => void | Promise<void>
+  /**
+   * Textos exibidos pelo componente — passe para i18n ou renomeação.
+   * Todos os campos são opcionais; se ausentes, usa o padrão em pt-BR.
+   */
+  labels?: KanbanLabels
 }

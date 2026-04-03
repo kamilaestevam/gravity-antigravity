@@ -92,12 +92,13 @@ function ColunaSortItem({
     transition: transition ?? undefined,
   }
 
-  const [label,      setLabel]      = useState(coluna.label)
-  const [color,      setColor]      = useState(coluna.color)
-  const [wip,        setWip]        = useState<string | number>(coluna.limiteWip ?? '')
-  const [colapsavel, setColapsavel] = useState(coluna.colapsavel ?? false)
-  const [readOnly,   setReadOnly]   = useState(coluna.isReadOnly ?? false)
-  const [showCores,  setShowCores]  = useState(false)
+  const [label,         setLabel]         = useState(coluna.label)
+  const [color,         setColor]         = useState(coluna.color)
+  const [wip,           setWip]           = useState<string | number>(coluna.limiteWip ?? '')
+  const [colapsavel,    setColapsavel]    = useState(coluna.colapsavel ?? false)
+  const [readOnly,      setReadOnly]      = useState(coluna.isReadOnly ?? false)
+  const [showCores,     setShowCores]     = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const coresRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -154,16 +155,42 @@ function ColunaSortItem({
           <span className="kc-col-tag">somente leitura</span>
         )}
         <div className="kc-col-row-actions">
-          <button
-            className="kc-icon-btn"
-            onClick={editando ? onCancelEdit : onEdit}
-            title={editando ? 'Cancelar' : 'Editar'}
-          >
-            {editando ? <X size={14} /> : <Pencil size={14} />}
-          </button>
-          <button className="kc-icon-btn kc-icon-btn--danger" onClick={onDelete} title="Remover coluna">
-            <Trash size={14} />
-          </button>
+          {confirmDelete ? (
+            <>
+              <span className="kc-confirm-label">Remover?</span>
+              <button
+                className="kc-icon-btn"
+                onClick={() => setConfirmDelete(false)}
+                title="Cancelar remoção"
+              >
+                <X size={14} />
+              </button>
+              <button
+                className="kc-icon-btn kc-icon-btn--danger"
+                onClick={onDelete}
+                title="Confirmar remoção"
+              >
+                <Check size={14} />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="kc-icon-btn"
+                onClick={editando ? onCancelEdit : onEdit}
+                title={editando ? 'Cancelar' : 'Editar'}
+              >
+                {editando ? <X size={14} /> : <Pencil size={14} />}
+              </button>
+              <button
+                className="kc-icon-btn kc-icon-btn--danger"
+                onClick={() => setConfirmDelete(true)}
+                title="Remover coluna"
+              >
+                <Trash size={14} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 

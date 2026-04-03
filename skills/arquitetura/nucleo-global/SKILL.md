@@ -141,6 +141,49 @@ formatarMoeda(1500.50)         // → 'R$ 1.500,50'
 
 ---
 
+### Kanban/kanban-global/
+
+Componente Kanban genérico com drag-and-drop, automações e painel de configurações. Usa `@dnd-kit/core` + `@dnd-kit/sortable`.
+
+**Exportações principais:**
+- `KanbanGlobal` — board principal (colunas + cards + DnD)
+- `KanbanConfiguracoes` — painel de config (colunas, campos do card, automações)
+- `avaliarRegras` — função pura para avaliar regras de automação
+- `OPERADORES_POR_TIPO` — mapa de operadores por tipo de campo
+- Tipos: `KanbanColunaDef`, `KanbanItem`, `KanbanGlobalProps`, `KanbanLabels`, `RegraKanban`, `CampoRegra`, `TipoCampo`
+
+**Props essenciais do KanbanGlobal:**
+
+```tsx
+<KanbanGlobal
+  colunas={colunas}          // KanbanColunaDef[]
+  itens={itens}              // T extends KanbanItem
+  renderCard={(item) => ...} // renderizador genérico
+  onMoverItem={async (id, colunaKey, posicao) => {}}
+  onReorderItem={async (colunaKey, itemIds) => {}} // persiste reorder local
+  labels={{ sortNewest: 'Newest first', ... }}     // i18n opcional
+/>
+```
+
+**Automações — uso no produto:**
+
+```tsx
+import { avaliarRegras } from '@nucleo/kanban-global'
+
+// Ao salvar card:
+const destino = avaliarRegras(item, regras, (i, key) => i[key], item.colunaKey)
+if (destino) await moverItem(item.id, destino, 0)
+```
+
+**Regras:**
+- Máximo 8 colunas, 20 regras de automação
+- `onMoverItem` → update otimista com rollback automático se a Promise rejeitar
+- `onReorderItem` → chamado após reorder manual na mesma coluna
+- `KanbanLabels` → todos os textos substituíveis para i18n
+- Acessibilidade: `role="region"` por coluna, `role="list"` na drop zone, `role="listitem"` nos cards, sensores de teclado e toque
+
+---
+
 ### shell/
 
 Framework de navegação e layout da aplicação.

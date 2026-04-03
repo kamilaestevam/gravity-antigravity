@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
 import type { ReactNode } from 'react'
-import type { KanbanColunaDef, KanbanItem } from './tipos'
+import type { KanbanColunaDef, KanbanItem, KanbanLabels } from './tipos'
 
 // ── Contrato do contexto interno ──────────────────────────────────────────────
 
@@ -30,6 +30,8 @@ export interface KanbanContextValue {
   onMoverItemInternal: (itemId: string, novaColunaKey: string) => Promise<void>
   /** Clique no card (sem arrastar) */
   onCardClick?: (item: KanbanItem) => void
+  /** Labels resolvidos (defaults pt-BR + overrides passados pelo consumidor) */
+  labels: Required<KanbanLabels>
 }
 
 export const KanbanContext = createContext<KanbanContextValue | null>(null)

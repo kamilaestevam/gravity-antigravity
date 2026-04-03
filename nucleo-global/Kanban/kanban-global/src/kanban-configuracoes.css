@@ -196,6 +196,14 @@
   flex-shrink: 0;
 }
 
+.kc-confirm-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #f87171;
+  white-space: nowrap;
+  margin-right: 0.25rem;
+}
+
 .kc-col-row-actions {
   display: flex;
   align-items: center;

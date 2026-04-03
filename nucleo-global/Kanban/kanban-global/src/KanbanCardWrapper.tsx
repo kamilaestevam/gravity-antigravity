@@ -25,6 +25,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
     modoGlobal,
     onMoverItemInternal,
     onCardClick,
+    labels,
   } = useKanban()
 
   const isReadOnlyEfetivo = isReadOnly || (
@@ -88,6 +89,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
       ref={setNodeRef}
       className={classes}
       style={style}
+      role="listitem"
       data-testid={`${testIdPrefix}-card`}
       data-card-id={item.id}
       {...attributes}
@@ -116,8 +118,8 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
         <div className="kg-mover-wrap" ref={menuRef}>
           <button
             className="kg-mover-btn"
-            title="Mover para…"
-            aria-label="Mover card para outra coluna"
+            title={labels.moveCardTitle}
+            aria-label={labels.moveCardAriaLabel}
             onClick={e => {
               e.stopPropagation()
               setShowMenu(p => !p)
@@ -128,7 +130,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
 
           {showMenu && (
             <div className="kg-mover-menu" role="menu">
-              <div className="kg-mover-menu-label">Mover para</div>
+              <div className="kg-mover-menu-label">{labels.moveCardMenuLabel}</div>
               {colunasDestino.map(col => (
                 <button
                   key={col.key}
@@ -152,7 +154,7 @@ export function KanbanCardWrapper({ item, colunaKey }: KanbanCardWrapperProps) {
 
       {/* Indicador de move assíncrono pendente */}
       {isMoving && (
-        <div className="kg-moving-overlay" aria-label="Movendo…" />
+        <div className="kg-moving-overlay" aria-label={labels.movingAriaLabel} />
       )}
     </div>
   )

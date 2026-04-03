@@ -40,14 +40,18 @@ import './CardKanbanModal.css'
 type Prioridade = 'urgente' | 'alta' | 'media' | 'baixa'
 
 export interface CardKanbanItem {
-  id:          string
-  colunaKey:   string
-  nome:        string
-  empresa:     string
-  responsavel: string
-  valor:       number
-  data:        string
-  prioridade:  Prioridade
+  id:             string
+  colunaKey:      string
+  nome:           string
+  empresa:        string
+  responsavel:    string
+  valor:          number
+  data:           string
+  prioridade:     Prioridade
+  // Campos editáveis no modal — persistidos de volta ao item
+  descricao?:     string
+  tipoAtividade?: string
+  proximoPasso?:  string
 }
 
 export interface CardKanbanModalProps<T extends CardKanbanItem = CardKanbanItem> {
@@ -557,10 +561,10 @@ export function CardKanbanModal<T extends CardKanbanItem>({
     if (aberto && item) {
       setForm({ ...item })
       setAbaAtiva('informacoes')
-      setDescricao('')
-      setTipoAtividade(TIPOS_ATIVIDADE[0])
+      setDescricao(item.descricao ?? '')
+      setTipoAtividade(item.tipoAtividade ?? TIPOS_ATIVIDADE[0])
       setParticipantes([item.responsavel])
-      setProximoPasso('')
+      setProximoPasso(item.proximoPasso ?? '')
       setDataProximo('')
       setAntecedencia('')
       setDataLembrete('')
@@ -602,7 +606,12 @@ export function CardKanbanModal<T extends CardKanbanItem>({
     if (!form || salvando) return
     setSalvando(true)
     await new Promise(r => setTimeout(r, 500))
-    onSalvar(form)
+    onSalvar({
+      ...form,
+      descricao:     descricao     || undefined,
+      tipoAtividade: tipoAtividade || undefined,
+      proximoPasso:  proximoPasso  || undefined,
+    })
     setSalvando(false)
     onFechar()
   }

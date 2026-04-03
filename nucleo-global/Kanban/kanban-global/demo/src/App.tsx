@@ -24,12 +24,16 @@ import type { CardKanbanItem } from './CardKanbanModal'
 type Prioridade = 'urgente' | 'alta' | 'media' | 'baixa'
 
 interface ItemDemo extends KanbanItem {
-  nome:        string
-  empresa:     string
-  responsavel: string
-  valor:       number
-  data:        string
-  prioridade:  Prioridade
+  nome:           string
+  empresa:        string
+  responsavel:    string
+  valor:          number
+  data:           string
+  prioridade:     Prioridade
+  // Campos do modal — persistidos após salvar
+  descricao?:     string
+  tipoAtividade?: string
+  proximoPasso?:  string
 }
 
 // ── Colunas ───────────────────────────────────────────────────────────────────
@@ -178,12 +182,30 @@ export default function App() {
   const itensFiltrados = useMemo(() => {
     if (!busca.trim()) return itens
     const q = busca.toLowerCase()
-    return itens.filter(item =>
-      [item.nome, item.empresa, item.responsavel, item.prioridade, item.colunaKey]
+    return itens.filter(item => {
+      const dataFormatada = item.data
+        ? new Date(item.data).toLocaleDateString('pt-BR')
+        : ''
+      const valorFormatado = item.valor
+        ? item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        : ''
+      return [
+        item.nome,
+        item.empresa,
+        item.responsavel,
+        item.prioridade,
+        item.colunaKey,
+        dataFormatada,           // ex: "16/03/2026"
+        String(item.valor),      // ex: "1750"
+        valorFormatado,          // ex: "R$ 1.750,00"
+        item.descricao   ?? '',
+        item.tipoAtividade ?? '',
+        item.proximoPasso  ?? '',
+      ]
         .join(' ')
         .toLowerCase()
-        .includes(q),
-    )
+        .includes(q)
+    })
   }, [itens, busca])
 
   // onMoverItem agora é async — componente faz update otimista + rollback

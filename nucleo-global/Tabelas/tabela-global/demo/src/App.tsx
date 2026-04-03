@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { TabelaGlobal } from '@nucleo/tabela-global'
 import type { TabelaGlobalColuna, TabelaGlobalAcao, TabelaExportAcao } from '@nucleo/tabela-global'
 import {
-  Eye, PencilSimple, Trash,
+  Eye, PencilSimple, Trash, NotePencil,
   FileCsv, FileXls, FileText, FileCode, FilePdf, DownloadSimple,
 } from '@phosphor-icons/react'
 import {
@@ -75,7 +75,7 @@ function Badge({ status }: { status: Status }) {
 // ── Colunas ───────────────────────────────────────────────────────────────────
 
 const COLUNAS: TabelaGlobalColuna<Item>[] = [
-  { key:'nome',        label:'Nome',         tipo:'texto',   naoOcultavel: true },
+  { key:'nome',        label:'Nome',         tipo:'texto'   },
   { key:'status',      label:'Status',       tipo:'texto',   render: (_v, item) => <Badge status={item.status} /> },
   { key:'valor',       label:'Valor',        tipo:'numero',  align:'right', render: (_v, item) => <span style={{ fontVariantNumeric:'tabular-nums' }}>{item.valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</span> },
   { key:'data',        label:'Data',         tipo:'periodo' },
@@ -85,9 +85,68 @@ const COLUNAS: TabelaGlobalColuna<Item>[] = [
 // ── Ações ─────────────────────────────────────────────────────────────────────
 
 const ACOES: TabelaGlobalAcao<Item>[] = [
-  { id:'ver',    tooltip:'Ver',    icone:<Eye size={16} weight="duotone" />,          onClick:(i) => console.log('Ver', i.id) },
-  { id:'editar', tooltip:'Editar', icone:<PencilSimple size={16} weight="duotone" />, onClick:(i) => console.log('Editar', i.id) },
-  { id:'excluir',tooltip:'Excluir',icone:<Trash size={16} weight="duotone" />,        onClick:(i) => console.log('Excluir', i.id) },
+  {
+    id: 'ver', tooltip: 'Ver', icone: <Eye size={16} weight="duotone" />,
+    onClick: (i) => console.log('Ver', i.id),
+    abrirVisualizar: {
+      titulo: (i) => i.nome,
+      subtitulo: (i) => `Responsável: ${i.responsavel}`,
+      icone: <Eye size={20} weight="duotone" />,
+      tamanho: 'md',
+      renderConteudo: (i) => {
+        const campos: [string, React.ReactNode][] = [
+          ['Nome',        <span style={{ color: '#f1f5f9', fontWeight: 600 }}>{i.nome}</span>],
+          ['Status',      <Badge status={i.status} />],
+          ['Valor',       <span style={{ color: '#f1f5f9', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>{i.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>],
+          ['Data',        <span style={{ color: '#f1f5f9' }}>{i.data}</span>],
+          ['Responsável', <span style={{ color: '#f1f5f9' }}>{i.responsavel}</span>],
+        ]
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            {campos.map(([label, val]) => (
+              <div key={label}
+                style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.625rem 0.75rem', borderRadius: '8px', transition: 'background 0.12s' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(129,140,248,0.05)' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'transparent' }}
+              >
+                <span style={{ width: 110, fontSize: '0.8125rem', color: '#94a3b8', flexShrink: 0, fontWeight: 500 }}>{label}</span>
+                <span style={{ fontSize: '0.875rem' }}>{val}</span>
+              </div>
+            ))}
+          </div>
+        )
+      },
+    },
+  },
+  {
+    id: 'editar', tooltip: 'Editar', icone: <PencilSimple size={16} weight="duotone" />,
+    onClick: (i) => console.log('Editar', i.id),
+    abrirEditar: {
+      titulo: (i) => i.nome,
+      subtitulo: 'Edite os campos abaixo e clique em Salvar Alterações.',
+      icone: <NotePencil size={22} weight="duotone" />,
+      tamanho: 'md',
+      textoSalvar: 'Salvar Alterações',
+      aoSalvar: (i) => console.log('Salvo', i.id),
+      renderConteudo: (i) => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {([['Nome', i.nome], ['Status', i.status], ['Responsável', i.responsavel]] as [string, string][]).map(([label, val]) => (
+            <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</label>
+              <input defaultValue={val} style={{ padding: '0.5rem 0.75rem', background: 'rgba(129,140,248,0.05)', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '8px', color: '#f1f5f9', fontSize: '0.875rem', fontFamily: 'inherit', outline: 'none' }} />
+            </div>
+          ))}
+        </div>
+      ),
+    },
+  },
+  { id:'excluir',tooltip:'Excluir',icone:<Trash size={16} weight="duotone" />,        onClick:(i) => console.log('Excluir', i.id),
+    confirmarExclusao: {
+      titulo: 'Excluir item',
+      descricao: 'Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.',
+      nomeItem: (i) => i.nome,
+    },
+  },
 ]
 
 const COLUNAS_EXPORT: ColunasExport[] = [

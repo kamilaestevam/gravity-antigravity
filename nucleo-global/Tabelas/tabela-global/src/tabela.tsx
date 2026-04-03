@@ -6,6 +6,10 @@ import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSq
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { useTablePersistence } from './hooks/useTablePersistence'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
+import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalGlobal } from '@nucleo/modal-global'
+import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
+import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import './tabela.css'
 
 export type ColType = 'texto' | 'numero' | 'periodo'
@@ -30,6 +34,30 @@ export interface TabelaGlobalAcao<T> {
   disabled?: (item: T) => boolean
   onRenderStyle?: (item: T) => { background?: string; borderColor?: string; color?: string }
   renderCustom?: (item: T) => React.ReactNode
+  /** Se definido, exibe modal de confirmação antes de executar onClick */
+  confirmarExclusao?: {
+    titulo?: string
+    descricao?: string
+    nomeItem?: (item: T) => string
+  }
+  /** Se definido, abre modal de visualização ao clicar (onClick não é chamado) */
+  abrirVisualizar?: {
+    titulo?: string | ((item: T) => string)
+    subtitulo?: string | ((item: T) => string)
+    icone?: React.ReactNode
+    tamanho?: 'sm' | 'md' | 'lg' | 'xl'
+    renderConteudo: (item: T) => React.ReactNode
+  }
+  /** Se definido, abre modal de edição ao clicar (onClick não é chamado) */
+  abrirEditar?: {
+    titulo?: string | ((item: T) => string)
+    subtitulo?: string | ((item: T) => string)
+    icone?: React.ReactNode
+    tamanho?: 'sm' | 'md' | 'lg' | 'xl'
+    textoSalvar?: string
+    renderConteudo: (item: T) => React.ReactNode
+    aoSalvar?: (item: T) => void
+  }
 }
 
 export interface TabelaExportAcao<T> {
@@ -289,17 +317,16 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   )
 
   return (
-    <th style={{ width: col.largura, padding: '0.75rem 1rem', textAlign: col.align || 'left', whiteSpace: 'nowrap', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', borderBottom: '1px solid var(--ws-accent-border)', background: 'rgba(129,140,248,0.04)', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start' }}>
-        {col.tooltipDescricao
-          ? <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>{labelSpan}</TooltipGlobal>
-          : labelSpan
-        }
-        <button ref={triggerRef} type="button" onClick={e => { e.stopPropagation(); setAberto(v => !v) }}
-          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(129,140,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(129,140,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#818cf8' : '#64748b', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
-          <Funnel size={10} weight={temFiltroAtivo ? 'fill' : 'bold'} />
-        </button>
-      </div>
+    <th style={{ width: col.largura, padding: '0.875rem 1rem', textAlign: col.align || 'center', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ffffff', borderBottom: '2px solid rgba(129,140,248,0.2)', background: '#1e293b', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
+      <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao || col.label}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'right' ? 'flex-end' : col.align === 'left' ? 'flex-start' : 'center' }}>
+          {labelSpan}
+          <button ref={triggerRef} type="button" onClick={e => { e.stopPropagation(); setAberto(v => !v) }}
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: '4px', background: temFiltroAtivo || aberto ? 'rgba(129,140,248,0.15)' : 'transparent', border: `1px solid ${temFiltroAtivo || aberto ? 'rgba(129,140,248,0.3)' : 'transparent'}`, cursor: 'pointer', padding: 0, flexShrink: 0, color: temFiltroAtivo || aberto ? '#818cf8' : '#94a3b8', transition: 'all 0.12s', lineHeight: 0, verticalAlign: 'middle' }}>
+            <Funnel size={10} weight={temFiltroAtivo ? 'fill' : 'bold'} />
+          </button>
+        </div>
+      </TooltipGlobal>
       {aberto && (
         <PopoverFiltro
           tipo={col.tipo} coluna={coluna} label={col.label}
@@ -373,10 +400,9 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   } = props
 
   // ─── Visibilidade de Colunas (Persistência) ───
-  const colunasConfig = useMemo(() => colunas.map(c => ({ 
-    key: c.key, 
-    label: c.label, 
-    naoOcultavel: (c as any).naoOcultavel 
+  const colunasConfig = useMemo(() => colunas.map(c => ({
+    key: c.key,
+    label: c.label,
   })), [colunas])
 
   const {
@@ -438,6 +464,9 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   const [porPagina, setPorPagina] = useState(itensPorPagina)
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set(expandidosPadrao))
+  const [confirmacaoExclusao, setConfirmacaoExclusao] = useState<{ item: T; acao: TabelaGlobalAcao<T> } | null>(null)
+  const [modalVisualizar, setModalVisualizar] = useState<{ item: T; acao: TabelaGlobalAcao<T> } | null>(null)
+  const [modalEditar, setModalEditar] = useState<{ item: T; acao: TabelaGlobalAcao<T> } | null>(null)
 
   const toggleExpandido = useCallback((id: string) => {
     setExpandidos(prev => {
@@ -594,6 +623,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   }, [])
 
   return (
+    <>
     <div className={`tg-container ${expandidos.size > 0 ? 'tg-container--focado' : ''}`} style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid var(--ws-accent-border)' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -709,40 +739,20 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                   <span style={{ opacity: 0.5 }}>#</span>
                 </div>
               </th>
-              {colunasVisiveis.map(col => {
-                const sortAtivo = ordenacao?.coluna === col.key
-                return (
-                  <th 
-                    key={col.key} 
-                    style={{ 
-                      width: col.largura, 
-                      padding: '0.875rem 1rem', 
-                      textAlign: col.align || 'left', 
-                      whiteSpace: 'nowrap', 
-                      fontSize: '0.75rem', 
-                      fontWeight: 800, 
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.08em', 
-                      color: '#ffffff', 
-                      borderBottom: '2px solid rgba(129,140,248,0.2)', 
-                      background: '#1e293b', 
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => onOrdenar(col.key, ordenacao?.direcao === 'asc' ? 'desc' : 'asc')}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start' }}>
-                      {col.tooltipDescricao
-                        ? <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao}>
-                            <span style={{ color: sortAtivo ? '#818cf8' : undefined }}>{col.label}</span>
-                          </TooltipGlobal>
-                        : <span style={{ color: sortAtivo ? '#818cf8' : undefined }}>{col.label}</span>
-                      }
-                      {sortAtivo && (ordenacao.direcao === 'asc' ? <ArrowUp size={10} weight="bold" /> : <ArrowDown size={10} weight="bold" />)}
-                      <Funnel size={10} color="#475569" weight="bold" style={{ opacity: 0.5 }} />
-                    </div>
-                  </th>
-                )
-              })}
+              {colunasVisiveis.map(col => (
+                <Th
+                  key={col.key}
+                  col={col}
+                  filtros={filtros}
+                  ordenacao={ordenacao}
+                  dados={dados}
+                  onOrdenar={onOrdenar}
+                  onToggleValor={onToggleValor}
+                  onFiltrarNumero={onFiltrarNumero}
+                  onFiltrarPeriodo={onFiltrarPeriodo}
+                  onLimparColuna={onLimparColuna}
+                />
+              ))}
               {acoes && acoes.length > 0 && (
                 <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
                   <TooltipGlobal titulo={t('tabela.acoes')} descricao={t('tabela.tooltip_acoes')}>
@@ -814,7 +824,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                     </td>
                     
                     {colunasVisiveis.map((col, cIdx) => (
-                      <td key={col.key} className="tg-td" style={{ textAlign: col.align || 'left' }}>
+                      <td key={col.key} className="tg-td" style={{ textAlign: col.align || 'center' }}>
                         {cIdx === 0 && temFilhos ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             {col.render ? col.render(item[col.key], item) : String(item[col.key] ?? '')}
@@ -847,7 +857,18 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                                 <button
                                   type="button"
                                   className="tg-acao-btn"
-                                  onClick={() => !isDis && acao.onClick(item)}
+                                  onClick={() => {
+                                    if (isDis) return
+                                    if (acao.confirmarExclusao) {
+                                      setConfirmacaoExclusao({ item, acao })
+                                    } else if (acao.abrirVisualizar) {
+                                      setModalVisualizar({ item, acao })
+                                    } else if (acao.abrirEditar) {
+                                      setModalEditar({ item, acao })
+                                    } else {
+                                      acao.onClick(item)
+                                    }
+                                  }}
                                   disabled={isDis}
                                   style={{ ...customStyle, opacity: isDis ? 0.3 : 1 }}
                                 >
@@ -886,7 +907,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                           <span className="tg-conector">{isUltimoFilho ? '└' : '├'}</span>
                         </td>
                         {colunasFilhas.map((cf, cfIdx) => (
-                          <td key={cf.key} className={`tg-td ${cfIdx === 0 ? 'tg-td--filho-first' : ''}`} style={{ textAlign: cf.align || 'left' }}>
+                          <td key={cf.key} className={`tg-td ${cfIdx === 0 ? 'tg-td--filho-first' : ''}`} style={{ textAlign: cf.align || 'center' }}>
                             {renderCelulaCamada(cf, filho)}
                           </td>
                         ))}
@@ -946,5 +967,71 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
         </div>
       </div>
     </div>
+
+    {confirmacaoExclusao && (
+      <SelecaoExcluirGlobal
+        aberto
+        titulo={confirmacaoExclusao.acao.confirmarExclusao?.titulo ?? 'Excluir item'}
+        descricao={confirmacaoExclusao.acao.confirmarExclusao?.descricao ?? 'Esta ação não pode ser desfeita.'}
+        nomeItem={confirmacaoExclusao.acao.confirmarExclusao?.nomeItem?.(confirmacaoExclusao.item)}
+        aoConfirmar={() => {
+          confirmacaoExclusao.acao.onClick(confirmacaoExclusao.item)
+          setConfirmacaoExclusao(null)
+        }}
+        aoCancelar={() => setConfirmacaoExclusao(null)}
+      />
+    )}
+
+    {modalVisualizar && (() => {
+      const cfg      = modalVisualizar.acao.abrirVisualizar!
+      const titulo   = typeof cfg.titulo    === 'function' ? cfg.titulo(modalVisualizar.item)    : (cfg.titulo    ?? 'Visualizar')
+      const subtit   = typeof cfg.subtitulo === 'function' ? cfg.subtitulo(modalVisualizar.item) : (cfg.subtitulo ?? '')
+      const onFechar = () => setModalVisualizar(null)
+      return (
+        <ModalGlobal
+          aberto
+          aoFechar={onFechar}
+          titulo={cfg.icone ? <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>{cfg.icone}{titulo}</span> : titulo}
+          subtitulo={subtit || undefined}
+          tamanho={cfg.tamanho ?? 'md'}
+          botoes={[{
+            rotulo: t('modal.fechar', { defaultValue: 'Fechar' }),
+            variante: 'secondary',
+            ao_clicar: onFechar,
+          }]}
+        >
+          <div style={{ padding: '0.25rem 0', maxHeight: '55vh', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
+            {cfg.renderConteudo(modalVisualizar.item)}
+          </div>
+        </ModalGlobal>
+      )
+    })()}
+
+    {modalEditar && (() => {
+      const cfg = modalEditar.acao.abrirEditar!
+      const titulo    = typeof cfg.titulo    === 'function' ? cfg.titulo(modalEditar.item)    : (cfg.titulo    ?? 'Editar')
+      const subtitulo = typeof cfg.subtitulo === 'function' ? cfg.subtitulo(modalEditar.item) : (cfg.subtitulo ?? '')
+      const onSalvar  = () => { cfg.aoSalvar?.(modalEditar.item); setModalEditar(null) }
+      const onFechar  = () => setModalEditar(null)
+      return (
+        <ModalFormularioGlobal
+          aberto
+          aoFechar={onFechar}
+          aoSalvar={onSalvar}
+          icone={cfg.icone ?? null}
+          titulo={titulo}
+          subtitulo={subtitulo}
+          tamanho={cfg.tamanho ?? 'lg'}
+          textoSalvar={cfg.textoSalvar}
+          podesSalvar
+          dirty
+        >
+          <div style={{ maxHeight: '55vh', overflowY: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
+            {cfg.renderConteudo(modalEditar.item)}
+          </div>
+        </ModalFormularioGlobal>
+      )
+    })()}
+    </>
   )
 }

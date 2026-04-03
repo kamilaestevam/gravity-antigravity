@@ -1,4 +1,5 @@
 export { KanbanGlobal } from './KanbanGlobal'
+export { KanbanConfiguracoes } from './KanbanConfiguracoes'
 export type {
   KanbanColunaDef,
   KanbanItem,
@@ -6,3 +7,8 @@ export type {
   KanbanSortOpcao,
   KanbanGlobalProps,
 } from './tipos'
+export type {
+  CampoCardDef,
+  KanbanConfigData,
+  KanbanConfiguracoesProps,
+} from './KanbanConfiguracoes'

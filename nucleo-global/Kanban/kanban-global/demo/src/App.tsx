@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { KanbanGlobal } from '@nucleo/kanban-global'
-import type { KanbanItem, KanbanColunaDef } from '@nucleo/kanban-global'
+import { KanbanConfiguracoes } from '@nucleo/kanban-global'
+import type { KanbanItem, KanbanColunaDef, CampoCardDef, KanbanConfigData } from '@nucleo/kanban-global'
 import {
   Kanban,
   ListChecks,
@@ -15,6 +16,7 @@ import {
   ArrowRight,
   Plus,
   CircleNotch,
+  Gear,
 } from '@phosphor-icons/react'
 import { CardKanbanModal } from './CardKanbanModal'
 import type { CardKanbanItem } from './CardKanbanModal'
@@ -22,6 +24,7 @@ import type { CardKanbanItem } from './CardKanbanModal'
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 type Prioridade = 'urgente' | 'alta' | 'media' | 'baixa'
+type Vista = 'board' | 'configuracoes'
 
 interface ItemDemo extends KanbanItem {
   nome:           string
@@ -36,9 +39,9 @@ interface ItemDemo extends KanbanItem {
   proximoPasso?:  string
 }
 
-// ── Colunas ───────────────────────────────────────────────────────────────────
+// ── Colunas padrão ────────────────────────────────────────────────────────────
 
-const COLUNAS: KanbanColunaDef[] = [
+const COLUNAS_PADRAO: KanbanColunaDef[] = [
   {
     key: 'A Fazer', label: 'A Fazer', color: '#6366f1',
     icon: <ListChecks size={16} weight="duotone" color="#6366f1" />,
@@ -60,7 +63,52 @@ const COLUNAS: KanbanColunaDef[] = [
     key: 'Cancelada', label: 'Cancelada', color: '#64748b',
     icon: <XCircle size={16} weight="duotone" color="#64748b" />,
     colapsavel: true,
-    isReadOnly: true, // não aceita drops
+    isReadOnly: true,
+  },
+]
+
+// ── Campos padrão do card ─────────────────────────────────────────────────────
+
+const CAMPOS_PADRAO: CampoCardDef[] = [
+  {
+    key: 'empresa',
+    label: 'Empresa',
+    descricao: 'Nome da empresa vinculada',
+    icone: <BuildingOffice size={15} />,
+    visivel: true,
+  },
+  {
+    key: 'prioridade',
+    label: 'Prioridade',
+    descricao: 'Nível de urgência',
+    visivel: true,
+  },
+  {
+    key: 'nome',
+    label: 'Título',
+    descricao: 'Nome do item',
+    visivel: true,
+  },
+  {
+    key: 'data',
+    label: 'Data',
+    descricao: 'Data de vencimento',
+    icone: <CalendarBlank size={15} />,
+    visivel: true,
+  },
+  {
+    key: 'responsavel',
+    label: 'Responsável',
+    descricao: 'Pessoa responsável pelo item',
+    icone: <User size={15} />,
+    visivel: true,
+  },
+  {
+    key: 'valor',
+    label: 'Valor',
+    descricao: 'Valor total em R$',
+    icone: <CurrencyDollar size={15} />,
+    visivel: true,
   },
 ]
 
@@ -103,7 +151,7 @@ const NOMES = [
 
 const MOCK_INICIAL: ItemDemo[] = NOMES.map((nome, i) => ({
   id:          `item-${i + 1}`,
-  colunaKey:   COLUNAS[i % COLUNAS.length].key,
+  colunaKey:   COLUNAS_PADRAO[i % COLUNAS_PADRAO.length].key,
   posicao:     i,
   nome,
   empresa:     EMPRESAS[i % EMPRESAS.length],
@@ -115,7 +163,7 @@ const MOCK_INICIAL: ItemDemo[] = NOMES.map((nome, i) => ({
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 
-function DemoCard({ item }: { item: ItemDemo }) {
+function DemoCard({ item, camposVisiveis }: { item: ItemDemo; camposVisiveis: Set<string> }) {
   const pc     = PRIORIDADE_COR[item.prioridade]
   const pLabel = PRIORIDADE_LABEL[item.prioridade]
 
@@ -131,36 +179,50 @@ function DemoCard({ item }: { item: ItemDemo }) {
 
   return (
     <div className="kb-card" style={{ borderLeft: `4px solid ${pc}` }}>
-      <span
-        className="kb-card-prioridade"
-        style={{ background: pc + '20', color: pc, border: `1px solid ${pc}44` }}
-      >
-        {pLabel}
-      </span>
-
-      <div className="kb-card-empresa">
-        <BuildingOffice size={12} />
-        {item.empresa}
-      </div>
-
-      <div className="kb-card-nome">{item.nome}</div>
-
-      <div className="kb-card-data" style={{ color: atrasado ? '#ef4444' : undefined }}>
-        <CalendarBlank size={12} />
-        {data.toLocaleDateString('pt-BR')}
-        {atrasado && <span className="kb-card-atrasado">· atrasado!</span>}
-      </div>
-
-      <div className="kb-card-rodape">
-        <span className="kb-card-responsavel">
-          <User size={11} />
-          {item.responsavel}
+      {camposVisiveis.has('prioridade') && (
+        <span
+          className="kb-card-prioridade"
+          style={{ background: pc + '20', color: pc, border: `1px solid ${pc}44` }}
+        >
+          {pLabel}
         </span>
-        <span className="kb-card-valor">
-          <CurrencyDollar size={11} />
-          {item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-        </span>
-      </div>
+      )}
+
+      {camposVisiveis.has('empresa') && (
+        <div className="kb-card-empresa">
+          <BuildingOffice size={12} />
+          {item.empresa}
+        </div>
+      )}
+
+      {camposVisiveis.has('nome') && (
+        <div className="kb-card-nome">{item.nome}</div>
+      )}
+
+      {camposVisiveis.has('data') && (
+        <div className="kb-card-data" style={{ color: atrasado ? '#ef4444' : undefined }}>
+          <CalendarBlank size={12} />
+          {data.toLocaleDateString('pt-BR')}
+          {atrasado && <span className="kb-card-atrasado">· atrasado!</span>}
+        </div>
+      )}
+
+      {(camposVisiveis.has('responsavel') || camposVisiveis.has('valor')) && (
+        <div className="kb-card-rodape">
+          {camposVisiveis.has('responsavel') && (
+            <span className="kb-card-responsavel">
+              <User size={11} />
+              {item.responsavel}
+            </span>
+          )}
+          {camposVisiveis.has('valor') && (
+            <span className="kb-card-valor">
+              <CurrencyDollar size={11} />
+              {item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="kb-card-hint">
         <ArrowRight size={10} />
@@ -178,6 +240,16 @@ export default function App() {
   const [isLoading,   setIsLoading]   = useState(false)
   const [modalItem,   setModalItem]   = useState<ItemDemo | null>(null)
   const [modalAberto, setModalAberto] = useState(false)
+  const [vista,       setVista]       = useState<Vista>('board')
+
+  // Estado de configuração — sincronizado pelo KanbanConfiguracoes
+  const [colunas,    setColunas]    = useState<KanbanColunaDef[]>(COLUNAS_PADRAO)
+  const [camposCard, setCamposCard] = useState<CampoCardDef[]>(CAMPOS_PADRAO)
+
+  const camposVisiveis = useMemo(
+    () => new Set(camposCard.filter(c => c.visivel).map(c => c.key)),
+    [camposCard],
+  )
 
   const itensFiltrados = useMemo(() => {
     if (!busca.trim()) return itens
@@ -195,9 +267,9 @@ export default function App() {
         item.responsavel,
         item.prioridade,
         item.colunaKey,
-        dataFormatada,           // ex: "16/03/2026"
-        String(item.valor),      // ex: "1750"
-        valorFormatado,          // ex: "R$ 1.750,00"
+        dataFormatada,
+        String(item.valor),
+        valorFormatado,
         item.descricao   ?? '',
         item.tipoAtividade ?? '',
         item.proximoPasso  ?? '',
@@ -208,9 +280,7 @@ export default function App() {
     })
   }, [itens, busca])
 
-  // onMoverItem agora é async — componente faz update otimista + rollback
   async function handleMoverItem(itemId: string, novaColunaKey: string, _posicao: number) {
-    // Simula latência de API
     await new Promise(r => setTimeout(r, 400))
     setItens(prev =>
       prev.map(item => item.id === itemId ? { ...item, colunaKey: novaColunaKey } : item),
@@ -226,7 +296,13 @@ export default function App() {
     setItens(prev => prev.map(i => i.id === atualizado.id ? { ...i, ...atualizado } : i))
   }
 
-  // Toolbar slot — componível pelo consumidor
+  function handleSalvarConfig(config: KanbanConfigData) {
+    setColunas(config.colunas)
+    setCamposCard(config.camposCard)
+    setVista('board')
+  }
+
+  // Toolbar slot
   const toolbar = (
     <div className="demo-toolbar">
       <div className="demo-search-wrap">
@@ -253,7 +329,7 @@ export default function App() {
     </div>
   )
 
-  const colunasModal = COLUNAS.map(c => ({ key: c.key, label: c.label, color: c.color }))
+  const colunasModal = colunas.map(c => ({ key: c.key, label: c.label, color: c.color }))
 
   return (
     <div className="demo-shell">
@@ -271,32 +347,62 @@ export default function App() {
           <Kanban size={18} weight="duotone" color="#818cf8" />
           KanbanGlobal
         </div>
+
+        {/* Nav tabs */}
+        <div className="demo-nav">
+          <button
+            className={`demo-nav-tab ${vista === 'board' ? 'demo-nav-tab--ativo' : ''}`}
+            onClick={() => setVista('board')}
+          >
+            <Kanban size={14} />
+            Board
+          </button>
+          <button
+            className={`demo-nav-tab ${vista === 'configuracoes' ? 'demo-nav-tab--ativo' : ''}`}
+            onClick={() => setVista('configuracoes')}
+          >
+            <Gear size={14} />
+            Configurações
+          </button>
+        </div>
+
         <span className="demo-header-badge">@nucleo/kanban-global v2</span>
       </div>
 
       <div className="demo-content">
-        <div className="demo-board">
-          <KanbanGlobal<ItemDemo>
-            colunas={COLUNAS}
-            itens={itensFiltrados}
-            renderCard={(item) => <DemoCard item={item} />}
-            onMoverItem={handleMoverItem}
-            onCardClick={handleCardClick}
-            emptyLabel="Nenhum item nesta fase"
-            getItemLabel={(item) => item.nome}
-            getItemDate={(item) => item.data}
-            isLoading={isLoading}
-            skeletonCount={3}
-            testIdPrefix="demo"
-            toolbarSlot={toolbar}
-            colunaFooterSlot={(col) => (
-              <button className="demo-add-btn" onClick={() => alert(`Novo item em: ${col.label}`)}>
-                <Plus size={13} />
-                Adicionar em {col.label}
-              </button>
-            )}
+        {vista === 'board' && (
+          <div className="demo-board">
+            <KanbanGlobal<ItemDemo>
+              colunas={colunas}
+              itens={itensFiltrados}
+              renderCard={(item) => <DemoCard item={item} camposVisiveis={camposVisiveis} />}
+              onMoverItem={handleMoverItem}
+              onCardClick={handleCardClick}
+              emptyLabel="Nenhum item nesta fase"
+              getItemLabel={(item) => item.nome}
+              getItemDate={(item) => item.data}
+              isLoading={isLoading}
+              skeletonCount={3}
+              testIdPrefix="demo"
+              toolbarSlot={toolbar}
+              colunaFooterSlot={(col) => (
+                <button className="demo-add-btn" onClick={() => alert(`Novo item em: ${col.label}`)}>
+                  <Plus size={13} />
+                  Adicionar em {col.label}
+                </button>
+              )}
+            />
+          </div>
+        )}
+
+        {vista === 'configuracoes' && (
+          <KanbanConfiguracoes
+            colunas={colunas}
+            camposCard={camposCard}
+            onSalvar={handleSalvarConfig}
+            onCancelar={() => setVista('board')}
           />
-        </div>
+        )}
       </div>
     </div>
   )

@@ -1,7 +1,13 @@
 import React, { useMemo, useState } from 'react'
-import { KanbanGlobal } from '@nucleo/kanban-global'
-import { KanbanConfiguracoes } from '@nucleo/kanban-global'
-import type { KanbanItem, KanbanColunaDef, CampoCardDef, KanbanConfigData } from '@nucleo/kanban-global'
+import { KanbanGlobal, KanbanConfiguracoes, avaliarRegras } from '@nucleo/kanban-global'
+import type {
+  KanbanItem,
+  KanbanColunaDef,
+  CampoCardDef,
+  KanbanConfigData,
+  CampoRegra,
+  RegraKanban,
+} from '@nucleo/kanban-global'
 import {
   Kanban,
   ListChecks,
@@ -33,7 +39,6 @@ interface ItemDemo extends KanbanItem {
   valor:          number
   data:           string
   prioridade:     Prioridade
-  // Campos do modal — persistidos após salvar
   descricao?:     string
   tipoAtividade?: string
   proximoPasso?:  string
@@ -45,14 +50,12 @@ const COLUNAS_PADRAO: KanbanColunaDef[] = [
   {
     key: 'A Fazer', label: 'A Fazer', color: '#6366f1',
     icon: <ListChecks size={16} weight="duotone" color="#6366f1" />,
-    colapsavel: true,
-    limiteWip: 8,
+    colapsavel: true, limiteWip: 8,
   },
   {
     key: 'Em Andamento', label: 'Em Andamento', color: '#f59e0b',
     icon: <Spinner size={16} weight="duotone" color="#f59e0b" />,
-    colapsavel: true,
-    limiteWip: 4,
+    colapsavel: true, limiteWip: 4,
   },
   {
     key: 'Concluída', label: 'Concluída', color: '#10b981',
@@ -62,77 +65,61 @@ const COLUNAS_PADRAO: KanbanColunaDef[] = [
   {
     key: 'Cancelada', label: 'Cancelada', color: '#64748b',
     icon: <XCircle size={16} weight="duotone" color="#64748b" />,
-    colapsavel: true,
-    isReadOnly: true,
+    colapsavel: true, isReadOnly: true,
   },
 ]
 
 // ── Campos padrão do card ─────────────────────────────────────────────────────
 
 const CAMPOS_PADRAO: CampoCardDef[] = [
-  {
-    key: 'empresa',
-    label: 'Empresa',
-    descricao: 'Nome da empresa vinculada',
-    icone: <BuildingOffice size={15} />,
-    visivel: true,
-  },
-  {
-    key: 'prioridade',
-    label: 'Prioridade',
-    descricao: 'Nível de urgência',
-    visivel: true,
-  },
-  {
-    key: 'nome',
-    label: 'Título',
-    descricao: 'Nome do item',
-    visivel: true,
-  },
-  {
-    key: 'data',
-    label: 'Data',
-    descricao: 'Data de vencimento',
-    icone: <CalendarBlank size={15} />,
-    visivel: true,
-  },
-  {
-    key: 'responsavel',
-    label: 'Responsável',
-    descricao: 'Pessoa responsável pelo item',
-    icone: <User size={15} />,
-    visivel: true,
-  },
-  {
-    key: 'valor',
-    label: 'Valor',
-    descricao: 'Valor total em R$',
-    icone: <CurrencyDollar size={15} />,
-    visivel: true,
-  },
+  { key: 'empresa',    label: 'Empresa',      descricao: 'Nome da empresa vinculada',  icone: <BuildingOffice size={15} />, visivel: true },
+  { key: 'prioridade', label: 'Prioridade',   descricao: 'Nível de urgência',                                              visivel: true },
+  { key: 'nome',       label: 'Título',       descricao: 'Nome do item',                                                   visivel: true },
+  { key: 'data',       label: 'Data',         descricao: 'Data de vencimento',         icone: <CalendarBlank size={15} />, visivel: true },
+  { key: 'responsavel',label: 'Responsável',  descricao: 'Pessoa responsável',         icone: <User size={15} />,          visivel: true },
+  { key: 'valor',      label: 'Valor',        descricao: 'Valor total em R$',          icone: <CurrencyDollar size={15} />,visivel: true },
 ]
+
+// ── Campos disponíveis para automações (definido pelo produto) ────────────────
+
+const CAMPOS_REGRA: CampoRegra[] = [
+  {
+    key: 'prioridade', label: 'Prioridade', tipo: 'selecao',
+    opcoes: [
+      { value: 'urgente', label: 'Urgente' },
+      { value: 'alta',    label: 'Alta'    },
+      { value: 'media',   label: 'Média'   },
+      { value: 'baixa',   label: 'Baixa'   },
+    ],
+  },
+  { key: 'valor',        label: 'Valor (R$)',    tipo: 'numero' },
+  { key: 'data',         label: 'Data',          tipo: 'data'   },
+  { key: 'empresa',      label: 'Empresa',       tipo: 'texto'  },
+  { key: 'responsavel',  label: 'Responsável',   tipo: 'texto'  },
+  { key: 'descricao',    label: 'Descrição',     tipo: 'texto'  },
+  { key: 'proximoPasso', label: 'Próximo passo', tipo: 'texto'  },
+]
+
+// ── Extrator de valor do item — definido pelo produto ─────────────────────────
+
+function getItemValue(item: ItemDemo, key: string): unknown {
+  return (item as Record<string, unknown>)[key]
+}
 
 // ── Prioridades ───────────────────────────────────────────────────────────────
 
 const PRIORIDADE_COR: Record<Prioridade, string> = {
-  urgente: '#ef4444',
-  alta:    '#f97316',
-  media:   '#f59e0b',
-  baixa:   '#64748b',
+  urgente: '#ef4444', alta: '#f97316', media: '#f59e0b', baixa: '#64748b',
 }
-
 const PRIORIDADE_LABEL: Record<Prioridade, string> = {
-  urgente: 'Urgente',
-  alta:    'Alta',
-  media:   'Média',
-  baixa:   'Baixa',
+  urgente: 'Urgente', alta: 'Alta', media: 'Média', baixa: 'Baixa',
 }
 
 // ── Mock ──────────────────────────────────────────────────────────────────────
 
-const EMPRESAS:     string[]     = ['Alpha Corp', 'Beta Ltda', 'Gamma S/A', 'Delta ME', 'Comex Global']
-const RESPONSAVEIS: string[]     = ['Ana Silva', 'Bruno Costa', 'Carla Mendes', 'Diego Rocha', 'Elena Vieira']
-const PRIORIDADES:  Prioridade[] = ['urgente', 'alta', 'media', 'baixa']
+const EMPRESAS     = ['Alpha Corp', 'Beta Ltda', 'Gamma S/A', 'Delta ME', 'Comex Global']
+const RESPONSAVEIS = ['Ana Silva', 'Bruno Costa', 'Carla Mendes', 'Diego Rocha', 'Elena Vieira']
+const PRIORIDADES: Prioridade[] = ['urgente', 'alta', 'media', 'baixa']
 
 function gerarData(diasOffset: number): string {
   const d = new Date()
@@ -171,11 +158,7 @@ function DemoCard({ item, camposVisiveis }: { item: ItemDemo; camposVisiveis: Se
   const hoje  = new Date()
   hoje.setHours(0, 0, 0, 0)
   data.setHours(0, 0, 0, 0)
-  const atrasado = (
-    data < hoje &&
-    item.colunaKey !== 'Concluída' &&
-    item.colunaKey !== 'Cancelada'
-  )
+  const atrasado = data < hoje && item.colunaKey !== 'Concluída' && item.colunaKey !== 'Cancelada'
 
   return (
     <div className="kb-card" style={{ borderLeft: `4px solid ${pc}` }}>
@@ -187,18 +170,12 @@ function DemoCard({ item, camposVisiveis }: { item: ItemDemo; camposVisiveis: Se
           {pLabel}
         </span>
       )}
-
       {camposVisiveis.has('empresa') && (
-        <div className="kb-card-empresa">
-          <BuildingOffice size={12} />
-          {item.empresa}
-        </div>
+        <div className="kb-card-empresa"><BuildingOffice size={12} />{item.empresa}</div>
       )}
-
       {camposVisiveis.has('nome') && (
         <div className="kb-card-nome">{item.nome}</div>
       )}
-
       {camposVisiveis.has('data') && (
         <div className="kb-card-data" style={{ color: atrasado ? '#ef4444' : undefined }}>
           <CalendarBlank size={12} />
@@ -206,14 +183,10 @@ function DemoCard({ item, camposVisiveis }: { item: ItemDemo; camposVisiveis: Se
           {atrasado && <span className="kb-card-atrasado">· atrasado!</span>}
         </div>
       )}
-
       {(camposVisiveis.has('responsavel') || camposVisiveis.has('valor')) && (
         <div className="kb-card-rodape">
           {camposVisiveis.has('responsavel') && (
-            <span className="kb-card-responsavel">
-              <User size={11} />
-              {item.responsavel}
-            </span>
+            <span className="kb-card-responsavel"><User size={11} />{item.responsavel}</span>
           )}
           {camposVisiveis.has('valor') && (
             <span className="kb-card-valor">
@@ -223,11 +196,7 @@ function DemoCard({ item, camposVisiveis }: { item: ItemDemo; camposVisiveis: Se
           )}
         </div>
       )}
-
-      <div className="kb-card-hint">
-        <ArrowRight size={10} />
-        ver detalhes
-      </div>
+      <div className="kb-card-hint"><ArrowRight size={10} />ver detalhes</div>
     </div>
   )
 }
@@ -242,9 +211,10 @@ export default function App() {
   const [modalAberto, setModalAberto] = useState(false)
   const [vista,       setVista]       = useState<Vista>('board')
 
-  // Estado de configuração — sincronizado pelo KanbanConfiguracoes
+  // Estado de configuração
   const [colunas,    setColunas]    = useState<KanbanColunaDef[]>(COLUNAS_PADRAO)
   const [camposCard, setCamposCard] = useState<CampoCardDef[]>(CAMPOS_PADRAO)
+  const [regrasKanban, setRegrasKanban] = useState<RegraKanban[]>([])
 
   const camposVisiveis = useMemo(
     () => new Set(camposCard.filter(c => c.visivel).map(c => c.key)),
@@ -255,36 +225,20 @@ export default function App() {
     if (!busca.trim()) return itens
     const q = busca.toLowerCase()
     return itens.filter(item => {
-      const dataFormatada = item.data
-        ? new Date(item.data).toLocaleDateString('pt-BR')
-        : ''
+      const dataFormatada  = item.data  ? new Date(item.data).toLocaleDateString('pt-BR') : ''
       const valorFormatado = item.valor
-        ? item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-        : ''
+        ? item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : ''
       return [
-        item.nome,
-        item.empresa,
-        item.responsavel,
-        item.prioridade,
-        item.colunaKey,
-        dataFormatada,
-        String(item.valor),
-        valorFormatado,
-        item.descricao   ?? '',
-        item.tipoAtividade ?? '',
-        item.proximoPasso  ?? '',
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(q)
+        item.nome, item.empresa, item.responsavel, item.prioridade, item.colunaKey,
+        dataFormatada, String(item.valor), valorFormatado,
+        item.descricao ?? '', item.tipoAtividade ?? '', item.proximoPasso ?? '',
+      ].join(' ').toLowerCase().includes(q)
     })
   }, [itens, busca])
 
   async function handleMoverItem(itemId: string, novaColunaKey: string, _posicao: number) {
     await new Promise(r => setTimeout(r, 400))
-    setItens(prev =>
-      prev.map(item => item.id === itemId ? { ...item, colunaKey: novaColunaKey } : item),
-    )
+    setItens(prev => prev.map(i => i.id === itemId ? { ...i, colunaKey: novaColunaKey } : i))
   }
 
   function handleCardClick(item: ItemDemo) {
@@ -292,24 +246,36 @@ export default function App() {
     setModalAberto(true)
   }
 
-  function handleSalvarModal(atualizado: CardKanbanItem) {
-    setItens(prev => prev.map(i => i.id === atualizado.id ? { ...i, ...atualizado } : i))
+  async function handleSalvarModal(atualizado: CardKanbanItem) {
+    // Monta o item completo atualizado
+    const anterior   = itens.find(i => i.id === atualizado.id)!
+    const itemFull: ItemDemo = { ...anterior, ...atualizado }
+
+    // Atualiza estado
+    setItens(prev => prev.map(i => i.id === atualizado.id ? itemFull : i))
+
+    // Avalia regras de automação
+    const destino = avaliarRegras(itemFull, regrasKanban, getItemValue, itemFull.colunaKey)
+    if (destino) {
+      await handleMoverItem(atualizado.id, destino, 0)
+    }
   }
 
-  // Sincroniza em tempo real enquanto o usuário edita as configurações
+  // Sincroniza configurações em tempo real
   function handleChangeConfig(config: KanbanConfigData) {
     setColunas(config.colunas)
     setCamposCard(config.camposCard)
+    setRegrasKanban(config.regras)
   }
 
-  // Salvar explícito — aplica + volta para o board
+  // Salvar explícito — aplica + volta ao board
   function handleSalvarConfig(config: KanbanConfigData) {
     setColunas(config.colunas)
     setCamposCard(config.camposCard)
+    setRegrasKanban(config.regras)
     setVista('board')
   }
 
-  // Toolbar slot
   const toolbar = (
     <div className="demo-toolbar">
       <div className="demo-search-wrap">
@@ -355,7 +321,6 @@ export default function App() {
           KanbanGlobal
         </div>
 
-        {/* Nav tabs */}
         <div className="demo-nav">
           <button
             className={`demo-nav-tab ${vista === 'board' ? 'demo-nav-tab--ativo' : ''}`}
@@ -370,6 +335,11 @@ export default function App() {
           >
             <Gear size={14} />
             Configurações
+            {regrasKanban.filter(r => r.ativo).length > 0 && (
+              <span className="demo-nav-badge">
+                {regrasKanban.filter(r => r.ativo).length}
+              </span>
+            )}
           </button>
         </div>
 
@@ -406,6 +376,8 @@ export default function App() {
           <KanbanConfiguracoes
             colunas={colunas}
             camposCard={camposCard}
+            regras={regrasKanban}
+            camposRegra={CAMPOS_REGRA}
             onChange={handleChangeConfig}
             onSalvar={handleSalvarConfig}
             onCancelar={() => setVista('board')}

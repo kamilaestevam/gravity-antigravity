@@ -95,6 +95,17 @@ html, body, #root {
   font-weight: 600;
 }
 
+.demo-nav-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  margin-left: 2px;
+}
+
 .demo-header-title {
   display: flex;
   align-items: center;

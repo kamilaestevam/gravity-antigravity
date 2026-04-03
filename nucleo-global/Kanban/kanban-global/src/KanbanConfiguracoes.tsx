@@ -25,8 +25,11 @@ import {
   ArrowCounterClockwise,
   Kanban,
   SquaresFour,
+  Lightning,
+  ArrowRight,
 } from '@phosphor-icons/react'
-import type { KanbanColunaDef } from './tipos'
+import type { KanbanColunaDef, CampoRegra, RegraKanban, OperadorRegra } from './tipos'
+import { OPERADORES_POR_TIPO } from './regras'
 import './kanban-configuracoes.css'
 
 // ── Tipos públicos ─────────────────────────────────────────────────────────────
@@ -42,11 +45,16 @@ export interface CampoCardDef {
 export interface KanbanConfigData {
   colunas:    KanbanColunaDef[]
   camposCard: CampoCardDef[]
+  regras:     RegraKanban[]
 }
 
 export interface KanbanConfiguracoesProps {
   colunas:     KanbanColunaDef[]
   camposCard:  CampoCardDef[]
+  /** Regras de automação salvas */
+  regras:      RegraKanban[]
+  /** Campos disponíveis para criar regras — definido pelo produto */
+  camposRegra: CampoRegra[]
   onSalvar:    (config: KanbanConfigData) => void
   /** Chamado a cada mudança — permite sincronização em tempo real com o board */
   onChange?:   (config: KanbanConfigData) => void
@@ -133,24 +141,18 @@ function ColunaSortItem({
         editando   ? 'kc-col-item--editing'  : '',
       ].filter(Boolean).join(' ')}
     >
-      {/* ── Linha principal ──────────────────────────────────────────────── */}
       <div className="kc-col-row">
         <button className="kc-drag-handle" {...attributes} {...listeners} title="Arrastar">
           <DotsSixVertical size={16} />
         </button>
-
         <span className="kc-col-cor-dot" style={{ background: coluna.color }} />
-
         <span className="kc-col-label-text">{coluna.label}</span>
-
         {coluna.limiteWip !== undefined && (
           <span className="kc-col-wip-badge">WIP {coluna.limiteWip}</span>
         )}
-
         {coluna.isReadOnly && (
           <span className="kc-col-tag">somente leitura</span>
         )}
-
         <div className="kc-col-row-actions">
           <button
             className="kc-icon-btn"
@@ -159,17 +161,12 @@ function ColunaSortItem({
           >
             {editando ? <X size={14} /> : <Pencil size={14} />}
           </button>
-          <button
-            className="kc-icon-btn kc-icon-btn--danger"
-            onClick={onDelete}
-            title="Remover coluna"
-          >
+          <button className="kc-icon-btn kc-icon-btn--danger" onClick={onDelete} title="Remover coluna">
             <Trash size={14} />
           </button>
         </div>
       </div>
 
-      {/* ── Painel de edição inline ───────────────────────────────────────── */}
       {editando && (
         <div className="kc-col-edit-panel">
           <div className="kc-edit-field">
@@ -210,7 +207,10 @@ function ColunaSortItem({
           </div>
 
           <div className="kc-edit-field">
-            <label className="kc-edit-label" title="Máximo de cards simultâneos nesta coluna. Quando excedido, o badge fica vermelho.">
+            <label
+              className="kc-edit-label"
+              title="Máximo de cards simultâneos nesta coluna. Quando excedido, o badge fica vermelho."
+            >
               Máx. cards (WIP)
             </label>
             <input
@@ -226,19 +226,11 @@ function ColunaSortItem({
 
           <div className="kc-edit-toggles">
             <label className="kc-toggle-label">
-              <input
-                type="checkbox"
-                checked={colapsavel}
-                onChange={e => setColapsavel(e.target.checked)}
-              />
+              <input type="checkbox" checked={colapsavel} onChange={e => setColapsavel(e.target.checked)} />
               Colapsável
             </label>
             <label className="kc-toggle-label">
-              <input
-                type="checkbox"
-                checked={readOnly}
-                onChange={e => setReadOnly(e.target.checked)}
-              />
+              <input type="checkbox" checked={readOnly} onChange={e => setReadOnly(e.target.checked)} />
               Somente leitura
             </label>
           </div>
@@ -281,20 +273,163 @@ function CampoSortItem({ campo, onToggle }: CampoSortItemProps) {
       <button className="kc-drag-handle" {...attributes} {...listeners} title="Arrastar">
         <DotsSixVertical size={16} />
       </button>
-
       {campo.icone && <span className="kc-campo-icone">{campo.icone}</span>}
-
       <div className="kc-campo-info">
         <span className="kc-campo-label">{campo.label}</span>
         {campo.descricao && <span className="kc-campo-desc">{campo.descricao}</span>}
       </div>
-
-      <button
-        className="kc-icon-btn kc-icon-btn--eye"
-        onClick={onToggle}
-        title="Ocultar campo"
-      >
+      <button className="kc-icon-btn kc-icon-btn--eye" onClick={onToggle} title="Ocultar campo">
         <Eye size={15} />
+      </button>
+    </div>
+  )
+}
+
+// ── Sortable item — regra de automação ─────────────────────────────────────────
+
+interface RegraItemProps {
+  regra:       RegraKanban
+  colunas:     KanbanColunaDef[]
+  camposRegra: CampoRegra[]
+  onChange:    (updated: RegraKanban) => void
+  onDelete:    () => void
+}
+
+function RegraItem({ regra, colunas, camposRegra, onChange, onDelete }: RegraItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: regra.id })
+
+  const style: React.CSSProperties = {
+    transform:  CSS.Transform.toString(transform),
+    transition: transition ?? undefined,
+  }
+
+  const campo       = camposRegra.find(c => c.key === regra.campoKey)
+  const operadores  = campo ? OPERADORES_POR_TIPO[campo.tipo] : []
+  const precisaValor = regra.operador && !['preenchido', 'vazio'].includes(regra.operador)
+  const temOpcoes   = campo?.tipo === 'selecao' && (campo.opcoes?.length ?? 0) > 0
+
+  function update(patch: Partial<RegraKanban>) {
+    onChange({ ...regra, ...patch })
+  }
+
+  function handleCampoChange(key: string) {
+    const novoCampo       = camposRegra.find(c => c.key === key)
+    const primeiroOp      = novoCampo ? OPERADORES_POR_TIPO[novoCampo.tipo][0]?.value : 'igual'
+    update({ campoKey: key, operador: primeiroOp ?? 'igual', valor: undefined })
+  }
+
+  function handleOperadorChange(op: OperadorRegra) {
+    const semValor = ['preenchido', 'vazio'].includes(op)
+    update({ operador: op, valor: semValor ? undefined : regra.valor })
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={[
+        'kc-regra-item',
+        isDragging        ? 'kc-regra-item--dragging' : '',
+        !regra.ativo      ? 'kc-regra-item--inativa'  : '',
+      ].filter(Boolean).join(' ')}
+    >
+      {/* Drag */}
+      <button
+        className="kc-drag-handle"
+        {...attributes}
+        {...listeners}
+        title="Arrastar para reordenar prioridade"
+      >
+        <DotsSixVertical size={16} />
+      </button>
+
+      {/* Toggle ativo */}
+      <label className="kc-regra-toggle" title={regra.ativo ? 'Desativar' : 'Ativar'}>
+        <input
+          type="checkbox"
+          checked={regra.ativo}
+          onChange={e => update({ ativo: e.target.checked })}
+        />
+        <span className="kc-regra-toggle-track" />
+      </label>
+
+      {/* Se */}
+      <span className="kc-regra-rotulo">Se</span>
+
+      {/* Campo */}
+      <select
+        className="kc-regra-select"
+        value={regra.campoKey}
+        onChange={e => handleCampoChange(e.target.value)}
+      >
+        <option value="">— campo —</option>
+        {camposRegra.map(c => (
+          <option key={c.key} value={c.key}>{c.label}</option>
+        ))}
+      </select>
+
+      {/* Operador */}
+      <select
+        className="kc-regra-select kc-regra-select--op"
+        value={regra.operador}
+        onChange={e => handleOperadorChange(e.target.value as OperadorRegra)}
+        disabled={!campo}
+      >
+        {operadores.length === 0 && (
+          <option value="">— operador —</option>
+        )}
+        {operadores.map(op => (
+          <option key={op.value} value={op.value}>{op.label}</option>
+        ))}
+      </select>
+
+      {/* Valor */}
+      {precisaValor && (
+        temOpcoes ? (
+          <select
+            className="kc-regra-select kc-regra-select--valor"
+            value={regra.valor ?? ''}
+            onChange={e => update({ valor: e.target.value })}
+          >
+            <option value="">— selecione —</option>
+            {campo!.opcoes!.map(op => (
+              <option key={op.value} value={op.value}>{op.label}</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            className="kc-regra-input"
+            type={
+              campo?.tipo === 'numero' ? 'number' :
+              campo?.tipo === 'data'   ? 'date'   : 'text'
+            }
+            value={regra.valor ?? ''}
+            onChange={e => update({ valor: e.target.value || undefined })}
+            placeholder="valor"
+          />
+        )
+      )}
+
+      {/* Seta + mover para */}
+      <span className="kc-regra-arrow"><ArrowRight size={13} /></span>
+      <span className="kc-regra-rotulo">mover para</span>
+
+      {/* Coluna destino */}
+      <select
+        className="kc-regra-select kc-regra-select--coluna"
+        value={regra.colunaDestino}
+        onChange={e => update({ colunaDestino: e.target.value })}
+      >
+        <option value="">— coluna —</option>
+        {colunas.map(c => (
+          <option key={c.key} value={c.key}>{c.label}</option>
+        ))}
+      </select>
+
+      {/* Delete */}
+      <button className="kc-icon-btn kc-icon-btn--danger" onClick={onDelete} title="Remover regra">
+        <Trash size={14} />
       </button>
     </div>
   )
@@ -302,28 +437,32 @@ function CampoSortItem({ campo, onToggle }: CampoSortItemProps) {
 
 // ── Componente principal ───────────────────────────────────────────────────────
 
-type AbaConfig = 'colunas' | 'card'
+type AbaConfig = 'colunas' | 'card' | 'automacoes'
 
 export function KanbanConfiguracoes({
-  colunas:    colunasIniciais,
-  camposCard: camposIniciais,
+  colunas:     colunasIniciais,
+  camposCard:  camposIniciais,
+  regras:      regrasIniciais,
+  camposRegra,
   onSalvar,
   onChange,
   onCancelar,
 }: KanbanConfiguracoesProps) {
   const MAX_COLUNAS = 8
+  const MAX_REGRAS  = 20
 
   const [aba,         setAba]         = useState<AbaConfig>('colunas')
   const [colunas,     setColunas]     = useState<KanbanColunaDef[]>(colunasIniciais)
   const [campos,      setCampos]      = useState<CampoCardDef[]>(camposIniciais)
+  const [regras,      setRegras]      = useState<RegraKanban[]>(regrasIniciais)
   const [editandoKey, setEditandoKey] = useState<string | null>(null)
 
-  // Notifica o pai a cada mudança para que o board fique sincronizado em tempo real
+  // Notifica o pai a cada mudança para sincronização em tempo real com o board
   const onChangeRef = useRef(onChange)
   onChangeRef.current = onChange
   useEffect(() => {
-    onChangeRef.current?.({ colunas, camposCard: campos })
-  }, [colunas, campos])
+    onChangeRef.current?.({ colunas, camposCard: campos, regras })
+  }, [colunas, campos, regras])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -372,10 +511,10 @@ export function KanbanConfiguracoes({
   function handleDragEndCampos({ active, over }: DragEndEvent) {
     if (!over || active.id === over.id) return
     setCampos(prev => {
-      const visiveis   = prev.filter(c => c.visivel)
-      const ocultos    = prev.filter(c => !c.visivel)
-      const oldIdx = visiveis.findIndex(c => c.key === String(active.id))
-      const newIdx = visiveis.findIndex(c => c.key === String(over.id))
+      const visiveis = prev.filter(c => c.visivel)
+      const ocultos  = prev.filter(c => !c.visivel)
+      const oldIdx   = visiveis.findIndex(c => c.key === String(active.id))
+      const newIdx   = visiveis.findIndex(c => c.key === String(over.id))
       if (oldIdx === -1 || newIdx === -1) return prev
       return [...arrayMove(visiveis, oldIdx, newIdx), ...ocultos]
     })
@@ -389,17 +528,57 @@ export function KanbanConfiguracoes({
     setCampos(camposIniciais)
   }
 
+  // ── Automações ────────────────────────────────────────────────────────────
+
+  function handleDragEndRegras({ active, over }: DragEndEvent) {
+    if (!over || active.id === over.id) return
+    setRegras(prev => {
+      const oldIdx = prev.findIndex(r => r.id === String(active.id))
+      const newIdx = prev.findIndex(r => r.id === String(over.id))
+      return arrayMove(prev, oldIdx, newIdx).map((r, i) => ({ ...r, prioridade: i }))
+    })
+  }
+
+  function handleNovaRegra() {
+    if (regras.length >= MAX_REGRAS || camposRegra.length === 0) return
+    const primeiroCampo  = camposRegra[0]
+    const primeiroOp     = OPERADORES_POR_TIPO[primeiroCampo.tipo][0]?.value ?? 'igual'
+    const primeiraColuna = colunas[0]?.key ?? ''
+    const nova: RegraKanban = {
+      id:            `regra-${Date.now()}`,
+      ativo:         true,
+      campoKey:      primeiroCampo.key,
+      operador:      primeiroOp,
+      valor:         undefined,
+      colunaDestino: primeiraColuna,
+      prioridade:    regras.length,
+    }
+    setRegras(prev => [...prev, nova])
+  }
+
+  function handleUpdateRegra(updated: RegraKanban) {
+    setRegras(prev => prev.map(r => r.id === updated.id ? updated : r))
+  }
+
+  function handleDeleteRegra(id: string) {
+    setRegras(prev =>
+      prev.filter(r => r.id !== id).map((r, i) => ({ ...r, prioridade: i })),
+    )
+  }
+
   // ── Salvar ────────────────────────────────────────────────────────────────
 
   function handleSalvar() {
-    onSalvar({ colunas, camposCard: campos })
+    onSalvar({ colunas, camposCard: campos, regras })
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
 
+  const regrasAtivas = regras.filter(r => r.ativo).length
+
   return (
     <div className="kc-shell">
-      {/* ── Sidebar ────────────────────────────────────────────────────────── */}
+      {/* ── Sidebar ──────────────────────────────────────────────────────── */}
       <div className="kc-sidebar">
         <span className="kc-sidebar-titulo">CONFIGURAÇÕES</span>
 
@@ -418,9 +597,20 @@ export function KanbanConfiguracoes({
           <SquaresFour size={15} weight="duotone" />
           Card
         </button>
+
+        <button
+          className={`kc-menu-item ${aba === 'automacoes' ? 'kc-menu-item--ativo' : ''}`}
+          onClick={() => setAba('automacoes')}
+        >
+          <Lightning size={15} weight="duotone" />
+          Automações
+          {regrasAtivas > 0 && (
+            <span className="kc-menu-badge">{regrasAtivas}</span>
+          )}
+        </button>
       </div>
 
-      {/* ── Main ───────────────────────────────────────────────────────────── */}
+      {/* ── Main ─────────────────────────────────────────────────────────── */}
       <div className="kc-main">
 
         {/* Aba: Colunas */}
@@ -439,10 +629,7 @@ export function KanbanConfiguracoes({
             </div>
 
             <DndContext sensors={sensors} onDragEnd={handleDragEndColunas}>
-              <SortableContext
-                items={colunas.map(c => c.key)}
-                strategy={verticalListSortingStrategy}
-              >
+              <SortableContext items={colunas.map(c => c.key)} strategy={verticalListSortingStrategy}>
                 <div className="kc-list">
                   {colunas.map(col => (
                     <ColunaSortItem
@@ -488,10 +675,7 @@ export function KanbanConfiguracoes({
             </div>
 
             <DndContext sensors={sensors} onDragEnd={handleDragEndCampos}>
-              <SortableContext
-                items={camposVisiveis.map(c => c.key)}
-                strategy={verticalListSortingStrategy}
-              >
+              <SortableContext items={camposVisiveis.map(c => c.key)} strategy={verticalListSortingStrategy}>
                 <div className="kc-list">
                   {camposVisiveis.map(campo => (
                     <CampoSortItem
@@ -534,7 +718,78 @@ export function KanbanConfiguracoes({
           </div>
         )}
 
-        {/* ── Footer ───────────────────────────────────────────────────────── */}
+        {/* Aba: Automações */}
+        {aba === 'automacoes' && (
+          <div className="kc-section">
+            <div className="kc-section-header">
+              <div>
+                <div className="kc-section-title">Automações</div>
+                <div className="kc-section-desc">
+                  Arraste para definir prioridade · regras avaliadas ao salvar o card
+                </div>
+              </div>
+              {regras.length > 0 && (
+                <span className={`kc-col-contador ${regras.length >= MAX_REGRAS ? 'kc-col-contador--cheio' : ''}`}>
+                  {regras.length}/{MAX_REGRAS}
+                </span>
+              )}
+            </div>
+
+            {regras.length === 0 ? (
+              <div className="kc-regras-empty">
+                <Lightning size={28} weight="duotone" />
+                <span className="kc-regras-empty-titulo">Nenhuma automação configurada</span>
+                <span className="kc-regras-empty-desc">
+                  Crie regras para mover cards automaticamente quando um campo mudar
+                </span>
+              </div>
+            ) : (
+              <DndContext sensors={sensors} onDragEnd={handleDragEndRegras}>
+                <SortableContext items={regras.map(r => r.id)} strategy={verticalListSortingStrategy}>
+                  <div className="kc-list kc-list--regras">
+                    {regras.map(regra => (
+                      <RegraItem
+                        key={regra.id}
+                        regra={regra}
+                        colunas={colunas}
+                        camposRegra={camposRegra}
+                        onChange={handleUpdateRegra}
+                        onDelete={() => handleDeleteRegra(regra.id)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
+
+            <button
+              className="kc-add-btn"
+              onClick={handleNovaRegra}
+              disabled={regras.length >= MAX_REGRAS || camposRegra.length === 0}
+              title={
+                camposRegra.length === 0
+                  ? 'Passe a prop camposRegra para habilitar automações'
+                  : regras.length >= MAX_REGRAS
+                  ? `Limite de ${MAX_REGRAS} regras atingido`
+                  : undefined
+              }
+            >
+              <Plus size={14} />
+              {regras.length >= MAX_REGRAS
+                ? `Limite de ${MAX_REGRAS} regras atingido`
+                : 'Nova automação'}
+            </button>
+
+            {camposRegra.length === 0 && (
+              <div className="kc-regras-aviso">
+                Para criar automações, passe a prop <code>camposRegra</code> com os campos
+                disponíveis no produto.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Footer ─────────────────────────────────────────────────────── */}
         <div className="kc-footer">
           {onCancelar && (
             <button className="kc-btn-secondary" onClick={onCancelar}>Cancelar</button>

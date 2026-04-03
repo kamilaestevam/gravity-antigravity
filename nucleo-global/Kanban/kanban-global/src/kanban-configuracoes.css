@@ -556,6 +556,207 @@
   border-color: rgba(239, 68, 68, 0.25);
 }
 
+/* ── Badge no menu item ───────────────────────────────────────────────────── */
+
+.kc-menu-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+/* ── Regra item ───────────────────────────────────────────────────────────── */
+
+.kc-list--regras {
+  gap: 0.5rem;
+}
+
+.kc-regra-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-base, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.kc-regra-item--dragging {
+  opacity: 0.35;
+}
+
+.kc-regra-item--inativa {
+  opacity: 0.45;
+}
+
+.kc-regra-item--inativa:hover {
+  opacity: 0.7;
+}
+
+/* Toggle ativo */
+
+.kc-regra-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.kc-regra-toggle input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.kc-regra-toggle-track {
+  width: 28px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background 0.2s, border-color 0.2s;
+  position: relative;
+}
+
+.kc-regra-toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--text-muted, #64748b);
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.kc-regra-toggle input:checked + .kc-regra-toggle-track {
+  background: rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.kc-regra-toggle input:checked + .kc-regra-toggle-track::after {
+  transform: translateX(12px);
+  background: #818cf8;
+}
+
+/* Rótulos */
+
+.kc-regra-rotulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.kc-regra-arrow {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted, #64748b);
+  flex-shrink: 0;
+}
+
+/* Selects e inputs nativos com estilo do design system */
+
+.kc-regra-select,
+.kc-regra-input {
+  padding: 0.3rem 0.5rem;
+  background: var(--bg-elevated, #475569);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.8rem;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 0;
+}
+
+.kc-regra-select:focus,
+.kc-regra-input:focus {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12);
+}
+
+.kc-regra-select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kc-regra-select--op    { max-width: 180px; }
+.kc-regra-select--valor { max-width: 130px; }
+.kc-regra-select--coluna { max-width: 150px; }
+.kc-regra-input         { max-width: 100px; }
+
+/* Selects — remover aparência nativa no webkit */
+.kc-regra-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  padding-right: 1.5rem;
+}
+
+/* ── Empty state automações ───────────────────────────────────────────────── */
+
+.kc-regras-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  color: var(--text-muted, #64748b);
+  border: 1px dashed rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.kc-regras-empty-titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+  margin-top: 0.25rem;
+}
+
+.kc-regras-empty-desc {
+  font-size: 0.8rem;
+  max-width: 340px;
+  line-height: 1.5;
+}
+
+/* ── Aviso sem camposRegra ────────────────────────────────────────────────── */
+
+.kc-regras-aviso {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #94a3b8);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 6px;
+  padding: 0.6rem 0.875rem;
+  line-height: 1.5;
+}
+
+.kc-regras-aviso code {
+  font-family: monospace;
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  color: #fbbf24;
+}
+
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 
 .kc-footer {

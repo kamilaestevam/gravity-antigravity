@@ -48,6 +48,44 @@ export interface KanbanSortOpcao {
   label: string
 }
 
+// ── Automações / Regras ───────────────────────────────────────────────────────
+
+/** Tipo do campo — determina quais operadores ficam disponíveis */
+export type TipoCampo = 'texto' | 'numero' | 'data' | 'booleano' | 'selecao'
+
+/** Descritor de campo disponível para criar regras — definido pelo produto */
+export interface CampoRegra {
+  key:     string
+  label:   string
+  tipo:    TipoCampo
+  /** Para tipo 'selecao': opções disponíveis para o valor da regra */
+  opcoes?: { value: string; label: string }[]
+}
+
+export type OperadorRegra =
+  | 'preenchido'
+  | 'vazio'
+  | 'igual'
+  | 'diferente'
+  | 'maior'
+  | 'menor'
+  | 'maior_igual'
+  | 'menor_igual'
+  | 'contem'
+  | 'nao_contem'
+
+export interface RegraKanban {
+  id:            string
+  ativo:         boolean
+  campoKey:      string
+  operador:      OperadorRegra
+  /** Ausente para operadores 'preenchido' e 'vazio' */
+  valor?:        string
+  colunaDestino: string
+  /** Menor número = maior prioridade em caso de conflito entre regras */
+  prioridade:    number
+}
+
 // ── Props do componente principal ─────────────────────────────────────────────
 
 export interface KanbanGlobalProps<T extends KanbanItem = KanbanItem> {

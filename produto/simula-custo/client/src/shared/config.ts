@@ -5,23 +5,27 @@
  *
  * Fonte de verdade do produto: declara serviços de tenant usados,
  * serviços de produto internos e a navegação lateral.
+ * Ícones: nomes Phosphor Icons em kebab-case.
  */
 
 export interface NavigationItem {
-  id: string
-  label: string
-  icon: string
-  source: 'product' | 'tenant'
-  children?: NavigationItem[]
+  id:            string
+  label:         string
+  icon?:         string
+  source?:       'product' | 'tenant'
+  sectionDivider?: boolean
+  disabled?:     boolean
+  badge?:        string
+  badgeVariant?: 'accent' | 'muted'
+  children?:     NavigationItem[]
 }
 
 export const PRODUCT_CONFIG = {
   id: 'simula-custo',
-  productId: 'simula-custo',         // ID canônico para permissões no Configurador
+  productId: 'simula-custo',
   name: 'SimulaCusto',
   port: 8020,
 
-  // Serviços de tenant consumidos via proxy (residem em tenant-db)
   tenantServices: [
     'atividades',
     'dashboard',
@@ -34,7 +38,6 @@ export const PRODUCT_CONFIG = {
     'api-cockpit',
   ] as const,
 
-  // Serviços de produto (rodam dentro deste servidor, dados em simulacusto-db)
   productServices: [
     'engine-fiscal',
     'siscomex-connector',
@@ -42,32 +45,38 @@ export const PRODUCT_CONFIG = {
     'docx-generator',
   ] as const,
 
-  // Navegação: telas do produto + serviços de tenant
   navigation: [
-    { 
-      id: 'meu-espaco-group', 
-      label: 'Meu Espaço', 
-      icon: 'check-circle', 
-      source: 'tenant',
+
+    // ── Meu Espaço ──────────────────────────────────────────────────────────
+    {
+      id: 'meu-espaco', label: 'Meu Espaço', icon: 'user-circle', source: 'tenant' as const,
       children: [
-        { id: 'meu-espaco',           label: 'Dashboard',          icon: 'bar-chart',      source: 'product' },
-        { id: 'meu-espaco/atividades',label: 'Minhas Atividades',  icon: 'check-circle',   source: 'tenant'  },
-        { id: 'meu-espaco/email',     label: 'E-mails',            icon: 'envelope',       source: 'tenant'  },
-        { id: 'meu-espaco/whatsapp',  label: 'Whatsapp',           icon: 'chat-circle',    source: 'tenant'  },
-      ]
+        { id: 'meu-espaco/atividades', label: 'Minhas Atividades', icon: 'check-circle',  source: 'tenant'  as const },
+        { id: 'meu-espaco/email',      label: 'Email',             icon: 'envelope',       source: 'tenant'  as const },
+        { id: 'meu-espaco/whatsapp',   label: 'WhatsApp',          icon: 'chat-circle',    source: 'tenant'  as const },
+      ],
     },
-    { id: 'estimativas',   label: 'Estimativas',       icon: 'calculator',     source: 'product' },
-    { id: 'relatorios',   label: 'Relatórios',         icon: 'file-text',      source: 'product'  },
-    { id: 'historico',    label: 'Histórico de Alterações', icon: 'clock',     source: 'tenant'  },
-    { id: 'gabi',         label: 'Gabi IA',            icon: 'sparkle',        source: 'tenant'  },
+
+    // ── Estimativas ─────────────────────────────────────────────────────────
+    { id: 'section-estimativas', label: 'Estimativas', sectionDivider: true },
+    { id: 'dashboard',     label: 'Dashboard',    icon: 'chart-pie-slice', source: 'product' as const },
+    { id: 'estimativas',   label: 'Lista',         icon: 'list-bullets',   source: 'product' as const },
+    { id: 'importar',      label: 'Importar',      icon: 'upload',         source: 'product' as const },
+    { id: 'kanban',        label: 'Kanban',         icon: 'kanban',         source: 'product' as const, disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+
+    // ── Serviços ─────────────────────────────────────────────────────────────
+    { id: 'relatorios',    label: 'Relatórios',    icon: 'file-text',      source: 'product' as const },
+    { id: 'historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  as const },
+    { id: 'gabi',          label: 'Gabi IA',        icon: 'sparkle',        source: 'tenant'  as const },
+    { id: 'configuracoes', label: 'Configurações', icon: 'gear-six',       source: 'product' as const },
+
   ] satisfies NavigationItem[],
 
   features: {
-    siscomex_integration: 'active',
-    bacen_auto_update: true,
-    default_icms_mode: 'inside_calc',
+    siscomex_integration:  'active',
+    bacen_auto_update:     true,
+    default_icms_mode:     'inside_calc',
     anti_captcha_provider: 'capsolver',
-    token_pool_enabled: true,
-  }
+    token_pool_enabled:    true,
+  },
 } as const
-

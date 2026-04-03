@@ -14,12 +14,17 @@ import {
   Calculator,
   Upload,
   ChartBar,
+  ChartPieSlice,
   CheckCircle,
   FileText,
   Clock,
   Sparkle,
   Envelope,
   ChatCircle,
+  ListBullets,
+  GearSix,
+  Kanban,
+  UserCircle,
 } from '@phosphor-icons/react'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
@@ -31,23 +36,28 @@ import EstimativasPage from './pages/estimativas/Estimativas'
 import RelatoriosPage from './pages/relatorios/Relatorios'
 import { Dashboard as GlobalDashboard } from '@tenant/dashboard/src/Dashboard'
 
-// ── Constantes do produto ─────────────────────────────────────────────────────
-const PRODUTO        = getProdutoMeta('simula-custo')
-const PRODUCT_COLOR  = PRODUTO.color
-const PRODUCT_ID     = 'simula-custo'
-const PRODUCT_NAME   = 'SimulaCusto'
-const PRODUCT_ICON   = PRODUTO.icon
+// ── Identidade do produto ─────────────────────────────────────────────────────
+const PRODUTO       = getProdutoMeta('simula-custo')
+const PRODUCT_ID    = 'simula-custo'
+const PRODUCT_NAME  = 'SimulaCusto'
+const PRODUCT_COLOR = PRODUTO.color   // usado nos ECOSYSTEM_NODES
 
 const iconMap: Record<string, React.ReactNode> = {
-  'calculator':   <Calculator   weight="duotone" size={20} />,
-  'upload':       <Upload       weight="duotone" size={20} />,
-  'bar-chart':    <ChartBar     weight="duotone" size={20} />,
-  'check-circle': <CheckCircle  weight="duotone" size={20} />,
-  'file-text':    <FileText     weight="duotone" size={20} />,
-  'clock':        <Clock        weight="duotone" size={20} />,
-  'sparkle':      <Sparkle      weight="duotone" size={20} />,
-  'envelope':     <Envelope     weight="duotone" size={20} />,
-  'chat-circle':  <ChatCircle   weight="duotone" size={20} />,
+  'calculator':              <Calculator    weight="duotone" size={20} />,
+  'upload':                  <Upload        weight="duotone" size={20} />,
+  'bar-chart':               <ChartBar      weight="duotone" size={20} />,
+  'chart-pie-slice':         <ChartPieSlice weight="duotone" size={20} />,
+  'check-circle':            <CheckCircle   weight="duotone" size={20} />,
+  'file-text':               <FileText      weight="duotone" size={20} />,
+  'clock-counter-clockwise': <Clock         weight="duotone" size={20} />,
+  'clock':                   <Clock         weight="duotone" size={20} />,
+  'sparkle':                 <Sparkle       weight="duotone" size={20} />,
+  'envelope':                <Envelope      weight="duotone" size={20} />,
+  'chat-circle':             <ChatCircle    weight="duotone" size={20} />,
+  'list-bullets':            <ListBullets   weight="duotone" size={20} />,
+  'gear-six':                <GearSix       weight="duotone" size={20} />,
+  'kanban':                  <Kanban        weight="duotone" size={20} />,
+  'user-circle':             <UserCircle    weight="duotone" size={20} />,
 }
 
 function mapNavigation(items: typeof PRODUCT_CONFIG.navigation): ReturnType<typeof mapNavigation> {
@@ -74,9 +84,9 @@ const LoadingFallback = () => (
 
 // ── Nós do ecossistema para o Localizador ─────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
-  { id: 'gravity',      label: 'Gravity',      sublabel: 'workspace',    color: '#818cf8', type: 'gravity',      status: 'accessible' },
-  { id: 'configurador', label: 'Configurador',  sublabel: 'auth · billing', color: '#f472b6', type: 'configurador', status: 'accessible' },
-  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: 'fiscal · NCM', color: PRODUCT_COLOR, type: 'produto', status: 'current' },
+  { id: 'gravity',      label: 'Gravity',     sublabel: 'workspace',      color: '#818cf8',     type: 'gravity',      status: 'accessible' },
+  { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6',     type: 'configurador', status: 'accessible' },
+  { id: PRODUCT_ID,     label: PRODUCT_NAME,  sublabel: 'fiscal · NCM',   color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
 
 export default function App() {
@@ -93,14 +103,12 @@ export default function App() {
 
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
-  // Injeta contexto do tenant na camada de API do produto
   useEffect(() => {
     if (currentUser.tenantId) {
       setApiContext({ tenantId: currentUser.tenantId, userId: currentUser.id })
     }
   }, [currentUser.tenantId, currentUser.id])
 
-  // Inicializa usuário demo se vazio
   useEffect(() => {
     if (!currentUser.name) {
       setCurrentUser({
@@ -113,7 +121,6 @@ export default function App() {
     }
   }, [currentUser, setCurrentUser])
 
-  // Registra navegação no histórico do localizador
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Dashboard'
     addEntry({
@@ -135,46 +142,36 @@ export default function App() {
 
   return (
     <TelaProdutoGlobal
-      menuTopo={{
-        productName:  PRODUCT_NAME,
-        productColor: PRODUCT_COLOR,
-        productIcon:  PRODUCT_ICON,
-        tooltipsDisabled,
-        onToggleTooltips: toggleTooltips,
-        onNavigateHub:  () => { window.location.href = '/hub' },
-        onNavigateCore: () => { window.location.href = '/core' },
-        localizador: {
-          workspaceName:        currentUser.tenantName ?? 'Minha Empresa',
-          currentProductId:     PRODUCT_ID,
-          currentProductLabel:  PRODUCT_NAME,
-          currentProductColor:  PRODUCT_COLOR,
-          currentPageLabel:     pageLabel,
-          history,
-          nodes: ECOSYSTEM_NODES,
-          onNavigate: (node) => {
-            if (node.type === 'gravity')       window.location.href = '/hub'
-            else if (node.type === 'configurador') window.location.href = '/configurador'
-            else if (node.type === 'produto')  window.location.href = `/produto/${node.id}`
-          },
-        },
-        usuario: {
-          userName:              currentUser.name  || 'Usuário',
-          userEmail:             currentUser.email || '',
-          userInitials:          initials,
-          userRole:              currentUser.role  ?? 'Membro',
-          isLight:               currentTheme === 'light',
-          onToggleTheme:         toggleTheme,
-          onNavigateWorkspace:   () => { window.location.href = '/configurador' },
-          onNavigateMarketPlace: () => { window.location.href = '/store' },
-          onSignOut:             () => { clearCurrentUser(); window.location.href = '/' },
+      productId={PRODUCT_ID}
+      productName={PRODUCT_NAME}
+      tenantName={currentUser.tenantName ?? 'Minha Empresa'}
+      tenantPlan="Pro"
+      navItems={navItems}
+      tooltipsDisabled={tooltipsDisabled}
+      onToggleTooltips={toggleTooltips}
+      onNavigateHub={() => { window.location.href = '/hub' }}
+      onNavigateCore={() => { window.location.href = '/core' }}
+      localizador={{
+        workspaceName:    currentUser.tenantName ?? 'Minha Empresa',
+        currentPageLabel: pageLabel,
+        history,
+        nodes: ECOSYSTEM_NODES,
+        onNavigate: (node) => {
+          if (node.type === 'gravity')           window.location.href = '/hub'
+          else if (node.type === 'configurador') window.location.href = '/configurador'
+          else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
         },
       }}
-      menuLateral={{
-        tenantName: currentUser.tenantName ?? 'Minha Empresa',
-        tenantPlan: 'Pro',
-        navItems,
-        moduleName:  PRODUCT_NAME,
-        moduleColor: PRODUCT_COLOR,
+      usuario={{
+        userName:              currentUser.name  || 'Usuário',
+        userEmail:             currentUser.email || '',
+        userInitials:          initials,
+        userRole:              currentUser.role  ?? 'Membro',
+        isLight:               currentTheme === 'light',
+        onToggleTheme:         toggleTheme,
+        onNavigateWorkspace:   () => { window.location.href = '/configurador' },
+        onNavigateMarketPlace: () => { window.location.href = '/store' },
+        onSignOut:             () => { clearCurrentUser(); window.location.href = '/' },
       }}
     >
       <Suspense fallback={<LoadingFallback />}>
@@ -186,6 +183,8 @@ export default function App() {
           <Route path="estimativas/:id"  element={<EstimativasPage />} />
           <Route path="importar"         element={<ImportarMassa />} />
           <Route path="relatorios"       element={<RelatoriosPage />} />
+          <Route path="configuracoes"    element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Configurações (Em breve)</div>} />
+          <Route path="kanban"           element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Kanban (Em breve)</div>} />
           <Route path="meu-espaco"       element={<GlobalDashboard />} />
           <Route path="meu-espaco/atividades" element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de Atividades (Tenant)</div>} />
           <Route path="meu-espaco/email"      element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Módulo de E-mails (Tenant)</div>} />

@@ -12,29 +12,26 @@ export function useTablePersistence({
   defaultHiddenKeys = []
 }: TablePersistenceOptions) {
   const storageKey = `gravity-table-cols-${tableId}`
+  const orderKey   = `gravity-table-order-${tableId}`
 
-  // Carrega as chaves visíveis do localStorage ou usa as padrões
+  // ── Visibilidade ─────────────────────────────────────────────────────────────
+
   const loadInitialState = useCallback((): Set<string> => {
     try {
       const saved = localStorage.getItem(storageKey)
       if (saved) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed)) {
-          return new Set(parsed)
-        }
+        if (Array.isArray(parsed)) return new Set(parsed)
       }
     } catch (e) {
       console.error('Erro ao carregar colunas visíveis da tabela:', e)
     }
-
-    // Se não houver nada salvo, usa as iniciais excluindo as padrões ocultas
     const visible = initialKeys.filter(k => !defaultHiddenKeys.includes(k))
     return new Set(visible)
   }, [storageKey, initialKeys, defaultHiddenKeys])
 
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(loadInitialState)
 
-  // Salva no localStorage sempre que as chaves visíveis mudarem
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(Array.from(visibleKeys)))
   }, [visibleKeys, storageKey])
@@ -42,14 +39,8 @@ export function useTablePersistence({
   const toggleVisibility = useCallback((key: string) => {
     setVisibleKeys(prev => {
       const next = new Set(prev)
-      if (next.has(key)) {
-        // Pelo menos uma coluna deve permanecer visível? 
-        // Vamos permitir ocultar todas por enquanto se o usuário quiser, 
-        // mas o Switch geralmente impede.
-        next.delete(key)
-      } else {
-        next.add(key)
-      }
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
       return next
     })
   }, [])
@@ -57,6 +48,7 @@ export function useTablePersistence({
   const resetToDefault = useCallback(() => {
     const visible = initialKeys.filter(k => !defaultHiddenKeys.includes(k))
     setVisibleKeys(new Set(visible))
+    setColumnOrderState([...initialKeys])
   }, [initialKeys, defaultHiddenKeys])
 
   const setAllVisible = useCallback(() => {
@@ -71,12 +63,37 @@ export function useTablePersistence({
     return visibleKeys.has(key)
   }, [visibleKeys])
 
+  // ── Ordem das colunas ────────────────────────────────────────────────────────
+
+  const loadInitialOrder = useCallback((): string[] => {
+    try {
+      const saved = localStorage.getItem(orderKey)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed)) return parsed
+      }
+    } catch (e) { /* silent */ }
+    return [...initialKeys]
+  }, [orderKey, initialKeys])
+
+  const [columnOrder, setColumnOrderState] = useState<string[]>(loadInitialOrder)
+
+  useEffect(() => {
+    localStorage.setItem(orderKey, JSON.stringify(columnOrder))
+  }, [columnOrder, orderKey])
+
+  const setColumnOrder = useCallback((newOrder: string[]) => {
+    setColumnOrderState(newOrder)
+  }, [])
+
   return {
     visibleKeys,
     isVisible,
     toggleVisibility,
     resetToDefault,
     setAllVisible,
-    clearAllVisible
+    clearAllVisible,
+    columnOrder,
+    setColumnOrder,
   }
 }

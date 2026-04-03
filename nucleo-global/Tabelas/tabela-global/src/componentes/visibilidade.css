@@ -104,6 +104,9 @@
 }
 
 .vcg-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
   padding: 0.25rem;
   border-radius: 6px;
   transition: background 0.1s;
@@ -111,6 +114,26 @@
 
 .vcg-item:hover {
   background: rgba(129, 140, 248, 0.04);
+}
+
+.vcg-drag-handle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--text-muted, #475569);
+  cursor: grab;
+  line-height: 0;
+  padding: 2px;
+  border-radius: 3px;
+  transition: color 0.1s;
+}
+
+.vcg-drag-handle:hover {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.vcg-item[draggable='true']:active .vcg-drag-handle {
+  cursor: grabbing;
 }
 
 .vcg-item .sg-container {

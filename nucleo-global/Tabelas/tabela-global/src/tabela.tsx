@@ -317,7 +317,7 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   )
 
   return (
-    <th style={{ width: col.largura, padding: '0.875rem 1rem', textAlign: col.align || 'center', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ffffff', borderBottom: '2px solid rgba(129,140,248,0.2)', background: '#1e293b', position: 'relative', userSelect: 'none', verticalAlign: 'middle' }}>
+    <th style={{ width: col.largura, padding: '0.875rem 1rem', textAlign: col.align || 'center', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ffffff', borderBottom: '2px solid rgba(129,140,248,0.2)', background: '#1e293b', position: 'sticky', top: 0, zIndex: 2, userSelect: 'none', verticalAlign: 'middle' }}>
       <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao || col.label}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'right' ? 'flex-end' : col.align === 'left' ? 'flex-start' : 'center' }}>
           {labelSpan}
@@ -624,7 +624,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
 
   return (
     <>
-    <div className={`tg-container ${expandidos.size > 0 ? 'tg-container--focado' : ''}`} style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)' }}>
+    <div className={`tg-container ${expandidos.size > 0 ? 'tg-container--focado' : ''}`} style={{ background: 'var(--ws-surface, #1e293b)', border: '1px solid var(--ws-accent-border)', borderRadius: '12px', overflow: 'hidden', fontFamily: 'var(--font, Plus Jakarta Sans)', display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.875rem 1.25rem', borderBottom: chips.length > 0 ? 'none' : '1px solid var(--ws-accent-border)' }}>
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <TooltipGlobal descricao={tooltipBusca || t('tabela.buscar_tooltip_padrao')}>
@@ -729,11 +729,11 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
         </div>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1, minHeight: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
           <thead>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.3)', color: 'white', fontSize: '0.7rem' }}>
+              <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.3)', color: 'white', fontSize: '0.7rem', position: 'sticky', top: 0, zIndex: 2 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
                   <span style={{ opacity: 0.5 }}>#</span>
@@ -754,14 +754,14 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                 />
               ))}
               {acoes && acoes.length > 0 && (
-                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center' }}>
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.2)', fontSize: '0.6875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#64748b', textAlign: 'center', position: 'sticky', top: 0, zIndex: 2 }}>
                   <TooltipGlobal titulo={t('tabela.acoes')} descricao={t('tabela.tooltip_acoes')}>
                     <span>{t('tabela.acoes')}</span>
                   </TooltipGlobal>
                 </th>
               )}
               {renderExpandido && (
-                <th style={{ padding: '0.75rem 1rem', width: 1, background: 'rgba(129,140,248,0.04)', borderBottom: '1px solid var(--ws-accent-border)' }}></th>
+                <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.2)', position: 'sticky', top: 0, zIndex: 2 }}></th>
               )}
             </tr>
           </thead>
@@ -790,7 +790,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                     onClick={(renderExpandido || temFilhos) ? () => toggleExpandido(id) : undefined}
                     style={{ 
                       cursor: (renderExpandido || temFilhos) ? 'pointer' : 'default', 
-                      borderBottom: (isExpanded || !ehUltimoDoPagina) ? '1px solid var(--ws-accent-border)' : 'none', 
+                      borderBottom: (isExpanded || !ehUltimoDoPagina) ? '1px solid var(--tg-border)' : 'none',
                       background: selecionados.has(id) ? 'var(--tg-bg-selected)' : 'transparent' 
                     }}
                   >

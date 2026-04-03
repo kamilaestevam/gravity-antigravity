@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
+import { TelaProdutoGlobal, type WorkspaceItem } from '@nucleo/tela-produto-global'
 import {
   useLocalizadorHistory,
   type EcosystemNode,
@@ -15,12 +15,17 @@ import {
 import {
   SquaresFour,
   ListBullets,
-  Kanban,
+  Kanban as KanbanIcon,
   GearSix,
+  UserCircle,
+  CheckCircle,
+  Envelope,
+  WhatsappLogo,
 } from '@phosphor-icons/react'
 
 const Dashboard     = lazy(() => import('./pages/Dashboard'))
 const Lista         = lazy(() => import('./pages/Lista'))
+const Kanban        = lazy(() => import('./pages/Kanban'))
 const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 
 // ── Identidade do Demo ────────────────────────────────────────────────────────
@@ -32,9 +37,21 @@ const PRODUCT_COLOR = '#818cf8'
 // ── Navegação ─────────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
+  // ── Meu Espaço (seção pessoal — idêntica em todos os produtos) ──────────────
+  {
+    label: 'Meu Espaço',
+    icon: <UserCircle size={20} weight="duotone" />,
+    children: [
+      { to: 'atividades', label: 'Minhas Atividades', icon: <CheckCircle size={16} weight="duotone" /> },
+      { to: 'email',      label: 'Email',             icon: <Envelope    size={16} weight="duotone" /> },
+      { to: 'whatsapp',   label: 'WhatsApp',          icon: <WhatsappLogo size={16} weight="duotone" /> },
+    ],
+  },
+  // ── Navegação do produto ─────────────────────────────────────────────────────
+  { sectionDivider: true, label: 'DEMO' },
   { to: 'dashboard',    label: 'Dashboard',    icon: <SquaresFour size={20} weight="duotone" /> },
   { to: 'lista',        label: 'Lista',        icon: <ListBullets size={20} weight="duotone" /> },
-  { to: 'kanban',       label: 'Kanban',       icon: <Kanban      size={20} weight="duotone" /> },
+  { to: 'kanban',       label: 'Kanban',       icon: <KanbanIcon  size={20} weight="duotone" /> },
   { to: 'configuracoes',label: 'Configurações',icon: <GearSix     size={20} weight="duotone" /> },
 ]
 
@@ -46,6 +63,18 @@ const ROUTE_LABELS: Record<string, string> = {
   'kanban':        'Kanban',
   'configuracoes': 'Configurações',
 }
+
+// ── Workspaces mock ───────────────────────────────────────────────────────────
+
+const WORKSPACES_MOCK: WorkspaceItem[] = [
+  { id: 'ws-1', name: 'Minha Empresa',    plan: 'Pro' },
+  { id: 'ws-2', name: 'Filial São Paulo', plan: 'Pro' },
+  { id: 'ws-3', name: 'Filial Rio',       plan: 'Starter' },
+  { id: 'ws-4', name: 'Demo Corp',        plan: 'Free' },
+  { id: 'ws-5', name: 'Acme Importações', plan: 'Enterprise' },
+  { id: 'ws-6', name: 'Comex Express',    plan: 'Starter' },
+  { id: 'ws-7', name: 'Global Trade Co.', plan: 'Pro' },
+]
 
 // ── Nós do ecossistema (demo) ─────────────────────────────────────────────────
 
@@ -103,6 +132,10 @@ export default function App() {
       tenantName="Minha Empresa"
       tenantPlan="Pro"
       navItems={NAV_ITEMS}
+      workspaces={WORKSPACES_MOCK}
+      onSwitchWorkspace={(id) => console.log('[Demo] Switch workspace:', id)}
+      onCreateWorkspace={() => console.log('[Demo] Criar workspace')}
+      onManageWorkspace={() => console.log('[Demo] Gerenciar workspace')}
       tooltipsDisabled={tooltipsDisabled}
       onToggleTooltips={() => setTooltips(d => !d)}
       onNavigateHub={() => {}}
@@ -131,7 +164,7 @@ export default function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard"     element={<Dashboard />} />
           <Route path="lista"         element={<Lista />} />
-          <Route path="kanban"        element={<div style={{ padding: '2rem', color: 'var(--text-muted)' }}>Kanban (Em breve)</div>} />
+          <Route path="kanban"        element={<Kanban />} />
           <Route path="configuracoes" element={<Configuracoes />} />
           <Route path="*"             element={<Navigate to="dashboard" replace />} />
         </Routes>

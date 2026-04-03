@@ -32,12 +32,35 @@ export default defineConfig({
       '@nucleo/mensageria-global':      nucleo('Mensageria Global/mensageria-global/src/index.ts'),
       // ── Botões ──
       '@nucleo/botao-global':           nucleo('Botoes/botao-global/src/index.ts'),
+      '@nucleo/botoes-salvar-global':   nucleo('Botoes/botoes-salvar-global/src/index.ts'),
+      // ── Campos ──
+      '@nucleo/campo-geral-global':     nucleo('Campos/campo-geral-global/src/index.ts'),
+      '@nucleo/campo-calendario-global':nucleo('Campos/campo-calendario-global/src/index.ts'),
+      '@nucleo/switch-global':          nucleo('Campos/switch-global/src/index.ts'),
+      '@nucleo/campo-select-global':    nucleo('Campos/campo-select-global/src/index.ts'),
+      // ── Kanban ──
+      '@nucleo/kanban-global':          nucleo('Kanban/kanban-global/src/index.ts'),
+      // ── Modais ──
+      '@nucleo/modal-global':                    nucleo('Modais/modal-global/src/index.ts'),
+      '@nucleo/modal-confirmar-excluir-global':  nucleo('Modais/modal-confirmar-excluir-global/src/index.ts'),
+      '@nucleo/modal-formulario-global':         nucleo('Modais/modal-formulario-global/src/index.ts'),
+      '@nucleo/modal-formulario-abas-global':    nucleo('Modais/modal-formulario-abas-global/src/index.ts'),
+      '@nucleo/modal-select-global':             nucleo('Modais/modal-select-global/src/index.ts'),
+      '@nucleo/modal-sem-sessoes-global':        nucleo('Modais/modal-sem-sessoes-global/src/index.ts'),
       // ── Tabelas ──
+      '@nucleo/select-colunas-global':  nucleo('Tabelas/select-colunas-global/src/index.ts'),
       '@nucleo/tabela-global':          nucleo('Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-virtual-global':  nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':  nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
+      // ── Feedback extra ──
+      '@nucleo/status-salvar-global':   nucleo('Feedback/status-salvar-global/src/index.ts'),
       // ── Utils ──
       '@nucleo/utils':                  nucleo('Utilidades/utils/src/index.ts'),
+      '@nucleo/export-utils':           nucleo('Utilidades/export-utils/exportUtils.ts'),
+      // ── Export deps (resolvidos a partir do demo, não de exportUtils.ts) ──
+      'exceljs':        path.resolve(__dirname, 'node_modules/exceljs'),
+      'jspdf':          path.resolve(__dirname, 'node_modules/jspdf'),
+      'jspdf-autotable':path.resolve(__dirname, 'node_modules/jspdf-autotable'),
     },
   },
 
@@ -48,6 +71,8 @@ export default defineConfig({
       '@dnd-kit/sortable',
       '@dnd-kit/utilities',
       '@tanstack/react-virtual',
+      'react-i18next',
+      'i18next',
     ],
   },
 

@@ -265,7 +265,11 @@ const GTVisibilidadeColunas = memo(function GTVisibilidadeColunas<T>({
   const colunasFiltradas = useMemo(() => {
     const termo = busca.trim().toLowerCase()
     const lista = termo ? colunas.filter(c => c.label.toLowerCase().includes(termo)) : colunas
-    return [...lista].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+    const sorted = [...lista].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+    // Colunas obrigatórias (naoOcultavel) ficam sempre no topo
+    const obrigatorias = sorted.filter(c => c.naoOcultavel)
+    const opcionais    = sorted.filter(c => !c.naoOcultavel)
+    return [...obrigatorias, ...opcionais]
   }, [colunas, busca])
 
   return (
@@ -310,7 +314,12 @@ const GTVisibilidadeColunas = memo(function GTVisibilidadeColunas<T>({
       {colunasFiltradas.length === 0 ? (
         <div className="gtv-col-vazio">Nenhuma coluna encontrada</div>
       ) : (
-        colunasFiltradas.map(col => (
+        colunasFiltradas.map((col, idx) => (
+          <React.Fragment key={col.key}>
+            {/* Divisor entre colunas obrigatórias e opcionais */}
+            {idx > 0 && !col.naoOcultavel && colunasFiltradas[idx - 1].naoOcultavel && (
+              <div className="gtv-col-divisor" />
+            )}
           <label
             key={col.key}
             className="gtv-export-item"
@@ -323,18 +332,27 @@ const GTVisibilidadeColunas = memo(function GTVisibilidadeColunas<T>({
               }
               dragKeyRef.current = null
             }}
-            style={{ cursor: col.naoOcultavel ? 'not-allowed' : 'pointer', opacity: col.naoOcultavel ? 0.5 : 1, display: 'flex', alignItems: 'center', gap: 6 }}
+            style={{ cursor: col.naoOcultavel ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
           >
-            {onReordenar && !col.naoOcultavel && (
-              <svg width="10" height="14" viewBox="0 0 10 14" fill="none" aria-hidden="true"
-                style={{ cursor: 'grab', color: 'var(--gtv-muted, #64748b)', flexShrink: 0 }}>
-                <circle cx="3" cy="3"  r="1.2" fill="currentColor"/>
-                <circle cx="7" cy="3"  r="1.2" fill="currentColor"/>
-                <circle cx="3" cy="7"  r="1.2" fill="currentColor"/>
-                <circle cx="7" cy="7"  r="1.2" fill="currentColor"/>
-                <circle cx="3" cy="11" r="1.2" fill="currentColor"/>
-                <circle cx="7" cy="11" r="1.2" fill="currentColor"/>
-              </svg>
+            {onReordenar && (
+              col.naoOcultavel ? (
+                /* Cadeado — coluna obrigatória, não pode ser ocultada */
+                <svg width="10" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
+                  style={{ color: 'var(--gtv-accent, #6366f1)', flexShrink: 0, opacity: 0.7 }}>
+                  <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-80-32a16,16,0,1,0-16-16A16,16,0,0,0,128,176Z"/>
+                </svg>
+              ) : (
+                /* Drag handle — coluna opcional, pode ser reordenada */
+                <svg width="10" height="14" viewBox="0 0 10 14" fill="none" aria-hidden="true"
+                  style={{ cursor: 'grab', color: 'var(--gtv-muted, #64748b)', flexShrink: 0 }}>
+                  <circle cx="3" cy="3"  r="1.2" fill="currentColor"/>
+                  <circle cx="7" cy="3"  r="1.2" fill="currentColor"/>
+                  <circle cx="3" cy="7"  r="1.2" fill="currentColor"/>
+                  <circle cx="7" cy="7"  r="1.2" fill="currentColor"/>
+                  <circle cx="3" cy="11" r="1.2" fill="currentColor"/>
+                  <circle cx="7" cy="11" r="1.2" fill="currentColor"/>
+                </svg>
+              )
             )}
             <input
               type="checkbox"
@@ -345,6 +363,7 @@ const GTVisibilidadeColunas = memo(function GTVisibilidadeColunas<T>({
             />
             {col.label}
           </label>
+          </React.Fragment>
         ))
       )}
     </div>
@@ -1329,7 +1348,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
               const styleTh: React.CSSProperties = {
                 flex: `0 0 ${colWidth}px`,
-                position: 'relative',
                 ...(col.frozen ? { left: offsetFrozenDados } : undefined),
               }
 

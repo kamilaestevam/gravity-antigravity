@@ -1,131 +1,94 @@
 /* Configuracoes.css — Demo */
 
-/* ─── Layout geral ─────────────────────────────────────────────────────────── */
-
 .cfg-page {
   display: flex;
-  height: 100%;
-  min-height: 0;
+  gap: 1.5rem;
+  padding: 0.5rem 2rem 2rem;
   flex: 1;
-  overflow: hidden;
+  align-items: flex-start;
 }
 
-/* ─── Sidebar ──────────────────────────────────────────────────────────────── */
+/* ── Sidebar ── */
 
 .cfg-sidebar {
-  width: 220px;
+  width: 200px;
   flex-shrink: 0;
-  border-right: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
-  padding: 1.5rem 0.875rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  background: var(--surface-2, rgba(255,255,255,0.02));
-  overflow-y: auto;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 1rem 0.5rem;
+  position: sticky;
+  top: 1rem;
 }
 
 .cfg-sidebar__titulo {
-  font-size: 0.65rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   color: var(--text-muted, #64748b);
-  padding: 0 0.5rem;
+  padding: 0 0.625rem;
   margin-bottom: 0.5rem;
 }
 
-.cfg-sidebar__nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+.cfg-sidebar__nav { display: flex; flex-direction: column; gap: 2px; }
 
 .cfg-sidebar__item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.45rem 0.6rem;
-  border-radius: 6px;
-  background: none;
+  padding: 0.5rem 0.625rem;
+  border-radius: 8px;
   border: none;
-  cursor: pointer;
-  font-size: 0.8rem;
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--text-muted, #64748b);
-  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+  cursor: pointer;
   text-align: left;
+  transition: background 0.15s, color 0.15s;
 }
 
 .cfg-sidebar__item:hover:not(.cfg-sidebar__item--breve) {
-  background: var(--surface-hover, rgba(255,255,255,0.05));
+  background: rgba(255,255,255,0.05);
   color: var(--text-primary, #f1f5f9);
 }
 
 .cfg-sidebar__item--ativo {
-  background: var(--ws-accent-subtle, rgba(129,140,248,0.12));
-  color: var(--ws-accent, #818cf8);
+  background: rgba(129,140,248,0.12) !important;
+  color: #818cf8 !important;
+  font-weight: 600;
 }
 
-.cfg-sidebar__item--ativo:hover {
-  background: var(--ws-accent-subtle, rgba(129,140,248,0.15));
-  color: var(--ws-accent, #818cf8);
-}
-
-.cfg-sidebar__item--breve {
-  cursor: default;
-  opacity: 0.45;
-}
-
-.cfg-sidebar__item-icon {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.cfg-sidebar__item-label {
-  flex: 1;
-  min-width: 0;
-}
+.cfg-sidebar__item--breve { opacity: 0.5; cursor: default; }
+.cfg-sidebar__item-icon   { display: flex; align-items: center; flex-shrink: 0; }
+.cfg-sidebar__item-label  { flex: 1; }
 
 .cfg-badge-breve {
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   font-weight: 600;
   padding: 1px 5px;
-  border-radius: 3px;
-  background: var(--surface-3, rgba(255,255,255,0.07));
+  border-radius: 4px;
+  background: rgba(255,255,255,0.06);
   color: var(--text-muted, #64748b);
-  flex-shrink: 0;
   white-space: nowrap;
 }
 
-/* ─── Conteúdo principal ───────────────────────────────────────────────────── */
+/* ── Conteúdo ── */
 
-.cfg-conteudo {
-  flex: 1;
-  min-width: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
+.cfg-conteudo  { flex: 1; min-width: 0; }
 
-.cfg-cards-wrapper {
-  display: flex;
-  flex-direction: column;
-}
+.cfg-cards-wrapper { display: flex; flex-direction: column; gap: 1rem; }
 
-/* ─── Seção ────────────────────────────────────────────────────────────────── */
+/* ── Seção ── */
 
 .cfg-secao {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.75rem 2rem;
-  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
-}
-
-.cfg-secao:last-child {
-  border-bottom: none;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
 }
 
 .cfg-secao__header {
@@ -133,200 +96,189 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .cfg-secao__titulo {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 700;
   color: var(--text-primary, #f1f5f9);
-  margin: 0;
+  margin-bottom: 0.2rem;
 }
 
 .cfg-secao__desc {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   color: var(--text-muted, #64748b);
-  margin: 0;
-  margin-top: 3px;
+  line-height: 1.5;
 }
 
-/* ─── Pills de período ─────────────────────────────────────────────────────── */
+/* ── Período pills ── */
 
-.cfg-periodo__pills {
+.cfg-periodo-pills {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.cfg-periodo__pill {
-  padding: 0.35rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--border, rgba(255,255,255,0.1));
-  background: none;
+.cfg-periodo-pill {
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
   color: var(--text-secondary, #94a3b8);
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
   font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: all 0.15s;
 }
 
-.cfg-periodo__pill:hover {
-  background: var(--surface-hover, rgba(255,255,255,0.05));
+.cfg-periodo-pill:hover {
+  border-color: rgba(129,140,248,0.3);
   color: var(--text-primary, #f1f5f9);
-  border-color: var(--border-strong, rgba(255,255,255,0.18));
 }
 
-.cfg-periodo__pill--ativo {
-  background: var(--ws-accent, #818cf8);
-  border-color: var(--ws-accent, #818cf8);
-  color: #fff;
+.cfg-periodo-pill--ativo {
+  background: rgba(129,140,248,0.15);
+  border-color: rgba(129,140,248,0.4);
+  color: #818cf8;
+  font-weight: 600;
 }
 
-.cfg-periodo__pill--ativo:hover {
-  opacity: 0.9;
-}
-
-/* ─── Botão restaurar padrão ───────────────────────────────────────────────── */
+/* ── Botão restaurar ── */
 
 .cfg-reset-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
-  border: 1px solid var(--border-subtle, rgba(255,255,255,0.09));
-  background: none;
-  color: var(--text-muted, #64748b);
-  font-size: 0.72rem;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.75rem;
   font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
   flex-shrink: 0;
+  transition: all 0.15s;
 }
 
 .cfg-reset-btn:hover {
-  background: var(--surface-hover, rgba(255,255,255,0.05));
-  color: var(--text-primary, #f1f5f9);
-  border-color: var(--border, rgba(255,255,255,0.15));
+  border-color: rgba(239,68,68,0.3);
+  color: #f87171;
+  background: rgba(239,68,68,0.05);
 }
 
-/* ─── Estado vazio ─────────────────────────────────────────────────────────── */
-
-.cfg-empty {
-  font-size: 0.8rem;
-  color: var(--text-muted, #64748b);
-  padding: 0.5rem 0;
-  margin: 0;
-}
-
-/* ─── Lista de cards ───────────────────────────────────────────────────────── */
-
-.cfg-cards-lista {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-/* ─── Cabeçalho da tabela de catálogo ─────────────────────────────────────── */
+/* ── Cabeçalho da tabela de colunas ── */
 
 .cfg-tabela-head {
   display: flex;
   align-items: center;
-  padding: 0 0.5rem 0.5rem;
-  border-bottom: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
-  margin-bottom: 0.25rem;
+  gap: 0.75rem;
+  padding: 0 0.875rem 0.5rem;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 .cfg-tabela-head__col {
-  font-size: 0.63rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   color: var(--text-muted, #64748b);
+  white-space: nowrap;
 }
 
-.cfg-tabela-head__col--nome {
-  flex: 1;
-  padding-left: 30px;
-}
+.cfg-tabela-head__col--nome   { flex: 1; min-width: 0; padding-left: calc(20px + 0.75rem + 34px + 0.625rem); }
+.cfg-tabela-head__col--origem { width: 52px; text-align: center; }
+.cfg-tabela-head__col--agg    { width: 64px; text-align: center; }
+.cfg-tabela-head__col--acao   { width: 28px; }
 
-.cfg-tabela-head__col--agg {
-  width: 72px;
-  text-align: center;
-}
+/* ── Lista de cards ── */
 
-.cfg-tabela-head__col--acao {
-  width: 30px;
-}
-
-/* ─── Linha de card ────────────────────────────────────────────────────────── */
+.cfg-cards-lista { display: flex; flex-direction: column; gap: 6px; }
 
 .cfg-card-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.5rem;
-  border-radius: 8px;
-  background: var(--surface-card, rgba(255,255,255,0.03));
-  border: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
-  transition: background 0.15s, opacity 0.15s;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.02);
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .cfg-card-row:hover {
-  background: var(--surface-hover, rgba(255,255,255,0.055));
+  border-color: rgba(129,140,248,0.2);
+  background: rgba(129,140,248,0.03);
 }
 
-.cfg-card-row--oculto {
-  opacity: 0.45;
-}
+.cfg-card-row--oculto { opacity: 0.4; }
 
 .cfg-card-row--disponivel {
+  border-style: dashed;
+  border-color: rgba(255,255,255,0.06);
   background: transparent;
-  border-color: transparent;
 }
 
-.cfg-card-row--disponivel:hover {
-  background: var(--surface-hover, rgba(255,255,255,0.04));
-  border-color: var(--border-subtle, rgba(255,255,255,0.07));
+/* ── Badges de origem e agregação ── */
+
+.cfg-origem-badge,
+.cfg-agg-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-/* ─── Drag handle ──────────────────────────────────────────────────────────── */
+.cfg-origem-badge--meus   { background: rgba(255,255,255,0.05); color: var(--text-muted, #64748b); }
+.cfg-origem-badge--pedido { background: rgba(129,140,248,0.1);  color: #818cf8; }
+.cfg-origem-badge--item   { background: rgba(52,211,153,0.1);   color: #34d399; }
+
+.cfg-agg-badge {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-muted, #64748b);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+/* ── Handle DnD ── */
 
 .cfg-drag-handle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
+  width: 20px;
+  height: 28px;
   border: none;
-  background: none;
+  background: transparent;
   color: var(--text-muted, #64748b);
   cursor: grab;
-  border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
   padding: 0;
+  flex-shrink: 0;
+  border-radius: 4px;
+  transition: color 0.12s;
 }
 
-.cfg-drag-handle:hover {
-  color: var(--text-secondary, #94a3b8);
-  background: var(--surface-hover, rgba(255,255,255,0.06));
-}
-
+.cfg-drag-handle:hover  { color: var(--text-primary, #f1f5f9); }
 .cfg-drag-handle:active { cursor: grabbing; }
 
 .cfg-drag-handle--ghost {
+  opacity: 0.2;
   cursor: default;
   pointer-events: none;
-  opacity: 0.2;
 }
 
-/* ─── Info do card ─────────────────────────────────────────────────────────── */
+/* ── Info ── */
 
 .cfg-card-row__info {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.625rem;
   flex: 1;
   min-width: 0;
 }
@@ -334,128 +286,153 @@
 .cfg-card-row__icone {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
   flex-shrink: 0;
 }
 
 .cfg-card-row__nome {
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary, #f1f5f9);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: 1px;
 }
 
 .cfg-card-row__desc {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   color: var(--text-muted, #64748b);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* ─── Badge de agregação ───────────────────────────────────────────────────── */
-
-.cfg-agg-badge {
-  font-size: 0.62rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--surface-3, rgba(255,255,255,0.07));
-  color: var(--text-muted, #64748b);
-  white-space: nowrap;
-  width: 72px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-/* ─── Botão olho ───────────────────────────────────────────────────────────── */
+/* ── Botões de ação ── */
 
 .cfg-eye-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  border: none;
-  border-radius: 5px;
-  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: transparent;
   color: var(--text-muted, #64748b);
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
   padding: 0;
+  flex-shrink: 0;
+  transition: all 0.12s;
 }
 
-.cfg-eye-btn:hover {
-  background: var(--surface-hover, rgba(255,255,255,0.07));
-  color: var(--text-secondary, #94a3b8);
-}
-
-.cfg-eye-btn--on { color: var(--ws-accent, #818cf8); }
-
-.cfg-eye-btn--on:hover {
-  color: var(--ws-accent, #818cf8);
-  background: var(--ws-accent-subtle, rgba(129,140,248,0.12));
-}
-
-/* ─── Botão remover ────────────────────────────────────────────────────────── */
+.cfg-eye-btn--on  { color: #818cf8; border-color: rgba(129,140,248,0.25); background: rgba(129,140,248,0.08); }
+.cfg-eye-btn:hover:not(.cfg-eye-btn--on) { color: var(--text-primary, #f1f5f9); border-color: rgba(255,255,255,0.15); }
 
 .cfg-remove-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  border: none;
-  border-radius: 4px;
-  background: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: transparent;
   color: var(--text-muted, #64748b);
   cursor: pointer;
-  transition: color 0.15s, background 0.15s;
   padding: 0;
+  flex-shrink: 0;
+  transition: all 0.12s;
 }
 
 .cfg-remove-btn:hover {
-  background: rgba(248, 113, 113, 0.12);
   color: #f87171;
+  border-color: rgba(239,68,68,0.3);
+  background: rgba(239,68,68,0.06);
 }
-
-/* ─── Botão adicionar ──────────────────────────────────────────────────────── */
 
 .cfg-add-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  flex-shrink: 0;
-  border: 1px solid var(--border-subtle, rgba(255,255,255,0.09));
+  width: 28px;
+  height: 28px;
   border-radius: 6px;
-  background: none;
-  color: var(--text-muted, #64748b);
+  border: 1px solid rgba(129,140,248,0.25);
+  background: rgba(129,140,248,0.08);
+  color: #818cf8;
   cursor: pointer;
-  transition: color 0.15s, background 0.15s, border-color 0.15s;
   padding: 0;
+  flex-shrink: 0;
+  transition: all 0.12s;
 }
 
 .cfg-add-btn:hover {
-  background: var(--ws-accent-subtle, rgba(129,140,248,0.14));
-  border-color: var(--ws-accent, #818cf8);
-  color: var(--ws-accent, #818cf8);
+  background: rgba(129,140,248,0.18);
+  border-color: rgba(129,140,248,0.4);
 }
 
-/* ─── Light theme ──────────────────────────────────────────────────────────── */
+/* ── Empty state ── */
 
-[data-theme="light"] .cfg-sidebar {
-  background: rgba(0,0,0,0.015);
-  border-right-color: rgba(0,0,0,0.08);
+.cfg-empty {
+  font-size: 0.8125rem;
+  color: var(--text-muted, #64748b);
+  text-align: center;
+  padding: 1.5rem 0;
 }
+
+/* ── Editing state ── */
+
+.cfg-card-row--editing {
+  border-color: rgba(99,102,241,0.4);
+  background: rgba(99,102,241,0.04);
+}
+
+.cfg-edit-panel {
+  background: var(--bg-surface, #1e293b);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 0.375rem;
+}
+
+.cfg-edit-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.cfg-edit-panel__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.cfg-edit-panel__input {
+  background: var(--bg-elevated, #334155);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: var(--text-primary, #f1f5f9);
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cfg-edit-panel__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+/* ── Light theme ── */
+
+[data-theme="light"] .cfg-sidebar,
+[data-theme="light"] .cfg-secao  { background: #fff; border-color: rgba(0,0,0,0.07); }
 
 [data-theme="light"] .cfg-sidebar__item:hover:not(.cfg-sidebar__item--breve) {
   background: rgba(0,0,0,0.04);
@@ -463,43 +440,50 @@
 }
 
 [data-theme="light"] .cfg-sidebar__item--ativo {
-  background: rgba(99,102,241,0.08);
-  color: #6366f1;
-}
-
-[data-theme="light"] .cfg-secao {
-  border-bottom-color: rgba(0,0,0,0.08);
-}
-
-[data-theme="light"] .cfg-periodo__pill {
-  border-color: rgba(0,0,0,0.12);
-  color: var(--text-secondary, #475569);
-}
-
-[data-theme="light"] .cfg-periodo__pill--ativo {
-  background: #6366f1;
-  border-color: #6366f1;
-  color: #fff;
+  background: rgba(99,102,241,0.08) !important;
+  color: #6366f1 !important;
 }
 
 [data-theme="light"] .cfg-card-row {
-  background: rgba(0,0,0,0.02);
+  background: #f8fafc;
   border-color: rgba(0,0,0,0.07);
 }
 
-[data-theme="light"] .cfg-card-row:hover { background: rgba(0,0,0,0.04); }
-
-[data-theme="light"] .cfg-card-row--disponivel {
-  background: transparent;
-  border-color: transparent;
+[data-theme="light"] .cfg-card-row:hover {
+  border-color: rgba(99,102,241,0.2);
+  background: rgba(99,102,241,0.03);
 }
 
-[data-theme="light"] .cfg-card-row--disponivel:hover {
+[data-theme="light"] .cfg-card-row--disponivel { background: transparent; }
+
+[data-theme="light"] .cfg-card-row__icone {
   background: rgba(0,0,0,0.03);
-  border-color: rgba(0,0,0,0.07);
+  border-color: rgba(0,0,0,0.06);
 }
 
-[data-theme="light"] .cfg-agg-badge  { background: rgba(0,0,0,0.06); }
-[data-theme="light"] .cfg-badge-breve { background: rgba(0,0,0,0.06); }
+[data-theme="light"] .cfg-periodo-pill {
+  border-color: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.02);
+  color: var(--text-secondary, #475569);
+}
+
+[data-theme="light"] .cfg-periodo-pill--ativo {
+  background: rgba(99,102,241,0.12);
+  border-color: rgba(99,102,241,0.4);
+  color: #6366f1;
+}
+
 [data-theme="light"] .cfg-tabela-head { border-bottom-color: rgba(0,0,0,0.08); }
-[data-theme="light"] .cfg-add-btn    { border-color: rgba(0,0,0,0.1); }
+[data-theme="light"] .cfg-agg-badge   { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.08); }
+[data-theme="light"] .cfg-badge-breve { background: rgba(0,0,0,0.06); }
+
+[data-theme="light"] .cfg-edit-panel {
+  background: #f8fafc;
+  border-color: rgba(99,102,241,0.25);
+}
+
+[data-theme="light"] .cfg-edit-panel__input {
+  background: #fff;
+  border-color: rgba(0,0,0,0.12);
+  color: #0f172a;
+}

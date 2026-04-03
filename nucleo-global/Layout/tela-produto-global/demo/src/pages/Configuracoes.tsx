@@ -13,6 +13,7 @@ import {
   SquaresFour, Table, Bell, DownloadSimple,
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Hash, CheckCircle, ArrowsClockwise, SealCheck, CurrencyDollar, ChartBar,
+  PencilSimple,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -54,6 +55,13 @@ const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   media:       { icone: <ChartBar        weight="duotone" size={18} />, cor: '#f59e0b' },
 }
 
+// ── Mapeamento de origem → variante CSS ──────────────────────────────────────
+
+function origemVariant(origem: string): string {
+  if (origem === 'Item') return 'item'
+  return 'meus'
+}
+
 // ── Categorias da sidebar ─────────────────────────────────────────────────────
 
 const CATEGORIAS = [
@@ -76,6 +84,7 @@ function CardSortavel({
 }) {
   const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
   const visual = CARD_VISUAL[pref.id]
+  const [expandido, setExpandido] = useState(false)
 
   const {
     attributes, listeners, setNodeRef,
@@ -90,57 +99,94 @@ function CardSortavel({
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}`}
-    >
-      <button
-        type="button"
-        className="cfg-drag-handle"
-        {...attributes}
-        {...listeners}
-        aria-label="Arrastar para reordenar"
-      >
-        <DotsSixVertical size={16} weight="bold" />
-      </button>
+    <div ref={setNodeRef} style={style}>
+      <div className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}${expandido ? ' cfg-card-row--editing' : ''}`}>
+        <button
+          type="button"
+          className="cfg-drag-handle"
+          {...attributes}
+          {...listeners}
+          aria-label="Arrastar para reordenar"
+        >
+          <DotsSixVertical size={16} weight="bold" />
+        </button>
 
-      <div className="cfg-card-row__info">
-        <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
-          {visual.icone}
-        </span>
-        <div>
-          <p className="cfg-card-row__nome">{def.label}</p>
-          <p className="cfg-card-row__desc">{def.descricao}</p>
+        <div className="cfg-card-row__info">
+          <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
+            {visual.icone}
+          </span>
+          <div>
+            <p className="cfg-card-row__nome">{def.label}</p>
+            <p className="cfg-card-row__desc">{def.descricao}</p>
+          </div>
         </div>
+
+        <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
+
+        <TooltipGlobal descricao="Ver variáveis do card">
+          <button
+            type="button"
+            className={`cfg-eye-btn${expandido ? ' cfg-eye-btn--on' : ''}`}
+            onClick={() => setExpandido(v => !v)}
+            aria-label="Ver variáveis"
+          >
+            <PencilSimple size={14} weight="bold" />
+          </button>
+        </TooltipGlobal>
+
+        <TooltipGlobal descricao={pref.visible ? 'Ocultar na tela' : 'Exibir na tela'}>
+          <button
+            type="button"
+            className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
+            onClick={onToggle}
+            aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
+          >
+            {pref.visible
+              ? <Eye      size={15} weight="bold" />
+              : <EyeSlash size={15} weight="bold" />
+            }
+          </button>
+        </TooltipGlobal>
+
+        <TooltipGlobal descricao="Remover da lista">
+          <button
+            type="button"
+            className="cfg-remove-btn"
+            onClick={onRemover}
+            aria-label="Remover card"
+          >
+            <X size={13} weight="bold" />
+          </button>
+        </TooltipGlobal>
       </div>
 
-      <span className="cfg-agg-badge">{def.tipoAgg}</span>
-
-      <TooltipGlobal descricao={pref.visible ? 'Ocultar na tela' : 'Exibir na tela'}>
-        <button
-          type="button"
-          className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
-          onClick={onToggle}
-          aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
-        >
-          {pref.visible
-            ? <Eye      size={15} weight="bold" />
-            : <EyeSlash size={15} weight="bold" />
-          }
-        </button>
-      </TooltipGlobal>
-
-      <TooltipGlobal descricao="Remover da lista">
-        <button
-          type="button"
-          className="cfg-remove-btn"
-          onClick={onRemover}
-          aria-label="Remover card"
-        >
-          <X size={13} weight="bold" />
-        </button>
-      </TooltipGlobal>
+      {expandido && (
+        <div className="cfg-edit-panel">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Campo (ID)</label>
+              <div className="cfg-edit-panel__input" style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{def.id}</div>
+            </div>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Origem</label>
+              <div className="cfg-edit-panel__input">{def.origem}</div>
+            </div>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Agregação</label>
+              <div className="cfg-edit-panel__input">{def.tipoAgg}</div>
+            </div>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Visível</label>
+              <div className="cfg-edit-panel__input">{pref.visible ? 'Sim' : 'Não'}</div>
+            </div>
+          </div>
+          <div className="cfg-edit-panel__actions">
+            <button type="button" className="cfg-reset-btn" onClick={() => setExpandido(false)}>
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -207,18 +253,20 @@ export default function Configuracoes() {
 
             {/* ── Período de comparação ── */}
             <section className="cfg-secao">
-              <div>
-                <h2 className="cfg-secao__titulo">Período de comparação</h2>
-                <p className="cfg-secao__desc">
-                  Define o intervalo usado nos badges de tendência dos cards
-                </p>
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Período de comparação</h2>
+                  <p className="cfg-secao__desc">
+                    Define o intervalo usado nos badges de tendência dos cards
+                  </p>
+                </div>
               </div>
-              <div className="cfg-periodo__pills">
+              <div className="cfg-periodo-pills">
                 {PERIODOS.map(p => (
                   <button
                     key={p.id}
                     type="button"
-                    className={`cfg-periodo__pill${periodo === p.id ? ' cfg-periodo__pill--ativo' : ''}`}
+                    className={`cfg-periodo-pill${periodo === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
                     onClick={() => handlePeriodo(p.id)}
                   >
                     {p.label}
@@ -273,18 +321,21 @@ export default function Configuracoes() {
               )}
             </section>
 
-            {/* ── Catálogo de métricas disponíveis ── */}
+            {/* ── Colunas disponíveis ── */}
             {disponiveis.length > 0 && (
               <section className="cfg-secao">
-                <div>
-                  <h2 className="cfg-secao__titulo">Métricas disponíveis</h2>
-                  <p className="cfg-secao__desc">
-                    Todas as métricas · clique em + para adicionar como card
-                  </p>
+                <div className="cfg-secao__header">
+                  <div>
+                    <h2 className="cfg-secao__titulo">Colunas disponíveis</h2>
+                    <p className="cfg-secao__desc">
+                      Todas as métricas · clique em + para adicionar como card
+                    </p>
+                  </div>
                 </div>
 
                 <div className="cfg-tabela-head">
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Métrica</span>
+                  <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
+                  <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
                   <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">Agregação</span>
                   <span className="cfg-tabela-head__col cfg-tabela-head__col--acao" />
                 </div>
@@ -306,6 +357,9 @@ export default function Configuracoes() {
                             <p className="cfg-card-row__desc">{def.descricao}</p>
                           </div>
                         </div>
+                        <span className={`cfg-origem-badge cfg-origem-badge--${origemVariant(def.origem)}`}>
+                          {def.origem}
+                        </span>
                         <span className="cfg-agg-badge">{def.tipoAgg}</span>
                         <TooltipGlobal descricao="Adicionar aos meus cards">
                           <button

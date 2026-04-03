@@ -97,7 +97,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Tipo de Operação',
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
-    largura: 110,
+    largura: 150,
     render: (_val: unknown, row: Pedido) => (
       <StatusBadgeGlobal
         valor={row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}

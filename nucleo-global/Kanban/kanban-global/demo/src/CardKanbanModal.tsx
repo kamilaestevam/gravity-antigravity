@@ -1,13 +1,11 @@
 /**
  * CardKanbanModal — modal padrão de detalhe de card Kanban.
  *
- * Padrão de referência para produtos: usa a mesma estrutura de
- * ModalGlobal + GeralCampoGlobal + SelectGlobal do nucleo-global.
- *
- * Abas:
- *   1. Dados      — campos editáveis do card
- *   2. Detalhes   — descrição e observações (textareas)
- *   3. Histórico  — timeline de movimentações (read-only)
+ * Padrão de referência para produtos. Estrutura:
+ *   1. Informações  — CONFIGURAÇÕES · EMPRESA VINCULADA · CONTEÚDO · PARTICIPANTES
+ *   2. Tempo        — data, horário, valor financeiro
+ *   3. Próximo Passo — ação e data do próximo passo
+ *   4. Lembrete     — antecedência + canal de notificação
  */
 
 import React, { useEffect, useRef, useState } from 'react'
@@ -17,6 +15,7 @@ import {
   Kanban,
   BuildingOffice,
   User,
+  MagnifyingGlass,
   CalendarBlank,
   CurrencyDollar,
   ArrowRight,
@@ -24,6 +23,15 @@ import {
   PencilSimple,
   ArrowsClockwise,
   CircleNotch,
+  Bell,
+  Clock,
+  ListChecks,
+  Warning,
+  Trash,
+  At,
+  EnvelopeSimple,
+  WhatsappLogo,
+  Plus,
 } from '@phosphor-icons/react'
 import './CardKanbanModal.css'
 
@@ -43,11 +51,11 @@ export interface CardKanbanItem {
 }
 
 export interface CardKanbanModalProps<T extends CardKanbanItem = CardKanbanItem> {
-  aberto:     boolean
-  item:       T | null
-  colunas:    { key: string; label: string; color: string }[]
-  onFechar:   () => void
-  onSalvar:   (item: CardKanbanItem) => void
+  aberto:   boolean
+  item:     T | null
+  colunas:  { key: string; label: string; color: string }[]
+  onFechar: () => void
+  onSalvar: (item: CardKanbanItem) => void
 }
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -66,139 +74,310 @@ const PRIORIDADE_LABEL: Record<Prioridade, string> = {
   baixa:   'Baixa',
 }
 
+const TIPOS_ATIVIDADE = [
+  'Ação necessária', 'Reunião', 'Ligação', 'E-mail', 'Visita', 'Proposta', 'Entrega',
+]
+
 const RESPONSAVEIS = [
   'Ana Silva', 'Bruno Costa', 'Carla Mendes', 'Diego Rocha', 'Elena Vieira',
 ]
 
-const ABAS = [
-  { id: 'dados',     rotulo: 'Dados' },
-  { id: 'detalhes',  rotulo: 'Detalhes' },
-  { id: 'historico', rotulo: 'Histórico' },
+const ANTECEDENCIA_OPTS = [
+  { id: '15min',    label: '15 min antes' },
+  { id: '1h',       label: '1 hora antes' },
+  { id: '1dia',     label: '1 dia antes'  },
+  { id: 'nadata',   label: 'Na data'      },
+  { id: 'custom',   label: 'Personalizado'},
 ]
 
-// ── Mock histórico ─────────────────────────────────────────────────────────────
+const ABAS = [
+  { id: 'informacoes', rotulo: 'Informações', icone: <ListChecks size={14} /> },
+  { id: 'tempo',       rotulo: 'Tempo',       icone: <Clock       size={14} /> },
+  { id: 'proximo',     rotulo: 'Próximo Passo', icone: <ArrowRight size={14} /> },
+  { id: 'lembrete',    rotulo: 'Lembrete',    icone: <Bell        size={14} /> },
+]
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function gerarHistorico(item: CardKanbanItem) {
   return [
     {
-      icone: <PencilSimple size={14} />,
+      icone: <PencilSimple size={13} />,
       acao: `Card criado por ${item.responsavel}`,
       meta: `${new Date(item.data).toLocaleDateString('pt-BR')} · ${item.empresa}`,
     },
     {
-      icone: <ArrowRight size={14} />,
+      icone: <ArrowRight size={13} />,
       acao: `Movido para "${item.colunaKey}"`,
       meta: 'Há 2 dias · Sistema',
     },
     {
-      icone: <ArrowsClockwise size={14} />,
-      acao: 'Prioridade alterada para ' + PRIORIDADE_LABEL[item.prioridade],
-      meta: 'Há 5 dias · ' + item.responsavel,
+      icone: <ArrowsClockwise size={13} />,
+      acao: `Prioridade alterada para ${PRIORIDADE_LABEL[item.prioridade]}`,
+      meta: `Há 5 dias · ${item.responsavel}`,
     },
   ]
 }
 
-// ── Campos auxiliares ─────────────────────────────────────────────────────────
+// ── Primitivo Campo ───────────────────────────────────────────────────────────
 
-function Campo({
-  label,
+function Campo({ label, children, erro }: { label: string; children: React.ReactNode; erro?: string }) {
+  return (
+    <div className="ckm-campo">
+      <label className={`ckm-label ${erro ? 'ckm-label-erro' : ''}`}>{label}</label>
+      {children}
+      {erro && (
+        <span className="ckm-campo-erro">
+          <Warning size={12} />
+          {erro}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// ── Seção ─────────────────────────────────────────────────────────────────────
+
+function Secao({
+  titulo,
+  icone,
+  modifier,
   children,
 }: {
-  label: string
+  titulo: string
+  icone: React.ReactNode
+  modifier?: string
   children: React.ReactNode
 }) {
   return (
-    <div className="ckm-campo">
-      <label className="ckm-label">{label}</label>
+    <div className={`ckm-secao ${modifier ?? ''}`}>
+      <div className="ckm-secao-titulo">
+        {icone}
+        {titulo}
+      </div>
       {children}
     </div>
   )
 }
 
-// ── Aba Dados ─────────────────────────────────────────────────────────────────
+// ── Aba Informações ───────────────────────────────────────────────────────────
 
-function AbaDados({
+function AbaInformacoes({
   form,
   colunas,
+  descricao,
+  tipoAtividade,
+  participantes,
   onChange,
+  onChangeDescricao,
+  onChangeTipo,
+  onAddParticipante,
+  onRemoveParticipante,
 }: {
-  form:    CardKanbanItem
-  colunas: CardKanbanModalProps['colunas']
-  onChange: (patch: Partial<CardKanbanItem>) => void
+  form:                 CardKanbanItem
+  colunas:              { key: string; label: string; color: string }[]
+  descricao:            string
+  tipoAtividade:        string
+  participantes:        string[]
+  onChange:             (patch: Partial<CardKanbanItem>) => void
+  onChangeDescricao:    (v: string) => void
+  onChangeTipo:         (v: string) => void
+  onAddParticipante:    (v: string) => void
+  onRemoveParticipante: (v: string) => void
 }) {
+  const [buscaEmpresa, setBuscaEmpresa] = useState(form.empresa)
+  const [buscaUser, setBuscaUser]       = useState('')
+  const [tipoAdd, setTipoAdd]           = useState<'usuario' | 'email' | 'whatsapp'>('usuario')
   const pc = PRIORIDADE_COR[form.prioridade]
 
   return (
     <>
-      {/* Linha 1 — Nome */}
-      <div className="ckm-grid">
-        <div className="ckm-col-full">
-          <Campo label="Nome">
+      {/* CONFIGURAÇÕES */}
+      <Secao titulo="Configurações" icone={<ListChecks size={12} />}>
+        <div className="ckm-grid">
+          <Campo label="Tipo de Atividade">
+            <select
+              className="ckm-select"
+              value={tipoAtividade}
+              onChange={e => onChangeTipo(e.target.value)}
+            >
+              {TIPOS_ATIVIDADE.map(t => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </Campo>
+
+          <Campo label="Fase da Atividade">
+            <select
+              className="ckm-select"
+              value={form.colunaKey}
+              onChange={e => onChange({ colunaKey: e.target.value })}
+            >
+              {colunas.map(c => (
+                <option key={c.key} value={c.key}>{c.label}</option>
+              ))}
+            </select>
+          </Campo>
+
+          <Campo label="Prioridade">
+            <select
+              className="ckm-select"
+              value={form.prioridade}
+              onChange={e => onChange({ prioridade: e.target.value as Prioridade })}
+              style={{ borderLeftColor: pc, borderLeftWidth: 3 }}
+            >
+              {(Object.keys(PRIORIDADE_LABEL) as Prioridade[]).map(p => (
+                <option key={p} value={p}>{PRIORIDADE_LABEL[p]}</option>
+              ))}
+            </select>
+          </Campo>
+
+          <Campo label="Data e Horário">
             <input
+              type="datetime-local"
               className="ckm-input"
-              value={form.nome}
-              onChange={e => onChange({ nome: e.target.value })}
-              placeholder="Nome do card"
+              value={form.data ? form.data.slice(0, 16) : ''}
+              onChange={e => onChange({ data: new Date(e.target.value).toISOString() })}
             />
           </Campo>
         </div>
-      </div>
+      </Secao>
 
-      {/* Linha 2 — Empresa + Responsável */}
-      <div className="ckm-grid">
-        <Campo label="Empresa">
+      {/* EMPRESA VINCULADA */}
+      <Secao titulo="Empresa Vinculada" icone={<BuildingOffice size={12} />} modifier="ckm-secao--empresa">
+        <Campo
+          label="Buscar empresa"
+          erro={!buscaEmpresa.trim() ? 'Nenhum cliente vinculado' : undefined}
+        >
+          <div className="ckm-input-wrap">
+            <input
+              className="ckm-input"
+              value={buscaEmpresa}
+              onChange={e => {
+                setBuscaEmpresa(e.target.value)
+                onChange({ empresa: e.target.value })
+              }}
+              placeholder="Buscar empresa..."
+            />
+            <span className="ckm-input-icon"><MagnifyingGlass size={14} /></span>
+          </div>
+        </Campo>
+      </Secao>
+
+      {/* CONTEÚDO */}
+      <Secao titulo="Conteúdo" icone={<PencilSimple size={12} />} modifier="ckm-secao--conteudo">
+        <Campo label="Título">
           <input
             className="ckm-input"
-            value={form.empresa}
-            onChange={e => onChange({ empresa: e.target.value })}
-            placeholder="Nome da empresa"
+            value={form.nome}
+            onChange={e => onChange({ nome: e.target.value })}
+            placeholder="Título do card"
           />
         </Campo>
 
-        <Campo label="Responsável">
-          <select
-            className="ckm-select"
-            value={form.responsavel}
-            onChange={e => onChange({ responsavel: e.target.value })}
-          >
-            {RESPONSAVEIS.map(r => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
+        <Campo label="Descrição">
+          <textarea
+            className="ckm-textarea"
+            value={descricao}
+            onChange={e => onChangeDescricao(e.target.value)}
+            placeholder="Descreva o objetivo, contexto ou detalhes deste card…"
+          />
         </Campo>
-      </div>
+      </Secao>
 
-      {/* Linha 3 — Prioridade + Status */}
+      {/* PARTICIPANTES */}
+      <Secao titulo="Participantes" icone={<User size={12} />} modifier="ckm-secao--participantes">
+        <div className="ckm-parte-tipo-row">
+          <span className="ckm-part-tipo-label">Adicionar via:</span>
+          <div className="ckm-part-tipo">
+            <button
+              type="button"
+              className={`ckm-part-btn ${tipoAdd === 'usuario' ? 'ckm-part-btn--ativo' : ''}`}
+              onClick={() => setTipoAdd('usuario')}
+            >
+              <At size={12} /> @usuário
+            </button>
+            <button
+              type="button"
+              className={`ckm-part-btn ${tipoAdd === 'email' ? 'ckm-part-btn--ativo' : ''}`}
+              onClick={() => setTipoAdd('email')}
+            >
+              <EnvelopeSimple size={12} /> E-mail
+            </button>
+            <button
+              type="button"
+              className={`ckm-part-btn ${tipoAdd === 'whatsapp' ? 'ckm-part-btn--ativo' : ''}`}
+              onClick={() => setTipoAdd('whatsapp')}
+            >
+              <WhatsappLogo size={12} /> WhatsApp
+            </button>
+          </div>
+          <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+            Combine tipos livremente
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div className="ckm-input-wrap" style={{ flex: 1 }}>
+            <input
+              className="ckm-input"
+              value={buscaUser}
+              onChange={e => setBuscaUser(e.target.value)}
+              placeholder={tipoAdd === 'usuario' ? 'Buscar usuário...' : tipoAdd === 'email' ? 'Digite o e-mail...' : 'Digite o WhatsApp...'}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && buscaUser.trim()) {
+                  onAddParticipante(buscaUser.trim())
+                  setBuscaUser('')
+                }
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            className="ckm-btn-salvar"
+            style={{ padding: '0.45rem 0.75rem', flexShrink: 0 }}
+            onClick={() => {
+              if (buscaUser.trim()) {
+                onAddParticipante(buscaUser.trim())
+                setBuscaUser('')
+              }
+            }}
+          >
+            <Plus size={14} />
+          </button>
+        </div>
+
+        {participantes.length > 0 && (
+          <div className="ckm-part-chips">
+            {participantes.map(p => (
+              <span key={p} className="ckm-chip">
+                <User size={11} />
+                {p}
+                <button className="ckm-chip-remove" onClick={() => onRemoveParticipante(p)}>
+                  <X size={10} weight="bold" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </Secao>
+    </>
+  )
+}
+
+// ── Aba Tempo ─────────────────────────────────────────────────────────────────
+
+function AbaTempo({
+  form,
+  onChange,
+}: {
+  form:     CardKanbanItem
+  onChange: (patch: Partial<CardKanbanItem>) => void
+}) {
+  return (
+    <Secao titulo="Tempo e Valor" icone={<Clock size={12} />} modifier="ckm-secao--tempo">
       <div className="ckm-grid">
-        <Campo label="Prioridade">
-          <select
-            className="ckm-select"
-            value={form.prioridade}
-            onChange={e => onChange({ prioridade: e.target.value as Prioridade })}
-            style={{ borderLeftColor: pc, borderLeftWidth: 3 }}
-          >
-            {(Object.keys(PRIORIDADE_LABEL) as Prioridade[]).map(p => (
-              <option key={p} value={p}>{PRIORIDADE_LABEL[p]}</option>
-            ))}
-          </select>
-        </Campo>
-
-        <Campo label="Coluna / Status">
-          <select
-            className="ckm-select"
-            value={form.colunaKey}
-            onChange={e => onChange({ colunaKey: e.target.value })}
-          >
-            {colunas.map(c => (
-              <option key={c.key} value={c.key}>{c.label}</option>
-            ))}
-          </select>
-        </Campo>
-      </div>
-
-      {/* Linha 4 — Data + Valor */}
-      <div className="ckm-grid">
-        <Campo label="Data limite">
+        <Campo label="Data de início">
           <input
             type="date"
             className="ckm-input"
@@ -217,65 +396,137 @@ function AbaDados({
             onChange={e => onChange({ valor: parseFloat(e.target.value) || 0 })}
           />
         </Campo>
+
+        <Campo label="Responsável">
+          <select
+            className="ckm-select"
+            value={form.responsavel}
+            onChange={e => onChange({ responsavel: e.target.value })}
+          >
+            {RESPONSAVEIS.map(r => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </Campo>
+
+        <Campo label="Valor formatado">
+          <input
+            className="ckm-input"
+            readOnly
+            value={form.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+          />
+        </Campo>
       </div>
-    </>
+    </Secao>
   )
 }
 
-// ── Aba Detalhes ──────────────────────────────────────────────────────────────
+// ── Aba Próximo Passo ─────────────────────────────────────────────────────────
 
-function AbaDetalhes({
-  descricao,
-  observacoes,
-  onChangeDescricao,
-  onChangeObservacoes,
+function AbaProximoPasso({
+  proximoPasso,
+  dataProximo,
+  onChangePasso,
+  onChangeData,
 }: {
-  descricao:           string
-  observacoes:         string
-  onChangeDescricao:   (v: string) => void
-  onChangeObservacoes: (v: string) => void
+  proximoPasso:   string
+  dataProximo:    string
+  onChangePasso:  (v: string) => void
+  onChangeData:   (v: string) => void
 }) {
   return (
-    <>
-      <Campo label="Descrição">
+    <Secao titulo="Próximo Passo" icone={<ArrowRight size={12} />} modifier="ckm-secao--proximo">
+      <Campo label="O que deve acontecer a seguir?">
         <textarea
           className="ckm-textarea"
           style={{ minHeight: 120 }}
-          value={descricao}
-          onChange={e => onChangeDescricao(e.target.value)}
-          placeholder="Descreva o objetivo ou contexto deste card…"
+          value={proximoPasso}
+          onChange={e => onChangePasso(e.target.value)}
+          placeholder="Descreva a próxima ação necessária para avançar este card…"
         />
       </Campo>
 
-      <Campo label="Observações internas">
-        <textarea
-          className="ckm-textarea"
-          value={observacoes}
-          onChange={e => onChangeObservacoes(e.target.value)}
-          placeholder="Observações visíveis apenas para a equipe…"
+      <Campo label="Data prevista para o próximo passo">
+        <input
+          type="datetime-local"
+          className="ckm-input"
+          value={dataProximo}
+          onChange={e => onChangeData(e.target.value)}
         />
       </Campo>
-    </>
+    </Secao>
   )
 }
 
-// ── Aba Histórico ─────────────────────────────────────────────────────────────
+// ── Aba Lembrete ──────────────────────────────────────────────────────────────
 
-function AbaHistorico({ item }: { item: CardKanbanItem }) {
-  const historico = gerarHistorico(item)
-
+function AbaLembrete({
+  antecedencia,
+  dataLembrete,
+  notificarEmail,
+  notificarWhatsApp,
+  onChangeAntecedencia,
+  onChangeData,
+  onToggleEmail,
+  onToggleWhatsApp,
+}: {
+  antecedencia:         string
+  dataLembrete:         string
+  notificarEmail:       boolean
+  notificarWhatsApp:    boolean
+  onChangeAntecedencia: (v: string) => void
+  onChangeData:         (v: string) => void
+  onToggleEmail:        () => void
+  onToggleWhatsApp:     () => void
+}) {
   return (
-    <div className="ckm-timeline">
-      {historico.map((h, i) => (
-        <div key={i} className="ckm-timeline-item">
-          <div className="ckm-timeline-dot">{h.icone}</div>
-          <div className="ckm-timeline-content">
-            <div className="ckm-timeline-acao">{h.acao}</div>
-            <div className="ckm-timeline-meta">{h.meta}</div>
-          </div>
+    <Secao titulo="Lembrete" icone={<Bell size={12} />} modifier="ckm-secao--lembrete">
+      <div className="ckm-lembrete-info">
+        <Bell size={16} color="#f59e0b" weight="duotone" style={{ flexShrink: 0, marginTop: 1 }} />
+        Receba uma notificação para não esquecer de agir. O lembrete é enviado no horário que você definir abaixo.
+      </div>
+
+      <div>
+        <div className="ckm-ant-label">Lembrar com antecedência</div>
+        <div className="ckm-ant-pills">
+          {ANTECEDENCIA_OPTS.map(opt => (
+            <button
+              key={opt.id}
+              type="button"
+              className={`ckm-ant-pill ${antecedencia === opt.id ? 'ckm-ant-pill--ativo' : ''}`}
+              onClick={() => onChangeAntecedencia(opt.id)}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+
+      <Campo label="Data e Hora do Lembrete">
+        <input
+          type="datetime-local"
+          className="ckm-input"
+          value={dataLembrete}
+          onChange={e => onChangeData(e.target.value)}
+        />
+      </Campo>
+
+      <div>
+        <div className="ckm-ant-label">Notificar por</div>
+        <div className="ckm-check-group">
+          <label className={`ckm-check-label ${notificarEmail ? 'ckm-check-label--ativo' : ''}`}>
+            <input type="checkbox" checked={notificarEmail} onChange={onToggleEmail} />
+            <EnvelopeSimple size={14} />
+            E-mail
+          </label>
+          <label className={`ckm-check-label ${notificarWhatsApp ? 'ckm-check-label--ativo' : ''}`}>
+            <input type="checkbox" checked={notificarWhatsApp} onChange={onToggleWhatsApp} />
+            <WhatsappLogo size={14} />
+            WhatsApp
+          </label>
+        </div>
+      </div>
+    </Secao>
   )
 }
 
@@ -288,24 +539,36 @@ export function CardKanbanModal<T extends CardKanbanItem>({
   onFechar,
   onSalvar,
 }: CardKanbanModalProps<T>) {
-  const [abaAtiva,    setAbaAtiva]    = useState('dados')
-  const [form,        setForm]        = useState<T | null>(null)
-  const [descricao,   setDescricao]   = useState('')
-  const [observacoes, setObservacoes] = useState('')
-  const [salvando,    setSalvando]    = useState(false)
+  const [abaAtiva,          setAbaAtiva]          = useState('informacoes')
+  const [form,              setForm]              = useState<T | null>(null)
+  const [descricao,         setDescricao]         = useState('')
+  const [tipoAtividade,     setTipoAtividade]     = useState(TIPOS_ATIVIDADE[0])
+  const [participantes,     setParticipantes]     = useState<string[]>([])
+  const [proximoPasso,      setProximoPasso]      = useState('')
+  const [dataProximo,       setDataProximo]       = useState('')
+  const [antecedencia,      setAntecedencia]      = useState('')
+  const [dataLembrete,      setDataLembrete]      = useState('')
+  const [notificarEmail,    setNotificarEmail]    = useState(false)
+  const [notificarWhatsApp, setNotificarWhatsApp] = useState(false)
+  const [salvando,          setSalvando]          = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
 
-  // Sincroniza form com item ao abrir
   useEffect(() => {
     if (aberto && item) {
       setForm({ ...item })
-      setAbaAtiva('dados')
+      setAbaAtiva('informacoes')
       setDescricao('')
-      setObservacoes('')
+      setTipoAtividade(TIPOS_ATIVIDADE[0])
+      setParticipantes([item.responsavel])
+      setProximoPasso('')
+      setDataProximo('')
+      setAntecedencia('')
+      setDataLembrete('')
+      setNotificarEmail(false)
+      setNotificarWhatsApp(false)
     }
   }, [aberto, item])
 
-  // ESC fecha
   useEffect(() => {
     if (!aberto) return
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onFechar() }
@@ -313,7 +576,6 @@ export function CardKanbanModal<T extends CardKanbanItem>({
     return () => document.removeEventListener('keydown', handler)
   }, [aberto, onFechar])
 
-  // Trava scroll
   useEffect(() => {
     document.body.style.overflow = aberto ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -321,9 +583,16 @@ export function CardKanbanModal<T extends CardKanbanItem>({
 
   if (!aberto || !item || !form) return null
 
-  const dirty = JSON.stringify(form) !== JSON.stringify(item) || descricao !== '' || observacoes !== ''
+  const dirty = (
+    JSON.stringify(form) !== JSON.stringify(item) ||
+    descricao !== '' ||
+    proximoPasso !== '' ||
+    antecedencia !== ''
+  )
 
-  const coluna = colunas.find(c => c.key === form.colunaKey)
+  const coluna   = colunas.find(c => c.key === form.colunaKey)
+  const pc       = PRIORIDADE_COR[form.prioridade]
+  const historico = gerarHistorico(item)
 
   function handleChange(patch: Partial<CardKanbanItem>) {
     setForm(prev => prev ? ({ ...prev, ...patch } as T) : prev)
@@ -339,58 +608,49 @@ export function CardKanbanModal<T extends CardKanbanItem>({
   }
 
   const modal = (
-    <div
-      className="ckm-overlay"
-      onClick={e => { if (e.target === e.currentTarget) onFechar() }}
-    >
-      <div
-        ref={dialogRef}
-        className="ckm-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={form.nome}
-      >
+    <div className="ckm-overlay" onClick={e => { if (e.target === e.currentTarget) onFechar() }}>
+      <div ref={dialogRef} className="ckm-dialog" role="dialog" aria-modal="true" aria-label={form.nome}>
+
         {/* ── Header ── */}
         <div className="ckm-header">
-          <div className="ckm-header-left">
-            <div
-              className="ckm-header-icon"
-              style={{
-                background: `${PRIORIDADE_COR[form.prioridade]}18`,
-                border: `1px solid ${PRIORIDADE_COR[form.prioridade]}35`,
-              }}
-            >
-              <Kanban
-                size={18}
-                weight="duotone"
-                color={PRIORIDADE_COR[form.prioridade]}
-              />
-            </div>
-            <div className="ckm-header-text">
-              <h2 className="ckm-titulo">{form.nome}</h2>
-              <p className="ckm-subtitulo">
-                <BuildingOffice size={11} />
-                {form.empresa}
-                {coluna && (
-                  <>
-                    <span style={{ opacity: 0.4 }}>·</span>
-                    <span
-                      style={{
-                        color: coluna.color,
-                        fontWeight: 600,
-                        fontSize: '0.72rem',
-                      }}
-                    >
-                      {coluna.label}
-                    </span>
-                  </>
-                )}
-              </p>
-            </div>
+          <div className="ckm-header-meta">
+            <BuildingOffice size={11} />
+            <span>{form.empresa || 'Sem vínculo empresa'}</span>
+            <span className="ckm-header-meta-sep">·</span>
+            <span style={{ color: 'var(--text-muted)' }}>—</span>
           </div>
 
+          <div className="ckm-header-badges">
+            {coluna && (
+              <span
+                className="ckm-badge ckm-badge-status"
+                style={{
+                  background: `${coluna.color}18`,
+                  color: coluna.color,
+                  borderColor: `${coluna.color}35`,
+                }}
+              >
+                <span className="ckm-badge-dot" />
+                {coluna.label}
+              </span>
+            )}
+            <span
+              className="ckm-badge ckm-badge-prioridade"
+              style={{
+                background: `${pc}15`,
+                color: pc,
+                borderColor: `${pc}30`,
+                border: '1px solid',
+              }}
+            >
+              {PRIORIDADE_LABEL[form.prioridade]}
+            </span>
+          </div>
+
+          <h2 className="ckm-header-titulo">{form.nome}</h2>
+
           <button className="ckm-btn-fechar" onClick={onFechar} aria-label="Fechar">
-            <X size={18} weight="bold" />
+            <X size={16} weight="bold" />
           </button>
         </div>
 
@@ -404,6 +664,7 @@ export function CardKanbanModal<T extends CardKanbanItem>({
               className={`ckm-aba ${abaAtiva === aba.id ? 'ckm-aba--ativa' : ''}`}
               onClick={() => setAbaAtiva(aba.id)}
             >
+              {aba.icone}
               {aba.rotulo}
             </button>
           ))}
@@ -411,47 +672,78 @@ export function CardKanbanModal<T extends CardKanbanItem>({
 
         {/* ── Body ── */}
         <div className="ckm-body" role="tabpanel">
-          {abaAtiva === 'dados' && (
-            <AbaDados form={form} colunas={colunas} onChange={handleChange} />
-          )}
-          {abaAtiva === 'detalhes' && (
-            <AbaDetalhes
+          {abaAtiva === 'informacoes' && (
+            <AbaInformacoes
+              form={form}
+              colunas={colunas}
               descricao={descricao}
-              observacoes={observacoes}
+              tipoAtividade={tipoAtividade}
+              participantes={participantes}
+              onChange={handleChange}
               onChangeDescricao={setDescricao}
-              onChangeObservacoes={setObservacoes}
+              onChangeTipo={setTipoAtividade}
+              onAddParticipante={p => setParticipantes(prev => prev.includes(p) ? prev : [...prev, p])}
+              onRemoveParticipante={p => setParticipantes(prev => prev.filter(x => x !== p))}
             />
           )}
-          {abaAtiva === 'historico' && (
-            <AbaHistorico item={item} />
+
+          {abaAtiva === 'tempo' && (
+            <AbaTempo form={form} onChange={handleChange} />
+          )}
+
+          {abaAtiva === 'proximo' && (
+            <AbaProximoPasso
+              proximoPasso={proximoPasso}
+              dataProximo={dataProximo}
+              onChangePasso={setProximoPasso}
+              onChangeData={setDataProximo}
+            />
+          )}
+
+          {abaAtiva === 'lembrete' && (
+            <AbaLembrete
+              antecedencia={antecedencia}
+              dataLembrete={dataLembrete}
+              notificarEmail={notificarEmail}
+              notificarWhatsApp={notificarWhatsApp}
+              onChangeAntecedencia={setAntecedencia}
+              onChangeData={setDataLembrete}
+              onToggleEmail={() => setNotificarEmail(p => !p)}
+              onToggleWhatsApp={() => setNotificarWhatsApp(p => !p)}
+            />
           )}
         </div>
 
         {/* ── Footer ── */}
         <div className="ckm-footer">
-          <span className={`ckm-footer-status ${dirty ? 'ckm-footer-status--dirty' : ''}`}>
-            {dirty
-              ? <><CircleNotch size={12} /> Alterações não salvas</>
-              : <><Check size={12} /> Sem alterações</>
-            }
-          </span>
+          <div className="ckm-footer-esquerda">
+            <button className="ckm-btn-excluir">
+              <Trash size={13} />
+              Excluir
+            </button>
+            <span className={`ckm-footer-status ${dirty ? 'ckm-footer-status--dirty' : ''}`}>
+              {dirty
+                ? <><CircleNotch size={11} /> Alterações não salvas</>
+                : <><Check size={11} /> Sem alterações</>
+              }
+            </span>
+          </div>
 
           <div className="ckm-footer-acoes">
-            <button className="ckm-btn-cancelar" onClick={onFechar}>
-              Cancelar
-            </button>
+            <button className="ckm-btn-cancelar" onClick={onFechar}>Cancelar</button>
             <button
               className="ckm-btn-salvar"
               disabled={!dirty || salvando}
               onClick={handleSalvar}
             >
               {salvando
-                ? <><CircleNotch size={13} className="demo-spin" /> Salvando…</>
-                : <><Check size={13} /> Salvar alterações</>
+                ? <><CircleNotch size={12} className="demo-spin" /> Salvando…</>
+                : <><Check size={12} /> Salvar Alterações</>
               }
             </button>
           </div>
         </div>
+
       </div>
     </div>
   )

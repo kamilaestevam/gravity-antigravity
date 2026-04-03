@@ -1,21 +1,39 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg-base:      #0f172a;
-  --dark-border:  rgba(255, 255, 255, 0.08);
-  --dark-surface: #1a2236;
-  --text-main:    #e2e8f0;
-  --text-muted:   #64748b;
-  --radius-md:    12px;
-  --font: 'Inter', system-ui, sans-serif;
+  /* Solid Slate — tokens canônicos do design system Gravity */
+  --bg-body-dark:   #0f172a;
+  --bg-base:        #1e293b;
+  --bg-surface:     #334155;
+  --bg-elevated:    #475569;
+
+  --accent:         #6366f1;
+  --accent-hover:   #4f46e5;
+
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #64748b;
+
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.5);
+
+  --focus-ring: 0 0 0 2px rgba(99, 102, 241, 0.4);
+
+  /* Aliases para compatibilidade com kanban-global.css */
+  --dark-border:  rgba(255, 255, 255, 0.1);
+  --dark-surface: var(--bg-base);
 }
 
 html, body, #root {
   height: 100%;
   width: 100%;
-  background: var(--bg-base);
-  color: var(--text-main);
-  font-family: var(--font);
+  background: var(--bg-body-dark);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
 }
@@ -34,8 +52,8 @@ html, body, #root {
   align-items: center;
   justify-content: space-between;
   padding: 0.875rem 1.5rem;
-  background: #0d1525;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-body-dark);
+  border-bottom: 1px solid var(--bg-surface);
   flex-shrink: 0;
 }
 
@@ -93,20 +111,19 @@ html, body, #root {
 .demo-search {
   width: 100%;
   padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-  background: #1a2744;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  color: #f1f5f9;
+  background: var(--bg-base);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
   font-size: 0.875rem;
   outline: none;
-  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   font-family: inherit;
 }
 
 .demo-search:focus {
-  border-color: rgba(99, 102, 241, 0.6);
-  background: #1e2d42;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
 }
 
 .demo-search::placeholder {
@@ -132,34 +149,32 @@ html, body, #root {
 /* ── Card ──────────────────────────────────────────────────────────────────── */
 
 .kb-card {
-  /* Camada 3: card claramente acima da coluna (#131d2e) */
-  background: #1e2d42;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 10px;
+  /* Camada 3 — --bg-surface (#334155) sobre coluna --bg-base (#1e293b) */
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-lg);
   padding: 0.875rem;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-sm);
   transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
   user-select: none;
 }
 
 .kb-card:hover {
-  background: #253650;
-  border-color: rgba(99, 102, 241, 0.45);
+  background: var(--bg-elevated);
+  border-color: rgba(99, 102, 241, 0.5);
   transform: translateY(-2px);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(99, 102, 241, 0.15);
+  box-shadow: var(--shadow-md), 0 0 0 1px rgba(99, 102, 241, 0.2);
 }
 
 .kb-card-prioridade {
   position: absolute;
   top: 0.65rem;
   right: 0.65rem;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 0.15rem 0.55rem;
   font-size: 0.68rem;
   font-weight: 700;
@@ -171,8 +186,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.7rem;
-  color: #7c8fa6;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
   padding-right: 4.5rem;
 }
 
@@ -180,7 +195,7 @@ html, body, #root {
   font-weight: 600;
   font-size: 0.9rem;
   line-height: 1.4;
-  color: #f1f5f9;
+  color: var(--text-primary);
   padding-right: 4.5rem;
 }
 
@@ -189,7 +204,7 @@ html, body, #root {
   align-items: center;
   gap: 0.3rem;
   font-size: 0.75rem;
-  color: #7c8fa6;
+  color: var(--text-secondary);
 }
 
 .kb-card-atrasado {
@@ -203,7 +218,7 @@ html, body, #root {
   justify-content: space-between;
   margin-top: 0.2rem;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--bg-elevated);
 }
 
 .kb-card-responsavel,
@@ -211,8 +226,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-size: 0.7rem;
-  color: #7c8fa6;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
 }
 
 .kb-card-valor {
@@ -225,7 +240,7 @@ html, body, #root {
   align-items: center;
   gap: 0.2rem;
   font-size: 0.68rem;
-  color: #4a5568;
+  color: var(--text-muted);
   margin-top: 0.1rem;
 }
 

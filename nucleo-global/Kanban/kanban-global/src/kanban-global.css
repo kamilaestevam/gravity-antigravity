@@ -36,9 +36,9 @@
 /* ── Coluna ──────────────────────────────────────────────────────────────── */
 
 .kg-coluna {
-  /* Camada 2: coluna claramente acima da página (#0f172a) */
-  background: #131d2e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Camada 2 — --bg-base (#1e293b) sobre página --bg-body-dark (#0f172a) */
+  background: var(--bg-base, #1e293b);
+  border: 1px solid var(--bg-surface, #334155);
   border-radius: var(--radius-md, 12px);
   display: flex;
   flex-direction: column;
@@ -91,8 +91,8 @@
   align-items: center;
   gap: 0.5rem;
   font-weight: 700;
-  font-size: 0.9rem;
-  color: #f1f5f9;
+  font-size: 0.875rem;
+  color: var(--text-primary, #f1f5f9);
   min-width: 0;
 }
 
@@ -224,9 +224,9 @@
 
 .kg-skeleton-card {
   height: 90px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--bg-surface, #334155);
+  border: 1px solid var(--bg-elevated, #475569);
   animation: kg-pulse 1.6s ease-in-out infinite;
   flex-shrink: 0;
 }
@@ -250,8 +250,8 @@
   padding: 2rem 1rem;
   color: var(--text-muted, #64748b);
   font-size: 0.82rem;
-  border: 1px dashed var(--dark-border, rgba(255, 255, 255, 0.1));
-  border-radius: 8px;
+  border: 1px dashed var(--bg-elevated, #475569);
+  border-radius: var(--radius-md, 8px);
   text-align: center;
 }
 

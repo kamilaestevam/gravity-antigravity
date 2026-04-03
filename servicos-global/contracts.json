@@ -41,8 +41,26 @@
       "pathPrefix": "/api/v1/conector-erp"
     },
     "historico": {
-      "baseUrl": "http://localhost:8014",
-      "pathPrefix": "/api/v1/historico"
+      "baseUrl": "http://localhost:8012",
+      "pathPrefix": "/api/v1/historico",
+      "endpoints": {
+        "logs": {
+          "POST /logs": "Ingerir log de auditoria (aceita e enfileira)",
+          "GET /logs": "Listar logs (cursor pagination, filtros: actor_type, module, action, status, startDate, endDate, search)",
+          "GET /logs/export": "Exportar logs em CSV ou JSON (>10k registros → background job)",
+          "GET /logs/:id": "Buscar log por ID"
+        },
+        "alerts": {
+          "GET /alerts": "Listar eventos de alerta (filtro: status=PENDING|REVIEWED|ESCALATED)",
+          "PATCH /alerts/:id": "Atualizar status do alerta (REVIEWED | ESCALATED)"
+        },
+        "alert-rules": {
+          "GET /alert-rules": "Listar regras de alerta",
+          "POST /alert-rules": "Criar regra de alerta",
+          "PUT /alert-rules/:id": "Atualizar regra de alerta",
+          "DELETE /alert-rules/:id": "Remover regra de alerta"
+        }
+      }
     },
     "whatsapp": {
       "baseUrl": "http://localhost:8019",

@@ -851,17 +851,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       {/* Skeleton de carregamento */}
       {carregando ? (
         <GTSkeleton rowHeight={rowHeight} />
-      ) : dados.length === 0 ? (
-        /* Estado vazio */
-        <GTVazio
-          emptyIcon={emptyIcon}
-          emptyTitle={emptyTitle}
-          emptyDescription={emptyDescription}
-          emptyAction={emptyAction}
-        />
       ) : (
         <>
-          {/* Cabeçalho sticky */}
+          {/* Cabeçalho sticky — sempre visível (inclusive no estado vazio) */}
           <div className="gtv-cabecalho" role="row">
             {/* Checkbox cabeçalho */}
             {acoesLote && acoesLote.length > 0 && (
@@ -926,11 +918,21 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             })}
 
             {/* Ações col */}
-            {(acoes && acoes.length > 0) && (
+            {acoes && acoes.length > 0 && (
               <div className="gtv-th gtv-th--acoes" role="columnheader" />
             )}
           </div>
 
+          {dados.length === 0 ? (
+            /* Estado vazio */
+            <GTVazio
+              emptyIcon={emptyIcon}
+              emptyTitle={emptyTitle}
+              emptyDescription={emptyDescription}
+              emptyAction={emptyAction}
+            />
+          ) : (
+            <>
           {/* Scroll virtual */}
           <div
             ref={parentRef}
@@ -996,6 +998,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 )}
               </button>
             </div>
+          )}
+            </>
           )}
         </>
       )}

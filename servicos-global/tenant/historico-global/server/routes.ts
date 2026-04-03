@@ -1,16 +1,24 @@
 import { Router } from 'express'
-import { ingestLog, listLogs, getLogById } from './controllers/history.controller.js'
+import { ingestLog, listLogs, getLogById, exportLogs } from './controllers/history.controller.js'
+import {
+  listAlerts, updateAlert,
+  listRules, createRule, updateRule, deleteRule,
+} from './controllers/alert.controller.js'
 
 export const historicoRouter = Router()
 
-// POST with async ingestion
+// ── Logs ──────────────────────────────────────────────────────────
 historicoRouter.post('/logs', ingestLog)
-
-// GET with internal shielding reads from DB
+historicoRouter.get('/logs/export', exportLogs)
 historicoRouter.get('/logs', listLogs)
 historicoRouter.get('/logs/:id', getLogById)
 
-// Backward compat for older root paths if needed (optional)
-historicoRouter.post('/', ingestLog)
-historicoRouter.get('/', listLogs)
-historicoRouter.get('/:id', getLogById)
+// ── Alertas (eventos detectados) ─────────────────────────────────
+historicoRouter.get('/alerts', listAlerts)
+historicoRouter.patch('/alerts/:id', updateAlert)
+
+// ── Regras de alerta (configuração) ──────────────────────────────
+historicoRouter.get('/alert-rules', listRules)
+historicoRouter.post('/alert-rules', createRule)
+historicoRouter.put('/alert-rules/:id', updateRule)
+historicoRouter.delete('/alert-rules/:id', deleteRule)

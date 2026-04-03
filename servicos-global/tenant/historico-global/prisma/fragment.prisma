@@ -1,27 +1,145 @@
 model HistoryLog {
-  id         String    @id @default(uuid())
-  tenant_id  String
-  actor_id   String
-  actor_type ActorType
-  action     String
+  id             String      @id @default(uuid())
+  tenant_id      String
 
-  product_id String?
-  user_id    String?
+  // Ator
+  actor_type     ActorType
+  actor_id       String
+  actor_name     String
+  actor_ip       String?
+  actor_metadata Json?
 
-  // Multiaxial details
-  metadata Json?
+  // Recurso
+  module         String
+  resource_type  String
+  resource_id    String?
 
-  created_at DateTime @default(now())
+  // Ação
+  action         String
+  action_detail  String
+
+  // Estado antes/depois
+  before         Json?
+  after          Json?
+
+  // Resultado
+  status         EventStatus @default(SUCCESS)
+  error_message  String?
+
+  // Integridade
+  integrity_hash String
+
+  // Referências para queries e visibilidade por role
+  product_id     String?
+  user_id        String?
+
+  created_at     DateTime    @default(now()) @db.Timestamptz
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, created_at])
+  @@index([tenant_id, module, created_at])
+  @@index([actor_id, created_at])
+}
+
+model AlertRule {
+  id                       String     @id @default(uuid())
+  tenant_id                String?
+
+  name                     String
+  description              String?
+  enabled                  Boolean    @default(true)
+
+  // Filtro da regra (null = qualquer valor)
+  actor_type               ActorType?
+  action                   String?
+  module                   String?
+  status_filter            EventStatus?
+
+  // Threshold
+  threshold_count          Int?
+  threshold_window_seconds Int?
+
+  // Canais ativos por regra
+  channel_inapp            Boolean    @default(true)
+  channel_email            Boolean    @default(false)
+  channel_whatsapp         Boolean    @default(false)
+
+  // Destinatários por canal
+  recipients_email         String[]
+  recipients_whatsapp      String[]
+  recipients_user_ids      String[]
+
+  created_at               DateTime   @default(now())
+  updated_at               DateTime   @updatedAt
+
+  alerts                   AlertEvent[]
+
+  @@index([tenant_id, enabled])
+}
+
+model AlertEvent {
+  id             String      @id @default(uuid())
+  tenant_id      String
+  rule_id        String
+  rule           AlertRule   @relation(fields: [rule_id], references: [id])
+
+  actor_type     ActorType
+  actor_id       String
+  actor_name     String
+  module         String
+  action         String
+  event_count    Int
+  window_seconds Int
+  audit_log_ids  String[]
+
+  status         AlertStatus @default(PENDING)
+  reviewed_by    String?
+  reviewed_at    DateTime?
+  notes          String?
+
+  created_at     DateTime    @default(now())
+
+  notifications  AlertNotificationLog[]
+
+  @@index([tenant_id, status])
+  @@index([tenant_id, created_at])
+}
+
+model AlertNotificationLog {
+  id             String     @id @default(uuid())
+  alert_event_id String
+  alert_event    AlertEvent @relation(fields: [alert_event_id], references: [id])
+
+  channel        String
+  recipient      String
+  status         String     @default("pending")
+  attempts       Int        @default(1)
+  error_message  String?
+  sent_at        DateTime?
+
+  created_at     DateTime   @default(now())
+
+  @@index([alert_event_id])
 }
 
 enum ActorType {
   USER
-  SYSTEM
-  GABI_IA
-  ADMIN
+  API
+  AI
+  JOB
+  INTEGRATION
+}
+
+enum EventStatus {
+  SUCCESS
+  FAILURE
+  PARTIAL
+}
+
+enum AlertStatus {
+  PENDING
+  REVIEWED
+  ESCALATED
 }

@@ -1,158 +1,114 @@
-import { createHash } from 'crypto'
 import { Request, Response, NextFunction } from 'express'
-// Using generic typed prisma client since real one might not exist yet
-import { PrismaClient } from '@prisma/client'
+import { ActorType } from '../../../generated/index.js'
+import { AuditService } from '../services/audit.service.js'
 
-const prisma = new PrismaClient()
-
-// Configuração de Limiar Anômalo
-const ANOMALY_THRESHOLD = { count: 50, windowSeconds: 10 }
-
-export interface AuditLogData {
-  tenant_id: string
-  actor_id: string | null
-  actor_type: string
+export interface AuditMiddlewareOptions {
+  module: string
+  resource_type: string
   action: string
-  entity_id: string | null
-  description: string
-  diff: any
-  created_at: Date
+  action_detail?: string
+  actor_type?: ActorType
+  actor_id?: string
+  actor_name?: string
 }
 
-export function computeLogHash(log: AuditLogData): string {
-  const payload = JSON.stringify({
-    tenant_id: log.tenant_id,
-    actor_id: log.actor_id,
-    actor_type: log.actor_type,
-    action: log.action,
-    entity_id: log.entity_id,
-    description: log.description,
-    diff: log.diff,
-    created_at: log.created_at.toISOString()
-  })
-  return createHash('sha256').update(payload).digest('hex')
-}
+/**
+ * Middleware de auditoria automático.
+ * Envolve rotas mutáveis e captura: ator, IP, estado após a operação.
+ *
+ * Para capturar o estado "before" com precisão, os serviços devem
+ * chamar AuditService.log() diretamente passando before/after explícitos.
+ */
+export function auditMiddleware(opts: AuditMiddlewareOptions) {
+  return (req: any, res: Response, next: NextFunction) => {
+    const auth = req.auth ?? {}
 
-// Simulando captura de estado
-async function captureState(req: Request, body?: any) {
-  return body || req.body || null
-}
+    const actor_type: ActorType =
+      opts.actor_type ?? (auth.isGabi ? ActorType.AI : ActorType.USER)
+    const actor_id: string =
+      opts.actor_id ?? auth.userId ?? 'anonymous'
+    const actor_name: string =
+      opts.actor_name ?? (auth.isGabi ? 'Gabi AI' : auth.userName ?? 'Unknown')
 
-function buildDescription(action: string, entityLabel: string, before: any, after: any) {
-  return `${action} executado(a) em ${entityLabel}`
-}
+    const originalJson = res.json.bind(res)
 
-function buildDiff(before: any, after: any) {
-  const diffs = []
-  if (!before && after) {
-    for (const [key, value] of Object.entries(after)) {
-      diffs.push({ field: key, label: key, before: null, after: value })
+    res.json = function (body: unknown): Response {
+      setImmediate(() => {
+        const statusCode = res.statusCode
+        const isSuccess = statusCode >= 200 && statusCode < 300
+        const isFailure = statusCode >= 400
+
+        AuditService.log({
+          tenant_id: auth.tenantId ?? (req.headers['x-tenant-id'] as string) ?? 'unknown',
+          actor_type,
+          actor_id,
+          actor_name,
+          actor_ip: req.ip,
+          actor_metadata: {
+            user_agent: req.headers['user-agent'],
+            correlation_id: req.headers['x-correlation-id'],
+          },
+          module: opts.module,
+          resource_type: opts.resource_type,
+          resource_id: (body as any)?.id ?? req.params?.id,
+          action: opts.action,
+          action_detail: opts.action_detail ?? `${opts.action} em ${opts.resource_type}`,
+          after: isSuccess ? body : undefined,
+          status: isFailure ? 'FAILURE' : isSuccess ? 'SUCCESS' : 'PARTIAL',
+          error_message: isFailure ? (body as any)?.message : undefined,
+          product_id: auth.productId,
+          user_id: actor_type === ActorType.USER ? actor_id : undefined,
+        }).catch((err) => console.error('[auditMiddleware]', err))
+      })
+
+      return originalJson(body)
     }
-  } else if (before && after) {
-    for (const [key, value] of Object.entries(after)) {
-      if (before[key] !== value) {
-        diffs.push({ field: key, label: key, before: before[key], after: value })
-      }
-    }
+
+    next()
   }
-  return diffs.length > 0 ? diffs : null
 }
 
-// Funcação de verificação de anomalia
-export async function checkAnomalyAfterLog(tenantId: string, actorId: string | null) {
-  if (!actorId) return
+/**
+ * Wrapper para jobs internos (PG Boss workers).
+ * Registra início, fim, sucesso e falha do job.
+ */
+export async function auditedJob<T>(
+  jobName: string,
+  tenantId: string,
+  fn: () => Promise<T>
+): Promise<T> {
+  const startedAt = Date.now()
+
   try {
-    const recent = await prisma.logAlteracao.count({
-      where: {
-        tenant_id: tenantId,
-        actor_id: actorId,
-        created_at: { gte: new Date(Date.now() - ANOMALY_THRESHOLD.windowSeconds * 1000) }
-      }
+    const result = await fn()
+
+    await AuditService.log({
+      tenant_id: tenantId,
+      actor_type: ActorType.JOB,
+      actor_id: jobName,
+      actor_name: jobName,
+      module: 'jobs',
+      resource_type: 'job',
+      action: 'JOB_SUCCESS',
+      action_detail: `Job "${jobName}" concluído em ${Date.now() - startedAt}ms`,
+      status: 'SUCCESS',
     })
-    if (recent > ANOMALY_THRESHOLD.count) {
-      console.warn(`[SENTRY] Anomalia no histórico: ${recent} logs em ${ANOMALY_THRESHOLD.windowSeconds}s para o ator ${actorId}`)
-    }
+
+    return result
   } catch (error) {
-    console.error('Erro ao checar anomalia:', error)
-  }
-}
+    await AuditService.log({
+      tenant_id: tenantId,
+      actor_type: ActorType.JOB,
+      actor_id: jobName,
+      actor_name: jobName,
+      module: 'jobs',
+      resource_type: 'job',
+      action: 'JOB_FAILURE',
+      action_detail: `Job "${jobName}" falhou após ${Date.now() - startedAt}ms`,
+      status: 'FAILURE',
+      error_message: error instanceof Error ? error.message : String(error),
+    })
 
-export interface ActorContext {
-  actorType: 'user' | 'system' | 'gabi'
-  actorId: string | null
-  actorName: string
-}
-
-export function auditMiddleware(
-  action: string,
-  entity: string,
-  entityLabel: string,
-  explicitActor?: ActorContext
-) {
-  return async (req: any, res: Response, next: NextFunction) => {
-    try {
-      // 1. Barreira: Ator explícito
-      const auth = req.auth || {}
-      
-      const actorType = explicitActor?.actorType ?? (auth.isGabi ? 'gabi' : 'user')
-      const actorId = explicitActor?.actorId ?? auth.userId ?? null
-      const actorName = explicitActor?.actorName ?? (auth.isGabi ? 'Gabi AI' : (auth.userName ?? 'Unknown'))
-      
-      const before = await captureState(req)
-
-      const originalJson = res.json.bind(res)
-
-      res.json = (body: any): Response => {
-        // Grava de forma assíncrona
-        setImmediate(async () => {
-          try {
-            const after = await captureState(req, body)
-            
-            const logData: Omit<AuditLogData, 'integrity_hash'> = {
-              tenant_id: auth.tenantId || 'unknown-tenant', // Should come from req.auth
-              actor_id: actorId,
-              actor_type: actorType,
-              action,
-              entity_id: body?.id || req.params?.id || null,
-              description: buildDescription(action, entityLabel, before, after),
-              diff: buildDiff(before, after),
-              created_at: new Date()
-            }
-            
-            const hash = computeLogHash(logData)
-
-            await prisma.logAlteracao.create({
-              data: {
-                tenant_id: logData.tenant_id,
-                product_id: auth.productId || null,
-                actor_id: logData.actor_id,
-                actor_type: logData.actor_type,
-                actor_name: actorName,
-                action: logData.action,
-                entity: entity,
-                entity_label: entityLabel,
-                entity_id: logData.entity_id,
-                description: logData.description,
-                diff: logData.diff,
-                integrity_hash: hash,
-                ip_address: req.ip,
-                user_agent: req.headers['user-agent'] as string | undefined
-              }
-            })
-
-            await checkAnomalyAfterLog(logData.tenant_id, logData.actor_id)
-            
-          } catch (error) {
-            console.error('[CRITICAL] Erro ao gravar log de auditoria:', error)
-          }
-        })
-
-        return originalJson(body)
-      }
-
-      next()
-    } catch (e) {
-      next(e)
-    }
+    throw error
   }
 }

@@ -9,7 +9,7 @@
  * Modo edicao: recebe id via useParams, carrega pedido existente
  */
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
@@ -23,6 +23,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { TipoOperacao, PedidoItem } from '../shared/types'
+import { pedidoApi } from '../shared/api'
 
 // ── Tipos locais do formulario ────────────────────────────────────────────────
 
@@ -140,12 +141,66 @@ export default function NovoPedido() {
     setItens((prev) => prev.filter((_, i) => i !== index))
   }
 
+  useEffect(() => {
+    if (!modoEdicao || !id) return
+    pedidoApi.buscarPorId(id)
+      .then(pedido => {
+        setForm({
+          tipo_operacao: pedido.tipo_operacao,
+          numero_pedido: pedido.numero_pedido,
+          importacao_exportador_id: pedido.importacao_exportador_id ?? '',
+          fabricante_id: '',
+          incoterm: pedido.incoterm ?? 'FOB',
+          moeda_pedido: pedido.moeda_pedido,
+          cobertura_cambial: pedido.cobertura_cambial,
+          condicao_pagamento: pedido.condicao_pagamento ?? '',
+          numero_proforma: pedido.numero_proforma ?? '',
+          numero_invoice: pedido.numero_invoice ?? '',
+          referencia_importador: pedido.referencia_importador ?? '',
+          referencia_exportador: pedido.referencia_exportador ?? '',
+          referencia_fabricante: pedido.referencia_fabricante ?? '',
+          data_emissao_pedido: pedido.data_emissao_pedido?.split('T')[0] ?? '',
+        })
+        if (pedido.itens?.length > 0) {
+          setItens(pedido.itens.map((item: PedidoItem) => ({
+            key: item.id,
+            part_number: item.part_number,
+            ncm: item.ncm,
+            descricao: item.descricao,
+            quantidade_inicial: String(item.quantidade_inicial),
+            unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
+            valor_unitario: item.valor_unitario != null ? String(item.valor_unitario) : '',
+          })))
+        }
+      })
+      .catch(() => { /* dev: ignorar erro de backend */ })
+  }, [modoEdicao, id])
+
   async function handleSalvar() {
     setSalvando(true)
     try {
-      // TODO: integrar com pedidoApi.criar / pedidoApi.atualizar
-      console.log('[Pedido] Salvando:', { form, itens })
+      const itensMapped = itens.map(item => ({
+        part_number: item.part_number,
+        ncm: item.ncm,
+        descricao: item.descricao,
+        quantidade_inicial: parseFloat(item.quantidade_inicial) || 0,
+        unidade_comercializada_item: item.unidade_comercializada_item,
+        valor_unitario: item.valor_unitario ? parseFloat(item.valor_unitario) : undefined,
+      }))
+      const payload = {
+        ...form,
+        data_emissao_pedido: form.data_emissao_pedido,
+        itens: itensMapped as PedidoItem[],
+      }
+      if (modoEdicao) {
+        await pedidoApi.atualizar(id!, payload)
+      } else {
+        await pedidoApi.criar(payload)
+      }
       navigate('/pedidos')
+    } catch (err) {
+      console.error('[NovoPedido] Erro ao salvar:', err)
+      if (import.meta.env.DEV) navigate(-1)
     } finally {
       setSalvando(false)
     }

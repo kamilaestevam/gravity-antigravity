@@ -11,6 +11,7 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const ListaPedidos   = lazy(() => import('./pages/ListaPedidos'))
 const Configuracoes  = lazy(() => import('./pages/Configuracoes'))
+const NovoPedido     = lazy(() => import('./pages/NovoPedido'))
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -110,6 +111,7 @@ export function App() {
     'pedidos':           'Lista',
     'pedidos/dashboard': 'Dashboard',
     'pedidos/kanban':    'Kanban',
+    'pedidos/novo':      'Novo Pedido',
     'historico':         'Histórico',
     'configuracoes':     'Configurações',
   }
@@ -157,9 +159,11 @@ export function App() {
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           <Route path="/"       element={<Navigate to="pedidos" replace />} />
-          <Route path="pedidos"        element={<ListaPedidos />} />
-          <Route path="configuracoes"  element={<Configuracoes />} />
-          <Route path="*"              element={<Navigate to="pedidos" replace />} />
+          <Route path="pedidos"              element={<ListaPedidos />} />
+          <Route path="pedidos/novo"         element={<NovoPedido />} />
+          <Route path="pedidos/:id/editar"   element={<NovoPedido />} />
+          <Route path="configuracoes"        element={<Configuracoes />} />
+          <Route path="*"                    element={<Navigate to="pedidos" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

@@ -12,6 +12,7 @@ import type {
   PedidoColunaConfig,
   PedidoPreferenciasColunas,
 } from './types'
+import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 
 let context = { tenantId: '', userId: '' }
 
@@ -123,7 +124,10 @@ export const pedidoVirtualApi = {
     if (params.limit)  q.set('limit', String(params.limit))
     if (params.status) q.set('status', params.status)
     if (params.busca)  q.set('busca', params.busca)
-    return request<PedidosListResponse>(`/api/v1/pedidos?${q}`)
+    return request<PedidosListResponse>(`/api/v1/pedidos?${q}`).catch(err => {
+      if (import.meta.env.DEV) return MOCK_PEDIDOS_RESPONSE
+      throw err
+    })
   },
 
   /** Edição inline de um campo com optimistic lock (lança em 409) */

@@ -9,6 +9,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import {
   Package,
   Plus,
@@ -327,6 +328,24 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     ),
   },
   {
+    key: 'quantidade_cancelada',
+    label: 'Qtd Cancelada',
+    tipo: 'numero',
+    align: 'right',
+    largura: 120,
+    tooltipTitulo: 'Quantidade Cancelada',
+    tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{
+        fontFamily: 'var(--font-mono, monospace)',
+        fontSize: '0.8125rem',
+        color: row.quantidade_cancelada > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
+      }}>
+        {fmtQuantidade(row.quantidade_cancelada, row.casas_decimais_quantidade)}
+      </span>
+    ),
+  },
+  {
     key: 'unidade_comercializada_item',
     label: 'UoM',
     tipo: 'texto',
@@ -371,42 +390,14 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Status',          key: 'status',                      largura: 16 },
 ]
 
-// ── Ações de linha (pai) ──────────────────────────────────────────────────────
-
-const ACOES_PAI: GTAcao<Pedido>[] = [
-  {
-    id: 'ver',
-    tooltip: 'Ver detalhes do pedido',
-    icone: <Eye size={15} weight="duotone" />,
-    onClick: (row: Pedido) => { console.info('[Pedido] Ver:', row.id) },
-  },
-  {
-    id: 'editar',
-    tooltip: 'Editar dados do pedido',
-    icone: <PencilSimple size={15} weight="duotone" />,
-    onClick: (row: Pedido) => { console.info('[Pedido] Editar:', row.id) },
-  },
-  {
-    id: 'duplicar',
-    tooltip: 'Duplicar pedido',
-    icone: <Copy size={15} weight="duotone" />,
-    onClick: (row: Pedido) => { console.info('[Pedido] Duplicar:', row.id) },
-  },
-  {
-    id: 'deletar',
-    tooltip: 'Deletar pedido (somente Draft)',
-    icone: <Trash size={15} weight="duotone" />,
-    variant: 'danger',
-    visivel: (row: Pedido) => row.status === 'draft',
-    onClick: (row: Pedido) => { console.info('[Pedido] Deletar:', row.id) },
-  },
-]
+// ── Ações de linha (pai) — criadas dentro do componente para acesso ao navigate ─
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function ListaPedidos() {
   const { t } = useTranslation()
   const { visiveis: cardsVisiveis } = useCardPreferences()
+  const navigate = useNavigate()
 
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
@@ -415,6 +406,10 @@ export default function ListaPedidos() {
   const [temMais, setTemMais]               = useState(false)
   const [cursor, setCursor]                 = useState<string | undefined>(undefined)
   const [total, setTotal]                   = useState(0)
+
+  // ── Estado do modal Transferir ───────────────────────────────────────────────
+  const [modalTransferir, setModalTransferir] = useState<{ item: PedidoItem; pedidoId: string } | null>(null)
+  const [qtdTransferir, setQtdTransferir]     = useState('')
 
   // ── Estado de UI ─────────────────────────────────────────────────────────────
   const [abaAtiva, setAbaAtiva]             = useState('todos')
@@ -427,6 +422,58 @@ export default function ListaPedidos() {
 
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
+
+  // ── Ações de linha (pai) ──────────────────────────────────────────────────────
+  const ACOES_PAI: GTAcao<Pedido>[] = [
+    {
+      id: 'ver',
+      tooltip: 'Ver detalhes do pedido',
+      icone: <Eye size={15} weight="duotone" />,
+      onClick: (row: Pedido) => { console.info('[Pedido] Ver:', row.id) },
+    },
+    {
+      id: 'editar',
+      tooltip: 'Editar dados do pedido',
+      icone: <PencilSimple size={15} weight="duotone" />,
+      onClick: (row: Pedido) => { navigate(`${row.id}/editar`) },
+    },
+    {
+      id: 'duplicar',
+      tooltip: 'Duplicar pedido',
+      icone: <Copy size={15} weight="duotone" />,
+      onClick: (row: Pedido) => { console.info('[Pedido] Duplicar:', row.id) },
+    },
+    {
+      id: 'deletar',
+      tooltip: 'Deletar pedido (somente Draft)',
+      icone: <Trash size={15} weight="duotone" />,
+      variant: 'danger',
+      visivel: (row: Pedido) => row.status === 'draft',
+      onClick: (row: Pedido) => { console.info('[Pedido] Deletar:', row.id) },
+    },
+  ]
+
+  // ── Ações de linha (filho / item) ─────────────────────────────────────────────
+  const ACOES_FILHO: GTAcao<PedidoItem>[] = [
+    {
+      id: 'transferir',
+      tooltip: 'Transferir quantidade para processo logístico',
+      icone: <ArrowRight size={14} weight="duotone" />,
+      visivel: (row: PedidoItem) => row.quantidade_atual > 0,
+      onClick: (row: PedidoItem) => {
+        setModalTransferir({ item: row, pedidoId: row.pedido_id })
+        setQtdTransferir('')
+      },
+    },
+    {
+      id: 'cancelar-item',
+      tooltip: 'Cancelar quantidade do item',
+      icone: <X size={14} weight="duotone" />,
+      variant: 'danger',
+      visivel: (row: PedidoItem) => row.quantidade_atual > 0,
+      onClick: (row: PedidoItem) => { console.info('[Pedido] Cancelar item:', row.id) },
+    },
+  ]
 
   // ── Carregar status e preferências ──────────────────────────────────────────
   useEffect(() => {
@@ -567,7 +614,8 @@ export default function ListaPedidos() {
         const ids = itens.map((p: Pedido) => p.id)
         try {
           const preview = await pedidoLoteApi.mudarStatusPreview(ids, 'consolidado')
-          if (window.confirm(`${preview.resumo.join('\n')}\n\nConfirmar?`)) {
+          const resumo = preview.afetados.map(a => `✓ ${a.numero_pedido} → ${a.status}`).join('\n')
+          if (window.confirm(`${resumo}\n\nConfirmar mudança de status?`)) {
             await pedidoLoteApi.mudarStatusConfirmar(ids, 'consolidado')
             await carregarInicial()
           }
@@ -735,6 +783,7 @@ export default function ListaPedidos() {
           colunasFilhas={COLUNAS_FILHO}
           onCarregarFilhos={handleCarregarFilhos}
           filhoId={(i: PedidoItem) => i.id}
+          acoesFilhas={ACOES_FILHO}
 
           temMais={temMais}
           carregandoMais={carregandoMais}
@@ -752,7 +801,7 @@ export default function ListaPedidos() {
               variante="primario"
               tamanho="sm"
               icone={<Plus size={14} weight="bold" />}
-              onClick={() => { console.info('[Pedido] Novo pedido') }}
+              onClick={() => { navigate('novo') }}
             >
               Novo Pedido
             </BotaoGlobal>
@@ -779,7 +828,7 @@ export default function ListaPedidos() {
               variante="primario"
               tamanho="sm"
               icone={<Plus size={14} weight="bold" />}
-              onClick={() => { console.info('[Pedido] Novo pedido (empty)') }}
+              onClick={() => { navigate('novo') }}
             >
               Novo Pedido
             </BotaoGlobal>
@@ -791,6 +840,53 @@ export default function ListaPedidos() {
           ariaLabel="Lista de pedidos"
         />
       </div>
+
+      {/* ── Modal Transferir Quantidade ── */}
+      {modalTransferir && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'var(--bg-surface)', borderRadius: '0.75rem', padding: '1.5rem', width: '400px', border: '1px solid var(--border-subtle)' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--text-primary)' }}>
+              Transferir Quantidade — {modalTransferir.item.part_number}
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual, modalTransferir.item.casas_decimais_quantidade)} {modalTransferir.item.unidade_comercializada_item}</strong>
+            </p>
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
+                Quantidade a Transferir
+              </label>
+              <input
+                type="number"
+                style={{ width: '100%', padding: '0.5rem 0.75rem', background: 'var(--bg-base)', border: '1px solid var(--border-subtle)', borderRadius: '0.375rem', color: 'var(--text-primary)', fontSize: '0.875rem' }}
+                value={qtdTransferir}
+                onChange={e => setQtdTransferir(e.target.value)}
+                max={modalTransferir.item.quantidade_atual}
+                min={0.01}
+                step={0.01}
+                placeholder="0.00"
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <BotaoGlobal variante="secundario" onClick={() => { setModalTransferir(null); setQtdTransferir('') }}>Cancelar</BotaoGlobal>
+              <BotaoGlobal
+                variante="primario"
+                icone={<ArrowRight size={14} />}
+                onClick={async () => {
+                  const qtd = parseFloat(qtdTransferir)
+                  if (!qtd || qtd <= 0 || qtd > modalTransferir.item.quantidade_atual) return
+                  console.info('[Pedido] Transferir:', { item: modalTransferir.item.id, quantidade: qtd })
+                  window.alert(`✓ Transferência de ${fmtQuantidade(qtd, modalTransferir.item.casas_decimais_quantidade)} ${modalTransferir.item.unidade_comercializada_item ?? ''} registrada.`)
+                  setModalTransferir(null)
+                  setQtdTransferir('')
+                }}
+              >
+                Transferir
+              </BotaoGlobal>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

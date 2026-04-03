@@ -4,8 +4,8 @@ import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, CaretDown, Columns } from '@phosphor-icons/react'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
-import { useTablePersistence } from './hooks/useTablePersistence.js'
-import { VisibilidadeColunasGlobal } from './componentes/VisibilidadeColunasGlobal.js'
+import { useTablePersistence } from './hooks/useTablePersistence'
+import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 import './tabela.css'
 
 export type ColType = 'texto' | 'numero' | 'periodo'
@@ -392,10 +392,31 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     defaultHiddenKeys: colunas.filter(c => (c as any).oculta).map(c => c.key)
   })
 
-  const colunasVisiveis = useMemo(() => 
-    tableId ? colunas.filter(c => isVisible(c.key)) : colunas,
-    [colunas, tableId, isVisible]
-  )
+  const [columnOrder, setColumnOrder] = useState<string[]>(() => colunas.map(c => c.key))
+
+  const colunasVisiveis = useMemo(() => {
+    const base = tableId ? colunas.filter(c => isVisible(c.key)) : colunas
+    return [...base].sort((a, b) => {
+      const ai = columnOrder.indexOf(a.key)
+      const bi = columnOrder.indexOf(b.key)
+      if (ai === -1 && bi === -1) return 0
+      if (ai === -1) return 1
+      if (bi === -1) return -1
+      return ai - bi
+    })
+  }, [colunas, tableId, isVisible, columnOrder])
+
+  function handleReordenarColunas(fromKey: string, toKey: string) {
+    setColumnOrder(prev => {
+      const arr  = [...prev]
+      const from = arr.indexOf(fromKey)
+      const to   = arr.indexOf(toKey)
+      if (from === -1 || to === -1) return prev
+      arr.splice(from, 1)
+      arr.splice(to, 0, fromKey)
+      return arr
+    })
+  }
 
   const [visibilidadeAberta, setVisibilidadeAberta] = useState(false)
   const visibilidadeBtnRef = useRef<HTMLButtonElement>(null)
@@ -578,11 +599,12 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <TooltipGlobal descricao={tooltipBusca || t('tabela.buscar_tooltip_padrao')}>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
+              <span style={{ position: 'absolute', left: '0.75rem', color: '#94a3b8', display: 'flex', lineHeight: 0 }}>
                 <MagnifyingGlass size={14} weight="bold" />
               </span>
               <input type="search" placeholder={t('tabela.localizar')} value={busca}
                 onChange={e => { setBusca(e.target.value); setPagina(1) }}
+                className="tg-busca-input"
                 style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
                 onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}
                 onBlur={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.18)'; e.currentTarget.style.boxShadow = 'none' }}
@@ -618,15 +640,16 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                 </button>
               </TooltipGlobal>
               {visibilidadeAberta && (
-                <VisibilidadeColunasGlobal 
+                <SelectColunasGlobal
                   colunas={colunasConfig}
-                  visibleKeys={visibleKeys}
+                  colunasVisiveis={[...visibleKeys]}
                   onToggle={toggleVisibility}
-                  onReset={resetToDefault}
-                  onShowAll={setAllVisible}
-                  onHideAll={clearAllVisible}
+                  onSelecionarTodos={setAllVisible}
+                  onRestaurarPadrao={resetToDefault}
                   onFechar={() => setVisibilidadeAberta(false)}
+                  onReordenar={handleReordenarColunas}
                   triggerRef={visibilidadeBtnRef as React.RefObject<HTMLButtonElement | null>}
+                  posicao={{ top: 'calc(100% + 6px)', right: 0 }}
                 />
               )}
             </div>

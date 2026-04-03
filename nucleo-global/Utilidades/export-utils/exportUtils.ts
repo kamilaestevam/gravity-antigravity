@@ -132,3 +132,43 @@ export function exportarJSON<T extends Record<string, unknown>>(
   const resultado = dados.map(row => Object.fromEntries(colunas.map(c => [c.key, row[c.key] ?? null])))
   baixarBlob(JSON.stringify(resultado, null, 2), `${nome}.json`, 'application/json;charset=utf-8;')
 }
+
+// ─── PDF (jspdf + autotable — importados dinamicamente) ──────────────────────
+
+export async function exportarPDF<T extends Record<string, unknown>>(
+  dados: T[], colunas: ColunasExport[], opcoes: OpcoesExport = {}
+) {
+  const nome   = opcoes.nomeArquivo ?? 'exportacao'
+  const titulo = opcoes.titulo      ?? nome
+
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+
+  doc.setFontSize(16); doc.setTextColor(30, 41, 59)
+  doc.text(titulo, 14, 16)
+  doc.setFontSize(8); doc.setTextColor(100, 116, 139)
+  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 22)
+
+  autoTable(doc, {
+    startY: 28,
+    head: [colunas.map(c => c.header)],
+    body: linhas(dados, colunas),
+    styles:     { fontSize: 8, cellPadding: { top: 3, bottom: 3, left: 4, right: 4 }, overflow: 'linebreak' },
+    headStyles: { fillColor: [15, 23, 42], textColor: [56, 189, 248], fontStyle: 'bold', fontSize: 7.5 },
+    alternateRowStyles: { fillColor: [241, 245, 249] },
+    tableLineColor: [226, 232, 240],
+    tableLineWidth: 0.1,
+  })
+
+  const totalPag = (doc as jsPDF & { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages()
+  for (let i = 1; i <= totalPag; i++) {
+    doc.setPage(i)
+    doc.setFontSize(7); doc.setTextColor(148, 163, 184)
+    doc.text(`Página ${i} de ${totalPag}`, doc.internal.pageSize.width - 14, doc.internal.pageSize.height - 8, { align: 'right' })
+  }
+
+  doc.save(`${nome}.pdf`)
+}

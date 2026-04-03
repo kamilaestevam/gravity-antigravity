@@ -1,9 +1,9 @@
-export { TabelaGlobal } from './tabela.js'
-export type { 
-  TabelaGlobalProps, 
-  TabelaGlobalColuna, 
-  TabelaGlobalAcao, 
-  TabelaExportAcao, 
-  ColType, 
-  SortDir 
-} from './tabela.js'
+export { TabelaGlobal } from './tabela'
+export type {
+  TabelaGlobalProps,
+  TabelaGlobalColuna,
+  TabelaGlobalAcao,
+  TabelaExportAcao,
+  ColType,
+  SortDir
+} from './tabela'

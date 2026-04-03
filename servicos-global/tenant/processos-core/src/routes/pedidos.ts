@@ -6,12 +6,13 @@
  * Validacao: Zod em toda rota
  *
  * Rotas:
- *   GET    /                    Listar pedidos com itens
+ *   GET    /                    Listar pedidos (offset ou cursor pagination)
  *   GET    /:id                 Detalhe do pedido
  *   POST   /                    Criar pedido com itens
  *   PUT    /:id                 Atualizar pedido (Draft/Aberto)
  *   DELETE /:id                 Deletar pedido (Draft)
  *   PATCH  /:id/status          Transicao de status
+ *   PATCH  /:id/campo           Editar campo inline (cell editing)
  *   POST   /:id/duplicar        Duplicar pedido
  *   POST   /:id/itens           Adicionar item
  *   PUT    /:id/itens/:itemId   Atualizar item
@@ -92,11 +93,50 @@ function gerarId(prefixo: string): string {
   return `${prefixo}_id_${seq}/${ano}`
 }
 
+// ── Cursor pagination helpers ─────────────────────────────────────────────────
+
+// Campos suportados como sort key no cursor pagination
+const CURSOR_SORT_FIELDS = ['data_emissao_pedido', 'numero_pedido', 'valor_total_pedido', 'created_at', 'updated_at'] as const
+type CursorSortField = typeof CURSOR_SORT_FIELDS[number]
+
+interface CursorPayload {
+  sort_field: CursorSortField
+  sort_value: unknown
+  sort_dir: 'asc' | 'desc'
+  id: string
+}
+
+function encodeCursor(payload: CursorPayload): string {
+  return Buffer.from(JSON.stringify(payload)).toString('base64url')
+}
+
+function decodeCursor(encoded: string): CursorPayload | null {
+  try {
+    const decoded = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf-8')) as unknown
+    if (
+      typeof decoded !== 'object' || decoded === null ||
+      !('sort_field' in decoded) || !('sort_value' in decoded) ||
+      !('sort_dir' in decoded) || !('id' in decoded)
+    ) {
+      return null
+    }
+    const payload = decoded as CursorPayload
+    if (!CURSOR_SORT_FIELDS.includes(payload.sort_field)) return null
+    if (!['asc', 'desc'].includes(payload.sort_dir)) return null
+    return payload
+  } catch {
+    return null
+  }
+}
+
 // ── GET / — Listar pedidos ────────────────────────────────────────────────────
+// Suporta dois modos de paginação:
+//   - Cursor: ?cursor=<base64>&sort=data_emissao_pedido&dir=desc&limit=50
+//   - Offset: ?page=1&limit=20 (backward compat)
 
 pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { status, tipo_operacao, busca, page = '1', limit = '20' } = req.query
+    const { status, tipo_operacao, busca, cursor, page, limit, sort, dir } = req.query
     const tenant_id = req.headers['x-tenant-id'] as string
     const company_id = req.headers['x-company-id'] as string
 
@@ -107,7 +147,63 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       where.numero_pedido = { contains: busca as string, mode: 'insensitive' }
     }
 
-    const skip = (Number(page) - 1) * Number(limit)
+    // ── Cursor pagination ──
+    if (cursor !== undefined) {
+      const sortField = (CURSOR_SORT_FIELDS.includes(sort as CursorSortField) ? sort : 'data_emissao_pedido') as CursorSortField
+      const sortDir = dir === 'asc' ? 'asc' : 'desc'
+      const limitNum = Math.min(Math.max(Number(limit ?? 50), 1), 200)
+
+      // Montar condição de keyset se cursor presente
+      if (typeof cursor === 'string' && cursor.length > 0) {
+        const payload = decodeCursor(cursor)
+        if (!payload) {
+          return res.status(400).json({ error: { message: 'Cursor invalido' } })
+        }
+
+        // WHERE (sort_field < last_val) OR (sort_field = last_val AND id < last_id)
+        // Para sortDir=asc, usa-se > e para desc, usa-se <
+        const op = payload.sort_dir === 'desc' ? 'lt' : 'gt'
+
+        where.OR = [
+          { [payload.sort_field]: { [op]: payload.sort_value } },
+          {
+            [payload.sort_field]: payload.sort_value,
+            id: { [op]: payload.id },
+          },
+        ]
+      }
+
+      const data = await req.prisma.pedido.findMany({
+        where,
+        include: { itens: true },
+        orderBy: [
+          { [sortField]: sortDir },
+          { id: sortDir },
+        ],
+        take: limitNum + 1, // busca +1 para saber se tem mais
+      })
+
+      const tem_mais = data.length > limitNum
+      const registros = tem_mais ? data.slice(0, limitNum) : data
+
+      let cursor_proximo: string | null = null
+      if (tem_mais && registros.length > 0) {
+        const ultimo = registros[registros.length - 1]
+        cursor_proximo = encodeCursor({
+          sort_field: sortField,
+          sort_value: (ultimo as Record<string, unknown>)[sortField],
+          sort_dir: sortDir,
+          id: ultimo.id,
+        })
+      }
+
+      return res.json({ data: registros, cursor_proximo, tem_mais })
+    }
+
+    // ── Offset pagination (backward compat) ──
+    const pageNum = Number(page ?? 1)
+    const limitNum = Number(limit ?? 20)
+    const skip = (pageNum - 1) * limitNum
 
     const [data, total] = await Promise.all([
       req.prisma.pedido.findMany({
@@ -115,12 +211,12 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         include: { itens: true },
         orderBy: { data_emissao_pedido: 'desc' },
         skip,
-        take: Number(limit),
+        take: limitNum,
       }),
       req.prisma.pedido.count({ where }),
     ])
 
-    res.json({ data, total, page: Number(page), limit: Number(limit) })
+    res.json({ data, total, page: pageNum, limit: limitNum })
   } catch (err) {
     next(err)
   }
@@ -314,6 +410,95 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
     const updated = await req.prisma.pedido.update({
       where: { id: req.params.id },
       data: { status: result.data.status },
+      include: { itens: true },
+    })
+
+    res.json(updated)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── PATCH /:id/campo — Editar campo inline (cell editing) ────────────────────
+
+// Campos permitidos para edição inline
+const CAMPOS_EDITAVEIS = new Set([
+  'numero_pedido',
+  'numero_proforma',
+  'numero_invoice',
+  'referencia_importador',
+  'referencia_exportador',
+  'referencia_fabricante',
+  'incoterm',
+  'moeda_pedido',
+  'cobertura_cambial',
+  'condicao_pagamento',
+  'importacao_exportador_id',
+  'exportacao_importador_id',
+  'data_emissao_pedido',
+  'campos_custom',
+])
+
+const editarCampoSchema = z.object({
+  campo: z.string().min(1),
+  valor: z.unknown(),
+  updated_at: z.string().datetime(),
+})
+
+pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = editarCampoSchema.safeParse(req.body)
+    if (!result.success) {
+      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+    }
+
+    const { campo, valor, updated_at } = result.data
+
+    if (!CAMPOS_EDITAVEIS.has(campo)) {
+      throw new AppError(400, `Campo "${campo}" nao pode ser editado inline. Campos permitidos: ${[...CAMPOS_EDITAVEIS].join(', ')}`)
+    }
+
+    const tenant_id = req.headers['x-tenant-id'] as string
+    const company_id = req.headers['x-company-id'] as string
+
+    const pedido = await req.prisma.pedido.findFirst({
+      where: { id: req.params.id, tenant_id, company_id },
+    })
+
+    if (!pedido) {
+      throw new AppError(404, 'Pedido nao encontrado')
+    }
+
+    // Verificar conflito otimista de atualização
+    const updatedAtBanco = pedido.updated_at.toISOString()
+    const updatedAtCliente = new Date(updated_at).toISOString()
+    if (updatedAtBanco !== updatedAtCliente) {
+      return res.status(409).json({
+        error: {
+          message: 'Conflito: pedido foi modificado por outro usuario',
+          valor_atual: (pedido as Record<string, unknown>)[campo],
+          updated_at_atual: updatedAtBanco,
+        },
+      })
+    }
+
+    // Para campos_custom: merge com existente
+    let dadosUpdate: Record<string, unknown>
+    if (campo === 'campos_custom') {
+      if (typeof valor !== 'object' || valor === null || Array.isArray(valor)) {
+        throw new AppError(400, 'campos_custom deve ser um objeto')
+      }
+      const customAtual = (typeof pedido.campos_custom === 'object' && pedido.campos_custom !== null)
+        ? pedido.campos_custom as Record<string, unknown>
+        : {}
+      dadosUpdate = { campos_custom: { ...customAtual, ...(valor as Record<string, unknown>) } }
+    } else {
+      dadosUpdate = { [campo]: valor }
+    }
+
+    const updated = await req.prisma.pedido.update({
+      where: { id: req.params.id },
+      data: dadosUpdate,
       include: { itens: true },
     })
 

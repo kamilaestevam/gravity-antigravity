@@ -16,6 +16,8 @@ import {
   Plus,
   CircleNotch,
 } from '@phosphor-icons/react'
+import { CardKanbanModal } from './CardKanbanModal'
+import type { CardKanbanItem } from './CardKanbanModal'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -167,9 +169,11 @@ function DemoCard({ item }: { item: ItemDemo }) {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [itens,     setItens]     = useState<ItemDemo[]>(MOCK_INICIAL)
-  const [busca,     setBusca]     = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [itens,       setItens]       = useState<ItemDemo[]>(MOCK_INICIAL)
+  const [busca,       setBusca]       = useState('')
+  const [isLoading,   setIsLoading]   = useState(false)
+  const [modalItem,   setModalItem]   = useState<ItemDemo | null>(null)
+  const [modalAberto, setModalAberto] = useState(false)
 
   const itensFiltrados = useMemo(() => {
     if (!busca.trim()) return itens
@@ -192,7 +196,12 @@ export default function App() {
   }
 
   function handleCardClick(item: ItemDemo) {
-    alert(`Abrir: ${item.nome}`)
+    setModalItem(item)
+    setModalAberto(true)
+  }
+
+  function handleSalvarModal(atualizado: CardKanbanItem) {
+    setItens(prev => prev.map(i => i.id === atualizado.id ? { ...i, ...atualizado } : i))
   }
 
   // Toolbar slot — componível pelo consumidor
@@ -222,8 +231,17 @@ export default function App() {
     </div>
   )
 
+  const colunasModal = COLUNAS.map(c => ({ key: c.key, label: c.label, color: c.color }))
+
   return (
     <div className="demo-shell">
+      <CardKanbanModal
+        aberto={modalAberto}
+        item={modalItem as CardKanbanItem | null}
+        colunas={colunasModal}
+        onFechar={() => setModalAberto(false)}
+        onSalvar={handleSalvarModal}
+      />
 
       {/* Header */}
       <div className="demo-header">

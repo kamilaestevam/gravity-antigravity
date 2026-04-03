@@ -1,0 +1,418 @@
+/* ── CardKanbanModal.css ────────────────────────────────────────────────────── */
+/* Segue a mesma estrutura de modal-global.css + campo-geral.css               */
+/* Usa apenas variáveis CSS do Solid Slate já definidas em App.css              */
+
+/* ─── Overlay ────────────────────────────────────────────────────────────────── */
+.ckm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  animation: ckm-fade-in 0.15s ease;
+}
+
+@keyframes ckm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Dialog ─────────────────────────────────────────────────────────────────── */
+.ckm-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+  border: 1px solid var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: ckm-slide-up 0.2s ease;
+}
+
+@keyframes ckm-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────────── */
+.ckm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.ckm-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.ckm-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ckm-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ckm-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ckm-subtitulo {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ckm-btn-fechar {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.ckm-btn-fechar:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+/* ─── Abas (underline) ──────────────────────────────────────────────────────── */
+.ckm-abas {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.ckm-aba {
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+
+.ckm-aba:hover {
+  color: var(--text-secondary);
+}
+
+.ckm-aba--ativa {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* ─── Body ───────────────────────────────────────────────────────────────────── */
+.ckm-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overscroll-behavior: contain;
+}
+
+.ckm-body::-webkit-scrollbar { width: 4px; }
+.ckm-body::-webkit-scrollbar-track { background: transparent; }
+.ckm-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ─── Grid de campos ─────────────────────────────────────────────────────────── */
+.ckm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.ckm-grid--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.ckm-col-full {
+  grid-column: 1 / -1;
+}
+
+/* ─── Campo (padrão GeralCampoGlobal) ────────────────────────────────────────── */
+.ckm-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.ckm-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ckm-input,
+.ckm-select,
+.ckm-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.ckm-input:focus,
+.ckm-select:focus,
+.ckm-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.18);
+}
+
+.ckm-input::placeholder,
+.ckm-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.ckm-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 16px;
+  padding-right: 2rem;
+  cursor: pointer;
+}
+
+.ckm-select option {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.ckm-textarea {
+  resize: vertical;
+  min-height: 96px;
+  line-height: 1.6;
+}
+
+/* ─── Campo readonly ─────────────────────────────────────────────────────────── */
+.ckm-input--readonly,
+.ckm-select--readonly {
+  opacity: 0.65;
+  cursor: default;
+}
+
+/* ─── Badge de prioridade no campo ──────────────────────────────────────────── */
+.ckm-prioridade-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  margin-top: 0.1rem;
+  width: fit-content;
+}
+
+/* ─── Histórico / Timeline ───────────────────────────────────────────────────── */
+.ckm-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ckm-timeline-item {
+  display: flex;
+  gap: 0.875rem;
+  padding-bottom: 1.25rem;
+  position: relative;
+}
+
+.ckm-timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 28px;
+  bottom: 0;
+  width: 1px;
+  background: var(--bg-elevated);
+}
+
+.ckm-timeline-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+}
+
+.ckm-timeline-content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 0.4rem;
+}
+
+.ckm-timeline-acao {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ckm-timeline-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────────── */
+.ckm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--bg-surface);
+  flex-shrink: 0;
+  background: var(--bg-base);
+}
+
+.ckm-footer-status {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ckm-footer-status--dirty {
+  color: #f59e0b;
+}
+
+.ckm-footer-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.ckm-btn-cancelar {
+  padding: 0.5rem 1.1rem;
+  background: none;
+  border: 1px solid var(--bg-elevated);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ckm-btn-cancelar:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.ckm-btn-salvar {
+  padding: 0.5rem 1.25rem;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, opacity 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ckm-btn-salvar:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.ckm-btn-salvar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .ckm-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .ckm-dialog {
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .ckm-grid,
+  .ckm-grid--3 {
+    grid-template-columns: 1fr;
+  }
+}

@@ -649,10 +649,9 @@
   width: 100%;
   border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
-  /* contain: layout quebra position: sticky nas células frozen (Chromium).
-     contain: paint style preserva o benefício de paint-skip em linhas fora da tela
-     sem criar um novo formatting context que bloqueia sticky. */
-  contain: paint style;
+  /* Sem contain: a virtualização já garante que só linhas visíveis existem no DOM.
+     contain: content/layout/paint quebram position: sticky no Chromium porque
+     criam um novo formatting context ou paint layer que substitui o scroll ancestor. */
   backface-visibility: hidden;
 }
 

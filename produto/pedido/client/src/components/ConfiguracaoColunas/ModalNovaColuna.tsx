@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
-import { X, Plus, Trash, Warning, Info } from '@phosphor-icons/react'
+import { X, Plus, Warning, Info } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type {
   ColunaUsuario,

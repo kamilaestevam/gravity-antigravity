@@ -4414,93 +4414,108 @@ export default function ListaPedidos() {
               >
                 Nova Coluna
               </BotaoGlobal>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<CheckSquare size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length < 2}
-                onClick={() => { setModalConsolidarAberto(true) }}
-              >
-                Consolidar{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-              </BotaoGlobal>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<ArrowsLeftRight size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length === 0}
-                onClick={() => { setModalTransferirAberto(true) }}
-              >
-                Transferir{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-              </BotaoGlobal>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<PencilLine size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length === 0}
-                onClick={() => { setModalEdicaoMassaAberto(true) }}
-              >
-                Editar em Massa{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-              </BotaoGlobal>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<FilePdf size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length === 0}
-                onClick={() => setModalGerarPdfAberto(true)}
-                tooltipTitulo="Gerar Documento"
-                tooltipDescricao="Gera PDF a partir de um template ou documento padrão"
-              >
-                Gerar Documento{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-              </BotaoGlobal>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<CopySimple size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length === 0}
-                onClick={() => setModalDuplicarAberto(true)}
-              >
-                Duplicar{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-              </BotaoGlobal>
-              <BotaoGlobal
-                variante="perigo"
-                tamanho="pequeno"
-                icone={<Trash size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length === 0 || excluindoLote}
-                carregando={excluindoLote}
-                onClick={async () => {
-                  const ids = pedidosSelecionados.map(p => p.id)
-                  setExcluindoLote(true)
-                  try {
-                    const preview = await pedidoExcluirApi.preview(ids)
-                    const totalPermitidos = preview.permitidos.length
-                    const totalBloqueados = preview.bloqueados.length
-                    const resumo: string[] = []
-                    if (totalPermitidos > 0) {
-                      resumo.push(`✓ ${totalPermitidos} pedido${totalPermitidos !== 1 ? 's' : ''} serão excluídos permanentemente.`)
-                    }
-                    if (totalBloqueados > 0) {
-                      resumo.push(`✗ ${totalBloqueados} pedido${totalBloqueados !== 1 ? 's' : ''} bloqueado${totalBloqueados !== 1 ? 's' : ''} (status não permitido):`)
-                      preview.bloqueados.forEach(b => resumo.push(`  - ${b.numero_pedido}: ${b.motivo}`))
-                    }
-                    if (totalPermitidos === 0) {
-                      setErroLote('Nenhum pedido pode ser excluído com os status atuais.')
-                      return
-                    }
-                    const mensagem = `${resumo.join('\n')}\n\nEsta ação não pode ser desfeita. Deseja prosseguir?`
-                    if (window.confirm(mensagem)) {
-                      await pedidoExcluirApi.confirmar(preview.permitidos.map(p => p.id))
-                      setPedidosSelecionados([])
-                      await carregarInicial()
-                    }
-                  } catch (err) {
-                    setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
-                  } finally {
-                    setExcluindoLote(false)
-                  }
-                }}
-              >
-                Excluir{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
-              </BotaoGlobal>
+
+              {/* ── Ações contextuais — aparecem apenas com seleção ativa ── */}
+              {pedidosSelecionados.length > 0 && (
+                <>
+                  <div style={{ width: 1, height: 20, background: 'var(--border-subtle)', margin: '0 2px', flexShrink: 0 }} />
+
+                  {/* Transferir — ação core COMEX: mantém texto + contador */}
+                  <BotaoGlobal
+                    variante="secundario"
+                    tamanho="pequeno"
+                    icone={<ArrowRight size={14} weight="duotone" />}
+                    onClick={() => { setModalTransferirAberto(true) }}
+                    tooltipTitulo={`Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
+                    tooltipDescricao="Transfere saldo dos pedidos selecionados para um processo logístico"
+                  >
+                    Transferir ({pedidosSelecionados.length})
+                  </BotaoGlobal>
+
+                  {/* Consolidar — ícone + tooltip (mínimo 2) */}
+                  {pedidosSelecionados.length >= 2 && (
+                    <BotaoGlobal
+                      variante="secundario"
+                      tamanho="pequeno"
+                      icone={<CheckSquare size={14} weight="duotone" />}
+                      onClick={() => { setModalConsolidarAberto(true) }}
+                      tooltipTitulo={`Consolidar · ${pedidosSelecionados.length} pedidos`}
+                      tooltipDescricao="Agrupa os pedidos selecionados em um único processo logístico"
+                    />
+                  )}
+
+                  {/* Editar em Massa — ícone + tooltip */}
+                  <BotaoGlobal
+                    variante="secundario"
+                    tamanho="pequeno"
+                    icone={<PencilLine size={14} weight="duotone" />}
+                    onClick={() => { setModalEdicaoMassaAberto(true) }}
+                    tooltipTitulo={`Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
+                    tooltipDescricao="Edita campos comuns nos pedidos selecionados"
+                  />
+
+                  {/* Gerar Documento — ícone + tooltip */}
+                  <BotaoGlobal
+                    variante="secundario"
+                    tamanho="pequeno"
+                    icone={<FilePdf size={14} weight="duotone" />}
+                    onClick={() => setModalGerarPdfAberto(true)}
+                    tooltipTitulo={`Gerar Documento · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
+                    tooltipDescricao="Gera PDF a partir de um template ou documento padrão"
+                  />
+
+                  {/* Duplicar — ícone + tooltip */}
+                  <BotaoGlobal
+                    variante="secundario"
+                    tamanho="pequeno"
+                    icone={<CopySimple size={14} weight="duotone" />}
+                    onClick={() => setModalDuplicarAberto(true)}
+                    tooltipTitulo={`Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
+                    tooltipDescricao="Cria cópias dos pedidos selecionados"
+                  />
+
+                  {/* Excluir — ícone + tooltip (danger) */}
+                  <BotaoGlobal
+                    variante="perigo"
+                    tamanho="pequeno"
+                    icone={<Trash size={14} weight="duotone" />}
+                    carregando={excluindoLote}
+                    onClick={async () => {
+                      const ids = pedidosSelecionados.map(p => p.id)
+                      setExcluindoLote(true)
+                      try {
+                        const preview = await pedidoExcluirApi.preview(ids)
+                        const totalPermitidos = preview.permitidos.length
+                        const totalBloqueados = preview.bloqueados.length
+                        const resumo: string[] = []
+                        if (totalPermitidos > 0) {
+                          resumo.push(`✓ ${totalPermitidos} pedido${totalPermitidos !== 1 ? 's' : ''} serão excluídos permanentemente.`)
+                        }
+                        if (totalBloqueados > 0) {
+                          resumo.push(`✗ ${totalBloqueados} pedido${totalBloqueados !== 1 ? 's' : ''} bloqueado${totalBloqueados !== 1 ? 's' : ''} (status não permitido):`)
+                          preview.bloqueados.forEach(b => resumo.push(`  - ${b.numero_pedido}: ${b.motivo}`))
+                        }
+                        if (totalPermitidos === 0) {
+                          setErroLote('Nenhum pedido pode ser excluído com os status atuais.')
+                          return
+                        }
+                        const mensagem = `${resumo.join('\n')}\n\nEsta ação não pode ser desfeita. Deseja prosseguir?`
+                        if (window.confirm(mensagem)) {
+                          await pedidoExcluirApi.confirmar(preview.permitidos.map(p => p.id))
+                          setPedidosSelecionados([])
+                          await carregarInicial()
+                        }
+                      } catch (err) {
+                        setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
+                      } finally {
+                        setExcluindoLote(false)
+                      }
+                    }}
+                    tooltipTitulo={`Excluir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
+                    tooltipDescricao="Exclui permanentemente os pedidos selecionados"
+                  />
+                </>
+              )}
             </>
           }
 

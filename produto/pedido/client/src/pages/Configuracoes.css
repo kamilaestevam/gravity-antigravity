@@ -472,6 +472,16 @@
   gap: 6px;
 }
 
+.cfg-colunas-categoria {
+  margin: 0.625rem 0 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, #64748b);
+}
+.cfg-colunas-categoria:first-child { margin-top: 0; }
+
 .cfg-coluna-row {
   display: flex;
   align-items: center;

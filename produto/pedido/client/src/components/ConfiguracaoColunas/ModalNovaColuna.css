@@ -229,6 +229,120 @@
   margin: 0;
 }
 
+/* ── Fórmula ── */
+
+.mnc-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', monospace);
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.mnc-textarea:focus {
+  outline: none;
+  border-color: var(--ws-accent, #818cf8);
+}
+
+.mnc-textarea--erro {
+  border-color: var(--color-danger, #f87171);
+}
+
+.mnc-textarea--valida {
+  border-color: var(--color-success, #34d399);
+}
+
+.mnc-formula-erro {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--color-danger, #f87171);
+  background: color-mix(in srgb, var(--color-danger, #f87171) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 25%, transparent);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mnc-formula-ok {
+  font-size: 0.8125rem;
+  color: var(--color-success, #34d399);
+  margin: 0;
+}
+
+.mnc-formula-campos {
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mnc-formula-campos-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.mnc-formula-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.mnc-formula-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  background: color-mix(in srgb, var(--ws-accent, #818cf8) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ws-accent, #818cf8) 25%, transparent);
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', monospace);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  line-height: 1.5;
+}
+
+.mnc-formula-chip:hover {
+  background: color-mix(in srgb, var(--ws-accent, #818cf8) 20%, transparent);
+  border-color: var(--ws-accent, #818cf8);
+  color: var(--text-primary);
+}
+
+.mnc-formula-dica {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.mnc-formula-dica code {
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', monospace);
+  background: var(--bg-hover, rgba(255,255,255,0.06));
+  padding: 0 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.6875rem;
+}
+
 /* ── Rodapé ── */
 
 .mnc-rodape {

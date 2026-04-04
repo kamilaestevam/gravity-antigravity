@@ -167,6 +167,8 @@ export interface GTMapaColunasFilho<C = unknown> {
   editavel?: boolean
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
+  /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */
+  getValorEditar?: (item: C) => unknown
 }
 
 // ─── Props principais ──────────────────────────────────────────────────────────

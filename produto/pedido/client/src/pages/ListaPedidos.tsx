@@ -17,6 +17,7 @@ import {
   Package,
   Plus,
   CaretDown,
+  CaretRight,
   Eye,
   PencilSimple,
   Trash,
@@ -54,7 +55,7 @@ import type {
   GTValorMoeda,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
-import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON } from '../shared/exportUtils'
+import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
 import {
   pedidoApi,
@@ -478,6 +479,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'tipo_operacao',
     label: 'Tipo',
     tipo: 'badge',
+    align: 'center',
     filtravel: true,
     tooltipTitulo: 'Tipo de Operação',
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
@@ -3517,11 +3519,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   numero_pedido: {
     editavel: true,
     campo: 'part_number',
-    render: (row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', letterSpacing: '0.01em', fontWeight: 500 }}>
-        {row.part_number}
-      </span>
-    ),
+    render: (row: PedidoItem) => row.part_number,
   },
   // ── Colunas herdadas do pedido pai ────────────────────────────────────────
   tipo_operacao: {
@@ -3684,6 +3682,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   valor_total_pedido: {
     editavel: true,
     campo: 'valor_item',
+    getValorEditar: (row: PedidoItem) => ({
+      currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
+      amount: row.valor_item ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_item != null ? fmtMoeda(row.valor_item, row.moeda_item) : '—'}
@@ -4261,16 +4263,47 @@ export default function ListaPedidos() {
       return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, [campo]: valor } } as PedidoItem
     }
 
-    const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo) ? Number(valor) || 0 : valor
+    // Campo de moeda composta: { currency, amount } → salva valor + moeda separados
+    let payload: Partial<PedidoItem>
+    if (valor != null && typeof valor === 'object' && 'currency' in valor && 'amount' in valor) {
+      const mv = valor as GTValorMoeda
+      payload = { [campo]: mv.amount, moeda_item: mv.currency } as Partial<PedidoItem>
+    } else {
+      const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo) ? Number(valor) || 0 : valor
+      payload = { [campo]: valorFinal } as Partial<PedidoItem>
+    }
 
-    const atualizado = await pedidoItemApi.atualizar(pedido.id, id, { [campo]: valorFinal } as Partial<PedidoItem>)
+    const itemAtual = pedido.itens?.find(i => i.id === id)
+    const atualizado = await pedidoItemApi.atualizar(pedido.id, id, payload)
       .catch(() => {
         if (import.meta.env.DEV) {
-          const item = pedido.itens?.find(i => i.id === id)
-          if (item) return { ...item, [campo]: valorFinal } as PedidoItem
+          if (itemAtual) return { ...itemAtual, ...payload } as PedidoItem
         }
         throw new Error(`Erro ao editar campo ${campo}`)
       })
+
+    // Re-enriquece o item com os dados do pedido pai (_p) para manter o cache íntegro
+    const enriquecido: PedidoItemEnriquecido = {
+      ...atualizado,
+      _p: {
+        id: pedido.id,
+        tipo_operacao: pedido.tipo_operacao,
+        exportador_nome: pedido.exportador_nome ?? null,
+        fabricante_nome: pedido.fabricante_nome ?? null,
+        referencia_importador: pedido.referencia_importador ?? null,
+        referencia_exportador: pedido.referencia_exportador ?? null,
+        referencia_fabricante: pedido.referencia_fabricante ?? null,
+        numero_proforma: pedido.numero_proforma ?? null,
+        numero_invoice: pedido.numero_invoice ?? null,
+        incoterm: pedido.incoterm ?? null,
+        condicao_pagamento: pedido.condicao_pagamento ?? null,
+        moeda_pedido: pedido.moeda_pedido ?? null,
+        unidade_comercializada_pedido: pedido.unidade_comercializada_pedido ?? null,
+        cobertura_cambial: pedido.cobertura_cambial ?? null,
+        data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+        status: pedido.status,
+      },
+    }
 
     // Atualiza o item e recalcula os aggregates do pedido pai
     setPedidos(prev => prev.map(p => {
@@ -4283,7 +4316,7 @@ export default function ListaPedidos() {
         quantidade_transferida_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida) || 0), 0),
       }
     }))
-    return atualizado
+    return enriquecido
   }, [pedidos])
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
@@ -4424,6 +4457,14 @@ export default function ListaPedidos() {
       onClick: () => {
         const { dados, colunasExport } = buildDadosExport()
         exportarJSON(dados, colunasExport, { nomeArquivo: 'pedidos' })
+      },
+    },
+    {
+      label: 'PDF',
+      icone: <FilePdf size={15} weight="duotone" />,
+      onClick: () => {
+        const { dados, colunasExport } = buildDadosExport()
+        void exportarPDF(dados, colunasExport, { nomeArquivo: 'pedidos', titulo: 'Pedidos' })
       },
     },
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -4569,7 +4610,7 @@ export default function ListaPedidos() {
           onCarregarFilhos={handleCarregarFilhos}
           filhoId={(i: PedidoItem) => i.id}
           renderConectorFilho={(i: PedidoItem) => (
-            <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.75rem' }}>
+            <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
               {i.sequencia_item ?? '—'}
             </span>
           )}
@@ -4662,115 +4703,132 @@ export default function ListaPedidos() {
                   }}>
 
                     {/* ── Novo Pedido ── */}
-                    <button type="button" style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
-                      background: novoSubmenu === 'pedido' ? 'var(--bg-hover)' : 'transparent',
-                      color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
-                      cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                    }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = novoSubmenu === 'pedido' ? 'var(--bg-hover)' : 'transparent')}
-                      onClick={() => setNovoSubmenu(prev => prev === 'pedido' ? null : 'pedido')}
+                    <div style={{ position: 'relative' }}
+                      onMouseEnter={() => setNovoSubmenu('pedido')}
+                      onMouseLeave={() => setNovoSubmenu(null)}
                     >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(129,140,248,0.12)', flexShrink: 0 }}>
-                          <Package size={13} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)' }} />
+                      <button type="button" style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                        background: novoSubmenu === 'pedido' ? 'var(--bg-hover)' : 'transparent',
+                        color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                        cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                      }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(129,140,248,0.12)', flexShrink: 0 }}>
+                            <Package size={13} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)' }} />
+                          </span>
+                          Novo Pedido
                         </span>
-                        Novo Pedido
-                      </span>
-                      <CaretDown size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, transform: novoSubmenu === 'pedido' ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
-                    </button>
+                        <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                      </button>
 
-                    {novoSubmenu === 'pedido' && (
-                      <div style={{ paddingLeft: '2.125rem', display: 'flex', flexDirection: 'column' }}>
-                        {([
-                          { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
-                          { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                          { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                          { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                        ]).map(item => (
-                          <button key={item.label} type="button" style={{
-                            display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
-                            padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
-                            background: 'transparent', color: 'var(--text-primary)',
-                            fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                          }}
-                            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                            onClick={item.action}
-                          >
-                            <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem' }}>
-                              {item.icon === 'pencil' && <PencilSimple size={13} weight="duotone" />}
-                              {item.icon === 'sparkle' && <Sparkle size={13} weight="duotone" />}
-                              {item.icon === 'upload' && <UploadSimple size={13} weight="duotone" />}
-                              {item.icon === 'api' && <ArrowsLeftRight size={13} weight="duotone" />}
-                            </span>
-                            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
-                              <span style={{ fontWeight: 500 }}>{item.label}</span>
-                              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', fontWeight: 400 }}>{item.desc}</span>
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                      {novoSubmenu === 'pedido' && (
+                        <div style={{
+                          position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                          borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                          minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+                        }}>
+                          {([
+                            { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
+                          ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
+                            <button key={item.label} type="button" style={{
+                              display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                              padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
+                              background: 'transparent', color: 'var(--text-primary)',
+                              fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                              textAlign: 'left',
+                            }}
+                              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                              onClick={item.action}
+                            >
+                              <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                                {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
+                                {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
+                                {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
+                                {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
+                              </span>
+                              <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                                  {item.label}
+                                  {item.badge && <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{item.badge}</span>}
+                                </span>
+                                <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
                     {/* ── Novo Item ── */}
-                    <button type="button" style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
-                      background: novoSubmenu === 'item' ? 'var(--bg-hover)' : 'transparent',
-                      color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
-                      cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                    }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = novoSubmenu === 'item' ? 'var(--bg-hover)' : 'transparent')}
-                      onClick={() => setNovoSubmenu(prev => prev === 'item' ? null : 'item')}
+                    <div style={{ position: 'relative' }}
+                      onMouseEnter={() => setNovoSubmenu('item')}
+                      onMouseLeave={() => setNovoSubmenu(null)}
                     >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(52,211,153,0.12)', flexShrink: 0 }}>
-                          <Tag size={13} weight="duotone" style={{ color: '#34d399' }} />
+                      <button type="button" style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                        background: novoSubmenu === 'item' ? 'var(--bg-hover)' : 'transparent',
+                        color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                        cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                      }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(52,211,153,0.12)', flexShrink: 0 }}>
+                            <Tag size={13} weight="duotone" style={{ color: '#34d399' }} />
+                          </span>
+                          Novo Item
                         </span>
-                        Novo Item
-                      </span>
-                      <CaretDown size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, transform: novoSubmenu === 'item' ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
-                    </button>
+                        <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                      </button>
 
-                    {novoSubmenu === 'item' && (
-                      <div style={{ paddingLeft: '2.125rem', display: 'flex', flexDirection: 'column' }}>
-                        {([
-                          { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
-                          { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                          { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                          { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                        ]).map(item => (
-                          <button key={item.label} type="button" style={{
-                            display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
-                            padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
-                            background: 'transparent', color: 'var(--text-primary)',
-                            fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                          }}
-                            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                            onClick={item.action}
-                          >
-                            <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem' }}>
-                              {item.icon === 'pencil' && <PencilSimple size={13} weight="duotone" />}
-                              {item.icon === 'sparkle' && <Sparkle size={13} weight="duotone" />}
-                              {item.icon === 'upload' && <UploadSimple size={13} weight="duotone" />}
-                              {item.icon === 'api' && <ArrowsLeftRight size={13} weight="duotone" />}
-                            </span>
-                            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
-                              <span style={{ fontWeight: 500 }}>{item.label}</span>
-                              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', fontWeight: 400 }}>{item.desc}</span>
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* ── Divisor ── */}
-                    <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '0.25rem 0.375rem' }} />
+                      {novoSubmenu === 'item' && (
+                        <div style={{
+                          position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                          borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                          minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+                        }}>
+                          {([
+                            { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
+                          ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
+                            <button key={item.label} type="button" style={{
+                              display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                              padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
+                              background: 'transparent', color: 'var(--text-primary)',
+                              fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                              textAlign: 'left',
+                            }}
+                              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                              onClick={item.action}
+                            >
+                              <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                                {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
+                                {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
+                                {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
+                                {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
+                              </span>
+                              <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                                  {item.label}
+                                  {item.badge && <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{item.badge}</span>}
+                                </span>
+                                <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
 
                     {/* ── Nova Coluna ── */}
                     <button type="button" style={{

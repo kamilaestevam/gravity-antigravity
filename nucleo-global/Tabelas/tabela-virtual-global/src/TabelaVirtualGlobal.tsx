@@ -34,6 +34,7 @@ import type {
   GTValorMoeda,
   GTValorUnidade,
 } from './tipos.js'
+import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
 
@@ -62,13 +63,6 @@ function IconeX() {
   )
 }
 
-function IconeExport() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
 
 function IconeColunas() {
   return (
@@ -360,8 +354,32 @@ const GTEditPopover = memo(function GTEditPopover({
   const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
   const isMoeda   = overlayInfo.colTipo === 'moeda'
   const isUnidade = overlayInfo.colTipo === 'unidade'
-  const popoverRef = useRef<HTMLDivElement>(null)
-  const inputRef   = useRef<HTMLInputElement>(null)
+  const popoverRef    = useRef<HTMLDivElement>(null)
+  const inputRef      = useRef<HTMLInputElement>(null)
+  const moedaTriggerRef    = useRef<HTMLButtonElement>(null)
+  const unidadeTriggerRef  = useRef<HTMLButtonElement>(null)
+  // Flag síncrona: true durante o mousedown do trigger antes do blur do input
+  const dropdownAbrindoRef = useRef(false)
+  const [moedaAberta, setMoedaAberta] = useState(false)
+  const [unidadeAberta, setUnidadeAberta] = useState(false)
+  const [moedaListPos, setMoedaListPos]       = useState<{ top: number; left: number } | null>(null)
+  const [unidadeListPos, setUnidadeListPos]   = useState<{ top: number; left: number } | null>(null)
+  const [moedaBusca, setMoedaBusca]     = useState('')
+  const [unidadeBusca, setUnidadeBusca] = useState('')
+
+  // Abre o dropdown calculando posição fixed a partir do trigger
+  function abrirMoeda() {
+    const r = moedaTriggerRef.current?.getBoundingClientRect()
+    if (r) setMoedaListPos({ top: r.bottom + 4, left: r.left })
+    setMoedaBusca('')
+    setMoedaAberta(true)
+  }
+  function abrirUnidade() {
+    const r = unidadeTriggerRef.current?.getBoundingClientRect()
+    if (r) setUnidadeListPos({ top: r.bottom + 4, left: r.left })
+    setUnidadeBusca('')
+    setUnidadeAberta(true)
+  }
 
   // Valores compostos — calculados sempre mas usados só nos modos moeda/unidade
   const mv: GTValorMoeda = (isMoeda && valorEditando != null && typeof valorEditando === 'object' && 'currency' in (valorEditando as object))
@@ -495,15 +513,22 @@ const GTEditPopover = memo(function GTEditPopover({
             </div>
           ) : isMoeda ? (
             <div className="gtv-edit-moeda">
-              <select
-                className="gtv-edit-moeda-select"
-                value={mv.currency}
-                disabled={salvando}
-                onChange={e => onAtualizar({ ...mv, currency: e.target.value })}
-                onFocus={e => e.stopPropagation()}
-              >
-                {listaMoedas.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+              {/* Trigger — dropdown via portal para não ser cortado pelo overflow:hidden */}
+              <div className="gtv-edit-custom-select">
+                <button
+                  ref={moedaTriggerRef}
+                  type="button"
+                  className="gtv-edit-custom-select-trigger"
+                  disabled={salvando}
+                  onMouseDown={e => { e.preventDefault(); e.stopPropagation(); if (moedaAberta) { setMoedaAberta(false) } else { dropdownAbrindoRef.current = true; abrirMoeda() } }}
+                >
+                  <span>{mv.currency}</span>
+                  <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
+                    style={{ transform: moedaAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
+                    <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+                  </svg>
+                </button>
+              </div>
               <input
                 ref={inputRef}
                 autoFocus
@@ -516,9 +541,10 @@ const GTEditPopover = memo(function GTEditPopover({
                 onChange={e => onAtualizar({ ...mv, amount: Number(e.target.value) || 0 })}
                 onKeyDown={e => {
                   if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                  if (e.key === 'Escape') { e.preventDefault(); setMoedaAberta(false); onCancelar() }
                 }}
                 onBlur={e => {
+                  if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
                   if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
                 }}
                 onPaste={handleSmartPasteDetect}
@@ -526,6 +552,22 @@ const GTEditPopover = memo(function GTEditPopover({
             </div>
           ) : isUnidade ? (
             <div className="gtv-edit-unidade">
+              {/* Trigger — dropdown via portal para não ser cortado pelo overflow:hidden */}
+              <div className="gtv-edit-custom-select">
+                <button
+                  ref={unidadeTriggerRef}
+                  type="button"
+                  className="gtv-edit-custom-select-trigger"
+                  disabled={salvando}
+                  onMouseDown={e => { e.preventDefault(); e.stopPropagation(); if (unidadeAberta) { setUnidadeAberta(false) } else { dropdownAbrindoRef.current = true; abrirUnidade() } }}
+                >
+                  <span>{uv.unit}</span>
+                  <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
+                    style={{ transform: unidadeAberta ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>
+                    <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+                  </svg>
+                </button>
+              </div>
               <input
                 ref={inputRef}
                 autoFocus
@@ -538,22 +580,14 @@ const GTEditPopover = memo(function GTEditPopover({
                 onChange={e => onAtualizar({ ...uv, quantity: Number(e.target.value) || 0 })}
                 onKeyDown={e => {
                   if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                  if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
                 }}
                 onBlur={e => {
+                  if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
                   if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
                 }}
                 onPaste={handleSmartPasteDetect}
               />
-              <select
-                className="gtv-edit-unidade-select"
-                value={uv.unit}
-                disabled={salvando}
-                onChange={e => onAtualizar({ ...uv, unit: e.target.value })}
-                onFocus={e => e.stopPropagation()}
-              >
-                {listaUnidades.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
             </div>
           ) : isPeriodo ? (
             <>
@@ -638,6 +672,82 @@ const GTEditPopover = memo(function GTEditPopover({
           </div>
         </div>
       </div>
+
+      {/* Dropdown de moeda — portal fora do popover para não ser cortado pelo overflow:hidden */}
+      {moedaAberta && moedaListPos && createPortal(
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 10000 }}
+            onMouseDown={() => setMoedaAberta(false)}
+          />
+          <div
+            className="gtv-edit-custom-select-list"
+            style={{ position: 'fixed', top: moedaListPos.top, left: moedaListPos.left, zIndex: 10001 }}
+            onMouseDown={e => e.preventDefault()}
+          >
+            <div className="gtv-edit-custom-select-busca">
+              <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
+              </svg>
+              <input
+                className="gtv-edit-custom-select-busca-input"
+                placeholder="Localizar..."
+                autoFocus
+                value={moedaBusca}
+                onChange={e => setMoedaBusca(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Escape') setMoedaAberta(false) }}
+              />
+            </div>
+            {listaMoedas.filter(m => m.toLowerCase().includes(moedaBusca.toLowerCase())).map(m => (
+              <button
+                key={m}
+                type="button"
+                className={`gtv-edit-custom-select-item${mv.currency === m ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                onClick={() => { onAtualizar({ ...mv, currency: m }); setMoedaAberta(false) }}
+              >{m}</button>
+            ))}
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* Dropdown de unidade — portal fora do popover */}
+      {unidadeAberta && unidadeListPos && createPortal(
+        <>
+          <div
+            style={{ position: 'fixed', inset: 0, zIndex: 10000 }}
+            onMouseDown={() => setUnidadeAberta(false)}
+          />
+          <div
+            className="gtv-edit-custom-select-list"
+            style={{ position: 'fixed', top: unidadeListPos.top, left: unidadeListPos.left, zIndex: 10001 }}
+            onMouseDown={e => e.preventDefault()}
+          >
+            <div className="gtv-edit-custom-select-busca">
+              <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
+              </svg>
+              <input
+                className="gtv-edit-custom-select-busca-input"
+                placeholder="Localizar..."
+                autoFocus
+                value={unidadeBusca}
+                onChange={e => setUnidadeBusca(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Escape') setUnidadeAberta(false) }}
+              />
+            </div>
+            {listaUnidades.filter(u => u.toLowerCase().includes(unidadeBusca.toLowerCase())).map(u => (
+              <button
+                key={u}
+                type="button"
+                className={`gtv-edit-custom-select-item${uv.unit === u ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                onClick={() => { onAtualizar({ ...uv, unit: u }); setUnidadeAberta(false) }}
+              >{u}</button>
+            ))}
+          </div>
+        </>,
+        document.body
+      )}
     </>
   )
 })
@@ -747,9 +857,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     },
     [onOrdenar],
   )
-
-  // ── Export ───────────────────────────────────────────────────────────────────
-  const [exportAberto, setExportAberto] = useState(false)
 
   // ── Visibilidade de colunas ───────────────────────────────────────────────────
   const [colunasAbertas, setColunasAbertas] = useState(false)
@@ -1075,19 +1182,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [itensSelecionados])
 
   // ── Fechar menus ao clicar fora ───────────────────────────────────────────────
-  const exportMenuRef = useRef<HTMLDivElement>(null)
-  const exportBtnRef  = useRef<HTMLButtonElement>(null)
-  useEffect(() => {
-    if (!exportAberto) return
-    function fora(e: MouseEvent) {
-      const t = e.target as Node
-      if (exportMenuRef.current?.contains(t)) return
-      if (exportBtnRef.current?.contains(t)) return
-      setExportAberto(false)
-    }
-    document.addEventListener('mousedown', fora)
-    return () => document.removeEventListener('mousedown', fora)
-  }, [exportAberto])
 
   // ── Fechar overlay ao sair do modo edição ────────────────────────────────────
   useEffect(() => {
@@ -1477,7 +1571,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
                   setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: colU2.unidades })
-                  const valorFilhoParaEdicao = colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor
+                  const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}
               >
@@ -1784,38 +1878,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
           {/* Export */}
           {acoesExportacao && acoesExportacao.length > 0 && (
-            <div className="gtv-export-wrapper">
-              <button
-                ref={exportBtnRef}
-                className={`gtv-btn${exportAberto ? ' gtv-btn--ativo' : ''}`}
-                onClick={e => {
-                  e.stopPropagation()
-                  setExportAberto(v => !v)
-                }}
-                aria-label="Exportar"
-                title="Exportar"
-              >
-                <IconeExport />
-                Exportar
-              </button>
-              {exportAberto && (
-                <div ref={exportMenuRef} className="gtv-export-menu">
-                  {acoesExportacao.map((acao, i) => (
-                    <button
-                      key={i}
-                      className="gtv-export-item"
-                      onClick={() => {
-                        acao.onClick()
-                        setExportAberto(false)
-                      }}
-                    >
-                      {acao.icone}
-                      {acao.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <BotaoCompletoExportar acoes={acoesExportacao} />
           )}
         </div>
       </div>

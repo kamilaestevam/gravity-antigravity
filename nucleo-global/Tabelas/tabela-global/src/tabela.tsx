@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback, memo } from 'react'
+import { BotaoCompletoExportar } from '@nucleo/tabela-virtual-global'
 import { useTranslation } from 'react-i18next'
 import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -24,6 +25,10 @@ export interface TabelaGlobalColuna<T> {
   tooltipDescricao?: string
   largura?: string | number
   align?: 'left' | 'center' | 'right'
+  /** Transforma o valor bruto em label legível no popover de filtro (checkboxes) */
+  renderFiltroLabel?: (val: string) => string
+  /** Renderiza JSX customizado para cada item do filtro (sobrepõe renderFiltroLabel) */
+  renderFiltroItem?: (val: string) => React.ReactNode
 }
 
 export interface TabelaGlobalAcao<T> {
@@ -102,6 +107,8 @@ function PopoverFiltro({
   valoresDisponiveis, valoresSelecionados,
   minMax, periodo,
   triggerRef,
+  renderFiltroLabel,
+  renderFiltroItem,
   onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimpar, onFechar,
 }: {
   tipo: ColType, coluna: string, label: string
@@ -109,6 +116,8 @@ function PopoverFiltro({
   minMax: { min: string; max: string }
   periodo: { inicio: Date | null; fim: Date | null }
   triggerRef: React.RefObject<HTMLButtonElement>
+  renderFiltroLabel?: (val: string) => string
+  renderFiltroItem?: (val: string) => React.ReactNode
   onOrdenar: (c: string, d: SortDir) => void
   onToggleValor: (c: string, v: string) => void
   onFiltrarNumero: (c: string, tipo: 'min' | 'max', v: string) => void
@@ -118,29 +127,26 @@ function PopoverFiltro({
   const { t } = useTranslation()
   const ref = useRef<HTMLDivElement>(null)
   const [buscaLocal, setBuscaLocal] = useState('')
-  const [pos, setPos] = useState(() => {
+  const calcPos = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect()
-      return {
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-      }
+      // position:fixed → coords são relativas ao viewport (sem scrollX/scrollY)
+      // Clamp left para não ultrapassar a borda direita da tela
+      const left = Math.max(0, Math.min(rect.left, window.innerWidth - 292))
+      return { top: rect.bottom + 4, left }
     }
     return { top: 0, left: 0 }
-  })
+  }
 
-  useEffect(() => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setPos({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
-      })
-    }
-  }, [triggerRef])
+  const [pos, setPos] = useState(calcPos)
+
+  useEffect(() => { setPos(calcPos()) }, [triggerRef])
 
   useEffect(() => {
     function fora(e: MouseEvent) {
+      const target = e.target as Element
+      // Não fechar quando o clique é dentro de portais filhos (calendário, select dropdown)
+      if (target.closest?.('.ws-calendario-panel') || target.closest?.('[id$="-portal"]') || target.closest?.('.sg-dropdown')) return
       if (
         ref.current && !ref.current.contains(e.target as Node) &&
         triggerRef.current && !triggerRef.current.contains(e.target as Node)
@@ -184,7 +190,7 @@ function PopoverFiltro({
   }
 
   return ReactDOM.createPortal(
-    <div ref={ref} style={style} onClick={e => e.stopPropagation()}>
+    <div ref={ref} style={style} className="tg-popover-filtro" onClick={e => e.stopPropagation()}>
       <div style={{ padding: '0.4rem 0.875rem', borderBottom: '1px solid var(--ws-accent-border)' }}>
         <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>{label}</span>
       </div>
@@ -238,7 +244,10 @@ function PopoverFiltro({
                     {selecionado ? <CheckSquare size={15} weight="fill" /> : <Square size={15} weight="regular" />}
                   </span>
                   <input type="checkbox" checked={selecionado} onChange={() => onToggleValor(coluna, v)} style={{ display: 'none' }} />
-                  <span style={{ fontSize: '0.8125rem', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v}</span>
+                  {renderFiltroItem
+                    ? <span style={{ display: 'flex', alignItems: 'center' }}>{renderFiltroItem(v)}</span>
+                    : <span style={{ fontSize: '0.8125rem', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{renderFiltroLabel ? renderFiltroLabel(v) : v}</span>
+                  }
                 </label>
               )
             })}
@@ -336,6 +345,8 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
           minMax={col.tipo === 'numero' ? (stateVal as {min: string, max: string}) : {min: '', max: ''}}
           periodo={col.tipo === 'periodo' ? (stateVal as {inicio: Date | null, fim: Date | null}) : {inicio: null, fim: null}}
           triggerRef={triggerRef}
+          renderFiltroLabel={col.renderFiltroLabel}
+          renderFiltroItem={col.renderFiltroItem}
           onOrdenar={onOrdenar}
           onToggleValor={onToggleValor}
           onFiltrarNumero={onFiltrarNumero}
@@ -376,19 +387,6 @@ function FiltroChip({ label, onRemover }: { label: string; onRemover: () => void
   )
 }
 
-function ExportMenuItem({ label, icon, onClick, tooltip }: { label: string; icon: React.ReactNode; onClick: () => void; tooltip?: string }) {
-  const content = (
-    <button type="button" onClick={onClick} className="tg-export-menu-item"
-      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.07)' }}
-      onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}>
-      <span className="tg-export-menu-icon" style={{ display: 'flex', flexShrink: 0 }}>{icon}</span>
-      {label}
-    </button>
-  )
-
-  if (tooltip) return <TooltipGlobal descricao={tooltip}>{content}</TooltipGlobal>
-  return content
-}
 
 export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalProps<T>) {
   const { t } = useTranslation()
@@ -610,20 +608,6 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   const toggleSel = (id: string) => setSelecionados(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
   const toggleTodos = (checked: boolean) => setSelecionados(checked ? new Set(paginado.map(e => String(e[idKey as string]))) : new Set())
 
-  const [exportMenuAberto, setExportMenuAberto] = useState(false)
-  const exportBtnRef = useRef<HTMLButtonElement>(null)
-  const exportMenuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function fora(e: MouseEvent) {
-      if (
-        exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node) &&
-        exportBtnRef.current && !exportBtnRef.current.contains(e.target as Node)
-      ) setExportMenuAberto(false)
-    }
-    document.addEventListener('mousedown', fora)
-    return () => document.removeEventListener('mousedown', fora)
-  }, [])
 
   return (
     <>
@@ -688,34 +672,13 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
             </div>
           )}
           {(acoesExportacao && acoesExportacao.length > 0) && (
-            <div style={{ position: 'relative' }}>
-            <TooltipGlobal descricao={t('tabela.baixar_resultados')}>
-                <button ref={exportBtnRef} type="button"
-                  onClick={() => setExportMenuAberto(v => !v)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.4375rem 0.875rem', borderRadius: '9999px', background: exportMenuAberto ? 'rgba(129,140,248,0.1)' : 'transparent', border: `1px solid ${exportMenuAberto ? '#818cf8' : 'rgba(129,140,248,0.12)'}`, color: exportMenuAberto ? '#818cf8' : '#94a3b8', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}
-                  onMouseEnter={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.color = '#818cf8' } }}
-                  onMouseLeave={e => { if (!exportMenuAberto) { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.12)'; e.currentTarget.style.color = '#94a3b8' } }}>
-                  <DownloadSimple size={13} weight="bold" /> {t('tabela.exportar')} <CaretDown size={11} weight="bold" style={{ marginLeft: 1, transition: 'transform 0.15s', transform: exportMenuAberto ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-                </button>
-              </TooltipGlobal>
-
-              {exportMenuAberto && (
-                <div ref={exportMenuRef}
-                  className="tg-export-menu"
-                  style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 9999, minWidth: '200px', fontFamily: 'inherit', overflow: 'hidden' }}
-                  onClick={e => e.stopPropagation()}>
-                  {acoesExportacao.map(a => (
-                    <ExportMenuItem 
-                      key={a.label} 
-                      label={a.label} 
-                      icon={a.icone} 
-                      tooltip={a.tooltipDescricao}
-                      onClick={() => { a.onClick(resultado); setExportMenuAberto(false) }} 
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+            <BotaoCompletoExportar
+              acoes={acoesExportacao.map(a => ({
+                label: a.label,
+                icone: a.icone,
+                onClick: () => a.onClick(resultado),
+              }))}
+            />
           )}
         </div>
       </div>

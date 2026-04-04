@@ -301,7 +301,7 @@ export function CalendarioCampoGlobal({
               position: 'fixed',
               top: panelPos.top,
               left: panelPos.left,
-              zIndex: 9999,
+              zIndex: 10001, // acima de popovers (9999) e modais (10000)
             } : undefined}
           >
             {/* Sidebar Periods */}

@@ -148,9 +148,18 @@
   font-family: inherit;
   min-width: 240px;
   transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
 }
 
 .gtv-busca-input:focus {
+  outline: none;
+  border-color: var(--gtv-border-solid);
+  box-shadow: none;
+}
+
+.gtv-busca-input:focus-visible {
   outline: none;
   border-color: var(--gtv-accent);
   box-shadow: var(--gtv-focus-ring);
@@ -234,152 +243,6 @@
   font-size: 0.625rem;
   font-weight: 700;
   line-height: 1;
-}
-
-/* ─── Botão de filtro no cabeçalho da coluna ─────────────────────────────── */
-
-.gtv-filtro-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  padding: 0;
-  margin-left: 4px;
-  border: none;
-  border-radius: 3px;
-  background: transparent;
-  color: var(--gtv-muted);
-  cursor: pointer;
-  flex-shrink: 0;
-  opacity: 0.45;
-  transition: color 0.12s, background 0.12s, opacity 0.12s;
-}
-
-.gtv-filtro-btn:hover,
-.gtv-filtro-btn--ativo {
-  opacity: 1;
-}
-
-.gtv-filtro-btn:hover {
-  background: rgba(129, 140, 248, 0.12);
-  color: var(--gtv-accent);
-}
-
-.gtv-filtro-btn--ativo {
-  color: var(--gtv-accent);
-}
-
-/* ─── Popover de filtro — busca, ações e lista ───────────────────────────── */
-
-.gtv-col-busca {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.625rem 0.375rem;
-  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
-  background: rgba(129, 140, 248, 0.04);
-  border-radius: 7px 7px 0 0;
-  flex-shrink: 0;
-}
-
-.gtv-col-busca-icone {
-  color: var(--gtv-muted, #64748b);
-  flex-shrink: 0;
-  line-height: 0;
-}
-
-.gtv-col-busca-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--gtv-text, #f1f5f9);
-  font-size: 0.8125rem;
-  font-family: inherit;
-  caret-color: var(--gtv-accent, #818cf8);
-  min-width: 0;
-}
-
-.gtv-col-busca-input::placeholder {
-  color: var(--gtv-muted, #64748b);
-}
-
-.gtv-col-busca-clear {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: var(--gtv-muted, #64748b);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background 0.12s, color 0.12s;
-  padding: 0;
-  line-height: 0;
-}
-
-.gtv-col-busca-clear:hover {
-  background: var(--gtv-accent, #818cf8);
-  color: #fff;
-}
-
-.gtv-col-acoes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  padding: 0.375rem 0.25rem;
-  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
-  background: rgba(129, 140, 248, 0.02);
-  flex-shrink: 0;
-}
-
-.gtv-col-acao-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.375rem 0.5rem;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  color: var(--gtv-muted, #94a3b8);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: background 0.1s, color 0.1s;
-}
-
-.gtv-col-acao-btn:hover {
-  background: rgba(129, 140, 248, 0.08);
-  color: var(--gtv-accent, #818cf8);
-}
-
-.gtv-col-acao-btn--reset {
-  color: var(--gtv-muted, #64748b);
-}
-
-.gtv-col-acao-btn--reset:hover {
-  color: #fca5a5;
-  background: rgba(239, 68, 68, 0.05);
-}
-
-.gtv-col-vazio {
-  padding: 0.75rem;
-  text-align: center;
-  color: var(--gtv-muted, #64748b);
-  font-size: 0.8125rem;
-}
-
-.gtv-col-divisor {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.07);
-  margin: 0.25rem 0;
 }
 
 /* ─── Barra de ações em lote ──────────────────────────────────────────────── */
@@ -469,11 +332,128 @@
   border-radius: 10px;
   padding: 0.375rem;
   min-width: 180px;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
   animation: gtv-popover-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Busca dentro do painel de colunas ──────────────────────────────────────── */
+.gtv-col-busca {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem 0.375rem;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
+  background: rgba(129, 140, 248, 0.04);
+  border-radius: 7px 7px 0 0;
+  flex-shrink: 0;
+}
+
+.gtv-col-busca-icone {
+  color: var(--gtv-muted, #64748b);
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.gtv-col-busca-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--gtv-text, #f1f5f9);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  caret-color: var(--gtv-accent, #818cf8);
+  min-width: 0;
+}
+
+.gtv-col-busca-input::placeholder {
+  color: var(--gtv-muted, #64748b);
+}
+
+.gtv-col-busca-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gtv-border-solid, rgba(255,255,255,0.1));
+  border: none;
+  color: var(--gtv-muted, #64748b);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+  padding: 0;
+  line-height: 0;
+}
+
+.gtv-col-busca-clear:hover {
+  background: var(--gtv-accent, #818cf8);
+  color: #fff;
+}
+
+/* ── Ações em lote (selecionar tudo / restaurar padrão) ─────────────────────── */
+.gtv-col-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.375rem 0.25rem;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
+  background: rgba(129, 140, 248, 0.02);
+  flex-shrink: 0;
+}
+
+.gtv-col-acao-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gtv-text-secondary, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s;
+}
+
+.gtv-col-acao-btn:hover {
+  background: rgba(129, 140, 248, 0.08);
+  color: var(--gtv-accent, #818cf8);
+}
+
+.gtv-col-acao-btn--reset {
+  color: var(--gtv-muted, #64748b);
+}
+
+.gtv-col-acao-btn--reset:hover {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* ── Vazio ──────────────────────────────────────────────────────────────────── */
+.gtv-col-vazio {
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--gtv-muted, #64748b);
+  font-size: 0.8125rem;
+}
+
+/* Divisor entre colunas obrigatórias (topo) e opcionais no painel */
+.gtv-col-divisor {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 0.25rem 0;
 }
 
 @keyframes gtv-popover-in {
@@ -517,6 +497,7 @@
 }
 
 .gtv-th {
+  position: relative; /* base para o resize handle absoluto */
   padding: 0.75rem 1.25rem;
   text-align: left;
   font-size: 0.6875rem;
@@ -622,6 +603,42 @@
   line-height: 0;
 }
 
+/* ── Botão de filtro no cabeçalho ──────────────────────────────────────────── */
+.gtv-filtro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  margin-left: 4px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.45;
+  transition: color 0.12s, background 0.12s, opacity 0.12s;
+}
+
+.gtv-filtro-btn:hover {
+  opacity: 1;
+}
+
+.gtv-filtro-btn--ativo {
+  opacity: 1;
+}
+
+.gtv-filtro-btn:hover {
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--gtv-accent);
+}
+
+.gtv-filtro-btn--ativo {
+  color: var(--gtv-accent);
+}
+
 .gtv-sort-icon--idle {
   font-size: 0.625rem;
   opacity: 0.35;
@@ -665,7 +682,6 @@
 .gtv-tabela-inner {
   width: 100%;
   position: relative;
-  will-change: transform;
 }
 
 /* ─── Linha virtual ───────────────────────────────────────────────────────── */
@@ -677,8 +693,9 @@
   width: 100%;
   border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
-  /* Isolamento de layout/paint por linha — crítico para escala em 1M rows */
-  contain: content;
+  /* Sem contain: a virtualização já garante que só linhas visíveis existem no DOM.
+     contain: content/layout/paint quebram position: sticky no Chromium porque
+     criam um novo formatting context ou paint layer que substitui o scroll ancestor. */
   backface-visibility: hidden;
 }
 
@@ -692,7 +709,12 @@
 
 .gtv-linha--filho {
   background: var(--gtv-bg-filho);
-  font-size: 0.85rem;
+}
+
+.gtv-linha--filho .gtv-celula {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gtv-text);
 }
 
 .gtv-linha--filho:hover {
@@ -727,6 +749,9 @@
   min-width: 0;
   display: flex;
   align-items: center;
+  font-size: 0.875rem;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 .gtv-celula--check {
@@ -779,6 +804,310 @@
   font-family: inherit;
   outline: none;
   box-shadow: var(--gtv-focus-ring);
+}
+
+/* ─── Indicador de célula editando via overlay ────────────────────────────── */
+.gtv-celula--editando-overlay {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.45;
+  outline: 1.5px solid var(--gtv-accent);
+  outline-offset: -1px;
+  border-radius: 4px;
+  width: 100%;
+}
+
+/* ─── Resize handle no cabeçalho ──────────────────────────────────────────── */
+.gtv-th-resize-handle {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 1;
+  /* Linha visual sutil ao hover */
+  transition: background 0.12s;
+}
+
+.gtv-th-resize-handle:hover,
+.gtv-th-resize-handle:active {
+  background: var(--gtv-accent);
+  opacity: 0.5;
+}
+
+/* Cursor global durante resize (evita flickering ao mover rápido) */
+.gtv-container--resizing,
+.gtv-container--resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+/* ─── Popover de edição flutuante ─────────────────────────────────────────── */
+
+/* Backdrop transparente — clique fora confirma */
+.gtv-edit-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: transparent;
+}
+
+/* Card principal */
+.gtv-edit-popover {
+  position: fixed;
+  z-index: 9999;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  background: var(--gtv-bg-alt, #1e2230);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  overflow: visible;
+  animation: gtv-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gtv-popover-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Quando o popover está acima da célula (flip) */
+.gtv-edit-popover--flip {
+  animation: gtv-popover-in-flip 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gtv-popover-in-flip {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+/* Seta */
+.gtv-edit-popover-arrow {
+  position: absolute;
+  top: -6px;
+  width: 12px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.gtv-edit-popover-arrow::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--gtv-bg-alt, #1e2230);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.gtv-edit-popover--flip .gtv-edit-popover-arrow {
+  top: auto;
+  bottom: -6px;
+  transform: rotate(180deg);
+}
+
+/* Header */
+.gtv-edit-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.gtv-edit-popover-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gtv-muted, #8892a4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gtv-edit-popover-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--gtv-muted, #8892a4);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.gtv-edit-popover-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--gtv-text, #e2e8f0);
+}
+
+/* Body */
+.gtv-edit-popover-body {
+  padding: 0.75rem 0.875rem 0.625rem;
+}
+
+.gtv-edit-popover-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--gtv-text, #e2e8f0);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  caret-color: var(--gtv-accent, #6366f1);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.gtv-edit-popover-input:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-popover-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.gtv-edit-popover-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.875rem 0.75rem;
+  gap: 0.5rem;
+}
+
+.gtv-edit-popover-hints {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--gtv-muted, #8892a4);
+}
+
+.gtv-edit-popover-kbd {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.625rem;
+  font-family: inherit;
+  color: var(--gtv-text, #e2e8f0);
+  line-height: 1.6;
+}
+
+.gtv-edit-popover-sep {
+  color: rgba(255, 255, 255, 0.2);
+  margin: 0 0.125rem;
+}
+
+.gtv-edit-popover-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-edit-popover-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3125rem 0.75rem;
+  border-radius: 7px;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.gtv-edit-popover-btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--gtv-muted, #8892a4);
+}
+
+.gtv-edit-popover-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--gtv-text, #e2e8f0);
+}
+
+.gtv-edit-popover-btn--primary {
+  background: var(--gtv-accent, #6366f1);
+  border-color: transparent;
+  color: #fff;
+}
+
+.gtv-edit-popover-btn--primary:hover:not(:disabled) {
+  background: #4f52d8;
+}
+
+.gtv-edit-popover-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Spinner no botão confirmar */
+.gtv-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: gtv-spin 0.6s linear infinite;
+}
+
+@keyframes gtv-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Tooltip em células ──────────────────────────────────────────────────── */
+
+/* Célula conteúdo: ocupa toda a largura, trunca com ellipsis */
+/* Texto puro dentro de célula (sem render customizado) */
+.gtv-celula-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  width: 100%;
+}
+
+/* TooltipGlobal dentro de célula: cresce para preencher a célula sem colapsar */
+.gtv-celula .tg-trigger {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Oculta o ícone ⓘ do TooltipGlobal nas células (muito denso para tabela) */
+.gtv-celula .tg-trigger::after {
+  display: none;
 }
 
 /* ─── Chevron expand/collapse ─────────────────────────────────────────────── */
@@ -1145,70 +1474,114 @@ body.light-theme .gtv-vazio__icone {
   border-color: rgba(79, 70, 229, 0.12);
 }
 
-/* ─── Drag-to-reorder: indicadores de drop ───────────────────────────────── */
+/* ─── Checkbox filho (menor e distinto do checkbox pai) ────────────────────── */
+.gtv-checkbox--filho {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  opacity: 0.85;
+}
 
-/* Linha vertical teal à esquerda do th alvo */
-.gtv-th--drop-before::before {
-  content: '';
-  position: absolute;
-  left: -1px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
+.gtv-checkbox--filho:checked {
   background: var(--gtv-accent);
-  border-radius: 1px;
-  z-index: 20;
-  pointer-events: none;
-}
-
-/* Linha vertical teal à direita do th alvo */
-.gtv-th--drop-after::after {
-  content: '';
-  position: absolute;
-  right: -1px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--gtv-accent);
-  border-radius: 1px;
-  z-index: 20;
-  pointer-events: none;
-}
-
-/* Cursor de arrastar nos th arrastáveis */
-.gtv-th[draggable="true"] {
-  cursor: grab;
-}
-
-.gtv-th[draggable="true"]:active {
-  cursor: grabbing;
-}
-
-/* ─── Alça de resize de coluna ───────────────────────────────────────────── */
-.gtv-th-resize-handle {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  cursor: col-resize;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.15s;
-}
-
-.gtv-th:hover .gtv-th-resize-handle {
+  border-color: var(--gtv-accent);
   opacity: 1;
 }
 
-/* Indicador visual (duas linhas verticais) */
-.gtv-th-resize-handle::after {
-  content: '||';
-  font-size: 0.5rem;
-  letter-spacing: -1px;
-  color: var(--gtv-muted);
-  user-select: none;
+.gtv-checkbox--filho:checked::after {
+  width: 6px;
+  height: 4px;
+}
+
+/* ─── Linha filho selecionada ──────────────────────────────────────────────── */
+.gtv-linha--filho-selecionada {
+  background: rgba(129, 140, 248, 0.07);
+}
+
+.gtv-linha--filho-selecionada:hover {
+  background: rgba(129, 140, 248, 0.11);
+}
+
+/* ─── Botão três pontos (ações inline filho) ───────────────────────────────── */
+.gtv-acao-btn--tres-pontos {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  padding: 0 4px;
+  min-width: 22px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.gtv-linha--filho:hover .gtv-acao-btn--tres-pontos,
+.gtv-acao-btn--tres-pontos[aria-expanded="true"] {
+  opacity: 1;
+}
+
+/* ─── Dropdown de ações do filho ───────────────────────────────────────────── */
+.gtv-dropdown-filho {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 100;
+  background: var(--gtv-bg, #1e1e2e);
+  border: 1px solid var(--gtv-border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: gtv-lote-in 0.12s ease;
+}
+
+.gtv-dropdown-filho-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gtv-text, rgba(255, 255, 255, 0.85));
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+
+.gtv-dropdown-filho-item:hover {
+  background: rgba(129, 140, 248, 0.12);
+}
+
+.gtv-dropdown-filho-item--perigo {
+  color: var(--gtv-danger, #f87171);
+}
+
+.gtv-dropdown-filho-item--perigo:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.gtv-dropdown-filho-icone {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.75;
+}
+
+/* Light theme overrides */
+body.light-theme .gtv-dropdown-filho {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .gtv-dropdown-filho-item {
+  color: rgba(0, 0, 0, 0.82);
+}
+
+body.light-theme .gtv-dropdown-filho-item:hover {
+  background: rgba(79, 70, 229, 0.07);
+}
+
+body.light-theme .gtv-linha--filho-selecionada {
+  background: rgba(79, 70, 229, 0.05);
 }

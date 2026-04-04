@@ -1,0 +1,97 @@
+/* ── ToastDemo.css ─────────────────────────────────────────────────────────── */
+
+.tdemo-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.tdemo-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 300px;
+  max-width: 420px;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-pill, 999px);
+  border: 1px solid transparent;
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+  animation: tdemo-in 0.2s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes tdemo-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+/* ── Variantes ─────────────────────────────────────────────────────────────── */
+
+.tdemo-toast--sucesso {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+.tdemo-toast--sucesso .tdemo-icone { color: #10b981; }
+
+.tdemo-toast--aviso {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fde68a;
+}
+.tdemo-toast--aviso .tdemo-icone { color: #f59e0b; }
+
+.tdemo-toast--erro {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+.tdemo-toast--erro .tdemo-icone { color: #ef4444; }
+
+/* ── Partes ────────────────────────────────────────────────────────────────── */
+
+.tdemo-icone {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.tdemo-texto {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tdemo-mensagem {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.tdemo-descricao {
+  font-size: 0.75rem;
+  opacity: 0.75;
+  line-height: 1.3;
+}
+
+.tdemo-fechar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.125rem;
+  opacity: 0.6;
+  color: inherit;
+  border-radius: var(--radius-pill, 999px);
+  transition: opacity 0.15s;
+}
+.tdemo-fechar:hover { opacity: 1; }

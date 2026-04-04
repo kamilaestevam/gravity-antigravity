@@ -1,0 +1,21 @@
+{
+  "name": "@nucleo/tabela-virtual-global",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@tanstack/react-virtual": "^3.13.0",
+    "@nucleo/tooltip-global": "*",
+    "@nucleo/select-colunas-global": "*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.4.0"
+  }
+}

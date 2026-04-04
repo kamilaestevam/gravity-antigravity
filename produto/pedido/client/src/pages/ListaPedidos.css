@@ -36,6 +36,15 @@
   flex-direction: column;
 }
 
+/* Centralizar todas as células e cabeçalhos da tabela de pedidos */
+.lp-tabela-wrapper .gtv-th:not(.gtv-th--check):not(.gtv-th--expand):not(.gtv-th--acoes) {
+  justify-content: center;
+}
+.lp-tabela-wrapper .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  justify-content: center;
+  padding: 0 0.5rem;
+}
+
 .lp-erro-lote {
   display: flex;
   align-items: center;
@@ -58,3 +67,35 @@
   display: flex;
   align-items: center;
 }
+
+/* ── Toolbar contextual de itens selecionados ─────────────────────────────── */
+.lp-itens-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: color-mix(in srgb, var(--color-accent, #818cf8) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent, #818cf8) 22%, transparent);
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  animation: lp-itens-toolbar-in 0.15s ease;
+}
+
+@keyframes lp-itens-toolbar-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.lp-itens-toolbar__info {
+  color: var(--color-accent, #818cf8);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.lp-itens-toolbar__acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+

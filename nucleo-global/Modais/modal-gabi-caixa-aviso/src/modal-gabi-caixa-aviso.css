@@ -1,0 +1,193 @@
+/* ══════════════════════════════════════════════════════
+   @nucleo/modal-gabi-caixa-aviso
+   Card GABI AI com gradiente roxo/índigo e insight cards
+   ══════════════════════════════════════════════════════ */
+
+.mgca-card {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  border-radius: 20px;
+  padding: 1.5rem 1.75rem;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.35);
+}
+
+/* watermark decorativo */
+.mgca-watermark {
+  position: absolute;
+  top: 50%;
+  right: -40px;
+  transform: translateY(-50%) rotate(15deg);
+  color: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  z-index: 0;
+  line-height: 0;
+}
+
+.mgca-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Header ── */
+.mgca-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.mgca-header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.mgca-avatar {
+  background: rgba(255, 255, 255, 0.2);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mgca-label {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+}
+
+/* ── Badge ao vivo ── */
+.mgca-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.mgca-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  animation: mgcaLivePulse 2s ease infinite;
+}
+
+@keyframes mgcaLivePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+
+/* ── Subtítulo ── */
+.mgca-sub {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 1rem;
+}
+
+/* ── Grade de insight cards ── */
+.mgca-insights-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Insight card individual ── */
+.mgca-insight-card {
+  background: rgba(10, 4, 20, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.mgca-insight-card--warn {
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.mgca-insight-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a5f3fc;
+}
+
+.mgca-insight-tag--warn {
+  color: #fcd34d;
+}
+
+.mgca-insight-text {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+.mgca-insight-text strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.mgca-insight-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 7px;
+  padding: 0.375rem 0.625rem;
+}
+
+.mgca-insight-stat-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mgca-insight-stat-value {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.mgca-insight-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  align-self: flex-end;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.mgca-insight-link:hover {
+  opacity: 0.75;
+}
+
+/* ── Responsivo ── */
+@media (max-width: 640px) {
+  .mgca-insights-row {
+    grid-template-columns: 1fr;
+  }
+}

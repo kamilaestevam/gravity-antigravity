@@ -14,10 +14,7 @@ import { useShellStore } from '@gravity/shell'
 import {
   Package,
   Plus,
-  Eye,
-  PencilSimple,
   Trash,
-  Copy,
   CurrencyDollar,
   Scales,
   Warning,
@@ -29,6 +26,8 @@ import {
   CheckSquare,
   ArrowsLeftRight,
   PencilLine,
+  Sparkle,
+  CopySimple,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -36,7 +35,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
 import type {
   GTColuna,
-  GTAcao,
+  GTMapaColunasFilho,
   GTAcaoLote,
   GTAcaoExport,
   GTAbaTipo,
@@ -50,12 +49,28 @@ import {
   pedidoConfigApi,
   pedidoLoteApi,
   pedidoItemApi,
+  pedidoDuplicarApi,
+  pedidoExcluirApi,
+  colunasUsuarioApi,
 } from '../shared/api'
+import { ModalConsolidar } from '../components/ModalConsolidar'
+import '../components/ModalConsolidar.css'
+import { ModalDuplicar } from '../components/ModalDuplicar'
+import '../components/ModalDuplicar.css'
+import { ModalTransferir } from '../components/ModalTransferir'
+import '../components/ModalTransferir.css'
+import { ModalEdicaoEmMassa } from '../components/ModalEdicaoEmMassa'
+import '../components/ModalEdicaoEmMassa.css'
+import { DrawerPedido } from '../components/DrawerPedido'
+import '../components/DrawerPedido.css'
+import { SmartImportModal } from '../components/SmartImport/SmartImportModal'
+import '../components/SmartImport/SmartImportModal.css'
 import type {
   Pedido,
   PedidoItem,
   PedidoStatusConfig,
   PedidoPreferenciasColunas,
+  ColunaUsuario,
 } from '../shared/types'
 import {
   STATUS_PEDIDO_LABELS,
@@ -84,11 +99,9 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    naoOcultavel: true,
-    frozen: true,
     tooltipTitulo: 'Número do Pedido',
     tooltipDescricao: 'Identificador único do documento comercial (PO/SO)',
-    largura: 140,
+    largura: 180,
   },
   {
     key: 'tipo_operacao',
@@ -97,7 +110,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Tipo de Operação',
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
-    largura: 150,
+    largura: 170,
     render: (_val: unknown, row: Pedido) => (
       <StatusBadgeGlobal
         valor={row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
@@ -213,6 +226,60 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
           : '—'}
       </span>
     ),
+  },
+  {
+    key: 'quantidade_inicial_total',
+    label: 'Qtd Inicial',
+    tipo: 'numero',
+    align: 'right',
+    tooltipTitulo: 'Quantidade Inicial',
+    tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
+    largura: 110,
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+        {row.quantidade_inicial_total != null
+          ? `${fmtQuantidade(row.quantidade_inicial_total, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+          : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'quantidade_transferida_total',
+    label: 'Qtd Transferida',
+    tipo: 'numero',
+    align: 'right',
+    tooltipTitulo: 'Quantidade Transferida',
+    tooltipDescricao: 'Soma das quantidades já transferidas para processos logísticos',
+    largura: 130,
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+        {row.quantidade_transferida_total != null
+          ? `${fmtQuantidade(row.quantidade_transferida_total, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+          : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'saldo_quantidade',
+    label: 'Saldo',
+    tipo: 'numero',
+    align: 'right',
+    tooltipTitulo: 'Saldo de Quantidade',
+    tooltipDescricao: 'Quantidade disponível: Qtd Inicial − Qtd Transferida',
+    largura: 110,
+    render: (_val: unknown, row: Pedido) => {
+      const saldo =
+        row.quantidade_inicial_total != null && row.quantidade_transferida_total != null
+          ? row.quantidade_inicial_total - row.quantidade_transferida_total
+          : null
+      return (
+        <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+          {saldo != null
+            ? `${fmtQuantidade(saldo, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'data_emissao_pedido',
@@ -1286,6 +1353,30 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
 ]
 
+// ── Mapper: ColunaUsuario → GTColuna<Pedido> ──────────────────────────────────
+
+function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
+  return {
+    key:             col.chave as keyof Pedido,
+    label:           col.nome,
+    tipo:            col.tipo === 'numero' || col.tipo === 'percentual' ? 'numero' : 'texto',
+    filtravel:       true,
+    oculta:          true,
+    tooltipTitulo:   col.nome,
+    tooltipDescricao: col.descricao,
+    largura:         140,
+    render: (_val: unknown, row: Pedido) => {
+      const valores = (row as Record<string, unknown>)['_colunas_usuario'] as
+        Record<string, string> | undefined
+      const valor = valores?.[col.id] ?? '—'
+      if (col.tipo === 'checkbox') {
+        return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+      }
+      return <span>{valor}</span>
+    },
+  }
+}
+
 // ── Colunas filha (PedidoItem) ────────────────────────────────────────────────
 
 const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
@@ -1293,7 +1384,6 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     key: 'part_number',
     label: 'Part Number',
     tipo: 'texto',
-    naoOcultavel: true,
     largura: 130,
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
   },
@@ -2667,6 +2757,68 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
 ]
 
+// ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
+// As linhas de item usam as mesmas colunas do pedido pai para alinhamento perfeito.
+// Colunas sem mapeamento ficam vazias na linha do item.
+
+const CAMPOS_NUMERICOS_ITEM = new Set([
+  'quantidade_inicial', 'quantidade_atual', 'quantidade_pronta',
+  'quantidade_transferida', 'quantidade_cancelada',
+  'valor_unitario', 'valor_item',
+])
+
+const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
+  numero_pedido: {
+    render: (row) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
+        {row.sequencia_item}. {row.part_number}
+      </span>
+    ),
+  },
+  valor_total_pedido: {
+    render: (row) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+        {row.valor_item != null ? fmtMoeda(row.valor_item, row.moeda_item) : '—'}
+      </span>
+    ),
+  },
+  quantidade_total_pedido: {
+    render: (row) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
+        {fmtQuantidade(row.quantidade_atual, row.casas_decimais_quantidade)}
+      </span>
+    ),
+  },
+  quantidade_inicial_total: {
+    editavel: true,
+    campo: 'quantidade_inicial',
+    render: (row) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+        {fmtQuantidade(row.quantidade_inicial, row.casas_decimais_quantidade)}
+      </span>
+    ),
+  },
+  quantidade_transferida_total: {
+    editavel: true,
+    campo: 'quantidade_transferida',
+    render: (row) => (
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+        {fmtQuantidade(row.quantidade_transferida, row.casas_decimais_quantidade)}
+      </span>
+    ),
+  },
+  saldo_quantidade: {
+    render: (row) => {
+      const saldo = row.quantidade_inicial - row.quantidade_transferida
+      return (
+        <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+          {fmtQuantidade(saldo, row.casas_decimais_quantidade)}
+        </span>
+      )
+    },
+  },
+}
+
 // ── Colunas para exportação ───────────────────────────────────────────────────
 
 const COLUNAS_EXPORT: ColunasExport[] = [
@@ -2773,6 +2925,12 @@ export default function ListaPedidos() {
   // ── Seleção de pedidos (bubbled do TabelaVirtualGlobal) ──────────────────────
   const [pedidosSelecionados, setPedidosSelecionados] = useState<Pedido[]>([])
 
+  // ── Seleção de itens filho (bubbled do TabelaVirtualGlobal) ──────────────────
+  const [itensSelecionados, setItensSelecionados] = useState<PedidoItem[]>([])
+
+  // ── Estado de exclusão de itens ───────────────────────────────────────────────
+  const [excluindoItens, setExcluindoItens] = useState(false)
+
   // ── Estado do modal Transferir ───────────────────────────────────────────────
   const [modalTransferir, setModalTransferir] = useState<{ item: PedidoItem; pedidoId: string } | null>(null)
   const [qtdTransferir, setQtdTransferir]     = useState('')
@@ -2785,61 +2943,33 @@ export default function ListaPedidos() {
   const [sortDir, setSortDir]               = useState<'asc' | 'desc'>('desc')
   const [busca, setBusca]                   = useState('')
   const [erroLote, setErroLote]             = useState<string | null>(null)
+  const [modalConsolidarAberto, setModalConsolidarAberto] = useState(false)
+  const [modalTransferirAberto, setModalTransferirAberto] = useState(false)
+  const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
+  const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
+  const [excluindoLote, setExcluindoLote] = useState(false)
+
+  // ── Colunas do Usuário ────────────────────────────────────────────────────────
+  const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
+
+  // Colunas pai estáticas + colunas customizadas do usuário (escopo pedido ou ambos)
+  const colunasComUsuario = useMemo<GTColuna<Pedido>[]>(() => {
+    const custom = colunasUsuario
+      .filter(c => c.escopo === 'pedido' || c.escopo === 'ambos')
+      .map(mapColunaUsuarioParaGTColuna)
+    return [...COLUNAS_PAI, ...custom]
+  }, [colunasUsuario])
+
+  // ── Drawer criar/editar ───────────────────────────────────────────────────────
+  const [drawerAberto, setDrawerAberto]             = useState(false)
+  const [pedidoEditandoId, setPedidoEditandoId]     = useState<string | undefined>(undefined)
+
+  // ── Smart Import ──────────────────────────────────────────────────────────────
+  const [smartImportAberto, setSmartImportAberto]   = useState(false)
 
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
 
-  // ── Ações de linha (pai) ──────────────────────────────────────────────────────
-  const ACOES_PAI: GTAcao<Pedido>[] = [
-    {
-      id: 'ver',
-      tooltip: 'Ver detalhes do pedido',
-      icone: <Eye size={15} weight="duotone" />,
-      onClick: (row: Pedido) => { console.info('[Pedido] Ver:', row.id) },
-    },
-    {
-      id: 'editar',
-      tooltip: 'Editar dados do pedido',
-      icone: <PencilSimple size={15} weight="duotone" />,
-      onClick: (row: Pedido) => { navigate(`${row.id}/editar`) },
-    },
-    {
-      id: 'duplicar',
-      tooltip: 'Duplicar pedido',
-      icone: <Copy size={15} weight="duotone" />,
-      onClick: (row: Pedido) => { console.info('[Pedido] Duplicar:', row.id) },
-    },
-    {
-      id: 'deletar',
-      tooltip: 'Deletar pedido (somente Draft)',
-      icone: <Trash size={15} weight="duotone" />,
-      variant: 'danger',
-      visivel: (row: Pedido) => row.status === 'draft',
-      onClick: (row: Pedido) => { console.info('[Pedido] Deletar:', row.id) },
-    },
-  ]
-
-  // ── Ações de linha (filho / item) ─────────────────────────────────────────────
-  const ACOES_FILHO: GTAcao<PedidoItem>[] = [
-    {
-      id: 'transferir',
-      tooltip: 'Transferir quantidade para processo logístico',
-      icone: <ArrowRight size={14} weight="duotone" />,
-      visivel: (row: PedidoItem) => row.quantidade_atual > 0,
-      onClick: (row: PedidoItem) => {
-        setModalTransferir({ item: row, pedidoId: row.pedido_id })
-        setQtdTransferir('')
-      },
-    },
-    {
-      id: 'cancelar-item',
-      tooltip: 'Cancelar quantidade do item',
-      icone: <X size={14} weight="duotone" />,
-      variant: 'danger',
-      visivel: (row: PedidoItem) => row.quantidade_atual > 0,
-      onClick: (row: PedidoItem) => { console.info('[Pedido] Cancelar item:', row.id) },
-    },
-  ]
 
   // ── Carregar status e preferências ──────────────────────────────────────────
   useEffect(() => {
@@ -2871,6 +3001,11 @@ export default function ListaPedidos() {
         }
       })
       .catch(() => { /* sem preferências salvas */ })
+
+    // Carregar colunas customizadas do usuário (escopo pedido ou ambos)
+    colunasUsuarioApi.listar()
+      .then(lista => setColunasUsuario(lista))
+      .catch(() => { /* fallback: sem colunas customizadas */ })
   }, [])
 
   // ── Primeira carga ───────────────────────────────────────────────────────────
@@ -2962,21 +3097,28 @@ export default function ListaPedidos() {
     const pedido = pedidos.find(p => p.itens?.some(i => i.id === id))
     if (!pedido) throw new Error('Não foi possível localizar o pedido deste item. Recarregue a página.')
 
-    const atualizado = await pedidoItemApi.atualizar(pedido.id, id, { [campo]: valor } as Partial<PedidoItem>)
+    const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo) ? Number(valor) || 0 : valor
+
+    const atualizado = await pedidoItemApi.atualizar(pedido.id, id, { [campo]: valorFinal } as Partial<PedidoItem>)
       .catch(() => {
         if (import.meta.env.DEV) {
           const item = pedido.itens?.find(i => i.id === id)
-          if (item) return { ...item, [campo]: valor } as PedidoItem
+          if (item) return { ...item, [campo]: valorFinal } as PedidoItem
         }
         throw new Error(`Erro ao editar campo ${campo}`)
       })
 
-    // Atualiza o item dentro do pedido no estado
-    setPedidos(prev => prev.map(p =>
-      p.id === pedido.id
-        ? { ...p, itens: p.itens?.map(i => i.id === id ? atualizado : i) }
-        : p,
-    ))
+    // Atualiza o item e recalcula os aggregates do pedido pai
+    setPedidos(prev => prev.map(p => {
+      if (p.id !== pedido.id) return p
+      const itensAtualizados = p.itens?.map(i => i.id === id ? atualizado : i) ?? []
+      return {
+        ...p,
+        itens: itensAtualizados,
+        quantidade_inicial_total:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_inicial)    || 0), 0),
+        quantidade_transferida_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida) || 0), 0),
+      }
+    }))
     return atualizado
   }, [pedidos])
 
@@ -3163,18 +3305,89 @@ export default function ListaPedidos() {
         </div>
       )}
 
+      {/* ── Toolbar contextual de itens selecionados ── */}
+      {itensSelecionados.length > 0 && (
+        <div className="lp-itens-toolbar" role="toolbar" aria-label="Ações em itens selecionados">
+          <span className="lp-itens-toolbar__info">
+            {itensSelecionados.length} {itensSelecionados.length === 1 ? 'item selecionado' : 'itens selecionados'}
+          </span>
+          <div className="lp-itens-toolbar__acoes">
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<ArrowsLeftRight size={13} weight="duotone" />}
+              onClick={() => setModalTransferirAberto(true)}
+            >
+              Transferir ({itensSelecionados.length})
+            </BotaoGlobal>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<CopySimple size={13} weight="duotone" />}
+              onClick={() => setModalDuplicarAberto(true)}
+            >
+              Duplicar ({itensSelecionados.length})
+            </BotaoGlobal>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              icone={<PencilLine size={13} weight="duotone" />}
+              onClick={() => setModalEdicaoMassaAberto(true)}
+            >
+              Editar em Massa ({itensSelecionados.length})
+            </BotaoGlobal>
+            <BotaoGlobal
+              variante="perigo"
+              tamanho="pequeno"
+              icone={<Trash size={13} weight="duotone" />}
+              carregando={excluindoItens}
+              disabled={excluindoItens}
+              onClick={async () => {
+                const porPedido = itensSelecionados.reduce<Record<string, string[]>>((acc, i) => {
+                  if (!acc[i.pedido_id]) acc[i.pedido_id] = []
+                  acc[i.pedido_id].push(i.id)
+                  return acc
+                }, {})
+                setExcluindoItens(true)
+                try {
+                  await Promise.all(
+                    Object.entries(porPedido).map(([pedidoId, ids]) =>
+                      pedidoExcluirApi.excluirItens(pedidoId, ids)
+                    )
+                  )
+                  addNotification({ tipo: 'sucesso', mensagem: `${itensSelecionados.length} item(s) excluído(s) com sucesso.` })
+                  setItensSelecionados([])
+                  await carregarInicial()
+                } catch {
+                  addNotification({ tipo: 'erro', mensagem: 'Erro ao excluir itens. Tente novamente.' })
+                } finally {
+                  setExcluindoItens(false)
+                }
+              }}
+            >
+              Excluir ({itensSelecionados.length})
+            </BotaoGlobal>
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="pequeno"
+              onClick={() => setItensSelecionados([])}
+            >
+              Cancelar
+            </BotaoGlobal>
+          </div>
+        </div>
+      )}
+
       {/* ── Tabela virtual ── */}
       <div className="lp-tabela-wrapper">
         <TabelaVirtualGlobal<Pedido, PedidoItem>
           dados={pedidos}
-          colunas={COLUNAS_PAI}
+          colunas={colunasComUsuario}
           itemId={(p: Pedido) => p.id}
 
-          colunasFilhas={COLUNAS_FILHO}
+          mapaColunasFilho={MAPA_COLUNAS_FILHO}
           onCarregarFilhos={handleCarregarFilhos}
           filhoId={(i: PedidoItem) => i.id}
-          acoesFilhas={ACOES_FILHO}
-
           temMais={temMais}
           carregandoMais={carregandoMais}
           onCarregarMais={handleCarregarMais}
@@ -3183,10 +3396,58 @@ export default function ListaPedidos() {
           abaAtiva={abaAtiva}
           onMudarAba={handleMudarAba}
 
-          acoes={ACOES_PAI}
+          acoes={[
+            {
+              id: 'editar',
+              tooltip: 'Editar pedido',
+              icone: <PencilLine size={14} weight="duotone" />,
+              onClick: (pedido: Pedido) => {
+                setPedidoEditandoId(pedido.id)
+                setDrawerAberto(true)
+              },
+            },
+          ]}
           acoesLote={acoesLote}
           acoesExportacao={acoesExportacao}
           onSelecaoMudar={setPedidosSelecionados}
+
+          selecionavelFilhos
+          onSelecaoFilho={(itens: PedidoItem[]) => setItensSelecionados(itens)}
+          acoesFilho={(item: PedidoItem) => [
+            {
+              label: 'Transferir',
+              icone: <ArrowsLeftRight size={13} weight="duotone" />,
+              onClick: () => {
+                setItensSelecionados([item])
+                setModalTransferirAberto(true)
+              },
+            },
+            {
+              label: 'Duplicar',
+              icone: <CopySimple size={13} weight="duotone" />,
+              onClick: () => {
+                setItensSelecionados([item])
+                setModalDuplicarAberto(true)
+              },
+            },
+            {
+              label: 'Excluir',
+              icone: <Trash size={13} weight="duotone" />,
+              perigo: true,
+              onClick: async () => {
+                setExcluindoItens(true)
+                try {
+                  await pedidoExcluirApi.excluirItens(item.pedido_id, [item.id])
+                  addNotification({ tipo: 'sucesso', mensagem: 'Item excluído com sucesso.' })
+                  await carregarInicial()
+                } catch {
+                  addNotification({ tipo: 'erro', mensagem: 'Erro ao excluir item. Tente novamente.' })
+                } finally {
+                  setExcluindoItens(false)
+                }
+              },
+            },
+          ]}
 
           acoesBarra={
             <>
@@ -3194,7 +3455,7 @@ export default function ListaPedidos() {
                 variante="primario"
                 tamanho="pequeno"
                 icone={<Plus size={14} weight="bold" />}
-                onClick={() => { navigate('novo') }}
+                onClick={() => { setPedidoEditandoId(undefined); setDrawerAberto(true) }}
               >
                 Novo
               </BotaoGlobal>
@@ -3202,28 +3463,26 @@ export default function ListaPedidos() {
                 variante="secundario"
                 tamanho="pequeno"
                 icone={<UploadSimple size={14} weight="duotone" />}
-                onClick={() => { console.info('[Pedido] Importar') }}
+                onClick={() => setSmartImportAberto(true)}
               >
                 Importar
               </BotaoGlobal>
               <BotaoGlobal
                 variante="secundario"
                 tamanho="pequeno"
+                icone={<Sparkle size={14} weight="duotone" />}
+                disabled
+                tooltipTitulo="Smart Read"
+                tooltipDescricao="Leitura automática de documentos de pedido. Em breve."
+              >
+                Smart Read
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
                 icone={<CheckSquare size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length === 0}
-                onClick={async () => {
-                  const ids = pedidosSelecionados.map(p => p.id)
-                  try {
-                    const preview = await pedidoLoteApi.mudarStatusPreview(ids, 'consolidado')
-                    const resumo = preview.afetados.map(a => `✓ ${a.numero_pedido} → ${a.status}`).join('\n')
-                    if (window.confirm(`${resumo}\n\nConsolidar pedidos selecionados?`)) {
-                      await pedidoLoteApi.mudarStatusConfirmar(ids, 'consolidado')
-                      await carregarInicial()
-                    }
-                  } catch (err) {
-                    setErroLote(err instanceof Error ? err.message : 'Erro ao consolidar')
-                  }
-                }}
+                disabled={pedidosSelecionados.length < 2}
+                onClick={() => { setModalConsolidarAberto(true) }}
               >
                 Consolidar{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
               </BotaoGlobal>
@@ -3232,7 +3491,7 @@ export default function ListaPedidos() {
                 tamanho="pequeno"
                 icone={<ArrowsLeftRight size={14} weight="duotone" />}
                 disabled={pedidosSelecionados.length === 0}
-                onClick={() => { console.info('[Pedido] Transferir lote:', pedidosSelecionados.map(p => p.id)) }}
+                onClick={() => { setModalTransferirAberto(true) }}
               >
                 Transferir{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
               </BotaoGlobal>
@@ -3241,25 +3500,54 @@ export default function ListaPedidos() {
                 tamanho="pequeno"
                 icone={<PencilLine size={14} weight="duotone" />}
                 disabled={pedidosSelecionados.length === 0}
-                onClick={() => { console.info('[Pedido] Editar em massa:', pedidosSelecionados.map(p => p.id)) }}
+                onClick={() => { setModalEdicaoMassaAberto(true) }}
               >
                 Editar em Massa{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
+                icone={<CopySimple size={14} weight="duotone" />}
+                disabled={pedidosSelecionados.length === 0}
+                onClick={() => setModalDuplicarAberto(true)}
+              >
+                Duplicar{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
               </BotaoGlobal>
               <BotaoGlobal
                 variante="perigo"
                 tamanho="pequeno"
                 icone={<Trash size={14} weight="duotone" />}
-                disabled={pedidosSelecionados.length === 0}
+                disabled={pedidosSelecionados.length === 0 || excluindoLote}
+                carregando={excluindoLote}
                 onClick={async () => {
                   const ids = pedidosSelecionados.map(p => p.id)
+                  setExcluindoLote(true)
                   try {
-                    const preview = await pedidoLoteApi.cancelarPreview(ids)
-                    if (window.confirm(`${preview.resumo.join('\n')}\n\nExcluir/cancelar pedidos selecionados?`)) {
-                      await pedidoLoteApi.cancelarConfirmar(ids)
+                    const preview = await pedidoExcluirApi.preview(ids)
+                    const totalPermitidos = preview.permitidos.length
+                    const totalBloqueados = preview.bloqueados.length
+                    const resumo: string[] = []
+                    if (totalPermitidos > 0) {
+                      resumo.push(`✓ ${totalPermitidos} pedido${totalPermitidos !== 1 ? 's' : ''} serão excluídos permanentemente.`)
+                    }
+                    if (totalBloqueados > 0) {
+                      resumo.push(`✗ ${totalBloqueados} pedido${totalBloqueados !== 1 ? 's' : ''} bloqueado${totalBloqueados !== 1 ? 's' : ''} (status não permitido):`)
+                      preview.bloqueados.forEach(b => resumo.push(`  - ${b.numero_pedido}: ${b.motivo}`))
+                    }
+                    if (totalPermitidos === 0) {
+                      setErroLote('Nenhum pedido pode ser excluído com os status atuais.')
+                      return
+                    }
+                    const mensagem = `${resumo.join('\n')}\n\nEsta ação não pode ser desfeita. Deseja prosseguir?`
+                    if (window.confirm(mensagem)) {
+                      await pedidoExcluirApi.confirmar(preview.permitidos.map(p => p.id))
+                      setPedidosSelecionados([])
                       await carregarInicial()
                     }
                   } catch (err) {
                     setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
+                  } finally {
+                    setExcluindoLote(false)
                   }
                 }}
               >
@@ -3286,13 +3574,6 @@ export default function ListaPedidos() {
           ]}
           onEditar={handleEditar}
 
-          camposEditaveisFilhos={[
-            'part_number',
-            'ncm',
-            'descricao',
-            'unidade_comercializada_item',
-            'valor_unitario',
-          ]}
           onEditarFilho={handleEditarFilho}
 
           onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}
@@ -3310,7 +3591,7 @@ export default function ListaPedidos() {
               variante="primario"
               tamanho="pequeno"
               icone={<Plus size={14} weight="bold" />}
-              onClick={() => { navigate('novo') }}
+              onClick={() => { setPedidoEditandoId(undefined); setDrawerAberto(true) }}
             >
               Novo Pedido
             </BotaoGlobal>
@@ -3322,6 +3603,27 @@ export default function ListaPedidos() {
           ariaLabel="Lista de pedidos"
         />
       </div>
+
+      {/* ── Drawer Criar/Editar Pedido ── */}
+      <DrawerPedido
+        aberto={drawerAberto}
+        pedidoId={pedidoEditandoId}
+        onFechar={() => setDrawerAberto(false)}
+        onSalvo={() => {
+          setDrawerAberto(false)
+          carregarInicial()
+        }}
+      />
+
+      {/* ── Smart Import Modal ── */}
+      <SmartImportModal
+        aberto={smartImportAberto}
+        onFechar={() => setSmartImportAberto(false)}
+        onConcluido={(_ids) => {
+          setSmartImportAberto(false)
+          carregarInicial()
+        }}
+      />
 
       {/* ── Modal Transferir Quantidade ── */}
       {modalTransferir && (
@@ -3368,6 +3670,58 @@ export default function ListaPedidos() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Modal Transferir Pedidos ── */}
+      {modalTransferirAberto && pedidosSelecionados.length > 0 && (
+        <ModalTransferir
+          pedidos={pedidosSelecionados}
+          onFechar={() => setModalTransferirAberto(false)}
+          onConcluido={() => {
+            setModalTransferirAberto(false)
+            setPedidosSelecionados([])
+            carregarInicial()
+          }}
+        />
+      )}
+
+      {/* ── Modal Edição em Massa ── */}
+      {modalEdicaoMassaAberto && pedidosSelecionados.length > 0 && (
+        <ModalEdicaoEmMassa
+          pedidos={pedidosSelecionados}
+          onFechar={() => setModalEdicaoMassaAberto(false)}
+          onConcluido={() => {
+            setModalEdicaoMassaAberto(false)
+            setPedidosSelecionados([])
+            carregarInicial()
+          }}
+        />
+      )}
+
+      {/* ── Modal Consolidar Pedidos ── */}
+      {modalConsolidarAberto && (
+        <ModalConsolidar
+          pedidosSelecionados={pedidosSelecionados}
+          onFechar={() => setModalConsolidarAberto(false)}
+          onConcluido={async () => {
+            setModalConsolidarAberto(false)
+            setPedidosSelecionados([])
+            await carregarInicial()
+          }}
+        />
+      )}
+
+      {/* ── Modal Duplicar Pedidos ── */}
+      {modalDuplicarAberto && pedidosSelecionados.length > 0 && (
+        <ModalDuplicar
+          pedidos={pedidosSelecionados}
+          onFechar={() => setModalDuplicarAberto(false)}
+          onConcluido={() => {
+            setModalDuplicarAberto(false)
+            setPedidosSelecionados([])
+            carregarInicial()
+          }}
+        />
       )}
 
     </div>

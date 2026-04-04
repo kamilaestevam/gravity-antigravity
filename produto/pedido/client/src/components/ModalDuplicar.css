@@ -1,0 +1,307 @@
+/**
+ * ModalDuplicar.css — Estilos do modal de duplicação de pedidos
+ * Design System: Gravity Solid Slate
+ */
+
+/* Overlay */
+.modal-duplicar__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Container */
+.modal-duplicar__container {
+  background-color: var(--color-surface, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.modal-duplicar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+.modal-duplicar__titulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f5f9);
+  margin: 0;
+}
+
+.modal-duplicar__fechar {
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #64748b);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modal-duplicar__fechar:hover {
+  color: var(--color-text-primary, #f1f5f9);
+  background-color: var(--color-surface-hover, #334155);
+}
+
+/* Body */
+.modal-duplicar__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Carregando */
+.modal-duplicar__carregando {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 14px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.modal-duplicar__spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Informativo */
+.modal-duplicar__info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.modal-duplicar__info-icone {
+  color: var(--color-accent, #3b82f6);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.modal-duplicar__info-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.modal-duplicar__info-texto strong {
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+/* Tabela */
+.modal-duplicar__tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.modal-duplicar__th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted, #64748b);
+  border-bottom: 1px solid var(--color-border, #334155);
+}
+
+.modal-duplicar__linha:not(:last-child) .modal-duplicar__td {
+  border-bottom: 1px solid var(--color-border-subtle, #1e293b);
+}
+
+.modal-duplicar__td {
+  padding: 10px 12px;
+  color: var(--color-text-primary, #f1f5f9);
+  vertical-align: middle;
+}
+
+.modal-duplicar__td--numero {
+  font-weight: 500;
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-duplicar__td--itens {
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 12px;
+}
+
+/* Input número */
+.modal-duplicar__input {
+  width: 100%;
+  padding: 6px 10px;
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 4px;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.modal-duplicar__input:focus {
+  border-color: var(--color-accent, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.modal-duplicar__input::placeholder {
+  color: var(--color-text-muted, #64748b);
+}
+
+/* Número auto */
+.modal-duplicar__numero-auto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 13px;
+}
+
+.modal-duplicar__badge-auto {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--color-accent-subtle, rgba(59, 130, 246, 0.15));
+  color: var(--color-accent, #3b82f6);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Erro */
+.modal-duplicar__erro {
+  padding: 10px 14px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #fca5a5;
+  font-size: 13px;
+}
+
+/* Resultado */
+.modal-duplicar__resultado-sucesso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 6px;
+}
+
+.modal-duplicar__icone-sucesso {
+  color: #4ade80;
+  flex-shrink: 0;
+}
+
+.modal-duplicar__resultado-texto {
+  font-size: 14px;
+  color: #bbf7d0;
+  margin: 0;
+}
+
+.modal-duplicar__lista-resultado {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-duplicar__item-resultado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+  padding: 8px 12px;
+  background-color: var(--color-surface-2, #0f172a);
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #334155);
+}
+
+.modal-duplicar__numero-original {
+  color: var(--color-text-muted, #64748b);
+}
+
+.modal-duplicar__seta {
+  color: var(--color-text-muted, #64748b);
+}
+
+.modal-duplicar__numero-novo {
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-duplicar__resultado-erros {
+  padding: 12px 14px;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+}
+
+.modal-duplicar__erros-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fca5a5;
+  margin: 0 0 8px;
+}
+
+.modal-duplicar__lista-erros {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-duplicar__item-erro {
+  font-size: 12px;
+  color: #fca5a5;
+}
+
+/* Footer */
+.modal-duplicar__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}

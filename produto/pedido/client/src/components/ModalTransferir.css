@@ -1,0 +1,541 @@
+/**
+ * ModalTransferir.css — Estilos do modal de transferência de pedidos
+ * Design System: Gravity Solid Slate
+ */
+
+/* Overlay */
+.modal-transferir__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Container */
+.modal-transferir__container {
+  background-color: var(--color-surface, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 740px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.modal-transferir__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+.modal-transferir__titulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f5f9);
+  margin: 0;
+}
+
+.modal-transferir__fechar {
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #64748b);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modal-transferir__fechar:hover {
+  color: var(--color-text-primary, #f1f5f9);
+  background-color: var(--color-surface-hover, #334155);
+}
+
+/* Indicador de passos */
+.modal-transferir__passos {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.modal-transferir__passo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.modal-transferir__passo--ativo {
+  color: var(--color-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.1);
+  font-weight: 600;
+}
+
+.modal-transferir__passo--concluido {
+  color: #22c55e;
+}
+
+.modal-transferir__passo-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.modal-transferir__passo--ativo .modal-transferir__passo-numero {
+  background-color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary, #3b82f6);
+  color: #fff;
+}
+
+.modal-transferir__passo--concluido .modal-transferir__passo-numero {
+  background-color: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.modal-transferir__passo-separador {
+  width: 24px;
+  height: 1px;
+  background-color: var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+/* Corpo */
+.modal-transferir__corpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Loading */
+.modal-transferir__loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text-muted, #64748b);
+  font-size: 14px;
+  padding: 32px 0;
+  justify-content: center;
+}
+
+.modal-transferir__spinner {
+  animation: modal-transferir-spin 1s linear infinite;
+}
+
+@keyframes modal-transferir-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Erro */
+.modal-transferir__erro {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #f87171;
+  font-size: 13px;
+}
+
+/* Sucesso */
+.modal-transferir__sucesso {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+  color: #22c55e;
+  text-align: center;
+}
+
+.modal-transferir__sucesso-titulo {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-transferir__sucesso-descricao {
+  font-size: 14px;
+  color: var(--color-text-muted, #64748b);
+  max-width: 360px;
+}
+
+/* ── Passo 1: Seleção de Cenário ── */
+
+.modal-transferir__cenarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.modal-transferir__cenario-card {
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.modal-transferir__cenario-card:hover {
+  border-color: var(--color-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.modal-transferir__cenario-card--selecionado {
+  border-color: var(--color-primary, #3b82f6);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.modal-transferir__cenario-card:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.modal-transferir__cenario-icone {
+  font-size: 22px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.modal-transferir__cenario-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f5f9);
+  margin-bottom: 4px;
+}
+
+.modal-transferir__cenario-descricao {
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+  line-height: 1.4;
+}
+
+/* ── Passo 2: Seleção de Item e Quantidade ── */
+
+.modal-transferir__tabela-itens {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.modal-transferir__tabela-itens th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--color-text-muted, #64748b);
+  font-weight: 500;
+  font-size: 12px;
+  border-bottom: 1px solid var(--color-border, #334155);
+}
+
+.modal-transferir__tabela-itens td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  color: var(--color-text-primary, #f1f5f9);
+  vertical-align: middle;
+}
+
+.modal-transferir__tabela-itens tr:hover td {
+  background-color: rgba(51, 65, 85, 0.2);
+}
+
+.modal-transferir__input-qty {
+  width: 90px;
+  padding: 5px 8px;
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 4px;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 13px;
+  text-align: right;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.modal-transferir__input-qty:focus {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.modal-transferir__input-qty--erro {
+  border-color: #ef4444;
+}
+
+.modal-transferir__qty-disponivel {
+  font-size: 11px;
+  color: var(--color-text-muted, #64748b);
+  margin-top: 2px;
+}
+
+/* ── Passo 3: Configurar Destinos ── */
+
+.modal-transferir__destinos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-transferir__destino-bloco {
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-transferir__destino-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-transferir__destino-linha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-transferir__label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.modal-transferir__input {
+  width: 100%;
+  padding: 7px 10px;
+  background-color: var(--color-surface, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.modal-transferir__input:focus {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.modal-transferir__select {
+  width: 100%;
+  padding: 7px 10px;
+  background-color: var(--color-surface, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+
+.modal-transferir__select:focus {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.modal-transferir__hint {
+  font-size: 11px;
+  color: var(--color-text-muted, #64748b);
+}
+
+.modal-transferir__linha-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.modal-transferir__botao-adicionar-destino {
+  background: none;
+  border: 1px dashed var(--color-border, #334155);
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: var(--color-text-muted, #64748b);
+  font-size: 13px;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.modal-transferir__botao-adicionar-destino:hover {
+  border-color: var(--color-primary, #3b82f6);
+  color: var(--color-primary, #3b82f6);
+}
+
+.modal-transferir__botao-remover-destino {
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #64748b);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  align-self: flex-end;
+  transition: color 0.15s;
+}
+
+.modal-transferir__botao-remover-destino:hover {
+  color: #ef4444;
+}
+
+/* ── Passo 4: Preview ── */
+
+.modal-transferir__preview-origem {
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.modal-transferir__preview-titulo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.modal-transferir__preview-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+}
+
+.modal-transferir__preview-linha:last-child {
+  border-bottom: none;
+}
+
+.modal-transferir__preview-valor {
+  color: var(--color-text-primary, #f1f5f9);
+  font-weight: 500;
+}
+
+.modal-transferir__preview-valor--alerta {
+  color: #eab308;
+}
+
+.modal-transferir__preview-destinos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-transferir__preview-destino {
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.modal-transferir__alertas {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-transferir__alerta {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 12px;
+  background-color: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 6px;
+  color: #eab308;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.modal-transferir__alerta--erro {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+/* Footer */
+.modal-transferir__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+.modal-transferir__footer-direita {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Badge de tipo */
+.modal-transferir__badge-novo {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.modal-transferir__badge-existente {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background-color: rgba(168, 85, 247, 0.1);
+  color: #c084fc;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}

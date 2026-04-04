@@ -5,13 +5,34 @@ const monorepoRoot = path.resolve(__dirname, '../../..')
 const rootNodeModules = path.resolve(monorepoRoot, 'node_modules')
 const pedidoNodeModules = path.resolve(monorepoRoot, 'produto/pedido/node_modules')
 
+/** Resolve imports com extensão .js para os arquivos .ts correspondentes (ESM no Node) */
+const resolveTsFromJs = {
+  name: 'resolve-ts-from-js',
+  resolveId(source: string, importer: string | undefined) {
+    if (source.endsWith('.js') && importer) {
+      const tsSource = source.replace(/\.js$/, '.ts')
+      const dir = path.dirname(importer)
+      const resolved = path.resolve(dir, tsSource)
+      return resolved
+    }
+    return undefined
+  },
+}
+
 export default defineConfig({
+  plugins: [resolveTsFromJs],
   test: {
     environment: 'jsdom',
     globals: true,
     setupFiles: [path.resolve(__dirname, '../setup.ts')],
     include: [
       'testes/testes-unitarios/pedido/ListaPedidos.test.tsx',
+      'testes/testes-unitarios/pedido/colunasUsuarioService.test.ts',
+      'testes/testes-unitarios/pedido/duplicarExcluirService.test.ts',
+      'testes/testes-unitarios/pedido/edicaoEmMassaService.test.ts',
+      'testes/testes-unitarios/pedido/importEngine.test.ts',
+      'testes/testes-unitarios/pedido/saldoEngine.test.ts',
+      'testes/testes-unitarios/pedido/smartImportService.test.ts',
     ],
     env: {
       NODE_ENV: 'test',
@@ -31,6 +52,8 @@ export default defineConfig({
         'produto/pedido/client/src/pages/ListaPedidos.tsx',
         'produto/pedido/client/src/shared/api.ts',
         'produto/pedido/client/src/shared/types.ts',
+        'produto/pedido/server/src/services/colunasUsuarioService.ts',
+        'produto/pedido/server/src/routes/colunasUsuario.ts',
       ],
       thresholds: {
         lines: 70,

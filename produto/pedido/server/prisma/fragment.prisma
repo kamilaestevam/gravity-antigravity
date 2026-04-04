@@ -1,0 +1,171 @@
+// ============================================
+// Pedido — Anexos
+// Produto: produto/pedido
+// ============================================
+
+model PedidoAnexo {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  vinculo       String              // 'pedido' | 'item'
+  vinculo_id    String
+  nome_arquivo  String
+  tipo_arquivo  String
+  tamanho_bytes Int
+  descricao     String?
+  categoria     String?
+  storage_key   String
+  uploaded_by   String
+  created_at    DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, vinculo_id])
+  @@map("pedido_anexos")
+}
+
+// ============================================
+// Pedido — Templates PDF
+// Produto: produto/pedido
+// ============================================
+
+model PedidoTemplatePdf {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  nome          String
+  descricao     String?
+  conteudo_html String   @db.Text
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_templates_pdf")
+}
+
+// ============================================
+// Pedido — Transferência de Pedidos
+// Produto: produto/pedido
+// ============================================
+
+model TransferHistorico {
+  id               String    @id @default(cuid())
+  tenant_id        String
+  product_id       String?
+
+  // Referências de origem
+  pedido_origem_id String
+  item_origem_id   String
+
+  // Dados da transferência
+  cenario          String
+  quantidade       Float
+  destinos_json    String    // JSON serializado de TransferDestino[]
+
+  // Reversão
+  revertido        Boolean   @default(false)
+  revertido_em     DateTime?
+  revertido_por    String?
+
+  // Auditoria
+  created_at       DateTime  @default(now())
+  created_by       String
+
+  // Relação com PedidoComercial (alias canônico do produto Pedido)
+  pedido_origem    PedidoComercial @relation(fields: [pedido_origem_id], references: [id])
+
+  // Índices obrigatórios (agent-policy)
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, pedido_origem_id])
+  @@map("transfer_historico")
+}
+
+// Adicionar ao model PedidoComercial:
+// transferencias TransferHistorico[]
+
+// ============================================
+// Pedido — Colunas do Usuário
+// Produto: produto/pedido
+// ============================================
+
+model ColunaUsuarioPedido {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  product_id       String?
+  nome             String
+  chave            String
+  tipo             String
+  escopo           String   // 'pedido' | 'item' | 'ambos'
+  visibilidade     String   // 'todos' | 'roles' | 'privado'
+  roles_permitidas String[] @default([])
+  obrigatorio      Boolean  @default(false)
+  opcoes           String[] @default([])
+  descricao        String?
+  valor_padrao     String?
+  ordem            Int      @default(0)
+  ativo            Boolean  @default(true)
+  created_by       String
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  valores ValorColunaUsuarioPedido[]
+
+  @@unique([tenant_id, chave])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, ativo])
+  @@map("colunas_usuario_pedido")
+}
+
+model ValorColunaUsuarioPedido {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  coluna_id  String
+  vinculo    String   // 'pedido' | 'item'
+  vinculo_id String
+  valor      String
+
+  coluna ColunaUsuarioPedido @relation(fields: [coluna_id], references: [id])
+
+  @@unique([tenant_id, coluna_id, vinculo_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, vinculo_id])
+  @@map("valores_colunas_usuario_pedido")
+}
+
+// ============================================
+// Pedido — Mapeamento de Importacao (Smart Import)
+// Produto: produto/pedido
+// ============================================
+
+model MapeamentoImport {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+
+  // Hash SHA256/CRC dos cabecalhos ordenados do arquivo
+  hash_colunas String
+
+  // JSON serializado de ColunaMapeada[]
+  mapeamento   String
+
+  // Quantas vezes este mapeamento foi utilizado/confirmado
+  uso_count    Int      @default(1)
+
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  // Unicidade por tenant + estrutura de arquivo
+  @@unique([tenant_id, hash_colunas])
+
+  // Indices obrigatorios (agent-policy)
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, hash_colunas])
+
+  @@map("mapeamento_import")
+}

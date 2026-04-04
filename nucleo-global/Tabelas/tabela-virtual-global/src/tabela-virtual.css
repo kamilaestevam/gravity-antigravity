@@ -637,7 +637,6 @@
 .gtv-tabela-inner {
   width: 100%;
   position: relative;
-  will-change: transform;
 }
 
 /* ─── Linha virtual ───────────────────────────────────────────────────────── */
@@ -1420,4 +1419,116 @@ body.light-theme .gtv-conector {
 body.light-theme .gtv-vazio__icone {
   background: rgba(79, 70, 229, 0.05);
   border-color: rgba(79, 70, 229, 0.12);
+}
+
+/* ─── Checkbox filho (menor e distinto do checkbox pai) ────────────────────── */
+.gtv-checkbox--filho {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  opacity: 0.85;
+}
+
+.gtv-checkbox--filho:checked {
+  background: var(--gtv-accent);
+  border-color: var(--gtv-accent);
+  opacity: 1;
+}
+
+.gtv-checkbox--filho:checked::after {
+  width: 6px;
+  height: 4px;
+}
+
+/* ─── Linha filho selecionada ──────────────────────────────────────────────── */
+.gtv-linha--filho-selecionada {
+  background: rgba(129, 140, 248, 0.07);
+}
+
+.gtv-linha--filho-selecionada:hover {
+  background: rgba(129, 140, 248, 0.11);
+}
+
+/* ─── Botão três pontos (ações inline filho) ───────────────────────────────── */
+.gtv-acao-btn--tres-pontos {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  padding: 0 4px;
+  min-width: 22px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.gtv-linha--filho:hover .gtv-acao-btn--tres-pontos,
+.gtv-acao-btn--tres-pontos[aria-expanded="true"] {
+  opacity: 1;
+}
+
+/* ─── Dropdown de ações do filho ───────────────────────────────────────────── */
+.gtv-dropdown-filho {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 100;
+  background: var(--gtv-bg, #1e1e2e);
+  border: 1px solid var(--gtv-border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: gtv-lote-in 0.12s ease;
+}
+
+.gtv-dropdown-filho-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gtv-text, rgba(255, 255, 255, 0.85));
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+
+.gtv-dropdown-filho-item:hover {
+  background: rgba(129, 140, 248, 0.12);
+}
+
+.gtv-dropdown-filho-item--perigo {
+  color: var(--gtv-danger, #f87171);
+}
+
+.gtv-dropdown-filho-item--perigo:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.gtv-dropdown-filho-icone {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.75;
+}
+
+/* Light theme overrides */
+body.light-theme .gtv-dropdown-filho {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .gtv-dropdown-filho-item {
+  color: rgba(0, 0, 0, 0.82);
+}
+
+body.light-theme .gtv-dropdown-filho-item:hover {
+  background: rgba(79, 70, 229, 0.07);
+}
+
+body.light-theme .gtv-linha--filho-selecionada {
+  background: rgba(79, 70, 229, 0.05);
 }

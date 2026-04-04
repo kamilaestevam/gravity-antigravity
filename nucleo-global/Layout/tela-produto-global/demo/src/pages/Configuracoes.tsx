@@ -281,7 +281,7 @@ export default function Configuracoes() {
     localStorage.setItem(PERIODO_KEY, id)
   }
 
-  const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar, setPeriodo } =
+  const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar, setPeriodo: setPeriodoCard } =
     useCardPreferences()
 
   const { config: kanbanConfig, salvar: salvarKanban } = useKanbanConfig()
@@ -427,7 +427,7 @@ export default function Configuracoes() {
                           pref={pref}
                           onToggle={() => toggle(pref.id)}
                           onRemover={() => remover(pref.id)}
-                          onSetPeriodo={(p) => setPeriodo(pref.id, p)}
+                          onSetPeriodo={(p) => setPeriodoCard(pref.id, p)}
                         />
                       ))}
                     </div>

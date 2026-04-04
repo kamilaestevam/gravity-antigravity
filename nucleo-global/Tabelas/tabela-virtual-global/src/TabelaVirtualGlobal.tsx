@@ -20,6 +20,7 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
+import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -229,146 +230,6 @@ const GTVazio = memo(function GTVazio({
   )
 })
 
-// ─── Subcomponente: Popover de visibilidade de colunas ────────────────────────
-
-const GTVisibilidadeColunas = memo(function GTVisibilidadeColunas<T>({
-  colunas,
-  colunasVisiveis,
-  onToggle,
-  onFechar,
-  onReordenar,
-  onSelecionarTodos,
-  onRestaurarPadrao,
-}: {
-  colunas: GTColuna<T>[]
-  colunasVisiveis: string[]
-  onToggle: (key: string) => void
-  onFechar: () => void
-  onReordenar?: (fromKey: string, toKey: string) => void
-  onSelecionarTodos?: () => void
-  onRestaurarPadrao?: () => void
-}) {
-  const ref = useRef<HTMLDivElement>(null)
-  const dragKeyRef = useRef<string | null>(null)
-  const [busca, setBusca] = useState('')
-
-  useEffect(() => {
-    function fora(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onFechar()
-      }
-    }
-    document.addEventListener('mousedown', fora)
-    return () => document.removeEventListener('mousedown', fora)
-  }, [onFechar])
-
-  const colunasFiltradas = useMemo(() => {
-    const termo = busca.trim().toLowerCase()
-    const lista = termo ? colunas.filter(c => c.label.toLowerCase().includes(termo)) : colunas
-    const sorted = [...lista].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
-    // Colunas obrigatórias (naoOcultavel) ficam sempre no topo
-    const obrigatorias = sorted.filter(c => c.naoOcultavel)
-    const opcionais    = sorted.filter(c => !c.naoOcultavel)
-    return [...obrigatorias, ...opcionais]
-  }, [colunas, busca])
-
-  return (
-    <div ref={ref} className="gtv-export-menu" style={{ minWidth: 240 }}>
-      {/* ── Busca ── */}
-      <div className="gtv-col-busca">
-        <svg width="13" height="13" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" className="gtv-col-busca-icone">
-          <path d="M229.66,218.34l-50.07-50.07a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.31ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
-        </svg>
-        <input
-          type="text"
-          className="gtv-col-busca-input"
-          placeholder="Localizar coluna..."
-          value={busca}
-          onChange={e => setBusca(e.target.value)}
-          autoFocus
-        />
-        {busca && (
-          <button type="button" className="gtv-col-busca-clear" onClick={() => setBusca('')} aria-label="Limpar busca">
-            <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
-              <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
-            </svg>
-          </button>
-        )}
-      </div>
-      {/* ── Ações em lote ── */}
-      <div className="gtv-col-acoes">
-        <button type="button" className="gtv-col-acao-btn" onClick={onSelecionarTodos}>
-          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
-            <path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,144H32V64H224V192Z"/>
-          </svg>
-          Selecionar tudo
-        </button>
-        <button type="button" className="gtv-col-acao-btn gtv-col-acao-btn--reset" onClick={onRestaurarPadrao}>
-          <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
-            <path d="M224,128a96,96,0,1,1-21.95-61.09,8,8,0,1,1-12.33,10.18A80,80,0,1,0,207.6,136H168a8,8,0,0,1,0-16h48a8,8,0,0,1,8,8Z"/>
-          </svg>
-          Restaurar padrão
-        </button>
-      </div>
-      {/* ── Lista ── */}
-      {colunasFiltradas.length === 0 ? (
-        <div className="gtv-col-vazio">Nenhuma coluna encontrada</div>
-      ) : (
-        colunasFiltradas.map((col, idx) => (
-          <React.Fragment key={col.key}>
-            {/* Divisor entre colunas obrigatórias e opcionais */}
-            {idx > 0 && !col.naoOcultavel && colunasFiltradas[idx - 1].naoOcultavel && (
-              <div className="gtv-col-divisor" />
-            )}
-          <label
-            key={col.key}
-            className="gtv-export-item"
-            draggable={!!onReordenar && !col.naoOcultavel}
-            onDragStart={() => { dragKeyRef.current = col.key }}
-            onDragOver={e => e.preventDefault()}
-            onDrop={() => {
-              if (dragKeyRef.current && dragKeyRef.current !== col.key) {
-                onReordenar?.(dragKeyRef.current, col.key)
-              }
-              dragKeyRef.current = null
-            }}
-            style={{ cursor: col.naoOcultavel ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-          >
-            {onReordenar && (
-              col.naoOcultavel ? (
-                /* Cadeado — coluna obrigatória, não pode ser ocultada */
-                <svg width="10" height="12" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"
-                  style={{ color: 'var(--gtv-accent, #6366f1)', flexShrink: 0, opacity: 0.7 }}>
-                  <path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Zm-80-32a16,16,0,1,0-16-16A16,16,0,0,0,128,176Z"/>
-                </svg>
-              ) : (
-                /* Drag handle — coluna opcional, pode ser reordenada */
-                <svg width="10" height="14" viewBox="0 0 10 14" fill="none" aria-hidden="true"
-                  style={{ cursor: 'grab', color: 'var(--gtv-muted, #64748b)', flexShrink: 0 }}>
-                  <circle cx="3" cy="3"  r="1.2" fill="currentColor"/>
-                  <circle cx="7" cy="3"  r="1.2" fill="currentColor"/>
-                  <circle cx="3" cy="7"  r="1.2" fill="currentColor"/>
-                  <circle cx="7" cy="7"  r="1.2" fill="currentColor"/>
-                  <circle cx="3" cy="11" r="1.2" fill="currentColor"/>
-                  <circle cx="7" cy="11" r="1.2" fill="currentColor"/>
-                </svg>
-              )
-            )}
-            <input
-              type="checkbox"
-              checked={colunasVisiveis.includes(col.key)}
-              disabled={col.naoOcultavel}
-              onChange={() => !col.naoOcultavel && onToggle(col.key)}
-              style={{ marginRight: 4 }}
-            />
-            {col.label}
-          </label>
-          </React.Fragment>
-        ))
-      )}
-    </div>
-  )
-})
 
 // ─── Subcomponente: Popover de edição ────────────────────────────────────────
 
@@ -524,6 +385,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   colunas,
   itemId: itemIdProp,
   colunasFilhas,
+  mapaColunasFilho,
   onCarregarFilhos,
   filhoId: filhoIdProp,
   acoesFilhas,
@@ -538,6 +400,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   acoesExportacao,
   acoesBarra,
   onSelecaoMudar,
+  selecionavelFilhos,
+  onSelecaoFilho,
+  acoesFilho,
   onBuscar,
   placeholderBusca = 'Buscar...',
   onFiltrar,
@@ -621,14 +486,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   // ── Visibilidade de colunas ───────────────────────────────────────────────────
   const [colunasAbertas, setColunasAbertas] = useState(false)
+  const colunasBtnRef = useRef<HTMLButtonElement>(null)
 
   const colunasVisiveis = useMemo<string[]>(() => {
     if (preferencias?.colunas_visiveis) return preferencias.colunas_visiveis
-    return colunas.filter(c => !c.oculta).map(c => c.key)
+    return colunas.map(c => c.key)
   }, [preferencias, colunas])
 
   const colunasFiltradas = useMemo(
-    () => colunas.filter(c => colunasVisiveis.includes(c.key)),
+    () => colunasVisiveis
+      .map(key => colunas.find(c => c.key === key))
+      .filter((c): c is GTColuna<T> => c != null),
     [colunas, colunasVisiveis],
   )
 
@@ -670,7 +538,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [colunas, preferencias, onSalvarPreferencias])
 
   const restaurarPadraoColunas = useCallback(() => {
-    const padrao = colunas.filter(c => !c.oculta).map(c => c.key)
+    const padrao = colunas.map(c => c.key)
     onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
   }, [colunas, preferencias, onSalvarPreferencias])
 
@@ -737,6 +605,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return checkW + expandW
   }, [acoesLote, onCarregarFilhos])
 
+  /** largura total das colunas frozen de dados (para spacer nas linhas filhas) */
+  const frozenDataWidth = useMemo(
+    () => colunasFiltradas
+      .filter(c => c.frozen)
+      .reduce((sum, c) => sum + getColWidth(c as GTColuna<unknown>), 0),
+    [colunasFiltradas, getColWidth],
+  )
+
   // ── Seleção ───────────────────────────────────────────────────────────────────
   const {
     selecionados,
@@ -749,6 +625,45 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   } = useGTSelecao()
 
   const todosIds = useMemo(() => dados.map(itemId), [dados, itemId])
+
+  // ── Seleção de filhos ─────────────────────────────────────────────────────────
+  const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
+  const [filhosCache_ref] = useState<Map<string, C>>(new Map())
+
+  const toggleFilho = useCallback(
+    (id: string, item: C) => {
+      setFilhosSelecionados(prev => {
+        const novo = new Set(prev)
+        if (novo.has(id)) {
+          novo.delete(id)
+          filhosCache_ref.delete(id)
+        } else {
+          novo.add(id)
+          filhosCache_ref.set(id, item)
+        }
+        return novo
+      })
+    },
+    [filhosCache_ref],
+  )
+
+  // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
+  useEffect(() => {
+    if (!onSelecaoFilho) return
+    const itens = Array.from(filhosSelecionados).map(id => filhosCache_ref.get(id)).filter((i): i is C => i != null)
+    onSelecaoFilho(itens)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filhosSelecionados])
+
+  // ── Dropdown de ações filho ───────────────────────────────────────────────────
+  const [dropdownFilhoAberto, setDropdownFilhoAberto] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!dropdownFilhoAberto) return
+    function fecharFora() { setDropdownFilhoAberto(null) }
+    document.addEventListener('mousedown', fecharFora)
+    return () => document.removeEventListener('mousedown', fecharFora)
+  }, [dropdownFilhoAberto])
 
   // ── Edição inline ─────────────────────────────────────────────────────────────
   const {
@@ -1096,13 +1011,184 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   function renderLinhaFilha(linha: GTLinhaVirtual<T, C> & { tipo: 'filho' }) {
     const { item, id } = linha
+
+    // ── Modo mapeado: filho usa as mesmas colunas do pai ──────────────────────
+    if (mapaColunasFilho) {
+      const filhoSel = filhosSelecionados.has(id)
+      const acoesDoFilho = acoesFilho ? acoesFilho(item) : []
+      const dropAberto = dropdownFilhoAberto === id
+
+      return (
+        <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}`}>
+          {acoesLote && acoesLote.length > 0 && (
+            <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
+              {selecionavelFilhos && (
+                <input
+                  type="checkbox"
+                  className="gtv-checkbox gtv-checkbox--filho"
+                  checked={filhoSel}
+                  aria-label="Selecionar item"
+                  onChange={() => toggleFilho(id, item)}
+                  onClick={e => e.stopPropagation()}
+                />
+              )}
+            </div>
+          )}
+          {onCarregarFilhos && (
+            <div
+              className="gtv-celula gtv-celula--expand gtv-celula--frozen"
+              style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+            >
+              <span className="gtv-conector" aria-hidden="true">└</span>
+            </div>
+          )}
+
+          {colunasFiltradas.map(col => {
+            const mapa = mapaColunasFilho[col.key as string]
+            const campo = mapa?.campo ?? (col.key as string)
+            const podeEditar = !!mapa?.editavel && !!onEditarFilho
+            const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
+            const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
+
+            const classeAlinhamento = col.align === 'center'
+              ? ' gtv-celula--center'
+              : col.align === 'right'
+                ? ' gtv-celula--right'
+                : ''
+            const classeEditavel = podeEditar ? ' gtv-celula--editavel' : ''
+            const classeFrozen   = col.frozen ? ' gtv-celula--frozen' : ''
+
+            const styleCelula: React.CSSProperties = {
+              flex: `0 0 ${getColWidth(col as GTColuna<unknown>)}px`,
+              ...(col.frozen ? { left: offsetFrozenDados } : undefined),
+            }
+
+            const valor = (item as Record<string, unknown>)[campo]
+
+            return (
+              <div
+                key={col.key as string}
+                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFrozen}`}
+                style={styleCelula}
+                onClick={podeEditar && !estaEditando ? (e) => {
+                  e.stopPropagation()
+                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label })
+                  iniciarEdicaoFilho(id, campo, valor)
+                } : undefined}
+              >
+                {estaEditando && overlayAtivo ? (
+                  <span className="gtv-celula--editando-overlay">
+                    {String(valorEditandoFilho ?? '')}
+                  </span>
+                ) : estaEditando ? (
+                  <input
+                    autoFocus
+                    className="gtv-celula-input"
+                    value={String(valorEditandoFilho ?? '')}
+                    disabled={salvandoFilho}
+                    onChange={e => atualizarValorFilho(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { e.preventDefault(); confirmarEdicaoFilho() }
+                      if (e.key === 'Escape') cancelarEdicaoFilho()
+                    }}
+                    onBlur={() => confirmarEdicaoFilho()}
+                    onClick={e => e.stopPropagation()}
+                  />
+                ) : (
+                  mapa ? mapa.render(item) : null
+                )}
+              </div>
+            )
+          })}
+
+          {acoesFilhas && acoesFilhas.length > 0 && (
+            <div className="gtv-celula gtv-celula--acoes">
+              <div className="gtv-acoes-grupo">
+                {acoesFilhas.map(acao => {
+                  if (acao.visivel && !acao.visivel(item)) return null
+                  if (acao.renderCustom) return <span key={acao.id}>{acao.renderCustom(item)}</span>
+                  return (
+                    <button
+                      key={acao.id}
+                      className={`gtv-acao-btn${acao.variant === 'danger' ? ' gtv-acao-btn--danger' : ''}`}
+                      title={acao.tooltip}
+                      aria-label={acao.tooltip}
+                      onClick={e => { e.stopPropagation(); acao.onClick?.(item) }}
+                    >
+                      {acao.icone}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {acoesDoFilho.length > 0 && (
+            <div
+              className="gtv-celula gtv-celula--acoes gtv-celula--acoes-filho"
+              onMouseDown={e => e.stopPropagation()}
+            >
+              <div style={{ position: 'relative' }}>
+                <button
+                  className="gtv-acao-btn gtv-acao-btn--tres-pontos"
+                  title="Mais ações"
+                  aria-label="Mais ações"
+                  aria-expanded={dropAberto}
+                  onClick={e => {
+                    e.stopPropagation()
+                    setDropdownFilhoAberto(dropAberto ? null : id)
+                  }}
+                >
+                  ⋯
+                </button>
+                {dropAberto && (
+                  <div className="gtv-dropdown-filho" onMouseDown={e => e.stopPropagation()}>
+                    {acoesDoFilho.map((acao, idx) => (
+                      <button
+                        key={idx}
+                        className={`gtv-dropdown-filho-item${acao.perigo ? ' gtv-dropdown-filho-item--perigo' : ''}`}
+                        onClick={e => {
+                          e.stopPropagation()
+                          setDropdownFilhoAberto(null)
+                          acao.onClick()
+                        }}
+                      >
+                        {acao.icone && <span className="gtv-dropdown-filho-icone">{acao.icone}</span>}
+                        {acao.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // ── Modo original: filho usa colunasFilhas ────────────────────────────────
     const colsFilhas = colunasFilhas ?? (colunasFiltradas as unknown as GTColuna<C>[])
+    const filhoSelOrig = filhosSelecionados.has(id)
+    const acoesDoFilhoOrig = acoesFilho ? acoesFilho(item) : []
+    const dropAbertoOrig = dropdownFilhoAberto === id
 
     return (
-      <div className="gtv-linha gtv-linha--filho">
+      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}`}>
         {/* Espaço para alinhar com checkbox pai */}
         {acoesLote && acoesLote.length > 0 && (
-          <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }} />
+          <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
+            {selecionavelFilhos && (
+              <input
+                type="checkbox"
+                className="gtv-checkbox gtv-checkbox--filho"
+                checked={filhoSelOrig}
+                aria-label="Selecionar item"
+                onChange={() => toggleFilho(id, item)}
+                onClick={e => e.stopPropagation()}
+              />
+            )}
+          </div>
         )}
 
         {/* Conector hierárquico */}
@@ -1113,6 +1199,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           >
             <span className="gtv-conector" aria-hidden="true">└</span>
           </div>
+        )}
+
+        {/* Spacer sticky: alinha células filhas com colunas não-frozen do pai */}
+        {frozenDataWidth > 0 && (
+          <div
+            className="gtv-celula gtv-celula--frozen"
+            style={{ flex: `0 0 ${frozenDataWidth}px`, left: offsetFrozenDados }}
+            aria-hidden="true"
+          />
         )}
 
         {/* Células filhas */}
@@ -1144,6 +1239,46 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   </button>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {acoesDoFilhoOrig.length > 0 && (
+          <div
+            className="gtv-celula gtv-celula--acoes gtv-celula--acoes-filho"
+            onMouseDown={e => e.stopPropagation()}
+          >
+            <div style={{ position: 'relative' }}>
+              <button
+                className="gtv-acao-btn gtv-acao-btn--tres-pontos"
+                title="Mais ações"
+                aria-label="Mais ações"
+                aria-expanded={dropAbertoOrig}
+                onClick={e => {
+                  e.stopPropagation()
+                  setDropdownFilhoAberto(dropAbertoOrig ? null : id)
+                }}
+              >
+                ⋯
+              </button>
+              {dropAbertoOrig && (
+                <div className="gtv-dropdown-filho" onMouseDown={e => e.stopPropagation()}>
+                  {acoesDoFilhoOrig.map((acao, idx) => (
+                    <button
+                      key={idx}
+                      className={`gtv-dropdown-filho-item${acao.perigo ? ' gtv-dropdown-filho-item--perigo' : ''}`}
+                      onClick={e => {
+                        e.stopPropagation()
+                        setDropdownFilhoAberto(null)
+                        acao.onClick()
+                      }}
+                    >
+                      {acao.icone && <span className="gtv-dropdown-filho-icone">{acao.icone}</span>}
+                      {acao.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1210,6 +1345,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {onSalvarPreferencias && (
             <div style={{ position: 'relative' }}>
               <button
+                ref={colunasBtnRef}
                 className={`gtv-btn${colunasAbertas ? ' gtv-btn--ativo' : ''}`}
                 onClick={() => setColunasAbertas(v => !v)}
                 aria-label="Gerenciar colunas"
@@ -1219,14 +1355,24 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 Colunas
               </button>
               {colunasAbertas && (
-                <GTVisibilidadeColunas
-                  colunas={colunas}
+                <SelectColunasGlobal
+                  colunas={[
+                    ...colunasVisiveis
+                      .map(key => colunas.find(c => c.key === key))
+                      .filter((c): c is GTColuna<T> => c != null)
+                      .map(c => ({ key: c.key, label: c.label })),
+                    ...colunas
+                      .filter(c => !colunasVisiveis.includes(c.key))
+                      .map(c => ({ key: c.key, label: c.label })),
+                  ]}
                   colunasVisiveis={colunasVisiveis}
                   onToggle={toggleColuna}
                   onFechar={() => setColunasAbertas(false)}
-                  onReordenar={onSalvarPreferencias ? reorderColuna : undefined}
+                  onReordenar={reorderColuna}
                   onSelecionarTodos={selecionarTodasColunas}
                   onRestaurarPadrao={restaurarPadraoColunas}
+                  triggerRef={colunasBtnRef}
+                  posicao={{ position: 'absolute', top: '100%', right: 0, zIndex: 50 }}
                 />
               )}
             </div>
@@ -1440,10 +1586,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     ref={virtualizer.measureElement}
                     style={{
                       position: 'absolute',
-                      top: 0,
+                      top: virtualItem.start,
                       left: 0,
                       width: larguraTotalColunas,
-                      transform: `translateY(${virtualItem.start}px)`,
                     }}
                     role="row"
                   >

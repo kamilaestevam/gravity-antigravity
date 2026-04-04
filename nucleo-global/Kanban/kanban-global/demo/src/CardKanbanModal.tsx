@@ -26,13 +26,15 @@ import {
   Bell,
   Clock,
   ListChecks,
-  Warning,
   Trash,
   At,
   EnvelopeSimple,
   WhatsappLogo,
   Plus,
 } from '@phosphor-icons/react'
+import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
+import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import './CardKanbanModal.css'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -123,22 +125,7 @@ function gerarHistorico(item: CardKanbanItem) {
   ]
 }
 
-// ── Primitivo Campo ───────────────────────────────────────────────────────────
-
-function Campo({ label, children, erro }: { label: string; children: React.ReactNode; erro?: string }) {
-  return (
-    <div className="ckm-campo">
-      <label className={`ckm-label ${erro ? 'ckm-label-erro' : ''}`}>{label}</label>
-      {children}
-      {erro && (
-        <span className="ckm-campo-erro">
-          <Warning size={12} />
-          {erro}
-        </span>
-      )}
-    </div>
-  )
-}
+// Campo removido — substituído por GeralCampoGlobal do design system
 
 // ── Seção ─────────────────────────────────────────────────────────────────────
 
@@ -199,63 +186,47 @@ function AbaInformacoes({
       {/* CONFIGURAÇÕES */}
       <Secao titulo="Configurações" icone={<ListChecks size={12} />}>
         <div className="ckm-grid">
-          <Campo label="Tipo de Atividade">
-            <select
-              className="ckm-select"
-              value={tipoAtividade}
-              onChange={e => onChangeTipo(e.target.value)}
-            >
-              {TIPOS_ATIVIDADE.map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </Campo>
+          <SelectGlobal
+            label="Tipo de Atividade"
+            buscavel={false}
+            opcoes={TIPOS_ATIVIDADE.map(t => ({ valor: t, rotulo: t }))}
+            valor={tipoAtividade}
+            aoMudarValor={v => onChangeTipo(String(v ?? ''))}
+          />
 
-          <Campo label="Fase da Atividade">
-            <select
-              className="ckm-select"
-              value={form.colunaKey}
-              onChange={e => onChange({ colunaKey: e.target.value })}
-            >
-              {colunas.map(c => (
-                <option key={c.key} value={c.key}>{c.label}</option>
-              ))}
-            </select>
-          </Campo>
+          <SelectGlobal
+            label="Fase da Atividade"
+            buscavel={false}
+            opcoes={colunas.map(c => ({ valor: c.key, rotulo: c.label }))}
+            valor={form.colunaKey}
+            aoMudarValor={v => onChange({ colunaKey: String(v ?? '') })}
+          />
 
-          <Campo label="Prioridade">
-            <select
-              className="ckm-select"
-              value={form.prioridade}
-              onChange={e => onChange({ prioridade: e.target.value as Prioridade })}
-              style={{ borderLeftColor: pc, borderLeftWidth: 3 }}
-            >
-              {(Object.keys(PRIORIDADE_LABEL) as Prioridade[]).map(p => (
-                <option key={p} value={p}>{PRIORIDADE_LABEL[p]}</option>
-              ))}
-            </select>
-          </Campo>
+          <SelectGlobal
+            label="Prioridade"
+            buscavel={false}
+            opcoes={(Object.keys(PRIORIDADE_LABEL) as Prioridade[]).map(p => ({ valor: p, rotulo: PRIORIDADE_LABEL[p] }))}
+            valor={form.prioridade}
+            aoMudarValor={v => onChange({ prioridade: v as Prioridade })}
+          />
 
-          <Campo label="Data e Horário">
-            <input
-              type="datetime-local"
-              className="ckm-input"
-              value={form.data ? form.data.slice(0, 16) : ''}
-              onChange={e => onChange({ data: new Date(e.target.value).toISOString() })}
-            />
-          </Campo>
+          <CalendarioCampoGlobal
+            label="Data e Horário"
+            valor={{ inicio: form.data ? new Date(form.data) : null, fim: null }}
+            aoMudarValor={v => onChange({ data: v.inicio?.toISOString() ?? form.data })}
+          />
         </div>
       </Secao>
 
       {/* EMPRESA VINCULADA */}
       <Secao titulo="Empresa Vinculada" icone={<BuildingOffice size={12} />} modifier="ckm-secao--empresa">
-        <Campo
+        <GeralCampoGlobal
           label="Buscar empresa"
           erro={!buscaEmpresa.trim() ? 'Nenhum cliente vinculado' : undefined}
         >
           <div className="ckm-input-wrap">
             <input
-              className="ckm-input"
+              className="ckm-sg-input"
               value={buscaEmpresa}
               onChange={e => {
                 setBuscaEmpresa(e.target.value)
@@ -265,28 +236,28 @@ function AbaInformacoes({
             />
             <span className="ckm-input-icon"><MagnifyingGlass size={14} /></span>
           </div>
-        </Campo>
+        </GeralCampoGlobal>
       </Secao>
 
       {/* CONTEÚDO */}
       <Secao titulo="Conteúdo" icone={<PencilSimple size={12} />} modifier="ckm-secao--conteudo">
-        <Campo label="Título">
+        <GeralCampoGlobal label="Título">
           <input
-            className="ckm-input"
+            className="ckm-sg-input"
             value={form.nome}
             onChange={e => onChange({ nome: e.target.value })}
             placeholder="Título do card"
           />
-        </Campo>
+        </GeralCampoGlobal>
 
-        <Campo label="Descrição">
+        <GeralCampoGlobal label="Descrição">
           <textarea
-            className="ckm-textarea"
+            className="ckm-sg-textarea"
             value={descricao}
             onChange={e => onChangeDescricao(e.target.value)}
             placeholder="Descreva o objetivo, contexto ou detalhes deste card…"
           />
-        </Campo>
+        </GeralCampoGlobal>
       </Secao>
 
       {/* PARTICIPANTES */}
@@ -322,9 +293,9 @@ function AbaInformacoes({
         </div>
 
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <div className="ckm-input-wrap" style={{ flex: 1 }}>
+          <div style={{ flex: 1 }}>
             <input
-              className="ckm-input"
+              className="ckm-sg-input"
               value={buscaUser}
               onChange={e => setBuscaUser(e.target.value)}
               placeholder={tipoAdd === 'usuario' ? 'Buscar usuário...' : tipoAdd === 'email' ? 'Digite o e-mail...' : 'Digite o WhatsApp...'}
@@ -381,45 +352,38 @@ function AbaTempo({
   return (
     <Secao titulo="Tempo e Valor" icone={<Clock size={12} />} modifier="ckm-secao--tempo">
       <div className="ckm-grid">
-        <Campo label="Data de início">
-          <input
-            type="date"
-            className="ckm-input"
-            value={form.data ? form.data.slice(0, 10) : ''}
-            onChange={e => onChange({ data: new Date(e.target.value).toISOString() })}
-          />
-        </Campo>
+        <CalendarioCampoGlobal
+          label="Data de início"
+          valor={{ inicio: form.data ? new Date(form.data) : null, fim: null }}
+          aoMudarValor={v => onChange({ data: v.inicio?.toISOString() ?? form.data })}
+        />
 
-        <Campo label="Valor (R$)">
+        <GeralCampoGlobal label="Valor (R$)">
           <input
             type="number"
-            className="ckm-input"
+            className="ckm-sg-input"
             value={form.valor}
             min={0}
             step={0.01}
             onChange={e => onChange({ valor: parseFloat(e.target.value) || 0 })}
           />
-        </Campo>
+        </GeralCampoGlobal>
 
-        <Campo label="Responsável">
-          <select
-            className="ckm-select"
-            value={form.responsavel}
-            onChange={e => onChange({ responsavel: e.target.value })}
-          >
-            {RESPONSAVEIS.map(r => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-        </Campo>
+        <SelectGlobal
+          label="Responsável"
+          buscavel={false}
+          opcoes={RESPONSAVEIS.map(r => ({ valor: r, rotulo: r }))}
+          valor={form.responsavel}
+          aoMudarValor={v => onChange({ responsavel: String(v ?? '') })}
+        />
 
-        <Campo label="Valor formatado">
+        <GeralCampoGlobal label="Valor formatado">
           <input
-            className="ckm-input"
+            className="ckm-sg-input"
             readOnly
             value={form.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           />
-        </Campo>
+        </GeralCampoGlobal>
       </div>
     </Secao>
   )
@@ -440,24 +404,21 @@ function AbaProximoPasso({
 }) {
   return (
     <Secao titulo="Próximo Passo" icone={<ArrowRight size={12} />} modifier="ckm-secao--proximo">
-      <Campo label="O que deve acontecer a seguir?">
+      <GeralCampoGlobal label="O que deve acontecer a seguir?">
         <textarea
-          className="ckm-textarea"
+          className="ckm-sg-textarea"
           style={{ minHeight: 120 }}
           value={proximoPasso}
           onChange={e => onChangePasso(e.target.value)}
           placeholder="Descreva a próxima ação necessária para avançar este card…"
         />
-      </Campo>
+      </GeralCampoGlobal>
 
-      <Campo label="Data prevista para o próximo passo">
-        <input
-          type="datetime-local"
-          className="ckm-input"
-          value={dataProximo}
-          onChange={e => onChangeData(e.target.value)}
-        />
-      </Campo>
+      <CalendarioCampoGlobal
+        label="Data prevista para o próximo passo"
+        valor={{ inicio: dataProximo ? new Date(dataProximo) : null, fim: null }}
+        aoMudarValor={v => onChangeData(v.inicio?.toISOString().slice(0, 16) ?? '')}
+      />
     </Secao>
   )
 }
@@ -506,14 +467,11 @@ function AbaLembrete({
         </div>
       </div>
 
-      <Campo label="Data e Hora do Lembrete">
-        <input
-          type="datetime-local"
-          className="ckm-input"
-          value={dataLembrete}
-          onChange={e => onChangeData(e.target.value)}
-        />
-      </Campo>
+      <CalendarioCampoGlobal
+        label="Data e Hora do Lembrete"
+        valor={{ inicio: dataLembrete ? new Date(dataLembrete) : null, fim: null }}
+        aoMudarValor={v => onChangeData(v.inicio?.toISOString().slice(0, 16) ?? '')}
+      />
 
       <div>
         <div className="ckm-ant-label">Notificar por</div>

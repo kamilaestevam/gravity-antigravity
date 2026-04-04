@@ -1,0 +1,209 @@
+/* GerenciadorColunas.css — Estilos da tela de gerenciamento de colunas customizadas */
+
+.gc-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.gc-titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.gc-erro {
+  font-size: 0.875rem;
+  color: var(--color-danger, #f87171);
+  background: color-mix(in srgb, var(--color-danger, #f87171) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 30%, transparent);
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  margin: 0;
+}
+
+.gc-carregando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+.gc-spinner {
+  animation: gc-spin 0.8s linear infinite;
+}
+
+@keyframes gc-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.gc-vazio {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 0.5rem;
+  margin: 0;
+}
+
+/* ── Tabela ── */
+
+.gc-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.gc-th {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.gc-th--drag  { width: 2.5rem; }
+.gc-th--acoes { width: 5rem; }
+
+.gc-linha {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.1s;
+}
+
+.gc-linha:hover {
+  background: var(--bg-hover, rgba(255,255,255,0.03));
+}
+
+.gc-linha--arrastando {
+  background: var(--bg-hover, rgba(255,255,255,0.05));
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 10;
+  position: relative;
+}
+
+.gc-celula {
+  padding: 0.625rem 0.75rem;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.gc-celula--drag {
+  width: 2.5rem;
+  padding: 0 0.5rem;
+}
+
+.gc-celula--nome {
+  font-weight: 500;
+}
+
+.gc-celula--acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ── Drag handle ── */
+
+.gc-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: grab;
+  border-radius: 0.25rem;
+  transition: color 0.15s, background 0.15s;
+}
+
+.gc-drag-handle:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover, rgba(255,255,255,0.06));
+}
+
+.gc-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* ── Badges ── */
+
+.gc-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.gc-badge--tipo {
+  background: color-mix(in srgb, var(--ws-accent, #818cf8) 12%, transparent);
+  color: var(--ws-accent, #818cf8);
+  border: 1px solid color-mix(in srgb, var(--ws-accent, #818cf8) 25%, transparent);
+}
+
+.gc-badge--escopo {
+  background: color-mix(in srgb, #34d399 12%, transparent);
+  color: #34d399;
+  border: 1px solid color-mix(in srgb, #34d399 25%, transparent);
+}
+
+.gc-badge--visibilidade {
+  background: color-mix(in srgb, #94a3b8 12%, transparent);
+  color: #94a3b8;
+  border: 1px solid color-mix(in srgb, #94a3b8 25%, transparent);
+}
+
+/* ── Botões de ação ── */
+
+.gc-btn-acao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.gc-btn-acao--editar {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.gc-btn-acao--editar:hover {
+  background: color-mix(in srgb, var(--ws-accent, #818cf8) 12%, transparent);
+  border-color: color-mix(in srgb, var(--ws-accent, #818cf8) 30%, transparent);
+  color: var(--ws-accent, #818cf8);
+}
+
+.gc-btn-acao--excluir {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.gc-btn-acao--excluir:hover {
+  background: color-mix(in srgb, #f87171 12%, transparent);
+  border-color: color-mix(in srgb, #f87171 30%, transparent);
+  color: #f87171;
+}

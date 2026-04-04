@@ -1,0 +1,316 @@
+/* PainelAnexos.css — Estilos do painel de anexos */
+
+.painel-anexos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* Cabeçalho */
+.painel-anexos__cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.painel-anexos__titulo {
+  font-weight: 600;
+  color: var(--color-text-primary, #1e293b);
+  flex: 1;
+}
+
+.painel-anexos__btn-adicionar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--color-border, #cbd5e1);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text-secondary, #475569);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.painel-anexos__btn-adicionar:hover:not(:disabled) {
+  background: var(--color-bg-hover, #f1f5f9);
+  border-color: var(--color-border-strong, #94a3b8);
+}
+
+.painel-anexos__btn-adicionar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.painel-anexos__input-oculto {
+  display: none;
+}
+
+/* Dropzone */
+.painel-anexos__dropzone {
+  border: 1.5px dashed var(--color-border, #cbd5e1);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  background: var(--color-bg-subtle, #f8fafc);
+  transition: border-color 0.15s, background 0.15s;
+  cursor: default;
+}
+
+.painel-anexos__dropzone--ativo {
+  border-color: var(--color-brand, #3b82f6);
+  background: var(--color-brand-subtle, #eff6ff);
+}
+
+.painel-anexos__dropzone-texto {
+  color: var(--color-text-muted, #94a3b8);
+  font-size: 12px;
+}
+
+/* Progresso */
+.painel-anexos__progresso {
+  position: relative;
+  height: 20px;
+  background: var(--color-bg-subtle, #f1f5f9);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.painel-anexos__progresso-barra {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--color-brand, #3b82f6);
+  transition: width 0.2s;
+  border-radius: 6px;
+}
+
+.painel-anexos__progresso-texto {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--color-text-primary, #1e293b);
+  z-index: 1;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg) }
+  to { transform: rotate(360deg) }
+}
+
+.painel-anexos__spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Erro */
+.painel-anexos__erro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--color-error-subtle, #fef2f2);
+  border: 1px solid var(--color-error-border, #fecaca);
+  border-radius: 6px;
+  color: var(--color-error, #dc2626);
+  font-size: 12px;
+}
+
+.painel-anexos__erro button {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Carregando / vazio */
+.painel-anexos__carregando,
+.painel-anexos__vazio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  color: var(--color-text-muted, #94a3b8);
+  font-size: 12px;
+  justify-content: center;
+}
+
+/* Lista */
+.painel-anexos__lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.painel-anexos__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  background: var(--color-bg, #fff);
+  transition: background 0.12s;
+}
+
+.painel-anexos__item:hover {
+  background: var(--color-bg-hover, #f8fafc);
+}
+
+/* Ícones */
+.painel-anexos__icone {
+  flex-shrink: 0;
+}
+
+.painel-anexos__icone--pdf  { color: #dc2626; }
+.painel-anexos__icone--doc  { color: #2563eb; }
+.painel-anexos__icone--xls  { color: #16a34a; }
+.painel-anexos__icone--csv  { color: #0891b2; }
+.painel-anexos__icone--zip  { color: #d97706; }
+.painel-anexos__icone--txt  { color: #64748b; }
+.painel-anexos__icone--img  { color: #7c3aed; }
+.painel-anexos__icone--outros { color: #94a3b8; }
+
+/* Info */
+.painel-anexos__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.painel-anexos__nome {
+  font-size: 13px;
+  color: var(--color-text-primary, #1e293b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.painel-anexos__tamanho {
+  font-size: 11px;
+  color: var(--color-text-muted, #94a3b8);
+}
+
+.painel-anexos__descricao {
+  font-size: 11px;
+  color: var(--color-text-secondary, #64748b);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ações */
+.painel-anexos__acoes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.painel-anexos__btn-acao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text-secondary, #64748b);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.painel-anexos__btn-acao:hover {
+  background: var(--color-bg-hover, #f1f5f9);
+  color: var(--color-text-primary, #1e293b);
+}
+
+.painel-anexos__btn-excluir:hover {
+  background: var(--color-error-subtle, #fef2f2);
+  color: var(--color-error, #dc2626);
+}
+
+/* Preview overlay */
+.painel-anexos__preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.painel-anexos__preview-caixa {
+  background: var(--color-bg, #fff);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 800px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.painel-anexos__preview-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--color-text-primary, #1e293b);
+}
+
+.painel-anexos__preview-cabecalho button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--color-text-muted, #94a3b8);
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+
+.painel-anexos__preview-cabecalho button:hover {
+  background: var(--color-bg-hover, #f1f5f9);
+  color: var(--color-text-primary, #1e293b);
+}
+
+.painel-anexos__preview-iframe {
+  flex: 1;
+  width: 100%;
+  min-height: 500px;
+  border: none;
+}
+
+.painel-anexos__preview-imagem {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}

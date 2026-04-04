@@ -1,0 +1,21 @@
+/**
+ * @nucleo/tabela-virtual-global — ponto de entrada
+ */
+
+export { TabelaVirtualGlobal } from './TabelaVirtualGlobal.js'
+export type {
+  GTColuna,
+  GTAcao,
+  GTAcaoLote,
+  GTAcaoExport,
+  GTFiltroConfig,
+  GTFiltrosAtivos,
+  GTAbaTipo,
+  GTPreferencias,
+  GTLinhaVirtual,
+  GTVirtualTableProps,
+  GTAlign,
+  GTTipo,
+  GTMapaColunasFilho,
+  GTAcaoLinha,
+} from './tipos.js'

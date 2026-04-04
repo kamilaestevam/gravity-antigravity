@@ -59,6 +59,7 @@ export default defineConfig({
       '@nucleo/query-builder-global':              nucleo('Dashboard/QueryBuilder/QueryBuilder.tsx'),
       // ── Tabelas ──
       '@nucleo/tabela-global':                     nucleo('Tabelas/tabela-global/src/index.ts'),
+      '@nucleo/select-colunas-global':             nucleo('Tabelas/select-colunas-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':             nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
       '@nucleo/tabela-virtual-global':             nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
       // ── Utilidades ──

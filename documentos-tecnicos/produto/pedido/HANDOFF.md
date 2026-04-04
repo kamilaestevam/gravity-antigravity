@@ -41,7 +41,7 @@ O sistema resolve:
 
 | Area | Funcionalidades |
 |------|----------------|
-| Lista de Pedidos | Grid hierarquico (TabelaCamadasGlobal), Pedido como pai, PedidoItem como filho, 11+ colunas, filtros, busca, exportacao |
+| Lista de Pedidos | Grid hierarquico virtualizado (TabelaVirtualGlobal), Pedido como pai (99 colunas), PedidoItem como filho (165 colunas), filtros, busca, exportacao, resize de colunas, overlay de edicao |
 | Gestao de Itens | Quantidade Inicial/Atual/Transferida/Pronta/Cancelada, unidade de medida, valores |
 | Entrada de Dados | Manual, importacao de arquivo (Excel, CSV, XML, TXT, JSON), integracao ERP via API Cockpit |
 | Ciclo de Vida | Draft -> Aberto -> Vinculado -> Liquidado |

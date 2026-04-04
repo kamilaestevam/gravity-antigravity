@@ -1,0 +1,467 @@
+/**
+ * ModalEdicaoEmMassa.css — Estilos do modal de edição em massa
+ * Design System: Gravity Solid Slate
+ */
+
+/* Overlay */
+.modal-edicao-massa__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* Container */
+.modal-edicao-massa__container {
+  background-color: var(--color-surface, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Header */
+.modal-edicao-massa__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__titulo {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary, #f1f5f9);
+  margin: 0;
+}
+
+.modal-edicao-massa__fechar {
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #64748b);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.modal-edicao-massa__fechar:hover {
+  color: var(--color-text-primary, #f1f5f9);
+  background-color: var(--color-surface-hover, #334155);
+}
+
+/* Corpo */
+.modal-edicao-massa__corpo {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Toggle de nível */
+.modal-edicao-massa__nivel-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-edicao-massa__nivel-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #334155);
+  background-color: transparent;
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.modal-edicao-massa__nivel-btn:hover {
+  background-color: var(--color-surface-hover, #334155);
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-edicao-massa__nivel-btn--ativo {
+  background-color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary, #3b82f6);
+  color: #ffffff;
+}
+
+.modal-edicao-massa__nivel-btn--ativo:hover {
+  background-color: #2563eb;
+}
+
+/* Seção */
+.modal-edicao-massa__secao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-edicao-massa__secao-titulo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+/* Lista de campos */
+.modal-edicao-massa__campos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Linha de campo */
+.modal-edicao-massa__campo-linha {
+  display: grid;
+  grid-template-columns: 1fr 160px 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.modal-edicao-massa__campo-label {
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+  font-weight: 500;
+}
+
+/* Inputs e selects */
+.modal-edicao-massa__select,
+.modal-edicao-massa__input {
+  width: 100%;
+  padding: 7px 10px;
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.modal-edicao-massa__select:focus,
+.modal-edicao-massa__input:focus {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.modal-edicao-massa__input::placeholder {
+  color: var(--color-text-muted, #64748b);
+}
+
+/* Botão remover campo */
+.modal-edicao-massa__remover-campo {
+  background: none;
+  border: none;
+  color: var(--color-text-muted, #64748b);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__remover-campo:hover {
+  color: #f87171;
+}
+
+/* Botão adicionar campo */
+.modal-edicao-massa__adicionar-campo {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: none;
+  border: 1px dashed var(--color-border, #334155);
+  border-radius: 6px;
+  color: var(--color-text-muted, #64748b);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.modal-edicao-massa__adicionar-campo:hover {
+  color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary, #3b82f6);
+}
+
+/* Badge múltiplos valores */
+.modal-edicao-massa__badge-multiplos {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background-color: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Separador */
+.modal-edicao-massa__separador {
+  height: 1px;
+  background-color: var(--color-border, #334155);
+}
+
+/* Preview */
+.modal-edicao-massa__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 8px;
+}
+
+.modal-edicao-massa__preview-titulo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.modal-edicao-massa__preview-resumo {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.modal-edicao-massa__preview-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.modal-edicao-massa__preview-stat strong {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-edicao-massa__preview-stat span {
+  color: var(--color-text-muted, #64748b);
+  font-size: 12px;
+}
+
+.modal-edicao-massa__preview-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-edicao-massa__preview-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.modal-edicao-massa__preview-campo-nome {
+  font-weight: 500;
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-edicao-massa__preview-campo-op {
+  color: var(--color-text-muted, #64748b);
+  font-size: 12px;
+}
+
+.modal-edicao-massa__preview-campo-valor {
+  color: #60a5fa;
+  font-weight: 500;
+}
+
+.modal-edicao-massa__preview-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted, #64748b);
+}
+
+/* Spinner */
+.modal-edicao-massa__spinner {
+  animation: edicao-massa-spin 1s linear infinite;
+}
+
+@keyframes edicao-massa-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Passo 2 — confirmação */
+.modal-edicao-massa__confirmacao {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-edicao-massa__confirmacao-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  padding: 14px 16px;
+  background-color: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+}
+
+.modal-edicao-massa__confirmacao-stat {
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.modal-edicao-massa__confirmacao-stat strong {
+  color: var(--color-text-primary, #f1f5f9);
+  font-weight: 700;
+}
+
+.modal-edicao-massa__confirmacao-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-edicao-massa__confirmacao-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.modal-edicao-massa__confirmacao-item-campo {
+  font-weight: 500;
+  color: var(--color-text-primary, #f1f5f9);
+  min-width: 140px;
+}
+
+.modal-edicao-massa__confirmacao-item-op {
+  color: var(--color-text-muted, #64748b);
+  font-size: 11px;
+  padding: 1px 6px;
+  background-color: rgba(51, 65, 85, 0.6);
+  border-radius: 3px;
+}
+
+.modal-edicao-massa__confirmacao-item-valor {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.modal-edicao-massa__confirmacao-item-nivel {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--color-text-muted, #64748b);
+  padding: 1px 6px;
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 3px;
+}
+
+/* Alerta */
+.modal-edicao-massa__alerta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background-color: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 6px;
+  color: #eab308;
+  font-size: 13px;
+}
+
+/* Erro */
+.modal-edicao-massa__erro {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #f87171;
+  font-size: 13px;
+}
+
+/* Footer */
+.modal-edicao-massa__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__footer-direita {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Indicador de passos */
+.modal-edicao-massa__passos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+}
+
+.modal-edicao-massa__passo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border, #334155);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.modal-edicao-massa__passo--ativo {
+  background-color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary, #3b82f6);
+  color: #ffffff;
+}
+
+.modal-edicao-massa__passo--concluido {
+  background-color: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.modal-edicao-massa__passo-separador {
+  width: 24px;
+  height: 1px;
+  background-color: var(--color-border, #334155);
+}

@@ -1,7 +1,7 @@
 # Arquitetura Tecnica — Pedido (Gestao de Pedidos COMEX)
 
-> **Versao:** 1.0
-> **Data:** 31/03/2026
+> **Versao:** 1.1
+> **Data:** 03/04/2026
 > **Porta Backend:** 8026 (processos-core)
 > **Product ID:** pedido
 > **Agente:** Tech Lead (Dream Team de Produtos)
@@ -58,7 +58,7 @@ produto/pedido/
 ├── client/
 │   └── src/
 │       ├── pages/
-│       │   ├── ListaPedidos.tsx           # Grid hierarquico (TabelaCamadasGlobal)
+│       │   ├── ListaPedidos.tsx           # Grid hierarquico (TabelaVirtualGlobal — 99 col. pai, 165 col. filho)
 │       │   ├── NovoPedido.tsx             # Formulario criacao/edicao
 │       │   └── ImportarArquivo.tsx         # Upload multi-formato + preview
 │       └── shared/
@@ -573,7 +573,7 @@ Ao duplicar:
 |-----------|-----|
 | PaginaGlobal | Layout base (modo lista + formulario) |
 | CabecalhoGlobal | Header com icone, titulo e subtitulo |
-| TabelaCamadasGlobal | Grid hierarquico (Pedido pai, PedidoItem filho) |
+| TabelaVirtualGlobal | Grid hierarquico virtualizado (Pedido pai, PedidoItem filho, ate 1M linhas) |
 | StatusBadgeGlobal | Badge colorido de status (Draft, Aberto, etc.) |
 | CardBasicoGlobal | Cards de KPI (total pedidos, valor, quantidade) |
 | BotaoGlobal | Acoes (Novo, Importar, Exportar, Salvar) |
@@ -594,7 +594,7 @@ Ao duplicar:
 
 | Funcionalidade | Tamanho | Justificativa |
 |---------------|---------|-------------|
-| Lista de Pedidos (grid hierarquico) | G | TabelaCamadasGlobal com 11+ colunas pai, 6 colunas filha, busca, filtros |
+| Lista de Pedidos (grid hierarquico) | G | TabelaVirtualGlobal — 99 col. pai (14 visiveis por padrao, 85 ocultaveis), 165 col. filho (6 visiveis por padrao, 159 ocultaveis). Scroll virtual, resize, overlay de edicao |
 | Formulario Novo/Editar | M | 14 campos header + secao de itens dinamica |
 | Importacao de Arquivo | M | Upload drag-and-drop, preview, confirmacao batch |
 | saldoEngine | G | Operacoes atomicas, anti-sobre-execucao, atualizacao automatica de status |
@@ -623,7 +623,62 @@ Ao duplicar:
 
 ---
 
-## 13. Variaveis de Ambiente
+## 13. UI Avancado — TabelaVirtualGlobal
+
+### 13.1 Truncamento + Tooltip Nativo
+
+Todas as celulas usam `overflow: hidden; text-overflow: ellipsis; white-space: nowrap` via `.gtv-celula`.
+
+O atributo `title` e adicionado automaticamente:
+- **Texto plano:** `title={String(valor)}` — tooltip nativo do browser mostra o valor completo ao hover
+- **Render customizado (badge, etc.):** `title="Clique para editar"` quando editavel
+- Custo de performance: **zero** — atributo HTML nativo, sem biblioteca
+
+### 13.2 Resize Handle
+
+Arrastar a borda direita de qualquer cabecalho para redimensionar a coluna.
+
+| Acao | Comportamento |
+|------|-------------|
+| Arrastar handle | Redimensiona a coluna em tempo real (throttle com `requestAnimationFrame`) |
+| Soltar | Salva largura em `GTPreferencias.larguras` via `onSalvarPreferencias` |
+| Duplo clique | Reseta para largura padrao da coluna (remove do mapa de larguras) |
+| Largura minima | 60px (bloqueio no drag) |
+
+**Implementacao:** `onMouseDown` no handle → `document.addEventListener('mousemove')` com RAF → `onMouseUp` persiste. Cursor `col-resize` no container inteiro durante o drag (`gtv-container--resizing`).
+
+**Performance com 1M linhas / 50 colunas:** O drag atualiza apenas o estado `larguraColunas` (um Record). O re-render recalcula `larguraTotalColunas` e `styleTh` / `styleCelula`. Como o virtualizador so renderiza ~20-40 linhas visíveis, o custo de re-render por RAF-frame e desprezivel.
+
+### 13.3 Overlay de Edicao
+
+Quando o usuario clica em uma celula editavel, um input flutuante e exibido com largura fixa, independente da largura da coluna.
+
+| Propriedade | Valor |
+|-------------|-------|
+| Largura | `min(480px, 90vw)` |
+| Posicao | `position: fixed` no canto superior da celula clicada (`getBoundingClientRect()`) |
+| Z-index | 9999 (acima de tudo) |
+| Fechar | Enter (confirmar), Escape (cancelar), blur (confirmar) |
+| Backdrop | `position: fixed; inset: 0` transparente — clique fora confirma a edicao |
+
+**Por que overlay em vez de input inline?** Colunas estreitas (60-100px) tornam impraticavel digitar valores longos dentro da celula. O overlay expande o campo de entrada sem alterar a largura da coluna.
+
+**Celula durante edicao:** Mostra o valor atual com opacidade 0.45 e outline accent (`gtv-celula--editando-overlay`) para indicar que a edicao esta ativa.
+
+### 13.4 Painel de Colunas (GTVisibilidadeColunas)
+
+| Funcionalidade | Detalhe |
+|---------------|---------|
+| Scroll | `max-height: min(70vh, 520px); overflow-y: auto` |
+| Busca | Input "Localizar coluna..." com filtro em tempo real |
+| Ordenacao | Alfabetica automatica (`localeCompare('pt-BR')`) |
+| Selecionar tudo | Marca todas as 99 + 165 colunas como visiveis |
+| Restaurar padrao | Volta para colunas padrao (14 pai + 6 filho) |
+| Drag & drop | Reordenar colunas visiveis |
+
+---
+
+## 14. Variaveis de Ambiente
 
 ```bash
 # processos-core (backend compartilhado)

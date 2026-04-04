@@ -126,10 +126,14 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
 
   const colunasFiltradas = useMemo(() => {
     const termo = busca.trim().toLowerCase()
-    const lista = termo
-      ? colunas.filter(c => c.label.toLowerCase().includes(termo))
-      : colunas
-    const sorted = [...lista].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
+    if (!termo) {
+      return [
+        ...colunas.filter(c =>  c.naoOcultavel),
+        ...colunas.filter(c => !c.naoOcultavel),
+      ]
+    }
+    const filtradas = colunas.filter(c => c.label.toLowerCase().includes(termo))
+    const sorted = [...filtradas].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'))
     return [
       ...sorted.filter(c =>  c.naoOcultavel),
       ...sorted.filter(c => !c.naoOcultavel),

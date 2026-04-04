@@ -30,6 +30,8 @@ export interface ModalFormularioAbasGlobalProps {
   tipoAbas?: 'underline' | 'pill'
   textoSalvar?: string
   textoCancelar?: string
+  /** Quando true, usa a primeira aba como conteúdo direto sem renderizar a navegação de abas */
+  semAbas?: boolean
 }
 
 export function ModalFormularioAbasGlobal({
@@ -47,49 +49,57 @@ export function ModalFormularioAbasGlobal({
   abaAtivaInicial,
   tipoAbas = 'pill',
   textoSalvar,
-  textoCancelar
+  textoCancelar,
+  semAbas = false,
 }: ModalFormularioAbasGlobalProps) {
   const { t } = useTranslation()
   const resolvedTextoSalvar = textoSalvar ?? t('modal.salvar_alteracoes')
   const resolvedTextoCancelar = textoCancelar ?? t('modal.cancelar')
+
+  const cabecalho = (
+    <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: '0.4rem', paddingBottom: '0.1rem', paddingTop: '8px' }}>
+      <div style={{ position: 'relative', top: '1px' }}>
+        <CabecalhoGlobal
+          icone={icone}
+          titulo={titulo}
+          subtitulo={subtitulo || ''}
+        />
+      </div>
+    </div>
+  )
+
+  const footer = (
+    <div className="mg-footer-personalizado">
+      <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
+      <div className="botoes-footer-padrao">
+        <BotaoCancelar
+          dirty={dirty}
+          rotulo={resolvedTextoCancelar}
+          onClick={aoFechar}
+        />
+        <BotaoSalvar
+          dirty={podesSalvar && dirty}
+          rotulo={resolvedTextoSalvar}
+          onClick={aoSalvar}
+        />
+      </div>
+    </div>
+  )
+
   return (
     <ModalGlobal
       aberto={aberto}
       aoFechar={aoFechar}
-      titulo="" // Preenchido via cabecalhoPersonalizado
-      cabecalhoPersonalizado={
-        <div className="ws-modal-cabecalho" style={{ borderBottom: '1px solid var(--ws-accent-border)', marginBottom: '0.4rem', paddingBottom: '0.1rem', paddingTop: '8px' }}>
-          <div style={{ position: 'relative', top: '1px' }}>
-            <CabecalhoGlobal
-              icone={icone}
-              titulo={titulo}
-              subtitulo={subtitulo || ''}
-            />
-          </div>
-        </div>
-      }
+      titulo=""
+      cabecalhoPersonalizado={cabecalho}
       tamanho={tamanho}
-      altura={altura}
-      abas={abas}
-      abaAtivaInicial={abaAtivaInicial}
+      altura={semAbas ? undefined : altura}
+      abas={semAbas ? undefined : abas}
+      abaAtivaInicial={semAbas ? undefined : abaAtivaInicial}
       tipoAbas={tipoAbas}
-      renderizarFooter={() => (
-        <div className="mg-footer-personalizado">
-          <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
-          <div className="botoes-footer-padrao">
-            <BotaoCancelar
-              dirty={dirty}
-              rotulo={resolvedTextoCancelar}
-              onClick={aoFechar}
-            />
-            <BotaoSalvar
-              dirty={podesSalvar && dirty}
-              rotulo={resolvedTextoSalvar}
-              onClick={aoSalvar}
-            />
-          </div>
-        </div>
-      )}
-    />
+      renderizarFooter={() => footer}
+    >
+      {semAbas ? abas[0]?.conteudo : undefined}
+    </ModalGlobal>
   )
 }

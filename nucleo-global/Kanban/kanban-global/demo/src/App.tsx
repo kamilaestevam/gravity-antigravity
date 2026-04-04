@@ -26,6 +26,7 @@ import {
 } from '@phosphor-icons/react'
 import { CardKanbanModal } from './CardKanbanModal'
 import type { CardKanbanItem } from './CardKanbanModal'
+import { ToastDemo, useToast } from './ToastDemo'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
@@ -204,6 +205,8 @@ function DemoCard({ item, camposVisiveis }: { item: ItemDemo; camposVisiveis: Se
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const { toasts, adicionar: addToast, remover: removeToast } = useToast()
+
   const [itens,       setItens]       = useState<ItemDemo[]>(MOCK_INICIAL)
   const [busca,       setBusca]       = useState('')
   const [isLoading,   setIsLoading]   = useState(false)
@@ -258,6 +261,9 @@ export default function App() {
     const destino = avaliarRegras(itemFull, regrasKanban, getItemValue, itemFull.colunaKey)
     if (destino) {
       await handleMoverItem(atualizado.id, destino, 0)
+      addToast('sucesso', 'Card movido automaticamente', `Regra aplicada → coluna "${destino}"`)
+    } else {
+      addToast('sucesso', 'Alterações salvas', atualizado.nome)
     }
   }
 
@@ -306,6 +312,7 @@ export default function App() {
 
   return (
     <div className="demo-shell">
+      <ToastDemo toasts={toasts} onRemover={removeToast} />
       <CardKanbanModal
         aberto={modalAberto}
         item={modalItem as CardKanbanItem | null}

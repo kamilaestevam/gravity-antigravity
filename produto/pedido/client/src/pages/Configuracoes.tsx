@@ -2,23 +2,25 @@
  * Configuracoes.tsx — Página de configurações do produto Pedido
  *
  * Categorias:
- *  ├── Cards       ← DnD + toggle + período padrão + catálogo de colunas
- *  ├── Tabela      ← em breve
- *  ├── Notificações ← em breve
- *  └── Exportação  ← em breve
+ *  ├── Cards              ← DnD + toggle + período padrão + catálogo de colunas
+ *  ├── Tabela             ← linhas por página, flags de exibição
+ *  ├── Notificações       ← toggles de alertas
+ *  ├── Exportação         ← formato padrão, flags de exportação
+ *  ├── Numeração          ← prefixo, ano, sequência, reinício
+ *  ├── Templates PDF      ← listar / criar / editar / excluir templates Handlebars
+ *  ├── Regras             ← regras de negócio (duplicar, excluir, transferir, consolidar)
+ *  └── Categorias Anexos  ← gerenciar categorias de anexo
  */
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   SquaresFour, Table, Bell, DownloadSimple,
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
-  ChartBar, ChartLine, ChartDonut, NumberSquareOne, PencilSimple, Check,
-  ChartBarHorizontal, Funnel,
+  Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple,
 } from '@phosphor-icons/react'
-import { useDashboardStore, DEFAULT_WIDGETS } from '../stores/dashboardStore'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -30,8 +32,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { GerenciadorColunas } from '../components/ConfiguracaoColunas/GerenciadorColunas'
-import '../components/ConfiguracaoColunas/GerenciadorColunas.css'
+import { pdfApi, type PdfTemplate } from '../shared/api'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -71,7 +72,6 @@ function CardSortavel({
   const { t } = useTranslation()
   const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
   const visual = CARD_VISUAL[pref.id]
-  const [expandido, setExpandido] = useState(false)
 
   const {
     attributes, listeners, setNodeRef,
@@ -86,94 +86,57 @@ function CardSortavel({
   }
 
   return (
-    <div ref={setNodeRef} style={style}>
-      <div className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}${expandido ? ' cfg-card-row--editing' : ''}`}>
-        <button
-          type="button"
-          className="cfg-drag-handle"
-          {...attributes}
-          {...listeners}
-          aria-label="Arrastar para reordenar"
-        >
-          <DotsSixVertical size={16} weight="bold" />
-        </button>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}`}
+    >
+      <button
+        type="button"
+        className="cfg-drag-handle"
+        {...attributes}
+        {...listeners}
+        aria-label="Arrastar para reordenar"
+      >
+        <DotsSixVertical size={16} weight="bold" />
+      </button>
 
-        <div className="cfg-card-row__info">
-          <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
-            {visual.icone}
-          </span>
-          <div>
-            <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
-            <p className="cfg-card-row__desc">{t(def.descKey)}</p>
-          </div>
+      <div className="cfg-card-row__info">
+        <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
+          {visual.icone}
+        </span>
+        <div>
+          <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
+          <p className="cfg-card-row__desc">{t(def.descKey)}</p>
         </div>
-
-        <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
-
-        <TooltipGlobal descricao="Ver variáveis do card">
-          <button
-            type="button"
-            className={`cfg-eye-btn${expandido ? ' cfg-eye-btn--on' : ''}`}
-            onClick={() => setExpandido(v => !v)}
-            aria-label="Ver variáveis"
-          >
-            <PencilSimple size={14} weight="bold" />
-          </button>
-        </TooltipGlobal>
-
-        <TooltipGlobal descricao={pref.visible ? 'Ocultar na lista' : 'Exibir na lista'}>
-          <button
-            type="button"
-            className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
-            onClick={onToggle}
-            aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
-          >
-            {pref.visible
-              ? <Eye      size={15} weight="bold" />
-              : <EyeSlash size={15} weight="bold" />
-            }
-          </button>
-        </TooltipGlobal>
-
-        <TooltipGlobal descricao="Remover da lista">
-          <button
-            type="button"
-            className="cfg-remove-btn"
-            onClick={onRemover}
-            aria-label="Remover card"
-          >
-            <X size={13} weight="bold" />
-          </button>
-        </TooltipGlobal>
       </div>
 
-      {expandido && (
-        <div className="cfg-edit-panel">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <div className="cfg-edit-panel__field">
-              <label className="cfg-edit-panel__label">Campo (ID)</label>
-              <div className="cfg-edit-panel__input" style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{def.id}</div>
-            </div>
-            <div className="cfg-edit-panel__field">
-              <label className="cfg-edit-panel__label">Origem</label>
-              <div className="cfg-edit-panel__input">{def.origem}</div>
-            </div>
-            <div className="cfg-edit-panel__field">
-              <label className="cfg-edit-panel__label">Agregação</label>
-              <div className="cfg-edit-panel__input">{def.tipoAgg}</div>
-            </div>
-            <div className="cfg-edit-panel__field">
-              <label className="cfg-edit-panel__label">Visível</label>
-              <div className="cfg-edit-panel__input">{pref.visible ? 'Sim' : 'Não'}</div>
-            </div>
-          </div>
-          <div className="cfg-edit-panel__actions">
-            <button type="button" className="cfg-reset-btn" onClick={() => setExpandido(false)}>
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
+      <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
+
+      <TooltipGlobal descricao={pref.visible ? 'Ocultar na lista' : 'Exibir na lista'}>
+        <button
+          type="button"
+          className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
+          onClick={onToggle}
+          aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
+        >
+          {pref.visible
+            ? <Eye      size={15} weight="bold" />
+            : <EyeSlash size={15} weight="bold" />
+          }
+        </button>
+      </TooltipGlobal>
+
+      <TooltipGlobal descricao="Remover da lista">
+        <button
+          type="button"
+          className="cfg-remove-btn"
+          onClick={onRemover}
+          aria-label="Remover card"
+        >
+          <X size={13} weight="bold" />
+        </button>
+      </TooltipGlobal>
     </div>
   )
 }
@@ -181,27 +144,134 @@ function CardSortavel({
 // ─── Categorias sidebar ───────────────────────────────────────────────────────
 
 const CATEGORIAS = [
-  { id: 'cards',        label: 'Cards',        icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
-  { id: 'dashboard',    label: 'Dashboard',    icone: <ChartBar       size={15} weight="duotone" />, ativo: true  },
-  { id: 'colunas',      label: 'Colunas',      icone: <Table          size={15} weight="duotone" />, ativo: true  },
-  { id: 'tabela',       label: 'Tabela',       icone: <Table          size={15} weight="duotone" />, ativo: false },
-  { id: 'notificacoes', label: 'Notificações', icone: <Bell           size={15} weight="duotone" />, ativo: false },
-  { id: 'exportacao',   label: 'Exportação',   icone: <DownloadSimple size={15} weight="duotone" />, ativo: false },
+  { id: 'cards',             label: 'Cards',             icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
+  { id: 'tabela',            label: 'Tabela',            icone: <Table          size={15} weight="duotone" />, ativo: true  },
+  { id: 'notificacoes',      label: 'Notificações',      icone: <Bell           size={15} weight="duotone" />, ativo: true  },
+  { id: 'exportacao',        label: 'Exportação',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true  },
+  { id: 'numeracao',         label: 'Numeração',         icone: <Hash           size={15} weight="duotone" />, ativo: true  },
+  { id: 'templates-pdf',     label: 'Templates PDF',     icone: <FloppyDisk     size={15} weight="duotone" />, ativo: true  },
+  { id: 'regras',            label: 'Regras',            icone: <Sliders        size={15} weight="duotone" />, ativo: true  },
+  { id: 'categorias-anexos', label: 'Categ. Anexos',     icone: <Folder         size={15} weight="duotone" />, ativo: true  },
 ] as const
 
 type CategoriaId = (typeof CATEGORIAS)[number]['id']
 
-const CHART_TYPE_META: Record<string, { label: string; cor: string; icone: (size: number) => React.ReactNode }> = {
-  LINE:           { label: 'Linha',        cor: '#818cf8', icone: (s) => <ChartLine         size={s} weight="duotone" /> },
-  AREA:           { label: 'Área',         cor: '#6366f1', icone: (s) => <ChartLine         size={s} weight="fill"    /> },
-  BAR:            { label: 'Barras',       cor: '#34d399', icone: (s) => <ChartBar          size={s} weight="duotone" /> },
-  BAR_HORIZONTAL: { label: 'Barras H.',    cor: '#34d399', icone: (s) => <ChartBarHorizontal size={s} weight="duotone" /> },
-  DONUT:          { label: 'Donut',        cor: '#f59e0b', icone: (s) => <ChartDonut        size={s} weight="duotone" /> },
-  KPI_CARD:       { label: 'KPI',          cor: '#60a5fa', icone: (s) => <NumberSquareOne   size={s} weight="duotone" /> },
-  FUNNEL:         { label: 'Funil',        cor: '#fb923c', icone: (s) => <Funnel            size={s} weight="duotone" /> },
+// ─── Tipos locais ─────────────────────────────────────────────────────────────
+
+interface TabelaConfig {
+  linhasPorPagina: 25 | 50 | 100 | 200
+  expandirTodos: boolean
+  manterSelecao: boolean
+  exibirTotalItens: boolean
+  destacarAtrasados: boolean
 }
 
-const CHART_TYPE_OPTIONS = Object.entries(CHART_TYPE_META).map(([type, meta]) => ({ type, ...meta }))
+interface NotificacoesConfig {
+  pedidoAtrasado: boolean
+  novoPedido: boolean
+  itemTransferido: boolean
+  pedidoExcluido: boolean
+  importacaoConcluida: boolean
+}
+
+interface ExportacaoConfig {
+  formatoPadrao: 'csv' | 'xlsx' | 'pdf'
+  incluirColunasUsuario: boolean
+  incluirItens: boolean
+  apenasSelection: boolean
+  incluirCabecalho: boolean
+  separadorCsv: 'virgula' | 'ponto-virgula' | 'tab'
+}
+
+interface NumeracaoConfig {
+  prefixo: string
+  incluirAno: boolean
+  digitosSequencia: number
+  reiniciar: 'nunca' | 'ano' | 'mes'
+  automaticoCriar: boolean
+  automaticoDuplicar: boolean
+  automaticoConsolidar: boolean
+}
+
+interface RegrasConfig {
+  duplicar: {
+    copiarDatas: boolean
+    numeracaoAutomatica: boolean
+    statusInicial: 'rascunho' | 'aberto' | 'em_andamento'
+    duplicarItens: boolean
+  }
+  excluir: {
+    statusPermitidos: string[]
+    semItensPermitido: boolean
+    confirmarComPreview: boolean
+  }
+  transferir: {
+    encerrarOrigemZero: boolean
+    excluirItemOrigemZero: boolean
+    excluirPedidoOrigemZero: boolean
+  }
+  consolidar: {
+    avisosDivergentes: boolean
+    fundirPartNumber: boolean
+    usuarioEscolheDivergentes: boolean
+    numeroPedidoResultante: 'mais_antigo' | 'automatico' | 'mais_recente'
+  }
+}
+
+interface CategoriaAnexo {
+  id: string
+  nome: string
+  sistema: boolean
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function Toggle({
+  checked,
+  onChange,
+  id,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+  id?: string
+}) {
+  return (
+    <label className="cfg-toggle" htmlFor={id}>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={e => onChange(e.target.checked)}
+        className="cfg-toggle__input"
+      />
+      <span className="cfg-toggle__track" />
+    </label>
+  )
+}
+
+function ToggleRow({
+  label,
+  desc,
+  checked,
+  onChange,
+  id,
+}: {
+  label: string
+  desc?: string
+  checked: boolean
+  onChange: (v: boolean) => void
+  id: string
+}) {
+  return (
+    <div className="cfg-toggle-row">
+      <div className="cfg-toggle-row__text">
+        <label className="cfg-toggle-row__label" htmlFor={id}>{label}</label>
+        {desc && <p className="cfg-toggle-row__desc">{desc}</p>}
+      </div>
+      <Toggle checked={checked} onChange={onChange} id={id} />
+    </div>
+  )
+}
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
@@ -209,24 +279,6 @@ export default function Configuracoes() {
   const { t } = useTranslation()
   const [categoria, setCategoria] = useState<CategoriaId>('cards')
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
-  const { widgets, removeWidget, updateWidget, setWidgets } = useDashboardStore()
-  const [editandoId, setEditandoId] = useState<string | null>(null)
-  const [editTitle, setEditTitle] = useState('')
-  const [editChartType, setEditChartType] = useState('')
-
-  function abrirEdicao(id: string) {
-    const w = widgets.find(x => x.id === id)
-    if (!w) return
-    setEditTitle(w.title)
-    setEditChartType(w.chart_type)
-    setEditandoId(id)
-  }
-
-  function salvarEdicao() {
-    if (!editandoId) return
-    updateWidget(editandoId, { title: editTitle, chart_type: editChartType as never })
-    setEditandoId(null)
-  }
 
   const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar } = useCardPreferences()
 
@@ -241,6 +293,208 @@ export default function Configuracoes() {
     const newIndex = prefs.findIndex(p => p.id === over.id)
     reordenar(arrayMove(prefs, oldIndex, newIndex))
   }
+
+  // ── Tabela state ──
+  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfig>({
+    linhasPorPagina: 100,
+    expandirTodos: true,
+    manterSelecao: false,
+    exibirTotalItens: true,
+    destacarAtrasados: true,
+  })
+
+  // ── Notificações state ──
+  const [notifConfig, setNotifConfig] = useState<NotificacoesConfig>({
+    pedidoAtrasado: true,
+    novoPedido: true,
+    itemTransferido: false,
+    pedidoExcluido: false,
+    importacaoConcluida: true,
+  })
+
+  // ── Exportação state ──
+  const [exportConfig, setExportConfig] = useState<ExportacaoConfig>({
+    formatoPadrao: 'xlsx',
+    incluirColunasUsuario: true,
+    incluirItens: true,
+    apenasSelection: false,
+    incluirCabecalho: true,
+    separadorCsv: 'ponto-virgula',
+  })
+
+  // ── Numeração state ──
+  const [numConfig, setNumConfig] = useState<NumeracaoConfig>({
+    prefixo: 'PO-',
+    incluirAno: true,
+    digitosSequencia: 4,
+    reiniciar: 'ano',
+    automaticoCriar: true,
+    automaticoDuplicar: true,
+    automaticoConsolidar: true,
+  })
+
+  // ── Templates PDF state ──
+  const [templates, setTemplates] = useState<PdfTemplate[]>([])
+  const [templateEditando, setTemplateEditando] = useState<string | null>(null)
+  const [templateNome, setTemplateNome] = useState('')
+  const [templateConteudo, setTemplateConteudo] = useState('')
+  const [templateCriandoNovo, setTemplateCriandoNovo] = useState(false)
+  const [templateLoading, setTemplateLoading] = useState(false)
+
+  useEffect(() => {
+    if (categoria === 'templates-pdf') {
+      setTemplateLoading(true)
+      pdfApi.listarTemplates()
+        .then(res => setTemplates(res.data))
+        .catch(() => {
+          // Em dev sem backend, usar dados demo
+          setTemplates([
+            { id: '1', nome: 'Template PO Padrão',        conteudo: '<h1>{{numero_pedido}}</h1>', criadoEm: '2026-04-01' },
+            { id: '2', nome: 'Template Proforma Invoice',  conteudo: '<h1>{{exportador}}</h1>',   criadoEm: '2026-04-02' },
+          ])
+        })
+        .finally(() => setTemplateLoading(false))
+    }
+  }, [categoria])
+
+  function iniciarEdicaoTemplate(tpl: PdfTemplate) {
+    setTemplateEditando(tpl.id)
+    setTemplateNome(tpl.nome)
+    setTemplateConteudo(tpl.conteudo)
+    setTemplateCriandoNovo(false)
+  }
+
+  function iniciarNovoTemplate() {
+    setTemplateEditando(null)
+    setTemplateNome('')
+    setTemplateConteudo('')
+    setTemplateCriandoNovo(true)
+  }
+
+  function cancelarEdicaoTemplate() {
+    setTemplateEditando(null)
+    setTemplateCriandoNovo(false)
+    setTemplateNome('')
+    setTemplateConteudo('')
+  }
+
+  async function salvarTemplate() {
+    if (!templateNome.trim()) return
+    try {
+      if (templateCriandoNovo) {
+        const novo = await pdfApi.criarTemplate({ nome: templateNome, conteudo: templateConteudo })
+        setTemplates(prev => [...prev, novo])
+      } else if (templateEditando) {
+        const atualizado = await pdfApi.atualizarTemplate(templateEditando, { nome: templateNome, conteudo: templateConteudo })
+        setTemplates(prev => prev.map(t => t.id === templateEditando ? atualizado : t))
+      }
+    } catch {
+      // silencia em dev
+    }
+    cancelarEdicaoTemplate()
+  }
+
+  async function excluirTemplate(id: string) {
+    if (!confirm('Excluir este template? Esta ação não pode ser desfeita.')) return
+    try {
+      await pdfApi.deletarTemplate(id)
+    } catch {
+      // silencia em dev
+    }
+    setTemplates(prev => prev.filter(t => t.id !== id))
+  }
+
+  // ── Regras state ──
+  const [regrasConfig, setRegrasConfig] = useState<RegrasConfig>({
+    duplicar: {
+      copiarDatas: true,
+      numeracaoAutomatica: true,
+      statusInicial: 'rascunho',
+      duplicarItens: true,
+    },
+    excluir: {
+      statusPermitidos: ['rascunho', 'aberto'],
+      semItensPermitido: true,
+      confirmarComPreview: true,
+    },
+    transferir: {
+      encerrarOrigemZero: true,
+      excluirItemOrigemZero: true,
+      excluirPedidoOrigemZero: true,
+    },
+    consolidar: {
+      avisosDivergentes: true,
+      fundirPartNumber: true,
+      usuarioEscolheDivergentes: true,
+      numeroPedidoResultante: 'automatico',
+    },
+  })
+
+  const TODOS_STATUS = [
+    { id: 'rascunho',     label: 'Rascunho'      },
+    { id: 'aberto',       label: 'Aberto'        },
+    { id: 'em_andamento', label: 'Em Andamento'  },
+    { id: 'aprovado',     label: 'Aprovado'      },
+    { id: 'encerrado',    label: 'Encerrado'     },
+  ]
+
+  function toggleStatusExcluir(statusId: string) {
+    setRegrasConfig(prev => {
+      const atual = prev.excluir.statusPermitidos
+      const novo = atual.includes(statusId)
+        ? atual.filter(s => s !== statusId)
+        : [...atual, statusId]
+      return { ...prev, excluir: { ...prev.excluir, statusPermitidos: novo } }
+    })
+  }
+
+  // ── Categorias Anexos state ──
+  const [categAnexos, setCategAnexos] = useState<CategoriaAnexo[]>([
+    { id: '1', nome: 'Invoice',      sistema: false },
+    { id: '2', nome: 'Packing List', sistema: false },
+    { id: '3', nome: 'BL',           sistema: false },
+    { id: '4', nome: 'PDF Gerado',   sistema: true  },
+  ])
+  const [categEditandoId, setCategEditandoId] = useState<string | null>(null)
+  const [categNomeEdit, setCategNomeEdit] = useState('')
+  const [categNovaNome, setCategNovaNome] = useState('')
+  const [categCriando, setCategCriando] = useState(false)
+
+  function iniciarEdicaoCateg(cat: CategoriaAnexo) {
+    setCategEditandoId(cat.id)
+    setCategNomeEdit(cat.nome)
+    setCategCriando(false)
+  }
+
+  function salvarEdicaoCateg() {
+    if (!categNomeEdit.trim() || !categEditandoId) return
+    setCategAnexos(prev => prev.map(c => c.id === categEditandoId ? { ...c, nome: categNomeEdit } : c))
+    setCategEditandoId(null)
+    setCategNomeEdit('')
+  }
+
+  function excluirCateg(id: string) {
+    setCategAnexos(prev => prev.filter(c => c.id !== id))
+  }
+
+  function adicionarCateg() {
+    if (!categNovaNome.trim()) return
+    const nova: CategoriaAnexo = {
+      id: String(Date.now()),
+      nome: categNovaNome.trim(),
+      sistema: false,
+    }
+    setCategAnexos(prev => [...prev, nova])
+    setCategNovaNome('')
+    setCategCriando(false)
+  }
+
+  // ── Preview da numeração ──
+  const previewNumeracao = (() => {
+    const digitos = String(1).padStart(numConfig.digitosSequencia, '0')
+    const ano = numConfig.incluirAno ? `${new Date().getFullYear()}/` : ''
+    return `${numConfig.prefixo}${ano}${digitos}`
+  })()
 
   return (
     <div className="cfg-page ws-fade-up">
@@ -271,6 +525,7 @@ export default function Configuracoes() {
       {/* ── Conteúdo ── */}
       <main className="cfg-conteudo">
 
+        {/* ════════════════════════ CARDS ════════════════════════ */}
         {categoria === 'cards' && (
           <div className="cfg-cards-wrapper">
 
@@ -347,7 +602,6 @@ export default function Configuracoes() {
                   </div>
                 </div>
 
-                {/* Cabeçalho da tabela */}
                 <div className="cfg-tabela-head">
                   <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
                   <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
@@ -396,123 +650,699 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {categoria === 'dashboard' && (
+        {/* ════════════════════════ TABELA ════════════════════════ */}
+        {categoria === 'tabela' && (
           <div className="cfg-cards-wrapper">
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Widgets do Dashboard</h2>
-                  <p className="cfg-secao__desc">
-                    Gerencie os widgets exibidos no Dashboard · × para remover
-                  </p>
+                  <h2 className="cfg-secao__titulo">Tabela</h2>
+                  <p className="cfg-secao__desc">Preferências de exibição da lista de pedidos</p>
                 </div>
-                <button
-                  type="button"
-                  className="cfg-reset-btn"
-                  onClick={() => setWidgets(DEFAULT_WIDGETS)}
-                >
-                  <ArrowCounterClockwise size={13} weight="bold" />
-                  Restaurar padrão
-                </button>
               </div>
 
-              {widgets.length === 0 ? (
-                <p className="cfg-empty">Nenhum widget. Acesse o Dashboard e clique em "Adicionar widget".</p>
-              ) : (
-                <div className="cfg-cards-lista">
-                  {widgets.map(w => {
-                    const meta = CHART_TYPE_META[w.chart_type]
-                    const isEditing = editandoId === w.id
-                    return (
-                      <div key={w.id}>
-                        <div className={`cfg-card-row${isEditing ? ' cfg-card-row--editing' : ''}`}>
-                          {/* ícone do tipo de gráfico */}
-                          <span style={{ color: meta?.cor ?? 'var(--text-muted)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                            {meta?.icone(18) ?? <ChartBar size={18} />}
-                          </span>
-
-                          <div className="cfg-card-row__info">
-                            <div>
-                              <p className="cfg-card-row__nome">{w.title}</p>
-                              <p className="cfg-card-row__desc">{meta?.label ?? w.chart_type} · {w.query_spec.fields.map(f => f.key).join(', ')}</p>
-                            </div>
-                          </div>
-
-                          <span className="cfg-agg-badge">{w.query_spec.fields[0]?.operation ?? '—'}</span>
-
-                          <button
-                            type="button"
-                            className={`cfg-eye-btn${isEditing ? ' cfg-eye-btn--on' : ''}`}
-                            onClick={() => isEditing ? setEditandoId(null) : abrirEdicao(w.id)}
-                            aria-label="Editar widget"
-                          >
-                            <PencilSimple size={14} weight="bold" />
-                          </button>
-
-                          <button
-                            type="button"
-                            className="cfg-remove-btn"
-                            onClick={() => removeWidget(w.id)}
-                            aria-label="Remover widget"
-                          >
-                            <X size={13} weight="bold" />
-                          </button>
-                        </div>
-
-                        {/* Painel de edição inline */}
-                        {isEditing && (
-                          <div className="cfg-edit-panel">
-                            <div className="cfg-edit-panel__field">
-                              <label className="cfg-edit-panel__label">Título</label>
-                              <input
-                                className="cfg-edit-panel__input"
-                                value={editTitle}
-                                onChange={e => setEditTitle(e.target.value)}
-                                maxLength={80}
-                                autoFocus
-                              />
-                            </div>
-
-                            <div className="cfg-edit-panel__field">
-                              <label className="cfg-edit-panel__label">Tipo de gráfico</label>
-                              <div className="cfg-edit-panel__chart-grid">
-                                {CHART_TYPE_OPTIONS.map(opt => (
-                                  <button
-                                    key={opt.type}
-                                    type="button"
-                                    className={`cfg-chart-opt${editChartType === opt.type ? ' cfg-chart-opt--ativo' : ''}`}
-                                    onClick={() => setEditChartType(opt.type)}
-                                  >
-                                    <span style={{ color: opt.cor }}>{opt.icone(20)}</span>
-                                    <span>{opt.label}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="cfg-edit-panel__actions">
-                              <button type="button" className="cfg-reset-btn" onClick={() => setEditandoId(null)}>
-                                Cancelar
-                              </button>
-                              <button type="button" className="cfg-save-btn" onClick={salvarEdicao}>
-                                <Check size={13} weight="bold" /> Salvar
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
+              <div className="cfg-campo-grupo">
+                <p className="cfg-campo-grupo__label">Linhas por página padrão</p>
+                <div className="cfg-periodo-pills">
+                  {([25, 50, 100, 200] as const).map(n => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={`cfg-periodo-pill${tabelaConfig.linhasPorPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: n }))}
+                    >
+                      {n}
+                    </button>
+                  ))}
                 </div>
+              </div>
+
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="tb-expandir"
+                  label="Expandir todos os pedidos ao abrir"
+                  checked={tabelaConfig.expandirTodos}
+                  onChange={v => setTabelaConfig(prev => ({ ...prev, expandirTodos: v }))}
+                />
+                <ToggleRow
+                  id="tb-selecao"
+                  label="Manter seleção ao mudar de página"
+                  checked={tabelaConfig.manterSelecao}
+                  onChange={v => setTabelaConfig(prev => ({ ...prev, manterSelecao: v }))}
+                />
+                <ToggleRow
+                  id="tb-total-itens"
+                  label="Exibir total de itens por pedido"
+                  checked={tabelaConfig.exibirTotalItens}
+                  onChange={v => setTabelaConfig(prev => ({ ...prev, exibirTotalItens: v }))}
+                />
+                <ToggleRow
+                  id="tb-atrasados"
+                  label="Destacar pedidos atrasados em vermelho"
+                  checked={tabelaConfig.destacarAtrasados}
+                  onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
+                />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ NOTIFICAÇÕES ════════════════════════ */}
+        {categoria === 'notificacoes' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Notificações</h2>
+                  <p className="cfg-secao__desc">Escolha quais eventos geram alertas para você</p>
+                </div>
+              </div>
+
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="nf-atrasado"
+                  label="Pedido atrasado"
+                  desc="Alerta quando um pedido passa da data estimada"
+                  checked={notifConfig.pedidoAtrasado}
+                  onChange={v => setNotifConfig(prev => ({ ...prev, pedidoAtrasado: v }))}
+                />
+                <ToggleRow
+                  id="nf-novo"
+                  label="Novo pedido criado"
+                  desc="Notificação ao criar ou receber um novo pedido"
+                  checked={notifConfig.novoPedido}
+                  onChange={v => setNotifConfig(prev => ({ ...prev, novoPedido: v }))}
+                />
+                <ToggleRow
+                  id="nf-transferencia"
+                  label="Item transferido"
+                  desc="Quando quantidade de um item é transferida para outro pedido"
+                  checked={notifConfig.itemTransferido}
+                  onChange={v => setNotifConfig(prev => ({ ...prev, itemTransferido: v }))}
+                />
+                <ToggleRow
+                  id="nf-excluido"
+                  label="Pedido excluído"
+                  desc="Confirmação quando um pedido é removido"
+                  checked={notifConfig.pedidoExcluido}
+                  onChange={v => setNotifConfig(prev => ({ ...prev, pedidoExcluido: v }))}
+                />
+                <ToggleRow
+                  id="nf-importacao"
+                  label="Importação concluída"
+                  desc="Aviso ao finalizar importação em lote"
+                  checked={notifConfig.importacaoConcluida}
+                  onChange={v => setNotifConfig(prev => ({ ...prev, importacaoConcluida: v }))}
+                />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ EXPORTAÇÃO ════════════════════════ */}
+        {categoria === 'exportacao' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Exportação</h2>
+                  <p className="cfg-secao__desc">Preferências padrão ao exportar pedidos</p>
+                </div>
+              </div>
+
+              <div className="cfg-campo-grupo">
+                <p className="cfg-campo-grupo__label">Formato padrão</p>
+                <div className="cfg-periodo-pills">
+                  {(['csv', 'xlsx', 'pdf'] as const).map(fmt => (
+                    <button
+                      key={fmt}
+                      type="button"
+                      className={`cfg-periodo-pill${exportConfig.formatoPadrao === fmt ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setExportConfig(prev => ({ ...prev, formatoPadrao: fmt }))}
+                    >
+                      {fmt.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="exp-colunas-usuario"
+                  label="Incluir colunas do usuário"
+                  desc="Adiciona colunas customizadas criadas por você"
+                  checked={exportConfig.incluirColunasUsuario}
+                  onChange={v => setExportConfig(prev => ({ ...prev, incluirColunasUsuario: v }))}
+                />
+                <ToggleRow
+                  id="exp-itens"
+                  label="Incluir itens do pedido"
+                  desc="Exporta também as linhas de item de cada pedido"
+                  checked={exportConfig.incluirItens}
+                  onChange={v => setExportConfig(prev => ({ ...prev, incluirItens: v }))}
+                />
+                <ToggleRow
+                  id="exp-apenas-sel"
+                  label="Incluir apenas pedidos selecionados"
+                  desc="Quando desmarcado, exporta todos os pedidos do filtro atual"
+                  checked={exportConfig.apenasSelection}
+                  onChange={v => setExportConfig(prev => ({ ...prev, apenasSelection: v }))}
+                />
+                <ToggleRow
+                  id="exp-cabecalho"
+                  label="Incluir cabeçalho"
+                  desc="Adiciona linha de cabeçalho com os nomes das colunas"
+                  checked={exportConfig.incluirCabecalho}
+                  onChange={v => setExportConfig(prev => ({ ...prev, incluirCabecalho: v }))}
+                />
+              </div>
+
+              <div className="cfg-campo-grupo" style={{ marginTop: '1.25rem' }}>
+                <p className="cfg-campo-grupo__label">Separador CSV</p>
+                <div className="cfg-periodo-pills">
+                  {([
+                    { id: 'virgula',       label: 'Vírgula'       },
+                    { id: 'ponto-virgula', label: 'Ponto-e-vírgula' },
+                    { id: 'tab',           label: 'Tab'           },
+                  ] as const).map(sep => (
+                    <button
+                      key={sep.id}
+                      type="button"
+                      className={`cfg-periodo-pill${exportConfig.separadorCsv === sep.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setExportConfig(prev => ({ ...prev, separadorCsv: sep.id }))}
+                    >
+                      {sep.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ NUMERAÇÃO ════════════════════════ */}
+        {categoria === 'numeracao' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Numeração automática</h2>
+                  <p className="cfg-secao__desc">Define o formato e as regras do número de pedido gerado automaticamente</p>
+                </div>
+              </div>
+
+              <div className="cfg-campo-grupo">
+                <p className="cfg-campo-grupo__label">Formato do número</p>
+                <div className="cfg-num-formato">
+                  <div className="cfg-num-campo">
+                    <label className="cfg-num-campo__label" htmlFor="num-prefixo">Prefixo</label>
+                    <input
+                      id="num-prefixo"
+                      type="text"
+                      className="cfg-input"
+                      value={numConfig.prefixo}
+                      onChange={e => setNumConfig(prev => ({ ...prev, prefixo: e.target.value }))}
+                      maxLength={10}
+                    />
+                  </div>
+                  <div className="cfg-num-campo">
+                    <label className="cfg-num-campo__label" htmlFor="num-digitos">Dígitos da sequência</label>
+                    <div className="cfg-periodo-pills">
+                      {([3, 4, 5, 6] as const).map(d => (
+                        <button
+                          key={d}
+                          type="button"
+                          className={`cfg-periodo-pill${numConfig.digitosSequencia === d ? ' cfg-periodo-pill--ativo' : ''}`}
+                          onClick={() => setNumConfig(prev => ({ ...prev, digitosSequencia: d }))}
+                        >
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="cfg-num-preview">
+                    <span className="cfg-num-preview__label">Preview</span>
+                    <span className="cfg-num-preview__valor">{previewNumeracao}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="cfg-campo-grupo">
+                <ToggleRow
+                  id="num-ano"
+                  label="Incluir ano no número"
+                  desc={`Ex.: ${numConfig.prefixo}${new Date().getFullYear()}/0001`}
+                  checked={numConfig.incluirAno}
+                  onChange={v => setNumConfig(prev => ({ ...prev, incluirAno: v }))}
+                />
+              </div>
+
+              <div className="cfg-campo-grupo">
+                <p className="cfg-campo-grupo__label">Reiniciar numeração</p>
+                <div className="cfg-periodo-pills">
+                  {([
+                    { id: 'nunca', label: 'Nunca'     },
+                    { id: 'ano',   label: 'Todo ano'  },
+                    { id: 'mes',   label: 'Todo mês'  },
+                  ] as const).map(op => (
+                    <button
+                      key={op.id}
+                      type="button"
+                      className={`cfg-periodo-pill${numConfig.reiniciar === op.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setNumConfig(prev => ({ ...prev, reiniciar: op.id }))}
+                    >
+                      {op.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="cfg-toggles-lista" style={{ marginTop: '0.5rem' }}>
+                <ToggleRow
+                  id="num-criar"
+                  label="Número automático ao criar pedido"
+                  checked={numConfig.automaticoCriar}
+                  onChange={v => setNumConfig(prev => ({ ...prev, automaticoCriar: v }))}
+                />
+                <ToggleRow
+                  id="num-duplicar"
+                  label="Número automático ao duplicar pedido"
+                  checked={numConfig.automaticoDuplicar}
+                  onChange={v => setNumConfig(prev => ({ ...prev, automaticoDuplicar: v }))}
+                />
+                <ToggleRow
+                  id="num-consolidar"
+                  label="Número automático ao consolidar pedido"
+                  checked={numConfig.automaticoConsolidar}
+                  onChange={v => setNumConfig(prev => ({ ...prev, automaticoConsolidar: v }))}
+                />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ TEMPLATES PDF ════════════════════════ */}
+        {categoria === 'templates-pdf' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Templates PDF</h2>
+                  <p className="cfg-secao__desc">
+                    Gerencie templates Handlebars usados para geração de PDFs.
+                    Variáveis: <code className="cfg-code">{'{{numero_pedido}}'}</code>,{' '}
+                    <code className="cfg-code">{'{{exportador}}'}</code>,{' '}
+                    <code className="cfg-code">{'{{itens}}'}</code>
+                  </p>
+                </div>
+                {!templateCriandoNovo && !templateEditando && (
+                  <button type="button" className="cfg-add-row-btn" onClick={iniciarNovoTemplate}>
+                    <Plus size={13} weight="bold" />
+                    Novo Template
+                  </button>
+                )}
+              </div>
+
+              {templateLoading && (
+                <p className="cfg-empty">Carregando templates…</p>
+              )}
+
+              {!templateLoading && (
+                <>
+                  {/* ── Formulário inline ── */}
+                  {(templateCriandoNovo || templateEditando) && (
+                    <div className="cfg-tpl-form">
+                      <div className="cfg-tpl-form__fields">
+                        <div className="cfg-tpl-form__field">
+                          <label className="cfg-num-campo__label" htmlFor="tpl-nome">Nome</label>
+                          <input
+                            id="tpl-nome"
+                            type="text"
+                            className="cfg-input"
+                            placeholder="Ex.: Template Proforma"
+                            value={templateNome}
+                            onChange={e => setTemplateNome(e.target.value)}
+                          />
+                        </div>
+                        <div className="cfg-tpl-form__field cfg-tpl-form__field--full">
+                          <label className="cfg-num-campo__label" htmlFor="tpl-conteudo">Conteúdo HTML / Handlebars</label>
+                          <textarea
+                            id="tpl-conteudo"
+                            className="cfg-textarea"
+                            rows={8}
+                            placeholder={'<h1>{{numero_pedido}}</h1>\n<p>Exportador: {{exportador}}</p>'}
+                            value={templateConteudo}
+                            onChange={e => setTemplateConteudo(e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="cfg-tpl-form__actions">
+                        <button type="button" className="cfg-btn-primario" onClick={salvarTemplate}>
+                          <FloppyDisk size={14} weight="bold" />
+                          Salvar
+                        </button>
+                        <button type="button" className="cfg-btn-secundario" onClick={cancelarEdicaoTemplate}>
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Lista de templates ── */}
+                  {templates.length === 0 && !templateCriandoNovo ? (
+                    <p className="cfg-empty">Nenhum template criado. Clique em "Novo Template" para começar.</p>
+                  ) : (
+                    <div className="cfg-lista-simples">
+                      {templates.map(tpl => (
+                        <div key={tpl.id} className={`cfg-lista-simples__row${templateEditando === tpl.id ? ' cfg-lista-simples__row--editando' : ''}`}>
+                          <div className="cfg-lista-simples__info">
+                            <span className="cfg-lista-simples__nome">{tpl.nome}</span>
+                            <span className="cfg-lista-simples__meta">
+                              Criado {new Date(tpl.criadoEm).toLocaleDateString('pt-BR')}
+                            </span>
+                          </div>
+                          <div className="cfg-lista-simples__acoes">
+                            <TooltipGlobal descricao="Editar template">
+                              <button
+                                type="button"
+                                className="cfg-eye-btn"
+                                onClick={() => iniciarEdicaoTemplate(tpl)}
+                                aria-label="Editar template"
+                              >
+                                <PencilSimple size={14} weight="bold" />
+                              </button>
+                            </TooltipGlobal>
+                            <TooltipGlobal descricao="Excluir template">
+                              <button
+                                type="button"
+                                className="cfg-remove-btn"
+                                onClick={() => excluirTemplate(tpl.id)}
+                                aria-label="Excluir template"
+                              >
+                                <Trash size={14} weight="bold" />
+                              </button>
+                            </TooltipGlobal>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
               )}
             </section>
           </div>
         )}
 
-        {categoria === 'colunas' && (
+        {/* ════════════════════════ REGRAS ════════════════════════ */}
+        {categoria === 'regras' && (
+          <div className="cfg-cards-wrapper">
+
+            {/* Duplicar */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Duplicar pedido</h2>
+                  <p className="cfg-secao__desc">Comportamento ao duplicar um pedido existente</p>
+                </div>
+              </div>
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="dup-datas"
+                  label="Copiar datas do pedido original"
+                  checked={regrasConfig.duplicar.copiarDatas}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, copiarDatas: v } }))}
+                />
+                <ToggleRow
+                  id="dup-numero"
+                  label="Numeração automática ao duplicar"
+                  checked={regrasConfig.duplicar.numeracaoAutomatica}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, numeracaoAutomatica: v } }))}
+                />
+                <ToggleRow
+                  id="dup-itens"
+                  label="Duplicar também os itens"
+                  desc="Copia todos os itens do pedido original para o novo"
+                  checked={regrasConfig.duplicar.duplicarItens}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, duplicarItens: v } }))}
+                />
+              </div>
+              <div className="cfg-campo-grupo" style={{ marginTop: '1rem' }}>
+                <p className="cfg-campo-grupo__label">Status inicial do pedido duplicado</p>
+                <div className="cfg-periodo-pills">
+                  {([
+                    { id: 'rascunho',     label: 'Rascunho'     },
+                    { id: 'aberto',       label: 'Aberto'       },
+                    { id: 'em_andamento', label: 'Em Andamento' },
+                  ] as const).map(s => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className={`cfg-periodo-pill${regrasConfig.duplicar.statusInicial === s.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, statusInicial: s.id } }))}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Excluir */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Excluir pedido</h2>
+                  <p className="cfg-secao__desc">Permissões e comportamentos ao excluir pedidos</p>
+                </div>
+              </div>
+              <div className="cfg-campo-grupo">
+                <p className="cfg-campo-grupo__label">Status que permitem exclusão</p>
+                <div className="cfg-check-lista">
+                  {TODOS_STATUS.map(s => (
+                    <label key={s.id} className="cfg-check-item">
+                      <input
+                        type="checkbox"
+                        className="cfg-check-item__input"
+                        checked={regrasConfig.excluir.statusPermitidos.includes(s.id)}
+                        onChange={() => toggleStatusExcluir(s.id)}
+                      />
+                      <span className="cfg-check-item__label">{s.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="exc-sem-itens"
+                  label="Pedido pode ficar sem itens"
+                  desc="Se desmarcado, excluir o último item exclui o pedido automaticamente"
+                  checked={regrasConfig.excluir.semItensPermitido}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, excluir: { ...prev.excluir, semItensPermitido: v } }))}
+                />
+                <ToggleRow
+                  id="exc-preview"
+                  label="Solicitar confirmação com preview antes de excluir"
+                  checked={regrasConfig.excluir.confirmarComPreview}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, excluir: { ...prev.excluir, confirmarComPreview: v } }))}
+                />
+              </div>
+            </section>
+
+            {/* Transferir */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Transferir itens</h2>
+                  <p className="cfg-secao__desc">Comportamento ao transferir quantidades entre pedidos</p>
+                </div>
+              </div>
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="tra-encerrar"
+                  label="Encerrar item de origem quando quantidade chega a zero"
+                  checked={regrasConfig.transferir.encerrarOrigemZero}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, encerrarOrigemZero: v } }))}
+                />
+                <ToggleRow
+                  id="tra-excluir-item"
+                  label="Excluir item de origem quando quantidade chega a zero"
+                  checked={regrasConfig.transferir.excluirItemOrigemZero}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, excluirItemOrigemZero: v } }))}
+                />
+                <ToggleRow
+                  id="tra-excluir-pedido"
+                  label="Excluir pedido de origem quando todos os itens chegam a zero"
+                  checked={regrasConfig.transferir.excluirPedidoOrigemZero}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, excluirPedidoOrigemZero: v } }))}
+                />
+              </div>
+            </section>
+
+            {/* Consolidar */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Consolidar pedidos</h2>
+                  <p className="cfg-secao__desc">Regras para fusão de múltiplos pedidos em um único</p>
+                </div>
+              </div>
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="con-avisos"
+                  label="Avisar sobre campos divergentes antes de consolidar"
+                  checked={regrasConfig.consolidar.avisosDivergentes}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, avisosDivergentes: v } }))}
+                />
+                <ToggleRow
+                  id="con-fundir"
+                  label="Fundir itens com mesmo part_number automaticamente"
+                  desc="Soma quantidades de itens com o mesmo código de produto"
+                  checked={regrasConfig.consolidar.fundirPartNumber}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, fundirPartNumber: v } }))}
+                />
+                <ToggleRow
+                  id="con-usuario"
+                  label="Usuário escolhe valores divergentes campo a campo"
+                  desc="Exibe seletor para cada campo com valores diferentes entre os pedidos"
+                  checked={regrasConfig.consolidar.usuarioEscolheDivergentes}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, usuarioEscolheDivergentes: v } }))}
+                />
+              </div>
+              <div className="cfg-campo-grupo" style={{ marginTop: '1rem' }}>
+                <p className="cfg-campo-grupo__label">Pedido resultante usa número</p>
+                <div className="cfg-periodo-pills">
+                  {([
+                    { id: 'mais_antigo',  label: 'Do pedido mais antigo'  },
+                    { id: 'automatico',   label: 'Numeração automática'   },
+                    { id: 'mais_recente', label: 'Do pedido mais recente' },
+                  ] as const).map(op => (
+                    <button
+                      key={op.id}
+                      type="button"
+                      className={`cfg-periodo-pill${regrasConfig.consolidar.numeroPedidoResultante === op.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, numeroPedidoResultante: op.id } }))}
+                    >
+                      {op.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+          </div>
+        )}
+
+        {/* ════════════════════════ CATEGORIAS ANEXOS ════════════════════════ */}
+        {categoria === 'categorias-anexos' && (
           <div className="cfg-cards-wrapper">
             <section className="cfg-secao">
-              <GerenciadorColunas />
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Categorias de Anexos</h2>
+                  <p className="cfg-secao__desc">
+                    Organize os documentos anexados aos pedidos por categoria
+                  </p>
+                </div>
+                {!categCriando && (
+                  <button
+                    type="button"
+                    className="cfg-add-row-btn"
+                    onClick={() => setCategCriando(true)}
+                  >
+                    <Plus size={13} weight="bold" />
+                    Nova Categoria
+                  </button>
+                )}
+              </div>
+
+              {/* Formulário de nova categoria */}
+              {categCriando && (
+                <div className="cfg-tpl-form cfg-tpl-form--inline">
+                  <input
+                    type="text"
+                    className="cfg-input cfg-input--grow"
+                    placeholder="Nome da categoria (ex.: Certificado de Origem)"
+                    value={categNovaNome}
+                    onChange={e => setCategNovaNome(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') adicionarCateg() }}
+                    autoFocus
+                  />
+                  <button type="button" className="cfg-btn-primario" onClick={adicionarCateg}>
+                    <FloppyDisk size={14} weight="bold" />
+                    Salvar
+                  </button>
+                  <button type="button" className="cfg-btn-secundario" onClick={() => { setCategCriando(false); setCategNovaNome('') }}>
+                    Cancelar
+                  </button>
+                </div>
+              )}
+
+              {categAnexos.length === 0 ? (
+                <p className="cfg-empty">Nenhuma categoria criada.</p>
+              ) : (
+                <div className="cfg-lista-simples">
+                  {categAnexos.map(cat => (
+                    <div key={cat.id} className="cfg-lista-simples__row">
+                      <div className="cfg-lista-simples__info">
+                        {categEditandoId === cat.id ? (
+                          <input
+                            type="text"
+                            className="cfg-input cfg-input--inline"
+                            value={categNomeEdit}
+                            onChange={e => setCategNomeEdit(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') salvarEdicaoCateg() }}
+                            autoFocus
+                          />
+                        ) : (
+                          <span className="cfg-lista-simples__nome">{cat.nome}</span>
+                        )}
+                        {cat.sistema && (
+                          <span className="cfg-badge-sistema">sistema</span>
+                        )}
+                      </div>
+                      <div className="cfg-lista-simples__acoes">
+                        {categEditandoId === cat.id ? (
+                          <>
+                            <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={salvarEdicaoCateg}>
+                              <FloppyDisk size={13} weight="bold" />
+                            </button>
+                            <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={() => { setCategEditandoId(null); setCategNomeEdit('') }}>
+                              <X size={13} weight="bold" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {!cat.sistema && (
+                              <TooltipGlobal descricao="Renomear categoria">
+                                <button
+                                  type="button"
+                                  className="cfg-eye-btn"
+                                  onClick={() => iniciarEdicaoCateg(cat)}
+                                  aria-label="Renomear categoria"
+                                >
+                                  <PencilSimple size={14} weight="bold" />
+                                </button>
+                              </TooltipGlobal>
+                            )}
+                            {!cat.sistema && (
+                              <TooltipGlobal descricao="Excluir categoria">
+                                <button
+                                  type="button"
+                                  className="cfg-remove-btn"
+                                  onClick={() => excluirCateg(cat.id)}
+                                  aria-label="Excluir categoria"
+                                >
+                                  <Trash size={14} weight="bold" />
+                                </button>
+                              </TooltipGlobal>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
           </div>
         )}

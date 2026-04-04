@@ -13,12 +13,19 @@ export default defineConfig({
   resolve: {
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
     alias: {
-      '@nucleo/kanban-global':  nucleo('Kanban/kanban-global/src/index.ts'),
+      '@nucleo/kanban-global':           nucleo('Kanban/kanban-global/src/index.ts'),
+      '@nucleo/campo-calendario-global': nucleo('Campos/campo-calendario-global/src/index.ts'),
+      '@nucleo/campo-geral-global':      nucleo('Campos/campo-geral-global/src/index.ts'),
+      '@nucleo/botao-global':            nucleo('Botoes/botao-global/src/index.ts'),
+      '@nucleo/tooltip-global':          nucleo('Feedback/tooltip-global/src/index.ts'),
+      '@nucleo/campo-select-global':     nucleo('Campos/campo-select-global/src/index.ts'),
       // Garante que imports dentro de src/ do nucleo resolvam para o node_modules do demo
       '@dnd-kit/core':          path.resolve(__dirname, 'node_modules/@dnd-kit/core'),
       '@dnd-kit/sortable':      path.resolve(__dirname, 'node_modules/@dnd-kit/sortable'),
       '@dnd-kit/utilities':     path.resolve(__dirname, 'node_modules/@dnd-kit/utilities'),
       '@phosphor-icons/react':  path.resolve(__dirname, 'node_modules/@phosphor-icons/react'),
+      'react-i18next':          path.resolve(monoRoot, 'node_modules/react-i18next'),
+      'i18next':                path.resolve(monoRoot, 'node_modules/i18next'),
     },
   },
 
@@ -28,6 +35,8 @@ export default defineConfig({
       '@dnd-kit/core',
       '@dnd-kit/sortable',
       '@dnd-kit/utilities',
+      'react-i18next',
+      'i18next',
     ],
   },
 

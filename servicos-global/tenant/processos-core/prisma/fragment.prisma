@@ -414,3 +414,26 @@ model PedidoPreferenciaPadrao {
   @@index([tenant_id])
   @@map("pedido_preferencias_padrao")
 }
+
+// Mapeamento de colunas de importacao salvo por tenant (Smart Import — Memoria)
+// Associa hash dos cabecalhos de um arquivo ao mapeamento confirmado pelo usuario.
+// Nas proximas importacoes com o mesmo arquivo, o mapeamento e aplicado automaticamente.
+model MapeamentoImport {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?  // null = mapeamento compartilhado no workspace; preenchido = mapeamento pessoal
+
+  hash_colunas String               // SHA256 (ou hash simples) dos cabecalhos ordenados
+  mapeamento   String               // JSON serializado de ColunaMapeada[]
+  uso_count    Int      @default(1) // quantas vezes o mapeamento foi utilizado
+
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, hash_colunas])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@map("mapeamento_import")
+}

@@ -42,9 +42,118 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Classes do design system (self-contained) ──────────────────────────────── */
+/* Definidas aqui para que o modal funcione sem depender de CSS global externo   */
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--bg-elevated);
+  flex-shrink: 0;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.5rem;
+  background: var(--bg-base);
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--bg-elevated);
+  flex-shrink: 0;
+}
+
+.text-h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+}
+
+.btn-primary {
+  background: var(--accent, #6366f1);
+  color: #0f172a;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover, #818cf8);
+  box-shadow: 0 4px 16px rgba(129, 140, 248, 0.3);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated, #334155);
+  color: var(--text-primary, #f1f5f9);
+  border: 1px solid var(--border-default, rgba(255,255,255,0.08));
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-surface, #1e293b);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-surface, #1e293b);
+  color: var(--text-primary, #f1f5f9);
+}
+
+/* Light theme */
+body.light-theme .btn-secondary {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: rgba(0,0,0,0.12);
+}
+body.light-theme .btn-primary { color: #fff; }
+
 /* ─── Header ─────────────────────────────────────────────────────────────────── */
-/* .modal-header já definido no design system; aqui sobrescrevemos apenas o que é
-   específico do componente */
 .mg-header {
   display: flex;
   align-items: flex-start;
@@ -151,7 +260,6 @@ body.light-theme .mg-tab-pill.active {
 }
 
 /* ─── Body ───────────────────────────────────────────────────────────────────── */
-/* .modal-body já definido no design system */
 .mg-body {
   flex: 1;
   overflow-y: auto;
@@ -159,7 +267,6 @@ body.light-theme .mg-tab-pill.active {
 }
 
 /* ─── Footer ─────────────────────────────────────────────────────────────────── */
-/* .modal-footer já definido no design system */
 
 /* ─── Botão danger ───────────────────────────────────────────────────────────── */
 .mg-btn-danger {

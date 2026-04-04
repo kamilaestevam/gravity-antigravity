@@ -706,7 +706,12 @@
 
 .gtv-linha--filho {
   background: var(--gtv-bg-filho);
-  font-size: 0.85rem;
+}
+
+.gtv-linha--filho .gtv-celula {
+  font-size: 0.71875rem;
+  font-weight: 500;
+  color: var(--gtv-text);
 }
 
 .gtv-linha--filho:hover {

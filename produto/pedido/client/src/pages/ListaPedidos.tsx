@@ -3064,8 +3064,13 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
 const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   numero_pedido: {
     render: (row) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem', color: 'var(--text-muted)' }}>
-        {row.sequencia_item}. {row.part_number}
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.71875rem', fontWeight: 500 }}>
+        <span style={{ color: 'var(--gtv-muted, #64748b)', fontVariantNumeric: 'tabular-nums', minWidth: '18px', textAlign: 'right', flexShrink: 0 }}>
+          {row.sequencia_item ?? '—'}.
+        </span>
+        <span style={{ fontFamily: 'var(--font-mono, monospace)', letterSpacing: '0.01em' }}>
+          {row.part_number}
+        </span>
       </span>
     ),
   },

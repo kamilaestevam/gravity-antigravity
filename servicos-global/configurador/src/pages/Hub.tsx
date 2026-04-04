@@ -1,18 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useClerk, useAuth, useUser } from '@clerk/clerk-react'
 import { useNavigate } from 'react-router-dom'
 import {
   SpinnerGap,
-  CaretDown,
   ArrowUpRight,
-  ShoppingBagOpen,
-  SignOut,
-  Buildings,
-  Users,
   Gear,
   Sparkle,
-  ShieldCheck,
   Calculator,
   FileText,
   ArrowsClockwise,
@@ -41,6 +35,7 @@ import {
   useLocalizadorHistory,
   type EcosystemNode,
 } from '@nucleo/localizador-global'
+import { UsuarioGlobal } from '@nucleo/usuario-global'
 
 const API_URL = '/api/v1'
 
@@ -141,16 +136,13 @@ function formatDate(): string {
 export function Hub() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
-  const currentTheme = useShellStore((s) => s.currentTheme)
-  const tooltipsDisabled = useShellStore((s) => s.tooltipsDisabled)
-  const toggleTooltips = useShellStore((s) => s.toggleTooltips)
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
 
   useEffect(() => {
     document.body.classList.toggle('light-theme', currentTheme === 'light')
   }, [currentTheme])
 
-  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
   const [products, setProducts] = useState<CompanyProduct[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -158,24 +150,22 @@ export function Hub() {
   const { getToken } = useAuth()
   const { user } = useUser()
   const navigate = useNavigate()
-  const { isGravityAdmin: isAdmin } = useLoadSystemRole()
-  const menuRef = useRef<HTMLDivElement>(null)
+  const { isGravityAdmin: isAdmin, role: dbRole } = useLoadSystemRole()
 
   const companyId   = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
-  const userName    = user?.firstName ?? user?.fullName?.split(' ')[0] ?? 'você'
-  const initials    = companyName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
-
-  // Fecha menu ao clicar fora
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowWorkspaceMenu(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  const userName      = user?.fullName ?? user?.firstName ?? 'Usuário'
+  const userEmail     = user?.primaryEmailAddress?.emailAddress ?? ''
+  const userInitials  = userName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
+  const isLight       = currentTheme === 'light'
+  const ROLE_LABELS: Record<string, string> = {
+    SUPER_ADMIN: 'Super Admin',
+    ADMIN:       'Admin',
+    MASTER:      'Master',
+    STANDARD:    'Standard',
+    SUPPLIER:    'Fornecedor',
+  }
+  const userRole = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
 
   // Carrega produtos ativos do workspace
   useEffect(() => {
@@ -343,76 +333,20 @@ export function Hub() {
             <Gear weight="duotone" size={16} />
           </button>
 
-          {/* Workspace switcher */}
-          <div ref={menuRef} style={{ position: 'relative' }}>
-            <button
-              className="hs-glass-badge hs-glass-badge--icon"
-              type="button"
-              title={companyName}
-              aria-label={companyName}
-              onClick={() => setShowWorkspaceMenu(v => !v)}
-              aria-expanded={showWorkspaceMenu}
-            >
-              <div className="hs-tenant-avatar">{initials}</div>
-              <CaretDown
-                weight="bold"
-                size={11}
-                color="var(--color-text-muted)"
-                style={{ transition: 'transform 0.2s', transform: showWorkspaceMenu ? 'rotate(180deg)' : 'none' }}
-              />
-            </button>
-
-            {showWorkspaceMenu && (
-              <div className="hs-glass-menu" style={{ animation: 'fadeUp 0.2s cubic-bezier(0.16,1,0.3,1) forwards' }}>
-                <div className="hs-menu-header">
-                  <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-muted)', fontWeight: 700 }}>
-                    {t('hub.menu_alternar')}
-                  </span>
-                </div>
-                {[
-                  { label: t('hub.menu_gerenciar_workspace'), icon: <Gear weight="duotone" size={16} />,          path: '/workspace' },
-                  { label: t('hub.menu_workspaces'),          icon: <Buildings weight="duotone" size={16} />,     path: '/workspace/workspaces' },
-                  { label: t('hub.menu_usuarios'),            icon: <Users weight="duotone" size={16} />,         path: '/workspace/usuarios' },
-                  { label: t('hub.menu_gravity_store'),       icon: <ShoppingBagOpen weight="duotone" size={16} />, path: '/store' },
-                  { label: t('hub.menu_trocar_workspace'),    icon: <Buildings weight="duotone" size={16} />,     path: '/hub' },
-                ].map((item, idx) => (
-                  <button
-                    key={item.path}
-                    className="hs-menu-item"
-                    type="button"
-                    onClick={() => { navigate(item.path); setShowWorkspaceMenu(false) }}
-                    style={{ borderTop: idx === 3 ? '1px solid rgba(255,255,255,0.05)' : 'none', paddingTop: idx === 3 ? '0.5rem' : '0.25rem', marginTop: idx === 3 ? '0.25rem' : 0 }}
-                  >
-                    <span className="hs-menu-icon">{item.icon}</span>
-                    {item.label}
-                  </button>
-                ))}
-                {isAdmin && (
-                  <>
-                    <div style={{ borderTop: '1px solid rgba(99,102,241,0.15)', margin: '0.5rem 0.25rem 0.25rem' }} />
-                    <button
-                      className="hs-menu-item hs-menu-item-admin"
-                      type="button"
-                      onClick={() => { navigate('/admin'); setShowWorkspaceMenu(false) }}
-                    >
-                      <span className="hs-menu-icon"><ShieldCheck weight="duotone" size={16} color="#818cf8" /></span>
-                      {t('hub.menu_painel_admin')}
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-
-          <button
-            className="hs-glass-btn-danger hs-glass-btn-danger--icon"
-            type="button"
-            onClick={() => signOut(() => navigate('/'))}
-            title={t('hub.btn_sair_titulo')}
-            aria-label={t('hub.btn_sair')}
-          >
-            <SignOut weight="bold" size={16} />
-          </button>
+          <UsuarioGlobal
+            userName={userName}
+            userEmail={userEmail}
+            userInitials={userInitials}
+            userRole={userRole}
+            isLight={isLight}
+            onToggleTheme={toggleTheme}
+            onNavigateWorkspace={() => navigate('/workspace')}
+            onNavigateMarketPlace={() => navigate('/store')}
+            onSignOut={() => signOut(() => navigate('/'))}
+            isAdmin={false}
+            onNavigateAdmin={() => navigate('/admin')}
+            compact
+          />
         </div>
       </header>
 

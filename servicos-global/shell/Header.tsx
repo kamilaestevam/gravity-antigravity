@@ -319,7 +319,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
             clearCurrentUser()
             window.location.href = '/'
           }}
-          isAdmin={currentUser.email === 'admin@gravity.com.br'}
+          isAdmin={currentUser.role === 'Super Admin' || currentUser.role === 'Admin'}
           onNavigateAdmin={() => window.location.href = '/admin'}
           compact
         />

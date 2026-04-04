@@ -30,6 +30,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
+import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
 
 const API_URL = '/api/v1'
@@ -182,6 +183,16 @@ export function Store() {
   const { signOut } = useClerk()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
   const isLight = currentTheme === 'light'
+  const { isGravityAdmin, role: dbRole } = useLoadSystemRole()
+
+  const ROLE_LABELS: Record<string, string> = {
+    SUPER_ADMIN: 'Super Admin',
+    ADMIN:       'Admin',
+    MASTER:      'Master',
+    STANDARD:    'Standard',
+    SUPPLIER:    'Fornecedor',
+  }
+  const userRoleLabel = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
 
   useEffect(() => {
     if (isLight) {
@@ -351,13 +362,13 @@ export function Store() {
             userName={userName}
             userEmail={userEmail}
             userInitials={userInitials}
-            userRole="Admin"
+            userRole={userRoleLabel}
             isLight={isLight}
             onToggleTheme={toggleTheme}
             onNavigateWorkspace={() => navigate('/workspace/organizacao')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
-            isAdmin={true}
+            isAdmin={isGravityAdmin}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             compact
           />

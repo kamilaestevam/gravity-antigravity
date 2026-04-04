@@ -44,6 +44,7 @@ export default defineConfig({
       // ── Tabelas ──
       '@nucleo/tabela-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-camadas-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-camadas-global/src/index.ts'),
+      '@nucleo/select-colunas-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/select-colunas-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils': path.resolve(__dirname, '../../nucleo-global/Utilidades/utils/src/index.ts'),
       '@nucleo/Utilidades/localization/provider': path.resolve(__dirname, '../../nucleo-global/Utilidades/localization/provider.tsx'),

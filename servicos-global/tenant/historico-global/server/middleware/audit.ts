@@ -7,9 +7,23 @@ export interface AuditMiddlewareOptions {
   resource_type: string
   action: string
   action_detail?: string
-  actor_type?: ActorType
+  /**
+   * Barreira 1 — ator OBRIGATÓRIO e explícito.
+   * Nunca inferir do contexto HTTP. Declare sempre: 'USER', 'AI', 'JOB', 'API' ou 'INTEGRATION'.
+   */
+  actor_type: ActorType
   actor_id?: string
   actor_name?: string
+  /**
+   * Ponto B — captura precisa do estado "antes".
+   * Quando fornecida, esta função é chamada ANTES da execução do handler
+   * para capturar o estado atual da entidade no banco.
+   * Sem ela, `before` fica `undefined` no log.
+   *
+   * Exemplo:
+   *   fetchBefore: (req) => prisma.order.findUnique({ where: { id: req.params.id } })
+   */
+  fetchBefore?: (req: Request) => Promise<unknown>
 }
 
 /**
@@ -18,17 +32,27 @@ export interface AuditMiddlewareOptions {
  *
  * Para capturar o estado "before" com precisão, os serviços devem
  * chamar AuditService.log() diretamente passando before/after explícitos.
+ *
+ * BARREIRA 1: actor_type é obrigatório — nunca inferido do contexto HTTP.
+ * actor_id e actor_name podem vir do req.auth quando não fornecidos.
  */
 export function auditMiddleware(opts: AuditMiddlewareOptions) {
-  return (req: any, res: Response, next: NextFunction) => {
+  return async (req: any, res: Response, next: NextFunction) => {
     const auth = req.auth ?? {}
 
-    const actor_type: ActorType =
-      opts.actor_type ?? (auth.isGabi ? ActorType.AI : ActorType.USER)
-    const actor_id: string =
-      opts.actor_id ?? auth.userId ?? 'anonymous'
-    const actor_name: string =
-      opts.actor_name ?? (auth.isGabi ? 'Gabi AI' : auth.userName ?? 'Unknown')
+    const actor_type: ActorType = opts.actor_type
+    const actor_id: string = opts.actor_id ?? auth.userId ?? 'anonymous'
+    const actor_name: string = opts.actor_name ?? auth.userName ?? 'Unknown'
+
+    // Ponto B: captura estado "antes" se fetchBefore fornecido
+    let beforeState: unknown = undefined
+    if (opts.fetchBefore) {
+      try {
+        beforeState = await opts.fetchBefore(req)
+      } catch (err) {
+        console.error('[auditMiddleware] Falha no fetchBefore (log continuará sem before):', err)
+      }
+    }
 
     const originalJson = res.json.bind(res)
 
@@ -53,6 +77,7 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
           resource_id: (body as any)?.id ?? req.params?.id,
           action: opts.action,
           action_detail: opts.action_detail ?? `${opts.action} em ${opts.resource_type}`,
+          before: beforeState,
           after: isSuccess ? body : undefined,
           status: isFailure ? 'FAILURE' : isSuccess ? 'SUCCESS' : 'PARTIAL',
           error_message: isFailure ? (body as any)?.message : undefined,

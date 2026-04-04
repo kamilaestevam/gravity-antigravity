@@ -3,6 +3,8 @@
  */
 
 export { TabelaVirtualGlobal } from './TabelaVirtualGlobal.js'
+export { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
+export type { BotaoCompletoExportarProps } from './BotaoCompletoExportar.js'
 export type {
   GTColuna,
   GTAcao,

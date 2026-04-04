@@ -43,6 +43,7 @@ export default defineConfig({
       '@nucleo/modal-campo-select-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-select-global/src/index.ts'),
       // ── Tabelas ──
       '@nucleo/tabela-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-global/src/index.ts'),
+      '@nucleo/tabela-virtual-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-virtual-global/src/index.ts'),
       '@nucleo/tabela-camadas-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-camadas-global/src/index.ts'),
       '@nucleo/select-colunas-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/select-colunas-global/src/index.ts'),
       // ── Utilidades ──

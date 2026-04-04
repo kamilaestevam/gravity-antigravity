@@ -20,6 +20,7 @@ import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -92,6 +93,16 @@ app.use(tenantIsolationMiddleware)
 
 // --- 7.1. Observabilidade — captura metricas para API Cockpit ----------------
 app.use(apiObservability('processo'))
+app.use(createProductAuditPlugin({
+  product_id: 'processo',
+  module: 'processo',
+  getActorFromReq: (req) => {
+    const tenant_id = req.headers['x-tenant-id'] as string | undefined
+    const actor_id  = req.headers['x-user-id']   as string | undefined
+    if (!tenant_id || !actor_id) return null
+    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+  },
+}))
 
 // --- 8. Rotas do Produto ------------------------------------------------------
 app.use('/api/v1/processos', processosRouter)

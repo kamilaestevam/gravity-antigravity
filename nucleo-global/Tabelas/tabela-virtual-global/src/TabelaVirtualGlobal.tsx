@@ -276,16 +276,32 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 const MOEDAS_PADRAO = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU']
 const UNIDADES_PADRAO = ['UN', 'KG', 'G', 'TON', 'L', 'ML', 'M', 'M²', 'M³', 'CX', 'PC', 'PAR', 'DZ', 'CT', 'FD']
 
-function formatarOverlayValor(val: unknown, tipo?: string): string {
+function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number): string {
   if (tipo === 'moeda' && val != null && typeof val === 'object') {
     const v = val as GTValorMoeda
     return `${v.currency} ${Number(v.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
   if (tipo === 'unidade' && val != null && typeof val === 'object') {
     const v = val as GTValorUnidade
-    return `${Number(v.quantity).toLocaleString('pt-BR')} ${v.unit}`
+    const casas = casasDecimais ?? 0
+    return `${Number(v.quantity).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })} ${v.unit}`
   }
   return String(val ?? '')
+}
+
+// Converte string pt-BR (1.500,50) para float (1500.5)
+function parseBRNum(s: string): number {
+  const t = s.trim()
+  if (!t) return 0
+  // Tem vírgula: formato BR (. = milhar, , = decimal)
+  if (t.includes(',')) return parseFloat(t.replace(/\./g, '').replace(',', '.')) || 0
+  // Só ponto: se 3 dígitos após o ponto → milhar (1.500); senão → decimal (1.5)
+  if (t.includes('.')) {
+    const parts = t.split('.')
+    if (parts.length === 2 && parts[1].length === 3) return parseFloat(t.replace('.', '')) || 0
+    return parseFloat(t) || 0
+  }
+  return parseFloat(t) || 0
 }
 
 function parsearLinhaSmartPaste(linha: string, tipo?: string, valorAtual?: unknown): unknown {
@@ -329,6 +345,7 @@ interface GTEditPopoverProps {
     opcoes?: { valor: string; label: string }[]
     moedas?: string[]
     unidades?: string[]
+    casasDecimais?: number
   }
   valorEditando: unknown
   salvando: boolean
@@ -390,6 +407,15 @@ const GTEditPopover = memo(function GTEditPopover({
     : { unit: 'UN', quantity: 0 }
   const listaMoedas   = overlayInfo.moedas   ?? MOEDAS_PADRAO
   const listaUnidades = overlayInfo.unidades ?? UNIDADES_PADRAO
+  const casas = overlayInfo.casasDecimais ?? 0
+
+  // Estados de display pt-BR para os inputs numéricos (inicializados uma vez na abertura do popover)
+  const [displayMoedaAmt, setDisplayMoedaAmt] = useState(() =>
+    mv.amount > 0 ? mv.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''
+  )
+  const [displayQty, setDisplayQty] = useState(() =>
+    uv.quantity > 0 ? uv.quantity.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : ''
+  )
 
   // Handler de paste compartilhado — detecta multi-linha e aciona smart paste
   const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -552,6 +578,26 @@ const GTEditPopover = memo(function GTEditPopover({
             </div>
           ) : isUnidade ? (
             <div className="gtv-edit-unidade">
+              <input
+                ref={inputRef}
+                autoFocus
+                type="number"
+                step={overlayInfo.casasDecimais && overlayInfo.casasDecimais > 0 ? (1 / Math.pow(10, overlayInfo.casasDecimais)).toFixed(overlayInfo.casasDecimais) : '1'}
+                className="gtv-edit-unidade-qty"
+                value={uv.quantity === 0 ? '' : uv.quantity}
+                placeholder="0"
+                disabled={salvando}
+                onChange={e => onAtualizar({ ...uv, quantity: Number(e.target.value) || 0 })}
+                onKeyDown={e => {
+                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
+                }}
+                onBlur={e => {
+                  if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
+                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                }}
+                onPaste={handleSmartPasteDetect}
+              />
               {/* Trigger — dropdown via portal para não ser cortado pelo overflow:hidden */}
               <div className="gtv-edit-custom-select">
                 <button
@@ -568,26 +614,6 @@ const GTEditPopover = memo(function GTEditPopover({
                   </svg>
                 </button>
               </div>
-              <input
-                ref={inputRef}
-                autoFocus
-                type="number"
-                step="1"
-                className="gtv-edit-unidade-qty"
-                value={uv.quantity === 0 ? '' : uv.quantity}
-                placeholder="0"
-                disabled={salvando}
-                onChange={e => onAtualizar({ ...uv, quantity: Number(e.target.value) || 0 })}
-                onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-                  if (e.key === 'Escape') { e.preventDefault(); setUnidadeAberta(false); onCancelar() }
-                }}
-                onBlur={e => {
-                  if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
-                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
-                }}
-                onPaste={handleSmartPasteDetect}
-              />
             </div>
           ) : isPeriodo ? (
             <>
@@ -636,10 +662,10 @@ const GTEditPopover = memo(function GTEditPopover({
         <div className={`gtv-edit-popover-footer${isOpcoes ? ' gtv-edit-popover-footer--hidden' : ''}`}>
           <div className="gtv-edit-popover-hints" aria-hidden="true">
             <kbd className="gtv-edit-popover-kbd">Enter</kbd>
-            <span>confirmar</span>
+            <span>Confirmar</span>
             <span className="gtv-edit-popover-sep">·</span>
             <kbd className="gtv-edit-popover-kbd">Esc</kbd>
-            <span>cancelar</span>
+            <span>Cancelar</span>
           </div>
           <div className="gtv-edit-popover-actions">
             <button
@@ -1345,7 +1371,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
             const colU = col as GTColuna<unknown>
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades })
+            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
           }
@@ -1570,7 +1596,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: colU2.unidades })
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}

@@ -11,44 +11,44 @@ import { prisma } from '../lib/prisma.js'
 export const hubRouter = Router()
 
 /**
+ * GET /api/v1/hub/catalog
+ * Catálogo global de produtos — público, sem auth.
+ * Qualquer usuário autenticado ou não pode ver o que existe na plataforma.
+ */
+hubRouter.get('/catalog', async (_req, res, next) => {
+  try {
+    const catalog = await prisma.product.findMany({
+      select: { id: true, name: true, slug: true, description: true, status: true },
+      orderBy: { created_at: 'desc' },
+    })
+    res.json({ catalog })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/v1/hub/init
- * Carrega todos os dados necessários para a tela Hub numa única chamada.
- * Substitui 4 chamadas separadas:
- *   - GET /api/v1/tenants/companies
- *   - GET /api/v1/tenants/me
- *   - GET /api/v1/tenants/products
- *   - GET /api/admin/products
+ * Carrega dados do tenant (companies + produtos contratados) + catálogo numa única chamada.
+ * Requer auth. Se o tenant não tiver produtos contratados, retorna catalog completo para sugestão.
  */
 hubRouter.get('/init', requireAuth, async (req, res, next) => {
   try {
     const tenantId = req.auth.tenantId
 
     // Tudo em paralelo — 1 único requireAuth
-    const [tenant, companies, configs, catalogProducts, globalProducts] = await Promise.all([
+    const [tenant, companies, configs, mergedCatalog] = await Promise.all([
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
       prisma.productConfig.findMany({
         where: { tenant_id: tenantId },
         orderBy: { created_at: 'desc' },
       }).catch(() => []),
-      // Query leve: só campos necessários para o hub (sem price_tiers/negotiations)
       prisma.product.findMany({
         select: { id: true, name: true, slug: true, description: true, status: true },
         orderBy: { created_at: 'desc' },
       }).catch(() => []),
-      // Catálogo secundário (GlobalProduct) — inclui produtos Em Breve
-      prisma.globalProduct.findMany({
-        select: { id: true, name: true, slug: true, description: true, status: true },
-        orderBy: { created_at: 'desc' },
-      }).catch(() => []),
     ])
-
-    // Merge catálogos: Product tem precedência; GlobalProduct complementa
-    const productSlugs = new Set(catalogProducts.map((p: { slug: string }) => p.slug))
-    const mergedCatalog = [
-      ...catalogProducts,
-      ...globalProducts.filter((gp: { slug: string }) => !productSlugs.has(gp.slug)),
-    ]
 
     // Enriquece produtos contratados com dados do catálogo
     const catalogMap = new Map(mergedCatalog.map((p: { slug: string }) => [p.slug, p]))

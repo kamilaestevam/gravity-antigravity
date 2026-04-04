@@ -160,10 +160,12 @@ export function ProdutosAdmin() {
       })
 
       logEvent({
-        acao: 'ALTERAÇÃO',
-        entidade: 'Produtos (Catálogo)',
-        oQueFoiFeito: `Alteração do Status do produto ${produto.nome}`,
-        diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }]
+        action: 'ALTERAÇÃO',
+        module: 'produto',
+        resource_type: 'Product',
+        resource_id: produto.id,
+        action_detail: `Alteração do status do produto ${produto.nome}`,
+        diff: [{ campo: 'Status', antes: produto.status, depois: novoStatus }],
       })
     } catch (err) {
       addNotification({

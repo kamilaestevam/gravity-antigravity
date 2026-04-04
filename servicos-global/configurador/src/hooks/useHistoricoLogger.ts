@@ -1,15 +1,7 @@
 import { useCallback } from 'react'
+import { useUser } from '@clerk/clerk-react'
 
-export type TipoAcaoHistorico = 
-  | 'CRIAÇÃO' 
-  | 'ALTERAÇÃO' 
-  | 'EXCLUSÃO' 
-  | 'ENVIO' 
-  | 'RECEBIMENTO' 
-  | 'EXPORTAÇÃO' 
-  | 'LOGIN' 
-  | 'CONFIGURAÇÃO' 
-  | 'IA'
+export type ActorTypeHistorico = 'USER' | 'AI' | 'JOB' | 'API' | 'INTEGRATION'
 
 export type DiffObj = {
   campo: string
@@ -18,46 +10,73 @@ export type DiffObj = {
 }
 
 export type PayloadHistorico = {
-  acao: TipoAcaoHistorico
-  entidade: string
-  oQueFoiFeito: string
-  quemNome?: string
-  quemTipo?: 'user' | 'gabi' | 'system'
+  /** Ação executada (ex: 'CRIAÇÃO', 'ALTERAÇÃO', 'EXCLUSÃO', 'CONFIGURAÇÃO') */
+  action: string
+  /** Módulo afetado em snake_case (ex: 'empresa', 'produto', 'usuario') */
+  module: string
+  /** Tipo do recurso em PascalCase (ex: 'Company', 'Product', 'User') */
+  resource_type: string
+  /** Descrição legível do que foi feito */
+  action_detail: string
+  /** ID do recurso afetado */
+  resource_id?: string
+  /** Tipo de ator — padrão: 'USER' */
+  actor_type?: ActorTypeHistorico
+  /** Estado antes da alteração */
+  before?: Record<string, unknown>
+  /** Estado depois da alteração */
+  after?: Record<string, unknown>
+  /** Diff simplificado — convertido automaticamente em before/after */
   diff?: DiffObj[]
+  /** ID do produto que originou a ação */
+  product_id?: string
 }
 
 /**
- * Hook universal para envio de logs assíncronos ao Histórico Global (Onda 3).
- * Siga o padrão Fire-and-Forget: não utilize `await` travando a execução principal
- * do usuário, o disparo do log não deve interferir no tempo de resposta da UI.
+ * Hook universal para envio de logs ao Histórico Global.
+ * Fire-and-forget: nunca bloqueia a execução principal.
+ *
+ * Requer que o componente esteja dentro de <ClerkProvider>.
+ * O actor_id e actor_name são preenchidos automaticamente via useUser().
  */
 export function useHistoricoLogger() {
+  const { user } = useUser()
+
   const logEvent = useCallback((payload: PayloadHistorico) => {
-    // Fire-and-forget: Inicia a requisição mas não bloqueia
-    // Quando o serviço Backend estiver 100% no ar, este fetch baterá no /api/tenant/historico-global/logs
-    // Mapeamento para o contrato fixo do Backend (IngestHistorySchema)
+    if (!user) return
+
+    // Converter diff simplificado para before/after se fornecido
+    let before = payload.before
+    let after = payload.after
+    if (payload.diff && payload.diff.length > 0 && !before && !after) {
+      before = Object.fromEntries(payload.diff.map((d) => [d.campo, d.antes]))
+      after = Object.fromEntries(payload.diff.map((d) => [d.campo, d.depois]))
+    }
+
     const body = {
-      actor_id: payload.quemNome || 'Daniel Martins',
-      actor_type: (payload.quemTipo === 'gabi' ? 'GABI_IA' : payload.quemTipo?.toUpperCase() || 'USER'),
-      action: payload.acao,
-      metadata: {
-        oQueFoiFeito: payload.oQueFoiFeito,
-        entidade: payload.entidade,
-        diff: payload.diff,
-        quando: new Date().toISOString()
-      }
+      actor_type: payload.actor_type ?? 'USER',
+      actor_id: user.id,
+      actor_name: user.fullName ?? user.primaryEmailAddress?.emailAddress ?? user.id,
+      module: payload.module,
+      resource_type: payload.resource_type,
+      resource_id: payload.resource_id,
+      action: payload.action,
+      action_detail: payload.action_detail,
+      before,
+      after,
+      status: 'SUCCESS',
+      product_id: payload.product_id,
+      user_id: user.id,
     }
 
     fetch('/api/tenant/historico-global/logs', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     }).catch((err) => {
-      console.warn('Falha silenciosa ao gravar no Histórico Global:', err)
+      console.warn('[useHistoricoLogger] Falha silenciosa ao gravar log:', err)
     })
-  }, [])
+  }, [user])
 
   return { logEvent }
 }

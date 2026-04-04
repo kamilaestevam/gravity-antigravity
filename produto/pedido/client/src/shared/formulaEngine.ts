@@ -178,6 +178,8 @@ class Parser {
     return esq
   }
 
+  peekPublic(): Token { return this.tokens[this.pos] }
+
   // unario → '-' primario | primario
   private parseUnario(): FormulaAST {
     const tok = this.peek()
@@ -229,7 +231,16 @@ class Parser {
       return { tipo: 'campo', chave: nome }
     }
 
-    throw new Error(`Token inesperado: ${tok.tipo}`)
+    if (tok.tipo === 'eof') {
+      throw new Error('Expressão incompleta: esperava um número ou campo após o último operador')
+    }
+    if (tok.tipo === 'rparen') {
+      throw new Error("Parêntese ')' inesperado")
+    }
+    if (tok.tipo === 'virgula') {
+      throw new Error("Vírgula fora de função SE() ou SOMA_ITENS()")
+    }
+    throw new Error(`Token inesperado: '${(tok as { valor?: string }).valor ?? tok.tipo}'`)
   }
 
   // SE(condicao, valor_se_verdadeiro, valor_se_falso) — '(' já consumido
@@ -268,9 +279,12 @@ export function parsearFormula(expressao: string): FormulaAST {
   const ast = parser.parseExpressao()
 
   // Verifica que todos os tokens foram consumidos
-  const sobrou = parser['peek']()
+  const sobrou = parser.peekPublic()
   if (sobrou.tipo !== 'eof') {
-    throw new Error(`Expressão inválida: token inesperado após fim da fórmula`)
+    const extra = sobrou.tipo === 'ident' || sobrou.tipo === 'numero'
+      ? `'${(sobrou as { valor: string | number }).valor}'`
+      : sobrou.tipo
+    throw new Error(`Token inesperado após fim da fórmula: ${extra}. Verifique se falta um operador.`)
   }
 
   return ast

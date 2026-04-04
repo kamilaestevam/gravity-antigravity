@@ -23,7 +23,7 @@ import {
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
-  Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare,
+  Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -37,6 +37,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, type PdfTemplate } from '../shared/api'
+import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type {
   ColunaUsuario as ColunaUsuarioApi,
   TipoColunaUsuario,
@@ -381,6 +382,7 @@ interface NovaColuna {
   valor_padrao: string
   descricao: string
   opcoes: string[]
+  formula_expressao: string
 }
 
 // ─── Colunas numéricas nativas — casas decimais ───────────────────────────────
@@ -409,6 +411,7 @@ const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNo
   { id: 'select',         label: 'Select/Lista',  icone: <ListBullets    size={16} weight="duotone" /> },
   { id: 'checkbox',       label: 'Checkbox',      icone: <CheckSquare    size={16} weight="duotone" /> },
   { id: 'tipo_documento', label: 'Tipo Documento',icone: <Tag            size={16} weight="duotone" /> },
+  { id: 'formula',        label: 'Fórmula',        icone: <MathOperations size={16} weight="duotone" /> },
 ]
 
 const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string }[] = [
@@ -444,6 +447,7 @@ const NOVA_COLUNA_PADRAO: NovaColuna = {
   valor_padrao: '',
   descricao: '',
   opcoes: [],
+  formula_expressao: '',
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -501,6 +505,7 @@ export default function Configuracoes() {
   const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as CategoriaId | null
+  const acaoParam = searchParams.get('acao')
   const [categoria, setCategoria] = useState<CategoriaId>(tabParam ?? 'cards')
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
@@ -526,6 +531,158 @@ export default function Configuracoes() {
   const [novaOpcao, setNovaOpcao] = useState('')
   const [salvandoColuna, setSalvandoColuna] = useState(false)
   const [erroColuna, setErroColuna] = useState<string | null>(null)
+  const formulaTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const novaColunaSectionRef = useRef<HTMLElement>(null)
+  const novaColunaInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (acaoParam === 'nova' && categoria === 'colunas') {
+      setTimeout(() => {
+        novaColunaSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        novaColunaInputRef.current?.focus()
+      }, 100)
+    }
+  }, [acaoParam, categoria])
+  const formulaDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [formulaErro,       setFormulaErro]       = useState<string | null>(null)
+  const [formulaValida,     setFormulaValida]     = useState(false)
+  const [formulaAviso,      setFormulaAviso]      = useState<string | null>(null)
+  const [formulaGabi,       setFormulaGabi]       = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
+  const [formulaAnalisando, setFormulaAnalisando] = useState(false)
+
+  const TIPOS_NUMERICOS: TipoColunaUsuario[] = ['numero', 'percentual', 'formula']
+
+  const validarFormulaConfig = useCallback((expressao: string) => {
+    if (!expressao.trim()) {
+      setFormulaErro(null); setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
+      return
+    }
+    try {
+      parsearFormula(expressao)
+
+      const chave = novaColuna.nome.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
+      if (detectarCircular(chave, expressao, colunasUsuarioApi_)) {
+        setFormulaErro('Referência circular: a fórmula cria um ciclo de dependências. Remova a referência que volta para esta coluna.')
+        setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
+        return
+      }
+
+      // Detectar campos não-numéricos referenciados
+      const camposTexto: string[] = []
+      const identRegex = /\b([a-z][a-z0-9_]*)\b/g
+      let m: RegExpExecArray | null
+      while ((m = identRegex.exec(expressao)) !== null) {
+        const id = m[1]
+        const colUsuario = colunasUsuarioApi_.find(c => c.chave === id || c.id === id)
+        if (colUsuario && !TIPOS_NUMERICOS.includes(colUsuario.tipo)) {
+          camposTexto.push(`"${colUsuario.nome}" (${colUsuario.tipo})`)
+        }
+      }
+
+      if (camposTexto.length > 0) {
+        setFormulaErro(null)
+        setFormulaValida(true)
+        setFormulaAviso(null)
+        setFormulaGabi({
+          titulo: 'Campo não-numérico detectado',
+          texto: `${camposTexto.join(', ')} ${camposTexto.length === 1 ? 'não é um campo numérico' : 'não são campos numéricos'}. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0. Use apenas campos do tipo Numérico, Percentual ou outra Fórmula.`,
+        })
+        return
+      }
+
+      // Avisos semânticos → Gabi
+      const expr = expressao.trim()
+      let gabi: { titulo: string; texto: string; sugestao?: string } | null = null
+
+      if (/\+/.test(expr) && /quantidade_pedida/.test(expr) && /quantidade_a_entregar/.test(expr)) {
+        gabi = {
+          titulo: 'Você quis dizer o saldo?',
+          texto: 'Somando Qtd. Pedida + Qtd. a Entregar. Se o objetivo é calcular o saldo disponível, a operação correta é subtração.',
+          sugestao: 'quantidade_pedida - quantidade_transferida_total',
+        }
+      } else if (/\//.test(expr) && !/SE\s*\(/.test(expr)) {
+        gabi = {
+          titulo: 'Divisão sem proteção',
+          texto: 'Se o denominador puder ser zero, a fórmula gerará erro. Proteja com SE().',
+          sugestao: expr.replace(/(.+)\/(.+)/, 'SE($2 == 0, 0, $1 / $2)'),
+        }
+      }
+
+      setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null); setFormulaGabi(gabi)
+    } catch (err) {
+      setFormulaErro(err instanceof Error ? `${err.message}` : 'Fórmula inválida')
+      setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
+    }
+  }, [novaColuna.nome, colunasUsuarioApi_, TIPOS_NUMERICOS])
+
+  const handleFormulaChange = useCallback((valor: string) => {
+    setNovaColuna(prev => ({ ...prev, formula_expressao: valor }))
+    setFormulaValida(false); setFormulaErro(null); setFormulaAviso(null); setFormulaGabi(null)
+    if (valor.trim()) {
+      setFormulaAnalisando(true)
+    } else {
+      setFormulaAnalisando(false)
+    }
+    if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current)
+    formulaDebounceRef.current = setTimeout(() => {
+      setFormulaAnalisando(false)
+      validarFormulaConfig(valor)
+    }, 600)
+  }, [validarFormulaConfig])
+
+  useEffect(() => {
+    return () => { if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current) }
+  }, [])
+
+  // Campos disponíveis para fórmulas, agrupados por categoria
+  const CAMPOS_FORMULA: { grupo: string; campos: { chave: string; label: string }[] }[] = [
+    {
+      grupo: 'Quantidades',
+      campos: [
+        { chave: 'quantidade_pedida',          label: 'Qtd. Pedida' },
+        { chave: 'quantidade_a_entregar',       label: 'Qtd. a Entregar' },
+        { chave: 'quantidade_pronta',           label: 'Qtd. Pronta' },
+        { chave: 'quantidade_transferida_total',label: 'Qtd. Transferida' },
+        { chave: 'saldo_quantidade',            label: 'Saldo' },
+      ],
+    },
+    {
+      grupo: 'Financeiro',
+      campos: [
+        { chave: 'valor_total',   label: 'Valor Total' },
+        { chave: 'peso_liquido_total_pedido', label: 'Peso Líquido' },
+        { chave: 'peso_bruto_total_pedido',   label: 'Peso Bruto' },
+        { chave: 'cubagem_total_pedido',      label: 'Cubagem' },
+      ],
+    },
+    ...( colunasUsuarioApi_.filter(c => c.tipo !== 'formula' && c.ativo).length > 0 ? [{
+      grupo: 'Minhas Colunas',
+      campos: colunasUsuarioApi_
+        .filter(c => c.tipo !== 'formula' && c.ativo)
+        .map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
+    }] : []),
+  ]
+
+  function inserirCampoFormula(chave: string) {
+    const el = formulaTextareaRef.current
+    if (!el) {
+      setNovaColuna(prev => ({ ...prev, formula_expressao: prev.formula_expressao + chave }))
+      return
+    }
+    const start = el.selectionStart ?? el.value.length
+    const end   = el.selectionEnd   ?? el.value.length
+    const antes  = el.value.slice(0, start)
+    const depois = el.value.slice(end)
+    const sep    = antes.length > 0 && !/[\s(+\-*/]$/.test(antes) ? ' ' : ''
+    const novo   = antes + sep + chave + depois
+    setNovaColuna(prev => ({ ...prev, formula_expressao: novo }))
+    // Reposicionar cursor após o campo inserido
+    requestAnimationFrame(() => {
+      el.focus()
+      const pos = (antes + sep + chave).length
+      el.setSelectionRange(pos, pos)
+    })
+  }
 
   async function handleCriarColuna() {
     const nomeTrimmed = novaColuna.nome.trim()
@@ -533,6 +690,10 @@ export default function Configuracoes() {
     const tipoComOpcoes = novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento'
     if (tipoComOpcoes && novaColuna.opcoes.length === 0) {
       setErroColuna('Adicione ao menos uma opção à lista.')
+      return
+    }
+    if (novaColuna.tipo === 'formula' && !novaColuna.formula_expressao.trim()) {
+      setErroColuna('Digite a expressão da fórmula.')
       return
     }
     setSalvandoColuna(true)
@@ -547,6 +708,7 @@ export default function Configuracoes() {
         valor_padrao: novaColuna.valor_padrao.trim() || undefined,
         descricao: novaColuna.descricao.trim() || undefined,
         opcoes: tipoComOpcoes ? novaColuna.opcoes : undefined,
+        formula_expressao: novaColuna.tipo === 'formula' ? novaColuna.formula_expressao.trim() : undefined,
         ativo: true,
         ordem: colunasUsuarioApi_.length,
       })
@@ -2016,7 +2178,7 @@ export default function Configuracoes() {
             </section>
 
             {/* ── Criar Coluna Personalizada ── */}
-            <section className="cfg-secao">
+            <section className="cfg-secao" ref={novaColunaSectionRef}>
               <div className="cfg-secao__header">
                 <div>
                   <h2 className="cfg-secao__titulo">Colunas Personalizadas</h2>
@@ -2034,6 +2196,7 @@ export default function Configuracoes() {
                   <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                   <input
                     id="nova-coluna-nome"
+                    ref={novaColunaInputRef}
                     type="text"
                     className="cfg-form-input"
                     placeholder="Ex: Código ERP, Margem %, Prioridade"
@@ -2061,6 +2224,104 @@ export default function Configuracoes() {
                     ))}
                   </div>
                 </div>
+
+                {/* Expressão (formula) */}
+                {novaColuna.tipo === 'formula' && (
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label">
+                      Expressão <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span>
+                    </label>
+
+                    {/* Campos disponíveis agrupados */}
+                    <div className="cfg-formula-campos">
+                      {CAMPOS_FORMULA.map(grupo => (
+                        <div key={grupo.grupo} className="cfg-formula-grupo">
+                          <span className="cfg-formula-grupo-nome">{grupo.grupo}</span>
+                          <div className="cfg-formula-chips">
+                            {grupo.campos.map(c => (
+                              <button
+                                key={c.chave}
+                                type="button"
+                                className="cfg-formula-chip"
+                                title={c.chave}
+                                onClick={() => inserirCampoFormula(c.chave)}
+                              >
+                                {c.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <textarea
+                      ref={formulaTextareaRef}
+                      className={[
+                        'cfg-form-input',
+                        formulaErro   ? 'cfg-formula-input--erro'  : '',
+                        formulaValida && novaColuna.formula_expressao.trim() ? 'cfg-formula-input--ok' : '',
+                      ].filter(Boolean).join(' ')}
+                      rows={3}
+                      placeholder="Ex: quantidade_pedida - quantidade_transferida_total"
+                      style={{ fontFamily: 'monospace', resize: 'vertical', marginTop: 8 }}
+                      value={novaColuna.formula_expressao}
+                      onChange={e => handleFormulaChange(e.target.value)}
+                      aria-describedby={formulaErro ? 'cfg-formula-msg' : undefined}
+                    />
+
+                    {/* Analisando — enquanto digita */}
+                    {formulaAnalisando && !formulaErro && (
+                      <div className="cfg-formula-msg cfg-formula-msg--analisando">
+                        <span className="cfg-formula-dots">···</span> analisando fórmula
+                      </div>
+                    )}
+
+                    {/* Feedback: erro de sintaxe */}
+                    {!formulaAnalisando && formulaErro && (
+                      <div id="cfg-formula-msg" className="cfg-formula-msg cfg-formula-msg--erro" role="alert">
+                        <span>✕</span> {formulaErro}
+                      </div>
+                    )}
+
+                    {/* Feedback: válida sem avisos */}
+                    {!formulaAnalisando && formulaValida && !formulaErro && !formulaGabi && novaColuna.formula_expressao.trim() && (
+                      <div className="cfg-formula-msg cfg-formula-msg--ok">
+                        <span>✓</span> Fórmula válida
+                      </div>
+                    )}
+
+                    {/* Card Gabi — sugestão inteligente */}
+                    {!formulaAnalisando && formulaGabi && !formulaErro && (
+                      <div className="cfg-gabi-card" role="note">
+                        <div className="cfg-gabi-card__header">
+                          <span className="cfg-gabi-card__ico">✦</span>
+                          <span className="cfg-gabi-card__titulo">Gabi · {formulaGabi.titulo}</span>
+                        </div>
+                        <p className="cfg-gabi-card__texto">{formulaGabi.texto}</p>
+                        {formulaGabi.sugestao && (
+                          <div className="cfg-gabi-card__sugestao-row">
+                            <code className="cfg-gabi-card__sugestao">{formulaGabi.sugestao}</code>
+                            <button
+                              type="button"
+                              className="cfg-gabi-card__usar"
+                              onClick={() => handleFormulaChange(formulaGabi.sugestao!)}
+                              title="Usar esta sugestão"
+                            >
+                              Usar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
+                      Operadores: <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px' }}>+ - * / ( )</code>
+                      &nbsp;·&nbsp; Funções:
+                      <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px', marginLeft: 4 }}>SE(cond, sim, não)</code>
+                      <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px', marginLeft: 4 }}>SOMA_ITENS(campo)</code>
+                    </p>
+                  </div>
+                )}
 
                 {/* Opções (select / tipo_documento) */}
                 {(novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') && (

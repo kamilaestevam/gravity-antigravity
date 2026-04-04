@@ -316,7 +316,23 @@ export function SelecionarWorkspace() {
         const res = await fetch('/api/v1/hub/init', {
           headers: { Authorization: `Bearer ${token}` },
         })
-        if (!res.ok) throw new Error(`Hub init failed: ${res.status}`)
+
+        // Se auth falhar, ainda carrega o catálogo público para mostrar produtos disponíveis
+        if (!res.ok) {
+          const catRes = await fetch('/api/v1/hub/catalog').catch(() => null)
+          if (catRes?.ok) {
+            const catData = await catRes.json()
+            const catalogo: ProdutoCatalogo[] = (catData.catalog ?? []).map(
+              (p: { id: string; name: string; slug: string; description?: string | null; status: string }) => ({
+                id: p.id, name: p.name, slug: p.slug, description: p.description ?? null, status: p.status,
+              })
+            )
+            if (!cancelled) setCatalogoProdutos(catalogo)
+          }
+          if (!cancelled) setCarregando(false)
+          return
+        }
+
         const data = await res.json()
 
         if (cancelled) return

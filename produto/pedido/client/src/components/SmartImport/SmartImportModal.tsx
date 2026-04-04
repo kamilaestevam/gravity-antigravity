@@ -137,12 +137,13 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
     setErro(null)
 
     const payload: SmartImportConfirmar = {
-      preview_id: preview.total_linhas.toString(), // substituir por real preview_id do backend
+      preview_id: preview.preview_id,
       mapeamento_confirmado: mapeamento,
       decisoes_duplicatas: decisoesDuplicatas,
       linhas_incluidas: Array.from(linhasSelecionadas),
       salvar_mapeamento: lembrarMapeamento,
       numeros_editados: Object.keys(numerosEditados).length > 0 ? numerosEditados : undefined,
+      linhas: preview.linhas,
     }
 
     try {

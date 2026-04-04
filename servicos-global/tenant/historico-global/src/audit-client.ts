@@ -38,19 +38,49 @@ export interface AuditLogPayload {
 
 const HISTORICO_URL =
   process.env.HISTORICO_URL ??
-  process.env.CONFIGURADOR_URL ??
-  'http://localhost:8005'
+  'http://localhost:8012'
 
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 
+const MAX_RETRY_ATTEMPTS = 3
+const RETRY_BASE_DELAY_MS = 300
+
+/**
+ * Tenta fazer fetch com backoff exponencial.
+ * Não faz retry em erros 4xx (problema no payload, não transitório).
+ */
+async function fetchWithRetry(url: string, init: RequestInit, attempt = 0): Promise<void> {
+  try {
+    const res = await fetch(url, init)
+    // 4xx = problema no payload, não adianta retentar
+    if (res.status >= 400 && res.status < 500) {
+      console.error(`[audit-client] Payload inválido (${res.status}) — log descartado`)
+      return
+    }
+    // 5xx ou erro de rede → retentar
+    if (!res.ok && attempt < MAX_RETRY_ATTEMPTS - 1) {
+      await new Promise((r) => setTimeout(r, RETRY_BASE_DELAY_MS * Math.pow(2, attempt)))
+      return fetchWithRetry(url, init, attempt + 1)
+    }
+  } catch {
+    if (attempt < MAX_RETRY_ATTEMPTS - 1) {
+      await new Promise((r) => setTimeout(r, RETRY_BASE_DELAY_MS * Math.pow(2, attempt)))
+      return fetchWithRetry(url, init, attempt + 1)
+    }
+    // Esgotou retentativas — log perdido. Em produção, monitorar via Sentry.
+    console.error(`[audit-client] FALHA_DEFINITIVA após ${MAX_RETRY_ATTEMPTS} tentativas — log perdido`)
+  }
+}
+
 /**
  * Enfileira um evento de auditoria via HTTP POST.
- * Nunca lança exceção — falhas são apenas logadas no console.
+ * Fire-and-forget com retry automático (até 3 tentativas, backoff exponencial).
+ * Nunca bloqueia a operação principal.
  */
 export function auditLog(payload: AuditLogPayload): void {
   const url = `${HISTORICO_URL}/api/tenant/historico-global/logs`
 
-  fetch(url, {
+  fetchWithRetry(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -58,7 +88,7 @@ export function auditLog(payload: AuditLogPayload): void {
       'x-internal-key': INTERNAL_KEY,
     },
     body: JSON.stringify(payload),
-  }).catch((err) => {
-    console.error('[audit-client] Falha ao enviar audit log:', err)
+  }).catch(() => {
+    // fetchWithRetry nunca lança, mas por precaução
   })
 }

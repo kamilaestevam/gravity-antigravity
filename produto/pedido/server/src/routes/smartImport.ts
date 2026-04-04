@@ -9,12 +9,14 @@
  *   GET  /api/v1/pedidos/smart-import/mapeamento/:hash — mapeamento salvo por hash
  *
  * Seguranca:
- *   - Validacao de extensao e tamanho (max 10MB)
+ *   - Validacao de extensao e tamanho (max 10MB) via multer
  *   - Zod em todas as rotas POST
  *   - tenant_id injetado pelo tenantIsolationMiddleware
+ *   - preview_id validado contra tenant (SEC.3)
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
+import multer from 'multer'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
 import { SmartImportService } from '../services/smartImportService.js'
@@ -22,10 +24,40 @@ import { MapeamentoMemoriaService } from '../services/mapeamentoMemoriaService.j
 
 export const smartImportRouter = Router()
 
+// ── Rate limit: máximo 10 uploads por tenant por minuto ───────────────────────
+
+const uploadRateLimit = new Map<string, { count: number; resetAt: number }>()
+
+function checkRateLimit(tenantId: string): boolean {
+  const now = Date.now()
+  const entry = uploadRateLimit.get(tenantId)
+  if (!entry || now > entry.resetAt) {
+    uploadRateLimit.set(tenantId, { count: 1, resetAt: now + 60_000 })
+    return true
+  }
+  if (entry.count >= 10) return false
+  entry.count++
+  return true
+}
+
 // ── Constantes ────────────────────────────────────────────────────────────────
 
 const EXTENSOES_ACEITAS = new Set(['xlsx', 'xls', 'csv', 'xml', 'txt', 'json', 'pdf'])
-const TAMANHO_MAX_BYTES = 10 * 1024 * 1024 // 10MB
+
+// ── Multer config ─────────────────────────────────────────────────────────────
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB — valida DURANTE o stream
+  fileFilter: (_req, file, cb) => {
+    const ext = file.originalname.split('.').pop()?.toLowerCase() ?? ''
+    if (EXTENSOES_ACEITAS.has(ext)) {
+      cb(null, true)
+    } else {
+      cb(new AppError(`Formato .${ext} nao suportado`, 400, 'FORMATO_INVALIDO'))
+    }
+  },
+})
 
 // ── Zod Schemas ───────────────────────────────────────────────────────────────
 
@@ -37,51 +69,44 @@ const ColunaMapeadaSchema = z.object({
   inferido_por:   z.enum(['ia', 'dados', 'memoria', 'usuario']),
 })
 
+const LinhaSchema = z.object({
+  linha_arquivo: z.number(),
+  numero_pedido: z.string().nullable(),
+  status:        z.enum(['ok', 'aviso', 'erro']),
+  alertas:       z.array(z.unknown()),
+  dados:         z.record(z.unknown()),
+})
+
 const ConfirmarSchema = z.object({
-  preview_id:           z.string().min(1),
+  preview_id:            z.string().min(1),
   mapeamento_confirmado: z.array(ColunaMapeadaSchema),
-  decisoes_duplicatas:  z.record(z.enum(['sobrescrever', 'criar', 'pular'])),
-  linhas_incluidas:     z.array(z.number().int()),
-  salvar_mapeamento:    z.boolean(),
+  decisoes_duplicatas:   z.record(z.enum(['sobrescrever', 'criar', 'pular'])),
+  linhas_incluidas:      z.array(z.number().int()),
+  salvar_mapeamento:     z.boolean(),
+  numeros_editados:      z.record(z.coerce.number(), z.string()).optional(),
+  linhas:                z.array(LinhaSchema).optional(),
 })
 
 // ── POST /analisar ─────────────────────────────────────────────────────────────
 
-smartImportRouter.post('/analisar', async (req: Request, res: Response, next: NextFunction) => {
+smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Request, res: Response, next: NextFunction) => {
   const tenantId = (req as Request & { tenantId: string }).tenantId
 
+  if (!checkRateLimit(tenantId)) {
+    return res.status(429).json({
+      error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas importacoes em pouco tempo. Aguarde 1 minuto.' },
+    })
+  }
+
   try {
-    // Ler corpo bruto do multipart (buffer)
-    // A aplicacao usa express.json() globalmente; para multipart precisamos ler o raw body.
-    // Como nao temos multer instalado, lemos o body como buffer via stream.
-    const contentType = req.headers['content-type'] ?? ''
-
-    if (!contentType.includes('multipart/form-data')) {
-      throw new AppError('Content-Type deve ser multipart/form-data', 400, 'INVALID_CONTENT_TYPE')
+    if (!req.file) {
+      throw new AppError('Arquivo nao encontrado', 400, 'ARQUIVO_AUSENTE')
     }
 
-    const { buffer, nomeArquivo } = await lerArquivoMultipart(req)
+    const buffer      = req.file.buffer
+    const nomeArquivo = req.file.originalname
 
-    // Validar extensao
-    const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
-    if (!EXTENSOES_ACEITAS.has(ext)) {
-      throw new AppError(
-        `Formato .${ext} nao suportado. Use: xlsx, xls, csv, xml, txt, json ou pdf`,
-        400,
-        'FORMATO_INVALIDO',
-      )
-    }
-
-    // Validar tamanho
-    if (buffer.length > TAMANHO_MAX_BYTES) {
-      throw new AppError(
-        `Arquivo muito grande. Tamanho maximo: 10MB`,
-        400,
-        'ARQUIVO_MUITO_GRANDE',
-      )
-    }
-
-    const db = (req as Request & { prisma: Record<string, unknown> }).prisma
+    const db      = (req as Request & { prisma: Record<string, unknown> }).prisma
     const service = new SmartImportService(db)
     const preview = await service.analisar(tenantId, buffer, nomeArquivo)
 
@@ -98,7 +123,7 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
   if (!parse.success) {
     return res.status(400).json({
       error: {
-        code: 'VALIDATION_ERROR',
+        code:    'VALIDATION_ERROR',
         message: 'Dados invalidos',
         details: parse.error.flatten(),
       },
@@ -106,8 +131,16 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
   }
 
   const tenantId = (req as Request & { tenantId: string }).tenantId
-  const userId   = (req as Request & { userId: string }).userId ?? 'system'
-  const db       = (req as Request & { prisma: Record<string, unknown> }).prisma
+
+  // SEC.3 — Validar que o preview_id pertence ao tenant da requisicao
+  if (!parse.data.preview_id.startsWith(tenantId + '-')) {
+    return res.status(403).json({
+      error: { code: 'UNAUTHORIZED_PREVIEW', message: 'Preview nao pertence a este tenant' },
+    })
+  }
+
+  const userId = (req as Request & { userId: string }).userId ?? 'system'
+  const db     = (req as Request & { prisma: Record<string, unknown> }).prisma
 
   try {
     const service   = new SmartImportService(db)
@@ -141,6 +174,53 @@ smartImportRouter.get('/mapeamento/:hash', async (req: Request, res: Response, n
   }
 })
 
+// ── GET /campos ────────────────────────────────────────────────────────────────
+
+smartImportRouter.get('/campos', (_req: Request, res: Response) => {
+  res.json([
+    { valor: 'numero_pedido',        rotulo: 'Numero do Pedido'     },
+    { valor: 'tipo_operacao',        rotulo: 'Tipo de Operacao'     },
+    { valor: 'exportador',           rotulo: 'Exportador (Shipper)' },
+    { valor: 'fabricante',           rotulo: 'Fabricante'           },
+    { valor: 'incoterm',             rotulo: 'Incoterm'             },
+    { valor: 'moeda_pedido',         rotulo: 'Moeda'                },
+    { valor: 'data_emissao_pedido',  rotulo: 'Data de Emissao'      },
+    { valor: 'data_embarque',        rotulo: 'Data de Embarque'     },
+    { valor: 'part_number',          rotulo: 'Part Number'          },
+    { valor: 'ncm',                  rotulo: 'NCM'                  },
+    { valor: 'descricao',            rotulo: 'Descricao'            },
+    { valor: 'quantidade_inicial',   rotulo: 'Quantidade'           },
+    { valor: 'unidade',              rotulo: 'Unidade'              },
+    { valor: 'valor_unitario',       rotulo: 'Valor Unitario'       },
+    { valor: 'valor_item',           rotulo: 'Valor Total Item'     },
+  ])
+})
+
+// ── POST /mapeamento/salvar ────────────────────────────────────────────────────
+
+const SalvarMapeamentoSchema = z.object({
+  hash_colunas: z.string().min(4),
+  mapeamento:   z.array(ColunaMapeadaSchema),
+})
+
+smartImportRouter.post('/mapeamento/salvar', async (req: Request, res: Response, next: NextFunction) => {
+  const parse = SalvarMapeamentoSchema.safeParse(req.body)
+  if (!parse.success) {
+    return res.status(400).json({
+      error: { code: 'VALIDATION_ERROR', message: 'Dados invalidos', details: parse.error.flatten() },
+    })
+  }
+  const tenantId = (req as Request & { tenantId: string }).tenantId
+  const db       = (req as Request & { prisma: Record<string, unknown> }).prisma
+  try {
+    const service = new MapeamentoMemoriaService(db)
+    await service.salvar(tenantId, parse.data.hash_colunas, parse.data.mapeamento)
+    res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ── Error handler local ───────────────────────────────────────────────────────
 
 smartImportRouter.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -152,84 +232,3 @@ smartImportRouter.use((err: Error, _req: Request, res: Response, _next: NextFunc
   console.error('[SmartImport]', err.message)
   res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Erro interno do servidor' } })
 })
-
-// ── Helper: ler arquivo de request multipart sem multer ──────────────────────
-
-async function lerArquivoMultipart(
-  req: Request,
-): Promise<{ buffer: Buffer; nomeArquivo: string }> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = []
-    const boundary = extrairBoundary(req.headers['content-type'] ?? '')
-    if (!boundary) {
-      reject(new AppError('Boundary multipart nao encontrado', 400, 'INVALID_MULTIPART'))
-      return
-    }
-
-    req.on('data', (chunk: Buffer) => chunks.push(chunk))
-    req.on('error', reject)
-    req.on('end', () => {
-      try {
-        const raw    = Buffer.concat(chunks)
-        const parsed = parseMultipartBody(raw, boundary)
-        if (!parsed) {
-          reject(new AppError('Arquivo nao encontrado no corpo da requisicao', 400, 'ARQUIVO_AUSENTE'))
-          return
-        }
-        resolve(parsed)
-      } catch (e) {
-        reject(e)
-      }
-    })
-  })
-}
-
-function extrairBoundary(contentType: string): string | null {
-  const match = contentType.match(/boundary=([^;]+)/i)
-  return match ? match[1].trim() : null
-}
-
-function parseMultipartBody(
-  body: Buffer,
-  boundary: string,
-): { buffer: Buffer; nomeArquivo: string } | null {
-  const delim  = Buffer.from(`\r\n--${boundary}`)
-  const parts  = splitBuffer(body, delim)
-
-  for (const part of parts) {
-    const separador = Buffer.from('\r\n\r\n')
-    const sepIdx    = part.indexOf(separador)
-    if (sepIdx === -1) continue
-
-    const headers    = part.slice(0, sepIdx).toString('utf-8')
-    const conteudo   = part.slice(sepIdx + separador.length)
-
-    // Remover \r\n final (delimitador multipart)
-    const dadosSemFinal = conteudo.slice(
-      0,
-      conteudo.lastIndexOf('\r\n') === conteudo.length - 2 ? conteudo.length - 2 : conteudo.length,
-    )
-
-    const fileNameMatch = headers.match(/filename="([^"]+)"/i)
-    if (!fileNameMatch) continue
-
-    return { buffer: dadosSemFinal, nomeArquivo: fileNameMatch[1] }
-  }
-
-  return null
-}
-
-function splitBuffer(buf: Buffer, delim: Buffer): Buffer[] {
-  const parts: Buffer[] = []
-  let start = 0
-  let idx   = buf.indexOf(delim, start)
-
-  while (idx !== -1) {
-    parts.push(buf.slice(start, idx))
-    start = idx + delim.length
-    idx   = buf.indexOf(delim, start)
-  }
-
-  parts.push(buf.slice(start))
-  return parts.filter(p => p.length > 0)
-}

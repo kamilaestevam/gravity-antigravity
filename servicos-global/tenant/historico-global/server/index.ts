@@ -4,8 +4,12 @@ import helmet from 'helmet'
 import cors from 'cors'
 import { historicoRouter } from './routes.js'
 import { errorHandler } from './lib/errors.js'
+import { authErrorLogger } from './middleware/auth-error-logger.js'
 import { initPgBoss } from './queue/pg-boss.js'
 import { startAuditWorker } from './queue/audit-worker.js'
+import { startExportWorker } from './queue/export-worker.js'
+import { startIntegrityCheckWorker } from './queue/integrity-check-worker.js'
+import { startPartitionWorker } from './queue/partition-worker.js'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8012)
@@ -23,15 +27,57 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/historico', historicoRouter)
 
-app.get('/health', (req, res) => {
-  res.json({
+app.get('/health', async (_req, res) => {
+  let dbStatus: 'ok' | 'error' = 'ok'
+  let queueStatus: 'ok' | 'error' | 'unknown' = 'unknown'
+  let dlqFailed = 0
+
+  try {
+    const { PrismaClient } = await import('../generated/index.js')
+    const p = new PrismaClient()
+    await p.$queryRaw`SELECT 1`
+    await p.$disconnect()
+    dbStatus = 'ok'
+  } catch {
+    dbStatus = 'error'
+  }
+
+  try {
+    // Verifica se pg-boss está inicializado e conta jobs falhos (sem consumir)
+    const { getBoss } = await import('./queue/pg-boss.js')
+    const boss = getBoss()
+    const counts = await boss.getQueueSize('audit:log:ingestion')
+    void counts // só verificar que boss está rodando
+    queueStatus = 'ok'
+
+    // Conta jobs em estado 'failed' na tabela do pg-boss (DLQ)
+    const { PrismaClient } = await import('../generated/index.js')
+    const p = new PrismaClient()
+    const result = await p.$queryRaw<[{ count: bigint }]>`
+      SELECT count(*) FROM pgboss.job
+      WHERE name = 'audit:log:ingestion' AND state = 'failed'
+    `
+    dlqFailed = Number(result[0]?.count ?? 0)
+    await p.$disconnect()
+  } catch {
+    queueStatus = 'error'
+  }
+
+  const allOk = dbStatus === 'ok'
+  res.status(allOk ? 200 : 503).json({
     service: '@tenant/historico',
-    status: 'ok',
+    status: allOk ? 'ok' : 'degraded',
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version ?? '1.0.0',
+    checks: {
+      db: dbStatus,
+      queue: queueStatus,
+      dlq_failed: dlqFailed,
+    },
   })
 })
 
+app.use(authErrorLogger)
 app.use(errorHandler)
 
 async function bootstrap() {
@@ -43,6 +89,9 @@ async function bootstrap() {
 
   await initPgBoss(databaseUrl)
   await startAuditWorker()
+  await startExportWorker()
+  await startIntegrityCheckWorker()
+  await startPartitionWorker()
 
   app.listen(PORT, () => {
     console.log(`[historico] Serviço rodando na porta ${PORT}`)

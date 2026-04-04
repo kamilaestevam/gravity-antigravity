@@ -6,6 +6,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
+import { auditLog } from '../../tenant/historico-global/src/audit-client.js'
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
@@ -33,6 +34,7 @@ export async function requireAuth(
     const authHeader = req.headers.authorization
 
     if (!authHeader?.startsWith('Bearer ')) {
+      logAuthFailure(req, 'Token de autenticação ausente')
       throw new AppError('Token de autenticação ausente', 401, 'UNAUTHORIZED')
     }
 
@@ -42,10 +44,12 @@ export async function requireAuth(
     try {
       verified = await clerkClient.verifyToken(token)
     } catch {
+      logAuthFailure(req, 'Token inválido ou expirado')
       throw new AppError('Token inválido ou expirado', 401, 'UNAUTHORIZED')
     }
 
     if (!verified?.sub) {
+      logAuthFailure(req, 'Token sem subject')
       throw new AppError('Token inválido', 401, 'UNAUTHORIZED')
     }
 
@@ -93,6 +97,7 @@ export async function requireAuth(
     }
 
     if (!user) {
+      logAuthFailure(req, `Usuário não encontrado para clerk_user_id: ${verified.sub}`)
       throw new AppError('Usuário não encontrado no sistema', 401, 'UNAUTHORIZED')
     }
 
@@ -127,4 +132,32 @@ export async function requireAuth(
   } catch (err) {
     next(err)
   }
+}
+
+/**
+ * Ponto Cego 2 — Registra falha de autenticação no histórico.
+ * Fire-and-forget: nunca bloqueia o fluxo de erro.
+ */
+function logAuthFailure(req: Request, reason: string): void {
+  setImmediate(() => {
+    auditLog({
+      tenant_id: (req.headers['x-tenant-id'] as string) ?? 'unknown',
+      actor_type: 'USER',
+      actor_id: 'anonymous',
+      actor_name: 'anonymous',
+      actor_ip: req.ip,
+      module: 'auth',
+      resource_type: 'Session',
+      action: 'AUTH_FAILURE',
+      action_detail: `Falha de autenticação: ${reason}`,
+      status: 'FAILURE',
+      error_message: reason,
+      actor_metadata: {
+        endpoint: req.originalUrl || req.url,
+        method: req.method,
+        user_agent: req.headers['user-agent'],
+      },
+    })
+  })
+}
 }

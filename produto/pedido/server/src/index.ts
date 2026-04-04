@@ -25,8 +25,10 @@ import { duplicarExcluirRouter } from './routes/duplicarExcluir.js'
 import { colunasUsuarioRouter } from './routes/colunasUsuario.js'
 import { anexosRouter } from './routes/anexos.js'
 import { pdfRouter } from './routes/pdf.js'
+import { loteRouter } from './routes/lote.js'
 import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
 import { openapiRouter } from './routes/openapi.js'
+import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 8026
@@ -79,6 +81,18 @@ app.use(tenantIsolationMiddleware)
 // ── 7. Observabilidade — captura métricas de uso por tenant/produto ───────────
 app.use(apiObservability('pedido'))
 
+// ── 7.1. Audit — registra mutações no histórico global ────────────────────────
+app.use(createProductAuditPlugin({
+  product_id: 'pedido',
+  module: 'pedido',
+  getActorFromReq: (req) => {
+    const tenant_id = req.headers['x-tenant-id'] as string | undefined
+    const actor_id  = req.headers['x-user-id']   as string | undefined
+    if (!tenant_id || !actor_id) return null
+    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+  },
+}))
+
 // ── 8. Rotas de negócio ───────────────────────────────────────────────────────
 app.use('/api/v1/pedidos/openapi.json', openapiRouter)
 app.use('/api/v1/pedidos/dashboard/widgets', dashboardWidgetsRouter)
@@ -89,6 +103,7 @@ app.use('/api/v1/pedidos/smart-import', smartImportRouter)
 app.use('/api/v1/pedidos/colunas-usuario', colunasUsuarioRouter)
 app.use('/api/v1/pedidos/anexos', anexosRouter)
 app.use('/api/v1/pedidos/pdf', pdfRouter)
+app.use('/api/v1/pedidos/lote', loteRouter)
 app.use('/api/v1/pedidos', duplicarExcluirRouter)
 // Rotas com parâmetro dinâmico ficam APÓS as rotas estáticas para evitar conflitos
 app.use('/api/v1/pedidos/:id/transferencias', transferirHistoricoRouter)

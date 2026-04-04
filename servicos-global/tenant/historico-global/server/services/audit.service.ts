@@ -1,6 +1,7 @@
 import { createHash } from 'crypto'
 import { PrismaClient, ActorType, EventStatus } from '../../../generated/index.js'
 import { getBoss } from '../queue/pg-boss.js'
+import { captureException, captureMessage } from '../lib/sentry.js'
 
 const prisma = new PrismaClient()
 
@@ -32,7 +33,7 @@ export interface AuditLogInput {
   user_id?: string
 }
 
-function computeIntegrityHash(input: AuditLogInput, createdAt: Date): string {
+export function computeIntegrityHash(input: AuditLogInput, createdAt: Date): string {
   const payload = JSON.stringify({
     tenant_id: input.tenant_id,
     actor_type: input.actor_type,
@@ -51,9 +52,42 @@ function computeIntegrityHash(input: AuditLogInput, createdAt: Date): string {
 }
 
 /**
+ * Computa diff campo a campo entre dois snapshots de objeto.
+ * Útil para serviços que precisam de diffs precisos no before/after.
+ *
+ * Exemplo:
+ *   const { before, after } = AuditService.computeDiff(entityBefore, entityAfter)
+ *   await AuditService.log({ ..., before, after })
+ */
+export function computeDiff<T extends Record<string, unknown>>(
+  before: T,
+  after: T
+): { before: Partial<T>; after: Partial<T>; changed: boolean } {
+  const allKeys = Array.from(new Set([...Object.keys(before), ...Object.keys(after)])) as (keyof T)[]
+  const changedBefore: Partial<T> = {}
+  const changedAfter: Partial<T> = {}
+
+  for (const key of allKeys) {
+    if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
+      changedBefore[key] = before[key]
+      changedAfter[key] = after[key]
+    }
+  }
+
+  return {
+    before: changedBefore,
+    after: changedAfter,
+    changed: Object.keys(changedBefore).length > 0,
+  }
+}
+
+/**
  * AuditService.log() — único ponto de gravação de audit logs.
  * Encaminha para a fila PG Boss (nunca bloqueia a operação principal).
  * Retorna imediatamente após enfileirar.
+ *
+ * Em caso de falha: emite alerta crítico via console.error (integrar Sentry em produção).
+ * O log é perdido — monitorar a métrica `[AuditService] FALHA_CRITICA` no APM.
  */
 export const AuditService = {
   async log(input: AuditLogInput): Promise<void> {
@@ -65,8 +99,14 @@ export const AuditService = {
         retryBackoff: true,
       })
     } catch (error) {
-      // Nunca lançar erro para não bloquear a operação principal
-      console.error('[AuditService] Falha ao enfileirar log:', error)
+      // NUNCA lançar erro — não pode bloquear a operação principal.
+      captureException(error, {
+        tag: 'audit_queue_failure',
+        tenant_id: input.tenant_id,
+        actor_id: input.actor_id,
+        action: input.action,
+        module: input.module,
+      })
     }
   },
 

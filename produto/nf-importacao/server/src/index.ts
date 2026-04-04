@@ -22,6 +22,7 @@ import { nfDocumentoRouter } from './routes/nfDocumento.js'
 import { nfHistoricoRouter } from './routes/nfHistorico.js'
 import { configRouter } from './routes/config.js'
 import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -97,6 +98,18 @@ app.use(tenantIsolationMiddleware)
 
 // --- 7.1. Observabilidade — captura metricas para API Cockpit ---
 app.use(apiObservability('nf-importacao'))
+
+// --- 7.2. Audit — registra mutações no histórico global ---
+app.use(createProductAuditPlugin({
+  product_id: 'nf-importacao',
+  module: 'nf-importacao',
+  getActorFromReq: (req) => {
+    const tenant_id = req.headers['x-tenant-id'] as string | undefined
+    const actor_id  = req.headers['x-user-id']   as string | undefined
+    if (!tenant_id || !actor_id) return null
+    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+  },
+}))
 
 // --- 8. Rotas do Produto (protegidas) ---
 app.use('/api/v1/nf-importacao', nfImportacaoRouter)

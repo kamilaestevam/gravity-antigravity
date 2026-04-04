@@ -7,7 +7,7 @@
  * Usado dentro da página Configurações do produto Pedido.
  */
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -33,6 +33,7 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type { ColunaUsuario } from '../../shared/types'
 import { colunasUsuarioApi } from '../../shared/api'
+import { COLUNAS_PAI_CHAVES } from '../../pages/ListaPedidos'
 import { ModalNovaColuna } from './ModalNovaColuna'
 import './GerenciadorColunas.css'
 
@@ -149,6 +150,14 @@ export function GerenciadorColunas() {
   const [colunaEdicao, setColunaEdicao] = useState<ColunaUsuario | undefined>(undefined)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  const camposDisponiveisParaFormula = useMemo<string[]>(
+    () => [
+      ...COLUNAS_PAI_CHAVES,
+      ...colunas.filter(c => c.tipo !== 'formula').map(c => c.chave),
+    ],
+    [colunas],
+  )
 
   const carregar = useCallback(async () => {
     setCarregando(true)
@@ -275,6 +284,8 @@ export function GerenciadorColunas() {
           colunaEdicao={colunaEdicao}
           onFechar={() => { setModalAberto(false); setColunaEdicao(undefined) }}
           onSalvo={handleSalvarModal}
+          camposDisponiveis={camposDisponiveisParaFormula}
+          todasColunas={colunas}
         />
       )}
     </div>

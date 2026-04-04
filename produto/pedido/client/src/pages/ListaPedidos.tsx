@@ -53,6 +53,7 @@ import type {
   GTAbaTipo,
   GTPreferencias,
   GTValorMoeda,
+  GTValorUnidade,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
@@ -99,6 +100,11 @@ import './ListaPedidos.css'
 // ── Status: cores padrão e leitura de localStorage ───────────────────────────
 
 const PEDIDO_STATUS_STORAGE_KEY = 'pedido:status_config'
+
+const UNIDADES_COMEX = [
+  'UN', 'KG', 'G', 'TON', 'L', 'ML', 'M', 'M²', 'M³',
+  'CX', 'PC', 'PAR', 'DZ', 'CT', 'FD', 'SC', 'PLT', 'BRL',
+]
 
 /** Cores padrão por código de status (backend) */
 const STATUS_CORES_DEFAULT: Record<string, string> = {
@@ -603,14 +609,20 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_total_pedido',
     label: 'Qtd. Pedida',
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
     tooltipTitulo: 'Quantidade Pedida',
     tooltipDescricao: 'Quantidade original do pedido. Imutável após criação.',
     grupo: 'Quantidades',
-    largura: 110,
+    largura: 130,
+    casasDecimais: getCasas('quantidade_total_pedido', 0),
+    unidades: UNIDADES_COMEX,
+    getValorEditar: (row: Pedido) => ({
+      unit: row.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_total_pedido ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_total_pedido != null
@@ -3694,6 +3706,14 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   // ── Quantidades ───────────────────────────────────────────────────────────
   quantidade_total_pedido: {
+    editavel: true,
+    campo: 'quantidade_atual',
+    casasDecimais: getCasas('quantidade_item', 0),
+    unidades: UNIDADES_COMEX,
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_atual ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
         {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', 0))}
@@ -4229,6 +4249,21 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
     }
+    // Campo de quantidade composta: { unit, quantity } → salva quantidade + unidade separados
+    if (campo === 'quantidade_total_pedido' && valor != null && typeof valor === 'object' && 'unit' in valor) {
+      const uv = valor as GTValorUnidade
+      const atualizado = await pedidoVirtualApi.editarCampo(id, 'quantidade_total_pedido', uv.quantity)
+        .then(p => pedidoVirtualApi.editarCampo(p.id ?? id, 'unidade_comercializada_pedido', uv.unit))
+        .catch(() => {
+          if (import.meta.env.DEV) {
+            const pedidoAtual = pedidos.find(p => p.id === id)
+            return { ...pedidoAtual!, quantidade_total_pedido: uv.quantity, unidade_comercializada_pedido: uv.unit } as Pedido
+          }
+          throw new Error('Erro ao salvar quantidade do pedido')
+        })
+      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
+      return atualizado
+    }
     const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
     setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
     return atualizado
@@ -4268,6 +4303,10 @@ export default function ListaPedidos() {
     if (valor != null && typeof valor === 'object' && 'currency' in valor && 'amount' in valor) {
       const mv = valor as GTValorMoeda
       payload = { [campo]: mv.amount, moeda_item: mv.currency } as Partial<PedidoItem>
+    } else if (valor != null && typeof valor === 'object' && 'unit' in valor && 'quantity' in valor) {
+      // Campo de quantidade composta: { unit, quantity } → salva campo numérico + unidade
+      const uv = valor as GTValorUnidade
+      payload = { [campo]: uv.quantity, unidade_comercializada_item: uv.unit } as Partial<PedidoItem>
     } else {
       const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo) ? Number(valor) || 0 : valor
       payload = { [campo]: valorFinal } as Partial<PedidoItem>

@@ -64,6 +64,8 @@ export interface GTColuna<T = unknown> {
   moedas?: string[]
   /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
   unidades?: string[]
+  /** Casas decimais usadas no input de quantidade (ativo quando tipo='unidade') */
+  casasDecimais?: number
   /**
    * Extrai o valor composto para edição inline (ex: { currency, amount }).
    * Quando omitido, usa item[col.key] diretamente.
@@ -169,6 +171,10 @@ export interface GTMapaColunasFilho<C = unknown> {
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */
   getValorEditar?: (item: C) => unknown
+  /** Casas decimais usadas no input de quantidade (ativo quando tipo='unidade') */
+  casasDecimais?: number
+  /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
+  unidades?: string[]
 }
 
 // ─── Props principais ──────────────────────────────────────────────────────────

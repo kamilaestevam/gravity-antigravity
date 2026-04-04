@@ -200,28 +200,10 @@ export const pedidoConfigApi = {
 // ── Ações em lote ─────────────────────────────────────────────────────────────
 
 export const pedidoLoteApi = {
-  mudarStatusPreview: (ids: string[], novoStatus: string) =>
-    request<{ total: number; afetados: { id: string; numero_pedido: string; status: string }[]; bloqueados: { id: string; numero: string; motivo: string }[] }>(
-      '/api/v1/pedidos/lote/status/preview',
-      { method: 'POST', body: JSON.stringify({ ids, status_novo: novoStatus }) }
-    ),
-
   mudarStatusConfirmar: (ids: string[], novoStatus: string) =>
     request<{ sucesso: number; erros: { id: string; motivo: string }[] }>('/api/v1/pedidos/lote/status/confirmar', {
       method: 'POST',
       body: JSON.stringify({ ids, status_novo: novoStatus }),
-    }),
-
-  cancelarPreview: (ids: string[]) =>
-    request<{ total: number; afetados: number; resumo: string[] }>(
-      '/api/v1/pedidos/lote/cancelar/preview',
-      { method: 'POST', body: JSON.stringify({ ids }) }
-    ),
-
-  cancelarConfirmar: (ids: string[]) =>
-    request<{ cancelados: number }>('/api/v1/pedidos/lote/cancelar/confirmar', {
-      method: 'POST',
-      body: JSON.stringify({ ids }),
     }),
 
   exportar: (ids: string[], formato: 'csv' | 'excel' = 'csv') =>
@@ -843,6 +825,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
   }))
 
   return {
+    preview_id: `mock-preview-${Date.now()}`,
     total_linhas: linhas.length,
     total_pedidos: 4,
     total_itens: 6,

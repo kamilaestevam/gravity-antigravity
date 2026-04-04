@@ -128,6 +128,10 @@ app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por ten
 import { adminSecurityRouter } from './routes/adminSecurity.js'
 app.use('/api/admin/security', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
 
+// Ponto Cego 2 — captura 401/403 que ocorrem antes dos route handlers
+import { authErrorLogger } from '../tenant/historico-global/server/middleware/auth-error-logger.js'
+app.use(authErrorLogger)
+
 import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
 app.use('/api/cockpit', apiCockpitRouter)                  // workspace: observabilidade por tenant
 app.use('/api/admin/cockpit', apiCockpitAdminRouter)       // admin: observabilidade global
@@ -161,8 +165,14 @@ if (process.env.NODE_ENV !== 'test') {
       try {
         const { initPgBoss } = await import('../../tenant/historico-global/server/queue/pg-boss.js')
         const { startAuditWorker } = await import('../../tenant/historico-global/server/queue/audit-worker.js')
+        const { startExportWorker } = await import('../../tenant/historico-global/server/queue/export-worker.js')
+        const { startIntegrityCheckWorker } = await import('../../tenant/historico-global/server/queue/integrity-check-worker.js')
+        const { startPartitionWorker } = await import('../../tenant/historico-global/server/queue/partition-worker.js')
         await initPgBoss(tenantDbUrl)
         await startAuditWorker()
+        await startExportWorker()
+        await startIntegrityCheckWorker()
+        await startPartitionWorker()
       } catch (err) {
         console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)
       }

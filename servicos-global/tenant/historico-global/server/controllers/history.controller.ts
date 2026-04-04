@@ -1,4 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
+import { existsSync, readFileSync } from 'fs'
+import { join } from 'path'
+import { randomUUID } from 'crypto'
 import { PrismaClient, Prisma } from '../../../generated/index.js'
 import { AppError } from '../lib/errors.js'
 import {
@@ -8,8 +11,12 @@ import {
 } from '../schemas/history.schema.js'
 import { AuditService } from '../services/audit.service.js'
 import { buildVisibilityFilter, extractAuthUser } from '../lib/visibility.js'
+import { securityAudit } from '../lib/securityAuditLogger.js'
+import { getBoss } from '../queue/pg-boss.js'
+import { EXPORT_QUEUE, EXPORT_DIR } from '../queue/export-worker.js'
 
 const prisma = new PrismaClient()
+const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 
 // POST /logs
 export async function ingestLog(req: Request, res: Response, next: NextFunction) {
@@ -19,6 +26,26 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
 
     const parsed = IngestHistorySchema.safeParse(req.body)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
+
+    // Ponto C — validar que actor_id corresponde ao usuário autenticado.
+    // Chamadas internas (x-internal-key) são isentas: o serviço que chama é responsável.
+    const isInternalCall = req.headers['x-internal-key'] === INTERNAL_KEY && !!INTERNAL_KEY
+    const authUserId = (req as any).auth?.userId
+    if (
+      !isInternalCall &&
+      authUserId &&
+      parsed.data.actor_type === 'USER' &&
+      parsed.data.actor_id !== authUserId
+    ) {
+      setImmediate(() => {
+        securityAudit.crossTenantAttempt(tenant_id, authUserId, {
+          targetTenantId: tenant_id,
+          resource: 'audit_log:actor_id_spoof',
+          blocked: true,
+        })
+      })
+      throw AppError.forbidden('actor_id não corresponde ao usuário autenticado')
+    }
 
     await AuditService.log({ tenant_id, ...parsed.data })
 
@@ -40,6 +67,26 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
     const q = parsed.data
 
     const user = extractAuthUser(req)
+
+    // Ponto Cego 3 — detectar tentativa de ler dados de outro tenant explicitamente
+    const requestedTenantId = req.query.tenant_id as string | undefined
+    if (
+      requestedTenantId &&
+      user &&
+      requestedTenantId !== user.tenant_id &&
+      user.role !== 'SUPER_ADMIN' &&
+      user.role !== 'ADMIN'
+    ) {
+      setImmediate(() => {
+        securityAudit.crossTenantAttempt(user.tenant_id, user.id, {
+          targetTenantId: requestedTenantId,
+          resource: 'history_log:list',
+          blocked: true,
+        })
+      })
+      throw AppError.forbidden('Acesso negado a dados de outro tenant')
+    }
+
     const visibilityFilter = user
       ? buildVisibilityFilter(user)
       : { tenant_id }
@@ -101,7 +148,42 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
       where: { id: req.params.id, ...visibilityFilter },
     })
 
-    if (!log) throw AppError.notFound('Log')
+    if (!log) {
+      // Ponto Cego 3 — verificar se o log existe mas foi bloqueado por visibilidade (cross-tenant)
+      if (user && (user.role === 'STANDARD' || user.role === 'SUPPLIER')) {
+        const exists = await prisma.historyLog.count({ where: { id: req.params.id } })
+        if (exists > 0) {
+          setImmediate(() => {
+            securityAudit.crossTenantAttempt(user.tenant_id, user.id, {
+              targetTenantId: 'unknown',
+              resource: `history_log:${req.params.id}`,
+              blocked: true,
+            })
+          })
+        }
+      }
+      throw AppError.notFound('Log')
+    }
+
+    // Ponto Cego 1 — logar acesso a registro individual sensível (assíncrono)
+    if (user) {
+      setImmediate(() => {
+        AuditService.log({
+          tenant_id,
+          actor_type: 'USER',
+          actor_id: user.id,
+          actor_name: user.id,
+          actor_ip: req.ip,
+          module: 'historico',
+          resource_type: 'HistoryLog',
+          resource_id: log.id,
+          action: 'VISUALIZAÇÃO',
+          action_detail: `Visualizou log de auditoria #${log.id} (${log.action} em ${log.module})`,
+          status: 'SUCCESS',
+          user_id: user.id,
+        }).catch(() => {})
+      })
+    }
 
     res.json(log)
   } catch (error) {
@@ -140,11 +222,29 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
 
     const count = await prisma.historyLog.count({ where })
 
-    // Acima de 10.000: processar em background
     if (count > 10_000) {
-      // TODO: enfileirar job de exportação e retornar link para download
+      // Enfileira job de exportação via PG Boss
+      const jobId = randomUUID()
+      const boss = getBoss()
+      await boss.send(EXPORT_QUEUE, {
+        jobId,
+        tenant_id,
+        format: q.format,
+        filters: {
+          actor_type: q.actor_type,
+          module: q.module,
+          action: q.action,
+          status: q.status,
+          startDate: q.startDate,
+          endDate: q.endDate,
+        },
+      })
+
       return res.status(202).json({
-        message: 'Exportação em background iniciada. O download estará disponível em breve.',
+        jobId,
+        message: `Exportação em background iniciada (${count} registros). Verifique o status em /logs/export/${jobId}/status`,
+        statusUrl: `/api/v1/historico/logs/export/${jobId}/status`,
+        downloadUrl: `/api/v1/historico/logs/export/${jobId}/download`,
         count,
       })
     }
@@ -160,7 +260,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
       return res.json(logs)
     }
 
-    // CSV
+    // CSV síncrono (≤10k registros)
     const headers = [
       'id', 'created_at', 'tenant_id', 'actor_type', 'actor_id', 'actor_name',
       'actor_ip', 'module', 'resource_type', 'resource_id',
@@ -177,6 +277,95 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
     res.setHeader('Content-Type', 'text/csv')
     res.setHeader('Content-Disposition', 'attachment; filename="audit-logs.csv"')
     res.send([headers.join(','), ...rows].join('\n'))
+  } catch (error) {
+    next(error)
+  }
+}
+
+// GET /logs/export/:jobId/status
+export async function exportJobStatus(req: Request, res: Response, next: NextFunction) {
+  try {
+    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+
+    const { jobId } = req.params
+
+    // Verificar no banco primeiro (persistente), depois filesystem (fallback dev)
+    let ready = false
+    let status = 'processing'
+    try {
+      const result = await (prisma as any).exportResult.findUnique({ where: { id: jobId } })
+      if (result) {
+        if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
+        ready = result.status === 'ready'
+        status = result.status
+      }
+    } catch (err) {
+      if (err instanceof AppError) throw err
+      // Tabela não existe ainda — usar filesystem
+      ready = existsSync(join(EXPORT_DIR, `${jobId}.csv`)) ||
+              existsSync(join(EXPORT_DIR, `${jobId}.json`))
+      status = ready ? 'ready' : 'processing'
+    }
+
+    // Também verificar via PG Boss para metadados do job
+    const boss = getBoss()
+    const job = await boss.getJobById(EXPORT_QUEUE, jobId).catch(() => null)
+
+    res.json({
+      jobId,
+      status,
+      ready,
+      downloadUrl: ready ? `/api/v1/historico/logs/export/${jobId}/download` : null,
+      createdAt: (job as any)?.createdon ?? null,
+      completedAt: (job as any)?.completedon ?? null,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+// GET /logs/export/:jobId/download
+export async function exportJobDownload(req: Request, res: Response, next: NextFunction) {
+  try {
+    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
+    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+
+    const { jobId } = req.params
+
+    // Ponto Cego 6 — ler do banco (persistente), fallback para filesystem (dev)
+    try {
+      const result = await (prisma as any).exportResult.findUnique({ where: { id: jobId } })
+      if (result) {
+        if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
+        if (result.status !== 'ready') {
+          throw AppError.notFound('Exportação ainda em processamento')
+        }
+        const mime = result.format === 'json' ? 'application/json' : 'text/csv'
+        res.setHeader('Content-Type', mime)
+        res.setHeader('Content-Disposition', `attachment; filename="audit-logs-${jobId}.${result.format}"`)
+        return res.send(result.content)
+      }
+    } catch (err) {
+      if (err instanceof AppError) throw err
+      // Tabela não existe — tentar filesystem
+    }
+
+    // Fallback filesystem (desenvolvimento)
+    const jsonPath = join(EXPORT_DIR, `${jobId}.json`)
+    const csvPath = join(EXPORT_DIR, `${jobId}.csv`)
+    if (existsSync(jsonPath)) {
+      res.setHeader('Content-Type', 'application/json')
+      res.setHeader('Content-Disposition', `attachment; filename="audit-logs-${jobId}.json"`)
+      return res.send(readFileSync(jsonPath, 'utf-8'))
+    }
+    if (existsSync(csvPath)) {
+      res.setHeader('Content-Type', 'text/csv')
+      res.setHeader('Content-Disposition', `attachment; filename="audit-logs-${jobId}.csv"`)
+      return res.send(readFileSync(csvPath, 'utf-8'))
+    }
+
+    throw AppError.notFound('Arquivo de exportação — o job pode ainda estar em processamento')
   } catch (error) {
     next(error)
   }

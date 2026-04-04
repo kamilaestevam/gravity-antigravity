@@ -143,3 +143,21 @@ enum AlertStatus {
   REVIEWED
   ESCALATED
 }
+
+/// Resultado de exportação em background (acima de 10k registros).
+/// Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
+model ExportResult {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  format       String   // 'csv' | 'json'
+  content      String   @db.Text
+  status       String   @default("processing") // 'processing' | 'ready' | 'failed'
+  record_count Int      @default(0)
+  filters      Json?
+  error        String?
+  created_at   DateTime @default(now())
+  expires_at   DateTime // cleanup job remove após 24h
+
+  @@index([tenant_id, status])
+  @@index([expires_at])
+}

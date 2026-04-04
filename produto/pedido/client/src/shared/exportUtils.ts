@@ -138,3 +138,12 @@ export function exportarJSON<T extends Record<string, unknown>>(
   const resultado = dados.map(row => Object.fromEntries(colunas.map(c => [c.key, row[c.key] ?? null])))
   baixarBlob(JSON.stringify(resultado, null, 2), `${nome}.json`, 'application/json;charset=utf-8;')
 }
+
+// ─── PDF (stub — implementação futura via biblioteca PDF) ──────────────────────
+
+export async function exportarPDF<T extends Record<string, unknown>>(
+  _dados: T[], _colunas: ColunasExport[], _opcoes: OpcoesExport = {}
+): Promise<void> {
+  // TODO: implementar com biblioteca PDF (ex: jsPDF + autoTable)
+  console.warn('exportarPDF: não implementado ainda')
+}

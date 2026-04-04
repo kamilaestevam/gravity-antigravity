@@ -24,6 +24,7 @@ import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { startCronJobs } from './services/cronJobs.js'
 import { rateLimitPresets } from '../../../../servicos-global/tenant/middleware/rateLimiter.js'
 import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -96,6 +97,16 @@ app.use(tenantIsolationMiddleware)
 
 // --- 8.1. Observabilidade — captura metricas para API Cockpit ---
 app.use(apiObservability('bid-frete'))
+app.use(createProductAuditPlugin({
+  product_id: 'bid-frete',
+  module: 'bid-frete',
+  getActorFromReq: (req) => {
+    const tenant_id = req.headers['x-tenant-id'] as string | undefined
+    const actor_id  = req.headers['x-user-id']   as string | undefined
+    if (!tenant_id || !actor_id) return null
+    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+  },
+}))
 
 // --- 9. Rotas do Produto (protegidas) ---
 app.use('/api/v1/bid-frete/cotacoes', cotacoesRouter)

@@ -1,2 +1,6 @@
 export { Historico } from './Historico.js'
 export { Historico as default } from './Historico.js'
+export { auditLog } from './audit-client.js'
+export type { AuditLogPayload } from './audit-client.js'
+export { createProductAuditPlugin } from './product-audit-plugin.js'
+export type { ProductAuditPluginOptions, AuditActorContext } from './product-audit-plugin.js'

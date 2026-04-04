@@ -698,6 +698,7 @@ export interface SmartImportLinhaRaw {
 
 /** Resultado completo do parse + mapeamento IA */
 export interface SmartImportPreview {
+  preview_id: string
   total_linhas: number
   total_pedidos: number
   total_itens: number
@@ -739,6 +740,8 @@ export interface SmartImportConfirmar {
   salvar_mapeamento: boolean
   /** Números de pedido editados pelo usuário: linha_arquivo → numero_pedido */
   numeros_editados?: Record<number, string>
+  /** Fallback stateless: linhas do preview quando o cache do servidor expirar */
+  linhas?: SmartImportLinha[]
 }
 
 /** Resultado retornado apos a importacao confirmada */

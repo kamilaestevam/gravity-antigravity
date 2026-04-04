@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   User, Robot, Globe, Cpu, Gear, Hash,
-  ArrowsClockwise, DownloadSimple,
+  ArrowsClockwise, DownloadSimple, FilePdf,
 } from '@phosphor-icons/react'
 import { TabelaGlobal } from '@nucleo/tabela-global'
 import type { TabelaGlobalColuna, TabelaExportAcao } from '@nucleo/tabela-global'
@@ -106,6 +106,83 @@ function formatDate(iso: unknown) {
 }
 
 // ── Export ────────────────────────────────────────────────────────
+
+async function exportarLogsExcel(dados: AuditLog[]) {
+  const headers = ['Quando', 'Quem', 'Tipo', 'Ação', 'Detalhe', 'Módulo', 'Recurso', 'Status']
+  const rows = dados.map(l => [
+    formatDate(l.created_at), l.actor_name, l.actor_type,
+    l.action, l.action_detail, l.module, l.resource_type, l.status,
+  ])
+  const ExcelJS = (await import('exceljs')).default
+  const wb = new ExcelJS.Workbook()
+  wb.creator = 'Gravity Platform'; wb.created = new Date()
+  const ws = wb.addWorksheet('Histórico', { views: [{ showGridLines: true }] })
+  ws.columns = headers.map((h, i) => {
+    const maxData = rows.length > 0 ? Math.max(...rows.map(r => String(r[i] ?? '').length)) : 0
+    return { key: String(i), width: Math.min(Math.max(h.length, maxData) + 4, 50) }
+  })
+  const headerRow = ws.addRow(headers)
+  headerRow.height = 22
+  headerRow.eachCell(cell => {
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1e3256' } }
+    cell.font = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FF38bdf8' } }
+    cell.alignment = { horizontal: 'center', vertical: 'middle' }
+    cell.border = { bottom: { style: 'medium', color: { argb: 'FF38bdf8' } } }
+  })
+  rows.forEach((rowValues, idx) => {
+    const dr = ws.addRow(rowValues)
+    dr.height = 18
+    dr.eachCell({ includeEmpty: true }, (cell, colIdx) => {
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: idx % 2 === 1 ? 'FFf1f5f9' : 'FFFFFFFF' } }
+      cell.font = { name: 'Calibri', size: 10, color: { argb: 'FF1e293b' } }
+      cell.alignment = { vertical: 'middle', horizontal: 'left' }
+      cell.border = {
+        bottom: { style: 'hair', color: { argb: 'FFe2e8f0' } },
+        right:  { style: 'hair', color: { argb: 'FFe2e8f0' } },
+      }
+    })
+  })
+  const buf = await wb.xlsx.writeBuffer()
+  const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = 'historico.xlsx'; a.click()
+  setTimeout(() => URL.revokeObjectURL(url), 5000)
+}
+
+async function exportarLogsPDF(dados: AuditLog[]) {
+  const headers = ['Quando', 'Quem', 'Tipo', 'Ação', 'Detalhe', 'Módulo', 'Recurso', 'Status']
+  const rows = dados.map(l => [
+    formatDate(l.created_at), l.actor_name, l.actor_type,
+    l.action, l.action_detail, l.module, l.resource_type, l.status,
+  ])
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+  doc.setFontSize(16); doc.setTextColor(30, 41, 59)
+  doc.text('Histórico de Atividades', 14, 16)
+  doc.setFontSize(8); doc.setTextColor(100, 116, 139)
+  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 22)
+  autoTable(doc, {
+    startY: 28,
+    head: [headers],
+    body: rows,
+    styles:     { fontSize: 8, cellPadding: { top: 3, bottom: 3, left: 4, right: 4 }, overflow: 'linebreak' },
+    headStyles: { fillColor: [15, 23, 42], textColor: [56, 189, 248], fontStyle: 'bold', fontSize: 7.5 },
+    alternateRowStyles: { fillColor: [241, 245, 249] },
+    tableLineColor: [226, 232, 240],
+    tableLineWidth: 0.1,
+  })
+  const totalPag = (doc as jsPDF & { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages()
+  for (let i = 1; i <= totalPag; i++) {
+    doc.setPage(i)
+    doc.setFontSize(7); doc.setTextColor(148, 163, 184)
+    doc.text(`Página ${i} de ${totalPag}`, doc.internal.pageSize.width - 14, doc.internal.pageSize.height - 8, { align: 'right' })
+  }
+  doc.save('historico.pdf')
+}
 
 function exportarLogs(dados: AuditLog[], formato: 'csv' | 'excel' | 'txt' | 'json' | 'xml') {
   const headers = ['Quando', 'Quem', 'Tipo', 'Ação', 'Detalhe', 'Módulo', 'Recurso', 'Status']
@@ -573,11 +650,12 @@ export function Historico() {
   // ── Exportação ─────────────────────────────────────────────────
 
   const ACOES_EXPORT: TabelaExportAcao<AuditLog>[] = useMemo(() => [
-    { label: 'Excel (.xlsx)', icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'excel') },
-    { label: 'CSV',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'csv')   },
-    { label: 'TXT',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'txt')   },
-    { label: 'XML',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'xml')   },
-    { label: 'JSON',          icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'json')  },
+    { label: 'Excel (.xlsx)', icone: <DownloadSimple size={14} />, onClick: (d) => void exportarLogsExcel(d)       },
+    { label: 'CSV',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'csv')         },
+    { label: 'TXT',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'txt')         },
+    { label: 'XML',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'xml')         },
+    { label: 'JSON',          icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'json')        },
+    { label: 'PDF',           icone: <FilePdf size={14} />,        onClick: (d) => void exportarLogsPDF(d)        },
   ], [])
 
   // ── Render ─────────────────────────────────────────────────────

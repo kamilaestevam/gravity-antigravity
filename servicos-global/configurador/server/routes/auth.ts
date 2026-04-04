@@ -1,12 +1,31 @@
 // server/routes/auth.ts
 // Clerk webhooks — sincroniza eventos de usuário com o banco local
 // POST /api/v1/webhooks/clerk
+//
+// ── CONFIGURAÇÃO NECESSÁRIA NO CLERK DASHBOARD ────────────────────────────────
+// URL: https://dashboard.clerk.com → Webhooks → Endpoints
+//
+// Endpoint URL: https://<seu-dominio>/api/v1/webhooks/clerk
+//
+// Eventos que DEVEM estar habilitados:
+//   Categoria "User":
+//     ✅ user.created
+//     ✅ user.updated
+//     ✅ user.deleted
+//   Categoria "Session":
+//     ✅ session.created   → gera log LOGIN no histórico
+//     ✅ session.ended     → gera log LOGOUT no histórico
+//     ✅ session.revoked   → gera log SESSION_REVOKED no histórico
+//
+// Sem os eventos de Session, login/logout NÃO aparecerão no histórico de auditoria.
+// ─────────────────────────────────────────────────────────────────────────────
 
 import { Router } from 'express'
 import { z } from 'zod'
 import { Webhook } from 'svix'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
+import { auditLog } from '../../tenant/historico-global/src/audit-client.js'
 
 export const authRouter = Router()
 
@@ -14,14 +33,15 @@ const ClerkUserEventSchema = z.object({
   type: z.string(),
   data: z.object({
     id: z.string(),
-    email_addresses: z
-      .array(z.object({ email_address: z.string() }))
-      .optional(),
+    // Campos de user events
+    email_addresses: z.array(z.object({ email_address: z.string() })).optional(),
     first_name: z.string().nullable().optional(),
     last_name: z.string().nullable().optional(),
-    public_metadata: z
-      .record(z.unknown())
-      .optional(),
+    public_metadata: z.record(z.unknown()).optional(),
+    // Campos de session events
+    user_id: z.string().optional(),
+    client_id: z.string().optional(),
+    status: z.string().optional(),
   }),
 })
 
@@ -91,6 +111,85 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'user.deleted') {
       await prisma.user.deleteMany({
         where: { clerk_user_id: data.id },
+      })
+    }
+
+    // Ponto Cego 5 — logar login e logout via eventos de sessão do Clerk
+    if (type === 'session.created' && data.user_id) {
+      setImmediate(async () => {
+        try {
+          const user = await prisma.user.findFirst({
+            where: { clerk_user_id: data.user_id },
+            select: { id: true, tenant_id: true, email: true, name: true },
+          })
+          if (user) {
+            auditLog({
+              tenant_id: user.tenant_id,
+              actor_type: 'USER',
+              actor_id: user.id,
+              actor_name: user.name ?? user.email,
+              module: 'auth',
+              resource_type: 'Session',
+              resource_id: data.id,
+              action: 'LOGIN',
+              action_detail: `Login realizado por ${user.name ?? user.email}`,
+              status: 'SUCCESS',
+              user_id: user.id,
+            })
+          }
+        } catch { /* fire-and-forget */ }
+      })
+    }
+
+    if (type === 'session.ended' && data.user_id) {
+      setImmediate(async () => {
+        try {
+          const user = await prisma.user.findFirst({
+            where: { clerk_user_id: data.user_id },
+            select: { id: true, tenant_id: true, email: true, name: true },
+          })
+          if (user) {
+            auditLog({
+              tenant_id: user.tenant_id,
+              actor_type: 'USER',
+              actor_id: user.id,
+              actor_name: user.name ?? user.email,
+              module: 'auth',
+              resource_type: 'Session',
+              resource_id: data.id,
+              action: 'LOGOUT',
+              action_detail: `Logout de ${user.name ?? user.email}`,
+              status: 'SUCCESS',
+              user_id: user.id,
+            })
+          }
+        } catch { /* fire-and-forget */ }
+      })
+    }
+
+    if (type === 'session.revoked' && data.user_id) {
+      setImmediate(async () => {
+        try {
+          const user = await prisma.user.findFirst({
+            where: { clerk_user_id: data.user_id },
+            select: { id: true, tenant_id: true, email: true, name: true },
+          })
+          if (user) {
+            auditLog({
+              tenant_id: user.tenant_id,
+              actor_type: 'USER',
+              actor_id: user.id,
+              actor_name: user.name ?? user.email,
+              module: 'auth',
+              resource_type: 'Session',
+              resource_id: data.id,
+              action: 'SESSION_REVOKED',
+              action_detail: `Sessão revogada de ${user.name ?? user.email}`,
+              status: 'PARTIAL',
+              user_id: user.id,
+            })
+          }
+        } catch { /* fire-and-forget */ }
       })
     }
 

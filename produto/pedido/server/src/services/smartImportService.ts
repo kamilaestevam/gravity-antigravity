@@ -12,6 +12,7 @@
 
 import { parseArquivo, ALIASES_CAMPOS, calcularHashColunas, type LinhaArquivo } from './importEngine.js'
 import { MapeamentoMemoriaService, type ColunaMapeadaBackend } from './mapeamentoMemoriaService.js'
+import { AppError } from '../errors/AppError.js'
 
 // ── Tipos locais (espelham os tipos do client) ────────────────────────────────
 
@@ -47,6 +48,9 @@ export interface SmartImportConfirmar {
   decisoes_duplicatas: Record<string, 'sobrescrever' | 'criar' | 'pular'>
   linhas_incluidas: number[]
   salvar_mapeamento: boolean
+  numeros_editados?: Record<number, string>
+  // linhas vindas do client: alertas tipados como unknown[] para compatibilidade com o Zod schema
+  linhas?: Array<Omit<SmartImportLinha, 'alertas'> & { alertas: unknown[] }>
 }
 
 export interface SmartImportResultado {
@@ -75,6 +79,16 @@ export class SmartImportService {
   }
 
   async analisar(tenantId: string, buffer: Buffer, nomeArquivo: string): Promise<SmartImportPreview> {
+    // 0. Rejeitar PDFs antes de qualquer parse (UX.11)
+    const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
+    if (ext === 'pdf') {
+      throw new AppError(
+        'Arquivos PDF nao podem ser importados diretamente. Exporte seus dados para Excel (.xlsx) ou CSV e tente novamente.',
+        422,
+        'FORMATO_PDF_NAO_SUPORTADO',
+      )
+    }
+
     // 1. Parse do arquivo
     const linhasBrutas = await parseArquivo(buffer, nomeArquivo)
     if (linhasBrutas.length === 0) {
@@ -180,16 +194,18 @@ export class SmartImportService {
   ): Promise<SmartImportResultado> {
     const cached = previewCache.get(payload.preview_id)
 
-    // Usar linhas do cache ou reprocessar com o mapeamento confirmado
+    // Usar linhas do cache; fallback stateless para multi-instancia (P0.3)
     const linhasParaUsar: SmartImportLinha[] = cached
       ? cached.data
-      : payload.linhas_incluidas.map(n => ({
-          linha_arquivo: n,
-          numero_pedido: null,
-          status: 'ok' as const,
-          alertas: [],
-          dados: {},
-        }))
+      : (payload.linhas ?? []).length > 0
+        ? payload.linhas as unknown as SmartImportLinha[]
+        : payload.linhas_incluidas.map(n => ({
+            linha_arquivo: n,
+            numero_pedido: null,
+            status: 'ok' as const,
+            alertas: [],
+            dados: {},
+          }))
 
     const linhasFiltradas = linhasParaUsar.filter(l =>
       payload.linhas_incluidas.includes(l.linha_arquivo)
@@ -203,8 +219,12 @@ export class SmartImportService {
     await this.db.$transaction(async (tx: Record<string, unknown>) => {
       for (const linha of linhasFiltradas) {
         try {
-          const dados = linha.dados
-          const numeroPedido = linha.numero_pedido
+          // Aplicar numero editado pelo usuario (SEC.1 / Problema 6)
+          const numeroEditado = payload.numeros_editados?.[linha.linha_arquivo]
+          const dados = { ...linha.dados }
+          if (numeroEditado) dados['numero_pedido'] = numeroEditado
+
+          const numeroPedido = (dados['numero_pedido'] as string) || linha.numero_pedido
 
           // Aplicar decisao de duplicata
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'pular') {
@@ -399,10 +419,16 @@ export class SmartImportService {
   }
 
   private montarDadosPedido(dados: Record<string, unknown>, tenantId: string): Record<string, unknown> {
+    // P1.3 — validar enum tipo_operacao para evitar valores arbitrarios
+    const TIPOS_OPERACAO_VALIDOS = ['importacao', 'exportacao'] as const
+    const tipoOperacao = TIPOS_OPERACAO_VALIDOS.includes(dados['tipo_operacao'] as typeof TIPOS_OPERACAO_VALIDOS[number])
+      ? dados['tipo_operacao'] as string
+      : 'importacao'
+
     return {
       tenant_id:         tenantId,
       numero_pedido:     String(dados['numero_pedido'] ?? `IMP-${Date.now()}`),
-      tipo_operacao:     dados['tipo_operacao'] ?? 'importacao',
+      tipo_operacao:     tipoOperacao,
       status:            'draft',
       exportador_nome:   dados['exportador'] ?? null,
       fabricante_nome:   dados['fabricante'] ?? null,

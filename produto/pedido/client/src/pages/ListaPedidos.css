@@ -36,13 +36,21 @@
   flex-direction: column;
 }
 
-/* Centralizar todas as células e cabeçalhos da tabela de pedidos */
-.lp-tabela-wrapper .gtv-th:not(.gtv-th--check):not(.gtv-th--expand):not(.gtv-th--acoes) {
-  justify-content: center;
-}
 .lp-tabela-wrapper .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
-  justify-content: center;
   padding: 0 0.5rem;
+}
+
+/* Pai (PO): destaque sutil — semibold + branco total */
+.lp-tabela-wrapper .gtv-linha:not(.gtv-linha--filho) .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+/* Filho (item): recuado + levemente mais suave — ainda muito legível */
+.lp-tabela-wrapper .gtv-linha--filho .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
+  padding-left: calc(0.5rem + 12px);
+  font-weight: 400;
+  color: #cbd5e1;
 }
 
 .lp-erro-lote {

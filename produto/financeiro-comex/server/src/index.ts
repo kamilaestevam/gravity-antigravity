@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
+import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 import { dashboardRouter } from './routes/dashboard.js'
 import { dashboardWidgetsRouter } from './routes/dashboard.routes.js'
 import { lancamentosRouter } from './routes/lancamentos.js'
@@ -90,6 +91,18 @@ app.use('/api/', requireInternalKey)
 
 // --- 7. Tenant Isolation ---
 app.use(tenantIsolationMiddleware)
+
+// --- 7.1. Audit — registra mutações no histórico global ---
+app.use(createProductAuditPlugin({
+  product_id: 'financeiro-comex',
+  module: 'financeiro-comex',
+  getActorFromReq: (req) => {
+    const tenant_id = req.headers['x-tenant-id'] as string | undefined
+    const actor_id  = req.headers['x-user-id']   as string | undefined
+    if (!tenant_id || !actor_id) return null
+    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+  },
+}))
 
 // --- 8. Rotas do Produto ---
 app.use('/api/v1/financeiro', dashboardRouter)

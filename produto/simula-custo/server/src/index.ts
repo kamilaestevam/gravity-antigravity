@@ -18,6 +18,7 @@ import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware, prisma } from './middleware/tenantIsolation.js'
 import { tokenPool } from './services/tokenPool.js'
 import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
+import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -91,6 +92,20 @@ app.use(tenantIsolationMiddleware)
 
 // ─── 7.1. Observabilidade — captura metricas para API Cockpit ─────────────────
 app.use(apiObservability('simula-custo'))
+
+// ─── 7.2. Audit — registra mutações no histórico global ───────────────────────
+app.use(createProductAuditPlugin({
+  product_id: 'simula-custo',
+  module: 'simula-custo',
+  getActorFromReq: (req) => {
+    const tenant_id = req.headers['x-tenant-id'] as string | undefined
+    const actor_id  = req.headers['x-user-id']   as string | undefined
+    if (!tenant_id || !actor_id) return null
+    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+  },
+  // /api/v1/master-data é público e sem tenant — ignorar
+  ignoreRoutes: ['/api/v1/master-data'],
+}))
 
 // ─── 8. Rotas do Produto ───────────────────────────────────────────────────────
 app.use('/api/v1/simula-custo', simulateRouter)

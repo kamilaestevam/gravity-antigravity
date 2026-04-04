@@ -80,6 +80,37 @@ import {
 } from '../shared/types'
 import './ListaPedidos.css'
 
+// ── Status: cores padrão e leitura de localStorage ───────────────────────────
+
+const PEDIDO_STATUS_STORAGE_KEY = 'pedido:status_config'
+
+/** Cores padrão por código de status (backend) */
+const STATUS_CORES_DEFAULT: Record<string, string> = {
+  draft:         '#94a3b8',
+  aberto:        '#60a5fa',
+  transferencia: '#818cf8',
+  consolidado:   '#a78bfa',
+  cancelado:     '#f87171',
+}
+
+/** Lê o mapa {id → cor} salvo pelo Configuracoes via localStorage */
+function lerStatusCores(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
+    if (!raw) return {}
+    const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
+    // mapeia por id direto
+    const mapa: Record<string, string> = {}
+    for (const [id, cfg] of Object.entries(parsed)) mapa[id] = cfg.cor
+    return mapa
+  } catch { return {} }
+}
+
+function getStatusCor(status: string): string {
+  const local = lerStatusCores()
+  return local[status] ?? STATUS_CORES_DEFAULT[status] ?? '#64748b'
+}
+
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
 const ABAS_PADRAO: GTAbaTipo[] = [
@@ -115,6 +146,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       <StatusBadgeGlobal
         valor={row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
         genero="feminino"
+        style={row.tipo_operacao === 'importacao'
+          ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
+          : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
+        }
       />
     ),
   },
@@ -301,12 +336,20 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Ciclo de vida: Draft, Aberto, Em Transferência, Consolidado, Cancelado',
     oculta: true,
     largura: 130,
-    render: (_val: unknown, row: Pedido) => (
-      <StatusBadgeGlobal
-        valor={STATUS_PEDIDO_LABELS[row.status] ?? row.status}
-        genero="masculino"
-      />
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const cor = getStatusCor(row.status)
+      return (
+        <StatusBadgeGlobal
+          valor={STATUS_PEDIDO_LABELS[row.status as keyof typeof STATUS_PEDIDO_LABELS] ?? row.status}
+          genero="masculino"
+          style={{
+            color: cor,
+            background: `${cor}1e`,
+            border: `1px solid ${cor}33`,
+          }}
+        />
+      )
+    },
   },
   // ── Dados comerciais ────────────────────────────────────────────────────────
   {
@@ -2989,7 +3032,24 @@ export default function ListaPedidos() {
           setAbas(abasApi)
         }
       })
-      .catch(() => { /* fallback para ABAS_PADRAO */ })
+      .catch(() => {
+        // Tentar ler do localStorage (salvo pelo Configuracoes)
+        try {
+          const raw = localStorage.getItem('pedido:status_config')
+          if (raw) {
+            const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
+            const abasLocal: GTAbaTipo[] = [
+              { valor: 'todos', label: 'Todos' },
+              ...Object.entries(parsed).map(([id, cfg]) => ({
+                valor: id,
+                label: cfg.label,
+                cor: cfg.cor,
+              })),
+            ]
+            if (abasLocal.length > 1) setAbas(abasLocal)
+          }
+        } catch { /* manter ABAS_PADRAO */ }
+      })
 
     pedidoConfigApi.getPreferenciasUsuario()
       .then(prefs => {
@@ -3302,79 +3362,6 @@ export default function ListaPedidos() {
           <Warning size={16} weight="duotone" />
           <span>{erroLote}</span>
           <button onClick={() => setErroLote(null)} aria-label="Fechar erro"><X size={14} /></button>
-        </div>
-      )}
-
-      {/* ── Toolbar contextual de itens selecionados ── */}
-      {itensSelecionados.length > 0 && (
-        <div className="lp-itens-toolbar" role="toolbar" aria-label="Ações em itens selecionados">
-          <span className="lp-itens-toolbar__info">
-            {itensSelecionados.length} {itensSelecionados.length === 1 ? 'item selecionado' : 'itens selecionados'}
-          </span>
-          <div className="lp-itens-toolbar__acoes">
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
-              icone={<ArrowsLeftRight size={13} weight="duotone" />}
-              onClick={() => setModalTransferirAberto(true)}
-            >
-              Transferir ({itensSelecionados.length})
-            </BotaoGlobal>
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
-              icone={<CopySimple size={13} weight="duotone" />}
-              onClick={() => setModalDuplicarAberto(true)}
-            >
-              Duplicar ({itensSelecionados.length})
-            </BotaoGlobal>
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
-              icone={<PencilLine size={13} weight="duotone" />}
-              onClick={() => setModalEdicaoMassaAberto(true)}
-            >
-              Editar em Massa ({itensSelecionados.length})
-            </BotaoGlobal>
-            <BotaoGlobal
-              variante="perigo"
-              tamanho="pequeno"
-              icone={<Trash size={13} weight="duotone" />}
-              carregando={excluindoItens}
-              disabled={excluindoItens}
-              onClick={async () => {
-                const porPedido = itensSelecionados.reduce<Record<string, string[]>>((acc, i) => {
-                  if (!acc[i.pedido_id]) acc[i.pedido_id] = []
-                  acc[i.pedido_id].push(i.id)
-                  return acc
-                }, {})
-                setExcluindoItens(true)
-                try {
-                  await Promise.all(
-                    Object.entries(porPedido).map(([pedidoId, ids]) =>
-                      pedidoExcluirApi.excluirItens(pedidoId, ids)
-                    )
-                  )
-                  addNotification({ tipo: 'sucesso', mensagem: `${itensSelecionados.length} item(s) excluído(s) com sucesso.` })
-                  setItensSelecionados([])
-                  await carregarInicial()
-                } catch {
-                  addNotification({ tipo: 'erro', mensagem: 'Erro ao excluir itens. Tente novamente.' })
-                } finally {
-                  setExcluindoItens(false)
-                }
-              }}
-            >
-              Excluir ({itensSelecionados.length})
-            </BotaoGlobal>
-            <BotaoGlobal
-              variante="secundario"
-              tamanho="pequeno"
-              onClick={() => setItensSelecionados([])}
-            >
-              Cancelar
-            </BotaoGlobal>
-          </div>
         </div>
       )}
 

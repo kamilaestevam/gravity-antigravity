@@ -1225,6 +1225,7 @@ function mockGerarDocumento(payload: GerarDocumentoPayload): GerarPdfResultado {
   return {
     url_download: URL.createObjectURL(blob),
     anexo_id: `anexo_doc_${Date.now()}`,
+    is_pdf: false,
   }
 }
 

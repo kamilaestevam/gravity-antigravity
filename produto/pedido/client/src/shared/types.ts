@@ -827,6 +827,7 @@ export interface GerarPdfPayload {
 export interface GerarPdfResultado {
   url_download: string
   anexo_id: string              // ID do anexo salvo
+  is_pdf?: boolean              // false = fallback HTML (sem Puppeteer)
 }
 
 // ── Gerar Documento (multilíngue) ────────────────────────────────────────────

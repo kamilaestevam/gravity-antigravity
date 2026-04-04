@@ -97,6 +97,7 @@ export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfP
         const pedido = pedidos[i]
 
         let urlDownload: string
+        let isPdf = true
 
         if (modo === 'padrao') {
           const payload: GerarDocumentoPayload = {
@@ -107,6 +108,7 @@ export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfP
           }
           const resultado = await gerarDocumentoApi.gerar(payload)
           urlDownload = resultado.url_download
+          isPdf = resultado.is_pdf !== false
         } else {
           if (!templateId) throw new Error('Selecione um template.')
           const payload: GerarPdfPayload = {
@@ -116,19 +118,24 @@ export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfP
           }
           const resultado = await pdfApi.gerar(payload)
           urlDownload = resultado.url_download
+          isPdf = resultado.is_pdf !== false
         }
 
-        // Baixa o arquivo
-        const a = document.createElement('a')
-        a.href = urlDownload
-        const nomeArq = modo === 'padrao'
-          ? `${tipoDocs}-${pedido.numero}-${idioma}.pdf`
-          : `${templates.find(t => t.id === templateId)?.nome ?? 'documento'}-${pedido.numero}.pdf`
-        a.download = nomeArq
-        a.target = '_blank'
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
+        if (isPdf) {
+          // PDF real — força download com extensão .pdf
+          const a = document.createElement('a')
+          a.href = urlDownload
+          const nomeArq = modo === 'padrao'
+            ? `${tipoDocs}-${pedido.numero}-${idioma}.pdf`
+            : `${templates.find(t => t.id === templateId)?.nome ?? 'documento'}-${pedido.numero}.pdf`
+          a.download = nomeArq
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+        } else {
+          // Fallback HTML (sem Puppeteer) — abre em nova aba para visualização/impressão
+          window.open(urlDownload, '_blank', 'noopener,noreferrer')
+        }
 
         setProgresso(i + 1)
       }

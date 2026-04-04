@@ -1777,7 +1777,7 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   return {
     key:             col.chave as keyof Pedido,
     label:           col.nome,
-    tipo:            col.tipo === 'numero' || col.tipo === 'percentual' ? 'numero' : 'texto',
+    tipo:            col.tipo === 'numero' || col.tipo === 'percentual' ? 'numero' : col.tipo === 'data' ? 'periodo' : 'texto',
     filtravel:       true,
     oculta:          true,
     tooltipTitulo:   col.nome,
@@ -1789,6 +1789,14 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
       const valor = valores?.[col.id] ?? '—'
       if (col.tipo === 'checkbox') {
         return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+      }
+      if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
+        const num = Number(valor)
+        if (!isNaN(num)) {
+          const casas = getCasas(col.id, 2)
+          const sufixo = col.tipo === 'percentual' ? '%' : ''
+          return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casas)}{sufixo}</span>
+        }
       }
       return <span>{valor}</span>
     },
@@ -1829,7 +1837,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Quantidade original do item — valor imutável',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_inicial, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -1847,7 +1855,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
         fontWeight: row.quantidade_atual === 0 ? 400 : 600,
         color: row.quantidade_atual === 0 ? 'var(--text-muted)' : 'var(--color-success, #34d399)',
       }}>
-        {fmtQuantidade(row.quantidade_atual, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -1861,7 +1869,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_pronta, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -1875,7 +1883,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -1892,7 +1900,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
         fontVariantNumeric: 'tabular-nums',
         color: row.quantidade_cancelada > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
       }}>
-        {fmtQuantidade(row.quantidade_cancelada, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_cancelada, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -3366,7 +3374,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, row.casas_decimais_peso ?? 3)} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', row.casas_decimais_peso ?? 3))} kg`
           : '—'}
       </span>
     ),
@@ -3377,7 +3385,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, row.casas_decimais_peso ?? 3)} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', row.casas_decimais_peso ?? 3))} kg`
           : '—'}
       </span>
     ),
@@ -3407,7 +3415,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   quantidade_total_pedido: {
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
-        {fmtQuantidade(row.quantidade_atual, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -3416,7 +3424,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'quantidade_inicial',
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_inicial, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -3425,7 +3433,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const qtd = Math.max(0, (row.quantidade_pronta ?? 0) - (row.quantidade_transferida ?? 0))
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#fbbf24' : undefined }}>
-          {fmtQuantidade(qtd, row.casas_decimais_quantidade)}
+          {fmtQuantidade(qtd, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
         </span>
       )
     },
@@ -3435,7 +3443,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const qtd = Math.max(0, (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0))
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
-          {fmtQuantidade(qtd, row.casas_decimais_quantidade)}
+          {fmtQuantidade(qtd, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
         </span>
       )
     },
@@ -3445,7 +3453,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'quantidade_transferida',
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -3454,7 +3462,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'quantidade_pronta',
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta ?? 0, row.casas_decimais_quantidade)}
+        {fmtQuantidade(row.quantidade_pronta ?? 0, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
       </span>
     ),
   },
@@ -3463,7 +3471,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const saldo = (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0)
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {fmtQuantidade(saldo, row.casas_decimais_quantidade)}
+          {fmtQuantidade(saldo, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
         </span>
       )
     },
@@ -3991,54 +3999,97 @@ export default function ListaPedidos() {
     },
   ]
 
+  // ── Config de exportação (lida do localStorage — mesmas preferências de Configurações) ──
+  const exportConfig = useMemo(() => {
+    try {
+      const raw = localStorage.getItem('pedido:export_config')
+      if (raw) return JSON.parse(raw) as {
+        formatoPadrao: 'csv' | 'xlsx' | 'pdf'
+        incluirColunasUsuario: boolean
+        incluirItens: boolean
+        apenasSelection: boolean
+        incluirCabecalho: boolean
+        separadorCsv: 'virgula' | 'ponto-virgula' | 'tab'
+      }
+    } catch { /* ignore */ }
+    return { formatoPadrao: 'xlsx' as const, incluirColunasUsuario: true, incluirItens: true, apenasSelection: false, incluirCabecalho: true, separadorCsv: 'ponto-virgula' as const }
+  }, [])
+
   // ── Ações de exportação (client-side) ────────────────────────────────────────
-  const acoesExportacao = useMemo((): GTAcaoExport[] => [
-    {
-      label: 'Excel (.xlsx)',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarExcel(
-        pedidos as unknown as Record<string, unknown>[],
-        COLUNAS_EXPORT,
-        { nomeArquivo: 'pedidos', titulo: 'Pedidos' },
-      ),
-    },
-    {
-      label: 'CSV',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarCSV(
-        pedidos as unknown as Record<string, unknown>[],
-        COLUNAS_EXPORT,
-        { nomeArquivo: 'pedidos' },
-      ),
-    },
-    {
-      label: 'TXT',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarTXT(
-        pedidos as unknown as Record<string, unknown>[],
-        COLUNAS_EXPORT,
-        { nomeArquivo: 'pedidos' },
-      ),
-    },
-    {
-      label: 'XML',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarXML(
-        pedidos as unknown as Record<string, unknown>[],
-        COLUNAS_EXPORT,
-        { nomeArquivo: 'pedidos' },
-      ),
-    },
-    {
-      label: 'JSON',
-      icone: <DownloadSimple size={15} weight="duotone" />,
-      onClick: () => exportarJSON(
-        pedidos as unknown as Record<string, unknown>[],
-        COLUNAS_EXPORT,
-        { nomeArquivo: 'pedidos' },
-      ),
-    },
-  ], [pedidos])
+  const acoesExportacao = useMemo((): GTAcaoExport[] => {
+    // Decide quais pedidos exportar
+    const base = exportConfig.apenasSelection && pedidosSelecionados.length > 0
+      ? pedidosSelecionados
+      : pedidosFiltrados
+
+    // Colunas: padrão + colunas do usuário (se config habilitada)
+    const colunasExport: ColunasExport[] = [
+      ...COLUNAS_EXPORT,
+      ...(exportConfig.incluirColunasUsuario
+        ? colunasUsuario.map(c => ({ header: c.rotulo, key: c.campo, largura: 18 }))
+        : []),
+    ]
+
+    // Separa CSV
+    const sepMap = { virgula: ',' as const, 'ponto-virgula': ';' as const, tab: '\t' as const }
+    const sep = sepMap[exportConfig.separadorCsv] ?? ','
+    const opcoesCsv = { nomeArquivo: 'pedidos', semCabecalho: !exportConfig.incluirCabecalho, separadorCsv: sep }
+    const opcoesBase = { nomeArquivo: 'pedidos', titulo: 'Pedidos' }
+
+    // Flatten: pedidos + itens (se config habilitada)
+    let dados: Record<string, unknown>[]
+    if (exportConfig.incluirItens) {
+      dados = base.flatMap(p => {
+        const pai = p as unknown as Record<string, unknown>
+        const itens = (p.itens ?? []).map(i => ({
+          ...pai,
+          // sobrescreve com campos do item
+          numero_pedido: p.numero_pedido,
+          part_number: i.part_number,
+          descricao: i.descricao,
+          ncm: i.ncm,
+          quantidade_item: i.quantidade_atual,
+          quantidade_inicial_item: i.quantidade_inicial,
+          valor_unitario: i.valor_unitario,
+          valor_item: i.valor_item,
+          moeda_item: i.moeda_item,
+          unidade_item: i.unidade_comercializada_item,
+          _is_item: true,
+        }))
+        return itens.length > 0 ? [pai, ...itens] : [pai]
+      })
+    } else {
+      dados = base as unknown as Record<string, unknown>[]
+    }
+
+    return [
+      {
+        label: 'Excel (.xlsx)',
+        icone: <DownloadSimple size={15} weight="duotone" />,
+        onClick: () => exportarExcel(dados, colunasExport, opcoesBase),
+      },
+      {
+        label: 'CSV',
+        icone: <DownloadSimple size={15} weight="duotone" />,
+        onClick: () => exportarCSV(dados, colunasExport, opcoesCsv),
+      },
+      {
+        label: 'TXT',
+        icone: <DownloadSimple size={15} weight="duotone" />,
+        onClick: () => exportarTXT(dados, colunasExport, { nomeArquivo: 'pedidos', semCabecalho: !exportConfig.incluirCabecalho }),
+      },
+      {
+        label: 'XML',
+        icone: <DownloadSimple size={15} weight="duotone" />,
+        onClick: () => exportarXML(dados, colunasExport, { nomeArquivo: 'pedidos' }),
+      },
+      {
+        label: 'JSON',
+        icone: <DownloadSimple size={15} weight="duotone" />,
+        onClick: () => exportarJSON(dados, colunasExport, { nomeArquivo: 'pedidos' }),
+      },
+    ]
+  }, [pedidos, pedidosFiltrados, pedidosSelecionados, colunasUsuario, exportConfig])
 
   // ── Stats para KPIs ──────────────────────────────────────────────────────────
   const valorTotal    = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
@@ -4508,7 +4559,7 @@ export default function ListaPedidos() {
               Transferir Quantidade — {modalTransferir.item.part_number}
             </h3>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual, modalTransferir.item.casas_decimais_quantidade)} {modalTransferir.item.unidade_comercializada_item}</strong>
+              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual, getCasas('quantidade_item', modalTransferir.item.casas_decimais_quantidade ?? 0))} {modalTransferir.item.unidade_comercializada_item}</strong>
             </p>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
@@ -4535,7 +4586,7 @@ export default function ListaPedidos() {
                   const qtd = parseFloat(qtdTransferir)
                   if (!qtd || qtd <= 0 || qtd > modalTransferir.item.quantidade_atual) return
                   console.info('[Pedido] Transferir:', { item: modalTransferir.item.id, quantidade: qtd })
-                  window.alert(`✓ Transferência de ${fmtQuantidade(qtd, modalTransferir.item.casas_decimais_quantidade)} ${modalTransferir.item.unidade_comercializada_item ?? ''} registrada.`)
+                  window.alert(`✓ Transferência de ${fmtQuantidade(qtd, getCasas('quantidade_item', modalTransferir.item.casas_decimais_quantidade ?? 0))} ${modalTransferir.item.unidade_comercializada_item ?? ''} registrada.`)
                   setModalTransferir(null)
                   setQtdTransferir('')
                 }}

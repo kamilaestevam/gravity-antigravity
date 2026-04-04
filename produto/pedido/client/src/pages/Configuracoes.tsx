@@ -35,7 +35,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, type PdfTemplate } from '../shared/api'
+import { pdfApi, colunasUsuarioApi, type PdfTemplate } from '../shared/api'
+import type { ColunaUsuario as ColunaUsuarioApi } from '../shared/types'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -388,13 +389,20 @@ interface NovaColuna {
 // ─── Colunas numéricas nativas — casas decimais ───────────────────────────────
 
 const COLUNAS_NUMERICAS = [
-  { campo: 'valor_total_pedido',           label: 'Valor Total',                    padrao: 2 },
-  { campo: 'quantidade_total_pedido',      label: 'Quantidade Total',               padrao: 0 },
-  { campo: 'quantidade_inicial_total',     label: 'Quantidade Inicial Total',       padrao: 0 },
-  { campo: 'quantidade_transferida_total', label: 'Quantidade Transferida Total',   padrao: 0 },
-  { campo: 'peso_liquido_total_pedido',    label: 'Peso Líquido Total',             padrao: 3 },
-  { campo: 'peso_bruto_total_pedido',      label: 'Peso Bruto Total',               padrao: 3 },
-  { campo: 'cubagem_total_pedido',         label: 'Cubagem Total',                  padrao: 4 },
+  // ── Pedido (pai) ──────────────────────────────────────────────────────────
+  { campo: 'valor_total_pedido',               label: 'Valor Total (Pedido)',                padrao: 2 },
+  { campo: 'quantidade_total_pedido',          label: 'Quantidade Total (Pedido)',           padrao: 0 },
+  { campo: 'quantidade_inicial_total',         label: 'Quantidade Inicial Total (Pedido)',   padrao: 0 },
+  { campo: 'quantidade_transferida_total',     label: 'Quantidade Transferida Total (Pedido)', padrao: 0 },
+  { campo: 'peso_liquido_total_pedido',        label: 'Peso Líquido Total (Pedido)',         padrao: 3 },
+  { campo: 'peso_bruto_total_pedido',          label: 'Peso Bruto Total (Pedido)',           padrao: 3 },
+  { campo: 'cubagem_total_pedido',             label: 'Cubagem Total (Pedido)',              padrao: 4 },
+  // ── Item (filho) ──────────────────────────────────────────────────────────
+  { campo: 'quantidade_item',                  label: 'Quantidades dos Itens',              padrao: 0 },
+  { campo: 'peso_liquido_unitario',            label: 'Peso Líquido Unitário (Item)',        padrao: 3 },
+  { campo: 'peso_bruto_unitario',              label: 'Peso Bruto Unitário (Item)',          padrao: 3 },
+  { campo: 'cubagem_unitaria',                 label: 'Cubagem Unitária (Item)',             padrao: 4 },
+  { campo: 'quantidade_unidade_estatistica',   label: 'Qtd. Unidade Estatística (Item)',     padrao: 2 },
 ] as const
 
 const TIPOS_COLUNA: { id: TipoColuna; label: string; icone: React.ReactNode }[] = [
@@ -405,6 +413,16 @@ const TIPOS_COLUNA: { id: TipoColuna; label: string; icone: React.ReactNode }[] 
   { id: 'percentual',   label: 'Percentual %', icone: <Percent       size={16} weight="duotone" /> },
   { id: 'select',       label: 'Select/Lista', icone: <ListBullets   size={16} weight="duotone" /> },
 ]
+
+const EXPORT_CONFIG_KEY = 'pedido:export_config'
+
+function carregarExportConfig(): ExportacaoConfig {
+  try {
+    const raw = localStorage.getItem(EXPORT_CONFIG_KEY)
+    if (raw) return JSON.parse(raw) as ExportacaoConfig
+  } catch { /* ignore */ }
+  return { formatoPadrao: 'xlsx', incluirColunasUsuario: true, incluirItens: true, apenasSelection: false, incluirCabecalho: true, separadorCsv: 'ponto-virgula' }
+}
 
 function carregarCasasDecimais(): Record<string, number> {
   try {
@@ -487,7 +505,15 @@ export default function Configuracoes() {
     localStorage.setItem('pedido:casas_decimais', JSON.stringify(next))
   }
 
-  // ── Estado: colunas personalizadas ──
+  // ── Estado: colunas numéricas do usuário (via API — para exibir em Casas Decimais) ──
+  const [colunasUsuarioApi_, setColunasUsuarioApi] = useState<ColunaUsuarioApi[]>([])
+  useEffect(() => {
+    colunasUsuarioApi.listar()
+      .then(lista => setColunasUsuarioApi(lista))
+      .catch(() => {})
+  }, [])
+
+  // ── Estado: colunas personalizadas (localStorage — para criação local) ──
   const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>(carregarColunasUsuario)
   const [novaColuna, setNovaColuna] = useState<NovaColuna>({
     nome: '',
@@ -565,14 +591,15 @@ export default function Configuracoes() {
   })
 
   // ── Exportação state ──
-  const [exportConfig, setExportConfig] = useState<ExportacaoConfig>({
-    formatoPadrao: 'xlsx',
-    incluirColunasUsuario: true,
-    incluirItens: true,
-    apenasSelection: false,
-    incluirCabecalho: true,
-    separadorCsv: 'ponto-virgula',
-  })
+  const [exportConfig, setExportConfig] = useState<ExportacaoConfig>(carregarExportConfig)
+
+  function atualizarExportConfig(updater: (prev: ExportacaoConfig) => ExportacaoConfig) {
+    setExportConfig(prev => {
+      const next = updater(prev)
+      localStorage.setItem(EXPORT_CONFIG_KEY, JSON.stringify(next))
+      return next
+    })
+  }
 
   // ── Numeração state ──
   const [numConfig, setNumConfig] = useState<NumeracaoConfig>({
@@ -1291,7 +1318,7 @@ export default function Configuracoes() {
                       key={fmt}
                       type="button"
                       className={`cfg-periodo-pill${exportConfig.formatoPadrao === fmt ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setExportConfig(prev => ({ ...prev, formatoPadrao: fmt }))}
+                      onClick={() => atualizarExportConfig(prev => ({ ...prev, formatoPadrao: fmt }))}
                     >
                       {fmt.toUpperCase()}
                     </button>
@@ -1305,28 +1332,28 @@ export default function Configuracoes() {
                   label="Incluir colunas do usuário"
                   desc="Adiciona colunas customizadas criadas por você"
                   checked={exportConfig.incluirColunasUsuario}
-                  onChange={v => setExportConfig(prev => ({ ...prev, incluirColunasUsuario: v }))}
+                  onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirColunasUsuario: v }))}
                 />
                 <ToggleRow
                   id="exp-itens"
                   label="Incluir itens do pedido"
                   desc="Exporta também as linhas de item de cada pedido"
                   checked={exportConfig.incluirItens}
-                  onChange={v => setExportConfig(prev => ({ ...prev, incluirItens: v }))}
+                  onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirItens: v }))}
                 />
                 <ToggleRow
                   id="exp-apenas-sel"
                   label="Incluir apenas pedidos selecionados"
                   desc="Quando desmarcado, exporta todos os pedidos do filtro atual"
                   checked={exportConfig.apenasSelection}
-                  onChange={v => setExportConfig(prev => ({ ...prev, apenasSelection: v }))}
+                  onChange={v => atualizarExportConfig(prev => ({ ...prev, apenasSelection: v }))}
                 />
                 <ToggleRow
                   id="exp-cabecalho"
                   label="Incluir cabeçalho"
                   desc="Adiciona linha de cabeçalho com os nomes das colunas"
                   checked={exportConfig.incluirCabecalho}
-                  onChange={v => setExportConfig(prev => ({ ...prev, incluirCabecalho: v }))}
+                  onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirCabecalho: v }))}
                 />
               </div>
 
@@ -1342,7 +1369,7 @@ export default function Configuracoes() {
                       key={sep.id}
                       type="button"
                       className={`cfg-periodo-pill${exportConfig.separadorCsv === sep.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setExportConfig(prev => ({ ...prev, separadorCsv: sep.id }))}
+                      onClick={() => atualizarExportConfig(prev => ({ ...prev, separadorCsv: sep.id }))}
                     >
                       {sep.label}
                     </button>
@@ -1936,6 +1963,26 @@ export default function Configuracoes() {
                     />
                   </div>
                 ))}
+                {colunasUsuarioApi_
+                  .filter(col => col.tipo === 'numero' || col.tipo === 'percentual')
+                  .map(col => (
+                    <div key={col.id} className="cfg-coluna-row">
+                      <span className="cfg-coluna-row__label">
+                        {col.nome}
+                        <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginLeft: '0.375rem' }}>(personalizada)</span>
+                      </span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={8}
+                        className="cfg-casas-input"
+                        value={casasDecimais[col.id] ?? 2}
+                        onChange={e => handleCasasDecimaisChange(col.id, Math.min(8, Math.max(0, Number(e.target.value))))}
+                        aria-label={`Casas decimais para ${col.nome}`}
+                      />
+                    </div>
+                  ))
+                }
               </div>
             </section>
 

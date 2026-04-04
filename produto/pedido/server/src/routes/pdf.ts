@@ -202,6 +202,7 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
     res.json({
       url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
       anexo_id: anexoId,
+      is_pdf: isPdf,
     })
   } catch (err) {
     next(err)
@@ -320,6 +321,7 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
     res.json({
       url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
       anexo_id: anexoId,
+      is_pdf: isPdf,
     })
   } catch (err) {
     next(err)

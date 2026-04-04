@@ -13,6 +13,8 @@ export interface ColunasExport {
 export interface OpcoesExport {
   nomeArquivo?: string
   titulo?:      string
+  semCabecalho?: boolean
+  separadorCsv?: ',' | ';' | '\t'
 }
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -87,9 +89,13 @@ export function exportarCSV<T extends Record<string, unknown>>(
   dados: T[], colunas: ColunasExport[], opcoes: OpcoesExport = {}
 ) {
   const nome = opcoes.nomeArquivo ?? 'pedidos'
-  const header = colunas.map(c => `"${c.header}"`).join(',')
-  const rows = linhas(dados, colunas).map(r => r.map(v => `"${v.replace(/"/g, '""')}"`).join(',')).join('\n')
-  baixarBlob(header + '\n' + rows, `${nome}.csv`, 'text/csv;charset=utf-8;')
+  const sep = opcoes.separadorCsv ?? ','
+  const escape = (v: string) => `"${v.replace(/"/g, '""')}"`
+  const rows = linhas(dados, colunas).map(r => r.map(escape).join(sep))
+  const linhasFinais = opcoes.semCabecalho
+    ? rows
+    : [colunas.map(c => escape(c.header)).join(sep), ...rows]
+  baixarBlob(linhasFinais.join('\n'), `${nome}.csv`, 'text/csv;charset=utf-8;')
 }
 
 // ─── TXT (tab-separated) ─────────────────────────────────────────────────────
@@ -98,9 +104,11 @@ export function exportarTXT<T extends Record<string, unknown>>(
   dados: T[], colunas: ColunasExport[], opcoes: OpcoesExport = {}
 ) {
   const nome = opcoes.nomeArquivo ?? 'pedidos'
-  const header = colunas.map(c => c.header).join('\t')
-  const rows = linhas(dados, colunas).map(r => r.join('\t')).join('\n')
-  baixarBlob(header + '\n' + rows, `${nome}.txt`, 'text/plain;charset=utf-8;')
+  const dataRows = linhas(dados, colunas).map(r => r.join('\t'))
+  const linhasFinais = opcoes.semCabecalho
+    ? dataRows
+    : [colunas.map(c => c.header).join('\t'), ...dataRows]
+  baixarBlob(linhasFinais.join('\n'), `${nome}.txt`, 'text/plain;charset=utf-8;')
 }
 
 // ─── XML ──────────────────────────────────────────────────────────────────────

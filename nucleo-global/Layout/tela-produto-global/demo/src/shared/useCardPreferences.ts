@@ -12,6 +12,8 @@ export { CARDS_CATALOGO, CARDS_PADRAO }
 export interface CardPreferencia {
   id:      string
   visible: boolean
+  /** Período individual do card. undefined = herda o período global */
+  periodo?: string
 }
 
 const STORAGE_KEY = 'demo:cards-v1'
@@ -92,7 +94,15 @@ export function useCardPreferences() {
 
   const resetar = useCallback(() => persistir(DEFAULT), [persistir])
 
+  const setPeriodo = useCallback((id: string, periodo: string | undefined) => {
+    setPrefs(prev => {
+      const next = prev.map(p => p.id === id ? { ...p, periodo } : p)
+      salvar(next)
+      return next
+    })
+  }, [])
+
   const visiveis = prefs.filter(p => p.visible)
 
-  return { prefs, visiveis, disponiveis, adicionar, remover, toggle, reordenar, resetar }
+  return { prefs, visiveis, disponiveis, adicionar, remover, toggle, reordenar, resetar, setPeriodo }
 }

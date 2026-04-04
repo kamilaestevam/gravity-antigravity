@@ -15,6 +15,20 @@ import {
 } from '@phosphor-icons/react'
 import { useCardPreferences } from '../shared/useCardPreferences'
 import { useCardValues }      from '../shared/useCardValues'
+
+const PERIODO_KEY = 'demo:periodo-comparacao'
+
+const PERIODO_LABEL: Record<string, string> = {
+  '7d':  '7 dias',
+  '30d': '30 dias',
+  '6m':  '6 meses',
+  '1a':  '1 ano',
+  'all': 'Tudo',
+}
+
+function periodoLabel(periodo: string): string {
+  return PERIODO_LABEL[periodo] ?? periodo
+}
 import type { CardVariante }  from '@nucleo/card-global'
 import './Dashboard.css'
 
@@ -52,6 +66,7 @@ const CARD_LABEL: Record<string, string> = {
 export default function Dashboard() {
   const { visiveis } = useCardPreferences()
   const valores      = useCardValues()
+  const periodoGlobal = localStorage.getItem(PERIODO_KEY) ?? '30d'
 
   return (
     <div className="demo-db-page">
@@ -65,7 +80,11 @@ export default function Dashboard() {
               icone={CARD_ICONE[pref.id]}
               titulo={CARD_LABEL[pref.id] ?? pref.id}
               valor={v.valor}
-              subtexto={v.subtexto}
+              subtexto={
+                pref.periodo
+                  ? <>{v.subtexto} · <span style={{ color: '#818cf8', fontWeight: 600 }}>{periodoLabel(pref.periodo)}</span></>
+                  : v.subtexto
+              }
               tooltip={v.tooltip}
               variante={CARD_VARIANTE[pref.id] ?? 'padrao'}
             />

@@ -116,12 +116,21 @@ const KANBAN_ABA_MAP: Record<string, AbaConfig> = {
 
 // ── Item sortável (DnD) ───────────────────────────────────────────────────────
 
+const PERIODOS_CARD = [
+  { id: '7d',  label: '7d'   },
+  { id: '30d', label: '30d'  },
+  { id: '6m',  label: '6m'   },
+  { id: '1a',  label: '1 ano'},
+  { id: 'all', label: 'Tudo' },
+] as const
+
 function CardSortavel({
-  pref, onToggle, onRemover,
+  pref, onToggle, onRemover, onSetPeriodo,
 }: {
-  pref:      CardPreferencia
-  onToggle:  () => void
-  onRemover: () => void
+  pref:          CardPreferencia
+  onToggle:      () => void
+  onRemover:     () => void
+  onSetPeriodo:  (periodo: string | undefined) => void
 }) {
   const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
   const visual = CARD_VISUAL[pref.id]
@@ -163,6 +172,9 @@ function CardSortavel({
         </div>
 
         <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
+        {pref.periodo && (
+          <span className="cfg-periodo-card-badge">{pref.periodo}</span>
+        )}
 
         <TooltipGlobal descricao="Ver variáveis do card">
           <button
@@ -221,6 +233,29 @@ function CardSortavel({
               <div className="cfg-edit-panel__input">{pref.visible ? 'Sim' : 'Não'}</div>
             </div>
           </div>
+          <div className="cfg-edit-panel__field" style={{ gridColumn: '1 / -1' }}>
+            <label className="cfg-edit-panel__label">Período do card</label>
+            <div className="cfg-periodo-pills cfg-periodo-pills--sm">
+              <button
+                type="button"
+                className={`cfg-periodo-pill${!pref.periodo ? ' cfg-periodo-pill--ativo' : ''}`}
+                onClick={() => onSetPeriodo(undefined)}
+              >
+                Global
+              </button>
+              {PERIODOS_CARD.map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`cfg-periodo-pill${pref.periodo === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
+                  onClick={() => onSetPeriodo(p.id)}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="cfg-edit-panel__actions">
             <button type="button" className="cfg-reset-btn" onClick={() => setExpandido(false)}>
               Fechar
@@ -246,7 +281,7 @@ export default function Configuracoes() {
     localStorage.setItem(PERIODO_KEY, id)
   }
 
-  const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar } =
+  const { prefs, disponiveis, adicionar, remover, toggle, reordenar, resetar, setPeriodo } =
     useCardPreferences()
 
   const { config: kanbanConfig, salvar: salvarKanban } = useKanbanConfig()
@@ -392,6 +427,7 @@ export default function Configuracoes() {
                           pref={pref}
                           onToggle={() => toggle(pref.id)}
                           onRemover={() => remover(pref.id)}
+                          onSetPeriodo={(p) => setPeriodo(pref.id, p)}
                         />
                       ))}
                     </div>

@@ -471,6 +471,29 @@
   gap: 0.5rem;
 }
 
+/* ── Badge de período individual do card ── */
+
+.cfg-periodo-card-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: rgba(129,140,248,0.12);
+  color: #818cf8;
+  border: 1px solid rgba(129,140,248,0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Pills menores para seletor dentro do painel ── */
+
+.cfg-periodo-pills--sm .cfg-periodo-pill {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+}
+
 /* ── Chart type grid ── */
 
 .cfg-edit-panel__chart-grid {

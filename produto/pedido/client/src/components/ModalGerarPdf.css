@@ -149,15 +149,70 @@
 .modal-gerar-pdf__preview-caixa {
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 8px;
-  padding: 16px;
+  padding: 24px 16px;
   background: var(--color-bg-subtle, #f8fafc);
-  max-height: 200px;
-  overflow-y: auto;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-gerar-pdf__preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.modal-gerar-pdf__preview-icone {
+  color: #dc2626;
+  opacity: 0.7;
+}
+
+.modal-gerar-pdf__preview-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1e293b);
+  margin: 0;
+}
+
+.modal-gerar-pdf__preview-idioma {
+  font-size: 11px;
+  color: var(--color-text-muted, #94a3b8);
+  margin: 0;
+}
+
+/* Idioma buttons */
+.modal-gerar-pdf__idiomas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.modal-pdf__idioma-btn {
+  padding: 5px 12px;
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: 6px;
+  background: transparent;
   font-size: 12px;
+  font-weight: 600;
   color: var(--color-text-secondary, #475569);
-  transform-origin: top left;
-  /* Preview em escala reduzida */
-  zoom: 0.8;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  letter-spacing: 0.03em;
+}
+
+.modal-pdf__idioma-btn:hover {
+  border-color: var(--color-border-strong, #94a3b8);
+  background: var(--color-bg-hover, #f1f5f9);
+  color: var(--color-text-primary, #1e293b);
+}
+
+.modal-pdf__idioma-btn--ativo {
+  border-color: var(--color-brand, #3b82f6);
+  background: var(--color-brand-subtle, #eff6ff);
+  color: var(--color-brand, #3b82f6);
 }
 
 /* Checkbox */
@@ -219,6 +274,91 @@
 .modal-gerar-pdf__spinner {
   animation: spin 0.8s linear infinite;
   display: inline-block;
+}
+
+/* Tabs de modo */
+.modal-gerar-pdf__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background: var(--color-bg-subtle, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+}
+
+.modal-gerar-pdf__tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #475569);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.modal-gerar-pdf__tab:hover {
+  background: var(--color-bg-hover, #f1f5f9);
+  color: var(--color-text-primary, #1e293b);
+}
+
+.modal-gerar-pdf__tab--ativo {
+  background: var(--color-bg, #fff);
+  color: var(--color-brand, #3b82f6);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Pedidos chips */
+.modal-gerar-pdf__pedidos-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.modal-gerar-pdf__pedido-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--color-brand-subtle, #eff6ff);
+  border: 1px solid var(--color-brand-border, #bfdbfe);
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--color-brand, #3b82f6);
+}
+
+/* Progresso */
+.modal-gerar-pdf__progresso {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-gerar-pdf__progresso-barra-outer {
+  height: 4px;
+  background: var(--color-bg-subtle, #f1f5f9);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.modal-gerar-pdf__progresso-barra-inner {
+  height: 100%;
+  background: var(--color-brand, #3b82f6);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.modal-gerar-pdf__progresso-label {
+  font-size: 11.5px;
+  color: var(--color-text-muted, #94a3b8);
+  text-align: right;
 }
 
 /* Rodapé */

@@ -28,6 +28,7 @@ import {
   PencilLine,
   Sparkle,
   CopySimple,
+  FilePdf,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -55,6 +56,8 @@ import {
 } from '../shared/api'
 import { ModalConsolidar } from '../components/ModalConsolidar'
 import '../components/ModalConsolidar.css'
+import { ModalGerarPdf } from '../components/ModalGerarPdf'
+import '../components/ModalGerarPdf.css'
 import { ModalDuplicar } from '../components/ModalDuplicar'
 import '../components/ModalDuplicar.css'
 import { ModalTransferir } from '../components/ModalTransferir'
@@ -2990,6 +2993,7 @@ export default function ListaPedidos() {
   const [modalTransferirAberto, setModalTransferirAberto] = useState(false)
   const [modalEdicaoMassaAberto, setModalEdicaoMassaAberto] = useState(false)
   const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
+  const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
 
   // ── Colunas do Usuário ────────────────────────────────────────────────────────
@@ -3494,6 +3498,17 @@ export default function ListaPedidos() {
               <BotaoGlobal
                 variante="secundario"
                 tamanho="pequeno"
+                icone={<FilePdf size={14} weight="duotone" />}
+                disabled={pedidosSelecionados.length === 0}
+                onClick={() => setModalGerarPdfAberto(true)}
+                tooltipTitulo="Gerar Documento"
+                tooltipDescricao="Gera PDF a partir de um template ou documento padrão"
+              >
+                Gerar Documento{pedidosSelecionados.length > 0 ? ` (${pedidosSelecionados.length})` : ''}
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
                 icone={<CopySimple size={14} weight="duotone" />}
                 disabled={pedidosSelecionados.length === 0}
                 onClick={() => setModalDuplicarAberto(true)}
@@ -3707,6 +3722,17 @@ export default function ListaPedidos() {
             setModalDuplicarAberto(false)
             setPedidosSelecionados([])
             carregarInicial()
+          }}
+        />
+      )}
+
+      {/* ── Modal Gerar Documento PDF ── */}
+      {modalGerarPdfAberto && pedidosSelecionados.length > 0 && (
+        <ModalGerarPdf
+          pedidos={pedidosSelecionados.map(p => ({ id: p.id, numero: p.numero_pedido }))}
+          onFechar={() => setModalGerarPdfAberto(false)}
+          onConcluido={() => {
+            setModalGerarPdfAberto(false)
           }}
         />
       )}

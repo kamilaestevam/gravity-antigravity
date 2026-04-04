@@ -1,93 +1,147 @@
 /**
- * ModalGerarPdf.tsx — Modal para seleção de template e geração de PDF
+ * ModalGerarPdf.tsx — Modal para geração de documentos PDF
  *
- * Fluxo:
- *   1. Lista templates disponíveis do tenant
- *   2. Usuário seleciona template → preview em miniatura (HTML renderizado)
- *   3. Checkbox "Salvar como anexo" (sempre true conforme spec)
- *   4. Botão "Baixar PDF" → gera, baixa e fecha o modal
+ * Dois modos:
+ *   - "Documento Padrão"    → tipo de documento + idioma (multilíngue)
+ *   - "Template Personalizado" → seleciona template salvo em Configurações
  *
- * Props:
- *   pedido_id     — ID do pedido
- *   numeroPedido  — Número do pedido (para título)
- *   onFechar      — Callback para fechar o modal
- *   onConcluido   — Callback após PDF gerado com sucesso
+ * Suporta múltiplos pedidos: gera um PDF por pedido selecionado.
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { FilePdf, Spinner, X, CheckCircle } from '@phosphor-icons/react'
+import { FilePdf, Spinner, X, CheckCircle, FileText, Warning } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import type { TemplatePdf, GerarPdfPayload } from '../shared/types'
-import { pdfApi } from '../shared/api'
+import type { TipoDocumentoGerar, IdiomaDocumento, GerarDocumentoPayload, GerarPdfPayload } from '../shared/types'
+import { gerarDocumentoApi, pdfApi } from '../shared/api'
+import type { PdfTemplate } from '../shared/api'
 import './ModalGerarPdf.css'
+
+// ── Constantes ────────────────────────────────────────────────────────────────
+
+const TIPOS_DOCUMENTO: { id: TipoDocumentoGerar; label: string; desc: string }[] = [
+  { id: 'pedido_de_venda',  label: 'Pedido de Venda',  desc: 'Purchase Order — cabeçalho + itens do pedido' },
+  { id: 'proforma_invoice', label: 'Proforma Invoice', desc: 'Proforma Invoice — dados financeiros + itens' },
+  { id: 'invoice',          label: 'Invoice',           desc: 'Commercial Invoice — para desembaraço aduaneiro' },
+]
+
+const IDIOMAS: { id: IdiomaDocumento; label: string; nome: string }[] = [
+  { id: 'pt', label: 'PT', nome: 'Português' },
+  { id: 'en', label: 'EN', nome: 'English'   },
+  { id: 'es', label: 'ES', nome: 'Español'   },
+  { id: 'zh', label: 'ZH', nome: '中文'      },
+  { id: 'ja', label: 'JA', nome: '日本語'    },
+  { id: 'ar', label: 'AR', nome: 'العربية'  },
+]
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
+export interface PedidoParaGerar {
+  id: string
+  numero: string
+}
+
 interface ModalGerarPdfProps {
-  pedido_id: string
-  numeroPedido: string
+  pedidos: PedidoParaGerar[]
   onFechar: () => void
   onConcluido: () => void
 }
 
+type ModoGeracao = 'padrao' | 'template'
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function ModalGerarPdf({ pedido_id, numeroPedido, onFechar, onConcluido }: ModalGerarPdfProps) {
-  const [templates, setTemplates] = useState<TemplatePdf[]>([])
-  const [carregandoTemplates, setCarregandoTemplates] = useState(true)
-  const [templateSelecionado, setTemplateSelecionado] = useState<string | null>(null)
+export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfProps) {
+  const [modo, setModo] = useState<ModoGeracao>('padrao')
+
+  // Modo padrão
+  const [tipoDocs, setTipoDocs] = useState<TipoDocumentoGerar>('invoice')
+  const [idioma, setIdioma] = useState<IdiomaDocumento>('en')
+
+  // Modo template
+  const [templates, setTemplates] = useState<PdfTemplate[]>([])
+  const [templateId, setTemplateId] = useState<string | null>(null)
+  const [carregandoTemplates, setCarregandoTemplates] = useState(false)
+
+  // Estado geral
   const [salvarComoAnexo, setSalvarComoAnexo] = useState(true)
   const [gerando, setGerando] = useState(false)
+  const [progresso, setProgresso] = useState(0) // 0..pedidos.length
   const [erro, setErro] = useState<string | null>(null)
   const [sucesso, setSucesso] = useState(false)
 
-  useEffect(() => {
-    pdfApi.listarTemplates()
-      .then(dados => {
-        setTemplates(dados)
-        if (dados.length > 0) setTemplateSelecionado(dados[0].id)
-      })
-      .catch(() => setErro('Erro ao carregar templates'))
-      .finally(() => setCarregandoTemplates(false))
-  }, [])
+  const isRtl = idioma === 'ar'
+  const titulo = pedidos.length === 1
+    ? `Gerar Documento — ${pedidos[0].numero}`
+    : `Gerar Documento — ${pedidos.length} pedidos`
 
-  const templateAtual = templates.find(t => t.id === templateSelecionado) ?? null
+  // Carrega templates ao entrar no modo template
+  useEffect(() => {
+    if (modo !== 'template') return
+    setCarregandoTemplates(true)
+    pdfApi.listarTemplates()
+      .then(res => {
+        setTemplates(res.data)
+        if (res.data.length > 0 && !templateId) setTemplateId(res.data[0].id)
+      })
+      .catch(() => setErro('Não foi possível carregar os templates.'))
+      .finally(() => setCarregandoTemplates(false))
+  }, [modo]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleGerar = useCallback(async () => {
-    if (!templateSelecionado) return
-
     setGerando(true)
     setErro(null)
+    setProgresso(0)
 
     try {
-      const payload: GerarPdfPayload = {
-        pedido_id,
-        template_id: templateSelecionado,
-        salvar_como_anexo: salvarComoAnexo,
+      for (let i = 0; i < pedidos.length; i++) {
+        const pedido = pedidos[i]
+
+        let urlDownload: string
+
+        if (modo === 'padrao') {
+          const payload: GerarDocumentoPayload = {
+            pedido_id: pedido.id,
+            tipo_documento: tipoDocs,
+            idioma,
+            salvar_como_anexo: salvarComoAnexo,
+          }
+          const resultado = await gerarDocumentoApi.gerar(payload)
+          urlDownload = resultado.url_download
+        } else {
+          if (!templateId) throw new Error('Selecione um template.')
+          const payload: GerarPdfPayload = {
+            pedido_id: pedido.id,
+            template_id: templateId,
+            salvar_como_anexo: salvarComoAnexo,
+          }
+          const resultado = await pdfApi.gerar(payload)
+          urlDownload = resultado.url_download
+        }
+
+        // Baixa o arquivo
+        const a = document.createElement('a')
+        a.href = urlDownload
+        const nomeArq = modo === 'padrao'
+          ? `${tipoDocs}-${pedido.numero}-${idioma}.pdf`
+          : `${templates.find(t => t.id === templateId)?.nome ?? 'documento'}-${pedido.numero}.pdf`
+        a.download = nomeArq
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+
+        setProgresso(i + 1)
       }
 
-      const resultado = await pdfApi.gerar(payload)
-
-      // Baixar o arquivo via link temporário
-      const a = document.createElement('a')
-      a.href = resultado.url_download
-      a.download = ''
-      a.target = '_blank'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-
       setSucesso(true)
-      setTimeout(() => {
-        onConcluido()
-      }, 1200)
+      setTimeout(() => onConcluido(), 1500)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao gerar PDF'
+      const msg = err instanceof Error ? err.message : 'Erro ao gerar documento'
       setErro(msg)
     } finally {
       setGerando(false)
     }
-  }, [pedido_id, templateSelecionado, salvarComoAnexo, onConcluido])
+  }, [pedidos, modo, tipoDocs, idioma, templateId, salvarComoAnexo, templates, onConcluido])
 
   const handleOverlayClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onFechar()
@@ -102,12 +156,13 @@ export function ModalGerarPdf({ pedido_id, numeroPedido, onFechar, onConcluido }
       onClick={handleOverlayClick}
     >
       <div className="modal-gerar-pdf__caixa">
+
         {/* Cabeçalho */}
         <div className="modal-gerar-pdf__cabecalho">
           <div className="modal-gerar-pdf__titulo-grupo">
             <FilePdf size={18} weight="fill" className="modal-gerar-pdf__icone-titulo" aria-hidden="true" />
             <h2 className="modal-gerar-pdf__titulo" id="modal-gerar-pdf-titulo">
-              Gerar PDF — {numeroPedido}
+              {titulo}
             </h2>
           </div>
           <button
@@ -122,71 +177,173 @@ export function ModalGerarPdf({ pedido_id, numeroPedido, onFechar, onConcluido }
 
         {/* Corpo */}
         <div className="modal-gerar-pdf__corpo">
-          {carregandoTemplates ? (
-            <div className="modal-gerar-pdf__carregando">
-              <Spinner size={20} className="modal-gerar-pdf__spinner" aria-hidden="true" />
-              <span>Carregando templates...</span>
-            </div>
-          ) : templates.length === 0 ? (
-            <div className="modal-gerar-pdf__vazio">
-              Nenhum template configurado para este tenant.
-            </div>
-          ) : (
+
+          {/* Pedidos selecionados (quando múltiplos) */}
+          {pedidos.length > 1 && (
+            <section aria-label="Pedidos selecionados">
+              <p className="modal-gerar-pdf__label">Pedidos selecionados:</p>
+              <div className="modal-gerar-pdf__pedidos-chips">
+                {pedidos.map(p => (
+                  <span key={p.id} className="modal-gerar-pdf__pedido-chip">{p.numero}</span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Tabs de modo */}
+          <div className="modal-gerar-pdf__tabs" role="tablist" aria-label="Modo de geração">
+            <button
+              role="tab"
+              aria-selected={modo === 'padrao'}
+              className={`modal-gerar-pdf__tab${modo === 'padrao' ? ' modal-gerar-pdf__tab--ativo' : ''}`}
+              onClick={() => setModo('padrao')}
+            >
+              <FileText size={14} weight="duotone" aria-hidden="true" />
+              Documento Padrão
+            </button>
+            <button
+              role="tab"
+              aria-selected={modo === 'template'}
+              className={`modal-gerar-pdf__tab${modo === 'template' ? ' modal-gerar-pdf__tab--ativo' : ''}`}
+              onClick={() => setModo('template')}
+            >
+              <FilePdf size={14} weight="duotone" aria-hidden="true" />
+              Template Personalizado
+            </button>
+          </div>
+
+          {/* ── Modo Padrão ── */}
+          {modo === 'padrao' && (
             <>
-              {/* Lista de templates */}
-              <section aria-labelledby="label-template">
-                <p className="modal-gerar-pdf__label" id="label-template">
-                  Template:
+              <section aria-labelledby="label-tipo-doc">
+                <p className="modal-gerar-pdf__label" id="label-tipo-doc">
+                  Tipo de documento:
                 </p>
-                <div className="modal-gerar-pdf__templates" role="radiogroup" aria-labelledby="label-template">
-                  {templates.map(tpl => (
+                <div className="modal-gerar-pdf__templates" role="radiogroup" aria-labelledby="label-tipo-doc">
+                  {TIPOS_DOCUMENTO.map(tipo => (
                     <label
-                      key={tpl.id}
-                      className={`modal-gerar-pdf__template-opcao${templateSelecionado === tpl.id ? ' modal-gerar-pdf__template-opcao--selecionada' : ''}`}
+                      key={tipo.id}
+                      className={`modal-gerar-pdf__template-opcao${tipoDocs === tipo.id ? ' modal-gerar-pdf__template-opcao--selecionada' : ''}`}
                     >
                       <input
                         type="radio"
-                        name="template"
-                        value={tpl.id}
-                        checked={templateSelecionado === tpl.id}
-                        onChange={() => setTemplateSelecionado(tpl.id)}
+                        name="tipo_documento"
+                        value={tipo.id}
+                        checked={tipoDocs === tipo.id}
+                        onChange={() => setTipoDocs(tipo.id)}
                         className="modal-gerar-pdf__radio"
                       />
                       <div className="modal-gerar-pdf__template-info">
-                        <span className="modal-gerar-pdf__template-nome">{tpl.nome}</span>
-                        {tpl.descricao && (
-                          <span className="modal-gerar-pdf__template-descricao">{tpl.descricao}</span>
-                        )}
+                        <span className="modal-gerar-pdf__template-nome">{tipo.label}</span>
+                        <span className="modal-gerar-pdf__template-descricao">{tipo.desc}</span>
                       </div>
                     </label>
                   ))}
                 </div>
               </section>
 
-              {/* Preview */}
-              {templateAtual && (
-                <section className="modal-gerar-pdf__preview-secao" aria-label="Preview do template">
-                  <p className="modal-gerar-pdf__label">Preview:</p>
-                  <div
-                    className="modal-gerar-pdf__preview-caixa"
-                    // Renderizar HTML do template como preview (somente leitura)
-                    dangerouslySetInnerHTML={{ __html: templateAtual.conteudo_html }}
-                    aria-label="Visualização do template PDF"
-                  />
-                </section>
+              <section aria-labelledby="label-idioma">
+                <p className="modal-gerar-pdf__label" id="label-idioma">
+                  Idioma:
+                </p>
+                <div
+                  className="modal-gerar-pdf__idiomas"
+                  role="radiogroup"
+                  aria-labelledby="label-idioma"
+                  dir={isRtl ? 'rtl' : 'ltr'}
+                >
+                  {IDIOMAS.map(lang => (
+                    <button
+                      key={lang.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={idioma === lang.id}
+                      aria-label={lang.nome}
+                      title={lang.nome}
+                      className={`modal-pdf__idioma-btn${idioma === lang.id ? ' modal-pdf__idioma-btn--ativo' : ''}`}
+                      onClick={() => setIdioma(lang.id)}
+                    >
+                      {lang.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </>
+          )}
+
+          {/* ── Modo Template ── */}
+          {modo === 'template' && (
+            <section aria-labelledby="label-template">
+              <p className="modal-gerar-pdf__label" id="label-template">
+                Escolha o template:
+              </p>
+
+              {carregandoTemplates && (
+                <div className="modal-gerar-pdf__carregando">
+                  <Spinner size={16} className="modal-gerar-pdf__spinner" aria-hidden="true" />
+                  Carregando templates...
+                </div>
               )}
 
-              {/* Checkbox salvar como anexo */}
-              <label className="modal-gerar-pdf__checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={salvarComoAnexo}
-                  onChange={e => setSalvarComoAnexo(e.target.checked)}
-                  className="modal-gerar-pdf__checkbox"
+              {!carregandoTemplates && templates.length === 0 && (
+                <div className="modal-gerar-pdf__vazio">
+                  <Warning size={16} aria-hidden="true" />
+                  Nenhum template criado. Acesse Configurações → Templates PDF.
+                </div>
+              )}
+
+              {!carregandoTemplates && templates.length > 0 && (
+                <div className="modal-gerar-pdf__templates" role="radiogroup" aria-labelledby="label-template">
+                  {templates.map(tpl => (
+                    <label
+                      key={tpl.id}
+                      className={`modal-gerar-pdf__template-opcao${templateId === tpl.id ? ' modal-gerar-pdf__template-opcao--selecionada' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="template_id"
+                        value={tpl.id}
+                        checked={templateId === tpl.id}
+                        onChange={() => setTemplateId(tpl.id)}
+                        className="modal-gerar-pdf__radio"
+                      />
+                      <div className="modal-gerar-pdf__template-info">
+                        <span className="modal-gerar-pdf__template-nome">{tpl.nome}</span>
+                        <span className="modal-gerar-pdf__template-descricao">
+                          Criado em {new Date(tpl.criadoEm).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Checkbox salvar como anexo */}
+          <label className="modal-gerar-pdf__checkbox-label">
+            <input
+              type="checkbox"
+              checked={salvarComoAnexo}
+              onChange={e => setSalvarComoAnexo(e.target.checked)}
+              className="modal-gerar-pdf__checkbox"
+            />
+            <span>Salvar como anexo no pedido</span>
+          </label>
+
+          {/* Progresso (múltiplos pedidos) */}
+          {gerando && pedidos.length > 1 && (
+            <div className="modal-gerar-pdf__progresso" role="status" aria-live="polite">
+              <div className="modal-gerar-pdf__progresso-barra-outer">
+                <div
+                  className="modal-gerar-pdf__progresso-barra-inner"
+                  style={{ width: `${(progresso / pedidos.length) * 100}%` }}
                 />
-                <span>Salvar como anexo no pedido</span>
-              </label>
-            </>
+              </div>
+              <span className="modal-gerar-pdf__progresso-label">
+                {progresso} de {pedidos.length} gerados
+              </span>
+            </div>
           )}
 
           {/* Erro */}
@@ -200,7 +357,9 @@ export function ModalGerarPdf({ pedido_id, numeroPedido, onFechar, onConcluido }
           {sucesso && (
             <div className="modal-gerar-pdf__sucesso" role="status">
               <CheckCircle size={16} weight="fill" aria-hidden="true" />
-              PDF gerado e salvo como anexo!
+              {pedidos.length === 1
+                ? 'Documento gerado com sucesso!'
+                : `${pedidos.length} documentos gerados com sucesso!`}
             </div>
           )}
         </div>
@@ -217,18 +376,18 @@ export function ModalGerarPdf({ pedido_id, numeroPedido, onFechar, onConcluido }
           <BotaoGlobal
             variante="primario"
             onClick={handleGerar}
-            disabled={!templateSelecionado || gerando || carregandoTemplates || sucesso}
+            disabled={gerando || sucesso || (modo === 'template' && (!templateId || templates.length === 0))}
             aria-busy={gerando}
           >
             {gerando ? (
               <>
                 <Spinner size={14} className="modal-gerar-pdf__spinner" aria-hidden="true" />
-                Gerando...
+                Gerando{pedidos.length > 1 ? ` (${progresso}/${pedidos.length})` : '...'}
               </>
             ) : (
               <>
                 <FilePdf size={14} aria-hidden="true" />
-                Baixar PDF
+                {pedidos.length === 1 ? 'Gerar PDF' : `Gerar ${pedidos.length} PDFs`}
               </>
             )}
           </BotaoGlobal>

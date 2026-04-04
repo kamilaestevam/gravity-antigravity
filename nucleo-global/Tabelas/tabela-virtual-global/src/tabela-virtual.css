@@ -148,9 +148,18 @@
   font-family: inherit;
   min-width: 240px;
   transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
 }
 
 .gtv-busca-input:focus {
+  outline: none;
+  border-color: var(--gtv-border-solid);
+  box-shadow: none;
+}
+
+.gtv-busca-input:focus-visible {
   outline: none;
   border-color: var(--gtv-accent);
   box-shadow: var(--gtv-focus-ring);

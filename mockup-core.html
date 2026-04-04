@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gravity — Core (Mockup)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #0f172a;
+  --surface:   #1e293b;
+  --surface2:  #162032;
+  --border:    rgba(99,102,241,0.12);
+  --accent:    #6366f1;
+  --accent-d:  rgba(99,102,241,0.14);
+  --accent-b:  rgba(99,102,241,0.22);
+  --text:      #f1f5f9;
+  --muted:     #94a3b8;
+  --muted2:    #475569;
+  --success:   #10b981;
+  --warning:   #f59e0b;
+  --amber:     #f59e0b;
+  --teal:      #14b8a6;
+  --pink:      #ec4899;
+  --sky:       #38bdf8;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Top bar ─────────────────────────────────────────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 56px;
+  background: rgba(15,23,42,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.logo-hex {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.topbar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topbar-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 1rem;
+}
+.topbar-btn:hover { background: var(--accent-d); color: var(--text); border-color: var(--accent-b); }
+
+.notif-btn {
+  position: relative;
+}
+.notif-dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 7px; height: 7px;
+  background: var(--accent);
+  border-radius: 50%;
+  border: 1.5px solid var(--bg);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+.avatar {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: var(--accent-d);
+  border: 1.5px solid var(--accent-b);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+
+/* ── Main content ────────────────────────────────────── */
+.core {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 2rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Hero Header ─────────────────────────────────────── */
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-text h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.hero-text h1 span {
+  color: var(--accent);
+}
+
+.hero-text p {
+  margin-top: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid var(--accent-b);
+  background: var(--accent-d);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.hero-date {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ── KPI Row ─────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  cursor: default;
+}
+.kpi-card:hover {
+  border-color: var(--accent-b);
+  transform: translateY(-2px);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: 14px 14px 0 0;
+}
+.kpi-card--indigo::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+.kpi-card--teal::before   { background: linear-gradient(90deg, #14b8a6, #2dd4bf); }
+.kpi-card--amber::before  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.kpi-card--pink::before   { background: linear-gradient(90deg, #ec4899, #f472b6); }
+
+.kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kpi-icon {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+.kpi-icon--indigo { background: rgba(99,102,241,0.12);  color: #818cf8; }
+.kpi-icon--teal   { background: rgba(20,184,166,0.12);  color: #2dd4bf; }
+.kpi-icon--amber  { background: rgba(245,158,11,0.12);  color: #fbbf24; }
+.kpi-icon--pink   { background: rgba(236,72,153,0.12);  color: #f472b6; }
+
+.kpi-delta {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+}
+.kpi-delta--up   { background: rgba(16,185,129,0.12); color: #34d399; }
+.kpi-delta--warn { background: rgba(245,158,11,0.12); color: #fbbf24; }
+
+.kpi-value {
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 0.125rem;
+}
+
+/* ── Two-column section ──────────────────────────────── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* ── Section title ───────────────────────────────────── */
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-bottom: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Product cards ───────────────────────────────────── */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.875rem;
+}
+
+.prod-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.prod-card:hover {
+  border-color: var(--c, var(--accent));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.prod-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, var(--c-dim, var(--accent-d)), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.prod-card:hover::after { opacity: 1; }
+
+.prod-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.prod-icon {
+  width: 42px; height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.prod-status {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+}
+.prod-status--active { background: rgba(16,185,129,0.12); color: #34d399; }
+.prod-status--soon   { background: rgba(148,163,184,0.1); color: var(--muted); }
+.prod-status--hire   { background: rgba(245,158,11,0.12); color: #fbbf24; }
+
+.prod-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.prod-desc {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 0.2rem;
+}
+
+.prod-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.prod-stat {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.prod-stat strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.prod-arrow {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--accent-d);
+  border: 1px solid var(--accent-b);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  transition: all 0.15s;
+}
+.prod-card:hover .prod-arrow {
+  background: var(--c-dim, var(--accent-d));
+  transform: translateX(2px);
+}
+
+/* ── Activity feed ───────────────────────────────────── */
+.activity-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.activity-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.activity-header-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.activity-header-link {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.activity-header-link:hover { opacity: 1; }
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid rgba(99,102,241,0.06);
+  transition: background 0.15s;
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-item:hover { background: rgba(99,102,241,0.04); }
+
+.act-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.act-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.act-text {
+  font-size: 0.8125rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+.act-text strong { font-weight: 600; }
+
+.act-time {
+  font-size: 0.6875rem;
+  color: var(--muted2);
+  margin-top: 0.2rem;
+}
+
+/* ── Process strip ───────────────────────────────────── */
+.process-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.proc-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.proc-item:hover {
+  border-color: var(--accent-b);
+  background: var(--surface2);
+  transform: translateX(4px);
+}
+
+.proc-num {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  font-feature-settings: 'tnum';
+}
+
+.proc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.proc-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.proc-sub {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  margin-top: 0.125rem;
+}
+
+.proc-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+.proc-badge--embarque   { background: rgba(99,102,241,0.14); color: #818cf8; }
+.proc-badge--desembaraco { background: rgba(245,158,11,0.12); color: #fbbf24; }
+.proc-badge--entrega    { background: rgba(16,185,129,0.12); color: #34d399; }
+
+.proc-etapa {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.etapa-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+.etapa-dot--done { background: var(--success); }
+.etapa-dot--cur  { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+.etapa-dot--pend { background: var(--muted2); }
+
+/* ── Gabi strip ──────────────────────────────────────── */
+.gabi-strip {
+  background: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.06) 100%);
+  border: 1px solid rgba(99,102,241,0.18);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gabi-strip:hover {
+  border-color: rgba(99,102,241,0.35);
+  background: linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.1) 100%);
+}
+
+.gabi-left {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+
+.gabi-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: rgba(99,102,241,0.15);
+  border: 1px solid rgba(99,102,241,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+  animation: gabi-glow 3s ease-in-out infinite;
+}
+@keyframes gabi-glow {
+  0%,100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: 0 0 20px rgba(99,102,241,0.25); }
+}
+
+.gabi-text strong {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.gabi-text span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.gabi-cta {
+  padding: 0.5rem 1.125rem;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.01em;
+}
+.gabi-cta:hover { background: #4f46e5; transform: scale(1.04); }
+
+/* ── Scrollbar ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.2); border-radius: 99px; }
+
+/* ── Fade-in ─────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.kpi-row     { animation: fade-up 0.4s 0.05s both; }
+.two-col     { animation: fade-up 0.4s 0.15s both; }
+.process-section { animation: fade-up 0.4s 0.25s both; }
+.gabi-strip  { animation: fade-up 0.4s 0.35s both; }
+</style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      <svg class="logo-hex" viewBox="0 0 32 32" fill="none">
+        <path d="M16 3L29 10.5V21.5L16 29L3 21.5V10.5L16 3Z" fill="currentColor" fill-opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M16 8L24 12.5V19.5L16 24L8 19.5V12.5L16 8Z" fill="currentColor" fill-opacity="0.4"/>
+      </svg>
+      Gravity
+    </div>
+    <div class="topbar-divider"></div>
+    <span class="topbar-label">Hub</span>
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-btn" title="Buscar">⌕</button>
+    <button class="topbar-btn notif-btn" title="Notificações">
+      🔔
+      <div class="notif-dot"></div>
+    </button>
+    <button class="topbar-btn" title="Configurador">⚙</button>
+    <div class="avatar">DD</div>
+  </div>
+</header>
+
+<!-- ── Core content ── -->
+<div class="core">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Bom dia, <span>Daniel</span> 👋</h1>
+      <p>Acme Importações Ltda. &nbsp;·&nbsp; Plano Profissional &nbsp;·&nbsp; 3 módulos ativos</p>
+    </div>
+    <div class="hero-meta">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        Sistema operacional
+      </div>
+      <span class="hero-date">Ter, 1 Abr 2026</span>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card kpi-card--indigo">
+      <div class="kpi-top">
+        <div class="kpi-icon kpi-icon--indigo">📦</div>
+        <span class="kpi-delta kpi-delta--up">▲ 2 hoje</span>
+      </div>
+      <div>
+        <div class="kpi-value">7</div>
+        <div class="kpi-label">Processos em andamento</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-card--teal">
+      <div class="kpi-top">
+        <div class="kpi-icon kpi-icon--teal">🧮</div>
+        <span class="kpi-delta kpi-delta--up">▲ 12 este mês</span>
+      </div>
+      <div>
+        <div class="kpi-value">34</div>
+        <div class="kpi-label">Estimativas geradas</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-card--amber">
+      <div class="kpi-top">
+        <div class="kpi-icon kpi-icon--amber">📄</div>
+        <span class="kpi-delta kpi-delta--warn">⚠ 3 pendentes</span>
+      </div>
+      <div>
+        <div class="kpi-value">12</div>
+        <div class="kpi-label">NFs de importação</div>
+      </div>
+    </div>
+    <div class="kpi-card kpi-card--pink">
+      <div class="kpi-top">
+        <div class="kpi-icon kpi-icon--pink">💬</div>
+        <span class="kpi-delta kpi-delta--up">▲ ativo</span>
+      </div>
+      <div>
+        <div class="kpi-value">91%</div>
+        <div class="kpi-label">Assertividade da Gabi IA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Produtos + Atividade -->
+  <div class="two-col">
+    <div>
+      <div class="section-title">Seus produtos</div>
+      <div class="products-grid">
+
+        <!-- SimulaCusto -->
+        <div class="prod-card" style="--c:#6366f1; --c-dim:rgba(99,102,241,0.1);">
+          <div class="prod-card-top">
+            <div class="prod-icon" style="background:rgba(99,102,241,0.12); color:#818cf8;">🧮</div>
+            <span class="prod-status prod-status--active">Ativo</span>
+          </div>
+          <div>
+            <div class="prod-name">SimulaCusto</div>
+            <div class="prod-desc">Simulação fiscal de importação com cálculo de II, IPI, ICMS, PIS/COFINS.</div>
+          </div>
+          <div class="prod-footer">
+            <div class="prod-stat"><strong>34</strong> estimativas</div>
+            <div class="prod-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- NF Importação -->
+        <div class="prod-card" style="--c:#f59e0b; --c-dim:rgba(245,158,11,0.1);">
+          <div class="prod-card-top">
+            <div class="prod-icon" style="background:rgba(245,158,11,0.12); color:#fbbf24;">📄</div>
+            <span class="prod-status prod-status--active">Ativo</span>
+          </div>
+          <div>
+            <div class="prod-name">NF Importação</div>
+            <div class="prod-desc">Geração e gestão de notas fiscais de importação com validação SEFAZ.</div>
+          </div>
+          <div class="prod-footer">
+            <div class="prod-stat"><strong>12</strong> notas emitidas</div>
+            <div class="prod-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- Processo (Consolidador) -->
+        <div class="prod-card" style="--c:#14b8a6; --c-dim:rgba(20,184,166,0.1);">
+          <div class="prod-card-top">
+            <div class="prod-icon" style="background:rgba(20,184,166,0.12); color:#2dd4bf;">🔄</div>
+            <span class="prod-status prod-status--active">Ativo</span>
+          </div>
+          <div>
+            <div class="prod-name">Processo</div>
+            <div class="prod-desc">Visão consolidada de todos os seus processos de importação em andamento.</div>
+          </div>
+          <div class="prod-footer">
+            <div class="prod-stat"><strong>7</strong> em andamento</div>
+            <div class="prod-arrow">→</div>
+          </div>
+        </div>
+
+        <!-- Bid Frete -->
+        <div class="prod-card" style="--c:#ec4899; --c-dim:rgba(236,72,153,0.1);">
+          <div class="prod-card-top">
+            <div class="prod-icon" style="background:rgba(236,72,153,0.12); color:#f472b6;">🚢</div>
+            <span class="prod-status prod-status--hire">Contratar</span>
+          </div>
+          <div>
+            <div class="prod-name">Bid Frete</div>
+            <div class="prod-desc">Cotação competitiva de frete internacional com múltiplos armadores.</div>
+          </div>
+          <div class="prod-footer">
+            <div class="prod-stat" style="color:var(--muted)">Não contratado</div>
+            <div class="prod-arrow" style="background:rgba(236,72,153,0.1); border-color:rgba(236,72,153,0.2); color:#f472b6;">+</div>
+          </div>
+        </div>
+
+        <!-- Bid Câmbio -->
+        <div class="prod-card" style="--c:#38bdf8; --c-dim:rgba(56,189,248,0.1);">
+          <div class="prod-card-top">
+            <div class="prod-icon" style="background:rgba(56,189,248,0.12); color:#7dd3fc;">💱</div>
+            <span class="prod-status prod-status--hire">Contratar</span>
+          </div>
+          <div>
+            <div class="prod-name">Bid Câmbio</div>
+            <div class="prod-desc">Comparativo de taxas de câmbio entre múltiplas corretoras em tempo real.</div>
+          </div>
+          <div class="prod-footer">
+            <div class="prod-stat" style="color:var(--muted)">Não contratado</div>
+            <div class="prod-arrow" style="background:rgba(56,189,248,0.1); border-color:rgba(56,189,248,0.2); color:#7dd3fc;">+</div>
+          </div>
+        </div>
+
+        <!-- LPCO -->
+        <div class="prod-card" style="--c:#a78bfa; --c-dim:rgba(167,139,250,0.1);">
+          <div class="prod-card-top">
+            <div class="prod-icon" style="background:rgba(167,139,250,0.12); color:#c4b5fd;">📋</div>
+            <span class="prod-status prod-status--soon">Em breve</span>
+          </div>
+          <div>
+            <div class="prod-name">LPCO</div>
+            <div class="prod-desc">Gestão de licenças, permissões, certificados e outros documentos LPCO.</div>
+          </div>
+          <div class="prod-footer">
+            <div class="prod-stat" style="color:var(--muted)">Em desenvolvimento</div>
+            <div class="prod-arrow" style="opacity:0.35; cursor:default;">→</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Atividade recente -->
+    <div>
+      <div class="section-title">Atividade recente</div>
+      <div class="activity-panel">
+        <div class="activity-header">
+          <span class="activity-header-title">Últimas atualizações</span>
+          <a href="#" class="activity-header-link">ver tudo →</a>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="act-dot" style="background:#818cf8;"></div>
+            <div class="act-content">
+              <div class="act-text"><strong>IMP-2026/0150</strong> avançou para Embarque</div>
+              <div class="act-time">há 23 minutos</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="act-dot" style="background:#34d399;"></div>
+            <div class="act-content">
+              <div class="act-text">Estimativa <strong>EST-0412</strong> calculada com sucesso</div>
+              <div class="act-time">há 1 hora</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="act-dot" style="background:#fbbf24;"></div>
+            <div class="act-content">
+              <div class="act-text"><strong>NF 000.234</strong> aguarda aprovação SEFAZ</div>
+              <div class="act-time">há 2 horas</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="act-dot" style="background:#818cf8;"></div>
+            <div class="act-content">
+              <div class="act-text"><strong>BL_MSKU1234567</strong> documento enviado</div>
+              <div class="act-time">há 3 horas</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="act-dot" style="background:#f472b6;"></div>
+            <div class="act-content">
+              <div class="act-text">Usuário <strong>Maria S.</strong> adicionada ao workspace</div>
+              <div class="act-time">ontem, 17:42</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="act-dot" style="background:#34d399;"></div>
+            <div class="act-content">
+              <div class="act-text"><strong>IMP-2026/0148</strong> concluído — Entrega realizada</div>
+              <div class="act-time">ontem, 14:10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Processos recentes -->
+  <div class="process-section">
+    <div class="section-title">Processos recentes</div>
+    <div class="process-strip">
+
+      <div class="proc-item">
+        <div class="proc-num">IMP-2026/0150</div>
+        <div class="proc-info">
+          <div class="proc-name">Acme Importações · Shanghai Electronics Co.</div>
+          <div class="proc-sub">US$ 108.050 · 18.771 kg · CIF · Marítima</div>
+        </div>
+        <span class="proc-badge proc-badge--embarque">Embarque</span>
+        <div class="proc-etapa">
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--cur"></div>
+          <div class="etapa-dot etapa-dot--pend"></div>
+          <div class="etapa-dot etapa-dot--pend"></div>
+        </div>
+      </div>
+
+      <div class="proc-item">
+        <div class="proc-num">IMP-2026/0149</div>
+        <div class="proc-info">
+          <div class="proc-name">Acme Importações · Korea Tech Ltd.</div>
+          <div class="proc-sub">US$ 54.200 · 8.400 kg · FOB · Aérea</div>
+        </div>
+        <span class="proc-badge proc-badge--desembaraco">Desembaraço</span>
+        <div class="proc-etapa">
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--cur"></div>
+          <div class="etapa-dot etapa-dot--pend"></div>
+        </div>
+      </div>
+
+      <div class="proc-item">
+        <div class="proc-num">IMP-2026/0148</div>
+        <div class="proc-info">
+          <div class="proc-name">Acme Importações · Vietnam Goods SA</div>
+          <div class="proc-sub">US$ 32.900 · 5.100 kg · EXW · Marítima</div>
+        </div>
+        <span class="proc-badge proc-badge--entrega">Entregue ✓</span>
+        <div class="proc-etapa">
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+          <div class="etapa-dot etapa-dot--done"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Gabi -->
+  <div class="gabi-strip">
+    <div class="gabi-left">
+      <div class="gabi-icon">✦</div>
+      <div class="gabi-text">
+        <strong>Gabi IA está disponível</strong>
+        <span>Pergunte sobre processos, custos, legislação aduaneira ou análises</span>
+      </div>
+    </div>
+    <button class="gabi-cta">Falar com a Gabi →</button>
+  </div>
+
+</div>
+
+</body>
+</html>

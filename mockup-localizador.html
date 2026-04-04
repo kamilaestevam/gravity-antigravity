@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LocalizadorGlobal — Mockup v3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#070910; font-family:'Inter',system-ui,sans-serif;
+    color:#e2e8f0; display:flex; height:100vh; overflow:hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width:220px; background:#0d0f17; border-right:1px solid #1a1f2e;
+    display:flex; flex-direction:column; padding:16px 0; flex-shrink:0;
+  }
+  .sidebar-logo { display:flex; align-items:center; gap:10px; padding:0 16px 14px; border-bottom:1px solid #1a1f2e; }
+  .logo-icon { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#06b6d4,#3b82f6); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:13px; color:#fff; }
+  .logo-text { font-weight:700; font-size:15px; color:#f1f5f9; }
+  .module-chip { display:flex; align-items:center; gap:6px; padding:6px 16px; margin-top:10px; }
+  .module-dot { width:7px; height:7px; border-radius:50%; background:#06b6d4; box-shadow:0 0 8px #06b6d4,0 0 3px #06b6d4cc; flex-shrink:0; animation:dotPulse 2.5s ease-in-out infinite; }
+  @keyframes dotPulse { 0%,100%{box-shadow:0 0 8px #06b6d4,0 0 3px #06b6d4cc} 50%{box-shadow:0 0 14px #06b6d4,0 0 6px #06b6d4cc} }
+  .module-label { font-size:11px; font-weight:600; color:#06b6d4; letter-spacing:.04em; text-transform:uppercase; }
+
+  .localizador-btn {
+    display:flex; align-items:center; gap:8px; margin:8px 10px; padding:8px 10px;
+    border-radius:8px; border:1px solid #1e293b; background:#111827; cursor:pointer;
+    transition:all .2s; position:relative; overflow:hidden;
+  }
+  .localizador-btn:hover { border-color:#06b6d433; background:#06b6d408; }
+  .localizador-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,#06b6d410,transparent); transform:translateX(-100%); animation:shimmer 3s infinite; }
+  @keyframes shimmer { to{transform:translateX(200%)} }
+  .loc-icon { width:26px; height:26px; border-radius:6px; background:#06b6d415; border:1px solid #06b6d430; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .loc-texts { flex:1; min-width:0; }
+  .loc-title { font-size:11px; font-weight:600; color:#94a3b8; letter-spacing:.02em; }
+  .loc-path { font-size:10px; color:#06b6d4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .loc-pulse { width:6px; height:6px; border-radius:50%; background:#06b6d4; box-shadow:0 0 6px #06b6d4; animation:blip 2s infinite; flex-shrink:0; }
+  @keyframes blip { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.6)} }
+
+  .sidebar-nav { padding:8px 0; flex:1; }
+  .nav-item { display:flex; align-items:center; gap:10px; padding:8px 16px; font-size:13px; color:#64748b; cursor:pointer; transition:color .15s; }
+  .nav-item:hover { color:#94a3b8; }
+  .nav-item.active { color:#e2e8f0; background:#06b6d410; border-right:2px solid #06b6d4; }
+  .nav-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+  .sidebar-user { display:flex; align-items:center; gap:10px; padding:12px 14px; border-top:1px solid #1a1f2e; }
+  .user-avatar { width:30px; height:30px; border-radius:8px; background:#06b6d420; border:1px solid #06b6d440; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#06b6d4; }
+  .user-name { font-size:12px; font-weight:600; color:#e2e8f0; }
+  .user-role { font-size:10px; color:#64748b; }
+
+  /* ── Main ── */
+  .main { flex:1; display:flex; align-items:center; justify-content:center; background:#070910; position:relative; overflow:hidden; }
+  .bg-grid { position:absolute; inset:0; background-image:linear-gradient(#1e293b0c 1px,transparent 1px),linear-gradient(90deg,#1e293b0c 1px,transparent 1px); background-size:48px 48px; }
+
+  /* ── Panel ── */
+  .panel {
+    width:700px; background:#0c0e16; border:1px solid #1e2538; border-radius:16px;
+    box-shadow:0 0 0 1px #06b6d40c,0 40px 100px #000c,0 0 120px #06b6d406;
+    overflow:hidden; position:relative; z-index:10;
+  }
+  .panel-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; border-bottom:1px solid #1a2035; background:#090b13;
+  }
+  .panel-header-left { display:flex; align-items:center; gap:10px; }
+  .header-icon { width:32px; height:32px; border-radius:8px; background:#06b6d412; border:1px solid #06b6d428; display:flex; align-items:center; justify-content:center; }
+  .panel-title { font-size:13px; font-weight:700; color:#f1f5f9; }
+  .panel-subtitle { font-size:11px; color:#475569; }
+  .breadcrumb { display:flex; align-items:center; gap:5px; background:#0f1422; border:1px solid #1e2538; border-radius:20px; padding:5px 14px; font-size:11px; }
+  .bc-item { color:#475569; }
+  .bc-item.active { color:#94a3b8; }
+  .bc-item.current { color:#06b6d4; font-weight:600; }
+  .bc-sep { color:#1e2d45; }
+  .bc-page { color:#06b6d470; font-size:10px; }
+  .panel-close { width:28px; height:28px; border-radius:7px; background:#151b2a; border:1px solid #1e2538; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#475569; font-size:13px; transition:all .15s; margin-left:8px; }
+  .panel-close:hover { background:#e2e8f015; color:#e2e8f0; }
+
+  /* graph area */
+  .graph-wrap { padding:16px 20px 12px; position:relative; }
+
+  /* tooltip */
+  .tip {
+    position:absolute; pointer-events:none; opacity:0; transition:opacity .15s;
+    background:#141c2e; border:1px solid #2d3a55; border-radius:9px;
+    padding:9px 13px; z-index:100; white-space:nowrap; box-shadow:0 8px 28px #0009;
+  }
+  .tip.show { opacity:1; }
+  .tip-title { font-size:12px; font-weight:700; margin-bottom:2px; }
+  .tip-sub { font-size:10px; color:#64748b; }
+  .tip-badge { display:inline-block; margin-top:5px; padding:2px 7px; border-radius:5px; font-size:9px; font-weight:700; letter-spacing:.05em; }
+  .badge-here { background:#06b6d420; color:#06b6d4; border:1px solid #06b6d440; }
+  .badge-nav  { background:#818cf820; color:#818cf8; border:1px solid #818cf840; }
+  .badge-proc { background:#facc1520; color:#facc15; border:1px solid #facc1540; }
+  .badge-lock { background:#1e2538; color:#334155; border:1px solid #263045; }
+  .badge-conf { background:#f472b620; color:#f472b6; border:1px solid #f472b640; }
+
+  /* panel footer */
+  .panel-footer { padding:10px 20px; border-top:1px solid #1a2035; background:#090b13; display:flex; align-items:center; justify-content:space-between; }
+  .legend { display:flex; gap:16px; }
+  .leg { display:flex; align-items:center; gap:5px; font-size:10px; color:#475569; }
+  .leg-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .leg-dash { width:14px; height:0; border-bottom:2px dashed #334155; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">G</div>
+    <span class="logo-text">Gravity</span>
+  </div>
+  <div class="module-chip">
+    <div class="module-dot"></div>
+    <span class="module-label">Core</span>
+  </div>
+  <div class="localizador-btn" onclick="togglePanel()">
+    <div class="loc-icon">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="3" stroke="#06b6d4" stroke-width="2"/>
+        <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="9" stroke="#06b6d440" stroke-width="1.5" stroke-dasharray="3 3"/>
+      </svg>
+    </div>
+    <div class="loc-texts">
+      <div class="loc-title">Onde estou</div>
+      <div class="loc-path">Gravity › Bid Câmbio</div>
+    </div>
+    <div class="loc-pulse"></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-item active"><div class="nav-dot"></div> Nova Cotação</div>
+    <div class="nav-item"><div class="nav-dot"></div> Comparativo</div>
+    <div class="nav-item"><div class="nav-dot"></div> Corretoras</div>
+    <div class="nav-item"><div class="nav-dot"></div> Histórico</div>
+    <div class="nav-item"><div class="nav-dot"></div> Configurações</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-avatar">DM</div>
+    <div><div class="user-name">Daniel</div><div class="user-role">Master</div></div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="bg-grid"></div>
+
+  <div class="panel" id="panel">
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="panel-header-left">
+        <div class="header-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="#06b6d4" stroke-width="2"/>
+            <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#06b6d4" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="9" stroke="#06b6d440" stroke-width="1.5" stroke-dasharray="3 3"/>
+          </svg>
+        </div>
+        <div>
+          <div class="panel-title">Onde estou</div>
+          <div class="panel-subtitle">Mapa do ecossistema Gravity</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="breadcrumb">
+          <span class="bc-item current">Gravity</span>
+          <span class="bc-sep">›</span>
+          <span class="bc-item current">Bid Câmbio</span>
+          <span class="bc-sep">·</span>
+          <span class="bc-page">Nova Cotação</span>
+        </div>
+        <div class="panel-close" onclick="togglePanel()">✕</div>
+      </div>
+    </div>
+
+    <!-- Graph -->
+    <div class="graph-wrap">
+      <svg id="svg" width="100%" height="320" viewBox="0 0 660 320" style="display:block;">
+        <defs>
+          <!-- glow filters -->
+          <filter id="glow-gravity" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="7" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="glow-soft" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+
+          <!-- gradients -->
+          <radialGradient id="g-gravity" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#818cf8"/>
+            <stop offset="100%" stop-color="#312e81"/>
+          </radialGradient>
+          <radialGradient id="g-config" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#f9a8d4"/>
+            <stop offset="100%" stop-color="#9d174d"/>
+          </radialGradient>
+          <radialGradient id="g-bid" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#22d3ee"/>
+            <stop offset="100%" stop-color="#0e7490"/>
+          </radialGradient>
+          <radialGradient id="g-simula" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#4ade80"/>
+            <stop offset="100%" stop-color="#15803d"/>
+          </radialGradient>
+          <radialGradient id="g-lpco" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#fb923c"/>
+            <stop offset="100%" stop-color="#c2410c"/>
+          </radialGradient>
+          <radialGradient id="g-nf" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#c084fc"/>
+            <stop offset="100%" stop-color="#7e22ce"/>
+          </radialGradient>
+          <radialGradient id="g-locked" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#374151"/>
+            <stop offset="100%" stop-color="#111827"/>
+          </radialGradient>
+          <radialGradient id="g-processo" cx="50%" cy="30%" r="60%">
+            <stop offset="0%" stop-color="#fde68a"/>
+            <stop offset="100%" stop-color="#92400e"/>
+          </radialGradient>
+
+          <!-- defs for pulse -->
+          <radialGradient id="g-pulse" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#06b6d4" stop-opacity=".35"/>
+            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- ══════════════════════════════
+             ORBIT RINGS
+        ══════════════════════════════ -->
+        <!-- produto orbit -->
+        <ellipse cx="330" cy="148" rx="148" ry="118" fill="none" stroke="#1e2538" stroke-width="1" stroke-dasharray="5 7" opacity=".6"/>
+
+        <!-- ══════════════════════════════
+             PROCESSO ARC (bottom, spans all products)
+        ══════════════════════════════ -->
+        <!-- spanning arc behind processo node -->
+        <path d="M 115 255 Q 330 210 545 255" fill="none" stroke="#facc1525" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <!-- lines from processo to each product -->
+        <line x1="330" y1="292" x2="220" y2="58"  stroke="#facc1512" stroke-width="1.2" stroke-dasharray="4 5"/><!-- bid -->
+        <line x1="330" y1="292" x2="448" y2="82"  stroke="#facc1512" stroke-width="1.2" stroke-dasharray="4 5"/><!-- simula -->
+        <line x1="330" y1="292" x2="478" y2="170" stroke="#facc1512" stroke-width="1.2" stroke-dasharray="4 5"/><!-- lpco -->
+        <line x1="330" y1="292" x2="408" y2="255" stroke="#facc1512" stroke-width="1.2" stroke-dasharray="4 5"/><!-- nf -->
+        <line x1="330" y1="292" x2="215" y2="255" stroke="#facc1512" stroke-width="1.2" stroke-dasharray="4 5"/><!-- locked -->
+        <line x1="330" y1="292" x2="185" y2="170" stroke="#facc1512" stroke-width="1.2" stroke-dasharray="4 5"/><!-- locked2 -->
+
+        <!-- ══════════════════════════════
+             GRAVITY → PRODUCTS connections
+        ══════════════════════════════ -->
+        <!-- gravity → bid câmbio (highlighted) -->
+        <line x1="330" y1="148" x2="220" y2="58"  stroke="#06b6d430" stroke-width="1.8"/>
+        <!-- gravity → simula -->
+        <line x1="330" y1="148" x2="448" y2="82"  stroke="#4ade8018" stroke-width="1.4"/>
+        <!-- gravity → lpco -->
+        <line x1="330" y1="148" x2="478" y2="170" stroke="#fb923c18" stroke-width="1.4"/>
+        <!-- gravity → nf importação -->
+        <line x1="330" y1="148" x2="408" y2="255" stroke="#c084fc18" stroke-width="1.4"/>
+        <!-- gravity → locked1 -->
+        <line x1="330" y1="148" x2="215" y2="255" stroke="#37415118" stroke-width="1" stroke-dasharray="4 4"/>
+        <!-- gravity → locked2 -->
+        <line x1="330" y1="148" x2="185" y2="170" stroke="#37415118" stroke-width="1" stroke-dasharray="4 4"/>
+
+        <!-- ══════════════════════════════
+             CONFIGURADOR — isolated connection
+        ══════════════════════════════ -->
+        <!-- dashed long bridge — isolated feel -->
+        <line x1="330" y1="148" x2="82" y2="148" stroke="#f472b628" stroke-width="1.5" stroke-dasharray="6 5"/>
+        <!-- small isolation gap marker -->
+        <circle cx="175" cy="148" r="3" fill="#0c0e16" stroke="#f472b630" stroke-width="1.5"/>
+
+        <!-- ══════════════════════════════
+             PULSE RINGS (bid câmbio — current)
+        ══════════════════════════════ -->
+        <circle cx="220" cy="58" r="30" fill="url(#g-pulse)">
+          <animate attributeName="r" values="24;38;24" dur="2.8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".7;0;.7" dur="2.8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="220" cy="58" r="26" fill="none" stroke="#06b6d440" stroke-width="1.5">
+          <animate attributeName="r" values="22;32;22" dur="2.8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".5;0;.5" dur="2.8s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- ══════════════════════════════
+             NODES
+        ══════════════════════════════ -->
+
+        <!-- ── GRAVITY (center) ── -->
+        <g class="node" data-id="gravity" style="cursor:pointer">
+          <circle cx="330" cy="148" r="40" fill="url(#g-gravity)" filter="url(#glow-gravity)" opacity=".92"/>
+          <circle cx="330" cy="148" r="40" fill="none" stroke="#818cf855" stroke-width="1.5"/>
+          <text x="330" y="142" text-anchor="middle" font-size="11" font-weight="900" fill="#fff" font-family="Inter,system-ui" letter-spacing=".03em">GRAVITY</text>
+          <text x="330" y="155" text-anchor="middle" font-size="8.5" fill="#c4b5fd90" font-family="Inter,system-ui">workspace</text>
+          <text x="330" y="165" text-anchor="middle" font-size="7.5" fill="#818cf860" font-family="Inter,system-ui">Acme Corp</text>
+        </g>
+
+        <!-- ── CONFIGURADOR (isolated, left) ── -->
+        <g class="node" data-id="config" style="cursor:pointer">
+          <circle cx="82" cy="148" r="28" fill="url(#g-config)" filter="url(#glow-soft)" opacity=".85"/>
+          <circle cx="82" cy="148" r="28" fill="none" stroke="#f472b640" stroke-width="1.5" stroke-dasharray="3 2"/>
+          <text x="82" y="143" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff" font-family="Inter,system-ui" letter-spacing=".02em">CONFIG</text>
+          <text x="82" y="154" text-anchor="middle" font-size="7" fill="#fce7f390" font-family="Inter,system-ui">auth · billing</text>
+          <!-- isolation badge -->
+          <rect x="58" y="112" width="48" height="13" rx="4" fill="#0c0e16" stroke="#f472b630" stroke-width="1"/>
+          <text x="82" y="121.5" text-anchor="middle" font-size="7" font-weight="700" fill="#f472b470" font-family="Inter,system-ui" letter-spacing=".05em">ISOLADO</text>
+        </g>
+
+        <!-- ── BID CÂMBIO (top-left, CURRENT) ── -->
+        <g class="node" data-id="bid" style="cursor:pointer">
+          <circle cx="220" cy="58" r="28" fill="url(#g-bid)" filter="url(#glow-cyan)" opacity="1"/>
+          <circle cx="220" cy="58" r="28" fill="none" stroke="#22d3ee" stroke-width="2"/>
+          <!-- here badge -->
+          <circle cx="242" cy="36" r="8" fill="#0c0e16" stroke="#22d3ee" stroke-width="1.5"/>
+          <text x="242" y="39.5" text-anchor="middle" font-size="8" font-weight="900" fill="#22d3ee" font-family="Inter,system-ui">✦</text>
+          <text x="220" y="53" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff" font-family="Inter,system-ui" letter-spacing=".02em">BID</text>
+          <text x="220" y="64" text-anchor="middle" font-size="7.5" fill="#cffafe" font-family="Inter,system-ui">câmbio</text>
+        </g>
+
+        <!-- ── SIMULACUSTO (top-right) ── -->
+        <g class="node" data-id="simula" style="cursor:pointer">
+          <circle cx="448" cy="82" r="24" fill="url(#g-simula)" filter="url(#glow-soft)" opacity=".85"/>
+          <circle cx="448" cy="82" r="24" fill="none" stroke="#4ade8035" stroke-width="1"/>
+          <text x="448" y="77" text-anchor="middle" font-size="8" font-weight="800" fill="#fff" font-family="Inter,system-ui">SIMULA</text>
+          <text x="448" y="88" text-anchor="middle" font-size="7" fill="#bbf7d090" font-family="Inter,system-ui">custo</text>
+        </g>
+
+        <!-- ── LPCO (right) ── -->
+        <g class="node" data-id="lpco" style="cursor:pointer">
+          <circle cx="478" cy="170" r="22" fill="url(#g-lpco)" filter="url(#glow-soft)" opacity=".85"/>
+          <circle cx="478" cy="170" r="22" fill="none" stroke="#fb923c35" stroke-width="1"/>
+          <text x="478" y="165" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff" font-family="Inter,system-ui">LPCO</text>
+          <text x="478" y="176" text-anchor="middle" font-size="7" fill="#fed7aa90" font-family="Inter,system-ui">licenças</text>
+        </g>
+
+        <!-- ── NF IMPORTAÇÃO (bottom-right) ── -->
+        <g class="node" data-id="nf" style="cursor:pointer">
+          <circle cx="408" cy="255" r="22" fill="url(#g-nf)" filter="url(#glow-soft)" opacity=".82"/>
+          <circle cx="408" cy="255" r="22" fill="none" stroke="#c084fc35" stroke-width="1"/>
+          <text x="408" y="250" text-anchor="middle" font-size="7.5" font-weight="800" fill="#fff" font-family="Inter,system-ui">NF IMP.</text>
+          <text x="408" y="261" text-anchor="middle" font-size="6.5" fill="#e9d5ff90" font-family="Inter,system-ui">nota fiscal</text>
+        </g>
+
+        <!-- ── LOCKED 1 (bottom-left) ── -->
+        <g class="node" data-id="lock1" style="cursor:default">
+          <circle cx="215" cy="255" r="19" fill="url(#g-locked)" opacity=".6"/>
+          <circle cx="215" cy="255" r="19" fill="none" stroke="#37415130" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="215" y="251" text-anchor="middle" font-size="8" font-weight="700" fill="#4b5563" font-family="Inter,system-ui">+ prod.</text>
+          <text x="215" y="262" text-anchor="middle" font-size="6.5" fill="#37415170" font-family="Inter,system-ui">em breve</text>
+        </g>
+
+        <!-- ── LOCKED 2 (left-middle) ── -->
+        <g class="node" data-id="lock2" style="cursor:default">
+          <circle cx="185" cy="170" r="17" fill="url(#g-locked)" opacity=".5"/>
+          <circle cx="185" cy="170" r="17" fill="none" stroke="#37415125" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="185" y="166" text-anchor="middle" font-size="7.5" font-weight="700" fill="#374151" font-family="Inter,system-ui">+ prod.</text>
+          <text x="185" y="177" text-anchor="middle" font-size="6" fill="#37415160" font-family="Inter,system-ui">em breve</text>
+        </g>
+
+        <!-- ══════════════════════════════
+             PROCESSO (bottom center) — consolidador
+        ══════════════════════════════ -->
+        <g class="node" data-id="processo" style="cursor:pointer">
+          <!-- background glow pill -->
+          <rect x="258" y="274" width="144" height="38" rx="19" fill="#facc1508" stroke="#facc1530" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <!-- label inside pill -->
+          <text x="330" y="288" text-anchor="middle" font-size="9" font-weight="800" fill="#fde68a" font-family="Inter,system-ui" letter-spacing=".06em">PROCESSO</text>
+          <text x="330" y="300" text-anchor="middle" font-size="8" fill="#facc1570" font-family="Inter,system-ui">consolida todos os produtos</text>
+          <!-- connection dots at both ends of arc -->
+          <circle cx="270" cy="284" r="2.5" fill="#facc1540"/>
+          <circle cx="390" cy="284" r="2.5" fill="#facc1540"/>
+        </g>
+
+        <!-- ══════════════════════════════
+             LAYER LABELS
+        ══════════════════════════════ -->
+        <text x="82" y="196" text-anchor="middle" font-size="7.5" fill="#f472b440" font-family="Inter,system-ui" font-weight="600" letter-spacing=".06em">ISOLADO</text>
+        <text x="82" y="206" text-anchor="middle" font-size="7" fill="#f472b428" font-family="Inter,system-ui">do workspace</text>
+
+      </svg>
+
+      <!-- Tooltip -->
+      <div class="tip" id="tip">
+        <div class="tip-title" id="tip-title"></div>
+        <div class="tip-sub"   id="tip-sub"></div>
+        <div id="tip-badge"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="panel-footer">
+      <div class="legend">
+        <div class="leg"><div class="leg-dot" style="background:#06b6d4;box-shadow:0 0 6px #06b6d4;"></div>Você está aqui</div>
+        <div class="leg"><div class="leg-dot" style="background:#818cf8;"></div>Acessível</div>
+        <div class="leg"><div class="leg-dot" style="background:#f472b6;"></div>Isolado (Configurador)</div>
+        <div class="leg"><div class="leg-dot" style="background:#facc15;opacity:.7;"></div>Processo</div>
+        <div class="leg"><div class="leg-dash"></div>Em breve</div>
+      </div>
+      <span style="font-size:10px;color:#1e2d45;font-style:italic;">Clique para navegar</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const meta = {
+  gravity:  { title:'Gravity',         sub:'Workspace ativo · Acme Corp',         badge:'badge-nav',  color:'#818cf8', label:'Ir para Home' },
+  config:   { title:'Configurador',    sub:'Auth, Billing, Permissões · isolado', badge:'badge-conf', color:'#f472b6', label:'Abrir Configurador' },
+  bid:      { title:'Bid Câmbio',      sub:'Nova Cotação · página atual',         badge:'badge-here', color:'#06b6d4', label:'Você está aqui' },
+  simula:   { title:'SimulaCusto',     sub:'Cálculo fiscal e NCM',               badge:'badge-nav',  color:'#4ade80', label:'Abrir produto' },
+  lpco:     { title:'LPCO',           sub:'Licenças e permissões COMEX',         badge:'badge-nav',  color:'#fb923c', label:'Abrir produto' },
+  nf:       { title:'NF Importação',  sub:'Nota fiscal de importação',           badge:'badge-nav',  color:'#c084fc', label:'Abrir produto' },
+  processo: { title:'Processo',        sub:'Consolida todos os produtos',         badge:'badge-proc', color:'#facc15', label:'Ver processos' },
+  lock1:    { title:'+1 produto',      sub:'Em desenvolvimento',                  badge:'badge-lock', color:'#374151', label:'Em breve' },
+  lock2:    { title:'+1 produto',      sub:'Em desenvolvimento',                  badge:'badge-lock', color:'#374151', label:'Em breve' },
+}
+
+const tip      = document.getElementById('tip')
+const tipTitle = document.getElementById('tip-title')
+const tipSub   = document.getElementById('tip-sub')
+const tipBadge = document.getElementById('tip-badge')
+const wrap     = document.querySelector('.graph-wrap')
+
+document.querySelectorAll('.node').forEach(n => {
+  const id = n.dataset.id
+  const d  = meta[id]
+  if (!d) return
+
+  n.addEventListener('mouseenter', e => {
+    const wRect  = wrap.getBoundingClientRect()
+    const svgEl  = document.getElementById('svg')
+    const sRect  = svgEl.getBoundingClientRect()
+    const scaleX = sRect.width  / 660
+    const scaleY = sRect.height / 320
+
+    // get first circle or rect for position
+    const shape = n.querySelector('circle,rect')
+    let sx, sy
+    if (shape.tagName === 'circle') {
+      sx = parseFloat(shape.getAttribute('cx'))
+      sy = parseFloat(shape.getAttribute('cy'))
+    } else {
+      sx = parseFloat(shape.getAttribute('x')) + parseFloat(shape.getAttribute('width'))  / 2
+      sy = parseFloat(shape.getAttribute('y')) + parseFloat(shape.getAttribute('height')) / 2
+    }
+
+    const screenX = sRect.left - wRect.left + sx * scaleX
+    const screenY = sRect.top  - wRect.top  + sy * scaleY
+
+    tipTitle.textContent = d.title
+    tipTitle.style.color = d.color
+    tipSub.textContent   = d.sub
+    tipBadge.innerHTML   = `<span class="tip-badge ${d.badge}">${d.label}</span>`
+
+    const tw = 200
+    const left = Math.max(6, Math.min(screenX - tw/2, wrap.offsetWidth - tw - 6))
+    const top  = screenY - 72
+    tip.style.left = left + 'px'
+    tip.style.top  = top  + 'px'
+    tip.classList.add('show')
+  })
+  n.addEventListener('mouseleave', () => tip.classList.remove('show'))
+})
+
+function togglePanel() {
+  const p = document.getElementById('panel')
+  p.style.opacity = p.style.opacity === '0' ? '1' : '0'
+  p.style.transform = p.style.opacity === '0' ? 'scale(.98)' : 'scale(1)'
+}
+</script>
+</body>
+</html>

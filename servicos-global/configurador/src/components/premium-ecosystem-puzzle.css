@@ -1,0 +1,141 @@
+/**
+ * puzzle-ecosystem-puzzle.css
+ * Estilos para o quebra-cabeça animado do ecossistema Gravity.
+ * WOW factor: Encaixe/Desencaixe suave com brilho e glassmorphism.
+ */
+
+.puzzle-ecosystem-container {
+  position: relative;
+  width: 140px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px 10px;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.puzzle-ecosystem-container:hover {
+  background: rgba(51, 65, 85, 0.6);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.2);
+  transform: translateY(-2px);
+  width: 165px;
+}
+
+.puzzle-glow {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: connection-glow 4s infinite ease-in-out;
+  opacity: 0;
+}
+
+@keyframes connection-glow {
+  0%, 10%, 90%, 100% { opacity: 0.8; transform: translateY(-50%) scale(1.2); }
+  50% { opacity: 0; transform: translateY(-50%) scale(0.8); }
+}
+
+.puzzle-canvas {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  z-index: 2;
+  margin-left: 2px;
+}
+
+.puzzle-piece {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  transition: all 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.puzzle-piece svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.piece-icon {
+  position: absolute;
+  font-size: 8px;
+  pointer-events: none;
+  transform: scale(0.8);
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));
+}
+
+/* Posições Encaixadas (Base) */
+.p1 { top: 0; left: 0; }
+.p2 { top: 0; left: 16px; }
+.p3 { top: 16px; left: 16px; }
+.p4 { top: 16px; left: 0; }
+
+/* Animação Encaixa/Desencaixa */
+.p1 { animation: p1-flow 4s infinite cubic-bezier(0.45, 0, 0.55, 1); }
+.p2 { animation: p2-flow 4s infinite cubic-bezier(0.45, 0, 0.55, 1); }
+.p3 { animation: p3-flow 4s infinite cubic-bezier(0.45, 0, 0.55, 1); }
+.p4 { animation: p4-flow 4s infinite cubic-bezier(0.45, 0, 0.55, 1); }
+
+@keyframes p1-flow {
+  0%, 20%, 80%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-3px, -3px) rotate(-10deg); filter: grayscale(0.5); }
+}
+
+@keyframes p2-flow {
+  0%, 20%, 80%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(3px, -3px) rotate(10deg); filter: grayscale(0.5); }
+}
+
+@keyframes p3-flow {
+  0%, 20%, 80%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(3px, 3px) rotate(-10deg); filter: grayscale(0.5); }
+}
+
+@keyframes p4-flow {
+  0%, 20%, 80%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-3px, 3px) rotate(10deg); filter: grayscale(0.5); }
+}
+
+.puzzle-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  z-index: 2;
+}
+
+.premium-label {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: #818cf8;
+  text-shadow: 0 0 10px rgba(129, 140, 248, 0.4);
+}
+
+.ecosystem-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.puzzle-ecosystem-container:hover .premium-label {
+  color: #c7d2fe;
+}

@@ -8,6 +8,8 @@ export interface ColunaSelectConfig {
   label: string
   /** Se true: não pode ser ocultada nem reordenada — exibe cadeado */
   naoOcultavel?: boolean
+  /** Grupo de agrupamento — colunas com o mesmo grupo são agrupadas sob um cabeçalho colapsável */
+  grupo?: string
 }
 
 export interface SelectColunasGlobalProps {
@@ -86,6 +88,34 @@ function IcoDrag() {
   )
 }
 
+interface IcoChevronProps {
+  expandido: boolean
+}
+
+function IcoChevron({ expandido }: IcoChevronProps) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 256 256"
+      fill="currentColor"
+      aria-hidden="true"
+      className={`scg-grupo-chevron${expandido ? ' scg-grupo-chevron--expandido' : ''}`}
+    >
+      <path d="M96.59,209.66l96-96a8,8,0,0,0,0-11.32l-96-96a8,8,0,0,0-11.32,11.32L175.31,128,85.25,218.34a8,8,0,1,0,11.34,11.32Z"/>
+    </svg>
+  )
+}
+
+// ── Tipos internos ────────────────────────────────────────────────────────────
+
+interface GrupoInterno {
+  nome: string
+  colunas: ColunaSelectConfig[]
+}
+
+const GRUPO_GERAL = 'Geral'
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export const SelectColunasGlobal = memo(function SelectColunasGlobal({
@@ -101,7 +131,9 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
 }: SelectColunasGlobalProps) {
   const ref        = useRef<HTMLDivElement>(null)
   const dragKeyRef = useRef<string | null>(null)
+  const dragGrupoRef = useRef<string | null>(null)
   const [busca, setBusca] = useState('')
+  const [gruposColapsados, setGruposColapsados] = useState<Set<string>>(new Set())
 
   // Fechar ao clicar fora
   useEffect(() => {
@@ -124,6 +156,10 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
     return () => document.removeEventListener('keydown', handleKey)
   }, [onFechar])
 
+  // Verifica se alguma coluna tem grupo definido
+  const temGrupos = useMemo(() => colunas.some(c => c.grupo !== undefined), [colunas])
+
+  // Lista plana filtrada — usada quando há busca ativa
   const colunasFiltradas = useMemo(() => {
     const termo = busca.trim().toLowerCase()
     if (!termo) {
@@ -139,6 +175,123 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
       ...sorted.filter(c => !c.naoOcultavel),
     ]
   }, [colunas, busca])
+
+  // Grupos — usado quando não há busca ativa e há colunas com grupo
+  const grupos = useMemo<GrupoInterno[]>(() => {
+    if (!temGrupos) return []
+
+    const mapa = new Map<string, ColunaSelectConfig[]>()
+
+    // Preserva a ordem de aparição dos grupos conforme a ordem das colunas
+    for (const col of colunas) {
+      const nome = col.grupo ?? GRUPO_GERAL
+      if (!mapa.has(nome)) mapa.set(nome, [])
+      mapa.get(nome)!.push(col)
+    }
+
+    return Array.from(mapa.entries()).map(([nome, cols]) => ({
+      nome,
+      colunas: [
+        ...cols.filter(c =>  c.naoOcultavel),
+        ...cols.filter(c => !c.naoOcultavel),
+      ],
+    }))
+  }, [colunas, temGrupos])
+
+  function toggleGrupo(nome: string) {
+    setGruposColapsados(prev => {
+      const next = new Set(prev)
+      if (next.has(nome)) {
+        next.delete(nome)
+      } else {
+        next.add(nome)
+      }
+      return next
+    })
+  }
+
+  // ── Renderização de um item de coluna ──────────────────────────────────────
+
+  function renderItem(col: ColunaSelectConfig, idx: number, lista: ColunaSelectConfig[], grupoNome?: string) {
+    const prevObrigatorio = idx > 0 && lista[idx - 1].naoOcultavel
+    const visivel = colunasVisiveis.includes(col.key)
+
+    return (
+      <React.Fragment key={col.key}>
+        {/* Divisor entre obrigatórias e opcionais (apenas na lista plana sem grupos) */}
+        {!grupoNome && !col.naoOcultavel && prevObrigatorio && (
+          <div className="scg-divisor" />
+        )}
+        <label
+          className={`scg-item${col.naoOcultavel ? ' scg-item--locked' : ''}`}
+          draggable={!!onReordenar && !col.naoOcultavel}
+          onDragStart={() => {
+            dragKeyRef.current = col.key
+            dragGrupoRef.current = grupoNome ?? null
+          }}
+          onDragOver={e => e.preventDefault()}
+          onDrop={() => {
+            const fromKey   = dragKeyRef.current
+            const fromGrupo = dragGrupoRef.current
+            // Só permite drop dentro do mesmo grupo (ou ambos sem grupo)
+            if (fromKey && fromKey !== col.key && fromGrupo === (grupoNome ?? null)) {
+              onReordenar?.(fromKey, col.key)
+            }
+            dragKeyRef.current   = null
+            dragGrupoRef.current = null
+          }}
+        >
+          {/* Cadeado ou handle de drag */}
+          {onReordenar && (
+            col.naoOcultavel ? <IcoCadeado /> : <IcoDrag />
+          )}
+
+          <input
+            type="checkbox"
+            className="scg-checkbox"
+            checked={visivel}
+            disabled={col.naoOcultavel}
+            onChange={() => !col.naoOcultavel && onToggle(col.key)}
+            aria-label={col.label}
+          />
+          <span className="scg-label">{col.label}</span>
+        </label>
+      </React.Fragment>
+    )
+  }
+
+  // ── Renderização de um grupo colapsável ────────────────────────────────────
+
+  function renderGrupo(grupo: GrupoInterno) {
+    const expandido  = !gruposColapsados.has(grupo.nome)
+    const totalGrupo = grupo.colunas.length
+    const visivelGrupo = grupo.colunas.filter(c => colunasVisiveis.includes(c.key)).length
+
+    return (
+      <div key={grupo.nome} className="scg-grupo">
+        <button
+          type="button"
+          className="scg-grupo-header"
+          onClick={() => toggleGrupo(grupo.nome)}
+          aria-expanded={expandido}
+          aria-label={`${grupo.nome} — ${expandido ? 'recolher' : 'expandir'} grupo`}
+        >
+          <IcoChevron expandido={expandido} />
+          <span className="scg-grupo-nome">{grupo.nome}</span>
+          <span className="scg-grupo-badge">{visivelGrupo}&nbsp;/&nbsp;{totalGrupo}</span>
+        </button>
+
+        {expandido && (
+          <div className="scg-grupo-itens">
+            {grupo.colunas.map((col, idx) => renderItem(col, idx, grupo.colunas, grupo.nome))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  const estaFiltrando = busca.trim() !== ''
+  const usarGrupos    = temGrupos && !estaFiltrando
 
   return (
     <div
@@ -185,48 +338,18 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
 
       {/* ── Lista ── */}
       <div className="scg-lista">
-        {colunasFiltradas.length === 0 ? (
-          <div className="scg-vazio">Nenhuma coluna encontrada</div>
+        {usarGrupos ? (
+          grupos.length === 0 ? (
+            <div className="scg-vazio">Nenhuma coluna encontrada</div>
+          ) : (
+            grupos.map(grupo => renderGrupo(grupo))
+          )
         ) : (
-          colunasFiltradas.map((col, idx) => {
-            const prevObrigatorio = idx > 0 && colunasFiltradas[idx - 1].naoOcultavel
-            const visivel = colunasVisiveis.includes(col.key)
-            return (
-              <React.Fragment key={col.key}>
-                {/* Divisor entre obrigatórias e opcionais */}
-                {!col.naoOcultavel && prevObrigatorio && (
-                  <div className="scg-divisor" />
-                )}
-                <label
-                  className={`scg-item${col.naoOcultavel ? ' scg-item--locked' : ''}`}
-                  draggable={!!onReordenar && !col.naoOcultavel}
-                  onDragStart={() => { dragKeyRef.current = col.key }}
-                  onDragOver={e => e.preventDefault()}
-                  onDrop={() => {
-                    if (dragKeyRef.current && dragKeyRef.current !== col.key) {
-                      onReordenar?.(dragKeyRef.current, col.key)
-                    }
-                    dragKeyRef.current = null
-                  }}
-                >
-                  {/* Cadeado ou handle de drag */}
-                  {onReordenar && (
-                    col.naoOcultavel ? <IcoCadeado /> : <IcoDrag />
-                  )}
-
-                  <input
-                    type="checkbox"
-                    className="scg-checkbox"
-                    checked={visivel}
-                    disabled={col.naoOcultavel}
-                    onChange={() => !col.naoOcultavel && onToggle(col.key)}
-                    aria-label={col.label}
-                  />
-                  <span className="scg-label">{col.label}</span>
-                </label>
-              </React.Fragment>
-            )
-          })
+          colunasFiltradas.length === 0 ? (
+            <div className="scg-vazio">Nenhuma coluna encontrada</div>
+          ) : (
+            colunasFiltradas.map((col, idx) => renderItem(col, idx, colunasFiltradas))
+          )
         )}
       </div>
     </div>

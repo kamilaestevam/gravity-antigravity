@@ -405,6 +405,9 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     label: c.label,
   })), [colunas])
 
+  const initialKeys        = useMemo(() => colunas.map(c => c.key), [colunas])
+  const defaultHiddenKeys  = useMemo(() => colunas.filter(c => (c as any).oculta).map(c => c.key), [colunas])
+
   const {
     visibleKeys,
     isVisible,
@@ -414,8 +417,8 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     clearAllVisible
   } = useTablePersistence({
     tableId: tableId || 'default',
-    initialKeys: colunas.map(c => c.key),
-    defaultHiddenKeys: colunas.filter(c => (c as any).oculta).map(c => c.key)
+    initialKeys,
+    defaultHiddenKeys,
   })
 
   const [columnOrder, setColumnOrder] = useState<string[]>(() => colunas.map(c => c.key))

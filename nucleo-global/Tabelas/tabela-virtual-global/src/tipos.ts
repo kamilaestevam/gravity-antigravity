@@ -41,6 +41,8 @@ export interface GTColuna<T = unknown> {
   /** Permite edição inline (sobrepõe camposEditaveis da prop raiz) */
   editavel?: boolean
   largura?: string | number
+  /** Grupo de agrupamento exibido no gerenciador de colunas */
+  grupo?: string
 }
 
 // ─── Ação de linha ─────────────────────────────────────────────────────────────

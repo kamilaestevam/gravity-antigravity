@@ -4,9 +4,6 @@ import { CaretDown, ShieldCheck, Gear, Sliders, Storefront, Moon, Sun, Robot, Sp
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import './usuario-global.css'
 
-// ── Identidade Gravity ──────────────────────────────────────────────────────
-const SUPER_ADMIN_EMAILS = ['dmmltda@gmail.com', 'admin@gravity.com.br']
-
 export interface UsuarioGlobalProps {
   userName: string
   userEmail: string
@@ -45,23 +42,22 @@ export function UsuarioGlobal({
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  const isSuperAdminUser = SUPER_ADMIN_EMAILS.includes(userEmail)
-  const displayRole = isSuperAdminUser ? t('usuario.super_admin') : userRole
-  const hasAdminPrivileges = isSuperAdminUser || isAdmin
-  const canAccessWorkspace = userRole.toLowerCase() === 'master' || isSuperAdminUser
+  const isSuperAdmin = userRole.toLowerCase() === 'super admin'
+  const displayRole = userRole
+  const hasAdminPrivileges = !!isAdmin
+  const canAccessWorkspace = userRole.toLowerCase() === 'master' || !!isAdmin
 
   const roleSlug: Record<string, string> = {
-    'admin':      'admin',
-    'master':     'master',
-    'standard':   'standard',
-    'fornecedor': 'fornecedor',
-    'supplier':   'fornecedor',
-    'membro':     'standard',
-    'member':     'standard',
+    'super admin': 'super-admin',
+    'admin':       'admin',
+    'master':      'master',
+    'standard':    'standard',
+    'fornecedor':  'fornecedor',
+    'supplier':    'fornecedor',
+    'membro':      'standard',
+    'member':      'standard',
   }
-  const roleClass = isSuperAdminUser
-    ? 'ws-global-user__role--super-admin'
-    : `ws-global-user__role--${roleSlug[userRole.toLowerCase()] ?? 'default'}`
+  const roleClass = `ws-global-user__role--${roleSlug[userRole.toLowerCase()] ?? 'default'}`
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -77,7 +73,7 @@ export function UsuarioGlobal({
     <div className="ws-global-user-wrap" ref={profileRef}>
       <TooltipGlobal titulo={t('usuario.perfil_conta')} descricao={t('usuario.perfil_conta_desc')}>
         <button
-          className={`ws-global-user ${isSuperAdminUser ? 'ws-global-user--super-admin' : ''} ${compact ? 'ws-global-user--compact' : ''}`}
+          className={`ws-global-user ${isSuperAdmin ? 'ws-global-user--super-admin' : ''} ${compact ? 'ws-global-user--compact' : ''}`}
           type="button"
           onClick={() => setIsProfileOpen(v => !v)}
           aria-expanded={isProfileOpen}
@@ -96,13 +92,13 @@ export function UsuarioGlobal({
       </TooltipGlobal>
 
       {isProfileOpen && (
-        <div className={`ws-profile-dropdown ${isSuperAdminUser ? 'ws-profile-dropdown--super-admin' : ''}`}>
+        <div className={`ws-profile-dropdown ${isSuperAdmin ? 'ws-profile-dropdown--super-admin' : ''}`}>
           <div className="ws-profile-header">
             <div className="ws-profile-avatar-lg">{userInitials}</div>
             <div className="ws-profile-details">
               <span className="ws-profile-name" title={userName}>{userName}</span>
               <span className="ws-profile-email" title={userEmail}>{userEmail}</span>
-              <span className={`ws-profile-badge ws-profile-badge--${isSuperAdminUser ? 'super-admin' : (roleSlug[userRole.toLowerCase()] ?? 'standard')}`}>
+              <span className={`ws-profile-badge ws-profile-badge--${isSuperAdmin ? 'super-admin' : (roleSlug[userRole.toLowerCase()] ?? 'standard')}`}>
                 {displayRole}
               </span>
             </div>

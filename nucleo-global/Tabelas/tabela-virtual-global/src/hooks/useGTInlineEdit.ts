@@ -34,21 +34,33 @@ export function useGTInlineEdit<T>(
   const [erro, setErro] = useState<string | null>(null)
   // Evita double-confirm quando Enter + blur disparam confirmarEdicao em sequência
   const confirmandoRef = useRef(false)
+  // Ref síncrona para evitar closure stale em confirmarEdicao
+  const valorEditandoRef = useRef<unknown>(null)
+  const valorOriginalRef = useRef<unknown>(null)
 
   const iniciarEdicao = useCallback((id: string, campo: string, valorAtual: unknown) => {
     setEditandoCelula({ id, campo })
     setValorEditando(valorAtual)
     setValorOriginal(valorAtual)
+    valorEditandoRef.current = valorAtual
+    valorOriginalRef.current = valorAtual
     setErro(null)
   }, [])
 
   const atualizarValor = useCallback((valor: unknown) => {
     setValorEditando(valor)
+    valorEditandoRef.current = valor
   }, [])
 
   const confirmarEdicao = useCallback(async () => {
     if (!editandoCelula || !onEditar || confirmandoRef.current) {
       if (!editandoCelula) setEditandoCelula(null)
+      return
+    }
+
+    // Não salva se o valor não mudou
+    if (valorEditandoRef.current === valorOriginalRef.current) {
+      setEditandoCelula(null)
       return
     }
 
@@ -58,15 +70,18 @@ export function useGTInlineEdit<T>(
     setErro(null)
 
     try {
-      const itemAtualizado = await onEditar(id, campo, valorEditando)
+      const itemAtualizado = await onEditar(id, campo, valorEditandoRef.current)
       onAtualizarItem?.(itemAtualizado)
       onSucesso?.()
       setEditandoCelula(null)
       setValorEditando(null)
       setValorOriginal(null)
+      valorEditandoRef.current = null
+      valorOriginalRef.current = null
     } catch (err: unknown) {
       // Rollback para o valor original
-      setValorEditando(valorOriginal)
+      setValorEditando(valorOriginalRef.current)
+      valorEditandoRef.current = valorOriginalRef.current
 
       const mensagem =
         err instanceof Error
@@ -80,7 +95,7 @@ export function useGTInlineEdit<T>(
       setSalvando(false)
       confirmandoRef.current = false
     }
-  }, [editandoCelula, valorEditando, valorOriginal, onEditar, onAtualizarItem, onSucesso, onErro])
+  }, [editandoCelula, onEditar, onAtualizarItem, onSucesso, onErro])
 
   const cancelarEdicao = useCallback(() => {
     setEditandoCelula(null)

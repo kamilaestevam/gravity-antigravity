@@ -32,6 +32,23 @@ export function useTablePersistence({
 
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(loadInitialState)
 
+  // Quando initialKeys cresce (ex.: colunas customizadas carregadas depois do mount),
+  // auto-adiciona as novas chaves como visíveis (sem sobrescrever preferências salvas).
+  useEffect(() => {
+    setVisibleKeys(prev => {
+      let changed = false
+      const next = new Set(prev)
+      initialKeys.forEach(k => {
+        if (!next.has(k) && !defaultHiddenKeys.includes(k)) {
+          next.add(k)
+          changed = true
+        }
+      })
+      return changed ? next : prev
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialKeys.join('\x00'), defaultHiddenKeys.join('\x00')])
+
   useEffect(() => {
     localStorage.setItem(storageKey, JSON.stringify(Array.from(visibleKeys)))
   }, [visibleKeys, storageKey])

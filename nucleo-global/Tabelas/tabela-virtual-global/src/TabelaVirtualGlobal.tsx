@@ -21,6 +21,7 @@ import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
+import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -233,8 +234,50 @@ const GTVazio = memo(function GTVazio({
 
 // ─── Subcomponente: Popover de edição ────────────────────────────────────────
 
+// ─── Helpers para campos de data ──────────────────────────────────────────────
+
+function dateToIso(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${dd}`
+}
+
+function isoToBR(iso: unknown): string {
+  if (!iso || typeof iso !== 'string') return ''
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('pt-BR')
+}
+
+function aplicarMascaraData(value: string): string {
+  // Remove tudo que não é dígito
+  const digits = value.replace(/\D/g, '').slice(0, 8)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+}
+
+function brToIso(text: string): string | null {
+  const parts = text.split('/')
+  if (parts.length !== 3) return null
+  const dd = parseInt(parts[0]), mm = parseInt(parts[1]), yyyy = parseInt(parts[2])
+  if (isNaN(dd) || isNaN(mm) || isNaN(yyyy) || yyyy < 1000) return null
+  const d = new Date(yyyy, mm - 1, dd)
+  if (isNaN(d.getTime()) || d.getDate() !== dd) return null
+  return dateToIso(d)
+}
+
+function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
+  if (!val || typeof val !== 'string') return { inicio: null, fim: null }
+  const d = new Date(val)
+  return { inicio: isNaN(d.getTime()) ? null : d, fim: null }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+
 interface GTEditPopoverProps {
-  overlayInfo: { rect: DOMRect; id: string; campo: string; isFilho: boolean; colLabel: string }
+  overlayInfo: { rect: DOMRect; id: string; campo: string; isFilho: boolean; colLabel: string; colTipo?: string }
   valorEditando: unknown
   salvando: boolean
   onAtualizar: (valor: unknown) => void
@@ -253,8 +296,12 @@ const GTEditPopover = memo(function GTEditPopover({
   onCancelar,
 }: GTEditPopoverProps) {
   const { rect, colLabel } = overlayInfo
+  const isPeriodo = overlayInfo.colTipo === 'periodo'
   const popoverRef = useRef<HTMLDivElement>(null)
   const inputRef   = useRef<HTMLInputElement>(null)
+
+  // Estado local para campos de data: texto em formato DD/MM/AAAA
+  const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))
 
   // Posição inicial (abaixo da célula) — reajustada pelo useLayoutEffect
   const [pos, setPos] = useState(() => {
@@ -275,11 +322,31 @@ const GTEditPopover = memo(function GTEditPopover({
     setPos({ top, left, arrowLeft, flipUp: !belowOk })
   }, [rect])
 
-  // Seleciona o texto ao montar para edição imediata
+  // Seleciona o texto ao montar para edição imediata (apenas campos não-periodo)
   useEffect(() => {
-    const t = setTimeout(() => inputRef.current?.select(), 30)
-    return () => clearTimeout(t)
-  }, [])
+    if (!isPeriodo) {
+      const t = setTimeout(() => inputRef.current?.select(), 30)
+      return () => clearTimeout(t)
+    }
+  }, [isPeriodo])
+
+  // Atualiza valorEditando ao digitar data — aplica máscara DD/MM/AAAA
+  function handlePeriodoTextChange(text: string) {
+    const masked = aplicarMascaraData(text)
+    setPeriodoText(masked)
+    const iso = brToIso(masked)
+    if (iso) onAtualizar(iso)
+  }
+
+  // Calendário selecionou uma data: preenche input sem confirmar
+  function handleCalendarioMudar(val: { inicio: Date | null; fim: Date | null }) {
+    if (val.inicio) {
+      const iso = dateToIso(val.inicio)
+      const br  = val.inicio.toLocaleDateString('pt-BR')
+      setPeriodoText(br)
+      onAtualizar(iso)
+    }
+  }
 
   return (
     <>
@@ -319,19 +386,46 @@ const GTEditPopover = memo(function GTEditPopover({
 
         {/* Input */}
         <div className="gtv-edit-popover-body">
-          <input
-            ref={inputRef}
-            autoFocus
-            className="gtv-edit-popover-input"
-            value={String(valorEditando ?? '')}
-            disabled={salvando}
-            onChange={e => onAtualizar(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-              if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
-            }}
-            onBlur={() => onConfirmar()}
-          />
+          {isPeriodo ? (
+            <>
+              {/* Input de digitação livre em formato BR */}
+              <input
+                ref={inputRef}
+                autoFocus
+                className="gtv-edit-popover-input"
+                placeholder="DD/MM/AAAA"
+                value={periodoText}
+                disabled={salvando}
+                onChange={e => handlePeriodoTextChange(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                }}
+              />
+              {/* Calendário como opção visual — selecionar preenche o input acima */}
+              <div style={{ marginTop: 8 }}>
+                <CalendarioCampoGlobal
+                  valor={parseDateValor(valorEditando)}
+                  aoMudarValor={handleCalendarioMudar}
+                  disabled={salvando}
+                />
+              </div>
+            </>
+          ) : (
+            <input
+              ref={inputRef}
+              autoFocus
+              className="gtv-edit-popover-input"
+              value={String(valorEditando ?? '')}
+              disabled={salvando}
+              onChange={e => onAtualizar(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+              }}
+              onBlur={() => onConfirmar()}
+            />
+          )}
         </div>
 
         {/* Footer: hints + botões */}
@@ -579,6 +673,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     campo: string
     isFilho: boolean
     colLabel: string
+    colTipo?: string
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
@@ -898,7 +993,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           if (podeEditar && !estaEditando) {
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label })
+            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo })
             iniciarEdicao(id, col.key, valor)
           }
         }}
@@ -1087,7 +1182,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label })
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo })
                   iniciarEdicaoFilho(id, campo, valor)
                 } : undefined}
               >

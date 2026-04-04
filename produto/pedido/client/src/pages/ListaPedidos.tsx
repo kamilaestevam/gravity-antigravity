@@ -36,6 +36,7 @@ import {
   FilePdf,
   ArrowUp,
   ArrowDown,
+  PlusCircle,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -75,6 +76,8 @@ import { DrawerPedido } from '../components/DrawerPedido'
 import '../components/DrawerPedido.css'
 import { SmartImportModal } from '../components/SmartImport/SmartImportModal'
 import '../components/SmartImport/SmartImportModal.css'
+import { ModalNovaColuna } from '../components/ConfiguracaoColunas/ModalNovaColuna'
+import '../components/ConfiguracaoColunas/ModalNovaColuna.css'
 import type {
   Pedido,
   PedidoItem,
@@ -3473,6 +3476,7 @@ export default function ListaPedidos() {
   const [smartImportAberto, setSmartImportAberto] = useState(false)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
+  const [modalNovaColunaAberto, setModalNovaColunaAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
@@ -4058,6 +4062,16 @@ export default function ListaPedidos() {
               <BotaoGlobal
                 variante="secundario"
                 tamanho="pequeno"
+                icone={<PlusCircle size={14} weight="duotone" />}
+                onClick={() => setModalNovaColunaAberto(true)}
+                tooltipTitulo="Nova Coluna"
+                tooltipDescricao="Adiciona um campo personalizado à tabela de pedidos"
+              >
+                Nova Coluna
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="secundario"
+                tamanho="pequeno"
                 icone={<CheckSquare size={14} weight="duotone" />}
                 disabled={pedidosSelecionados.length < 2}
                 onClick={() => { setModalConsolidarAberto(true) }}
@@ -4391,6 +4405,20 @@ export default function ListaPedidos() {
             </p>
           </div>
         </div>
+      )}
+
+      {/* ── Modal Nova Coluna ── */}
+      {modalNovaColunaAberto && (
+        <ModalNovaColuna
+          onFechar={() => setModalNovaColunaAberto(false)}
+          onSalvo={() => {
+            setModalNovaColunaAberto(false)
+            // Recarregar colunas do usuário
+            colunasUsuarioApi.listar().then(res => {
+              setColunasUsuario(res.data ?? [])
+            }).catch(() => {})
+          }}
+        />
       )}
 
     </div>

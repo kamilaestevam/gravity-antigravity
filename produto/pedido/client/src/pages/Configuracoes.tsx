@@ -16,13 +16,14 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import {
   SquaresFour, Table, Bell, DownloadSimple,
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
-  Columns, TextT, CalendarBlank, Percent, ListBullets,
+  Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -36,7 +37,12 @@ import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, type PdfTemplate } from '../shared/api'
-import type { ColunaUsuario as ColunaUsuarioApi } from '../shared/types'
+import type {
+  ColunaUsuario as ColunaUsuarioApi,
+  TipoColunaUsuario,
+  EscopoColunaUsuario,
+  VisibilidadeColunaUsuario,
+} from '../shared/types'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -366,52 +372,49 @@ interface CategoriaAnexo {
 
 // ─── Tipos para colunas personalizadas ───────────────────────────────────────
 
-type TipoColuna = 'alfanumerico' | 'numerico' | 'data' | 'valor' | 'percentual' | 'select'
-type EscopoColuna = 'pedido' | 'item' | 'ambos'
-
-interface ColunaUsuario {
-  id: string
-  nome: string
-  tipo: TipoColuna
-  casas_decimais: number
-  escopo: EscopoColuna
-  opcoes: string[]
-}
-
 interface NovaColuna {
   nome: string
-  tipo: TipoColuna
-  casas_decimais: number
-  escopo: EscopoColuna
+  tipo: TipoColunaUsuario
+  escopo: EscopoColunaUsuario
+  visibilidade: VisibilidadeColunaUsuario
+  obrigatorio: boolean
+  valor_padrao: string
+  descricao: string
   opcoes: string[]
 }
 
 // ─── Colunas numéricas nativas — casas decimais ───────────────────────────────
 
 const COLUNAS_NUMERICAS = [
-  // ── Pedido (pai) ──────────────────────────────────────────────────────────
-  { campo: 'valor_total_pedido',               label: 'Valor Total (Pedido)',                padrao: 2 },
-  { campo: 'quantidade_total_pedido',          label: 'Quantidade Total (Pedido)',           padrao: 0 },
-  { campo: 'quantidade_inicial_total',         label: 'Quantidade Inicial Total (Pedido)',   padrao: 0 },
-  { campo: 'quantidade_transferida_total',     label: 'Quantidade Transferida Total (Pedido)', padrao: 0 },
-  { campo: 'peso_liquido_total_pedido',        label: 'Peso Líquido Total (Pedido)',         padrao: 3 },
-  { campo: 'peso_bruto_total_pedido',          label: 'Peso Bruto Total (Pedido)',           padrao: 3 },
-  { campo: 'cubagem_total_pedido',             label: 'Cubagem Total (Pedido)',              padrao: 4 },
-  // ── Item (filho) ──────────────────────────────────────────────────────────
-  { campo: 'quantidade_item',                  label: 'Quantidades dos Itens',              padrao: 0 },
-  { campo: 'peso_liquido_unitario',            label: 'Peso Líquido Unitário (Item)',        padrao: 3 },
-  { campo: 'peso_bruto_unitario',              label: 'Peso Bruto Unitário (Item)',          padrao: 3 },
-  { campo: 'cubagem_unitaria',                 label: 'Cubagem Unitária (Item)',             padrao: 4 },
-  { campo: 'quantidade_unidade_estatistica',   label: 'Qtd. Unidade Estatística (Item)',     padrao: 2 },
+  // ── Pedido (pai) ──
+  { campo: 'quantidade_total_pedido',          label: 'Quantidade Total',           categoria: 'Pedido', padrao: 0 },
+  { campo: 'quantidade_inicial_total',         label: 'Quantidade Inicial Total',   categoria: 'Pedido', padrao: 0 },
+  { campo: 'quantidade_transferida_total',     label: 'Quantidade Transferida',     categoria: 'Pedido', padrao: 0 },
+  { campo: 'peso_liquido_total_pedido',        label: 'Peso Líquido Total',         categoria: 'Pedido', padrao: 3 },
+  { campo: 'peso_bruto_total_pedido',          label: 'Peso Bruto Total',           categoria: 'Pedido', padrao: 3 },
+  { campo: 'cubagem_total_pedido',             label: 'Cubagem Total',              categoria: 'Pedido', padrao: 4 },
+  // ── Item (filho) ──
+  { campo: 'quantidade_item',                  label: 'Quantidades dos Itens',      categoria: 'Item',   padrao: 0 },
+  { campo: 'peso_liquido_unitario',            label: 'Peso Líquido Unitário',      categoria: 'Item',   padrao: 3 },
+  { campo: 'peso_bruto_unitario',              label: 'Peso Bruto Unitário',        categoria: 'Item',   padrao: 3 },
+  { campo: 'cubagem_unitaria',                 label: 'Cubagem Unitária',           categoria: 'Item',   padrao: 4 },
+  { campo: 'quantidade_unidade_estatistica',   label: 'Qtd. Unidade Estatística',   categoria: 'Item',   padrao: 2 },
 ] as const
 
-const TIPOS_COLUNA: { id: TipoColuna; label: string; icone: React.ReactNode }[] = [
-  { id: 'alfanumerico', label: 'Alfanumérico', icone: <TextT         size={16} weight="duotone" /> },
-  { id: 'numerico',     label: 'Numérico',     icone: <Hash          size={16} weight="duotone" /> },
-  { id: 'data',         label: 'Data',         icone: <CalendarBlank size={16} weight="duotone" /> },
-  { id: 'valor',        label: 'Valor $',      icone: <CurrencyDollar size={16} weight="duotone" /> },
-  { id: 'percentual',   label: 'Percentual %', icone: <Percent       size={16} weight="duotone" /> },
-  { id: 'select',       label: 'Select/Lista', icone: <ListBullets   size={16} weight="duotone" /> },
+const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNode }[] = [
+  { id: 'texto',          label: 'Texto',         icone: <TextT          size={16} weight="duotone" /> },
+  { id: 'numero',         label: 'Numérico',      icone: <Hash           size={16} weight="duotone" /> },
+  { id: 'data',           label: 'Data',          icone: <CalendarBlank  size={16} weight="duotone" /> },
+  { id: 'percentual',     label: 'Percentual %',  icone: <Percent        size={16} weight="duotone" /> },
+  { id: 'select',         label: 'Select/Lista',  icone: <ListBullets    size={16} weight="duotone" /> },
+  { id: 'checkbox',       label: 'Checkbox',      icone: <CheckSquare    size={16} weight="duotone" /> },
+  { id: 'tipo_documento', label: 'Tipo Documento',icone: <Tag            size={16} weight="duotone" /> },
+]
+
+const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string }[] = [
+  { valor: 'todos',   label: 'Todos do tenant' },
+  { valor: 'roles',   label: 'Por perfil/role' },
+  { valor: 'privado', label: 'Só eu'           },
 ]
 
 const EXPORT_CONFIG_KEY = 'pedido:export_config'
@@ -432,12 +435,15 @@ function carregarCasasDecimais(): Record<string, number> {
   return Object.fromEntries(COLUNAS_NUMERICAS.map(c => [c.campo, c.padrao]))
 }
 
-function carregarColunasUsuario(): ColunaUsuario[] {
-  try {
-    const raw = localStorage.getItem('pedido:colunas_usuario')
-    if (raw) return JSON.parse(raw) as ColunaUsuario[]
-  } catch { /* ignore */ }
-  return []
+const NOVA_COLUNA_PADRAO: NovaColuna = {
+  nome: '',
+  tipo: 'texto',
+  escopo: 'pedido',
+  visibilidade: 'todos',
+  obrigatorio: false,
+  valor_padrao: '',
+  descricao: '',
+  opcoes: [],
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -493,7 +499,9 @@ function ToggleRow({
 
 export default function Configuracoes() {
   const { t } = useTranslation()
-  const [categoria, setCategoria] = useState<CategoriaId>('cards')
+  const [searchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab') as CategoriaId | null
+  const [categoria, setCategoria] = useState<CategoriaId>(tabParam ?? 'cards')
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ── Estado: casas decimais ──
@@ -513,38 +521,52 @@ export default function Configuracoes() {
       .catch(() => {})
   }, [])
 
-  // ── Estado: colunas personalizadas (localStorage — para criação local) ──
-  const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>(carregarColunasUsuario)
-  const [novaColuna, setNovaColuna] = useState<NovaColuna>({
-    nome: '',
-    tipo: 'alfanumerico',
-    casas_decimais: 2,
-    escopo: 'pedido',
-    opcoes: [],
-  })
+  // ── Estado: colunas personalizadas (via API) ──
+  const [novaColuna, setNovaColuna] = useState<NovaColuna>(NOVA_COLUNA_PADRAO)
   const [novaOpcao, setNovaOpcao] = useState('')
+  const [salvandoColuna, setSalvandoColuna] = useState(false)
+  const [erroColuna, setErroColuna] = useState<string | null>(null)
 
-  function handleCriarColuna() {
-    if (!novaColuna.nome.trim()) return
-    const coluna: ColunaUsuario = {
-      id: `col_${Date.now()}`,
-      nome: novaColuna.nome.trim(),
-      tipo: novaColuna.tipo,
-      casas_decimais: novaColuna.casas_decimais,
-      escopo: novaColuna.escopo,
-      opcoes: novaColuna.opcoes,
+  async function handleCriarColuna() {
+    const nomeTrimmed = novaColuna.nome.trim()
+    if (!nomeTrimmed) return
+    const tipoComOpcoes = novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento'
+    if (tipoComOpcoes && novaColuna.opcoes.length === 0) {
+      setErroColuna('Adicione ao menos uma opção à lista.')
+      return
     }
-    const next = [...colunasUsuario, coluna]
-    setColunasUsuario(next)
-    localStorage.setItem('pedido:colunas_usuario', JSON.stringify(next))
-    setNovaColuna({ nome: '', tipo: 'alfanumerico', casas_decimais: 2, escopo: 'pedido', opcoes: [] })
-    setNovaOpcao('')
+    setSalvandoColuna(true)
+    setErroColuna(null)
+    try {
+      await colunasUsuarioApi.criar({
+        nome: nomeTrimmed,
+        tipo: novaColuna.tipo,
+        escopo: novaColuna.escopo,
+        visibilidade: novaColuna.visibilidade,
+        obrigatorio: novaColuna.obrigatorio,
+        valor_padrao: novaColuna.valor_padrao.trim() || undefined,
+        descricao: novaColuna.descricao.trim() || undefined,
+        opcoes: tipoComOpcoes ? novaColuna.opcoes : undefined,
+        ativo: true,
+        ordem: colunasUsuarioApi_.length,
+      })
+      const lista = await colunasUsuarioApi.listar()
+      setColunasUsuarioApi(lista)
+      setNovaColuna(NOVA_COLUNA_PADRAO)
+      setNovaOpcao('')
+    } catch (err) {
+      setErroColuna(err instanceof Error ? err.message : 'Erro ao criar coluna.')
+    } finally {
+      setSalvandoColuna(false)
+    }
   }
 
-  function handleRemoverColuna(id: string) {
-    const next = colunasUsuario.filter(c => c.id !== id)
-    setColunasUsuario(next)
-    localStorage.setItem('pedido:colunas_usuario', JSON.stringify(next))
+  async function handleRemoverColuna(id: string) {
+    try {
+      await colunasUsuarioApi.excluir(id)
+      const lista = await colunasUsuarioApi.listar()
+      setColunasUsuarioApi(lista)
+    } catch { /* ignore */ }
   }
 
   function handleAdicionarOpcao() {
@@ -1949,40 +1971,47 @@ export default function Configuracoes() {
                 </div>
               </div>
               <div className="cfg-colunas-lista">
-                {COLUNAS_NUMERICAS.map(col => (
-                  <div key={col.campo} className="cfg-coluna-row">
-                    <span className="cfg-coluna-row__label">{col.label}</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={8}
-                      className="cfg-casas-input"
-                      value={casasDecimais[col.campo] ?? col.padrao}
-                      onChange={e => handleCasasDecimaisChange(col.campo, Math.min(8, Math.max(0, Number(e.target.value))))}
-                      aria-label={`Casas decimais para ${col.label}`}
-                    />
-                  </div>
+                {(['Pedido', 'Item'] as const).map(cat => (
+                  <React.Fragment key={cat}>
+                    <p className="cfg-colunas-categoria">{cat}</p>
+                    {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => (
+                      <div key={col.campo} className="cfg-coluna-row">
+                        <span className="cfg-coluna-row__label">{col.label}</span>
+                        <input
+                          type="number"
+                          min={0}
+                          max={8}
+                          className="cfg-casas-input"
+                          value={casasDecimais[col.campo] ?? col.padrao}
+                          onChange={e => handleCasasDecimaisChange(col.campo, Math.min(8, Math.max(0, Number(e.target.value))))}
+                          aria-label={`Casas decimais para ${col.label}`}
+                        />
+                      </div>
+                    ))}
+                  </React.Fragment>
                 ))}
-                {colunasUsuarioApi_
-                  .filter(col => col.tipo === 'numero' || col.tipo === 'percentual')
-                  .map(col => (
-                    <div key={col.id} className="cfg-coluna-row">
-                      <span className="cfg-coluna-row__label">
-                        {col.nome}
-                        <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginLeft: '0.375rem' }}>(personalizada)</span>
-                      </span>
-                      <input
-                        type="number"
-                        min={0}
-                        max={8}
-                        className="cfg-casas-input"
-                        value={casasDecimais[col.id] ?? 2}
-                        onChange={e => handleCasasDecimaisChange(col.id, Math.min(8, Math.max(0, Number(e.target.value))))}
-                        aria-label={`Casas decimais para ${col.nome}`}
-                      />
-                    </div>
-                  ))
-                }
+                {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual').length > 0 && (
+                  <React.Fragment>
+                    <p className="cfg-colunas-categoria">Personalizadas</p>
+                    {colunasUsuarioApi_
+                      .filter(col => col.tipo === 'numero' || col.tipo === 'percentual')
+                      .map(col => (
+                        <div key={col.id} className="cfg-coluna-row">
+                          <span className="cfg-coluna-row__label">{col.nome}</span>
+                          <input
+                            type="number"
+                            min={0}
+                            max={8}
+                            className="cfg-casas-input"
+                            value={casasDecimais[col.id] ?? 2}
+                            onChange={e => handleCasasDecimaisChange(col.id, Math.min(8, Math.max(0, Number(e.target.value))))}
+                            aria-label={`Casas decimais para ${col.nome}`}
+                          />
+                        </div>
+                      ))
+                    }
+                  </React.Fragment>
+                )}
               </div>
             </section>
 
@@ -2002,20 +2031,21 @@ export default function Configuracoes() {
 
                 {/* Nome */}
                 <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome</label>
+                  <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                   <input
                     id="nova-coluna-nome"
                     type="text"
                     className="cfg-form-input"
-                    placeholder="Ex: Código ERP"
+                    placeholder="Ex: Código ERP, Margem %, Prioridade"
                     value={novaColuna.nome}
                     onChange={e => setNovaColuna(prev => ({ ...prev, nome: e.target.value }))}
+                    maxLength={60}
                   />
                 </div>
 
                 {/* Tipo */}
                 <div className="cfg-form-group">
-                  <label className="cfg-form-label">Tipo</label>
+                  <label className="cfg-form-label">Tipo <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                   <div className="cfg-tipo-grid">
                     {TIPOS_COLUNA.map(tipo => (
                       <button
@@ -2032,32 +2062,15 @@ export default function Configuracoes() {
                   </div>
                 </div>
 
-                {/* Casas decimais (só para numérico ou valor) */}
-                {(novaColuna.tipo === 'numerico' || novaColuna.tipo === 'valor') && (
+                {/* Opções (select / tipo_documento) */}
+                {(novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') && (
                   <div className="cfg-form-group">
-                    <label className="cfg-form-label" htmlFor="nova-coluna-casas">Casas decimais</label>
-                    <input
-                      id="nova-coluna-casas"
-                      type="number"
-                      min={0}
-                      max={8}
-                      className="cfg-casas-input"
-                      value={novaColuna.casas_decimais}
-                      onChange={e => setNovaColuna(prev => ({ ...prev, casas_decimais: Math.min(8, Math.max(0, Number(e.target.value))) }))}
-                      aria-label="Casas decimais da nova coluna"
-                    />
-                  </div>
-                )}
-
-                {/* Opções do select */}
-                {novaColuna.tipo === 'select' && (
-                  <div className="cfg-form-group">
-                    <label className="cfg-form-label">Opções</label>
+                    <label className="cfg-form-label">Opções da lista <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                     <div className="cfg-opcoes-add-row">
                       <input
                         type="text"
                         className="cfg-form-input"
-                        placeholder="Nova opção"
+                        placeholder="Digite e pressione Enter ou clique em +"
                         value={novaOpcao}
                         onChange={e => setNovaOpcao(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAdicionarOpcao() } }}
@@ -2093,9 +2106,9 @@ export default function Configuracoes() {
 
                 {/* Escopo */}
                 <div className="cfg-form-group">
-                  <label className="cfg-form-label">Escopo</label>
+                  <label className="cfg-form-label">Escopo <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                   <div className="cfg-escopo-row">
-                    {(['pedido', 'item', 'ambos'] as EscopoColuna[]).map(esc => (
+                    {(['pedido', 'item', 'ambos'] as EscopoColunaUsuario[]).map(esc => (
                       <label key={esc} className="cfg-escopo-option">
                         <input
                           type="radio"
@@ -2110,23 +2123,82 @@ export default function Configuracoes() {
                   </div>
                 </div>
 
+                {/* Visibilidade */}
+                <div className="cfg-form-group">
+                  <label className="cfg-form-label" htmlFor="nova-coluna-visibilidade">Visibilidade</label>
+                  <select
+                    id="nova-coluna-visibilidade"
+                    className="cfg-form-input"
+                    value={novaColuna.visibilidade}
+                    onChange={e => setNovaColuna(prev => ({ ...prev, visibilidade: e.target.value as VisibilidadeColunaUsuario }))}
+                  >
+                    {VISIBILIDADE_OPCOES.map(o => (
+                      <option key={o.valor} value={o.valor}>{o.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Obrigatório */}
+                <div className="cfg-form-group">
+                  <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={novaColuna.obrigatorio}
+                      onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
+                      className="cfg-toggle__input"
+                    />
+                    <span>Obrigatório</span>
+                  </label>
+                </div>
+
+                {/* Valor padrão */}
+                <div className="cfg-form-group">
+                  <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
+                  <input
+                    id="nova-coluna-padrao"
+                    type="text"
+                    className="cfg-form-input"
+                    placeholder="Deixe em branco para não definir"
+                    value={novaColuna.valor_padrao}
+                    onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
+                  />
+                </div>
+
+                {/* Descrição */}
+                <div className="cfg-form-group">
+                  <label className="cfg-form-label" htmlFor="nova-coluna-desc">Descrição</label>
+                  <input
+                    id="nova-coluna-desc"
+                    type="text"
+                    className="cfg-form-input"
+                    placeholder="Descrição auxiliar exibida como tooltip"
+                    value={novaColuna.descricao}
+                    onChange={e => setNovaColuna(prev => ({ ...prev, descricao: e.target.value }))}
+                    maxLength={200}
+                  />
+                </div>
+
+                {erroColuna && (
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-danger, #f87171)', margin: 0 }} role="alert">{erroColuna}</p>
+                )}
+
                 <button
                   type="button"
                   className="cfg-criar-coluna-btn"
                   onClick={handleCriarColuna}
-                  disabled={!novaColuna.nome.trim()}
+                  disabled={!novaColuna.nome.trim() || salvandoColuna}
                 >
                   <Plus size={14} weight="bold" />
-                  Criar Coluna
+                  {salvandoColuna ? 'Criando...' : 'Criar Coluna'}
                 </button>
               </div>
 
               {/* Lista de colunas criadas */}
-              {colunasUsuario.length > 0 && (
+              {colunasUsuarioApi_.length > 0 && (
                 <div className="cfg-colunas-criadas">
-                  <p className="cfg-colunas-criadas__titulo">Colunas criadas</p>
+                  <p className="cfg-colunas-criadas__titulo">Colunas criadas ({colunasUsuarioApi_.length})</p>
                   <div className="cfg-cards-lista">
-                    {colunasUsuario.map(col => {
+                    {colunasUsuarioApi_.map(col => {
                       const tipoInfo = TIPOS_COLUNA.find(t => t.id === col.tipo)
                       return (
                         <div key={col.id} className="cfg-card-row">
@@ -2135,9 +2207,9 @@ export default function Configuracoes() {
                             <div>
                               <p className="cfg-card-row__nome">{col.nome}</p>
                               <p className="cfg-card-row__desc">
-                                {tipoInfo?.label} · {col.escopo}
-                                {(col.tipo === 'numerico' || col.tipo === 'valor') && ` · ${col.casas_decimais} casas`}
-                                {col.tipo === 'select' && col.opcoes.length > 0 && ` · ${col.opcoes.length} opções`}
+                                {tipoInfo?.label} · {col.escopo} · {col.visibilidade}
+                                {col.obrigatorio && ' · Obrigatório'}
+                                {(col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes && ` · ${col.opcoes.length} opções`}
                               </p>
                             </div>
                           </div>

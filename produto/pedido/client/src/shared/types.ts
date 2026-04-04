@@ -852,6 +852,7 @@ export type TipoColunaUsuario =
   | 'checkbox'
   | 'percentual'
   | 'tipo_documento'
+  | 'formula'
 
 export type EscopoColunaUsuario = 'pedido' | 'item' | 'ambos'
 export type VisibilidadeColunaUsuario = 'todos' | 'roles' | 'privado'
@@ -869,6 +870,10 @@ export interface ColunaUsuario {
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string
+  /** Expressão da fórmula (ex: "quantidade_pedida - quantidade_transferida"). Presente quando tipo === 'formula'. */
+  formula_expressao?: string
+  /** Chaves de colunas das quais esta fórmula depende. Populado pelo engine ao salvar. */
+  formula_dependencias?: string[]
   ordem: number
   ativo: boolean
   created_by: string

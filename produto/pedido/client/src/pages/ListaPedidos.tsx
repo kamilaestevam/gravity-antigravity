@@ -77,8 +77,6 @@ import { DrawerPedido } from '../components/DrawerPedido'
 import '../components/DrawerPedido.css'
 import { SmartImportModal } from '../components/SmartImport/SmartImportModal'
 import '../components/SmartImport/SmartImportModal.css'
-import { ModalNovaColuna } from '../components/ConfiguracaoColunas/ModalNovaColuna'
-import '../components/ConfiguracaoColunas/ModalNovaColuna.css'
 import type {
   Pedido,
   PedidoItem,
@@ -563,7 +561,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_total_pedido != null
-          ? `${fmtQuantidade(row.quantidade_total_pedido, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_total_pedido, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
@@ -579,7 +577,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_inicial_total != null
-          ? `${fmtQuantidade(row.quantidade_inicial_total, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_inicial_total, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
@@ -599,7 +597,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -623,7 +621,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#fbbf24' : undefined }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -647,7 +645,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -664,7 +662,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_transferida_total != null
-          ? `${fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
@@ -685,7 +683,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {saldo != null
-            ? `${fmtQuantidade(saldo, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(saldo, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -799,7 +797,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_total_pedido != null
-          ? `${fmtQuantidade(row.peso_liquido_total_pedido, getCasas('peso_liquido_total_pedido', row.casas_decimais_peso_pedido ?? 3))} kg`
+          ? `${fmtQuantidade(row.peso_liquido_total_pedido, getCasas('peso_liquido_total_pedido', 3))} kg`
           : '—'}
       </span>
     ),
@@ -818,7 +816,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_total_pedido != null
-          ? `${fmtQuantidade(row.peso_bruto_total_pedido, getCasas('peso_bruto_total_pedido', row.casas_decimais_peso_pedido ?? 3))} kg`
+          ? `${fmtQuantidade(row.peso_bruto_total_pedido, getCasas('peso_bruto_total_pedido', 3))} kg`
           : '—'}
       </span>
     ),
@@ -837,7 +835,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_total_pedido != null
-          ? `${fmtQuantidade(row.cubagem_total_pedido, getCasas('cubagem_total_pedido', row.casas_decimais_cubagem_pedido ?? 4))} m³`
+          ? `${fmtQuantidade(row.cubagem_total_pedido, getCasas('cubagem_total_pedido', 4))} m³`
           : '—'}
       </span>
     ),
@@ -1837,7 +1835,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Quantidade original do item — valor imutável',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -1855,7 +1853,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
         fontWeight: row.quantidade_atual === 0 ? 400 : 600,
         color: row.quantidade_atual === 0 ? 'var(--text-muted)' : 'var(--color-success, #34d399)',
       }}>
-        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -1869,7 +1867,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_pronta, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -1883,7 +1881,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -1900,7 +1898,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
         fontVariantNumeric: 'tabular-nums',
         color: row.quantidade_cancelada > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
       }}>
-        {fmtQuantidade(row.quantidade_cancelada, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_cancelada, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -2001,7 +1999,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_unidade_estatistica != null
-          ? `${fmtQuantidade(row.quantidade_unidade_estatistica, getCasas('quantidade_unidade_estatistica', row.casas_decimais_unidade_estatistica ?? 2))} ${row.unidade_estatistica ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_unidade_estatistica, getCasas('quantidade_unidade_estatistica', 2))} ${row.unidade_estatistica ?? ''}`
           : '—'}
       </span>
     ),
@@ -2019,7 +2017,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', row.casas_decimais_peso ?? 3))} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} kg`
           : '—'}
       </span>
     ),
@@ -2036,7 +2034,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', row.casas_decimais_peso ?? 3))} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} kg`
           : '—'}
       </span>
     ),
@@ -2053,7 +2051,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', row.casas_decimais_cubagem ?? 4))} m³`
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} m³`
           : '—'}
       </span>
     ),
@@ -3374,7 +3372,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', row.casas_decimais_peso ?? 3))} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} kg`
           : '—'}
       </span>
     ),
@@ -3385,7 +3383,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', row.casas_decimais_peso ?? 3))} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} kg`
           : '—'}
       </span>
     ),
@@ -3396,7 +3394,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', row.casas_decimais_cubagem ?? 4))} m³`
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} m³`
           : '—'}
       </span>
     ),
@@ -3415,7 +3413,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   quantidade_total_pedido: {
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
-        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -3424,7 +3422,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'quantidade_inicial',
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -3433,7 +3431,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const qtd = Math.max(0, (row.quantidade_pronta ?? 0) - (row.quantidade_transferida ?? 0))
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#fbbf24' : undefined }}>
-          {fmtQuantidade(qtd, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+          {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}
         </span>
       )
     },
@@ -3443,7 +3441,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const qtd = Math.max(0, (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0))
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
-          {fmtQuantidade(qtd, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+          {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}
         </span>
       )
     },
@@ -3453,7 +3451,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'quantidade_transferida',
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -3462,7 +3460,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'quantidade_pronta',
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta ?? 0, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+        {fmtQuantidade(row.quantidade_pronta ?? 0, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -3471,7 +3469,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const saldo = (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0)
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {fmtQuantidade(saldo, getCasas('quantidade_item', row.casas_decimais_quantidade ?? 0))}
+          {fmtQuantidade(saldo, getCasas('quantidade_item', 0))}
         </span>
       )
     },
@@ -3481,7 +3479,9 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
 // ── Colunas para exportação ───────────────────────────────────────────────────
 
 const COLUNAS_EXPORT: ColunasExport[] = [
+  { header: 'Linha',                    key: '_tipo_linha',                       largura: 10 },
   { header: 'Pedido',                   key: 'numero_pedido',                    largura: 18 },
+  { header: 'Part Number',               key: 'numero_item',                      largura: 20 },
   { header: 'Tipo',                     key: 'tipo_operacao',                    largura: 14 },
   { header: 'Status',                   key: 'status',                           largura: 16 },
   { header: 'Exportador',               key: 'exportador_nome',                  largura: 25 },
@@ -3721,7 +3721,6 @@ export default function ListaPedidos() {
   const [smartImportAberto, setSmartImportAberto] = useState(false)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
-  const [modalNovaColunaAberto, setModalNovaColunaAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
@@ -4036,8 +4035,10 @@ export default function ListaPedidos() {
     if (cfg.incluirItens) {
       dados = base.flatMap(p => {
         const pai = p as unknown as Record<string, unknown>
-        const itensDoPedido = (p.itens ?? []).map(i => ({
+        const itensDoPedido = (p.itens ?? []).map((i, _idx) => ({
           ...pai,
+          _tipo_linha: 'Item',
+          numero_item: i.part_number ?? '',
           part_number: i.part_number,
           descricao: i.descricao,
           ncm: i.ncm,
@@ -4048,10 +4049,12 @@ export default function ListaPedidos() {
           moeda_item: i.moeda_item,
           unidade_item: i.unidade_comercializada_item,
         }))
-        return itensDoPedido.length > 0 ? [pai, ...itensDoPedido] : [pai]
+        return itensDoPedido.length > 0
+          ? [{ ...pai, _tipo_linha: 'Pedido', numero_item: '' }, ...itensDoPedido]
+          : [{ ...pai, _tipo_linha: 'Pedido' }]
       })
     } else {
-      dados = base as unknown as Record<string, unknown>[]
+      dados = base.map(p => ({ ...(p as unknown as Record<string, unknown>), _tipo_linha: 'Pedido' }))
     }
 
     return { cfg, dados, colunasExport, sep }
@@ -4570,7 +4573,7 @@ export default function ListaPedidos() {
               Transferir Quantidade — {modalTransferir.item.part_number}
             </h3>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual, getCasas('quantidade_item', modalTransferir.item.casas_decimais_quantidade ?? 0))} {modalTransferir.item.unidade_comercializada_item}</strong>
+              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual, getCasas('quantidade_item', 0))} {modalTransferir.item.unidade_comercializada_item}</strong>
             </p>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
@@ -4597,7 +4600,7 @@ export default function ListaPedidos() {
                   const qtd = parseFloat(qtdTransferir)
                   if (!qtd || qtd <= 0 || qtd > modalTransferir.item.quantidade_atual) return
                   console.info('[Pedido] Transferir:', { item: modalTransferir.item.id, quantidade: qtd })
-                  window.alert(`✓ Transferência de ${fmtQuantidade(qtd, getCasas('quantidade_item', modalTransferir.item.casas_decimais_quantidade ?? 0))} ${modalTransferir.item.unidade_comercializada_item ?? ''} registrada.`)
+                  window.alert(`✓ Transferência de ${fmtQuantidade(qtd, getCasas('quantidade_item', 0))} ${modalTransferir.item.unidade_comercializada_item ?? ''} registrada.`)
                   setModalTransferir(null)
                   setQtdTransferir('')
                 }}
@@ -4749,18 +4752,6 @@ export default function ListaPedidos() {
         </div>
       )}
 
-      {/* ── Modal Nova Coluna ── */}
-      {modalNovaColunaAberto && (
-        <ModalNovaColuna
-          onFechar={() => setModalNovaColunaAberto(false)}
-          onSalvo={() => {
-            setModalNovaColunaAberto(false)
-            colunasUsuarioApi.listar()
-              .then(lista => setColunasUsuario(lista))
-              .catch(() => {})
-          }}
-        />
-      )}
 
     </div>
   )

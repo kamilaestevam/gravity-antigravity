@@ -2,10 +2,11 @@
  * DrawerPedido.tsx — Drawer lateral de criacao/edicao de Pedido
  *
  * Props:
- *   aberto     — controla visibilidade
- *   pedidoId?  — undefined = criar (POST) / preenchido = editar (PUT)
- *   onFechar   — callback para fechar o drawer
- *   onSalvo    — callback com o pedido salvo
+ *   aberto        — controla visibilidade
+ *   pedidoId?     — undefined = criar (POST) / preenchido = editar (PUT)
+ *   onFechar      — callback para fechar o drawer
+ *   onSalvo       — callback com o pedido salvo
+ *   initialTab?   — aba inicial ao abrir ('dados' | 'itens' | 'transferencias')
  *
  * Comportamento:
  *   - Slide-in da direita com backdrop desfocado
@@ -23,19 +24,23 @@ import {
   X,
   Spinner,
   Warning,
+  ArrowsLeftRight,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
-import { pedidoApi } from '../shared/api'
+import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
+import { pedidoApi, pedidoTransferirApi } from '../shared/api'
 import './DrawerPedido.css'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
+
+export type DrawerPedidoTab = 'dados' | 'itens' | 'transferencias'
 
 export interface DrawerPedidoProps {
   aberto: boolean
   pedidoId?: string
   onFechar: () => void
   onSalvo: (pedido: Pedido) => void
+  initialTab?: DrawerPedidoTab
 }
 
 // ── Tipos de formulario ──────────────────────────────────────────────────────
@@ -103,7 +108,7 @@ function formFoiAlterado(form: PedidoForm, itens: ItemForm[]): boolean {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
-export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo }: DrawerPedidoProps) {
+export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }: DrawerPedidoProps) {
   const modoEdicao = Boolean(pedidoId)
 
   const [form, setForm]       = useState<PedidoForm>(FORM_VAZIO)
@@ -112,8 +117,53 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo }: DrawerPedi
   const [salvando, setSalvando]     = useState(false)
   const [erro, setErro]             = useState<string | null>(null)
 
+  // ── Abas ──────────────────────────────────────────────────────────────────
+  const [abaAtiva, setAbaAtiva] = useState<DrawerPedidoTab>(() => initialTab ?? 'dados')
+
+  // Transferencias (lazy load)
+  const [transferencias, setTransferencias]           = useState<TransferHistorico[]>([])
+  const [carregandoTransfer, setCarregandoTransfer]   = useState(false)
+  const [erroTransfer, setErroTransfer]               = useState<string | null>(null)
+  const transferCarregado                              = useRef(false)
+
   const formRef = useRef({ form, itens })
   formRef.current = { form, itens }
+
+  // Resetar aba ao abrir
+  useEffect(() => {
+    if (aberto) {
+      setAbaAtiva(initialTab ?? 'dados')
+      setTransferencias([])
+      setErroTransfer(null)
+      transferCarregado.current = false
+    }
+  }, [aberto, initialTab])
+
+  // Lazy-load de transferencias ao selecionar aba
+  useEffect(() => {
+    if (abaAtiva !== 'transferencias') return
+    if (!pedidoId) return
+    if (transferCarregado.current) return
+
+    let cancelado = false
+    setCarregandoTransfer(true)
+    setErroTransfer(null)
+
+    pedidoTransferirApi.historico(pedidoId)
+      .then(data => {
+        if (cancelado) return
+        setTransferencias(data)
+        transferCarregado.current = true
+      })
+      .catch(() => {
+        if (!cancelado) setErroTransfer('Erro ao carregar transferencias. Tente novamente.')
+      })
+      .finally(() => {
+        if (!cancelado) setCarregandoTransfer(false)
+      })
+
+    return () => { cancelado = true }
+  }, [abaAtiva, pedidoId])
 
   // Carregar pedido ao abrir em modo edicao
   useEffect(() => {
@@ -258,6 +308,43 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo }: DrawerPedi
           </button>
         </div>
 
+        {/* Barra de abas */}
+        <div className="drawer-pedido__tabs" role="tablist" aria-label="Secoes do pedido">
+          <button
+            role="tab"
+            aria-selected={abaAtiva === 'dados'}
+            aria-controls="dp-panel-dados"
+            className={`drawer-pedido__tab${abaAtiva === 'dados' ? ' drawer-pedido__tab--ativo' : ''}`}
+            onClick={() => setAbaAtiva('dados')}
+            type="button"
+          >
+            Dados
+          </button>
+          <button
+            role="tab"
+            aria-selected={abaAtiva === 'itens'}
+            aria-controls="dp-panel-itens"
+            className={`drawer-pedido__tab${abaAtiva === 'itens' ? ' drawer-pedido__tab--ativo' : ''}`}
+            onClick={() => setAbaAtiva('itens')}
+            type="button"
+          >
+            Itens ({itens.length})
+          </button>
+          {modoEdicao && (
+            <button
+              role="tab"
+              aria-selected={abaAtiva === 'transferencias'}
+              aria-controls="dp-panel-transferencias"
+              className={`drawer-pedido__tab${abaAtiva === 'transferencias' ? ' drawer-pedido__tab--ativo' : ''}`}
+              onClick={() => setAbaAtiva('transferencias')}
+              type="button"
+            >
+              <ArrowsLeftRight size={13} weight="bold" aria-hidden="true" />
+              Transferencias {transferCarregado.current ? `(${transferencias.length})` : ''}
+            </button>
+          )}
+        </div>
+
         {/* Corpo */}
         <div className="drawer-pedido__corpo">
           {carregando ? (
@@ -267,299 +354,412 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo }: DrawerPedi
             </div>
           ) : (
             <>
-              {/* Secao: Dados do Pedido */}
-              <section>
-                <p className="drawer-pedido__secao-titulo">Dados do Pedido</p>
-                <div className="drawer-pedido__grid">
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-tipo-operacao">Tipo Operacao</label>
-                    <select
-                      id="dp-tipo-operacao"
-                      className="drawer-pedido__select"
-                      value={form.tipo_operacao}
-                      onChange={e => handleChange('tipo_operacao', e.target.value)}
-                    >
-                      <option value="importacao">Importacao</option>
-                      <option value="exportacao">Exportacao</option>
-                    </select>
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-numero-pedido">Numero Pedido</label>
-                    <input
-                      id="dp-numero-pedido"
-                      className="drawer-pedido__input"
-                      value={form.numero_pedido}
-                      onChange={e => handleChange('numero_pedido', e.target.value)}
-                      placeholder="Ex: PO-2026/001"
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-exportador">Exportador</label>
-                    <input
-                      id="dp-exportador"
-                      className="drawer-pedido__input"
-                      value={form.importacao_exportador_id}
-                      onChange={e => handleChange('importacao_exportador_id', e.target.value)}
-                      placeholder="Selecionar exportador"
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-fabricante">Fabricante</label>
-                    <input
-                      id="dp-fabricante"
-                      className="drawer-pedido__input"
-                      value={form.fabricante_id}
-                      onChange={e => handleChange('fabricante_id', e.target.value)}
-                      placeholder="Selecionar fabricante"
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-incoterm">Incoterm</label>
-                    <select
-                      id="dp-incoterm"
-                      className="drawer-pedido__select"
-                      value={form.incoterm}
-                      onChange={e => handleChange('incoterm', e.target.value)}
-                    >
-                      {['FOB','CIF','EXW','CFR','DDP','DAP','FCA','CPT','CIP','DPU','FAS'].map(i => (
-                        <option key={i} value={i}>{i}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-moeda">Moeda</label>
-                    <select
-                      id="dp-moeda"
-                      className="drawer-pedido__select"
-                      value={form.moeda_pedido}
-                      onChange={e => handleChange('moeda_pedido', e.target.value)}
-                    >
-                      {['USD','EUR','GBP','BRL','CNY','JPY'].map(m => (
-                        <option key={m} value={m}>{m}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-cobertura">Cobertura Cambial</label>
-                    <select
-                      id="dp-cobertura"
-                      className="drawer-pedido__select"
-                      value={form.cobertura_cambial}
-                      onChange={e => handleChange('cobertura_cambial', e.target.value)}
-                    >
-                      <option value="com_cobertura">Com Cobertura</option>
-                      <option value="sem_cobertura">Sem Cobertura</option>
-                    </select>
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-pagamento">Condicao Pagamento</label>
-                    <input
-                      id="dp-pagamento"
-                      className="drawer-pedido__input"
-                      value={form.condicao_pagamento}
-                      onChange={e => handleChange('condicao_pagamento', e.target.value)}
-                      placeholder="Ex: 30% Antecipado"
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-proforma">Numero Proforma</label>
-                    <input
-                      id="dp-proforma"
-                      className="drawer-pedido__input"
-                      value={form.numero_proforma}
-                      onChange={e => handleChange('numero_proforma', e.target.value)}
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-invoice">Numero Invoice</label>
-                    <input
-                      id="dp-invoice"
-                      className="drawer-pedido__input"
-                      value={form.numero_invoice}
-                      onChange={e => handleChange('numero_invoice', e.target.value)}
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-ref-imp">Ref. Importador</label>
-                    <input
-                      id="dp-ref-imp"
-                      className="drawer-pedido__input"
-                      value={form.referencia_importador}
-                      onChange={e => handleChange('referencia_importador', e.target.value)}
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-ref-exp">Ref. Exportador</label>
-                    <input
-                      id="dp-ref-exp"
-                      className="drawer-pedido__input"
-                      value={form.referencia_exportador}
-                      onChange={e => handleChange('referencia_exportador', e.target.value)}
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-ref-fab">Ref. Fabricante</label>
-                    <input
-                      id="dp-ref-fab"
-                      className="drawer-pedido__input"
-                      value={form.referencia_fabricante}
-                      onChange={e => handleChange('referencia_fabricante', e.target.value)}
-                    />
-                  </div>
-                  <div className="drawer-pedido__campo">
-                    <label className="drawer-pedido__label" htmlFor="dp-data-emissao">Data Emissao</label>
-                    <input
-                      id="dp-data-emissao"
-                      type="date"
-                      className="drawer-pedido__input"
-                      value={form.data_emissao_pedido}
-                      onChange={e => handleChange('data_emissao_pedido', e.target.value)}
-                    />
-                  </div>
-                </div>
-              </section>
-
-              {/* Secao: Itens */}
-              <section>
-                <div className="drawer-pedido__itens-header">
-                  <p className="drawer-pedido__secao-titulo" style={{ margin: 0 }}>
-                    Itens ({itens.length})
-                  </p>
-                  <BotaoGlobal
-                    variante="secundario"
-                    tamanho="pequeno"
-                    icone={<Plus size={12} weight="bold" />}
-                    onClick={adicionarItem}
-                  >
-                    Adicionar Item
-                  </BotaoGlobal>
-                </div>
-
-                {itens.map((item, index) => (
-                  <div key={item.key} className="drawer-pedido__item">
+              {/* Painel: Dados do Pedido */}
+              <div
+                id="dp-panel-dados"
+                role="tabpanel"
+                aria-labelledby="dp-tab-dados"
+                hidden={abaAtiva !== 'dados'}
+                className="drawer-pedido__painel"
+              >
+                <section>
+                  <p className="drawer-pedido__secao-titulo">Dados do Pedido</p>
+                  <div className="drawer-pedido__grid">
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor={`dp-pn-${index}`} style={{ fontSize: '0.625rem' }}>Part Number</label>
-                      <input
-                        id={`dp-pn-${index}`}
-                        className="drawer-pedido__input"
-                        value={item.part_number}
-                        onChange={e => handleItemChange(index, 'part_number', e.target.value)}
-                        placeholder="SKU"
-                        aria-label="Part Number"
-                      />
-                    </div>
-                    <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor={`dp-ncm-${index}`} style={{ fontSize: '0.625rem' }}>NCM</label>
-                      <input
-                        id={`dp-ncm-${index}`}
-                        className="drawer-pedido__input drawer-pedido__input--mono"
-                        value={item.ncm}
-                        onChange={e => handleItemChange(index, 'ncm', e.target.value)}
-                        placeholder="0000.00.00"
-                        aria-label="NCM"
-                      />
-                    </div>
-                    <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor={`dp-desc-${index}`} style={{ fontSize: '0.625rem' }}>Descricao</label>
-                      <input
-                        id={`dp-desc-${index}`}
-                        className="drawer-pedido__input"
-                        value={item.descricao}
-                        onChange={e => handleItemChange(index, 'descricao', e.target.value)}
-                        placeholder="Descricao do item"
-                        aria-label="Descricao"
-                      />
-                    </div>
-                    <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor={`dp-qty-${index}`} style={{ fontSize: '0.625rem' }}>Qtd.</label>
-                      <input
-                        id={`dp-qty-${index}`}
-                        type="number"
-                        className="drawer-pedido__input"
-                        style={{ textAlign: 'right' }}
-                        value={item.quantidade_inicial}
-                        onChange={e => handleItemChange(index, 'quantidade_inicial', e.target.value)}
-                        placeholder="0"
-                        min="0"
-                        step="0.01"
-                        aria-label="Quantidade"
-                      />
-                    </div>
-                    <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor={`dp-uom-${index}`} style={{ fontSize: '0.625rem' }}>UoM</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-tipo-operacao">Tipo Operacao</label>
                       <select
-                        id={`dp-uom-${index}`}
+                        id="dp-tipo-operacao"
                         className="drawer-pedido__select"
-                        value={item.unidade_comercializada_item}
-                        onChange={e => handleItemChange(index, 'unidade_comercializada_item', e.target.value)}
-                        aria-label="Unidade"
+                        value={form.tipo_operacao}
+                        onChange={e => handleChange('tipo_operacao', e.target.value)}
                       >
-                        {['UN','MT','M2','KG','LT','TON','CM3','PC'].map(u => (
-                          <option key={u} value={u}>{u}</option>
+                        <option value="importacao">Importacao</option>
+                        <option value="exportacao">Exportacao</option>
+                      </select>
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-numero-pedido">Numero Pedido</label>
+                      <input
+                        id="dp-numero-pedido"
+                        className="drawer-pedido__input"
+                        value={form.numero_pedido}
+                        onChange={e => handleChange('numero_pedido', e.target.value)}
+                        placeholder="Ex: PO-2026/001"
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-exportador">Exportador</label>
+                      <input
+                        id="dp-exportador"
+                        className="drawer-pedido__input"
+                        value={form.importacao_exportador_id}
+                        onChange={e => handleChange('importacao_exportador_id', e.target.value)}
+                        placeholder="Selecionar exportador"
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-fabricante">Fabricante</label>
+                      <input
+                        id="dp-fabricante"
+                        className="drawer-pedido__input"
+                        value={form.fabricante_id}
+                        onChange={e => handleChange('fabricante_id', e.target.value)}
+                        placeholder="Selecionar fabricante"
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-incoterm">Incoterm</label>
+                      <select
+                        id="dp-incoterm"
+                        className="drawer-pedido__select"
+                        value={form.incoterm}
+                        onChange={e => handleChange('incoterm', e.target.value)}
+                      >
+                        {['FOB','CIF','EXW','CFR','DDP','DAP','FCA','CPT','CIP','DPU','FAS'].map(i => (
+                          <option key={i} value={i}>{i}</option>
                         ))}
                       </select>
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor={`dp-vl-${index}`} style={{ fontSize: '0.625rem' }}>Vl. Unit.</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-moeda">Moeda</label>
+                      <select
+                        id="dp-moeda"
+                        className="drawer-pedido__select"
+                        value={form.moeda_pedido}
+                        onChange={e => handleChange('moeda_pedido', e.target.value)}
+                      >
+                        {['USD','EUR','GBP','BRL','CNY','JPY'].map(m => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-cobertura">Cobertura Cambial</label>
+                      <select
+                        id="dp-cobertura"
+                        className="drawer-pedido__select"
+                        value={form.cobertura_cambial}
+                        onChange={e => handleChange('cobertura_cambial', e.target.value)}
+                      >
+                        <option value="com_cobertura">Com Cobertura</option>
+                        <option value="sem_cobertura">Sem Cobertura</option>
+                      </select>
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-pagamento">Condicao Pagamento</label>
                       <input
-                        id={`dp-vl-${index}`}
-                        type="number"
+                        id="dp-pagamento"
                         className="drawer-pedido__input"
-                        style={{ textAlign: 'right' }}
-                        value={item.valor_unitario}
-                        onChange={e => handleItemChange(index, 'valor_unitario', e.target.value)}
-                        placeholder="0,00"
-                        min="0"
-                        step="0.01"
-                        aria-label="Valor Unitario"
+                        value={form.condicao_pagamento}
+                        onChange={e => handleChange('condicao_pagamento', e.target.value)}
+                        placeholder="Ex: 30% Antecipado"
                       />
                     </div>
-                    <button
-                      className="drawer-pedido__item-remover"
-                      onClick={() => removerItem(index)}
-                      disabled={itens.length <= 1}
-                      title="Remover item"
-                      aria-label={`Remover item ${index + 1}`}
-                      type="button"
-                    >
-                      <Trash size={14} weight="duotone" />
-                    </button>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-proforma">Numero Proforma</label>
+                      <input
+                        id="dp-proforma"
+                        className="drawer-pedido__input"
+                        value={form.numero_proforma}
+                        onChange={e => handleChange('numero_proforma', e.target.value)}
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-invoice">Numero Invoice</label>
+                      <input
+                        id="dp-invoice"
+                        className="drawer-pedido__input"
+                        value={form.numero_invoice}
+                        onChange={e => handleChange('numero_invoice', e.target.value)}
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-ref-imp">Ref. Importador</label>
+                      <input
+                        id="dp-ref-imp"
+                        className="drawer-pedido__input"
+                        value={form.referencia_importador}
+                        onChange={e => handleChange('referencia_importador', e.target.value)}
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-ref-exp">Ref. Exportador</label>
+                      <input
+                        id="dp-ref-exp"
+                        className="drawer-pedido__input"
+                        value={form.referencia_exportador}
+                        onChange={e => handleChange('referencia_exportador', e.target.value)}
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-ref-fab">Ref. Fabricante</label>
+                      <input
+                        id="dp-ref-fab"
+                        className="drawer-pedido__input"
+                        value={form.referencia_fabricante}
+                        onChange={e => handleChange('referencia_fabricante', e.target.value)}
+                      />
+                    </div>
+                    <div className="drawer-pedido__campo">
+                      <label className="drawer-pedido__label" htmlFor="dp-data-emissao">Data Emissao</label>
+                      <input
+                        id="dp-data-emissao"
+                        type="date"
+                        className="drawer-pedido__input"
+                        value={form.data_emissao_pedido}
+                        onChange={e => handleChange('data_emissao_pedido', e.target.value)}
+                      />
+                    </div>
                   </div>
-                ))}
-              </section>
+                </section>
 
-              {/* Erro */}
-              {erro && (
-                <div className="drawer-pedido__erro" role="alert">
-                  <Warning size={14} weight="fill" aria-hidden="true" />
-                  {erro}
+                {/* Erro */}
+                {erro && (
+                  <div className="drawer-pedido__erro" role="alert">
+                    <Warning size={14} weight="fill" aria-hidden="true" />
+                    {erro}
+                  </div>
+                )}
+              </div>
+
+              {/* Painel: Itens */}
+              <div
+                id="dp-panel-itens"
+                role="tabpanel"
+                aria-labelledby="dp-tab-itens"
+                hidden={abaAtiva !== 'itens'}
+                className="drawer-pedido__painel"
+              >
+                <section>
+                  <div className="drawer-pedido__itens-header">
+                    <p className="drawer-pedido__secao-titulo" style={{ margin: 0 }}>
+                      Itens ({itens.length})
+                    </p>
+                    <BotaoGlobal
+                      variante="secundario"
+                      tamanho="pequeno"
+                      icone={<Plus size={12} weight="bold" />}
+                      onClick={adicionarItem}
+                    >
+                      Adicionar Item
+                    </BotaoGlobal>
+                  </div>
+
+                  {itens.map((item, index) => (
+                    <div key={item.key} className="drawer-pedido__item">
+                      <div className="drawer-pedido__campo">
+                        <label className="drawer-pedido__label" htmlFor={`dp-pn-${index}`} style={{ fontSize: '0.625rem' }}>Part Number</label>
+                        <input
+                          id={`dp-pn-${index}`}
+                          className="drawer-pedido__input"
+                          value={item.part_number}
+                          onChange={e => handleItemChange(index, 'part_number', e.target.value)}
+                          placeholder="SKU"
+                          aria-label="Part Number"
+                        />
+                      </div>
+                      <div className="drawer-pedido__campo">
+                        <label className="drawer-pedido__label" htmlFor={`dp-ncm-${index}`} style={{ fontSize: '0.625rem' }}>NCM</label>
+                        <input
+                          id={`dp-ncm-${index}`}
+                          className="drawer-pedido__input drawer-pedido__input--mono"
+                          value={item.ncm}
+                          onChange={e => handleItemChange(index, 'ncm', e.target.value)}
+                          placeholder="0000.00.00"
+                          aria-label="NCM"
+                        />
+                      </div>
+                      <div className="drawer-pedido__campo">
+                        <label className="drawer-pedido__label" htmlFor={`dp-desc-${index}`} style={{ fontSize: '0.625rem' }}>Descricao</label>
+                        <input
+                          id={`dp-desc-${index}`}
+                          className="drawer-pedido__input"
+                          value={item.descricao}
+                          onChange={e => handleItemChange(index, 'descricao', e.target.value)}
+                          placeholder="Descricao do item"
+                          aria-label="Descricao"
+                        />
+                      </div>
+                      <div className="drawer-pedido__campo">
+                        <label className="drawer-pedido__label" htmlFor={`dp-qty-${index}`} style={{ fontSize: '0.625rem' }}>Qtd.</label>
+                        <input
+                          id={`dp-qty-${index}`}
+                          type="number"
+                          className="drawer-pedido__input"
+                          style={{ textAlign: 'right' }}
+                          value={item.quantidade_inicial}
+                          onChange={e => handleItemChange(index, 'quantidade_inicial', e.target.value)}
+                          placeholder="0"
+                          min="0"
+                          step="0.01"
+                          aria-label="Quantidade"
+                        />
+                      </div>
+                      <div className="drawer-pedido__campo">
+                        <label className="drawer-pedido__label" htmlFor={`dp-uom-${index}`} style={{ fontSize: '0.625rem' }}>UoM</label>
+                        <select
+                          id={`dp-uom-${index}`}
+                          className="drawer-pedido__select"
+                          value={item.unidade_comercializada_item}
+                          onChange={e => handleItemChange(index, 'unidade_comercializada_item', e.target.value)}
+                          aria-label="Unidade"
+                        >
+                          {['UN','MT','M2','KG','LT','TON','CM3','PC'].map(u => (
+                            <option key={u} value={u}>{u}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="drawer-pedido__campo">
+                        <label className="drawer-pedido__label" htmlFor={`dp-vl-${index}`} style={{ fontSize: '0.625rem' }}>Vl. Unit.</label>
+                        <input
+                          id={`dp-vl-${index}`}
+                          type="number"
+                          className="drawer-pedido__input"
+                          style={{ textAlign: 'right' }}
+                          value={item.valor_unitario}
+                          onChange={e => handleItemChange(index, 'valor_unitario', e.target.value)}
+                          placeholder="0,00"
+                          min="0"
+                          step="0.01"
+                          aria-label="Valor Unitario"
+                        />
+                      </div>
+                      <button
+                        className="drawer-pedido__item-remover"
+                        onClick={() => removerItem(index)}
+                        disabled={itens.length <= 1}
+                        title="Remover item"
+                        aria-label={`Remover item ${index + 1}`}
+                        type="button"
+                      >
+                        <Trash size={14} weight="duotone" />
+                      </button>
+                    </div>
+                  ))}
+                </section>
+              </div>
+
+              {/* Painel: Transferencias */}
+              {modoEdicao && (
+                <div
+                  id="dp-panel-transferencias"
+                  role="tabpanel"
+                  aria-labelledby="dp-tab-transferencias"
+                  hidden={abaAtiva !== 'transferencias'}
+                  className="drawer-pedido__painel"
+                >
+                  {carregandoTransfer ? (
+                    <div className="drawer-pedido__loading" aria-live="polite">
+                      <Spinner size={20} className="drawer-pedido__spinner" aria-hidden="true" />
+                      <span>Carregando transferencias...</span>
+                    </div>
+                  ) : erroTransfer ? (
+                    <div className="drawer-pedido__erro" role="alert">
+                      <Warning size={14} weight="fill" aria-hidden="true" />
+                      {erroTransfer}
+                    </div>
+                  ) : transferencias.length === 0 ? (
+                    <div className="drawer-pedido__transferencias-vazio">
+                      <ArrowsLeftRight size={28} weight="duotone" aria-hidden="true" />
+                      <span>Nenhuma transferencia registrada</span>
+                    </div>
+                  ) : (
+                    <ol className="drawer-pedido__timeline" aria-label="Historico de transferencias">
+                      {transferencias.map(t => (
+                        <li key={t.id} className="drawer-pedido__timeline-item">
+                          <div className="drawer-pedido__timeline-dot" aria-hidden="true" />
+                          <div className="drawer-pedido__timeline-conteudo">
+                            <div className="drawer-pedido__timeline-cabecalho">
+                              <time
+                                className="drawer-pedido__timeline-data"
+                                dateTime={t.created_at}
+                              >
+                                {new Date(t.created_at).toLocaleString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </time>
+                              {t.revertido && (
+                                <span className="drawer-pedido__badge-revertido" aria-label="Transferencia revertida">
+                                  Revertido
+                                </span>
+                              )}
+                            </div>
+                            <p className="drawer-pedido__timeline-usuario">
+                              Por: <strong>{t.created_by}</strong>
+                            </p>
+                            <p className="drawer-pedido__timeline-qtd">
+                              Quantidade: <strong>{t.quantidade}</strong>
+                            </p>
+                            <p className="drawer-pedido__timeline-cenario">
+                              Cenario: <span className="drawer-pedido__timeline-cenario-tag">{t.cenario}</span>
+                            </p>
+                            {t.destinos.length > 0 && (
+                              <ul className="drawer-pedido__timeline-destinos" aria-label="Destinos da transferencia">
+                                {t.destinos.map((d, di) => (
+                                  <li key={di} className="drawer-pedido__timeline-destino">
+                                    <span className="drawer-pedido__timeline-destino-tipo">{d.tipo}</span>
+                                    {d.pedido_id && (
+                                      <span className="drawer-pedido__timeline-destino-id">
+                                        → Pedido {d.pedido_id}
+                                      </span>
+                                    )}
+                                    <span className="drawer-pedido__timeline-destino-qtd">
+                                      {d.quantidade} un.
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
                 </div>
               )}
             </>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="drawer-pedido__footer">
-          <BotaoGlobal
-            variante="secundario"
-            tamanho="medio"
-            onClick={tentarFechar}
-            disabled={salvando}
-          >
-            Cancelar
-          </BotaoGlobal>
-          <BotaoGlobal
-            variante="primario"
-            tamanho="medio"
-            icone={<FloppyDisk size={16} />}
-            onClick={handleSalvar}
-            disabled={carregando || salvando}
-            aria-busy={salvando}
-          >
-            {salvando ? 'Salvando...' : modoEdicao ? 'Salvar Alteracoes' : 'Criar Pedido'}
-          </BotaoGlobal>
-        </div>
+        {/* Footer — ocultar na aba de transferencias */}
+        {abaAtiva !== 'transferencias' && (
+          <div className="drawer-pedido__footer">
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="medio"
+              onClick={tentarFechar}
+              disabled={salvando}
+            >
+              Cancelar
+            </BotaoGlobal>
+            <BotaoGlobal
+              variante="primario"
+              tamanho="medio"
+              icone={<FloppyDisk size={16} />}
+              onClick={handleSalvar}
+              disabled={carregando || salvando}
+              aria-busy={salvando}
+            >
+              {salvando ? 'Salvando...' : modoEdicao ? 'Salvar Alteracoes' : 'Criar Pedido'}
+            </BotaoGlobal>
+          </div>
+        )}
+        {abaAtiva === 'transferencias' && (
+          <div className="drawer-pedido__footer">
+            <BotaoGlobal
+              variante="secundario"
+              tamanho="medio"
+              onClick={tentarFechar}
+              disabled={salvando}
+            >
+              Fechar
+            </BotaoGlobal>
+          </div>
+        )}
       </div>
     </div>
   )

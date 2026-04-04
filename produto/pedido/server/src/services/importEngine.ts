@@ -7,6 +7,7 @@
  *   - xml (simples, tag por linha)
  *   - json
  *   - txt (tabulado)
+ *   - pdf (demonstracao — parsing real requer biblioteca adicional)
  *
  * Retorna sempre Array<Record<string, string>> — cabecalhos como chaves.
  */
@@ -103,6 +104,12 @@ export async function parseArquivo(
 
     case 'xml': {
       return parseXml(buffer.toString('utf-8'))
+    }
+
+    case 'pdf': {
+      // NOTA: parsing real de PDF requer biblioteca adicional (ex: pdf-parse, pdfjs-dist).
+      // Esta implementacao retorna o conteudo bruto como demonstracao.
+      return [{ conteudo_bruto: buffer.toString('latin1').slice(0, 2000) }]
     }
 
     default:

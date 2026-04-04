@@ -23,7 +23,7 @@ interface EtapaUploadProps {
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
-const EXTENSOES_ACEITAS = ['xlsx', 'xls', 'csv', 'xml', 'txt', 'json']
+const EXTENSOES_ACEITAS = ['xlsx', 'xls', 'csv', 'xml', 'txt', 'json', 'pdf']
 const ACCEPT_STR = EXTENSOES_ACEITAS.map(e => `.${e}`).join(',')
 const TAMANHO_MAX_MB = 10
 const TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024
@@ -50,7 +50,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro }: EtapaUpl
   function validarESelecionar(file: File) {
     const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
     if (!EXTENSOES_ACEITAS.includes(ext)) {
-      setErroLocal(`Formato .${ext} nao suportado. Use: Excel, CSV, XML, TXT ou JSON.`)
+      setErroLocal(`Formato .${ext} nao suportado. Use: Excel, CSV, XML, TXT, JSON ou PDF.`)
       return
     }
     if (file.size > TAMANHO_MAX_BYTES) {
@@ -100,7 +100,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro }: EtapaUpl
             {carregando ? 'Analisando arquivo...' : 'Arraste um arquivo ou clique para selecionar'}
           </p>
           <p className="smart-import__upload-sub">
-            Formatos aceitos: Excel (.xlsx, .xls), CSV, XML, TXT, JSON<br />
+            Formatos aceitos: Excel (.xlsx, .xls), CSV, XML, TXT, JSON, PDF<br />
             Tamanho maximo: {TAMANHO_MAX_MB}MB
           </p>
         </div>

@@ -24,7 +24,7 @@ export const smartImportRouter = Router()
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
-const EXTENSOES_ACEITAS = new Set(['xlsx', 'xls', 'csv', 'xml', 'txt', 'json'])
+const EXTENSOES_ACEITAS = new Set(['xlsx', 'xls', 'csv', 'xml', 'txt', 'json', 'pdf'])
 const TAMANHO_MAX_BYTES = 10 * 1024 * 1024 // 10MB
 
 // ── Zod Schemas ───────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ smartImportRouter.post('/analisar', async (req: Request, res: Response, next: Ne
     const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
     if (!EXTENSOES_ACEITAS.has(ext)) {
       throw new AppError(
-        `Formato .${ext} nao suportado. Use: xlsx, xls, csv, xml, txt ou json`,
+        `Formato .${ext} nao suportado. Use: xlsx, xls, csv, xml, txt, json ou pdf`,
         400,
         'FORMATO_INVALIDO',
       )

@@ -608,21 +608,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   padding: 0;
-  margin-left: 3px;
+  margin-left: 4px;
   border: none;
   border-radius: 3px;
   background: transparent;
   color: var(--gtv-muted);
   cursor: pointer;
   flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.12s, color 0.12s, background 0.12s;
+  opacity: 0.45;
+  transition: color 0.12s, background 0.12s, opacity 0.12s;
 }
 
-.gtv-th:hover .gtv-filtro-btn,
+.gtv-filtro-btn:hover {
+  opacity: 1;
+}
+
 .gtv-filtro-btn--ativo {
   opacity: 1;
 }
@@ -709,7 +712,7 @@
 }
 
 .gtv-linha--filho .gtv-celula {
-  font-size: 0.71875rem;
+  font-size: 0.78125rem;
   font-weight: 500;
   color: var(--gtv-text);
 }
@@ -746,7 +749,7 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  font-size: 0.71875rem;
+  font-size: 0.78125rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 

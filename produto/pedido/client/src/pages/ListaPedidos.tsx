@@ -242,25 +242,28 @@ function FiltroPopoverColuna({
       role="dialog"
       aria-label={`Filtrar coluna ${label}`}
     >
+      {/* Nome da coluna */}
+      <div className="lp-filtro-coluna-nome">{label.toUpperCase()}</div>
+
       {/* Seção Ordenar */}
       <div className="lp-filtro-section">
-        <span className="lp-filtro-section-title">Ordenar</span>
+        <span className="lp-filtro-section-title">ORDENAR</span>
         <div className="lp-filtro-sort-btns">
           <button
             className="lp-filtro-sort-btn"
             onClick={() => { onOrdenar(campo, 'asc'); onFechar() }}
             title="Ordem crescente"
           >
-            <ArrowUp size={14} weight="bold" />
-            Crescente
+            <ArrowUp size={12} weight="bold" />
+            Cresc.
           </button>
           <button
             className="lp-filtro-sort-btn"
             onClick={() => { onOrdenar(campo, 'desc'); onFechar() }}
             title="Ordem decrescente"
           >
-            <ArrowDown size={14} weight="bold" />
-            Decrescente
+            <ArrowDown size={12} weight="bold" />
+            Decresc.
           </button>
         </div>
       </div>
@@ -270,11 +273,11 @@ function FiltroPopoverColuna({
       {/* Seção Filtrar */}
       {tipo === 'texto' && (
         <div className="lp-filtro-section">
-          <span className="lp-filtro-section-title">Filtrar por {label}</span>
+          <span className="lp-filtro-section-title">FILTRAR POR</span>
           <input
             className="lp-filtro-input"
             type="text"
-            placeholder={`Buscar em ${label}...`}
+            placeholder="Buscar..."
             value={textoLocal}
             onChange={e => setTextoLocal(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') aplicar() }}
@@ -285,7 +288,7 @@ function FiltroPopoverColuna({
 
       {tipo === 'enum' && (
         <div className="lp-filtro-section">
-          <span className="lp-filtro-section-title">Filtrar por {label}</span>
+          <span className="lp-filtro-section-title">FILTRAR POR</span>
           {valoresUnicos.length > 6 && (
             <input
               className="lp-filtro-input"
@@ -306,6 +309,13 @@ function FiltroPopoverColuna({
                     if (novo.has(v)) novo.delete(v)
                     else novo.add(v)
                     setEnumLocal(novo)
+                    // auto-aplica imediatamente no enum
+                    const novofiltro = novo.size > 0 ? new Set(novo) : undefined
+                    if (novofiltro && novofiltro.size > 0) {
+                      onAplicar(campo, { tipo: 'enum', valor: novofiltro })
+                    } else {
+                      onLimpar(campo)
+                    }
                   }}
                 />
                 <span>{v || '(vazio)'}</span>
@@ -341,14 +351,16 @@ function FiltroPopoverColuna({
         </div>
       )}
 
-      {/* Ações */}
+      {/* Ações — Aplicar só aparece para texto e número */}
       <div className="lp-filtro-acoes">
         <button className="lp-filtro-btn-limpar" onClick={limpar}>
-          Limpar filtro
+          × Limpar filtro
         </button>
-        <button className="lp-filtro-btn-aplicar" onClick={aplicar}>
-          Aplicar
-        </button>
+        {(tipo === 'texto' || tipo === 'numero') && (
+          <button className="lp-filtro-btn-aplicar" onClick={aplicar}>
+            Aplicar
+          </button>
+        )}
       </div>
     </div>
   )
@@ -497,12 +509,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_total_pedido',
-    label: 'Qtd Total',
+    label: 'Qtd Total Pedido',
     tipo: 'numero',
     filtravel: true,
     sortavel: true,
     align: 'right',
-    tooltipTitulo: 'Quantidade Total',
+    tooltipTitulo: 'Quantidade Total do Pedido',
     tooltipDescricao: 'Quantidade total contratada no pedido',
     largura: 110,
     render: (_val: unknown, row: Pedido) => (
@@ -530,12 +542,73 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     ),
   },
   {
+    key: 'quantidade_pronta_total',
+    label: 'Qtd Pronta',
+    tipo: 'numero',
+    align: 'right',
+    tooltipTitulo: 'Quantidade Pronta',
+    tooltipDescricao: 'Soma das quantidades prontas/aprovadas para embarque em todos os itens',
+    largura: 110,
+    render: (_val: unknown, row: Pedido) => {
+      const qtd = row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0) ?? null
+      return (
+        <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>
+          {qtd != null
+            ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'quantidade_a_embarcar',
+    label: 'Qtd a Embarcar',
+    tipo: 'numero',
+    align: 'right',
+    tooltipTitulo: 'Quantidade a Embarcar',
+    tooltipDescricao: 'Pronta − Transferida: quantidade fabricada aguardando embarque',
+    largura: 130,
+    render: (_val: unknown, row: Pedido) => {
+      const pronta = row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0) ?? null
+      const transf = row.quantidade_transferida_total ?? null
+      const qtd = pronta != null && transf != null ? Math.max(0, pronta - transf) : null
+      return (
+        <span style={{ fontFamily: 'var(--font-mono, monospace)', color: qtd != null && qtd > 0 ? '#fbbf24' : undefined }}>
+          {qtd != null
+            ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'quantidade_a_entregar',
+    label: 'Qtd a Entregar',
+    tipo: 'numero',
+    align: 'right',
+    tooltipTitulo: 'Quantidade a Entregar',
+    tooltipDescricao: 'Total − Transferida: saldo pendente do contrato',
+    largura: 130,
+    render: (_val: unknown, row: Pedido) => {
+      const total = row.quantidade_total_pedido ?? null
+      const transf = row.quantidade_transferida_total ?? null
+      const qtd = total != null && transf != null ? Math.max(0, total - transf) : null
+      return (
+        <span style={{ fontFamily: 'var(--font-mono, monospace)', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+          {qtd != null
+            ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            : '—'}
+        </span>
+      )
+    },
+  },
+  {
     key: 'quantidade_transferida_total',
     label: 'Qtd Transferida',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Quantidade Transferida',
-    tooltipDescricao: 'Soma das quantidades já transferidas para processos logísticos',
+    tooltipTitulo: 'Quantidade Transferida (Histórico)',
+    tooltipDescricao: 'Histórico: soma das quantidades já transferidas para processos logísticos',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>

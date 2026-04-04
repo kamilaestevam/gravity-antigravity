@@ -4413,10 +4413,9 @@ export default function ListaPedidos() {
           onFechar={() => setModalNovaColunaAberto(false)}
           onSalvo={() => {
             setModalNovaColunaAberto(false)
-            // Recarregar colunas do usuário
-            colunasUsuarioApi.listar().then(res => {
-              setColunasUsuario(res.data ?? [])
-            }).catch(() => {})
+            colunasUsuarioApi.listar()
+              .then(lista => setColunasUsuario(lista))
+              .catch(() => {})
           }}
         />
       )}

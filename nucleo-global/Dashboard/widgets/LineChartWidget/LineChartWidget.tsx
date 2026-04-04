@@ -1,8 +1,12 @@
 /**
- * LineChartWidget — Gráfico de linha/área usando Recharts
+ * LineChartWidget — Gráfico de linha/área com suporte a múltiplas séries
  *
- * Aceita dados de série temporal no formato { month, value }[].
- * Suporta modo área (showArea) para preenchimento sob a linha.
+ * v2 — 2026-04-03
+ * - Aceita array de séries (multi-campo)
+ * - Suporte a eixo Y duplo (D3: unidades incompatíveis)
+ * - Legenda sempre visível
+ * - Tooltip crosshair mostrando todos os valores no mesmo ponto
+ * - Paleta de cores fixa (SERIES_COLORS)
  */
 
 import React from 'react'
@@ -15,28 +19,30 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from 'recharts'
-import type { WidgetDataValue } from '../../tipos.js'
+import type { WidgetSeriesPoint, FieldUnitType } from '../../tipos.js'
+import { SERIES_COLORS, formatValueByUnit } from '../../utils/axisUtils.js'
+
+export interface LineSeriesConfig {
+  fieldKey: string
+  label: string
+  color: string
+  data: Array<{ month: string; value: number }>
+  yAxisId: 'left' | 'right'
+  unit: FieldUnitType
+}
 
 export interface LineChartWidgetProps {
-  title: string
-  data: Record<string, WidgetDataValue>
-  fieldKey: string
-  color?: string
+  series: LineSeriesConfig[]
+  dualAxis?: boolean
+  leftUnit?: FieldUnitType
+  rightUnit?: FieldUnitType
   showArea?: boolean
 }
 
-type TrendPoint = { month: string; value: number }
-
-function isTrendArray(value: WidgetDataValue): value is TrendPoint[] {
-  return (
-    Array.isArray(value) &&
-    value.length > 0 &&
-    typeof (value[0] as TrendPoint).month === 'string' &&
-    typeof (value[0] as TrendPoint).value === 'number'
-  )
-}
+// ── Formatação de mês ─────────────────────────────────────────────────────────
 
 const MONTH_ABBR: Record<string, string> = {
   '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr',
@@ -45,105 +51,187 @@ const MONTH_ABBR: Record<string, string> = {
 }
 
 function formatMonth(month: string): string {
-  // Suporta "2026-01" → "Jan"
   const parts = month.split('-')
   const monthNum = parts[1] ?? month
   return MONTH_ABBR[monthNum] ?? month
 }
 
-const tooltipStyle: React.CSSProperties = {
-  background: 'var(--bg-surface)',
-  border: '1px solid var(--border-default)',
-  borderRadius: '8px',
-  fontSize: '12px',
-  color: 'var(--text-primary)',
+// ── Tooltip customizado ───────────────────────────────────────────────────────
+
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: Array<{ name: string; value: number; color: string; dataKey: string }>
+  label?: string
+  series: LineSeriesConfig[]
 }
 
+function CustomTooltip({ active, payload, label, series }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={tooltipStyles.box}>
+      <p style={tooltipStyles.label}>{label}</p>
+      {payload.map(entry => {
+        const s = series.find(s => s.fieldKey === entry.dataKey)
+        const formatted = s ? formatValueByUnit(entry.value, s.unit) : String(entry.value)
+        return (
+          <div key={entry.dataKey} style={tooltipStyles.row}>
+            <span style={{ ...tooltipStyles.dot, background: entry.color }} />
+            <span style={tooltipStyles.name}>{entry.name}</span>
+            <span style={tooltipStyles.value}>{formatted}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+const tooltipStyles = {
+  box: {
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border-default)',
+    borderRadius: '8px',
+    padding: '8px 12px',
+    fontSize: '12px',
+    color: 'var(--text-primary)',
+    minWidth: '160px',
+  },
+  label: { margin: '0 0 6px', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '11px' },
+  row: { display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' },
+  dot: { width: '8px', height: '8px', borderRadius: '50%', flexShrink: 0 } as React.CSSProperties,
+  name: { flex: 1, color: 'var(--text-secondary)' },
+  value: { fontWeight: 600, color: 'var(--text-primary)' },
+} as const
+
+// ── Merge de séries em array para Recharts ────────────────────────────────────
+
+function buildChartData(series: LineSeriesConfig[]): WidgetSeriesPoint[] {
+  if (series.length === 0) return []
+
+  // Usa os meses da primeira série como eixo X
+  const baseMonths = series[0].data.map(p => p.month)
+
+  return baseMonths.map(month => {
+    const point: WidgetSeriesPoint = { month: formatMonth(month) }
+    for (const s of series) {
+      const found = s.data.find(p => p.month === month)
+      point[s.fieldKey] = found?.value ?? 0
+    }
+    return point
+  })
+}
+
+// ── Configuração de eixo Y ────────────────────────────────────────────────────
+
+const axisProps = {
+  stroke: 'var(--text-muted)' as const,
+  fontSize: 11,
+  tick: { fill: 'var(--text-muted)' },
+}
+
+// ── Componente principal ──────────────────────────────────────────────────────
+
 export function LineChartWidget({
-  data,
-  fieldKey,
-  color,
+  series,
+  dualAxis = false,
+  leftUnit = 'number',
+  rightUnit = 'number',
   showArea = false,
 }: LineChartWidgetProps) {
-  const raw = data[fieldKey]
-
-  if (!isTrendArray(raw)) {
-    return (
-      <div style={styles.empty}>
-        <span style={styles.emptyText}>Dados insuficientes</span>
-      </div>
-    )
+  if (series.length === 0) {
+    return <div style={styles.empty}><span style={styles.emptyText}>Dados insuficientes</span></div>
   }
 
-  const chartData = raw.map(pt => ({
-    month: formatMonth(pt.month),
-    value: pt.value,
-  }))
+  const chartData = buildChartData(series)
 
-  const lineColor = color ?? 'var(--accent)'
-  const axisProps = {
-    stroke: 'var(--text-muted)' as const,
-    fontSize: 11,
-    tick: { fill: 'var(--text-muted)' },
+  const leftTickFormatter = (v: number) => formatValueByUnit(v, leftUnit)
+  const rightTickFormatter = (v: number) => formatValueByUnit(v, rightUnit ?? leftUnit)
+
+  const commonProps = {
+    data: chartData,
+    margin: { top: 4, right: dualAxis ? 48 : 8, left: 0, bottom: 0 },
   }
 
-  if (showArea) {
-    return (
-      <ResponsiveContainer width="100%" height={180}>
-        <AreaChart data={chartData}>
-          <defs>
-            <linearGradient id="db-area-gradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={lineColor} stopOpacity={0.2} />
-              <stop offset="95%" stopColor={lineColor} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid stroke="var(--bg-elevated)" strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="month" {...axisProps} />
-          <YAxis {...axisProps} width={40} />
-          <Tooltip contentStyle={tooltipStyle} />
+  const renderLines = () =>
+    series.map((s, i) => {
+      const color = s.color || SERIES_COLORS[i % SERIES_COLORS.length]
+      if (showArea) {
+        return (
           <Area
+            key={s.fieldKey}
             type="monotone"
-            dataKey="value"
-            stroke={lineColor}
+            dataKey={s.fieldKey}
+            name={s.label}
+            yAxisId={dualAxis ? s.yAxisId : 'left'}
+            stroke={color}
+            fill={color}
+            fillOpacity={0.12}
             strokeWidth={2}
-            fill="url(#db-area-gradient)"
             dot={false}
-            activeDot={{ r: 4, fill: lineColor }}
+            activeDot={{ r: 4, fill: color }}
           />
-        </AreaChart>
-      </ResponsiveContainer>
-    )
-  }
-
-  return (
-    <ResponsiveContainer width="100%" height={180}>
-      <LineChart data={chartData}>
-        <CartesianGrid stroke="var(--bg-elevated)" strokeDasharray="3 3" vertical={false} />
-        <XAxis dataKey="month" {...axisProps} />
-        <YAxis {...axisProps} width={40} />
-        <Tooltip contentStyle={tooltipStyle} />
+        )
+      }
+      return (
         <Line
+          key={s.fieldKey}
           type="monotone"
-          dataKey="value"
-          stroke={lineColor}
+          dataKey={s.fieldKey}
+          name={s.label}
+          yAxisId={dualAxis ? s.yAxisId : 'left'}
+          stroke={color}
           strokeWidth={2}
           dot={false}
-          activeDot={{ r: 4, fill: lineColor }}
+          activeDot={{ r: 4, fill: color }}
         />
-      </LineChart>
+      )
+    })
+
+  const ChartComponent = showArea ? AreaChart : LineChart
+
+  return (
+    <ResponsiveContainer width="100%" height="100%" minHeight={120}>
+      <ChartComponent {...commonProps}>
+        <CartesianGrid stroke="var(--bg-elevated)" strokeDasharray="3 3" vertical={false} />
+        <XAxis dataKey="month" {...axisProps} />
+        <YAxis
+          yAxisId="left"
+          {...axisProps}
+          width={48}
+          tickFormatter={leftTickFormatter}
+        />
+        {dualAxis && (
+          <YAxis
+            yAxisId="right"
+            orientation="right"
+            {...axisProps}
+            width={48}
+            tickFormatter={rightTickFormatter}
+          />
+        )}
+        <Tooltip content={<CustomTooltip series={series} />} />
+        {series.length > 1 && (
+          <Legend
+            iconType="circle"
+            iconSize={8}
+            wrapperStyle={{ fontSize: '11px', color: 'var(--text-secondary)', paddingTop: '8px' }}
+          />
+        )}
+        {renderLines()}
+      </ChartComponent>
     </ResponsiveContainer>
   )
 }
+
+// ── Estilos ───────────────────────────────────────────────────────────────────
 
 const styles = {
   empty: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '180px',
+    flex: 1,
+    minHeight: '120px',
     color: 'var(--text-muted)',
   },
-  emptyText: {
-    fontSize: '13px',
-  },
+  emptyText: { fontSize: '13px' },
 } as const

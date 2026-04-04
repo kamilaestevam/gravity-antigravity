@@ -1,23 +1,17 @@
 /**
- * dashboardCatalog.ts — Mapeamento do CARDS_CATALOGO para CatalogField[]
+ * dashboardCatalog.ts — Catálogo de campos do Dashboard Pedido
  *
- * Enriquece cada métrica com:
+ * Cada campo é um CatalogField enriquecido com:
  * - semanticType: semântica para o motor de sugestão
  * - domain: entidade de origem (pedido | item)
  * - complementaryFields: campos que fazem sentido combinados
  * - chartTypes: visualizações compatíveis
+ * - dimension?: agrupamento para futura rota GROUP BY (Option B)
  */
 
-import type { CatalogField } from '@nucleo/dashboard'
+import type { EnrichedCatalogField } from '@nucleo/dashboard'
 
-export type SemanticType = 'count' | 'sum_currency' | 'sum_qty' | 'ratio' | 'date'
-export type FieldDomain  = 'pedido' | 'item'
-
-export interface EnrichedCatalogField extends CatalogField {
-  semanticType: SemanticType
-  domain: FieldDomain
-  complementaryFields: string[]
-}
+export type { EnrichedCatalogField } from '@nucleo/dashboard'
 
 export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
 
@@ -41,10 +35,11 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     type: 'number',
     aggregations: ['COUNT'],
     permission: 'pedido.read',
-    chartTypes: ['KPI_CARD', 'LINE', 'DONUT'],
+    chartTypes: ['KPI_CARD', 'LINE', 'DISTRIBUTION'],
     semanticType: 'count',
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_em_andamento', 'pedidos_atrasados'],
+    dimension: 'status_pedido',
   },
   {
     key: 'pedidos_em_andamento',
@@ -53,10 +48,11 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     type: 'number',
     aggregations: ['COUNT'],
     permission: 'pedido.read',
-    chartTypes: ['KPI_CARD', 'LINE', 'DONUT'],
+    chartTypes: ['KPI_CARD', 'LINE', 'DISTRIBUTION'],
     semanticType: 'count',
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_abertos', 'pedidos_atrasados'],
+    dimension: 'status_pedido',
   },
   {
     key: 'pedidos_atrasados',
@@ -65,10 +61,11 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     type: 'number',
     aggregations: ['COUNT'],
     permission: 'pedido.read',
-    chartTypes: ['KPI_CARD', 'LINE', 'BAR'],
+    chartTypes: ['KPI_CARD', 'LINE', 'BAR', 'DISTRIBUTION'],
     semanticType: 'count',
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_abertos'],
+    dimension: 'status_pedido',
   },
 
   // ── Pedido — Financeiro ─────────────────────────────────────────────────────
@@ -91,10 +88,11 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     type: 'currency',
     aggregations: ['SUM'],
     permission: 'pedido.read',
-    chartTypes: ['KPI_CARD', 'LINE'],
+    chartTypes: ['KPI_CARD', 'LINE', 'DISTRIBUTION'],
     semanticType: 'sum_currency',
     domain: 'pedido',
     complementaryFields: ['valor_total', 'valor_itens_total'],
+    dimension: 'cobertura_status',
   },
   {
     key: 'valor_itens_total',
@@ -131,10 +129,11 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     type: 'number',
     aggregations: ['SUM'],
     permission: 'pedido.read',
-    chartTypes: ['KPI_CARD', 'LINE', 'BAR'],
+    chartTypes: ['KPI_CARD', 'LINE', 'BAR', 'DISTRIBUTION'],
     semanticType: 'sum_qty',
     domain: 'item',
     complementaryFields: ['qtd_inicial_total', 'qtd_atual_total', 'qtd_transferida_total'],
+    dimension: 'status_item',
   },
   {
     key: 'qtd_atual_total',
@@ -143,10 +142,11 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     type: 'number',
     aggregations: ['SUM'],
     permission: 'pedido.read',
-    chartTypes: ['KPI_CARD', 'LINE', 'BAR'],
+    chartTypes: ['KPI_CARD', 'LINE', 'BAR', 'DISTRIBUTION'],
     semanticType: 'sum_qty',
     domain: 'item',
     complementaryFields: ['qtd_inicial_total', 'itens_prontos', 'qtd_transferida_total'],
+    dimension: 'status_item',
   },
   {
     key: 'qtd_transferida_total',
@@ -155,10 +155,11 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     type: 'number',
     aggregations: ['SUM'],
     permission: 'pedido.read',
-    chartTypes: ['KPI_CARD', 'LINE', 'BAR'],
+    chartTypes: ['KPI_CARD', 'LINE', 'BAR', 'DISTRIBUTION'],
     semanticType: 'sum_qty',
     domain: 'item',
     complementaryFields: ['qtd_inicial_total', 'qtd_atual_total', 'itens_prontos'],
+    dimension: 'status_item',
   },
   {
     key: 'qtd_inicial_total',

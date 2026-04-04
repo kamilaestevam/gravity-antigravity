@@ -30,6 +30,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
+import { GerenciadorColunas } from '../components/ConfiguracaoColunas/GerenciadorColunas'
+import '../components/ConfiguracaoColunas/GerenciadorColunas.css'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -69,6 +71,7 @@ function CardSortavel({
   const { t } = useTranslation()
   const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
   const visual = CARD_VISUAL[pref.id]
+  const [expandido, setExpandido] = useState(false)
 
   const {
     attributes, listeners, setNodeRef,
@@ -83,57 +86,94 @@ function CardSortavel({
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}`}
-    >
-      <button
-        type="button"
-        className="cfg-drag-handle"
-        {...attributes}
-        {...listeners}
-        aria-label="Arrastar para reordenar"
-      >
-        <DotsSixVertical size={16} weight="bold" />
-      </button>
+    <div ref={setNodeRef} style={style}>
+      <div className={`cfg-card-row${!pref.visible ? ' cfg-card-row--oculto' : ''}${expandido ? ' cfg-card-row--editing' : ''}`}>
+        <button
+          type="button"
+          className="cfg-drag-handle"
+          {...attributes}
+          {...listeners}
+          aria-label="Arrastar para reordenar"
+        >
+          <DotsSixVertical size={16} weight="bold" />
+        </button>
 
-      <div className="cfg-card-row__info">
-        <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
-          {visual.icone}
-        </span>
-        <div>
-          <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
-          <p className="cfg-card-row__desc">{t(def.descKey)}</p>
+        <div className="cfg-card-row__info">
+          <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
+            {visual.icone}
+          </span>
+          <div>
+            <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
+            <p className="cfg-card-row__desc">{t(def.descKey)}</p>
+          </div>
         </div>
+
+        <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
+
+        <TooltipGlobal descricao="Ver variáveis do card">
+          <button
+            type="button"
+            className={`cfg-eye-btn${expandido ? ' cfg-eye-btn--on' : ''}`}
+            onClick={() => setExpandido(v => !v)}
+            aria-label="Ver variáveis"
+          >
+            <PencilSimple size={14} weight="bold" />
+          </button>
+        </TooltipGlobal>
+
+        <TooltipGlobal descricao={pref.visible ? 'Ocultar na lista' : 'Exibir na lista'}>
+          <button
+            type="button"
+            className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
+            onClick={onToggle}
+            aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
+          >
+            {pref.visible
+              ? <Eye      size={15} weight="bold" />
+              : <EyeSlash size={15} weight="bold" />
+            }
+          </button>
+        </TooltipGlobal>
+
+        <TooltipGlobal descricao="Remover da lista">
+          <button
+            type="button"
+            className="cfg-remove-btn"
+            onClick={onRemover}
+            aria-label="Remover card"
+          >
+            <X size={13} weight="bold" />
+          </button>
+        </TooltipGlobal>
       </div>
 
-      <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
-
-      <TooltipGlobal descricao={pref.visible ? 'Ocultar na lista' : 'Exibir na lista'}>
-        <button
-          type="button"
-          className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
-          onClick={onToggle}
-          aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
-        >
-          {pref.visible
-            ? <Eye      size={15} weight="bold" />
-            : <EyeSlash size={15} weight="bold" />
-          }
-        </button>
-      </TooltipGlobal>
-
-      <TooltipGlobal descricao="Remover da lista">
-        <button
-          type="button"
-          className="cfg-remove-btn"
-          onClick={onRemover}
-          aria-label="Remover card"
-        >
-          <X size={13} weight="bold" />
-        </button>
-      </TooltipGlobal>
+      {expandido && (
+        <div className="cfg-edit-panel">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Campo (ID)</label>
+              <div className="cfg-edit-panel__input" style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>{def.id}</div>
+            </div>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Origem</label>
+              <div className="cfg-edit-panel__input">{def.origem}</div>
+            </div>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Agregação</label>
+              <div className="cfg-edit-panel__input">{def.tipoAgg}</div>
+            </div>
+            <div className="cfg-edit-panel__field">
+              <label className="cfg-edit-panel__label">Visível</label>
+              <div className="cfg-edit-panel__input">{pref.visible ? 'Sim' : 'Não'}</div>
+            </div>
+          </div>
+          <div className="cfg-edit-panel__actions">
+            <button type="button" className="cfg-reset-btn" onClick={() => setExpandido(false)}>
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -143,6 +183,7 @@ function CardSortavel({
 const CATEGORIAS = [
   { id: 'cards',        label: 'Cards',        icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
   { id: 'dashboard',    label: 'Dashboard',    icone: <ChartBar       size={15} weight="duotone" />, ativo: true  },
+  { id: 'colunas',      label: 'Colunas',      icone: <Table          size={15} weight="duotone" />, ativo: true  },
   { id: 'tabela',       label: 'Tabela',       icone: <Table          size={15} weight="duotone" />, ativo: false },
   { id: 'notificacoes', label: 'Notificações', icone: <Bell           size={15} weight="duotone" />, ativo: false },
   { id: 'exportacao',   label: 'Exportação',   icone: <DownloadSimple size={15} weight="duotone" />, ativo: false },
@@ -393,11 +434,11 @@ export default function Configuracoes() {
                           <div className="cfg-card-row__info">
                             <div>
                               <p className="cfg-card-row__nome">{w.title}</p>
-                              <p className="cfg-card-row__desc">{meta?.label ?? w.chart_type} · {w.query_spec.fields.join(', ')}</p>
+                              <p className="cfg-card-row__desc">{meta?.label ?? w.chart_type} · {w.query_spec.fields.map(f => f.key).join(', ')}</p>
                             </div>
                           </div>
 
-                          <span className="cfg-agg-badge">{w.query_spec.operation}</span>
+                          <span className="cfg-agg-badge">{w.query_spec.fields[0]?.operation ?? '—'}</span>
 
                           <button
                             type="button"
@@ -464,6 +505,14 @@ export default function Configuracoes() {
                   })}
                 </div>
               )}
+            </section>
+          </div>
+        )}
+
+        {categoria === 'colunas' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <GerenciadorColunas />
             </section>
           </div>
         )}

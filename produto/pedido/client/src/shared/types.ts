@@ -319,6 +319,10 @@ export interface Pedido {
   unidade_comercializada_pedido: string | null
   quantidade_volumes_pedido?: number | null
 
+  // Agregados de itens (soma calculada pelo backend)
+  quantidade_inicial_total?: number | null
+  quantidade_transferida_total?: number | null
+
   // Catálogo
   partnumber_produto_pedido?: string | null
   referencia_interna_produto_catalogo?: string | null
@@ -404,8 +408,49 @@ export interface Pedido {
   // Itens
   itens: PedidoItem[]
 
+  // Rastreabilidade de consolidação
+  pedidos_origem?: string[] | null
+
   created_at: string
   updated_at: string
+}
+
+// ── Consolidação de Pedidos ───────────────────────────────────────────────────
+
+export interface CampoDivergente {
+  campo: string
+  rotulo: string
+  valores: { pedido_id: string; numero_pedido: string; valor: string | number | null }[]
+  valor_sugerido: string | number | null
+}
+
+export interface ItemConsolidado {
+  part_number: string
+  descricao: string
+  ncm: string
+  unidade_comercializada_item: string | null
+  moeda_item: string
+  valor_unitario: number | null
+  quantidade_total: number
+  pedidos_origem: string[]
+  pode_fundir: boolean
+}
+
+export interface ConsolidacaoPreview {
+  ids: string[]
+  campos_divergentes: CampoDivergente[]
+  campos_iguais: string[]
+  itens: ItemConsolidado[]
+  valor_total_soma: number
+  moeda: string
+  numero_sugerido: string
+}
+
+export interface ConsolidacaoPayload {
+  ids: string[]
+  numero_pedido: string
+  campos_escolhidos: Record<string, string | number | null>
+  fundir_itens_mesmo_part_number: boolean
 }
 
 // ── Tipos para TabelaVirtualGlobal ────────────────────────────────────────────
@@ -443,6 +488,360 @@ export interface PedidosListResponse {
   nextCursor: string | null
   total: number
   hasMore: boolean
+}
+
+// ── Transferência de Pedidos ──────────────────────────────────────────────────
+
+/** Operações primitivas que compõem todos os cenários de transferência */
+export type OperacaoTransfer = 'reduzir' | 'alocar' | 'transformar'
+
+/** Cenários disponíveis de transferência */
+export type CenarioTransfer =
+  | 'reducao_simples'
+  | 'split_novo_pedido'
+  | 'split_pedido_existente'
+  | 'multi_split'
+  | 'substituicao_pura'
+  | 'split_substituicao'
+  | 'split_data'
+  | 'split_destino_logistico'
+  | 'transfer_intercompany'
+  | 'reversao'
+  | 'agrupamento_inverso'
+
+/** Destino de quantidade em uma operação de transferência */
+export interface TransferDestino {
+  tipo: 'novo' | 'existente' | 'mesmo'
+  /** Preenchido quando tipo = 'existente' */
+  pedido_id?: string
+  quantidade: number
+  /** Cenários 5a, 5b — substituição de produto */
+  part_number?: string
+  /** Cenário 6 — split por data */
+  data_embarque?: string
+  /** Cenário 7 — split por destino logístico */
+  porto_destino?: string
+  /** Cenário 8 — transfer intercompany */
+  company_id?: string
+}
+
+/** Payload enviado ao backend para preview e confirmação */
+export interface TransferPayload {
+  cenario: CenarioTransfer
+  /** Pedido de origem */
+  pedido_id: string
+  /** Item de origem */
+  item_id: string
+  /** Quantidade removida do pedido de origem */
+  quantidade_origem: number
+  /** Destinos (1 para cenários simples, N para multi-split) */
+  destinos: TransferDestino[]
+  /** Número do novo pedido, quando o cenário cria um pedido novo */
+  numero_pedido_novo?: string
+  /** Apenas para cenário 'reversao' */
+  reverter_transfer_id?: string
+}
+
+/** Resposta do endpoint de preview — mostra impacto sem alterar o banco */
+export interface TransferPreview {
+  cenario: CenarioTransfer
+  origem: {
+    pedido_numero: string
+    item_part_number: string
+    quantidade_atual: number
+    quantidade_apos: number
+    encerra: boolean
+  }
+  destinos: {
+    tipo: 'novo' | 'existente'
+    pedido_numero?: string
+    quantidade: number
+    alertas: string[]
+  }[]
+  alertas_globais: string[]
+}
+
+/** Resposta do endpoint de confirmação */
+export interface TransferResultado {
+  pedido_origem_id: string
+  pedidos_destino_ids: string[]
+  pedidos_criados: string[]
+  /** IDs de itens excluídos quando qty chegou a zero (se config ativo) */
+  itens_excluidos: string[]
+  /** IDs de pedidos encerrados quando qty total chegou a zero (se config ativo) */
+  pedidos_encerrados: string[]
+}
+
+/** Registro de histórico de uma transferência (para reversão) */
+export interface TransferHistorico {
+  id: string
+  pedido_origem_id: string
+  item_origem_id: string
+  cenario: CenarioTransfer
+  quantidade: number
+  destinos: TransferDestino[]
+  revertido: boolean
+  created_at: string
+  created_by: string
+}
+
+// ── Edição em Massa ───────────────────────────────────────────────────────────
+
+/** Tipos de campo suportados para edição em massa */
+export type TipoCampoEdicao = 'texto' | 'numero' | 'data' | 'select' | 'usuario'
+
+/** Operação aplicada ao campo */
+export type OperacaoCampo =
+  | 'substituir'    // todos os tipos
+  | 'somar'         // numero
+  | 'subtrair'      // numero
+  | 'percentual'    // numero (ex: +10% → ×1.1)
+  | 'avancar_dias'  // data
+  | 'recuar_dias'   // data
+
+/** Um campo a ser editado em massa */
+export interface CampoEdicaoMassa {
+  campo: string               // key do campo (ex: 'incoterm', 'data_embarque')
+  tipo: TipoCampoEdicao
+  nivel: 'pedido' | 'item'
+  operacao: OperacaoCampo
+  valor: string | number      // novo valor ou delta (para somar/percentual/dias)
+}
+
+/** Payload enviado ao backend */
+export interface EdicaoMassaPayload {
+  pedido_ids: string[]
+  campos: CampoEdicaoMassa[]
+  nivel: 'pedido' | 'item' | 'combinado'
+}
+
+/** Resposta do preview */
+export interface EdicaoMassaPreview {
+  pedidos_afetados: number
+  itens_afetados: number
+  campos: {
+    campo: string
+    nivel: 'pedido' | 'item'
+    operacao: OperacaoCampo
+    valor: string | number
+    multiplos_valores: boolean    // true se pedidos selecionados têm valores diferentes
+    valores_distintos?: string[]  // lista de valores atuais distintos (para exibir no UI)
+    alertas: string[]
+  }[]
+  alertas_globais: string[]
+}
+
+/** Resposta do confirmar */
+export interface EdicaoMassaResultado {
+  pedidos_atualizados: number
+  itens_atualizados: number
+  campos_alterados: string[]
+  erros: { pedido_id: string; motivo: string }[]
+}
+
+/** Campos calculados do Pedido — nunca editáveis em massa */
+export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
+  'valor_total_pedido',
+  'quantidade_inicial_total',
+  'quantidade_transferida_total',
+  'status',
+  'id',
+  'tenant_id',
+  'product_id',
+  'created_at',
+  'updated_at',
+  'deleted_at',
+])
+
+/** Campos calculados do PedidoItem — nunca editáveis em massa */
+export const CAMPOS_BLOQUEADOS_ITEM = new Set([
+  'valor_item',
+  'quantidade_atual',
+  'id',
+  'tenant_id',
+  'pedido_id',
+  'created_at',
+  'updated_at',
+])
+
+// ── Smart Import ──────────────────────────────────────────────────────────────
+
+/** Resultado do mapeamento de uma coluna do arquivo para o campo do sistema */
+export interface ColunaMapeada {
+  coluna_arquivo: string
+  campo_sistema: string | null
+  confianca: number
+  nivel: 'auto' | 'confirmado' | 'manual' | 'ignorado'
+  inferido_por: 'ia' | 'dados' | 'memoria' | 'usuario'
+}
+
+/** Resultado completo do parse + mapeamento IA */
+export interface SmartImportPreview {
+  total_linhas: number
+  total_pedidos: number
+  total_itens: number
+  mapeamento: ColunaMapeada[]
+  confianca_global: number
+  memoria_aplicada: boolean
+  linhas: SmartImportLinha[]
+}
+
+/** Uma linha do arquivo apos mapeamento e validacao */
+export interface SmartImportLinha {
+  linha_arquivo: number
+  numero_pedido: string | null
+  status: 'ok' | 'aviso' | 'erro'
+  alertas: SmartImportAlerta[]
+  dados: Record<string, unknown>
+}
+
+export interface SmartImportAlerta {
+  campo: string
+  tipo: 'obrigatorio_ausente' | 'formato_invalido' | 'valor_negativo' | 'duplicado_sistema' | 'duplicado_arquivo'
+  mensagem: string
+  nivel: 'aviso' | 'erro'
+}
+
+/** Decisao do usuario para pedidos duplicados */
+export type DecisaoDuplicata = 'sobrescrever' | 'criar' | 'pular'
+
+/** Payload enviado ao backend para confirmar a importacao */
+export interface SmartImportConfirmar {
+  preview_id: string
+  mapeamento_confirmado: ColunaMapeada[]
+  decisoes_duplicatas: Record<string, DecisaoDuplicata>
+  linhas_incluidas: number[]
+  salvar_mapeamento: boolean
+}
+
+/** Resultado retornado apos a importacao confirmada */
+export interface SmartImportResultado {
+  criados: number
+  atualizados: number
+  pulados: number
+  erros: { linha: number; motivo: string }[]
+  ids_criados: string[]
+}
+
+// ── Duplicar Pedidos ──────────────────────────────────────────────────────────
+
+export interface DuplicarPayload {
+  ids: string[]
+  numeros?: Record<string, string>
+}
+
+export interface DuplicarItemPayload {
+  pedido_id: string
+  item_ids: string[]
+}
+
+export interface DuplicarResultado {
+  criados: { original_id: string; novo_id: string; numero_pedido: string }[]
+  erros: { id: string; motivo: string }[]
+}
+
+// ── Excluir Pedidos ───────────────────────────────────────────────────────────
+
+export interface ExcluirPreview {
+  permitidos: { id: string; numero_pedido: string; total_itens: number }[]
+  bloqueados: { id: string; numero_pedido: string; status: string; motivo: string }[]
+}
+
+export interface ExcluirResultado {
+  excluidos: number
+  itens_excluidos: number
+  pedidos_excluidos_por_sem_item: number
+}
+
+// ── Helpers de formatacao ─────────────────────────────────────────────────────
+
+// ── Anexos ────────────────────────────────────────────────────────────────────
+
+export interface Anexo {
+  id: string
+  tenant_id: string
+  vinculo: 'pedido' | 'item'
+  vinculo_id: string
+  nome_arquivo: string
+  tipo_arquivo: string          // MIME type
+  tamanho_bytes: number
+  descricao?: string
+  categoria?: string
+  storage_key: string           // path interno no storage
+  uploaded_by: string
+  uploaded_at: string
+}
+
+export interface AnexoUploadResultado {
+  id: string
+  nome_arquivo: string
+  tamanho_bytes: number
+  url_download: string
+}
+
+// ── PDF ───────────────────────────────────────────────────────────────────────
+
+export interface TemplatePdf {
+  id: string
+  tenant_id: string
+  nome: string
+  descricao?: string
+  conteudo_html: string         // HTML com variáveis Handlebars
+  created_at: string
+  updated_at: string
+}
+
+export interface GerarPdfPayload {
+  pedido_id: string
+  template_id: string
+  salvar_como_anexo: boolean
+}
+
+export interface GerarPdfResultado {
+  url_download: string
+  anexo_id: string              // ID do anexo salvo
+}
+
+// ── Colunas do Usuário ────────────────────────────────────────────────────────
+
+export type TipoColunaUsuario =
+  | 'texto'
+  | 'numero'
+  | 'data'
+  | 'select'
+  | 'checkbox'
+  | 'percentual'
+  | 'tipo_documento'
+
+export type EscopoColunaUsuario = 'pedido' | 'item' | 'ambos'
+export type VisibilidadeColunaUsuario = 'todos' | 'roles' | 'privado'
+
+export interface ColunaUsuario {
+  id: string
+  tenant_id: string
+  nome: string
+  chave: string
+  tipo: TipoColunaUsuario
+  escopo: EscopoColunaUsuario
+  visibilidade: VisibilidadeColunaUsuario
+  roles_permitidas?: string[]
+  obrigatorio: boolean
+  opcoes?: string[]
+  descricao?: string
+  valor_padrao?: string
+  ordem: number
+  ativo: boolean
+  created_by: string
+  created_at: string
+}
+
+export interface ValorColunaUsuario {
+  id: string
+  tenant_id: string
+  coluna_id: string
+  vinculo: 'pedido' | 'item'
+  vinculo_id: string
+  valor: string
 }
 
 // ── Helpers de formatacao ─────────────────────────────────────────────────────

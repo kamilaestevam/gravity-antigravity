@@ -294,6 +294,7 @@ const styles = {
   },
   body: {
     flex: 1,
+    minHeight: 0,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column' as const,

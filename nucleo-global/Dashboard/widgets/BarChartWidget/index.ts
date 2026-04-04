@@ -1,2 +1,2 @@
 export { BarChartWidget } from './BarChartWidget.js'
-export type { BarChartWidgetProps } from './BarChartWidget.js'
+export type { BarChartWidgetProps, BarSeriesConfig } from './BarChartWidget.js'

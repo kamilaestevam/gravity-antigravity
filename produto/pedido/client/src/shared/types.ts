@@ -629,6 +629,16 @@ export interface EdicaoMassaPreview {
     alertas: string[]
   }[]
   alertas_globais: string[]
+  /** Detalhamento por pedido — valor atual e novo valor para cada campo */
+  por_pedido?: Array<{
+    pedido_id: string
+    numero_pedido: string
+    alteracoes: Array<{
+      campo: string
+      valor_atual: string | number | null
+      valor_novo: string | number
+    }>
+  }>
 }
 
 /** Resposta do confirmar */
@@ -673,6 +683,14 @@ export interface ColunaMapeada {
   confianca: number
   nivel: 'auto' | 'confirmado' | 'manual' | 'ignorado'
   inferido_por: 'ia' | 'dados' | 'memoria' | 'usuario'
+  /** Primeiro valor real encontrado no arquivo para esta coluna */
+  exemplo_valor?: string | null
+}
+
+/** Uma linha bruta do arquivo (para exibição do documento original) */
+export interface SmartImportLinhaRaw {
+  linha: number
+  valores: Record<string, string>
 }
 
 /** Resultado completo do parse + mapeamento IA */
@@ -684,12 +702,16 @@ export interface SmartImportPreview {
   confianca_global: number
   memoria_aplicada: boolean
   linhas: SmartImportLinha[]
+  /** Linhas brutas do arquivo para exibição do documento original */
+  dados_brutos?: SmartImportLinhaRaw[]
 }
 
 /** Uma linha do arquivo apos mapeamento e validacao */
 export interface SmartImportLinha {
   linha_arquivo: number
   numero_pedido: string | null
+  /** Número sugerido para o pedido que será criado (editável pelo usuário) */
+  numero_pedido_sugerido?: string | null
   status: 'ok' | 'aviso' | 'erro'
   alertas: SmartImportAlerta[]
   dados: Record<string, unknown>
@@ -712,6 +734,8 @@ export interface SmartImportConfirmar {
   decisoes_duplicatas: Record<string, DecisaoDuplicata>
   linhas_incluidas: number[]
   salvar_mapeamento: boolean
+  /** Números de pedido editados pelo usuário: linha_arquivo → numero_pedido */
+  numeros_editados?: Record<number, string>
 }
 
 /** Resultado retornado apos a importacao confirmada */
@@ -800,6 +824,18 @@ export interface GerarPdfPayload {
 export interface GerarPdfResultado {
   url_download: string
   anexo_id: string              // ID do anexo salvo
+}
+
+// ── Gerar Documento (multilíngue) ────────────────────────────────────────────
+
+export type TipoDocumentoGerar = 'pedido_de_venda' | 'proforma_invoice' | 'invoice'
+export type IdiomaDocumento = 'pt' | 'en' | 'es' | 'zh' | 'ja' | 'ar'
+
+export interface GerarDocumentoPayload {
+  pedido_id: string
+  tipo_documento: TipoDocumentoGerar
+  idioma: IdiomaDocumento
+  salvar_como_anexo: boolean
 }
 
 // ── Colunas do Usuário ────────────────────────────────────────────────────────

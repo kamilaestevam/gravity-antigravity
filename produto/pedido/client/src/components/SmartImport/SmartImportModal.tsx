@@ -65,6 +65,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
   const [lembrarMapeamento, setLembrarMapeamento] = useState(true)
   const [linhasSelecionadas, setLinhasSelecionadas] = useState<Set<number>>(new Set())
   const [decisoesDuplicatas, setDecisoesDuplicatas] = useState<Record<string, DecisaoDuplicata>>({})
+  const [numerosEditados, setNumerosEditados]     = useState<Record<number, string>>({})
   const [resultado, setResultado]               = useState<SmartImportResultado | null>(null)
 
   // Resetar ao fechar
@@ -79,6 +80,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
         setMapeamento([])
         setLinhasSelecionadas(new Set())
         setDecisoesDuplicatas({})
+        setNumerosEditados({})
         setResultado(null)
       }, 300)
     }
@@ -140,6 +142,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
       decisoes_duplicatas: decisoesDuplicatas,
       linhas_incluidas: Array.from(linhasSelecionadas),
       salvar_mapeamento: lembrarMapeamento,
+      numeros_editados: Object.keys(numerosEditados).length > 0 ? numerosEditados : undefined,
     }
 
     try {
@@ -155,6 +158,10 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
 
   function handleDecisaoDuplicata(numeroPedido: string, decisao: DecisaoDuplicata) {
     setDecisoesDuplicatas(prev => ({ ...prev, [numeroPedido]: decisao }))
+  }
+
+  function handleNumeroEditado(linhaArquivo: number, numero: string) {
+    setNumerosEditados(prev => ({ ...prev, [linhaArquivo]: numero }))
   }
 
   function handleVerPedidos() {
@@ -240,6 +247,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
               mapeamento={mapeamento}
               memoriaAplicada={preview.memoria_aplicada}
               lembrarMapeamento={lembrarMapeamento}
+              dadosBrutos={preview.dados_brutos}
               onMapeamentoChange={setMapeamento}
               onLembrarChange={setLembrarMapeamento}
             />
@@ -250,8 +258,10 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
               linhas={preview.linhas}
               linhasSelecionadas={linhasSelecionadas}
               decisoesDuplicatas={decisoesDuplicatas}
+              numerosEditados={numerosEditados}
               onSelecaoChange={setLinhasSelecionadas}
               onDecisaoDuplicata={handleDecisaoDuplicata}
+              onNumeroEditado={handleNumeroEditado}
             />
           )}
 
@@ -303,7 +313,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
                   Continuar
                 </BotaoGlobal>
               )}
-              {etapa === 'preview' && (
+              {etapa === 'preview' && preview && (
                 <BotaoGlobal
                   variante="primario"
                   tamanho="medio"
@@ -313,7 +323,9 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
                 >
                   {confirmando
                     ? 'Importando...'
-                    : `Importar ${linhasSelecionadas.size} linha(s)`}
+                    : linhasSelecionadas.size === preview.linhas.length
+                      ? 'Importar Pedido'
+                      : `Importar ${linhasSelecionadas.size} linha(s)`}
                 </BotaoGlobal>
               )}
             </div>

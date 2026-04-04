@@ -12,14 +12,14 @@
  *  └── Categorias Anexos  ← gerenciar categorias de anexo
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   SquaresFour, Table, Bell, DownloadSimple,
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Package, CurrencyDollar, Scales, Warning, CheckCircle, Coins,
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
-  Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple,
+  Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -141,11 +141,146 @@ function CardSortavel({
   )
 }
 
+// ─── Status sortável (DnD) ────────────────────────────────────────────────────
+
+interface StatusPedido {
+  id: string
+  label: string
+  cor: string
+  sistema: boolean
+}
+
+function StatusSortavel({
+  status,
+  editandoId,
+  editLabel,
+  editCor,
+  onIniciarEdicao,
+  onSalvarEdicao,
+  onCancelarEdicao,
+  onChangeLabel,
+  onChangeCor,
+  onExcluir,
+}: {
+  status: StatusPedido
+  editandoId: string | null
+  editLabel: string
+  editCor: string
+  onIniciarEdicao: (s: StatusPedido) => void
+  onSalvarEdicao: () => void
+  onCancelarEdicao: () => void
+  onChangeLabel: (v: string) => void
+  onChangeCor: (v: string) => void
+  onExcluir: (id: string) => void
+}) {
+  const {
+    attributes, listeners, setNodeRef,
+    transform, transition, isDragging,
+  } = useSortable({ id: status.id })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex:  isDragging ? 999 : undefined,
+  }
+
+  const isEditando = editandoId === status.id
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div className={`cfg-status-row${isEditando ? ' cfg-status-row--editando' : ''}`}>
+        <button
+          type="button"
+          className="cfg-drag-handle"
+          {...attributes}
+          {...listeners}
+          aria-label="Arrastar para reordenar"
+        >
+          <DotsSixVertical size={16} weight="bold" />
+        </button>
+
+        <span
+          className="cfg-status-dot"
+          style={{ background: status.cor }}
+        />
+
+        <span className="cfg-status-label">{status.label}</span>
+
+        {status.sistema && (
+          <span className="cfg-badge-sistema">sistema</span>
+        )}
+
+        <div className="cfg-status-acoes">
+          <TooltipGlobal descricao="Editar status">
+            <button
+              type="button"
+              className="cfg-eye-btn"
+              onClick={() => onIniciarEdicao(status)}
+              aria-label="Editar status"
+            >
+              <PencilSimple size={14} weight="bold" />
+            </button>
+          </TooltipGlobal>
+          {!status.sistema && (
+            <TooltipGlobal descricao="Excluir status">
+              <button
+                type="button"
+                className="cfg-remove-btn"
+                onClick={() => onExcluir(status.id)}
+                aria-label="Excluir status"
+              >
+                <Trash size={14} weight="bold" />
+              </button>
+            </TooltipGlobal>
+          )}
+        </div>
+      </div>
+
+      {isEditando && (
+        <div className="cfg-status-edit-panel">
+          <div className="cfg-status-edit-fields">
+            <input
+              type="text"
+              className="cfg-input cfg-input--grow"
+              placeholder="Nome do status"
+              value={editLabel}
+              onChange={e => onChangeLabel(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') onSalvarEdicao() }}
+              autoFocus
+            />
+            <div className="cfg-status-color-picker">
+              <span className="cfg-status-color-label">Cor</span>
+              <input
+                type="color"
+                className="cfg-status-color-input"
+                value={editCor}
+                onChange={e => onChangeCor(e.target.value)}
+              />
+              <span className="cfg-status-color-preview" style={{ background: editCor }} />
+            </div>
+          </div>
+          <div className="cfg-tpl-form__actions">
+            <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={onSalvarEdicao}>
+              <FloppyDisk size={13} weight="bold" />
+              Salvar
+            </button>
+            <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={onCancelarEdicao}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Categorias sidebar ───────────────────────────────────────────────────────
 
 const CATEGORIAS = [
   { id: 'cards',             label: 'Cards',             icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
   { id: 'tabela',            label: 'Tabela',            icone: <Table          size={15} weight="duotone" />, ativo: true  },
+  { id: 'status',            label: 'Status',            icone: <Tag            size={15} weight="duotone" />, ativo: true  },
   { id: 'notificacoes',      label: 'Notificações',      icone: <Bell           size={15} weight="duotone" />, ativo: true  },
   { id: 'exportacao',        label: 'Exportação',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true  },
   { id: 'numeracao',         label: 'Numeração',         icone: <Hash           size={15} weight="duotone" />, ativo: true  },
@@ -340,6 +475,24 @@ export default function Configuracoes() {
   const [templateConteudo, setTemplateConteudo] = useState('')
   const [templateCriandoNovo, setTemplateCriandoNovo] = useState(false)
   const [templateLoading, setTemplateLoading] = useState(false)
+  const templateTextareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const inserirVariavel = useCallback((variavel: string) => {
+    const ta = templateTextareaRef.current
+    if (!ta) {
+      setTemplateConteudo(prev => prev + variavel)
+      return
+    }
+    const start = ta.selectionStart
+    const end   = ta.selectionEnd
+    const novo  = templateConteudo.slice(0, start) + variavel + templateConteudo.slice(end)
+    setTemplateConteudo(novo)
+    // Reposicionar cursor após a variável inserida
+    requestAnimationFrame(() => {
+      ta.focus()
+      ta.setSelectionRange(start + variavel.length, start + variavel.length)
+    })
+  }, [templateConteudo])
 
   useEffect(() => {
     if (categoria === 'templates-pdf') {
@@ -487,6 +640,115 @@ export default function Configuracoes() {
     setCategAnexos(prev => [...prev, nova])
     setCategNovaNome('')
     setCategCriando(false)
+  }
+
+  // ── Status state ──
+  const STATUS_INICIAIS: StatusPedido[] = [
+    { id: 'rascunho',     label: 'Rascunho',     cor: '#94a3b8', sistema: false },
+    { id: 'aberto',       label: 'Aberto',       cor: '#60a5fa', sistema: false },
+    { id: 'em_andamento', label: 'Em Andamento', cor: '#818cf8', sistema: false },
+    { id: 'aprovado',     label: 'Aprovado',     cor: '#34d399', sistema: false },
+    { id: 'consolidado',  label: 'Consolidado',  cor: '#a78bfa', sistema: true  },
+    { id: 'cancelado',    label: 'Cancelado',    cor: '#f87171', sistema: false },
+  ]
+
+  const [statusList, setStatusList] = useState<StatusPedido[]>(() => {
+    try {
+      const raw = localStorage.getItem('pedido:status_config')
+      if (raw) {
+        const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
+        const from = STATUS_INICIAIS.map(s => ({
+          ...s,
+          cor: parsed[s.id]?.cor ?? s.cor,
+          label: parsed[s.id]?.label ?? s.label,
+        }))
+        // Adicionar status customizados salvos que não estão nos iniciais
+        const extras = Object.entries(parsed)
+          .filter(([id]) => !STATUS_INICIAIS.find(s => s.id === id))
+          .map(([id, cfg]) => ({ id, label: cfg.label, cor: cfg.cor, sistema: false }))
+        return [...from, ...extras]
+      }
+    } catch { /* fallback */ }
+    return STATUS_INICIAIS
+  })
+  const [statusEditandoId, setStatusEditandoId] = useState<string | null>(null)
+  const [statusEditLabel, setStatusEditLabel] = useState('')
+  const [statusEditCor, setStatusEditCor] = useState('')
+  const [statusCriando, setStatusCriando] = useState(false)
+  const [statusNovoLabel, setStatusNovoLabel] = useState('')
+  const [statusNovoCor, setStatusNovoCor] = useState('#818cf8')
+
+  const statusSensors = useSensors(useSensor(PointerSensor, {
+    activationConstraint: { distance: 5 },
+  }))
+
+  function handleStatusDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = statusList.findIndex(s => s.id === active.id)
+    const newIndex = statusList.findIndex(s => s.id === over.id)
+    setStatusList(prev => arrayMove(prev, oldIndex, newIndex))
+  }
+
+  function iniciarEdicaoStatus(s: StatusPedido) {
+    setStatusEditandoId(s.id)
+    setStatusEditLabel(s.label)
+    setStatusEditCor(s.cor)
+    setStatusCriando(false)
+  }
+
+  function salvarEdicaoStatus() {
+    if (!statusEditLabel.trim() || !statusEditandoId) return
+    setStatusList(prev => {
+      const nova = prev.map(s => s.id === statusEditandoId
+        ? { ...s, label: statusEditLabel.trim(), cor: statusEditCor }
+        : s
+      )
+      persistirStatusConfig(nova)
+      return nova
+    })
+    setStatusEditandoId(null)
+    setStatusEditLabel('')
+    setStatusEditCor('')
+  }
+
+  function cancelarEdicaoStatus() {
+    setStatusEditandoId(null)
+    setStatusEditLabel('')
+    setStatusEditCor('')
+  }
+
+  function excluirStatus(id: string) {
+    setStatusList(prev => {
+      const nova = prev.filter(s => s.id !== id)
+      persistirStatusConfig(nova)
+      return nova
+    })
+  }
+
+  function adicionarStatus() {
+    if (!statusNovoLabel.trim()) return
+    const novo: StatusPedido = {
+      id: `status_${Date.now()}`,
+      label: statusNovoLabel.trim(),
+      cor: statusNovoCor,
+      sistema: false,
+    }
+    setStatusList(prev => {
+      const nova = [...prev, novo]
+      persistirStatusConfig(nova)
+      return nova
+    })
+    setStatusNovoLabel('')
+    setStatusNovoCor('#818cf8')
+    setStatusCriando(false)
+  }
+
+  function persistirStatusConfig(lista: StatusPedido[]) {
+    try {
+      const mapa = Object.fromEntries(lista.map(s => [s.id, { label: s.label, cor: s.cor }]))
+      localStorage.setItem('pedido:status_config', JSON.stringify(mapa))
+    } catch { /* silenciar erros de quota */ }
   }
 
   // ── Preview da numeração ──
@@ -703,6 +965,100 @@ export default function Configuracoes() {
                   onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
                 />
               </div>
+            </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ STATUS ════════════════════════ */}
+        {categoria === 'status' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Status do Pedido</h2>
+                  <p className="cfg-secao__desc">
+                    Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos
+                  </p>
+                </div>
+                {!statusCriando && (
+                  <button
+                    type="button"
+                    className="cfg-add-row-btn"
+                    onClick={() => { setStatusCriando(true); setStatusEditandoId(null) }}
+                  >
+                    <Plus size={13} weight="bold" />
+                    Novo Status
+                  </button>
+                )}
+              </div>
+
+              <DndContext
+                sensors={statusSensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleStatusDragEnd}
+              >
+                <SortableContext
+                  items={statusList.map(s => s.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="cfg-cards-lista">
+                    {statusList.map(s => (
+                      <StatusSortavel
+                        key={s.id}
+                        status={s}
+                        editandoId={statusEditandoId}
+                        editLabel={statusEditLabel}
+                        editCor={statusEditCor}
+                        onIniciarEdicao={iniciarEdicaoStatus}
+                        onSalvarEdicao={salvarEdicaoStatus}
+                        onCancelarEdicao={cancelarEdicaoStatus}
+                        onChangeLabel={setStatusEditLabel}
+                        onChangeCor={setStatusEditCor}
+                        onExcluir={excluirStatus}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
+              {statusCriando && (
+                <div className="cfg-status-novo-form">
+                  <div className="cfg-status-edit-fields">
+                    <input
+                      type="text"
+                      className="cfg-input cfg-input--grow"
+                      placeholder="Nome do novo status (ex.: Aguardando Aprovação)"
+                      value={statusNovoLabel}
+                      onChange={e => setStatusNovoLabel(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') adicionarStatus() }}
+                      autoFocus
+                    />
+                    <div className="cfg-status-color-picker">
+                      <span className="cfg-status-color-label">Cor</span>
+                      <input
+                        type="color"
+                        className="cfg-status-color-input"
+                        value={statusNovoCor}
+                        onChange={e => setStatusNovoCor(e.target.value)}
+                      />
+                      <span className="cfg-status-color-preview" style={{ background: statusNovoCor }} />
+                    </div>
+                  </div>
+                  <div className="cfg-tpl-form__actions">
+                    <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={adicionarStatus}>
+                      <FloppyDisk size={13} weight="bold" />
+                      Salvar
+                    </button>
+                    <button
+                      type="button"
+                      className="cfg-btn-secundario cfg-btn-secundario--xs"
+                      onClick={() => { setStatusCriando(false); setStatusNovoLabel(''); setStatusNovoCor('#818cf8') }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
             </section>
           </div>
         )}
@@ -984,15 +1340,49 @@ export default function Configuracoes() {
                             onChange={e => setTemplateNome(e.target.value)}
                           />
                         </div>
+
+                        {/* ── Variáveis disponíveis ── */}
+                        <div className="cfg-tpl-form__field cfg-tpl-form__field--full">
+                          <label className="cfg-num-campo__label">Variáveis disponíveis — clique para inserir no cursor</label>
+                          <div className="cfg-tpl-variaveis">
+                            {[
+                              { grupo: 'Pedido',      vars: ['{{numero_pedido}}','{{tipo_operacao}}','{{status}}','{{incoterm}}','{{moeda_pedido}}','{{numero_proforma}}','{{numero_invoice}}','{{referencia_importador}}','{{referencia_exportador}}','{{condicao_pagamento}}'] },
+                              { grupo: 'Parceiros',   vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
+                              { grupo: 'Financeiro',  vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
+                              { grupo: 'Datas',       vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
+                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao}}','{{quantidade_inicial}}','{{quantidade_atual}}','{{unidade}}','{{valor_unitario}}','{{valor_item}}','{{/each}}'] },
+                            ].map(({ grupo, vars }) => (
+                              <div key={grupo} className="cfg-tpl-variaveis__grupo">
+                                <span className="cfg-tpl-variaveis__grupo-label">{grupo}</span>
+                                <div className="cfg-tpl-variaveis__chips">
+                                  {vars.map(v => (
+                                    <button
+                                      key={v}
+                                      type="button"
+                                      className="cfg-tpl-variavel-chip"
+                                      onClick={() => inserirVariavel(v)}
+                                      title={`Inserir ${v}`}
+                                    >
+                                      {v}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
                         <div className="cfg-tpl-form__field cfg-tpl-form__field--full">
                           <label className="cfg-num-campo__label" htmlFor="tpl-conteudo">Conteúdo HTML / Handlebars</label>
                           <textarea
                             id="tpl-conteudo"
-                            className="cfg-textarea"
-                            rows={8}
-                            placeholder={'<h1>{{numero_pedido}}</h1>\n<p>Exportador: {{exportador}}</p>'}
+                            ref={templateTextareaRef}
+                            className="cfg-textarea cfg-textarea--codigo"
+                            rows={10}
+                            placeholder={'<h1>{{numero_pedido}}</h1>\n<p>Exportador: {{exportador}}</p>\n{{#each itens}}\n  <p>{{part_number}} — {{quantidade_inicial}} {{unidade}}</p>\n{{/each}}'}
                             value={templateConteudo}
                             onChange={e => setTemplateConteudo(e.target.value)}
+                            spellCheck={false}
                           />
                         </div>
                       </div>

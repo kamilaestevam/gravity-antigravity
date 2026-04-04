@@ -201,6 +201,10 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   placeholderBusca?: string
   onFiltrar?: (filtros: GTFiltrosAtivos) => void
   onOrdenar?: (campo: string, dir: 'asc' | 'desc') => void
+  /** Chamado quando o usuário clica no ícone de funil de uma coluna filtrável */
+  onFiltroColuna?: (key: string, anchorEl: HTMLElement) => void
+  /** Conjunto de keys de colunas com filtro ativo — exibe o funil preenchido */
+  filtrosAtivosKeys?: Set<string>
   sortCampo?: string
   sortDir?: 'asc' | 'desc'
 

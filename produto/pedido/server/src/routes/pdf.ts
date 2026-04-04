@@ -52,6 +52,13 @@ const GerarPdfSchema = z.object({
   salvar_como_anexo: z.boolean().default(true),
 })
 
+const GerarDocumentoSchema = z.object({
+  pedido_id: z.string().min(1),
+  tipo_documento: z.enum(['pedido_de_venda', 'proforma_invoice', 'invoice']),
+  idioma: z.enum(['pt', 'en', 'es', 'zh', 'ja', 'ar']),
+  salvar_como_anexo: z.boolean().default(true),
+})
+
 // ── GET /pdf/templates ────────────────────────────────────────────────────────
 
 pdfRouter.get('/templates', async (req: Request, res: Response, next: NextFunction) => {
@@ -192,6 +199,124 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
     }
 
     // 7. Retornar resultado
+    res.json({
+      url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
+      anexo_id: anexoId,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── POST /documentos/gerar ────────────────────────────────────────────────────
+// Rota base registrada em /api/v1/pedidos — acesso via /api/v1/pedidos/documentos/gerar
+
+pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = (req as Request & { prisma: unknown }).prisma as {
+      pedidoAnexo: { create: (args: unknown) => Promise<unknown> }
+    }
+    const prismaRaw = (req as Request & { prismaRaw?: unknown }).prismaRaw ?? db
+
+    const tenantId = (req as Request & { tenantId: string }).tenantId
+    const userId = (req as Request & { userId: string }).userId ?? 'system'
+
+    const bodyParse = GerarDocumentoSchema.safeParse(req.body)
+    if (!bodyParse.success) {
+      throw new AppError('Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const { pedido_id, tipo_documento, idioma, salvar_como_anexo } = bodyParse.data
+
+    // 1. Buscar pedido com itens
+    const rawPrisma = prismaRaw as {
+      pedido?: { findFirst: (args: unknown) => Promise<unknown> }
+      pedidoComercial?: { findFirst: (args: unknown) => Promise<unknown> }
+    }
+    const pedidoFinder = rawPrisma.pedidoComercial ?? rawPrisma.pedido ?? null
+
+    let pedido: unknown = null
+    if (pedidoFinder) {
+      pedido = await (pedidoFinder as { findFirst: (args: unknown) => Promise<unknown> }).findFirst({
+        where: { id: pedido_id, tenant_id: tenantId },
+        include: { itens: true },
+      })
+    }
+
+    if (!pedido) {
+      throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
+    }
+
+    const pedidoTyped = pedido as {
+      numero_pedido: string
+      tipo_operacao: string
+      exportador_nome?: string | null
+      fabricante_nome?: string | null
+      incoterm?: string | null
+      moeda_pedido: string
+      data_emissao_pedido: string
+      valor_total_pedido?: number | null
+      quantidade_total_pedido?: number | null
+      itens: Array<{
+        part_number: string
+        descricao: string
+        ncm: string
+        quantidade_atual: number
+        quantidade_inicial: number
+        unidade_comercializada_item?: string | null
+        moeda_item: string
+        valor_unitario?: number | null
+        valor_item?: number | null
+      }>
+    }
+
+    // 2. Selecionar template Handlebars baseado no tipo_documento
+    const templateMap: Record<string, string> = {
+      pedido_de_venda:  'purchase-order',
+      proforma_invoice: 'proforma-invoice',
+      invoice:          'commercial-invoice',
+    }
+    const templateNome = templateMap[tipo_documento]
+
+    // 3. Compilar variáveis passando o idioma ao contexto
+    const tenantNome = process.env.TENANT_NOME ?? tenantId
+    const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
+    const variaveisComIdioma = { ...variaveis as Record<string, unknown>, idioma, tipo_documento }
+
+    // 4. Renderizar template (fallback: HTML inline mínimo se template não existir)
+    const htmlFallback = `<h1>${templateNome}</h1><p>${pedidoTyped.numero_pedido}</p><p>Lang: ${idioma}</p>`
+    const htmlFinal = renderizarTemplate(htmlFallback, variaveisComIdioma)
+
+    // 5. Gerar PDF (ou HTML fallback)
+    const { buffer, isPdf } = await gerarPdfBuffer(htmlFinal)
+
+    // 6. Salvar no storage e criar anexo
+    const nomeArquivo = gerarNomeArquivoPdf(templateNome, pedidoTyped.numero_pedido)
+    const uuid: string = randomUUID()
+    const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
+    salvarArquivoLocal(buffer, storageKey)
+
+    let anexoId: string = uuid
+    if (salvar_como_anexo) {
+      const anexo = await db.pedidoAnexo.create({
+        data: {
+          id: uuid,
+          tenant_id: tenantId,
+          vinculo: 'pedido',
+          vinculo_id: pedido_id,
+          nome_arquivo: nomeArquivo,
+          tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
+          tamanho_bytes: buffer.length,
+          categoria: 'Documento Gerado',
+          descricao: `${templateNome} — idioma: ${idioma}`,
+          storage_key: storageKey,
+          uploaded_by: userId,
+        },
+      } as Parameters<typeof db.pedidoAnexo.create>[0])
+
+      anexoId = (anexo as { id: string }).id
+    }
+
     res.json({
       url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
       anexo_id: anexoId,

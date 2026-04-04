@@ -603,6 +603,39 @@
   line-height: 0;
 }
 
+/* ── Botão de filtro no cabeçalho ──────────────────────────────────────────── */
+.gtv-filtro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-left: 3px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s, background 0.12s;
+}
+
+.gtv-th:hover .gtv-filtro-btn,
+.gtv-filtro-btn--ativo {
+  opacity: 1;
+}
+
+.gtv-filtro-btn:hover {
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--gtv-accent);
+}
+
+.gtv-filtro-btn--ativo {
+  color: var(--gtv-accent);
+}
+
 .gtv-sort-icon--idle {
   font-size: 0.625rem;
   opacity: 0.35;

@@ -31,7 +31,6 @@ import {
   Sparkle,
   CopySimple,
   FilePdf,
-  Funnel,
   ArrowUp,
   ArrowDown,
 } from '@phosphor-icons/react'
@@ -140,7 +139,7 @@ interface FiltroPopoverColunaProps {
   onLimpar: (campo: string) => void
   onOrdenar: (campo: string, dir: 'asc' | 'desc') => void
   onFechar: () => void
-  anchorRef: React.RefObject<HTMLButtonElement>
+  anchorRef: React.RefObject<HTMLElement>
 }
 
 function FiltroPopoverColuna({
@@ -3266,11 +3265,11 @@ export default function ListaPedidos() {
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
   const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
-  const popoverAnchorRefs                   = useRef<Record<string, React.RefObject<HTMLButtonElement>>>({})
+  const popoverAnchorRefs                   = useRef<Record<string, React.MutableRefObject<HTMLElement | null>>>({})
 
-  function getAnchorRef(campo: string): React.RefObject<HTMLButtonElement> {
+  function getAnchorRef(campo: string): React.MutableRefObject<HTMLElement | null> {
     if (!popoverAnchorRefs.current[campo]) {
-      popoverAnchorRefs.current[campo] = React.createRef<HTMLButtonElement>()
+      popoverAnchorRefs.current[campo] = React.createRef<HTMLElement>() as React.MutableRefObject<HTMLElement | null>
     }
     return popoverAnchorRefs.current[campo]
   }
@@ -3780,6 +3779,13 @@ export default function ListaPedidos() {
           acoesLote={acoesLote}
           acoesExportacao={acoesExportacao}
           onSelecaoMudar={setPedidosSelecionados}
+          onFiltroColuna={(key, anchor) => {
+            setPopoverAberto(prev => prev === key ? null : key)
+            // Armazena o elemento âncora para posicionamento do popover
+            const ref = getAnchorRef(key)
+            if (ref && 'current' in ref) (ref as React.MutableRefObject<HTMLElement | null>).current = anchor
+          }}
+          filtrosAtivosKeys={new Set(Object.keys(filtrosAtivos))}
 
           selecionavelFilhos
           onSelecaoFilho={(itens: PedidoItem[]) => setItensSelecionados(itens)}
@@ -3821,27 +3827,6 @@ export default function ListaPedidos() {
 
           acoesBarra={
             <>
-              {/* ── Botões de filtro por coluna ── */}
-              <div className="lp-filtro-barra" role="toolbar" aria-label="Filtros de coluna">
-                {COLUNAS_PAI.filter(col => col.filtravel).map(col => {
-                  const ativo = !!filtrosAtivos[col.key]
-                  const anchorRef = getAnchorRef(col.key)
-                  return (
-                    <button
-                      key={col.key}
-                      ref={anchorRef}
-                      className={`lp-filtro-trigger${ativo ? ' lp-filtro-trigger--ativo' : ''}`}
-                      onClick={() => setPopoverAberto(prev => prev === col.key ? null : col.key)}
-                      aria-pressed={ativo}
-                      title={`Filtrar por ${col.label}`}
-                    >
-                      <Funnel size={11} weight={ativo ? 'fill' : 'regular'} />
-                      <span>{col.label}</span>
-                    </button>
-                  )
-                })}
-              </div>
-
               <BotaoGlobal
                 variante="primario"
                 tamanho="pequeno"

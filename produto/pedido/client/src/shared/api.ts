@@ -40,6 +40,9 @@ import type {
   TemplatePdf,
   GerarPdfPayload,
   GerarPdfResultado,
+  TipoDocumentoGerar,
+  IdiomaDocumento,
+  GerarDocumentoPayload,
   ColunaUsuario,
   ValorColunaUsuario,
 } from './types'
@@ -530,6 +533,32 @@ export const pedidoEdicaoMassaApi = {
     }),
 }
 
+/** Calcula o novo valor simulado dado o valor atual e a operação */
+function calcularNovoValorMock(atual: string | number | null, c: CampoEdicaoMassa): string | number {
+  switch (c.operacao) {
+    case 'substituir':
+      return c.valor
+    case 'somar':
+      return Number(atual ?? 0) + Number(c.valor)
+    case 'subtrair':
+      return Number(atual ?? 0) - Number(c.valor)
+    case 'percentual':
+      return Number(atual ?? 0) * (1 + Number(c.valor) / 100)
+    case 'avancar_dias': {
+      const d = new Date(String(atual ?? new Date().toISOString()))
+      d.setDate(d.getDate() + Number(c.valor))
+      return d.toISOString().slice(0, 10)
+    }
+    case 'recuar_dias': {
+      const d = new Date(String(atual ?? new Date().toISOString()))
+      d.setDate(d.getDate() - Number(c.valor))
+      return d.toISOString().slice(0, 10)
+    }
+    default:
+      return c.valor
+  }
+}
+
 /** Mock DEV — preview de edição em massa */
 function mockEdicaoMassaPreview(payload: EdicaoMassaPayload): EdicaoMassaPreview {
   const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => payload.pedido_ids.includes(p.id))
@@ -550,6 +579,20 @@ function mockEdicaoMassaPreview(payload: EdicaoMassaPayload): EdicaoMassaPreview
       }
     }),
     alertas_globais: [],
+    por_pedido: pedidos.map(p => ({
+      pedido_id: p.id,
+      numero_pedido: p.numero_pedido,
+      alteracoes: payload.campos
+        .filter(c => c.nivel === 'pedido')
+        .map(c => {
+          const atual = (p as Record<string, unknown>)[c.campo] as string | number | null ?? null
+          return {
+            campo: c.campo,
+            valor_atual: atual,
+            valor_novo: calcularNovoValorMock(atual, c),
+          }
+        }),
+    })),
   }
 }
 
@@ -658,21 +701,22 @@ export const smartImportApi = {
 /** Mock de analisar: simula mapeamento IA com dados ficticios */
 function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
   const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? 'xlsx'
+  void ext
 
-  // Colunas mockadas conforme o formato
-  const colunasMock: Array<{ coluna: string; campo: string | null; conf: number }> = [
-    { coluna: 'PO Number',    campo: 'numero_pedido',       conf: 97 },
-    { coluna: 'Supplier',     campo: 'exportador',          conf: 88 },
-    { coluna: 'NCM',          campo: 'ncm',                 conf: 95 },
-    { coluna: 'Part No.',     campo: 'part_number',         conf: 91 },
-    { coluna: 'Description',  campo: 'descricao',           conf: 85 },
-    { coluna: 'Qty',          campo: 'quantidade_inicial',  conf: 78 },
-    { coluna: 'Unit',         campo: 'unidade',             conf: 72 },
-    { coluna: 'Unit Price',   campo: 'valor_unitario',      conf: 83 },
-    { coluna: 'Currency',     campo: 'moeda_pedido',        conf: 90 },
-    { coluna: 'Incoterms',    campo: 'incoterm',            conf: 94 },
-    { coluna: 'Ship Date',    campo: 'data_embarque',       conf: 67 },
-    { coluna: 'Internal Ref', campo: null,                  conf: 15 },
+  // Colunas com valores de exemplo reais do arquivo
+  const colunasMock: Array<{ coluna: string; campo: string | null; conf: number; exemplo: string | null }> = [
+    { coluna: 'PO Number',    campo: 'numero_pedido',       conf: 97, exemplo: '021597-00'          },
+    { coluna: 'Supplier',     campo: 'exportador',          conf: 88, exemplo: 'STORK THERMEQ B.V.' },
+    { coluna: 'NCM',          campo: 'ncm',                 conf: 95, exemplo: '8471.30.19'          },
+    { coluna: 'Part No.',     campo: 'part_number',         conf: 91, exemplo: 'STE-A4-001'          },
+    { coluna: 'Description',  campo: 'descricao',           conf: 85, exemplo: 'Heat exchanger plate'},
+    { coluna: 'Qty',          campo: 'quantidade_inicial',  conf: 78, exemplo: '100'                 },
+    { coluna: 'Unit',         campo: 'unidade',             conf: 72, exemplo: 'UN'                  },
+    { coluna: 'Unit Price',   campo: 'valor_unitario',      conf: 83, exemplo: '330,00'              },
+    { coluna: 'Currency',     campo: 'moeda_pedido',        conf: 90, exemplo: 'USD'                 },
+    { coluna: 'Incoterms',    campo: 'incoterm',            conf: 94, exemplo: 'FOB'                 },
+    { coluna: 'Ship Date',    campo: 'data_embarque',       conf: 67, exemplo: '30/05/2023'          },
+    { coluna: 'Internal Ref', campo: null,                  conf: 15, exemplo: 'HPB-2023-042'        },
   ]
 
   const mapeamento: ColunaMapeada[] = colunasMock.map(c => ({
@@ -681,6 +725,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     confianca: c.conf,
     nivel: c.conf >= 90 ? 'auto' : c.conf >= 50 ? 'confirmado' : 'ignorado',
     inferido_por: c.conf >= 90 ? 'ia' : c.conf >= 50 ? 'dados' : 'ia',
+    exemplo_valor: c.exemplo,
   }))
 
   const alertasDuplicata: SmartImportAlerta[] = [{
@@ -693,28 +738,65 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
   const linhas: SmartImportLinha[] = [
     {
       linha_arquivo: 2,
-      numero_pedido: 'PO-2026/010',
+      numero_pedido: '021597-00',
+      numero_pedido_sugerido: 'PO-2026/010',
       status: 'ok',
       alertas: [],
-      dados: { numero_pedido: 'PO-2026/010', exportador: 'Shanghai Co.', ncm: '8471.30.19' },
+      dados: {
+        numero_pedido: '021597-00',
+        exportador: 'STORK THERMEQ B.V.',
+        incoterm: 'FOB',
+        moeda_pedido: 'USD',
+        data_embarque: '30/05/2023',
+        part_number: 'STE-A4-001',
+        descricao: 'Heat exchanger plate',
+        quantidade_inicial: 100,
+        unidade: 'UN',
+        valor_unitario: 330.00,
+        ncm: '8471.30.19',
+      },
     },
     {
       linha_arquivo: 3,
       numero_pedido: 'PO-2026/011',
+      numero_pedido_sugerido: 'PO-2026/011',
       status: 'ok',
       alertas: [],
-      dados: { numero_pedido: 'PO-2026/011', exportador: 'Dongguan Ltd.', ncm: '8544.42.90' },
+      dados: {
+        numero_pedido: 'PO-2026/011',
+        exportador: 'Dongguan Electronics Ltd.',
+        incoterm: 'CIF',
+        moeda_pedido: 'USD',
+        part_number: 'DGL-7700',
+        descricao: 'Motor controller board',
+        quantidade_inicial: 50,
+        unidade: 'UN',
+        valor_unitario: 85.00,
+        ncm: '8544.42.90',
+      },
     },
     {
       linha_arquivo: 4,
       numero_pedido: 'PO-2026/003',
+      numero_pedido_sugerido: 'PO-2026/003',
       status: 'aviso',
       alertas: alertasDuplicata,
-      dados: { numero_pedido: 'PO-2026/003', exportador: 'Berlin GmbH' },
+      dados: {
+        numero_pedido: 'PO-2026/003',
+        exportador: 'Berlin GmbH',
+        incoterm: 'DAP',
+        moeda_pedido: 'EUR',
+        part_number: 'BRL-220V',
+        descricao: 'Power supply unit',
+        quantidade_inicial: 200,
+        unidade: 'UN',
+        valor_unitario: 45.00,
+      },
     },
     {
       linha_arquivo: 5,
       numero_pedido: 'PO-2026/012',
+      numero_pedido_sugerido: 'PO-2026/012',
       status: 'aviso',
       alertas: [{
         campo: 'ncm',
@@ -722,11 +804,23 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         mensagem: 'NCM "8471" parece incompleto (esperado 8 digitos)',
         nivel: 'aviso',
       }],
-      dados: { numero_pedido: 'PO-2026/012', ncm: '8471' },
+      dados: {
+        numero_pedido: 'PO-2026/012',
+        exportador: 'Guangzhou Supplies Co.',
+        incoterm: 'FOB',
+        moeda_pedido: 'USD',
+        part_number: 'GZH-CAB-001',
+        descricao: 'Cable assembly',
+        quantidade_inicial: 500,
+        unidade: 'MT',
+        valor_unitario: 3.20,
+        ncm: '8471',
+      },
     },
     {
       linha_arquivo: 6,
       numero_pedido: null,
+      numero_pedido_sugerido: null,
       status: 'erro',
       alertas: [
         {
@@ -736,9 +830,17 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
           nivel: 'erro',
         },
       ],
-      dados: { quantidade_inicial: -5 },
+      dados: { quantidade_inicial: -5, exportador: 'Unknown Supplier' },
     },
   ]
+
+  // Dados brutos para visualização do documento original
+  const dados_brutos = linhas.map(l => ({
+    linha: l.linha_arquivo,
+    valores: Object.fromEntries(
+      Object.entries(l.dados).map(([k, v]) => [k, String(v ?? '')])
+    ),
+  }))
 
   return {
     total_linhas: linhas.length,
@@ -748,6 +850,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     confianca_global: 83,
     memoria_aplicada: false,
     linhas,
+    dados_brutos,
   }
 }
 
@@ -1028,10 +1131,18 @@ export const anexosApi = {
 
 // ── PDF ───────────────────────────────────────────────────────────────────────
 
+/** Tipo local para o gerenciador de templates da aba Configurações */
+export interface PdfTemplate {
+  id: string
+  nome: string
+  conteudo: string
+  criadoEm: string
+}
+
 export const pdfApi = {
   listarTemplates: () =>
-    request<TemplatePdf[]>('/api/v1/pedidos/pdf/templates').catch(err => {
-      if (import.meta.env.DEV) return mockPdfTemplates()
+    request<{ data: PdfTemplate[] }>('/api/v1/pedidos/pdf/templates').catch(err => {
+      if (import.meta.env.DEV) return { data: mockPdfTemplatesLocal() }
       throw err
     }),
 
@@ -1043,6 +1154,78 @@ export const pdfApi = {
       if (import.meta.env.DEV) return mockPdfGerar(payload)
       throw err
     }),
+
+  criarTemplate: (data: { nome: string; conteudo: string }) =>
+    request<PdfTemplate>('/api/v1/pedidos/pdf/templates', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }).catch(err => {
+      if (import.meta.env.DEV) {
+        const novo: PdfTemplate = {
+          id: `tpl_${Date.now()}`,
+          nome: data.nome,
+          conteudo: data.conteudo,
+          criadoEm: new Date().toISOString().slice(0, 10),
+        }
+        return novo
+      }
+      throw err
+    }),
+
+  atualizarTemplate: (id: string, data: { nome: string; conteudo: string }) =>
+    request<PdfTemplate>(`/api/v1/pedidos/pdf/templates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }).catch(err => {
+      if (import.meta.env.DEV) {
+        return { id, nome: data.nome, conteudo: data.conteudo, criadoEm: new Date().toISOString().slice(0, 10) } as PdfTemplate
+      }
+      throw err
+    }),
+
+  deletarTemplate: (id: string) =>
+    request<void>(`/api/v1/pedidos/pdf/templates/${id}`, { method: 'DELETE' }).catch(err => {
+      if (import.meta.env.DEV) return
+      throw err
+    }),
+}
+
+// ── Gerar Documento (multilíngue) ────────────────────────────────────────────
+
+export const gerarDocumentoApi = {
+  gerar: (payload: GerarDocumentoPayload) =>
+    request<GerarPdfResultado>('/api/v1/pedidos/documentos/gerar', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }).catch(err => {
+      if (import.meta.env.DEV) return mockGerarDocumento(payload)
+      throw err
+    }),
+}
+
+function mockGerarDocumento(payload: GerarDocumentoPayload): GerarPdfResultado {
+  const tipoLabel: Record<string, string> = {
+    pedido_de_venda: 'Pedido de Venda', proforma_invoice: 'Proforma Invoice', invoice: 'Invoice',
+  }
+  const html = `<!DOCTYPE html><html lang="${payload.idioma}"><head>
+<meta charset="utf-8"><title>${tipoLabel[payload.tipo_documento] ?? payload.tipo_documento}</title>
+<style>body{font-family:sans-serif;margin:40px;color:#1e293b}h1{color:#3b82f6}table{border-collapse:collapse;width:100%}td,th{border:1px solid #e2e8f0;padding:8px 12px;text-align:left}</style>
+</head><body>
+<h1>[MOCK] ${tipoLabel[payload.tipo_documento] ?? payload.tipo_documento}</h1>
+<p><strong>Idioma:</strong> ${payload.idioma.toUpperCase()} &nbsp;&nbsp; <strong>Pedido:</strong> ${payload.pedido_id}</p>
+<p style="color:#94a3b8;font-size:12px">Este é um documento de demonstração gerado em ambiente de desenvolvimento.</p>
+<table><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>
+<tr><td>Tipo</td><td>${tipoLabel[payload.tipo_documento]}</td></tr>
+<tr><td>Idioma</td><td>${payload.idioma.toUpperCase()}</td></tr>
+<tr><td>Pedido ID</td><td>${payload.pedido_id}</td></tr>
+<tr><td>Salvar como anexo</td><td>${payload.salvar_como_anexo ? 'Sim' : 'Não'}</td></tr>
+</tbody></table>
+</body></html>`
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+  return {
+    url_download: URL.createObjectURL(blob),
+    anexo_id: `anexo_doc_${Date.now()}`,
+  }
 }
 
 // ── Mocks Anexos ──────────────────────────────────────────────────────────────
@@ -1086,34 +1269,28 @@ function mockAnexosExcluir(id: string): void {
 
 // ── Mocks PDF ─────────────────────────────────────────────────────────────────
 
-function mockPdfTemplates(): TemplatePdf[] {
-  const now = new Date().toISOString()
+function mockPdfTemplatesLocal(): PdfTemplate[] {
   return [
-    {
-      id: 'tpl_mock_001',
-      tenant_id: context.tenantId,
-      nome: 'Template PO Padrão',
-      descricao: 'Purchase Order padrão',
-      conteudo_html: '<h1>Purchase Order</h1><p>Pedido: {{numero_pedido}}</p><p>Exportador: {{exportador}}</p>',
-      created_at: now,
-      updated_at: now,
-    },
-    {
-      id: 'tpl_mock_002',
-      tenant_id: context.tenantId,
-      nome: 'Template Proforma Invoice',
-      descricao: 'Proforma Invoice para negociação',
-      conteudo_html: '<h1>Proforma Invoice</h1><p>Nr: {{numero_pedido}}</p><p>Total: {{valor_total}} {{moeda}}</p>',
-      created_at: now,
-      updated_at: now,
-    },
+    { id: 'tpl_mock_001', nome: 'Template PO Padrão',       conteudo: '<h1>{{numero_pedido}}</h1>',  criadoEm: '2026-04-01' },
+    { id: 'tpl_mock_002', nome: 'Template Proforma Invoice', conteudo: '<h1>{{exportador}}</h1>',    criadoEm: '2026-04-02' },
   ]
 }
 
 function mockPdfGerar(payload: GerarPdfPayload): GerarPdfResultado {
   const anexoId = `anx_pdf_mock_${Date.now()}`
+  const tpl = mockPdfTemplatesLocal().find(t => t.id === payload.template_id)
+  const html = `<!DOCTYPE html><html><head>
+<meta charset="utf-8"><title>${tpl?.nome ?? 'Template'}</title>
+<style>body{font-family:sans-serif;margin:40px;color:#1e293b}h1{color:#3b82f6}pre{background:#f8fafc;padding:16px;border-radius:8px;font-size:13px;overflow:auto}</style>
+</head><body>
+<h1>[MOCK] ${tpl?.nome ?? 'Template personalizado'}</h1>
+<p><strong>Pedido:</strong> ${payload.pedido_id}</p>
+<p style="color:#94a3b8;font-size:12px">Este é um documento de demonstração gerado em ambiente de desenvolvimento.</p>
+${tpl ? `<p><strong>Conteúdo do template:</strong></p><pre>${tpl.conteudo.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>` : ''}
+</body></html>`
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
   return {
-    url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
+    url_download: URL.createObjectURL(blob),
     anexo_id: anexoId,
   }
 }

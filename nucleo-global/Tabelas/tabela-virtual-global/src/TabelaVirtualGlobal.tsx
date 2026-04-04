@@ -407,6 +407,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   placeholderBusca = 'Buscar...',
   onFiltrar,
   onOrdenar,
+  onFiltroColuna,
+  filtrosAtivosKeys,
   sortCampo,
   sortDir,
   camposEditaveis = [],
@@ -628,7 +630,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   // ── Seleção de filhos ─────────────────────────────────────────────────────────
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
-  const [filhosCache_ref] = useState<Map<string, C>>(new Map())
+  const filhosCacheMap = useRef<Map<string, C>>(new Map())
+
+  // Mantém sempre a referência mais recente do callback para evitar stale closure
+  const onSelecaoFilhoRef = useRef(onSelecaoFilho)
+  useLayoutEffect(() => {
+    onSelecaoFilhoRef.current = onSelecaoFilho
+  })
 
   const toggleFilho = useCallback(
     (id: string, item: C) => {
@@ -636,23 +644,24 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         const novo = new Set(prev)
         if (novo.has(id)) {
           novo.delete(id)
-          filhosCache_ref.delete(id)
+          filhosCacheMap.current.delete(id)
         } else {
           novo.add(id)
-          filhosCache_ref.set(id, item)
+          filhosCacheMap.current.set(id, item)
         }
         return novo
       })
     },
-    [filhosCache_ref],
+    [],
   )
 
   // Dispara onSelecaoFilho sempre que filhosSelecionados mudar
   useEffect(() => {
-    if (!onSelecaoFilho) return
-    const itens = Array.from(filhosSelecionados).map(id => filhosCache_ref.get(id)).filter((i): i is C => i != null)
-    onSelecaoFilho(itens)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!onSelecaoFilhoRef.current) return
+    const itens = Array.from(filhosSelecionados)
+      .map(id => filhosCacheMap.current.get(id))
+      .filter((i): i is C => i != null)
+    onSelecaoFilhoRef.current(itens)
   }, [filhosSelecionados])
 
   // ── Dropdown de ações filho ───────────────────────────────────────────────────
@@ -1313,7 +1322,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             <div className="gtv-busca-wrapper">
               <span className="gtv-busca-icone"><IconeBusca /></span>
               <input
-                type="search"
+                type="text"
                 className="gtv-busca-input"
                 placeholder={placeholderBusca}
                 value={termoBusca}
@@ -1526,6 +1535,22 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                         <em>↕</em>
                       )}
                     </span>
+                  )}
+                  {col.filtravel && onFiltroColuna && (
+                    <button
+                      type="button"
+                      className={`gtv-filtro-btn${filtrosAtivosKeys?.has(col.key) ? ' gtv-filtro-btn--ativo' : ''}`}
+                      aria-label={`Filtrar por ${col.label}`}
+                      title={`Filtrar por ${col.label}`}
+                      onClick={e => {
+                        e.stopPropagation()
+                        onFiltroColuna(col.key, e.currentTarget)
+                      }}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                        <path d="M0 1.5A.5.5 0 0 1 .5 1h9a.5.5 0 0 1 .354.854L6 5.707V9a.5.5 0 0 1-.724.447l-2-1A.5.5 0 0 1 3 8V5.707L.146 1.854A.5.5 0 0 1 0 1.5z"/>
+                      </svg>
+                    </button>
                   )}
                   {/* Resize handle */}
                   <div

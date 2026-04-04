@@ -4031,25 +4031,6 @@ export default function ListaPedidos() {
                       Importar
                     </button>
 
-                    {/* Smart Read — disabled */}
-                    <button
-                      disabled
-                      title="Em breve"
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
-                        background: 'transparent', color: 'var(--text-muted)',
-                        fontSize: '0.8125rem', cursor: 'not-allowed', textAlign: 'left',
-                        opacity: 0.5,
-                      }}
-                    >
-                      <CheckSquare size={14} weight="duotone" style={{ flexShrink: 0 }} />
-                      Smart Read
-                      <span style={{ marginLeft: 'auto', fontSize: '0.6875rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                        Em breve
-                      </span>
-                    </button>
-
                     {/* Divider */}
                     <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '0.125rem 0.5rem' }} />
 
@@ -4074,16 +4055,6 @@ export default function ListaPedidos() {
                   </div>
                 )}
               </div>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<Sparkle size={14} weight="duotone" />}
-                disabled
-                tooltipTitulo="Smart Read"
-                tooltipDescricao="Leitura automática de documentos de pedido. Em breve."
-              >
-                Smart Read
-              </BotaoGlobal>
               <BotaoGlobal
                 variante="secundario"
                 tamanho="pequeno"
@@ -4183,13 +4154,7 @@ export default function ListaPedidos() {
           camposEditaveis={CAMPOS_EDITAVEIS_PAI}
           onEditar={handleEditar}
 
-          camposEditaveisFilhos={[
-            'numero_pedido',
-            'valor_total_pedido',
-            'quantidade_inicial_total',
-            'quantidade_transferida_total',
-            'quantidade_pronta_total',
-          ]}
+          camposEditaveisFilhos={CAMPOS_EDITAVEIS_PAI}
           onEditarFilho={handleEditarFilho}
 
           onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}

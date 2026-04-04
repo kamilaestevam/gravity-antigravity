@@ -18,4 +18,6 @@ export type {
   GTTipo,
   GTMapaColunasFilho,
   GTAcaoLinha,
+  GTValorMoeda,
+  GTValorUnidade,
 } from './tipos.js'

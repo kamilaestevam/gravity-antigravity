@@ -12,7 +12,19 @@ export type GTAlign = 'left' | 'center' | 'right'
 
 // ─── Tipo de dado (define modo de filtro) ─────────────────────────────────────
 
-export type GTTipo = 'texto' | 'numero' | 'periodo' | 'badge' | 'custom'
+export type GTTipo = 'texto' | 'numero' | 'periodo' | 'badge' | 'custom' | 'moeda' | 'unidade'
+
+// ─── Valores compostos ─────────────────────────────────────────────────────────
+
+export interface GTValorMoeda {
+  currency: string
+  amount: number
+}
+
+export interface GTValorUnidade {
+  unit: string
+  quantity: number
+}
 
 // ─── Coluna ────────────────────────────────────────────────────────────────────
 
@@ -40,9 +52,23 @@ export interface GTColuna<T = unknown> {
   sortavel?: boolean
   /** Permite edição inline (sobrepõe camposEditaveis da prop raiz) */
   editavel?: boolean
+  /**
+   * Opções de escolha para edição inline.
+   * Quando definido, o popover exibe uma lista selecionável em vez de um input de texto.
+   */
+  opcoes?: { valor: string; label: string }[]
   largura?: string | number
   /** Grupo de agrupamento exibido no gerenciador de colunas */
   grupo?: string
+  /** Códigos ISO 4217 disponíveis no seletor (ativo quando tipo='moeda') */
+  moedas?: string[]
+  /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
+  unidades?: string[]
+  /**
+   * Extrai o valor composto para edição inline (ex: { currency, amount }).
+   * Quando omitido, usa item[col.key] diretamente.
+   */
+  getValorEditar?: (item: T) => unknown
 }
 
 // ─── Ação de linha ─────────────────────────────────────────────────────────────
@@ -197,6 +223,8 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   onSelecaoFilho?: (itensSelecionados: C[]) => void
   /** Ações inline na linha filho (menu de três pontos ao hover) */
   acoesFilho?: (item: C) => GTAcaoLinha[]
+  /** Conteúdo do conector hierárquico na expand cell do filho (padrão: └) */
+  renderConectorFilho?: (item: C) => ReactNode
 
   // ── Busca, filtros e ordenação ─────────────────────────────────────────────
   onBuscar?: (termo: string) => void

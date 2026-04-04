@@ -777,8 +777,7 @@
 .gtv-celula--center { justify-content: center; }
 .gtv-celula--right  { justify-content: flex-end; }
 
-.gtv-celula--filho-indent {
-  padding-left: 2.5rem;
+.gtv-linha--filho .gtv-celula--expand {
   border-left: 2px solid rgba(129, 140, 248, 0.22);
 }
 
@@ -792,6 +791,13 @@
   border-radius: 4px;
   outline: 1px dashed rgba(129, 140, 248, 0.4);
   outline-offset: -1px;
+}
+
+.gtv-celula--editavel:focus {
+  outline: 2px solid rgba(129, 140, 248, 0.7);
+  outline-offset: -2px;
+  border-radius: 4px;
+  background: rgba(129, 140, 248, 0.08);
 }
 
 /* ─── Input de edição inline ──────────────────────────────────────────────── */
@@ -871,7 +877,7 @@
     0 0 0 1px rgba(255, 255, 255, 0.06),
     0 8px 32px rgba(0, 0, 0, 0.5),
     0 2px 8px rgba(0, 0, 0, 0.3);
-  overflow: visible;
+  overflow: hidden;
   animation: gtv-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -890,13 +896,13 @@
   to   { opacity: 1; transform: translateY(0)   scale(1);    }
 }
 
-/* Seta */
+/* Seta — posicionada via fixed no JS para não ser cortada pelo overflow:hidden do popover */
 .gtv-edit-popover-arrow {
-  position: absolute;
-  top: -6px;
   width: 12px;
   height: 6px;
   overflow: hidden;
+  pointer-events: none;
+  transform: translateX(-50%);
 }
 
 .gtv-edit-popover-arrow::before {
@@ -912,10 +918,8 @@
   border-radius: 2px;
 }
 
-.gtv-edit-popover--flip .gtv-edit-popover-arrow {
-  top: auto;
-  bottom: -6px;
-  transform: rotate(180deg);
+.gtv-edit-popover-arrow--flip {
+  transform: translateX(-50%) rotate(180deg);
 }
 
 /* Header */
@@ -985,6 +989,9 @@
   font-family: inherit;
   cursor: pointer;
   transition: background 0.1s;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .gtv-edit-popover-opcao:hover:not(:disabled) {
@@ -1107,6 +1114,127 @@
 }
 
 .gtv-edit-popover-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Modo moeda ──────────────────────────────────────────────────────────────── */
+
+.gtv-edit-moeda {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-edit-moeda-select {
+  flex: 0 0 auto;
+  height: 2.125rem;
+  padding: 0 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gtv-radius-sm, 6px);
+  color: var(--gtv-muted, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.gtv-edit-moeda-select:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  color: var(--gtv-text, #f1f5f9);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-moeda-valor {
+  flex: 1 1 auto;
+  height: 2.125rem;
+  padding: 0 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gtv-radius-sm, 6px);
+  color: var(--gtv-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.gtv-edit-moeda-valor:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-moeda-valor:disabled,
+.gtv-edit-moeda-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Oculta spinners nativos do input[type=number] */
+.gtv-edit-moeda-valor::-webkit-inner-spin-button,
+.gtv-edit-moeda-valor::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+/* ── Modo unidade ─────────────────────────────────────────────────────────────── */
+
+.gtv-edit-unidade {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-edit-unidade-qty {
+  flex: 1 1 auto;
+  height: 2.125rem;
+  padding: 0 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gtv-radius-sm, 6px);
+  color: var(--gtv-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.gtv-edit-unidade-qty:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-unidade-qty::-webkit-inner-spin-button,
+.gtv-edit-unidade-qty::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.gtv-edit-unidade-select {
+  flex: 0 0 auto;
+  height: 2.125rem;
+  padding: 0 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gtv-radius-sm, 6px);
+  color: var(--gtv-muted, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.gtv-edit-unidade-select:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  color: var(--gtv-text, #f1f5f9);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-unidade-qty:disabled,
+.gtv-edit-unidade-select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

@@ -38,6 +38,7 @@ import {
   ArrowDown,
   PlusCircle,
   Tag,
+  Columns,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -47,10 +48,10 @@ import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
 import type {
   GTColuna,
   GTMapaColunasFilho,
-  GTAcaoLote,
   GTAcaoExport,
   GTAbaTipo,
   GTPreferencias,
+  GTValorMoeda,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON } from '../shared/exportUtils'
@@ -123,6 +124,18 @@ function lerStatusCores(): Record<string, string> {
 function getStatusCor(status: string): string {
   const local = lerStatusCores()
   return local[status] ?? STATUS_CORES_DEFAULT[status] ?? '#64748b'
+}
+
+/** Lê o label de um status — inclui status customizados do localStorage */
+function getStatusLabel(status: string): string {
+  try {
+    const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
+    if (raw) {
+      const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
+      if (parsed[status]?.label) return parsed[status].label
+    }
+  } catch { /* ignore */ }
+  return STATUS_PEDIDO_LABELS[status as keyof typeof STATUS_PEDIDO_LABELS] ?? status
 }
 
 // ── Tipos de filtro ───────────────────────────────────────────────────────────
@@ -379,7 +392,7 @@ function FiltroPopoverColuna({
 // ── Helpers de filtragem ──────────────────────────────────────────────────────
 
 function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 'enum' {
-  if (col.tipo === 'numero') return 'numero'
+  if (col.tipo === 'numero' || col.tipo === 'moeda' || col.tipo === 'unidade') return 'numero'
   if (col.tipo === 'badge' || col.key === 'tipo_operacao' || col.key === 'status' || col.key === 'incoterm') return 'enum'
   return 'texto'
 }
@@ -458,7 +471,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     tooltipTitulo: 'Número do Pedido',
     tooltipDescricao: 'Identificador único do documento comercial (PO/SO)',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 180,
   },
   {
@@ -468,7 +481,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Tipo de Operação',
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 170,
     render: (_val: unknown, row: Pedido) => (
       <StatusBadgeGlobal
@@ -512,7 +525,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código de referência interna do importador para o pedido',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_importador ?? '—'}</span>,
   },
@@ -523,7 +536,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código de referência utilizado pelo exportador',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_exportador ?? '—'}</span>,
   },
@@ -534,7 +547,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Número Proforma',
     tooltipDescricao: 'Referência da Proforma Invoice vinculada',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.numero_proforma ?? '—'}</span>,
   },
@@ -545,7 +558,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Número Invoice',
     tooltipDescricao: 'Identificador da Commercial Invoice (Fatura)',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.numero_invoice ?? '—'}</span>,
   },
@@ -564,14 +577,19 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'valor_total_pedido',
     label: 'Valor Total',
-    tipo: 'numero',
+    tipo: 'moeda',
     filtravel: true,
     sortavel: true,
     align: 'right',
     tooltipTitulo: 'Valor Total do Pedido',
     tooltipDescricao: 'Valor FOB total na moeda do pedido',
     grupo: 'Financeiro',
-    largura: 130,
+    largura: 140,
+    moedas: ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU'],
+    getValorEditar: (row: Pedido) => ({
+      currency: row.moeda_pedido ?? 'USD',
+      amount: row.valor_total_pedido ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_total_pedido != null
@@ -588,7 +606,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     align: 'right',
     tooltipTitulo: 'Quantidade Pedida',
-    tooltipDescricao: 'Quantidade original do pedido. Imutavel apos criacao.',
+    tooltipDescricao: 'Quantidade original do pedido. Imutável após criação.',
     grupo: 'Quantidades',
     largura: 110,
     render: (_val: unknown, row: Pedido) => (
@@ -690,11 +708,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_transferida_total',
-    label: 'Qtd Transferida',
+    label: 'Qtd. Transferida',
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Quantidade Transferida (Histórico)',
-    tooltipDescricao: 'Histórico: soma das quantidades já transferidas para processos logísticos',
+    tooltipDescricao: 'Total já transferido para outros pedidos. Histórico de transferências disponível nas Transferências do pedido.',
     grupo: 'Quantidades',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
@@ -749,13 +767,13 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Status do Pedido',
     tooltipDescricao: 'Ciclo de vida: Draft, Aberto, Em Transferência, Consolidado, Cancelado',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 130,
     render: (_val: unknown, row: Pedido) => {
       const cor = getStatusCor(row.status)
       return (
         <StatusBadgeGlobal
-          valor={STATUS_PEDIDO_LABELS[row.status as keyof typeof STATUS_PEDIDO_LABELS] ?? row.status}
+          valor={getStatusLabel(row.status)}
           genero="masculino"
           style={{
             color: cor,
@@ -801,7 +819,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_fabricante ?? '—'}</span>,
   },
@@ -840,7 +858,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Peso Líquido Total do Pedido',
     tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
-    grupo: 'Dados Fisicos',
+    grupo: 'Dados Físicos',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -860,7 +878,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Peso Bruto Total do Pedido',
     tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
-    grupo: 'Dados Fisicos',
+    grupo: 'Dados Físicos',
     largura: 140,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -880,7 +898,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Cubagem Total do Pedido',
     tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
-    grupo: 'Dados Fisicos',
+    grupo: 'Dados Físicos',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -1396,7 +1414,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Anexo P.O.',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 100,
     tooltipTitulo: 'Anexo do Pedido',
     tooltipDescricao: 'Arquivo do pedido (Purchase Order) em PDF ou outro formato',
@@ -1407,7 +1425,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Anexo Proforma',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 120,
     tooltipTitulo: 'Anexo da Proforma Invoice',
     tooltipDescricao: 'Arquivo da Proforma Invoice em PDF ou outro formato',
@@ -1418,7 +1436,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Anexo Invoice',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 110,
     tooltipTitulo: 'Anexo da Invoice',
     tooltipDescricao: 'Arquivo da Commercial Invoice em PDF ou outro formato',
@@ -1448,7 +1466,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 130,
     tooltipTitulo: 'Part Number do Produto',
     tooltipDescricao: 'Código de referência do produto principal do pedido',
@@ -1460,7 +1478,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 130,
     tooltipTitulo: 'Referência Interna do Produto — Catálogo',
     tooltipDescricao: 'Referência interna do produto conforme catálogo de produtos',
@@ -1900,6 +1918,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
 ]
 
+// ── Chaves das colunas estáticas do Pedido (para camposDisponiveis em fórmulas) ──
+
+export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
+  .map(c => c.key as string)
+  .filter(k => k !== 'saldo_quantidade')
+
 // ── Mapper: ColunaUsuario → GTColuna<Pedido> ──────────────────────────────────
 
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
@@ -1959,7 +1983,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     key: 'part_number',
     label: 'Part Number',
     tipo: 'texto',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 130,
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
   },
@@ -1967,7 +1991,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     key: 'ncm',
     label: 'NCM',
     tipo: 'texto',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 100,
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm}</span>,
   },
@@ -1975,7 +1999,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     key: 'descricao',
     label: 'Descrição',
     tipo: 'texto',
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 220,
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao}</span>,
   },
@@ -2121,7 +2145,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'center',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 70,
     tooltipTitulo: 'Sequência do Item',
     tooltipDescricao: 'Número sequencial do item dentro do pedido (conforme invoice)',
@@ -2136,7 +2160,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. Completa',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 260,
     tooltipTitulo: 'Descrição Completa do Produto',
     tooltipDescricao: 'Descrição técnica detalhada do produto conforme catálogo',
@@ -2147,7 +2171,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. NF',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 220,
     tooltipTitulo: 'Descrição Espelho da Nota Fiscal',
     tooltipDescricao: 'Descrição do produto conforme será exibida na nota fiscal de entrada',
@@ -2178,7 +2202,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
-    grupo: 'Dados Fisicos',
+    grupo: 'Dados Físicos',
     largura: 130,
     tooltipTitulo: 'Peso Líquido Unitário',
     tooltipDescricao: 'Peso líquido unitário do produto, em kg',
@@ -2196,7 +2220,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
-    grupo: 'Dados Fisicos',
+    grupo: 'Dados Físicos',
     largura: 140,
     tooltipTitulo: 'Peso Bruto Unitário',
     tooltipDescricao: 'Peso bruto unitário incluindo embalagem, em kg',
@@ -2214,7 +2238,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
-    grupo: 'Dados Fisicos',
+    grupo: 'Dados Físicos',
     largura: 130,
     tooltipTitulo: 'Cubagem Unitária',
     tooltipDescricao: 'Volume unitário do produto, em m³',
@@ -2233,7 +2257,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
-    grupo: 'Dados Fisicos',
+    grupo: 'Dados Físicos',
     largura: 120,
     tooltipTitulo: 'Tipo de Embalagem',
     tooltipDescricao: 'Tipo de embalagem do produto (ex: Caixa, Pallet, Tambor)',
@@ -2281,7 +2305,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 120,
     tooltipTitulo: 'Grupo do Produto',
     tooltipDescricao: 'Grupo de classificação do produto conforme cadastro',
@@ -2293,7 +2317,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 120,
     tooltipTitulo: 'Subgrupo do Produto',
     tooltipDescricao: 'Subgrupo de classificação do produto dentro do grupo principal',
@@ -2304,7 +2328,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Campo Especial',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 140,
     tooltipTitulo: 'Campo Especial',
     tooltipDescricao: 'Campo configurável para uso interno ou integrações específicas',
@@ -2316,7 +2340,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. (EN)',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 220,
     tooltipTitulo: 'Product Description (English)',
     tooltipDescricao: 'Descrição do produto em inglês, conforme invoice internacional',
@@ -2327,7 +2351,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. (ES)',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 220,
     tooltipTitulo: 'Descripción del Producto (Español)',
     tooltipDescricao: 'Descrição do produto em espanhol',
@@ -2338,7 +2362,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Texto NCM',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 200,
     tooltipTitulo: 'Texto da Posição da NCM',
     tooltipDescricao: 'Descrição oficial da posição tarifária NCM conforme TEC',
@@ -2349,7 +2373,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Atributos',
     tipo: 'texto',
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 180,
     tooltipTitulo: 'Atributos — Catálogo de Produtos',
     tooltipDescricao: 'Atributos técnicos do produto conforme catálogo (cor, voltagem, etc.)',
@@ -2374,7 +2398,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 145,
     tooltipTitulo: 'Data de Inclusão do Produto/Item',
     tooltipDescricao: 'Data em que o item foi incluído no pedido',
@@ -2387,7 +2411,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 135,
     tooltipTitulo: 'Data de Transferência do Produto/Item',
     tooltipDescricao: 'Data em que o item foi transferido para um processo logístico',
@@ -2400,7 +2424,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
-    grupo: 'Identificacao',
+    grupo: 'Identificação',
     largura: 140,
     tooltipTitulo: 'Data de Consolidação do Produto/Item',
     tooltipDescricao: 'Data em que o item foi consolidado em um processo',
@@ -3494,13 +3518,8 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'part_number',
     render: (row: PedidoItem) => (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
-        <span style={{ color: 'var(--gtv-muted, #64748b)', fontVariantNumeric: 'tabular-nums', minWidth: '18px', textAlign: 'right', flexShrink: 0 }}>
-          {row.sequencia_item ?? '—'}.
-        </span>
-        <span style={{ fontFamily: 'var(--font-mono, monospace)', letterSpacing: '0.01em' }}>
-          {row.part_number}
-        </span>
+      <span style={{ fontFamily: 'var(--font-mono, monospace)', letterSpacing: '0.01em', fontWeight: 500 }}>
+        {row.part_number}
       </span>
     ),
   },
@@ -3584,7 +3603,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const cor = getStatusCor(p.status)
       return (
         <StatusBadgeGlobal
-          valor={STATUS_PEDIDO_LABELS[p.status as keyof typeof STATUS_PEDIDO_LABELS] ?? p.status}
+          valor={getStatusLabel(p.status)}
           genero="masculino"
           style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33` }}
         />
@@ -3871,16 +3890,64 @@ export default function ListaPedidos() {
   const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
 
+  // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────
+  const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
+    const abas = lerAbasDoLocalStorage()
+    return abas
+      ? abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label }))
+      : [
+          { valor: 'rascunho',      label: 'Rascunho'    },
+          { valor: 'aberto',        label: 'Aberto'      },
+          { valor: 'em_andamento',  label: 'Em Andamento'},
+          { valor: 'aprovado',      label: 'Aprovado'    },
+          { valor: 'transferencia', label: 'Transferido' },
+          { valor: 'consolidado',   label: 'Consolidado' },
+          { valor: 'cancelado',     label: 'Cancelado'   },
+        ]
+  })
+
+  useEffect(() => {
+    const sync = () => {
+      const abas = lerAbasDoLocalStorage()
+      if (abas) setStatusOpts(abas.filter(a => a.valor !== 'todos').map(a => ({ valor: a.valor, label: a.label })))
+    }
+    window.addEventListener('focus', sync)
+    return () => window.removeEventListener('focus', sync)
+  }, [])
+
   // ── Colunas do Usuário ────────────────────────────────────────────────────────
   const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
 
   // Colunas pai estáticas + colunas customizadas do usuário (escopo pedido ou ambos)
+  // O render da coluna status é sobreposto aqui para ter acesso ao setPedidos
   const colunasComUsuario = useMemo<GTColuna<Pedido>[]>(() => {
     const custom = colunasUsuario
       .filter(c => c.escopo === 'pedido' || c.escopo === 'ambos')
       .map(mapColunaUsuarioParaGTColuna)
-    return [...COLUNAS_PAI, ...custom]
-  }, [colunasUsuario])
+
+    const STATUS_OPTS = statusOpts
+
+    const colunasBase = COLUNAS_PAI.map(col => {
+      if (col.key !== 'status') return col
+      return {
+        ...col,
+        editavel: true,
+        opcoes: STATUS_OPTS,
+        render: (_val: unknown, row: Pedido) => {
+          const cor = getStatusCor(row.status)
+          return (
+            <StatusBadgeGlobal
+              valor={getStatusLabel(row.status)}
+              genero="masculino"
+              style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
+            />
+          )
+        },
+      }
+    })
+
+    return [...colunasBase, ...custom]
+  }, [colunasUsuario, statusOpts])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
@@ -4135,10 +4202,35 @@ export default function ListaPedidos() {
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
+    if (campo === 'status') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      const atualizado = { ...pedidoAtual!, status: String(valor) } as Pedido
+      await pedidoLoteApi.mudarStatusConfirmar([id], String(valor)).catch(err => {
+        if (!import.meta.env.DEV) throw err
+        // DEV: sem servidor → aplica localmente mesmo assim
+      })
+      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
+      return atualizado
+    }
+    // Campo de moeda composta: { currency, amount } → salva amount + moeda separados
+    if (campo === 'valor_total_pedido' && valor != null && typeof valor === 'object' && 'currency' in valor) {
+      const mv = valor as GTValorMoeda
+      const atualizado = await pedidoVirtualApi.editarCampo(id, 'valor_total_pedido', mv.amount)
+        .then(p => pedidoVirtualApi.editarCampo(p.id ?? id, 'moeda_pedido', mv.currency))
+        .catch(() => {
+          if (import.meta.env.DEV) {
+            const pedidoAtual = pedidos.find(p => p.id === id)
+            return { ...pedidoAtual!, valor_total_pedido: mv.amount, moeda_pedido: mv.currency } as Pedido
+          }
+          throw new Error('Erro ao salvar valor total do pedido')
+        })
+      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
+      return atualizado
+    }
     const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
     setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
     return atualizado
-  }, [])
+  }, [pedidos])
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
   const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
@@ -4229,44 +4321,6 @@ export default function ListaPedidos() {
   }, [])
 
   // ── Ações em lote ─────────────────────────────────────────────────────────────
-  const acoesLote: GTAcaoLote<Pedido>[] = [
-    {
-      id: 'mudar-status',
-      label: 'Mudar Status',
-      icone: <ArrowsClockwise size={15} weight="duotone" />,
-      onClick: async (itens: Pedido[]) => {
-        const ids = itens.map((p: Pedido) => p.id)
-        try {
-          const preview = await pedidoLoteApi.mudarStatusPreview(ids, 'consolidado')
-          const resumo = preview.afetados.map(a => `✓ ${a.numero_pedido} → ${a.status}`).join('\n')
-          if (window.confirm(`${resumo}\n\nConfirmar mudança de status?`)) {
-            await pedidoLoteApi.mudarStatusConfirmar(ids, 'consolidado')
-            await carregarInicial()
-          }
-        } catch (err) {
-          setErroLote(err instanceof Error ? err.message : 'Erro ao mudar status')
-        }
-      },
-    },
-    {
-      id: 'cancelar',
-      label: 'Cancelar Pedidos',
-      icone: <X size={15} weight="duotone" />,
-      variant: 'danger',
-      onClick: async (itens: Pedido[]) => {
-        const ids = itens.map((p: Pedido) => p.id)
-        try {
-          const preview = await pedidoLoteApi.cancelarPreview(ids)
-          if (window.confirm(`${preview.resumo.join('\n')}\n\nConfirmar cancelamento?`)) {
-            await pedidoLoteApi.cancelarConfirmar(ids)
-            await carregarInicial()
-          }
-        } catch (err) {
-          setErroLote(err instanceof Error ? err.message : 'Erro ao cancelar')
-        }
-      },
-    },
-  ]
 
   // ── Config de exportação (lida do localStorage — mesmas preferências de Configurações) ──
   // ── Lê config de exportação fresco no momento do clique (não cache stale) ──
@@ -4514,6 +4568,11 @@ export default function ListaPedidos() {
           mapaColunasFilho={MAPA_COLUNAS_FILHO}
           onCarregarFilhos={handleCarregarFilhos}
           filhoId={(i: PedidoItem) => i.id}
+          renderConectorFilho={(i: PedidoItem) => (
+            <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.75rem' }}>
+              {i.sequencia_item ?? '—'}
+            </span>
+          )}
           temMais={temMais}
           carregandoMais={carregandoMais}
           onCarregarMais={handleCarregarMais}
@@ -4533,7 +4592,6 @@ export default function ListaPedidos() {
               },
             },
           ]}
-          acoesLote={acoesLote}
           acoesExportacao={acoesExportacao}
           onSelecaoMudar={setPedidosSelecionados}
           onFiltroColuna={(key, anchor) => {
@@ -4716,20 +4774,22 @@ export default function ListaPedidos() {
 
                     {/* ── Nova Coluna ── */}
                     <button type="button" style={{
-                      display: 'flex', alignItems: 'center', gap: '0.5rem',
-                      padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
-                      background: 'transparent', color: 'var(--text-secondary)',
-                      fontSize: '0.8125rem', fontWeight: 500, cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                      background: 'transparent', color: 'var(--text-primary)',
+                      fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', width: '100%', fontFamily: 'inherit',
                     }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onClick={() => { navigate('/configuracoes?tab=colunas'); setNovoDropdownAberto(false) }}
+                      onClick={() => { navigate('/configuracoes?tab=colunas&acao=nova'); setNovoDropdownAberto(false) }}
                     >
-                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(255,255,255,0.05)', flexShrink: 0 }}>
-                        <PlusCircle size={13} weight="duotone" />
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(99,102,241,0.12)', flexShrink: 0 }}>
+                          <Columns size={13} weight="duotone" style={{ color: '#818cf8' }} />
+                        </span>
+                        Nova Coluna
                       </span>
-                      Nova Coluna
-                      <span style={{ marginLeft: 'auto', fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>Configurações</span>
+                      <ArrowRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
                     </button>
                   </div>
                 )}
@@ -5108,71 +5168,6 @@ export default function ListaPedidos() {
         </div>
       )}
 
-      {/* ── Modal Mudar Status ── */}
-      {modalMudarStatus && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => { if (e.target === e.currentTarget) setModalMudarStatus(null) }}
-        >
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1.5rem', width: 380, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Mudar Status · {modalMudarStatus.itens.length} pedido{modalMudarStatus.itens.length !== 1 ? 's' : ''}
-              </h3>
-              <button type="button" onClick={() => setModalMudarStatus(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}>
-                <X size={16} weight="bold" />
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-              <label style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Novo status</label>
-              <select
-                value={statusSelecionado}
-                onChange={e => setStatusSelecionado(e.target.value)}
-                style={{ padding: '0.5rem 0.75rem', background: 'var(--bg-base)', border: '1px solid var(--border-subtle)', borderRadius: '0.375rem', color: 'var(--text-primary)', fontSize: '0.875rem', width: '100%' }}
-              >
-                {[
-                  { valor: 'rascunho',      label: 'Rascunho'      },
-                  { valor: 'aberto',        label: 'Aberto'        },
-                  { valor: 'em_andamento',  label: 'Em Andamento'  },
-                  { valor: 'aprovado',      label: 'Aprovado'      },
-                  { valor: 'transferencia', label: 'Transferido'   },
-                  { valor: 'consolidado',   label: 'Consolidado'   },
-                  { valor: 'cancelado',     label: 'Cancelado'     },
-                ].map(s => (
-                  <option key={s.valor} value={s.valor}>{s.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.5rem 0.75rem', border: '1px solid var(--border-subtle)', maxHeight: 120, overflowY: 'auto' }}>
-              {modalMudarStatus.itens.map(p => (
-                <div key={p.id}>{p.numero_pedido} <span style={{ opacity: 0.6 }}>→ {statusSelecionado}</span></div>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <BotaoGlobal variante="secundario" onClick={() => setModalMudarStatus(null)}>Cancelar</BotaoGlobal>
-              <BotaoGlobal
-                variante="primario"
-                onClick={async () => {
-                  const ids = modalMudarStatus.itens.map(p => p.id)
-                  try {
-                    await pedidoLoteApi.mudarStatusConfirmar(ids, statusSelecionado)
-                    setModalMudarStatus(null)
-                    await carregarInicial()
-                  } catch (err) {
-                    setErroLote(err instanceof Error ? err.message : 'Erro ao mudar status')
-                    setModalMudarStatus(null)
-                  }
-                }}
-              >
-                Confirmar
-              </BotaoGlobal>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   )

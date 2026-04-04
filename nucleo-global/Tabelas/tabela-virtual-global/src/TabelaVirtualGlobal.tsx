@@ -31,6 +31,8 @@ import type {
   GTAbaTipo,
   GTLinhaVirtual,
   GTPreferencias,
+  GTValorMoeda,
+  GTValorUnidade,
 } from './tipos.js'
 
 // ─── Ícones internos ──────────────────────────────────────────────────────────
@@ -276,13 +278,70 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 
 // ──────────────────────────────────────────────────────────────────────────────
 
+// Moedas e unidades padrão quando a coluna não especifica lista própria
+const MOEDAS_PADRAO = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU']
+const UNIDADES_PADRAO = ['UN', 'KG', 'G', 'TON', 'L', 'ML', 'M', 'M²', 'M³', 'CX', 'PC', 'PAR', 'DZ', 'CT', 'FD']
+
+function formatarOverlayValor(val: unknown, tipo?: string): string {
+  if (tipo === 'moeda' && val != null && typeof val === 'object') {
+    const v = val as GTValorMoeda
+    return `${v.currency} ${Number(v.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
+  if (tipo === 'unidade' && val != null && typeof val === 'object') {
+    const v = val as GTValorUnidade
+    return `${Number(v.quantity).toLocaleString('pt-BR')} ${v.unit}`
+  }
+  return String(val ?? '')
+}
+
+function parsearLinhaSmartPaste(linha: string, tipo?: string, valorAtual?: unknown): unknown {
+  const txt = linha.trim()
+  if (tipo === 'moeda') {
+    const moedaPadrao = (valorAtual as GTValorMoeda | null)?.currency ?? 'USD'
+    // Tenta extrair código ISO de 3 letras maiúsculas
+    const match = txt.match(/^([A-Z]{3})\s*([\d.,]+)$/) ?? txt.match(/^([\d.,]+)\s*([A-Z]{3})$/)
+    if (match) {
+      const [, a, b] = match
+      const isCurrencyFirst = /^[A-Z]{3}$/.test(a)
+      const currency = isCurrencyFirst ? a : b
+      const amountStr = isCurrencyFirst ? b : a
+      return { currency, amount: Number(amountStr.replace(/\./g, '').replace(',', '.')) || 0 }
+    }
+    const amount = Number(txt.replace(/\./g, '').replace(',', '.')) || 0
+    return { currency: moedaPadrao, amount }
+  }
+  if (tipo === 'unidade') {
+    const unitPadrao = (valorAtual as GTValorUnidade | null)?.unit ?? 'UN'
+    const match = txt.match(/^([\d.,]+)\s*([A-Za-zÀ-ú²³]+)$/)
+    if (match) {
+      return { quantity: Number(match[1].replace(/\./g, '').replace(',', '.')) || 0, unit: match[2].toUpperCase() }
+    }
+    return { quantity: Number(txt.replace(/\./g, '').replace(',', '.')) || 0, unit: unitPadrao }
+  }
+  if (tipo === 'numero') {
+    return Number(txt.replace(/\./g, '').replace(',', '.')) || 0
+  }
+  return txt
+}
+
 interface GTEditPopoverProps {
-  overlayInfo: { rect: DOMRect; id: string; campo: string; isFilho: boolean; colLabel: string; colTipo?: string }
+  overlayInfo: {
+    rect: DOMRect
+    id: string
+    campo: string
+    isFilho: boolean
+    colLabel: string
+    colTipo?: string
+    opcoes?: { valor: string; label: string }[]
+    moedas?: string[]
+    unidades?: string[]
+  }
   valorEditando: unknown
   salvando: boolean
   onAtualizar: (valor: unknown) => void
   onConfirmar: () => void
   onCancelar: () => void
+  onSmartPaste?: (valores: string[]) => void
 }
 
 const POPOVER_W = 340
@@ -294,11 +353,35 @@ const GTEditPopover = memo(function GTEditPopover({
   onAtualizar,
   onConfirmar,
   onCancelar,
+  onSmartPaste,
 }: GTEditPopoverProps) {
   const { rect, colLabel } = overlayInfo
   const isPeriodo = overlayInfo.colTipo === 'periodo'
+  const isOpcoes  = Array.isArray(overlayInfo.opcoes) && overlayInfo.opcoes!.length > 0
+  const isMoeda   = overlayInfo.colTipo === 'moeda'
+  const isUnidade = overlayInfo.colTipo === 'unidade'
   const popoverRef = useRef<HTMLDivElement>(null)
   const inputRef   = useRef<HTMLInputElement>(null)
+
+  // Valores compostos — calculados sempre mas usados só nos modos moeda/unidade
+  const mv: GTValorMoeda = (isMoeda && valorEditando != null && typeof valorEditando === 'object' && 'currency' in (valorEditando as object))
+    ? (valorEditando as GTValorMoeda)
+    : { currency: 'USD', amount: 0 }
+  const uv: GTValorUnidade = (isUnidade && valorEditando != null && typeof valorEditando === 'object' && 'unit' in (valorEditando as object))
+    ? (valorEditando as GTValorUnidade)
+    : { unit: 'UN', quantity: 0 }
+  const listaMoedas   = overlayInfo.moedas   ?? MOEDAS_PADRAO
+  const listaUnidades = overlayInfo.unidades ?? UNIDADES_PADRAO
+
+  // Handler de paste compartilhado — detecta multi-linha e aciona smart paste
+  const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const texto = e.clipboardData.getData('text')
+    const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+    if (linhas.length > 1) {
+      e.preventDefault()
+      onSmartPaste?.(linhas)
+    }
+  }
 
   // Estado local para campos de data: texto em formato DD/MM/AAAA
   const [periodoText, setPeriodoText] = useState<string>(() => isoToBR(valorEditando))
@@ -353,6 +436,17 @@ const GTEditPopover = memo(function GTEditPopover({
       {/* Backdrop — clique fora confirma */}
       <div className="gtv-edit-popover-backdrop" onMouseDown={() => onConfirmar()} />
 
+      {/* Seta — fora do popover para não ser cortada pelo overflow:hidden */}
+      <div
+        className={`gtv-edit-popover-arrow${pos.flipUp ? ' gtv-edit-popover-arrow--flip' : ''}`}
+        style={{
+          position: 'fixed',
+          left: pos.left + pos.arrowLeft,
+          top: pos.flipUp ? pos.top + (popoverRef.current?.offsetHeight ?? 0) : pos.top - 8,
+          zIndex: 10000,
+        }}
+      />
+
       {/* Popover */}
       <div
         ref={popoverRef}
@@ -360,8 +454,6 @@ const GTEditPopover = memo(function GTEditPopover({
         style={{ top: pos.top, left: pos.left }}
         onMouseDown={e => e.stopPropagation()}
       >
-        {/* Seta apontando para a célula */}
-        <div className="gtv-edit-popover-arrow" style={{ left: pos.arrowLeft }} />
 
         {/* Header: nome do campo + fechar */}
         <div className="gtv-edit-popover-header">
@@ -384,9 +476,86 @@ const GTEditPopover = memo(function GTEditPopover({
           </button>
         </div>
 
-        {/* Input */}
+        {/* Input / Lista de opções */}
         <div className="gtv-edit-popover-body">
-          {isPeriodo ? (
+          {isOpcoes ? (
+            <div className="gtv-edit-popover-opcoes">
+              {overlayInfo.opcoes!.map(op => (
+                <button
+                  key={op.valor}
+                  type="button"
+                  className={`gtv-edit-popover-opcao${String(valorEditando) === op.valor ? ' gtv-edit-popover-opcao--ativo' : ''}`}
+                  disabled={salvando}
+                  onMouseDown={e => e.preventDefault()}
+                  onClick={() => { onAtualizar(op.valor); onConfirmar() }}
+                >
+                  {op.label}
+                </button>
+              ))}
+            </div>
+          ) : isMoeda ? (
+            <div className="gtv-edit-moeda">
+              <select
+                className="gtv-edit-moeda-select"
+                value={mv.currency}
+                disabled={salvando}
+                onChange={e => onAtualizar({ ...mv, currency: e.target.value })}
+                onFocus={e => e.stopPropagation()}
+              >
+                {listaMoedas.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <input
+                ref={inputRef}
+                autoFocus
+                type="number"
+                step="0.01"
+                className="gtv-edit-moeda-valor"
+                value={mv.amount === 0 ? '' : mv.amount}
+                placeholder="0,00"
+                disabled={salvando}
+                onChange={e => onAtualizar({ ...mv, amount: Number(e.target.value) || 0 })}
+                onKeyDown={e => {
+                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                }}
+                onBlur={e => {
+                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                }}
+                onPaste={handleSmartPasteDetect}
+              />
+            </div>
+          ) : isUnidade ? (
+            <div className="gtv-edit-unidade">
+              <input
+                ref={inputRef}
+                autoFocus
+                type="number"
+                step="1"
+                className="gtv-edit-unidade-qty"
+                value={uv.quantity === 0 ? '' : uv.quantity}
+                placeholder="0"
+                disabled={salvando}
+                onChange={e => onAtualizar({ ...uv, quantity: Number(e.target.value) || 0 })}
+                onKeyDown={e => {
+                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+                }}
+                onBlur={e => {
+                  if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
+                }}
+                onPaste={handleSmartPasteDetect}
+              />
+              <select
+                className="gtv-edit-unidade-select"
+                value={uv.unit}
+                disabled={salvando}
+                onChange={e => onAtualizar({ ...uv, unit: e.target.value })}
+                onFocus={e => e.stopPropagation()}
+              >
+                {listaUnidades.map(u => <option key={u} value={u}>{u}</option>)}
+              </select>
+            </div>
+          ) : isPeriodo ? (
             <>
               {/* Input de digitação livre em formato BR */}
               <input
@@ -424,12 +593,13 @@ const GTEditPopover = memo(function GTEditPopover({
                 if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
               }}
               onBlur={() => onConfirmar()}
+              onPaste={handleSmartPasteDetect}
             />
           )}
         </div>
 
-        {/* Footer: hints + botões */}
-        <div className="gtv-edit-popover-footer">
+        {/* Footer: hints + botões (oculto no modo opcoes — clique já confirma) */}
+        <div className={`gtv-edit-popover-footer${isOpcoes ? ' gtv-edit-popover-footer--hidden' : ''}`}>
           <div className="gtv-edit-popover-hints" aria-hidden="true">
             <kbd className="gtv-edit-popover-kbd">Enter</kbd>
             <span>confirmar</span>
@@ -497,6 +667,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   selecionavelFilhos,
   onSelecaoFilho,
   acoesFilho,
+  renderConectorFilho,
   onBuscar,
   placeholderBusca = 'Buscar...',
   onFiltrar,
@@ -674,6 +845,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     isFilho: boolean
     colLabel: string
     colTipo?: string
+    opcoes?: { valor: string; label: string }[]
+    moedas?: string[]
+    unidades?: string[]
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
@@ -684,23 +858,26 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // ── Largura total e offsets para scroll horizontal ────────────────────────────
   const CABECALHO_HEIGHT = 40
 
+  /** Mostra checkbox de seleção quando há acoesLote OU onSelecaoMudar */
+  const temSelecao = (acoesLote != null && acoesLote.length > 0) || onSelecaoMudar != null
+
   const larguraTotalColunas = useMemo(() => {
     const colsW = colunasFiltradas.reduce(
       (acc, col) => acc + getColWidth(col as GTColuna<unknown>),
       0
     )
-    const checkW = acoesLote && acoesLote.length > 0 ? 40 : 0
+    const checkW = temSelecao ? 40 : 0
     const expandW = onCarregarFilhos != null ? 40 : 0
     const acoesW  = acoes && acoes.length > 0 ? acoes.length * 32 + 16 : 0
     return colsW + checkW + expandW + acoesW
-  }, [colunasFiltradas, acoesLote, onCarregarFilhos, acoes, getColWidth])
+  }, [colunasFiltradas, temSelecao, onCarregarFilhos, acoes, getColWidth])
 
   /** left offset das colunas de dados frozen (após checkbox + expand) */
   const offsetFrozenDados = useMemo(() => {
-    const checkW = acoesLote && acoesLote.length > 0 ? 40 : 0
+    const checkW = temSelecao ? 40 : 0
     const expandW = onCarregarFilhos != null ? 40 : 0
     return checkW + expandW
-  }, [acoesLote, onCarregarFilhos])
+  }, [temSelecao, onCarregarFilhos])
 
   /** largura total das colunas frozen de dados (para spacer nas linhas filhas) */
   const frozenDataWidth = useMemo(
@@ -768,6 +945,50 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     document.addEventListener('mousedown', fecharFora)
     return () => document.removeEventListener('mousedown', fecharFora)
   }, [dropdownFilhoAberto])
+
+  // ── Drag de cabeçalho para reordenar colunas ──────────────────────────────────
+  const [dragColKey,  setDragColKey]  = useState<string | null>(null)
+  const [dragOverKey, setDragOverKey] = useState<string | null>(null)
+  const [dropSide,    setDropSide]    = useState<'before' | 'after'>('after')
+
+  const handleColDragStart = useCallback((key: string) => {
+    setDragColKey(key)
+  }, [])
+
+  const handleColDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, key: string) => {
+    e.preventDefault()
+    if (!dragColKey || dragColKey === key) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const mid  = rect.left + rect.width / 2
+    setDragOverKey(key)
+    setDropSide(e.clientX < mid ? 'before' : 'after')
+  }, [dragColKey])
+
+  const handleColDrop = useCallback((e: React.DragEvent<HTMLDivElement>, targetKey: string) => {
+    e.preventDefault()
+    if (!dragColKey || dragColKey === targetKey) {
+      setDragColKey(null); setDragOverKey(null)
+      return
+    }
+    const ordem = [...colunasVisiveis]
+    const fromIdx = ordem.indexOf(dragColKey)
+    const toIdx   = ordem.indexOf(targetKey)
+    if (fromIdx < 0 || toIdx < 0) { setDragColKey(null); setDragOverKey(null); return }
+    ordem.splice(fromIdx, 1)
+    const inserirEm = ordem.indexOf(targetKey)
+    const offset    = dropSide === 'after' ? 1 : 0
+    ordem.splice(inserirEm + offset, 0, dragColKey)
+    onSalvarPreferencias?.({
+      ...(preferencias ?? {}),
+      colunas_visiveis: ordem,
+      larguras: preferencias?.larguras,
+    })
+    setDragColKey(null); setDragOverKey(null)
+  }, [dragColKey, colunasVisiveis, dropSide, onSalvarPreferencias, preferencias])
+
+  const handleColDragEnd = useCallback(() => {
+    setDragColKey(null); setDragOverKey(null)
+  }, [])
 
   // ── Edição inline ─────────────────────────────────────────────────────────────
   const {
@@ -875,6 +1096,40 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     }
   }, [editandoCelulaPai, editandoCelulaFilho])
 
+  // ── Core: distribui valores em linhas consecutivas a partir de um id ─────────
+  const aplicarSmartPaste = useCallback(async (
+    startId: string,
+    campo: string,
+    colTipo: string | undefined,
+    valores: string[],
+    valorAtual: unknown,
+    isFilho = false,
+  ) => {
+    const editarFn = isFilho ? onEditarFilho : onEditar
+    if (!editarFn) return
+    const linhasPai = linhasVirtuais.filter((l): l is GTLinhaVirtual<T, C> & { tipo: 'pai' } => l.tipo === 'pai')
+    const idxAtual  = linhasPai.findIndex(l => l.id === startId)
+    if (idxAtual < 0) return
+    const promises: Promise<void>[] = []
+    for (let i = 0; i < valores.length; i++) {
+      const linha = linhasPai[idxAtual + i]
+      if (!linha) break
+      const valorParsado = parsearLinhaSmartPaste(valores[i], colTipo, valorAtual)
+      promises.push(editarFn(linha.id, campo, valorParsado).catch(() => {}))
+    }
+    await Promise.all(promises)
+    onSalvoComSucesso?.()
+  }, [onEditar, onEditarFilho, linhasVirtuais, onSalvoComSucesso])
+
+  // ── Smart paste vindo do popover ──────────────────────────────────────────────
+  const handleSmartPaste = useCallback(async (valores: string[]) => {
+    if (!overlayInfo) return
+    const valorAtual = overlayInfo.isFilho ? valorEditandoFilho : valorEditandoPai
+    if (overlayInfo.isFilho) cancelarEdicaoFilho()
+    else cancelarEdicaoPai()
+    await aplicarSmartPaste(overlayInfo.id, overlayInfo.campo, overlayInfo.colTipo, valores, valorAtual, overlayInfo.isFilho)
+  }, [overlayInfo, valorEditandoPai, valorEditandoFilho, cancelarEdicaoPai, cancelarEdicaoFilho, aplicarSmartPaste])
+
   // ── Resize handle — mousemove/mouseup no document ─────────────────────────────
   useEffect(() => {
     if (!resizingCol) return
@@ -926,6 +1181,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     id: string,
     col: GTColuna<I>,
     isFilho: boolean,
+    isPrimeiraCelula = false,
   ) {
     const valor = (item as Record<string, unknown>)[col.key]
 
@@ -949,7 +1205,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         ? ' gtv-celula--right'
         : ''
 
-    const classeIndent   = isFilho ? ' gtv-celula--filho-indent' : ''
+    const classeIndent   = ''
     const classeEditavel = podeEditar ? ' gtv-celula--editavel' : ''
     const classeFrozen   = col.frozen ? ' gtv-celula--frozen' : ''
 
@@ -989,19 +1245,54 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         key={col.key}
         className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFrozen}`}
         style={styleCelula}
+        tabIndex={podeEditar && !estaEditando ? 0 : undefined}
         onClick={e => {
           if (podeEditar && !estaEditando) {
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo })
-            iniciarEdicao(id, col.key, valor)
+            const colU = col as GTColuna<unknown>
+            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades })
+            const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
+            iniciarEdicao(id, col.key, valorParaEdicao)
           }
         }}
+        onKeyDown={podeEditar && !estaEditando ? async (e) => {
+          const ctrl = e.ctrlKey || e.metaKey
+          if (!ctrl) return
+          const colU = col as GTColuna<unknown>
+          const valorAtual = colU.getValorEditar ? colU.getValorEditar(item) : valor
+
+          if (e.key === 'c') {
+            e.preventDefault()
+            try {
+              await navigator.clipboard.writeText(formatarOverlayValor(valorAtual, col.tipo))
+            } catch {}
+          }
+
+          if (e.key === 'v') {
+            e.preventDefault()
+            try {
+              const texto = await navigator.clipboard.readText()
+              const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
+              if (!linhas.length) return
+              if (linhas.length === 1) {
+                const editarFn = isFilho ? onEditarFilho : onEditar
+                if (editarFn) {
+                  const valorParsado = parsearLinhaSmartPaste(linhas[0], col.tipo, valorAtual)
+                  await editarFn(id, col.key, valorParsado).catch(() => {})
+                  onSalvoComSucesso?.()
+                }
+              } else {
+                await aplicarSmartPaste(id, col.key, col.tipo, linhas, valorAtual, isFilho)
+              }
+            } catch {}
+          }
+        } : undefined}
       >
         {estaEditando && overlayAtivo ? (
           // Overlay ativo: mostra indicador visual, o input real está no popover flutuante
           <span className="gtv-celula--editando-overlay">
-            {String(valorEditando ?? '')}
+            {formatarOverlayValor(valorEditando, col.tipo)}
           </span>
         ) : estaEditando ? (
           <input
@@ -1043,7 +1334,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div className={classeLinha}>
         {/* Checkbox */}
-        {acoesLote && acoesLote.length > 0 && (
+        {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
             <input
               type="checkbox"
@@ -1060,7 +1351,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {onCarregarFilhos && (
           <div
             className="gtv-celula gtv-celula--expand gtv-celula--frozen"
-            style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+            style={{ left: temSelecao ? 40 : 0 }}
           >
             {carregando_ ? (
               <span className="gtv-spinner" aria-label="Carregando filhos..." />
@@ -1129,7 +1420,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
       return (
         <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}`}>
-          {acoesLote && acoesLote.length > 0 && (
+          {temSelecao && (
             <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
               {selecionavelFilhos && (
                 <input
@@ -1146,13 +1437,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {onCarregarFilhos && (
             <div
               className="gtv-celula gtv-celula--expand gtv-celula--frozen"
-              style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+              style={{ left: temSelecao ? 40 : 0 }}
             >
-              <span className="gtv-conector" aria-hidden="true">└</span>
+              <span className="gtv-conector" aria-hidden="true">
+                {renderConectorFilho ? renderConectorFilho(item) : '└'}
+              </span>
             </div>
           )}
 
-          {colunasFiltradas.map(col => {
+          {colunasFiltradas.map((col, idx) => {
             const mapa = mapaColunasFilho[col.key as string]
             const campo = mapa?.campo ?? (col.key as string)
             const podeEditar = (!!mapa?.editavel || camposEditaveisFilhos.includes(col.key as string)) && !!onEditarFilho
@@ -1182,13 +1475,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo })
-                  iniciarEdicaoFilho(id, campo, valor)
+                  const colU2 = col as GTColuna<unknown>
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: colU2.unidades })
+                  const valorFilhoParaEdicao = colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor
+                  iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}
               >
                 {estaEditando && overlayAtivo ? (
                   <span className="gtv-celula--editando-overlay">
-                    {String(valorEditandoFilho ?? '')}
+                    {formatarOverlayValor(valorEditandoFilho, col.tipo)}
                   </span>
                 ) : estaEditando ? (
                   <input
@@ -1285,7 +1580,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}`}>
         {/* Espaço para alinhar com checkbox pai */}
-        {acoesLote && acoesLote.length > 0 && (
+        {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
             {selecionavelFilhos && (
               <input
@@ -1304,7 +1599,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {onCarregarFilhos && (
           <div
             className="gtv-celula gtv-celula--expand gtv-celula--frozen"
-            style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+            style={{ left: temSelecao ? 40 : 0 }}
           >
             <span className="gtv-conector" aria-hidden="true">└</span>
           </div>
@@ -1320,8 +1615,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         )}
 
         {/* Células filhas */}
-        {colsFilhas.map(col =>
-          renderCelula<C>(item, id, col, true)
+        {colsFilhas.map((col, idx) =>
+          renderCelula<C>(item, id, col, true, idx === 0)
         )}
 
         {/* Ações de linha filha */}
@@ -1469,10 +1764,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     ...colunasVisiveis
                       .map(key => colunas.find(c => c.key === key))
                       .filter((c): c is GTColuna<T> => c != null)
-                      .map(c => ({ key: c.key, label: c.label })),
+                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel, grupo: c.grupo })),
                     ...colunas
                       .filter(c => !colunasVisiveis.includes(c.key))
-                      .map(c => ({ key: c.key, label: c.label })),
+                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel, grupo: c.grupo })),
                   ]}
                   colunasVisiveis={colunasVisiveis}
                   onToggle={toggleColuna}
@@ -1569,7 +1864,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {/* Cabeçalho sticky — dentro do scroll para alinhar horizontalmente */}
           <div className="gtv-cabecalho" role="row" style={{ minWidth: larguraTotalColunas }}>
             {/* Checkbox cabeçalho */}
-            {acoesLote && acoesLote.length > 0 && (
+            {temSelecao && (
               <div className="gtv-th gtv-th--check gtv-th--frozen" role="columnheader" aria-label="Selecionar todos" style={{ left: 0 }}>
                 <input
                   type="checkbox"
@@ -1589,7 +1884,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               <div
                 className="gtv-th gtv-th--expand gtv-th--frozen"
                 role="columnheader"
-                style={{ left: acoesLote && acoesLote.length > 0 ? 40 : 0 }}
+                style={{ left: temSelecao ? 40 : 0 }}
               />
             )}
 
@@ -1612,12 +1907,23 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 ...(col.frozen ? { left: offsetFrozenDados } : undefined),
               }
 
+              const isDraggable = !!onSalvarPreferencias && !col.frozen && !col.naoOcultavel
+              const isDragging  = dragColKey === col.key
+              const isDropTarget = dragOverKey === col.key && dragColKey !== null
+              const classeDropBefore = isDropTarget && dropSide === 'before' ? ' gtv-th--drop-before' : ''
+              const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
+
               return (
                 <div
                   key={col.key}
                   role="columnheader"
-                  className={`gtv-th${classeSort}${classeAlign}${classeFrozen}`}
-                  style={styleTh}
+                  className={`gtv-th${classeSort}${classeAlign}${classeFrozen}${classeDropBefore}${classeDropAfter}`}
+                  style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
+                  draggable={isDraggable}
+                  onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}
+                  onDragOver={isDraggable || dragColKey !== null ? e => handleColDragOver(e, col.key) : undefined}
+                  onDrop={dragColKey !== null ? e => handleColDrop(e, col.key) : undefined}
+                  onDragEnd={handleColDragEnd}
                   onClick={() => col.sortavel && handleSort(col.key)}
                   aria-sort={
                     sortAtivo
@@ -1767,6 +2073,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           onAtualizar={overlayInfo.isFilho ? atualizarValorFilho : atualizarValorPai}
           onConfirmar={overlayInfo.isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai}
           onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}
+          onSmartPaste={handleSmartPaste}
         />,
         document.body
       )}

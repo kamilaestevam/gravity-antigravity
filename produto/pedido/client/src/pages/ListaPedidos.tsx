@@ -37,10 +37,12 @@ import {
   ArrowUp,
   ArrowDown,
   PlusCircle,
+  Tag,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
 import type {
   GTColuna,
@@ -382,6 +384,26 @@ function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 'enum' 
   return 'texto'
 }
 
+/** Mapeia valor raw → label legível para exibição no filtro */
+const LABELS_FILTRO: Record<string, Record<string, string>> = {
+  tipo_operacao: { importacao: 'Importação', exportacao: 'Exportação' },
+  status: {
+    draft: 'Rascunho',
+    aberto: 'Aberto',
+    transferencia: 'Em Transferência',
+    consolidado: 'Consolidado',
+    cancelado: 'Cancelado',
+  },
+}
+
+/** Inverte LABELS_FILTRO: label → raw (para aplicar filtro com valor real do banco) */
+const LABELS_FILTRO_INVERSO: Record<string, Record<string, string>> = Object.fromEntries(
+  Object.entries(LABELS_FILTRO).map(([campo, map]) => [
+    campo,
+    Object.fromEntries(Object.entries(map).map(([raw, label]) => [label, raw])),
+  ]),
+)
+
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
 const ABAS_PADRAO: GTAbaTipo[] = [
@@ -436,6 +458,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     tooltipTitulo: 'Número do Pedido',
     tooltipDescricao: 'Identificador único do documento comercial (PO/SO)',
+    grupo: 'Identificacao',
     largura: 180,
   },
   {
@@ -445,6 +468,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Tipo de Operação',
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
+    grupo: 'Identificacao',
     largura: 170,
     render: (_val: unknown, row: Pedido) => (
       <StatusBadgeGlobal
@@ -465,6 +489,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     tooltipTitulo: 'Exportador / Fornecedor',
     tooltipDescricao: 'Fornecedor estrangeiro (na importação) ou entidade exportadora',
+    grupo: 'Partes',
     largura: 180,
     render: (_val: unknown, row: Pedido) => <span>{row.exportador_nome ?? '—'}</span>,
   },
@@ -476,6 +501,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     tooltipTitulo: 'Fabricante',
     tooltipDescricao: 'Identificação da origem produtiva',
+    grupo: 'Partes',
     largura: 160,
     render: (_val: unknown, row: Pedido) => <span>{row.fabricante_nome ?? '—'}</span>,
   },
@@ -486,6 +512,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código de referência interna do importador para o pedido',
+    grupo: 'Identificacao',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_importador ?? '—'}</span>,
   },
@@ -496,6 +523,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código de referência utilizado pelo exportador',
+    grupo: 'Identificacao',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_exportador ?? '—'}</span>,
   },
@@ -506,6 +534,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Número Proforma',
     tooltipDescricao: 'Referência da Proforma Invoice vinculada',
+    grupo: 'Identificacao',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.numero_proforma ?? '—'}</span>,
   },
@@ -516,6 +545,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Número Invoice',
     tooltipDescricao: 'Identificador da Commercial Invoice (Fatura)',
+    grupo: 'Identificacao',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.numero_invoice ?? '—'}</span>,
   },
@@ -526,6 +556,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Incoterm',
     tooltipDescricao: 'Regra de entrega: FOB, CIF, EXW, etc.',
+    grupo: 'Financeiro',
     largura: 90,
     align: 'center',
     render: (_val: unknown, row: Pedido) => <span>{row.incoterm ?? '—'}</span>,
@@ -539,6 +570,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     tooltipTitulo: 'Valor Total do Pedido',
     tooltipDescricao: 'Valor FOB total na moeda do pedido',
+    grupo: 'Financeiro',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -550,13 +582,14 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_total_pedido',
-    label: 'Qtd Total Pedido',
+    label: 'Qtd. Pedida',
     tipo: 'numero',
     filtravel: true,
     sortavel: true,
     align: 'right',
-    tooltipTitulo: 'Quantidade Total do Pedido',
-    tooltipDescricao: 'Quantidade total contratada no pedido',
+    tooltipTitulo: 'Quantidade Pedida',
+    tooltipDescricao: 'Quantidade original do pedido. Imutavel apos criacao.',
+    grupo: 'Quantidades',
     largura: 110,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -573,6 +606,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     tooltipTitulo: 'Quantidade Inicial',
     tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
+    grupo: 'Quantidades',
     largura: 110,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -584,11 +618,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_pronta_total',
-    label: 'Qtd Pronta',
+    label: 'Qtd. Pronta',
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Quantidade Pronta',
-    tooltipDescricao: 'Soma das quantidades prontas/aprovadas para embarque em todos os itens',
+    tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
+    grupo: 'Quantidades',
     largura: 110,
     render: (_val: unknown, row: Pedido) => {
       const qtd = row.quantidade_pronta_total
@@ -610,6 +645,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     tooltipTitulo: 'Quantidade a Embarcar',
     tooltipDescricao: 'Pronta − Transferida: quantidade fabricada aguardando embarque',
+    grupo: 'Quantidades',
     largura: 130,
     render: (_val: unknown, row: Pedido) => {
       const qtd = row.quantidade_a_embarcar
@@ -629,11 +665,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_a_entregar',
-    label: 'Qtd a Entregar',
+    label: 'Qtd. a Entregar',
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Quantidade a Entregar',
-    tooltipDescricao: 'Total − Transferida: saldo pendente do contrato',
+    tooltipDescricao: 'Quantidade que o exportador confirmou que ira entregar. Pode ser diferente da pedida.',
+    grupo: 'Quantidades',
     largura: 130,
     render: (_val: unknown, row: Pedido) => {
       const qtd = row.quantidade_a_entregar
@@ -658,6 +695,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     tooltipTitulo: 'Quantidade Transferida (Histórico)',
     tooltipDescricao: 'Histórico: soma das quantidades já transferidas para processos logísticos',
+    grupo: 'Quantidades',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -672,8 +710,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Saldo',
     tipo: 'numero',
     align: 'right',
+    editavel: false,
     tooltipTitulo: 'Saldo de Quantidade',
-    tooltipDescricao: 'Quantidade disponível: Qtd Inicial − Qtd Transferida',
+    tooltipDescricao: 'Quantidade pedida menos total transferido. Campo calculado — não editável.',
+    grupo: 'Quantidades',
     largura: 110,
     render: (_val: unknown, row: Pedido) => {
       const saldo =
@@ -697,6 +737,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     tooltipTitulo: 'Data do Pedido',
     tooltipDescricao: 'Data de registro ou emissão da Purchase Order',
+    grupo: 'Datas',
     largura: 100,
     render: (_val: unknown, row: Pedido) => <span>{fmtData(row.data_emissao_pedido)}</span>,
   },
@@ -708,6 +749,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Status do Pedido',
     tooltipDescricao: 'Ciclo de vida: Draft, Aberto, Em Transferência, Consolidado, Cancelado',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 130,
     render: (_val: unknown, row: Pedido) => {
       const cor = getStatusCor(row.status)
@@ -733,6 +775,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Moeda do Pedido',
     tooltipDescricao: 'Moeda de referência do valor total do pedido (ex: USD, EUR)',
+    grupo: 'Financeiro',
     largura: 90,
     align: 'center',
     render: (_val: unknown, row: Pedido) => <span>{row.moeda_pedido ?? '—'}</span>,
@@ -745,6 +788,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Unidade Comercializada do Pedido',
     tooltipDescricao: 'Unidade de medida principal do pedido (ex: KG, UN, CX)',
+    grupo: 'Quantidades',
     largura: 100,
     align: 'center',
     render: (_val: unknown, row: Pedido) => <span>{row.unidade_comercializada_pedido ?? '—'}</span>,
@@ -757,6 +801,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
+    grupo: 'Identificacao',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_fabricante ?? '—'}</span>,
   },
@@ -768,6 +813,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Cobertura Cambial',
     tooltipDescricao: 'Modalidade de cobertura cambial do pedido (ex: Antecipado, à Vista, a Prazo)',
+    grupo: 'Financeiro',
     largura: 150,
     render: (_val: unknown, row: Pedido) => <span>{row.cobertura_cambial ?? '—'}</span>,
   },
@@ -779,6 +825,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Condição de Pagamento',
     tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador',
+    grupo: 'Financeiro',
     largura: 150,
     render: (_val: unknown, row: Pedido) => <span>{row.condicao_pagamento ?? '—'}</span>,
   },
@@ -793,6 +840,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Peso Líquido Total do Pedido',
     tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
+    grupo: 'Dados Fisicos',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -812,6 +860,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Peso Bruto Total do Pedido',
     tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
+    grupo: 'Dados Fisicos',
     largura: 140,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -831,6 +880,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Cubagem Total do Pedido',
     tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
+    grupo: 'Dados Fisicos',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
@@ -850,6 +900,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Prevista — Pedido Pronto',
     tooltipDescricao: 'Data prevista para o pedido estar pronto para embarque (confirmada pelo exportador)',
+    grupo: 'Datas',
     largura: 130,
     render: (_val: unknown, row: Pedido) => <span>{row.data_prevista_pedido_pronto ? fmtData(row.data_prevista_pedido_pronto) : '—'}</span>,
   },
@@ -862,6 +913,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Confirmada — Pedido Pronto',
     tooltipDescricao: 'Data confirmada para o pedido estar pronto, após validação do exportador',
+    grupo: 'Datas',
     largura: 130,
     render: (_val: unknown, row: Pedido) => <span>{row.data_confirmada_pedido_pronto ? fmtData(row.data_confirmada_pedido_pronto) : '—'}</span>,
   },
@@ -874,6 +926,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Meta — Pedido Pronto',
     tooltipDescricao: 'Data meta definida pelo importador para o pedido estar pronto',
+    grupo: 'Datas',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.data_meta_pedido_pronto ? fmtData(row.data_meta_pedido_pronto) : '—'}</span>,
   },
@@ -886,6 +939,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Prevista — Inspeção do Pedido',
     tooltipDescricao: 'Data prevista para realização da inspeção pré-embarque (PSI/ISF)',
+    grupo: 'Datas',
     largura: 130,
     render: (_val: unknown, row: Pedido) => <span>{row.data_prevista_inspecao_pedido ? fmtData(row.data_prevista_inspecao_pedido) : '—'}</span>,
   },
@@ -898,6 +952,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Confirmada — Inspeção do Pedido',
     tooltipDescricao: 'Data confirmada para realização da inspeção pré-embarque',
+    grupo: 'Datas',
     largura: 130,
     render: (_val: unknown, row: Pedido) => <span>{row.data_confirmada_inspecao_pedido ? fmtData(row.data_confirmada_inspecao_pedido) : '—'}</span>,
   },
@@ -910,6 +965,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Meta — Inspeção do Pedido',
     tooltipDescricao: 'Data meta definida pelo importador para a inspeção do pedido',
+    grupo: 'Datas',
     largura: 130,
     render: (_val: unknown, row: Pedido) => <span>{row.data_meta_inspecao_pedido ? fmtData(row.data_meta_inspecao_pedido) : '—'}</span>,
   },
@@ -922,6 +978,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Prevista — Coleta do Pedido',
     tooltipDescricao: 'Data prevista para a coleta/retirada da mercadoria no exportador',
+    grupo: 'Datas',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.data_prevista_coleta_pedido ? fmtData(row.data_prevista_coleta_pedido) : '—'}</span>,
   },
@@ -934,6 +991,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Confirmada — Coleta do Pedido',
     tooltipDescricao: 'Data confirmada para coleta/retirada da mercadoria',
+    grupo: 'Datas',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.data_confirmada_coleta_pedido ? fmtData(row.data_confirmada_coleta_pedido) : '—'}</span>,
   },
@@ -946,6 +1004,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data Meta — Coleta do Pedido',
     tooltipDescricao: 'Data meta definida pelo importador para a coleta do pedido',
+    grupo: 'Datas',
     largura: 120,
     render: (_val: unknown, row: Pedido) => <span>{row.data_meta_coleta_pedido ? fmtData(row.data_meta_coleta_pedido) : '—'}</span>,
   },
@@ -958,6 +1017,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data de Consolidação do Pedido',
     tooltipDescricao: 'Data em que o pedido foi consolidado em um processo logístico',
+    grupo: 'Datas',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.data_consolidacao_pedido ? fmtData(row.data_consolidacao_pedido) : '—'}</span>,
   },
@@ -970,6 +1030,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     tooltipTitulo: 'Data de Transferência de Saldo',
     tooltipDescricao: 'Data em que o saldo do pedido foi transferido para um processo',
+    grupo: 'Datas',
     largura: 140,
     render: (_val: unknown, row: Pedido) => <span>{row.data_transferencia_saldo_pedido ? fmtData(row.data_transferencia_saldo_pedido) : '—'}</span>,
   },
@@ -979,6 +1040,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'ID Exportador',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 130,
     tooltipTitulo: 'ID do Exportador',
     tooltipDescricao: 'Identificador único do exportador/fornecedor no sistema',
@@ -990,6 +1052,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 140,
     tooltipTitulo: 'País do Exportador',
     tooltipDescricao: 'País de origem do exportador/fornecedor',
@@ -1001,6 +1064,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'Estado ou Província do Exportador',
     tooltipDescricao: 'Estado ou província do exportador',
@@ -1012,6 +1076,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Cidade do Exportador',
     tooltipDescricao: 'Cidade do exportador',
@@ -1022,6 +1087,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Endereço Exportador',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 200,
     tooltipTitulo: 'Endereço do Exportador',
     tooltipDescricao: 'Endereço completo do exportador/fornecedor',
@@ -1032,6 +1098,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'ZIP Exportador',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Zip Code do Exportador',
     tooltipDescricao: 'Código postal do exportador',
@@ -1043,6 +1110,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'Exportador ou Fabricante?',
     tooltipDescricao: 'Indica se o exportador é também o fabricante do produto',
@@ -1054,6 +1122,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Relação entre Exportador e Fabricante',
     tooltipDescricao: 'Tipo de relação entre o exportador e o fabricante do produto',
@@ -1065,6 +1134,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Contato Exportador',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 160,
     tooltipTitulo: 'Nome do Contato do Exportador',
     tooltipDescricao: 'Nome do contato principal no exportador/fornecedor',
@@ -1075,6 +1145,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'E-mail Contato Exp.',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 180,
     tooltipTitulo: 'E-mail do Contato do Exportador',
     tooltipDescricao: 'E-mail do contato principal no exportador',
@@ -1085,6 +1156,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'WhatsApp Contato Exp.',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'WhatsApp do Contato do Exportador',
     tooltipDescricao: 'Número de WhatsApp do contato do exportador',
@@ -1095,6 +1167,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Cargo Contato Exp.',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Cargo do Contato do Exportador',
     tooltipDescricao: 'Cargo ou função do contato no exportador',
@@ -1105,6 +1178,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Depto. Contato Exp.',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 160,
     tooltipTitulo: 'Departamento do Contato do Exportador',
     tooltipDescricao: 'Departamento do contato no exportador',
@@ -1116,6 +1190,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'ID Fabricante',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'ID do Fabricante',
     tooltipDescricao: 'Identificador único do fabricante no sistema',
@@ -1127,6 +1202,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 140,
     tooltipTitulo: 'País do Fabricante',
     tooltipDescricao: 'País onde o produto foi fabricado',
@@ -1138,6 +1214,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'Estado ou Província do Fabricante',
     tooltipDescricao: 'Estado ou província onde o fabricante está localizado',
@@ -1149,6 +1226,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Cidade do Fabricante',
     tooltipDescricao: 'Cidade onde o fabricante está localizado',
@@ -1159,6 +1237,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Endereço Fabricante',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 200,
     tooltipTitulo: 'Endereço do Fabricante',
     tooltipDescricao: 'Endereço completo do fabricante',
@@ -1169,6 +1248,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'ZIP Fabricante',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Zip Code do Fabricante',
     tooltipDescricao: 'Código postal do fabricante',
@@ -1180,6 +1260,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'CNPJ Raiz Empresa',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 160,
     tooltipTitulo: 'CNPJ Raiz Empresa Responsável',
     tooltipDescricao: 'CNPJ raiz da empresa responsável pelo produto no catálogo',
@@ -1191,6 +1272,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 110,
     tooltipTitulo: 'Código do Operador Estrangeiro (OPE)',
     tooltipDescricao: 'Código do operador estrangeiro cadastrado na DUIMP',
@@ -1202,6 +1284,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Situação do Operador Estrangeiro',
     tooltipDescricao: 'Situação cadastral do OPE na DUIMP (Ativo, Inativo, etc.)',
@@ -1212,6 +1295,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Versão OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 100,
     tooltipTitulo: 'Versão do Operador Estrangeiro',
     tooltipDescricao: 'Versão do cadastro do OPE na DUIMP',
@@ -1222,6 +1306,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Nome OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 180,
     tooltipTitulo: 'Nome do Operador Estrangeiro',
     tooltipDescricao: 'Nome completo do operador estrangeiro',
@@ -1233,6 +1318,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Partes',
     largura: 110,
     tooltipTitulo: 'País do Operador Estrangeiro',
     tooltipDescricao: 'País do operador estrangeiro',
@@ -1243,6 +1329,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Estado OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 110,
     tooltipTitulo: 'Estado do Operador Estrangeiro',
     tooltipDescricao: 'Estado ou província do operador estrangeiro',
@@ -1253,6 +1340,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Cidade OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Cidade do Operador Estrangeiro',
     tooltipDescricao: 'Cidade do operador estrangeiro',
@@ -1263,6 +1351,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Endereço OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 200,
     tooltipTitulo: 'Endereço do Operador Estrangeiro',
     tooltipDescricao: 'Endereço completo do operador estrangeiro',
@@ -1273,6 +1362,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'ZIP OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 100,
     tooltipTitulo: 'Zip Code do Operador Estrangeiro',
     tooltipDescricao: 'Código postal do operador estrangeiro',
@@ -1283,6 +1373,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'TIN OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'TIN do Operador Estrangeiro',
     tooltipDescricao: 'Número de identificação fiscal (Tax Identification Number) do OPE',
@@ -1293,6 +1384,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'E-mail OPE',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Partes',
     largura: 180,
     tooltipTitulo: 'E-mail do Operador Estrangeiro',
     tooltipDescricao: 'E-mail de contato do operador estrangeiro',
@@ -1304,6 +1396,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Anexo P.O.',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 100,
     tooltipTitulo: 'Anexo do Pedido',
     tooltipDescricao: 'Arquivo do pedido (Purchase Order) em PDF ou outro formato',
@@ -1314,6 +1407,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Anexo Proforma',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 120,
     tooltipTitulo: 'Anexo da Proforma Invoice',
     tooltipDescricao: 'Arquivo da Proforma Invoice em PDF ou outro formato',
@@ -1324,6 +1418,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Anexo Invoice',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 110,
     tooltipTitulo: 'Anexo da Invoice',
     tooltipDescricao: 'Arquivo da Commercial Invoice em PDF ou outro formato',
@@ -1337,6 +1432,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     align: 'right',
     oculta: true,
+    grupo: 'Quantidades',
     largura: 120,
     tooltipTitulo: 'Quantidade de Volumes Total do Pedido',
     tooltipDescricao: 'Número total de volumes (caixas, pallets, etc.) do pedido',
@@ -1352,6 +1448,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Identificacao',
     largura: 130,
     tooltipTitulo: 'Part Number do Produto',
     tooltipDescricao: 'Código de referência do produto principal do pedido',
@@ -1363,6 +1460,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Identificacao',
     largura: 130,
     tooltipTitulo: 'Referência Interna do Produto — Catálogo',
     tooltipDescricao: 'Referência interna do produto conforme catálogo de produtos',
@@ -1376,6 +1474,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 160,
     tooltipTitulo: 'Data Prevista de Recebimento — Draft do Pedido',
     tooltipDescricao: 'Data prevista para recebimento do rascunho do pedido',
@@ -1388,6 +1487,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 170,
     tooltipTitulo: 'Data Confirmada de Recebimento — Draft do Pedido',
     tooltipDescricao: 'Data confirmada de recebimento do rascunho do pedido',
@@ -1400,6 +1500,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 160,
     tooltipTitulo: 'Data Meta de Recebimento — Draft do Pedido',
     tooltipDescricao: 'Data meta para recebimento do rascunho do pedido',
@@ -1412,6 +1513,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 170,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft do Pedido',
     tooltipDescricao: 'Data prevista para aprovação do rascunho do pedido',
@@ -1424,6 +1526,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 175,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft do Pedido',
     tooltipDescricao: 'Data confirmada de aprovação do rascunho do pedido',
@@ -1436,6 +1539,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 170,
     tooltipTitulo: 'Data Meta de Aprovação — Draft do Pedido',
     tooltipDescricao: 'Data meta para aprovação do rascunho do pedido',
@@ -1448,6 +1552,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 150,
     tooltipTitulo: 'Data do Documento Pedido',
     tooltipDescricao: 'Data de emissão do documento do pedido (Purchase Order)',
@@ -1461,6 +1566,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Prevista de Recebimento — Draft da Proforma Invoice',
     tooltipDescricao: 'Data prevista para recebimento do rascunho da Proforma Invoice',
@@ -1473,6 +1579,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 190,
     tooltipTitulo: 'Data Confirmada de Recebimento — Draft da Proforma Invoice',
     tooltipDescricao: 'Data confirmada de recebimento do rascunho da Proforma Invoice',
@@ -1485,6 +1592,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Meta de Recebimento — Draft da Proforma Invoice',
     tooltipDescricao: 'Data meta para recebimento do rascunho da Proforma Invoice',
@@ -1497,6 +1605,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 195,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft da Proforma Invoice',
     tooltipDescricao: 'Data prevista para aprovação do rascunho da Proforma Invoice',
@@ -1509,6 +1618,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft da Proforma Invoice',
     tooltipDescricao: 'Data confirmada de aprovação do rascunho da Proforma Invoice',
@@ -1521,6 +1631,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 195,
     tooltipTitulo: 'Data Meta de Aprovação — Draft da Proforma Invoice',
     tooltipDescricao: 'Data meta para aprovação do rascunho da Proforma Invoice',
@@ -1533,6 +1644,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Prevista de Envio — Original da Proforma Invoice',
     tooltipDescricao: 'Data prevista para envio do original da Proforma Invoice',
@@ -1545,6 +1657,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 210,
     tooltipTitulo: 'Data Confirmada de Envio — Original da Proforma Invoice',
     tooltipDescricao: 'Data confirmada de envio do original da Proforma Invoice',
@@ -1557,6 +1670,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Meta de Envio — Original da Proforma Invoice',
     tooltipDescricao: 'Data meta para envio do original da Proforma Invoice',
@@ -1569,6 +1683,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Prevista de Recebimento — Original da Proforma Invoice',
     tooltipDescricao: 'Data prevista para recebimento do original da Proforma Invoice',
@@ -1581,6 +1696,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 210,
     tooltipTitulo: 'Data Confirmada de Recebimento — Original da Proforma Invoice',
     tooltipDescricao: 'Data confirmada de recebimento do original da Proforma Invoice',
@@ -1593,6 +1709,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Meta de Recebimento — Original da Proforma Invoice',
     tooltipDescricao: 'Data meta para recebimento do original da Proforma Invoice',
@@ -1605,6 +1722,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 155,
     tooltipTitulo: 'Data da Proforma Invoice',
     tooltipDescricao: 'Data de emissão da Proforma Invoice',
@@ -1618,6 +1736,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Prevista de Recebimento — Draft da Invoice',
     tooltipDescricao: 'Data prevista para recebimento do rascunho da Invoice',
@@ -1630,6 +1749,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 190,
     tooltipTitulo: 'Data Confirmada de Recebimento — Draft da Invoice',
     tooltipDescricao: 'Data confirmada de recebimento do rascunho da Invoice',
@@ -1642,6 +1762,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 180,
     tooltipTitulo: 'Data Meta de Recebimento — Draft da Invoice',
     tooltipDescricao: 'Data meta para recebimento do rascunho da Invoice',
@@ -1654,6 +1775,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 190,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft da Invoice',
     tooltipDescricao: 'Data prevista para aprovação do rascunho da Invoice',
@@ -1666,6 +1788,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 195,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft da Invoice',
     tooltipDescricao: 'Data confirmada de aprovação do rascunho da Invoice',
@@ -1678,6 +1801,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Meta de Aprovação — Draft da Invoice',
     tooltipDescricao: 'Data meta para aprovação do rascunho da Invoice',
@@ -1690,6 +1814,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Prevista de Envio — Original da Invoice',
     tooltipDescricao: 'Data prevista para envio do original da Invoice',
@@ -1702,6 +1827,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Confirmada de Envio — Original da Invoice',
     tooltipDescricao: 'Data confirmada de envio do original da Invoice',
@@ -1714,6 +1840,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Meta de Envio — Original da Invoice',
     tooltipDescricao: 'Data meta para envio do original da Invoice',
@@ -1726,6 +1853,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Prevista de Recebimento — Original da Invoice',
     tooltipDescricao: 'Data prevista para recebimento do original da Invoice',
@@ -1738,6 +1866,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Confirmada de Recebimento — Original da Invoice',
     tooltipDescricao: 'Data confirmada de recebimento do original da Invoice',
@@ -1750,6 +1879,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Meta de Recebimento — Original da Invoice',
     tooltipDescricao: 'Data meta para recebimento do original da Invoice',
@@ -1762,6 +1892,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Datas',
     largura: 120,
     tooltipTitulo: 'Data da Invoice',
     tooltipDescricao: 'Data de emissão da Commercial Invoice',
@@ -1775,7 +1906,7 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   return {
     key:             col.chave as keyof Pedido,
     label:           col.nome,
-    tipo:            col.tipo === 'numero' || col.tipo === 'percentual' ? 'numero' : col.tipo === 'data' ? 'periodo' : 'texto',
+    tipo:            col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula' ? 'numero' : col.tipo === 'data' ? 'periodo' : 'texto',
     filtravel:       true,
     oculta:          true,
     tooltipTitulo:   col.nome,
@@ -1787,6 +1918,26 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
       const valor = valores?.[col.id] ?? '—'
       if (col.tipo === 'checkbox') {
         return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+      }
+      if (col.tipo === 'formula') {
+        const meta = (row as Record<string, unknown>)['_colunas_usuario_meta'] as
+          Record<string, { temNulo?: boolean }> | undefined
+        const temNulo = meta?.[col.id]?.temNulo ?? false
+        if (valor !== '—') {
+          const num = Number(valor)
+          if (!isNaN(num)) {
+            const casas = getCasas(col.id, 2)
+            return (
+              <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {fmtQuantidade(num, casas)}
+                {temNulo && (
+                  <span title="Um ou mais campos usados nesta formula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>
+                )}
+              </span>
+            )
+          }
+        }
+        return <span>{valor}{temNulo && <span title="Um ou mais campos usados nesta formula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>}</span>
       }
       if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
         const num = Number(valor)
@@ -1808,6 +1959,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     key: 'part_number',
     label: 'Part Number',
     tipo: 'texto',
+    grupo: 'Identificacao',
     largura: 130,
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
   },
@@ -1815,6 +1967,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     key: 'ncm',
     label: 'NCM',
     tipo: 'texto',
+    grupo: 'Identificacao',
     largura: 100,
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm}</span>,
   },
@@ -1822,6 +1975,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     key: 'descricao',
     label: 'Descrição',
     tipo: 'texto',
+    grupo: 'Identificacao',
     largura: 220,
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao}</span>,
   },
@@ -1830,6 +1984,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Qtd Inicial',
     tipo: 'numero',
     align: 'right',
+    grupo: 'Quantidades',
     largura: 110,
     tooltipTitulo: 'Quantidade Inicial',
     tooltipDescricao: 'Quantidade original do item — valor imutável',
@@ -1844,6 +1999,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Saldo Atual',
     tipo: 'numero',
     align: 'right',
+    grupo: 'Quantidades',
     largura: 110,
     tooltipTitulo: 'Saldo Atual',
     tooltipDescricao: 'Saldo vivo disponível para alocação em processos logísticos',
@@ -1862,6 +2018,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Qtd Pronta',
     tipo: 'numero',
     align: 'right',
+    grupo: 'Quantidades',
     largura: 110,
     tooltipTitulo: 'Quantidade Pronta',
     tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
@@ -1876,6 +2033,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Qtd Transferida',
     tipo: 'numero',
     align: 'right',
+    grupo: 'Quantidades',
     largura: 130,
     tooltipTitulo: 'Quantidade Transferida',
     tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
@@ -1890,6 +2048,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Qtd Cancelada',
     tipo: 'numero',
     align: 'right',
+    grupo: 'Quantidades',
     largura: 120,
     tooltipTitulo: 'Quantidade Cancelada',
     tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
@@ -1907,6 +2066,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'UoM',
     tipo: 'texto',
     align: 'center',
+    grupo: 'Quantidades',
     largura: 80,
     tooltipTitulo: 'Unidade de Medida',
     tooltipDescricao: 'Unidade de medida do item',
@@ -1917,6 +2077,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Vlr Unitário',
     tipo: 'numero',
     align: 'right',
+    grupo: 'Financeiro',
     largura: 110,
     tooltipTitulo: 'Valor Unitário',
     tooltipDescricao: 'Valor unitário na moeda do item',
@@ -1932,6 +2093,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'Financeiro',
     largura: 130,
     tooltipTitulo: 'Valor Total do Item',
     tooltipDescricao: 'Valor total do item (valor unitário × quantidade) na moeda do item',
@@ -1947,6 +2109,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     align: 'center',
     oculta: true,
+    grupo: 'Financeiro',
     largura: 100,
     tooltipTitulo: 'Moeda do Item',
     tooltipDescricao: 'Moeda utilizada para o valor unitário e total do item',
@@ -1958,6 +2121,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'center',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 70,
     tooltipTitulo: 'Sequência do Item',
     tooltipDescricao: 'Número sequencial do item dentro do pedido (conforme invoice)',
@@ -1972,6 +2136,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. Completa',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 260,
     tooltipTitulo: 'Descrição Completa do Produto',
     tooltipDescricao: 'Descrição técnica detalhada do produto conforme catálogo',
@@ -1982,6 +2147,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. NF',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 220,
     tooltipTitulo: 'Descrição Espelho da Nota Fiscal',
     tooltipDescricao: 'Descrição do produto conforme será exibida na nota fiscal de entrada',
@@ -1993,6 +2159,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'Quantidades',
     largura: 100,
     tooltipTitulo: 'Quantidade na Unidade Estatística',
     tooltipDescricao: 'Quantidade do item expressa na unidade estatística exigida pela DUIMP',
@@ -2011,6 +2178,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'Dados Fisicos',
     largura: 130,
     tooltipTitulo: 'Peso Líquido Unitário',
     tooltipDescricao: 'Peso líquido unitário do produto, em kg',
@@ -2028,6 +2196,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'Dados Fisicos',
     largura: 140,
     tooltipTitulo: 'Peso Bruto Unitário',
     tooltipDescricao: 'Peso bruto unitário incluindo embalagem, em kg',
@@ -2045,6 +2214,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'Dados Fisicos',
     largura: 130,
     tooltipTitulo: 'Cubagem Unitária',
     tooltipDescricao: 'Volume unitário do produto, em m³',
@@ -2063,6 +2233,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Dados Fisicos',
     largura: 120,
     tooltipTitulo: 'Tipo de Embalagem',
     tooltipDescricao: 'Tipo de embalagem do produto (ex: Caixa, Pallet, Tambor)',
@@ -2074,6 +2245,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 120,
     tooltipTitulo: 'Número da LPCO',
     tooltipDescricao: 'Licença, Permissão, Certificado ou Outros documentos exigidos para importação',
@@ -2085,6 +2257,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 120,
     tooltipTitulo: 'Número do Certificado de Origem',
     tooltipDescricao: 'Número do certificado de origem emitido pelo exportador ou câmara de comércio',
@@ -2095,6 +2268,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Dt Cert. Origem',
     tipo: 'periodo',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 130,
     tooltipTitulo: 'Data do Certificado de Origem',
     tooltipDescricao: 'Data de emissão do certificado de origem',
@@ -2107,6 +2281,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Identificacao',
     largura: 120,
     tooltipTitulo: 'Grupo do Produto',
     tooltipDescricao: 'Grupo de classificação do produto conforme cadastro',
@@ -2118,6 +2293,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'Identificacao',
     largura: 120,
     tooltipTitulo: 'Subgrupo do Produto',
     tooltipDescricao: 'Subgrupo de classificação do produto dentro do grupo principal',
@@ -2128,6 +2304,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Campo Especial',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 140,
     tooltipTitulo: 'Campo Especial',
     tooltipDescricao: 'Campo configurável para uso interno ou integrações específicas',
@@ -2139,6 +2316,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. (EN)',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 220,
     tooltipTitulo: 'Product Description (English)',
     tooltipDescricao: 'Descrição do produto em inglês, conforme invoice internacional',
@@ -2149,6 +2327,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. (ES)',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 220,
     tooltipTitulo: 'Descripción del Producto (Español)',
     tooltipDescricao: 'Descrição do produto em espanhol',
@@ -2159,6 +2338,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Texto NCM',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 200,
     tooltipTitulo: 'Texto da Posição da NCM',
     tooltipDescricao: 'Descrição oficial da posição tarifária NCM conforme TEC',
@@ -2169,6 +2349,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Atributos',
     tipo: 'texto',
     oculta: true,
+    grupo: 'Identificacao',
     largura: 180,
     tooltipTitulo: 'Atributos — Catálogo de Produtos',
     tooltipDescricao: 'Atributos técnicos do produto conforme catálogo (cor, voltagem, etc.)',
@@ -2179,6 +2360,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Anexo LPCO',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 110,
     tooltipTitulo: 'Anexo da LPCO',
     tooltipDescricao: 'Arquivo da Licença, Permissão, Certificado ou Outros (LPCO)',
@@ -2192,6 +2374,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Identificacao',
     largura: 145,
     tooltipTitulo: 'Data de Inclusão do Produto/Item',
     tooltipDescricao: 'Data em que o item foi incluído no pedido',
@@ -2204,6 +2387,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Identificacao',
     largura: 135,
     tooltipTitulo: 'Data de Transferência do Produto/Item',
     tooltipDescricao: 'Data em que o item foi transferido para um processo logístico',
@@ -2216,6 +2400,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'Identificacao',
     largura: 140,
     tooltipTitulo: 'Data de Consolidação do Produto/Item',
     tooltipDescricao: 'Data em que o item foi consolidado em um processo',
@@ -2229,6 +2414,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Data Prevista de Conferência — Draft da LPCO',
     tooltipDescricao: 'Data prevista para conferência do rascunho da LPCO',
@@ -2241,6 +2427,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 185,
     tooltipTitulo: 'Data Confirmada de Conferência — Draft da LPCO',
     tooltipDescricao: 'Data confirmada de conferência do rascunho da LPCO',
@@ -2253,6 +2440,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Data Meta de Conferência — Draft da LPCO',
     tooltipDescricao: 'Data meta para conferência do rascunho da LPCO',
@@ -2265,6 +2453,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 185,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft da LPCO',
     tooltipDescricao: 'Data prevista para aprovação do rascunho da LPCO',
@@ -2277,6 +2466,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 190,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft da LPCO',
     tooltipDescricao: 'Data confirmada de aprovação do rascunho da LPCO',
@@ -2289,6 +2479,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 185,
     tooltipTitulo: 'Data Meta de Aprovação — Draft da LPCO',
     tooltipDescricao: 'Data meta para aprovação do rascunho da LPCO',
@@ -2301,6 +2492,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 160,
     tooltipTitulo: 'Data Prevista do Registro da LPCO',
     tooltipDescricao: 'Data prevista para registro da LPCO no órgão competente',
@@ -2313,6 +2505,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 165,
     tooltipTitulo: 'Data Confirmada do Registro da LPCO',
     tooltipDescricao: 'Data confirmada de registro da LPCO',
@@ -2325,6 +2518,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 155,
     tooltipTitulo: 'Data Meta do Registro da LPCO',
     tooltipDescricao: 'Data meta para registro da LPCO',
@@ -2337,6 +2531,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 160,
     tooltipTitulo: 'Data Prevista do Resultado da Análise da LPCO',
     tooltipDescricao: 'Data prevista para resultado da análise pelo órgão anuente',
@@ -2349,6 +2544,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 165,
     tooltipTitulo: 'Data Confirmada do Resultado da Análise da LPCO',
     tooltipDescricao: 'Data confirmada do resultado da análise da LPCO',
@@ -2361,6 +2557,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 155,
     tooltipTitulo: 'Data Meta do Resultado da Análise da LPCO',
     tooltipDescricao: 'Data meta para resultado da análise da LPCO',
@@ -2373,6 +2570,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 175,
     tooltipTitulo: 'Data Prevista do Deferimento da LPCO',
     tooltipDescricao: 'Data prevista para deferimento (aprovação final) da LPCO',
@@ -2385,6 +2583,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Data Confirmada do Deferimento da LPCO',
     tooltipDescricao: 'Data confirmada do deferimento da LPCO',
@@ -2397,6 +2596,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 175,
     tooltipTitulo: 'Data Meta do Deferimento da LPCO',
     tooltipDescricao: 'Data meta para deferimento da LPCO',
@@ -2409,6 +2609,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 185,
     tooltipTitulo: 'Data Confirmada do Indeferimento da LPCO',
     tooltipDescricao: 'Data confirmada do indeferimento (reprovação) da LPCO',
@@ -2421,6 +2622,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 175,
     tooltipTitulo: 'Data Confirmada da Exigência da LPCO',
     tooltipDescricao: 'Data confirmada de exigência/pendência da LPCO pelo órgão anuente',
@@ -2434,6 +2636,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 210,
     tooltipTitulo: 'Data Prevista de Recebimento — Draft do Certificado de Origem',
     tooltipDescricao: 'Data prevista para recebimento do rascunho do certificado de origem',
@@ -2446,6 +2649,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 215,
     tooltipTitulo: 'Data Confirmada de Recebimento — Draft do Certificado de Origem',
     tooltipDescricao: 'Data confirmada de recebimento do rascunho do certificado de origem',
@@ -2458,6 +2662,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 210,
     tooltipTitulo: 'Data Meta de Recebimento — Draft do Certificado de Origem',
     tooltipDescricao: 'Data meta para recebimento do rascunho do certificado de origem',
@@ -2470,6 +2675,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 220,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft do Certificado de Origem',
     tooltipDescricao: 'Data prevista para aprovação do rascunho do certificado de origem',
@@ -2482,6 +2688,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 225,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft do Certificado de Origem',
     tooltipDescricao: 'Data confirmada de aprovação do rascunho do certificado de origem',
@@ -2494,6 +2701,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 220,
     tooltipTitulo: 'Data Meta de Aprovação — Draft do Certificado de Origem',
     tooltipDescricao: 'Data meta para aprovação do rascunho do certificado de origem',
@@ -2506,6 +2714,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 230,
     tooltipTitulo: 'Data Prevista de Envio — Original do Certificado de Origem',
     tooltipDescricao: 'Data prevista para envio do original do certificado de origem',
@@ -2518,6 +2727,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 235,
     tooltipTitulo: 'Data Confirmada de Envio — Original do Certificado de Origem',
     tooltipDescricao: 'Data confirmada de envio do original do certificado de origem',
@@ -2530,6 +2740,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 230,
     tooltipTitulo: 'Data Meta de Envio — Original do Certificado de Origem',
     tooltipDescricao: 'Data meta para envio do original do certificado de origem',
@@ -2542,6 +2753,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 230,
     tooltipTitulo: 'Data Prevista de Recebimento — Original do Certificado de Origem',
     tooltipDescricao: 'Data prevista para recebimento do original do certificado de origem',
@@ -2554,6 +2766,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 235,
     tooltipTitulo: 'Data Confirmada de Recebimento — Original do Certificado de Origem',
     tooltipDescricao: 'Data confirmada de recebimento do original do certificado de origem',
@@ -2566,6 +2779,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 230,
     tooltipTitulo: 'Data Meta de Recebimento — Original do Certificado de Origem',
     tooltipDescricao: 'Data meta para recebimento do original do certificado de origem',
@@ -2578,6 +2792,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     filtravel: true,
     sortavel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 130,
     tooltipTitulo: 'Data do Certificado de Origem',
     tooltipDescricao: 'Data de emissão do certificado de origem',
@@ -2590,6 +2805,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 140,
     tooltipTitulo: 'Tipo de Operação — DUIMP',
     tooltipDescricao: 'Tipo de operação de importação conforme DUIMP',
@@ -2600,6 +2816,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. Resumida DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Descrição Resumida do Produto — DUIMP',
     tooltipDescricao: 'Descrição resumida do produto conforme cadastro na DUIMP',
@@ -2610,6 +2827,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Versão Produto DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 170,
     tooltipTitulo: 'Versão do Produto — Catálogo DUIMP',
     tooltipDescricao: 'Versão do cadastro do produto no catálogo DUIMP',
@@ -2621,6 +2839,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 110,
     tooltipTitulo: 'NCM — DUIMP',
     tooltipDescricao: 'Código NCM utilizado na DUIMP (pode diferir do NCM do catálogo)',
@@ -2631,6 +2850,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Atributos DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 160,
     tooltipTitulo: 'Atributos — DUIMP',
     tooltipDescricao: 'Atributos técnicos do produto conforme DUIMP',
@@ -2642,6 +2862,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 190,
     tooltipTitulo: 'Aplicação da Mercadoria — DUIMP',
     tooltipDescricao: 'Finalidade ou aplicação da mercadoria conforme DUIMP',
@@ -2653,6 +2874,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 190,
     tooltipTitulo: 'Condição da Mercadoria — DUIMP',
     tooltipDescricao: 'Estado da mercadoria (nova, usada, recondicionada) conforme DUIMP',
@@ -2663,6 +2885,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Relação Exp./Fab. DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 185,
     tooltipTitulo: 'Relação entre Exportador e Fabricante — DUIMP',
     tooltipDescricao: 'Tipo de relação entre exportador e fabricante conforme DUIMP',
@@ -2674,6 +2897,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 175,
     tooltipTitulo: 'Vinculação de Preço — DUIMP',
     tooltipDescricao: 'Indica se há vinculação de preço entre comprador e vendedor conforme DUIMP',
@@ -2684,6 +2908,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. Completa DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 200,
     tooltipTitulo: 'Descrição Completa do Produto — DUIMP',
     tooltipDescricao: 'Descrição completa e técnica do produto conforme DUIMP',
@@ -2694,6 +2919,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Desc. Complementar DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 200,
     tooltipTitulo: 'Descrição Complementar da Mercadoria — DUIMP',
     tooltipDescricao: 'Informações complementares sobre a mercadoria na DUIMP',
@@ -2705,6 +2931,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Cód. OPE DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 140,
     tooltipTitulo: 'Código do Operador Estrangeiro — DUIMP',
     tooltipDescricao: 'Código do OPE (exportador) conforme cadastrado na DUIMP',
@@ -2715,6 +2942,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Nome OPE DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Nome do Operador Estrangeiro — DUIMP',
     tooltipDescricao: 'Nome do OPE conforme cadastrado na DUIMP',
@@ -2726,6 +2954,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 130,
     tooltipTitulo: 'País do Operador Estrangeiro — DUIMP',
     tooltipDescricao: 'País do OPE conforme DUIMP',
@@ -2736,6 +2965,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Cód. OPE Fab. DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 160,
     tooltipTitulo: 'Código do Operador Estrangeiro Fabricante — DUIMP',
     tooltipDescricao: 'Código do OPE do fabricante conforme DUIMP',
@@ -2746,6 +2976,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'Nome OPE Fab. DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Nome do Operador Estrangeiro Fabricante — DUIMP',
     tooltipDescricao: 'Nome do OPE do fabricante conforme DUIMP',
@@ -2757,6 +2988,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 150,
     tooltipTitulo: 'País do Operador Estrangeiro Fabricante — DUIMP',
     tooltipDescricao: 'País do OPE fabricante conforme DUIMP',
@@ -2769,6 +3001,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Método de Valoração — DUIMP',
     tooltipDescricao: 'Método de valoração aduaneira utilizado na DUIMP (ex: Método 1 — Valor de Transação)',
@@ -2780,6 +3013,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 130,
     tooltipTitulo: 'Incoterm / Condição de Venda — DUIMP',
     tooltipDescricao: 'Incoterm ou condição de venda declarada na DUIMP',
@@ -2791,6 +3025,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 110,
     tooltipTitulo: 'Moeda do Produto — DUIMP',
     tooltipDescricao: 'Moeda utilizada no valor do produto conforme DUIMP',
@@ -2802,6 +3037,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 140,
     tooltipTitulo: 'Valor Unitário do Produto — DUIMP',
     tooltipDescricao: 'Valor unitário do produto na moeda declarada na DUIMP',
@@ -2817,6 +3053,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 210,
     tooltipTitulo: 'Valor Total na Condição de Venda — DUIMP',
     tooltipDescricao: 'Valor total do item na condição de venda declarada na DUIMP',
@@ -2832,6 +3069,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 200,
     tooltipTitulo: 'Valor na Condição de Venda (R$) — DUIMP',
     tooltipDescricao: 'Valor do item na condição de venda convertido em reais',
@@ -2847,6 +3085,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 210,
     tooltipTitulo: 'Valor do Frete Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do frete internacional em reais para fins de valoração aduaneira',
@@ -2862,6 +3101,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 215,
     tooltipTitulo: 'Valor do Seguro Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do seguro internacional em reais para fins de valoração aduaneira',
@@ -2877,6 +3117,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 215,
     tooltipTitulo: 'Valor no Local de Embarque (R$) — DUIMP',
     tooltipDescricao: 'Valor da mercadoria no local de embarque em reais',
@@ -2892,6 +3133,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 195,
     tooltipTitulo: 'Valor Aduaneiro (R$) — DUIMP',
     tooltipDescricao: 'Valor aduaneiro calculado em reais, base para tributos de importação',
@@ -2908,6 +3150,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 180,
     tooltipTitulo: 'Tipo de Cobertura Cambial — DUIMP',
     tooltipDescricao: 'Modalidade de cobertura cambial declarada na DUIMP',
@@ -2918,6 +3161,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'ROF/BACEN DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 150,
     tooltipTitulo: 'Número do ROF/BACEN — DUIMP',
     tooltipDescricao: 'Número do Registro de Operações Financeiras junto ao BACEN',
@@ -2929,6 +3173,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 195,
     tooltipTitulo: 'Motivo Sem Cobertura Cambial — DUIMP',
     tooltipDescricao: 'Justificativa legal para ausência de cobertura cambial',
@@ -2941,6 +3186,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 120,
     tooltipTitulo: 'Base de Cálculo do II (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do Imposto de Importação em reais',
@@ -2956,6 +3202,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 110,
     tooltipTitulo: 'Alíquota do II (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do Imposto de Importação',
@@ -2971,6 +3218,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 130,
     tooltipTitulo: 'Valor Devido do II (R$) — DUIMP',
     tooltipDescricao: 'Valor total do Imposto de Importação devido',
@@ -2986,6 +3234,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 145,
     tooltipTitulo: 'Valor a Recolher do II (R$) — DUIMP',
     tooltipDescricao: 'Valor efetivo do Imposto de Importação a recolher (deduzidas suspensões)',
@@ -3002,6 +3251,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 120,
     tooltipTitulo: 'Base de Cálculo do IPI (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do IPI em reais',
@@ -3017,6 +3267,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 115,
     tooltipTitulo: 'Alíquota do IPI (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do IPI',
@@ -3032,6 +3283,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 150,
     tooltipTitulo: 'Valor a Recolher do IPI (R$) — DUIMP',
     tooltipDescricao: 'Valor do IPI a recolher',
@@ -3048,6 +3300,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 120,
     tooltipTitulo: 'Base de Cálculo do PIS (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do PIS/PASEP em reais',
@@ -3063,6 +3316,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 115,
     tooltipTitulo: 'Alíquota do PIS (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do PIS/PASEP',
@@ -3078,6 +3332,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 150,
     tooltipTitulo: 'Valor a Recolher do PIS (R$) — DUIMP',
     tooltipDescricao: 'Valor do PIS/PASEP a recolher',
@@ -3094,6 +3349,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 135,
     tooltipTitulo: 'Base de Cálculo do COFINS (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do COFINS em reais',
@@ -3109,6 +3365,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 130,
     tooltipTitulo: 'Alíquota do COFINS (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do COFINS',
@@ -3124,6 +3381,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'numero',
     align: 'right',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 165,
     tooltipTitulo: 'Valor a Recolher do COFINS (R$) — DUIMP',
     tooltipDescricao: 'Valor do COFINS a recolher',
@@ -3140,6 +3398,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 155,
     tooltipTitulo: 'Existe Tratamento Administrativo? — DUIMP',
     tooltipDescricao: 'Indica se existe tratamento administrativo associado ao item na DUIMP',
@@ -3151,6 +3410,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 175,
     tooltipTitulo: 'Tipo de Tratamento Administrativo — DUIMP',
     tooltipDescricao: 'Tipo/modalidade do tratamento administrativo na DUIMP',
@@ -3162,6 +3422,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tipo: 'texto',
     filtravel: true,
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 175,
     tooltipTitulo: 'Órgão do Tratamento Administrativo — DUIMP',
     tooltipDescricao: 'Órgão anuente responsável pelo tratamento administrativo',
@@ -3172,6 +3433,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'LPCO Trat. Adm. DUIMP',
     tipo: 'texto',
     oculta: true,
+    grupo: 'DUIMP / Fiscal',
     largura: 175,
     tooltipTitulo: 'Número da LPCO do Tratamento Administrativo — DUIMP',
     tooltipDescricao: 'Número da LPCO vinculada ao tratamento administrativo na DUIMP',
@@ -3658,7 +3920,11 @@ export default function ListaPedidos() {
           if (!String(val ?? '').toLowerCase().includes(filtro.valor.toLowerCase())) return false
         } else if (filtro.tipo === 'enum') {
           const strVal = String(val ?? '')
-          if (filtro.valor.size > 0 && !filtro.valor.has(strVal)) return false
+          const inverso = LABELS_FILTRO_INVERSO[campo]
+          const rawSet = inverso
+            ? new Set(Array.from(filtro.valor).map(l => inverso[l] ?? l))
+            : filtro.valor
+          if (rawSet.size > 0 && !rawSet.has(strVal)) return false
         } else if (filtro.tipo === 'numero') {
           const n = Number(val)
           if (filtro.valor.min != null && n < filtro.valor.min) return false
@@ -3692,10 +3958,13 @@ export default function ListaPedidos() {
     for (const col of COLUNAS_PAI) {
       if (!col.filtravel) continue
       if (detectarTipoColuna(col) === 'numero') continue // range — sem lista
+      const labelMap = LABELS_FILTRO[col.key]
       const vals = new Set<string>()
       for (const p of pedidos) {
-        const v = String((p as Record<string, unknown>)[col.key] ?? '').trim()
-        if (v && v !== 'undefined' && v !== 'null') vals.add(v)
+        const raw = String((p as Record<string, unknown>)[col.key] ?? '').trim()
+        if (!raw || raw === 'undefined' || raw === 'null') continue
+        // Exibir label formatada se existir, senão valor raw
+        vals.add(labelMap?.[raw] ?? raw)
       }
       if (vals.size > 0) result[col.key] = Array.from(vals).sort()
     }
@@ -3720,6 +3989,7 @@ export default function ListaPedidos() {
   const [pedidoEditandoId, setPedidoEditandoId]   = useState<string | undefined>(undefined)
   const [smartImportAberto, setSmartImportAberto] = useState(false)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+  const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
@@ -4314,171 +4584,243 @@ export default function ListaPedidos() {
 
           acoesBarra={
             <>
-              {/* ── Dropdown "Novo" ── */}
+              {/* ── Dropdown "Novo" — Pedido · Item · Coluna ── */}
               <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
                 <BotaoGlobal
                   variante="primario"
                   tamanho="pequeno"
                   icone={<Plus size={14} weight="bold" />}
-                  onClick={() => setNovoDropdownAberto(prev => !prev)}
+                  onClick={() => { setNovoDropdownAberto(prev => !prev); setNovoSubmenu(null) }}
                 >
-                  Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2 }} />
+                  Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
                 </BotaoGlobal>
 
                 {novoDropdownAberto && (
                   <div style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 4px)',
-                    left: 0,
-                    zIndex: 200,
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-                    minWidth: '170px',
-                    padding: '0.25rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.125rem',
+                    position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300,
+                    background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                    borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                    minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
                   }}>
-                    {/* Manual */}
-                    <button
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
-                        background: 'transparent', color: 'var(--text-primary)',
-                        fontSize: '0.8125rem', cursor: 'pointer', textAlign: 'left',
-                      }}
+
+                    {/* ── Novo Pedido ── */}
+                    <button type="button" style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                      background: novoSubmenu === 'pedido' ? 'var(--bg-hover)' : 'transparent',
+                      color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                      cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                    }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onClick={() => {
-                        setPedidoEditandoId(undefined)
-                        setDrawerAberto(true)
-                        setNovoDropdownAberto(false)
-                      }}
+                      onMouseLeave={e => (e.currentTarget.style.background = novoSubmenu === 'pedido' ? 'var(--bg-hover)' : 'transparent')}
+                      onClick={() => setNovoSubmenu(prev => prev === 'pedido' ? null : 'pedido')}
                     >
-                      <Plus size={14} weight="bold" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
-                      Manual
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(129,140,248,0.12)', flexShrink: 0 }}>
+                          <Package size={13} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)' }} />
+                        </span>
+                        Novo Pedido
+                      </span>
+                      <CaretDown size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, transform: novoSubmenu === 'pedido' ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
                     </button>
 
-                    {/* Importar */}
-                    <button
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
-                        background: 'transparent', color: 'var(--text-primary)',
-                        fontSize: '0.8125rem', cursor: 'pointer', textAlign: 'left',
-                      }}
+                    {novoSubmenu === 'pedido' && (
+                      <div style={{ paddingLeft: '2.125rem', display: 'flex', flexDirection: 'column' }}>
+                        {([
+                          { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
+                          { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                          { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                          { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                        ]).map(item => (
+                          <button key={item.label} type="button" style={{
+                            display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                            padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
+                            background: 'transparent', color: 'var(--text-primary)',
+                            fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                          }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                            onClick={item.action}
+                          >
+                            <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem' }}>
+                              {item.icon === 'pencil' && <PencilSimple size={13} weight="duotone" />}
+                              {item.icon === 'sparkle' && <Sparkle size={13} weight="duotone" />}
+                              {item.icon === 'upload' && <UploadSimple size={13} weight="duotone" />}
+                              {item.icon === 'api' && <ArrowsLeftRight size={13} weight="duotone" />}
+                            </span>
+                            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                              <span style={{ fontWeight: 500 }}>{item.label}</span>
+                              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', fontWeight: 400 }}>{item.desc}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* ── Novo Item ── */}
+                    <button type="button" style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                      background: novoSubmenu === 'item' ? 'var(--bg-hover)' : 'transparent',
+                      color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                      cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                    }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onClick={() => {
-                        setSmartImportAberto(true)
-                        setNovoDropdownAberto(false)
-                      }}
+                      onMouseLeave={e => (e.currentTarget.style.background = novoSubmenu === 'item' ? 'var(--bg-hover)' : 'transparent')}
+                      onClick={() => setNovoSubmenu(prev => prev === 'item' ? null : 'item')}
                     >
-                      <UploadSimple size={14} weight="duotone" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                      Importar
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(52,211,153,0.12)', flexShrink: 0 }}>
+                          <Tag size={13} weight="duotone" style={{ color: '#34d399' }} />
+                        </span>
+                        Novo Item
+                      </span>
+                      <CaretDown size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0, transform: novoSubmenu === 'item' ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform 0.15s ease' }} />
                     </button>
 
-                    {/* Divider */}
-                    <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '0.125rem 0.5rem' }} />
+                    {novoSubmenu === 'item' && (
+                      <div style={{ paddingLeft: '2.125rem', display: 'flex', flexDirection: 'column' }}>
+                        {([
+                          { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
+                          { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                          { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                          { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                        ]).map(item => (
+                          <button key={item.label} type="button" style={{
+                            display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                            padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
+                            background: 'transparent', color: 'var(--text-primary)',
+                            fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                          }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                            onClick={item.action}
+                          >
+                            <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem' }}>
+                              {item.icon === 'pencil' && <PencilSimple size={13} weight="duotone" />}
+                              {item.icon === 'sparkle' && <Sparkle size={13} weight="duotone" />}
+                              {item.icon === 'upload' && <UploadSimple size={13} weight="duotone" />}
+                              {item.icon === 'api' && <ArrowsLeftRight size={13} weight="duotone" />}
+                            </span>
+                            <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                              <span style={{ fontWeight: 500 }}>{item.label}</span>
+                              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', fontWeight: 400 }}>{item.desc}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
 
-                    {/* Cockpit API */}
-                    <button
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: '0.5rem',
-                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
-                        background: 'transparent', color: 'var(--text-primary)',
-                        fontSize: '0.8125rem', cursor: 'pointer', textAlign: 'left',
-                      }}
+                    {/* ── Divisor ── */}
+                    <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '0.25rem 0.375rem' }} />
+
+                    {/* ── Nova Coluna ── */}
+                    <button type="button" style={{
+                      display: 'flex', alignItems: 'center', gap: '0.5rem',
+                      padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                      background: 'transparent', color: 'var(--text-secondary)',
+                      fontSize: '0.8125rem', fontWeight: 500, cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+                    }}
                       onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onClick={() => {
-                        setModalCockpitAberto(true)
-                        setNovoDropdownAberto(false)
-                      }}
+                      onClick={() => { navigate('/configuracoes?tab=colunas'); setNovoDropdownAberto(false) }}
                     >
-                      <ArrowsLeftRight size={14} weight="duotone" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                      Cockpit API
+                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(255,255,255,0.05)', flexShrink: 0 }}>
+                        <PlusCircle size={13} weight="duotone" />
+                      </span>
+                      Nova Coluna
+                      <span style={{ marginLeft: 'auto', fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>Configurações</span>
                     </button>
                   </div>
                 )}
               </div>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<PlusCircle size={14} weight="duotone" />}
-                onClick={() => navigate('/configuracoes?tab=colunas')}
-                tooltipTitulo="Nova Coluna"
-                tooltipDescricao="Gerenciar colunas personalizadas em Configurações"
-              >
-                Nova Coluna
-              </BotaoGlobal>
 
-              {/* ── Ações contextuais — aparecem apenas com seleção ativa ── */}
-              {pedidosSelecionados.length > 0 && (
-                <>
-                  <div style={{ width: 1, height: 20, background: 'var(--border-subtle)', margin: '0 2px', flexShrink: 0 }} />
+              {/* ── Ações contextuais — sempre visíveis, desativadas sem seleção ── */}
+              <>
+                <div style={{ width: 1, height: 20, background: 'var(--border-subtle)', margin: '0 2px', flexShrink: 0 }} />
 
-                  {/* Transferir — ação core COMEX: mantém texto + contador */}
+                {/* Transferir */}
+                <TooltipGlobal
+                  titulo={pedidosSelecionados.length > 0 ? `Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Transferir'}
+                  descricao="Transfere saldo dos pedidos selecionados para um processo logístico"
+                >
                   <BotaoGlobal
                     variante="secundario"
                     tamanho="pequeno"
                     icone={<ArrowRight size={14} weight="duotone" />}
+                    disabled={pedidosSelecionados.length === 0}
                     onClick={() => { setModalTransferirAberto(true) }}
-                    tooltipTitulo={`Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
-                    tooltipDescricao="Transfere saldo dos pedidos selecionados para um processo logístico"
                   >
-                    Transferir ({pedidosSelecionados.length})
+                    {pedidosSelecionados.length > 0 ? `Transferir (${pedidosSelecionados.length})` : 'Transferir'}
                   </BotaoGlobal>
+                </TooltipGlobal>
 
-                  {/* Consolidar — ícone + tooltip (mínimo 2) */}
-                  {pedidosSelecionados.length >= 2 && (
-                    <BotaoGlobal
-                      variante="secundario"
-                      tamanho="pequeno"
-                      icone={<CheckSquare size={14} weight="duotone" />}
-                      onClick={() => { setModalConsolidarAberto(true) }}
-                      tooltipTitulo={`Consolidar · ${pedidosSelecionados.length} pedidos`}
-                      tooltipDescricao="Agrupa os pedidos selecionados em um único processo logístico"
-                    />
-                  )}
+                {/* Consolidar */}
+                <TooltipGlobal
+                  titulo={pedidosSelecionados.length >= 2 ? `Consolidar · ${pedidosSelecionados.length} pedidos` : 'Consolidar'}
+                  descricao={pedidosSelecionados.length < 2 ? 'Selecione ao menos 2 pedidos para consolidar' : 'Agrupa os pedidos selecionados em um único processo logístico'}
+                >
+                  <BotaoGlobal
+                    variante="secundario"
+                    tamanho="pequeno"
+                    icone={<CheckSquare size={14} weight="duotone" />}
+                    disabled={pedidosSelecionados.length < 2}
+                    onClick={() => { setModalConsolidarAberto(true) }}
+                  />
+                </TooltipGlobal>
 
-                  {/* Editar em Massa — ícone + tooltip */}
+                {/* Editar em Massa */}
+                <TooltipGlobal
+                  titulo={pedidosSelecionados.length > 0 ? `Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Editar em Massa'}
+                  descricao="Edita campos comuns nos pedidos selecionados"
+                >
                   <BotaoGlobal
                     variante="secundario"
                     tamanho="pequeno"
                     icone={<PencilLine size={14} weight="duotone" />}
+                    disabled={pedidosSelecionados.length === 0}
                     onClick={() => { setModalEdicaoMassaAberto(true) }}
-                    tooltipTitulo={`Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
-                    tooltipDescricao="Edita campos comuns nos pedidos selecionados"
                   />
+                </TooltipGlobal>
 
-                  {/* Gerar Documento — ícone + tooltip */}
+                {/* Gerar Documento */}
+                <TooltipGlobal
+                  titulo={pedidosSelecionados.length > 0 ? `Gerar Documento · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Gerar Documento'}
+                  descricao="Gera PDF a partir de um template ou documento padrão"
+                >
                   <BotaoGlobal
                     variante="secundario"
                     tamanho="pequeno"
                     icone={<FilePdf size={14} weight="duotone" />}
+                    disabled={pedidosSelecionados.length === 0}
                     onClick={() => setModalGerarPdfAberto(true)}
-                    tooltipTitulo={`Gerar Documento · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
-                    tooltipDescricao="Gera PDF a partir de um template ou documento padrão"
                   />
+                </TooltipGlobal>
 
-                  {/* Duplicar — ícone + tooltip */}
+                {/* Duplicar */}
+                <TooltipGlobal
+                  titulo={pedidosSelecionados.length > 0 ? `Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Duplicar'}
+                  descricao="Cria cópias dos pedidos selecionados"
+                >
                   <BotaoGlobal
                     variante="secundario"
                     tamanho="pequeno"
                     icone={<CopySimple size={14} weight="duotone" />}
+                    disabled={pedidosSelecionados.length === 0}
                     onClick={() => setModalDuplicarAberto(true)}
-                    tooltipTitulo={`Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
-                    tooltipDescricao="Cria cópias dos pedidos selecionados"
                   />
+                </TooltipGlobal>
 
-                  {/* Excluir — ícone + tooltip (danger) */}
+                {/* Excluir */}
+                <TooltipGlobal
+                  titulo={pedidosSelecionados.length > 0 ? `Excluir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Excluir'}
+                  descricao="Exclui permanentemente os pedidos selecionados"
+                >
                   <BotaoGlobal
                     variante="perigo"
                     tamanho="pequeno"
                     icone={<Trash size={14} weight="duotone" />}
+                    disabled={pedidosSelecionados.length === 0}
                     carregando={excluindoLote}
                     onClick={async () => {
                       const ids = pedidosSelecionados.map(p => p.id)
@@ -4511,11 +4853,10 @@ export default function ListaPedidos() {
                         setExcluindoLote(false)
                       }
                     }}
-                    tooltipTitulo={`Excluir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`}
-                    tooltipDescricao="Exclui permanentemente os pedidos selecionados"
                   />
-                </>
-              )}
+                </TooltipGlobal>
+              </>
+
             </>
           }
 
@@ -4767,6 +5108,71 @@ export default function ListaPedidos() {
         </div>
       )}
 
+      {/* ── Modal Mudar Status ── */}
+      {modalMudarStatus && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={e => { if (e.target === e.currentTarget) setModalMudarStatus(null) }}
+        >
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '0.75rem', padding: '1.5rem', width: 380, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Mudar Status · {modalMudarStatus.itens.length} pedido{modalMudarStatus.itens.length !== 1 ? 's' : ''}
+              </h3>
+              <button type="button" onClick={() => setModalMudarStatus(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: 4 }}>
+                <X size={16} weight="bold" />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+              <label style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 500 }}>Novo status</label>
+              <select
+                value={statusSelecionado}
+                onChange={e => setStatusSelecionado(e.target.value)}
+                style={{ padding: '0.5rem 0.75rem', background: 'var(--bg-base)', border: '1px solid var(--border-subtle)', borderRadius: '0.375rem', color: 'var(--text-primary)', fontSize: '0.875rem', width: '100%' }}
+              >
+                {[
+                  { valor: 'rascunho',      label: 'Rascunho'      },
+                  { valor: 'aberto',        label: 'Aberto'        },
+                  { valor: 'em_andamento',  label: 'Em Andamento'  },
+                  { valor: 'aprovado',      label: 'Aprovado'      },
+                  { valor: 'transferencia', label: 'Transferido'   },
+                  { valor: 'consolidado',   label: 'Consolidado'   },
+                  { valor: 'cancelado',     label: 'Cancelado'     },
+                ].map(s => (
+                  <option key={s.valor} value={s.valor}>{s.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.5rem 0.75rem', border: '1px solid var(--border-subtle)', maxHeight: 120, overflowY: 'auto' }}>
+              {modalMudarStatus.itens.map(p => (
+                <div key={p.id}>{p.numero_pedido} <span style={{ opacity: 0.6 }}>→ {statusSelecionado}</span></div>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <BotaoGlobal variante="secundario" onClick={() => setModalMudarStatus(null)}>Cancelar</BotaoGlobal>
+              <BotaoGlobal
+                variante="primario"
+                onClick={async () => {
+                  const ids = modalMudarStatus.itens.map(p => p.id)
+                  try {
+                    await pedidoLoteApi.mudarStatusConfirmar(ids, statusSelecionado)
+                    setModalMudarStatus(null)
+                    await carregarInicial()
+                  } catch (err) {
+                    setErroLote(err instanceof Error ? err.message : 'Erro ao mudar status')
+                    setModalMudarStatus(null)
+                  }
+                }}
+              >
+                Confirmar
+              </BotaoGlobal>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

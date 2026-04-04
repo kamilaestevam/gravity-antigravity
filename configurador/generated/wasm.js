@@ -152,7 +152,6 @@ exports.Prisma.UserScalarFieldEnum = {
 exports.Prisma.SubscriptionScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
-  plan: 'plan',
   status: 'status',
   stripe_subscription_id: 'stripe_subscription_id',
   stripe_price_id: 'stripe_price_id',
@@ -340,29 +339,6 @@ exports.Prisma.ServiceHealthScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.GlobalProductScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  slug: 'slug',
-  description: 'description',
-  status: 'status',
-  type_billing: 'type_billing',
-  setup_price: 'setup_price',
-  unit_price: 'unit_price',
-  min_price: 'min_price',
-  total_price: 'total_price',
-  currency: 'currency',
-  limit_users: 'limit_users',
-  base_users: 'base_users',
-  help_desk_hours: 'help_desk_hours',
-  backend_module: 'backend_module',
-  target_audience: 'target_audience',
-  features: 'features',
-  pricing_tiers: 'pricing_tiers',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -405,12 +381,6 @@ exports.UserRole = exports.$Enums.UserRole = {
   MASTER: 'MASTER',
   STANDARD: 'STANDARD',
   SUPPLIER: 'SUPPLIER'
-};
-
-exports.SubscriptionPlan = exports.$Enums.SubscriptionPlan = {
-  STARTER: 'STARTER',
-  PROFESSIONAL: 'PROFESSIONAL',
-  ENTERPRISE: 'ENTERPRISE'
 };
 
 exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
@@ -474,8 +444,7 @@ exports.Prisma.ModelName = {
   SupplierTenantAccess: 'SupplierTenantAccess',
   SecurityEvent: 'SecurityEvent',
   RateLimitMetric: 'RateLimitMetric',
-  ServiceHealth: 'ServiceHealth',
-  GlobalProduct: 'GlobalProduct'
+  ServiceHealth: 'ServiceHealth'
 };
 
 /**

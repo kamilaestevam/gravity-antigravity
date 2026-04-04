@@ -98,11 +98,6 @@ export type RateLimitMetric = $Result.DefaultSelection<Prisma.$RateLimitMetricPa
  * 
  */
 export type ServiceHealth = $Result.DefaultSelection<Prisma.$ServiceHealthPayload>
-/**
- * Model GlobalProduct
- * 
- */
-export type GlobalProduct = $Result.DefaultSelection<Prisma.$GlobalProductPayload>
 
 /**
  * Enums
@@ -127,15 +122,6 @@ export const UserRole: {
 };
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
-
-
-export const SubscriptionPlan: {
-  STARTER: 'STARTER',
-  PROFESSIONAL: 'PROFESSIONAL',
-  ENTERPRISE: 'ENTERPRISE'
-};
-
-export type SubscriptionPlan = (typeof SubscriptionPlan)[keyof typeof SubscriptionPlan]
 
 
 export const SubscriptionStatus: {
@@ -208,10 +194,6 @@ export const TenantStatus: typeof $Enums.TenantStatus
 export type UserRole = $Enums.UserRole
 
 export const UserRole: typeof $Enums.UserRole
-
-export type SubscriptionPlan = $Enums.SubscriptionPlan
-
-export const SubscriptionPlan: typeof $Enums.SubscriptionPlan
 
 export type SubscriptionStatus = $Enums.SubscriptionStatus
 
@@ -529,16 +511,6 @@ export class PrismaClient<
     * ```
     */
   get serviceHealth(): Prisma.ServiceHealthDelegate<ExtArgs>;
-
-  /**
-   * `prisma.globalProduct`: Exposes CRUD operations for the **GlobalProduct** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more GlobalProducts
-    * const globalProducts = await prisma.globalProduct.findMany()
-    * ```
-    */
-  get globalProduct(): Prisma.GlobalProductDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -996,8 +968,7 @@ export namespace Prisma {
     SupplierTenantAccess: 'SupplierTenantAccess',
     SecurityEvent: 'SecurityEvent',
     RateLimitMetric: 'RateLimitMetric',
-    ServiceHealth: 'ServiceHealth',
-    GlobalProduct: 'GlobalProduct'
+    ServiceHealth: 'ServiceHealth'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1013,7 +984,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "companyProduct" | "product" | "priceTier" | "specialNegotiation" | "stripeEvent" | "supplierTenantAccess" | "securityEvent" | "rateLimitMetric" | "serviceHealth" | "globalProduct"
+      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "companyProduct" | "product" | "priceTier" | "specialNegotiation" | "stripeEvent" | "supplierTenantAccess" | "securityEvent" | "rateLimitMetric" | "serviceHealth"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2204,76 +2175,6 @@ export namespace Prisma {
           count: {
             args: Prisma.ServiceHealthCountArgs<ExtArgs>
             result: $Utils.Optional<ServiceHealthCountAggregateOutputType> | number
-          }
-        }
-      }
-      GlobalProduct: {
-        payload: Prisma.$GlobalProductPayload<ExtArgs>
-        fields: Prisma.GlobalProductFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.GlobalProductFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.GlobalProductFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
-          }
-          findFirst: {
-            args: Prisma.GlobalProductFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.GlobalProductFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
-          }
-          findMany: {
-            args: Prisma.GlobalProductFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>[]
-          }
-          create: {
-            args: Prisma.GlobalProductCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
-          }
-          createMany: {
-            args: Prisma.GlobalProductCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.GlobalProductCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>[]
-          }
-          delete: {
-            args: Prisma.GlobalProductDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
-          }
-          update: {
-            args: Prisma.GlobalProductUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
-          }
-          deleteMany: {
-            args: Prisma.GlobalProductDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.GlobalProductUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          upsert: {
-            args: Prisma.GlobalProductUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GlobalProductPayload>
-          }
-          aggregate: {
-            args: Prisma.GlobalProductAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateGlobalProduct>
-          }
-          groupBy: {
-            args: Prisma.GlobalProductGroupByArgs<ExtArgs>
-            result: $Utils.Optional<GlobalProductGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.GlobalProductCountArgs<ExtArgs>
-            result: $Utils.Optional<GlobalProductCountAggregateOutputType> | number
           }
         }
       }
@@ -4829,7 +4730,6 @@ export namespace Prisma {
   export type SubscriptionMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    plan: $Enums.SubscriptionPlan | null
     status: $Enums.SubscriptionStatus | null
     stripe_subscription_id: string | null
     stripe_price_id: string | null
@@ -4844,7 +4744,6 @@ export namespace Prisma {
   export type SubscriptionMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    plan: $Enums.SubscriptionPlan | null
     status: $Enums.SubscriptionStatus | null
     stripe_subscription_id: string | null
     stripe_price_id: string | null
@@ -4859,7 +4758,6 @@ export namespace Prisma {
   export type SubscriptionCountAggregateOutputType = {
     id: number
     tenant_id: number
-    plan: number
     status: number
     stripe_subscription_id: number
     stripe_price_id: number
@@ -4876,7 +4774,6 @@ export namespace Prisma {
   export type SubscriptionMinAggregateInputType = {
     id?: true
     tenant_id?: true
-    plan?: true
     status?: true
     stripe_subscription_id?: true
     stripe_price_id?: true
@@ -4891,7 +4788,6 @@ export namespace Prisma {
   export type SubscriptionMaxAggregateInputType = {
     id?: true
     tenant_id?: true
-    plan?: true
     status?: true
     stripe_subscription_id?: true
     stripe_price_id?: true
@@ -4906,7 +4802,6 @@ export namespace Prisma {
   export type SubscriptionCountAggregateInputType = {
     id?: true
     tenant_id?: true
-    plan?: true
     status?: true
     stripe_subscription_id?: true
     stripe_price_id?: true
@@ -4994,7 +4889,6 @@ export namespace Prisma {
   export type SubscriptionGroupByOutputType = {
     id: string
     tenant_id: string
-    plan: $Enums.SubscriptionPlan
     status: $Enums.SubscriptionStatus
     stripe_subscription_id: string | null
     stripe_price_id: string | null
@@ -5026,7 +4920,6 @@ export namespace Prisma {
   export type SubscriptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
-    plan?: boolean
     status?: boolean
     stripe_subscription_id?: boolean
     stripe_price_id?: boolean
@@ -5042,7 +4935,6 @@ export namespace Prisma {
   export type SubscriptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
-    plan?: boolean
     status?: boolean
     stripe_subscription_id?: boolean
     stripe_price_id?: boolean
@@ -5058,7 +4950,6 @@ export namespace Prisma {
   export type SubscriptionSelectScalar = {
     id?: boolean
     tenant_id?: boolean
-    plan?: boolean
     status?: boolean
     stripe_subscription_id?: boolean
     stripe_price_id?: boolean
@@ -5085,7 +4976,6 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       tenant_id: string
-      plan: $Enums.SubscriptionPlan
       status: $Enums.SubscriptionStatus
       stripe_subscription_id: string | null
       stripe_price_id: string | null
@@ -5491,7 +5381,6 @@ export namespace Prisma {
   interface SubscriptionFieldRefs {
     readonly id: FieldRef<"Subscription", 'String'>
     readonly tenant_id: FieldRef<"Subscription", 'String'>
-    readonly plan: FieldRef<"Subscription", 'SubscriptionPlan'>
     readonly status: FieldRef<"Subscription", 'SubscriptionStatus'>
     readonly stripe_subscription_id: FieldRef<"Subscription", 'String'>
     readonly stripe_price_id: FieldRef<"Subscription", 'String'>
@@ -19605,1110 +19494,6 @@ export namespace Prisma {
 
 
   /**
-   * Model GlobalProduct
-   */
-
-  export type AggregateGlobalProduct = {
-    _count: GlobalProductCountAggregateOutputType | null
-    _avg: GlobalProductAvgAggregateOutputType | null
-    _sum: GlobalProductSumAggregateOutputType | null
-    _min: GlobalProductMinAggregateOutputType | null
-    _max: GlobalProductMaxAggregateOutputType | null
-  }
-
-  export type GlobalProductAvgAggregateOutputType = {
-    setup_price: Decimal | null
-    unit_price: Decimal | null
-    min_price: Decimal | null
-    total_price: Decimal | null
-    base_users: number | null
-    help_desk_hours: number | null
-  }
-
-  export type GlobalProductSumAggregateOutputType = {
-    setup_price: Decimal | null
-    unit_price: Decimal | null
-    min_price: Decimal | null
-    total_price: Decimal | null
-    base_users: number | null
-    help_desk_hours: number | null
-  }
-
-  export type GlobalProductMinAggregateOutputType = {
-    id: string | null
-    name: string | null
-    slug: string | null
-    description: string | null
-    status: string | null
-    type_billing: string | null
-    setup_price: Decimal | null
-    unit_price: Decimal | null
-    min_price: Decimal | null
-    total_price: Decimal | null
-    currency: string | null
-    limit_users: string | null
-    base_users: number | null
-    help_desk_hours: number | null
-    backend_module: string | null
-    target_audience: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type GlobalProductMaxAggregateOutputType = {
-    id: string | null
-    name: string | null
-    slug: string | null
-    description: string | null
-    status: string | null
-    type_billing: string | null
-    setup_price: Decimal | null
-    unit_price: Decimal | null
-    min_price: Decimal | null
-    total_price: Decimal | null
-    currency: string | null
-    limit_users: string | null
-    base_users: number | null
-    help_desk_hours: number | null
-    backend_module: string | null
-    target_audience: string | null
-    created_at: Date | null
-    updated_at: Date | null
-  }
-
-  export type GlobalProductCountAggregateOutputType = {
-    id: number
-    name: number
-    slug: number
-    description: number
-    status: number
-    type_billing: number
-    setup_price: number
-    unit_price: number
-    min_price: number
-    total_price: number
-    currency: number
-    limit_users: number
-    base_users: number
-    help_desk_hours: number
-    backend_module: number
-    target_audience: number
-    features: number
-    pricing_tiers: number
-    created_at: number
-    updated_at: number
-    _all: number
-  }
-
-
-  export type GlobalProductAvgAggregateInputType = {
-    setup_price?: true
-    unit_price?: true
-    min_price?: true
-    total_price?: true
-    base_users?: true
-    help_desk_hours?: true
-  }
-
-  export type GlobalProductSumAggregateInputType = {
-    setup_price?: true
-    unit_price?: true
-    min_price?: true
-    total_price?: true
-    base_users?: true
-    help_desk_hours?: true
-  }
-
-  export type GlobalProductMinAggregateInputType = {
-    id?: true
-    name?: true
-    slug?: true
-    description?: true
-    status?: true
-    type_billing?: true
-    setup_price?: true
-    unit_price?: true
-    min_price?: true
-    total_price?: true
-    currency?: true
-    limit_users?: true
-    base_users?: true
-    help_desk_hours?: true
-    backend_module?: true
-    target_audience?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type GlobalProductMaxAggregateInputType = {
-    id?: true
-    name?: true
-    slug?: true
-    description?: true
-    status?: true
-    type_billing?: true
-    setup_price?: true
-    unit_price?: true
-    min_price?: true
-    total_price?: true
-    currency?: true
-    limit_users?: true
-    base_users?: true
-    help_desk_hours?: true
-    backend_module?: true
-    target_audience?: true
-    created_at?: true
-    updated_at?: true
-  }
-
-  export type GlobalProductCountAggregateInputType = {
-    id?: true
-    name?: true
-    slug?: true
-    description?: true
-    status?: true
-    type_billing?: true
-    setup_price?: true
-    unit_price?: true
-    min_price?: true
-    total_price?: true
-    currency?: true
-    limit_users?: true
-    base_users?: true
-    help_desk_hours?: true
-    backend_module?: true
-    target_audience?: true
-    features?: true
-    pricing_tiers?: true
-    created_at?: true
-    updated_at?: true
-    _all?: true
-  }
-
-  export type GlobalProductAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which GlobalProduct to aggregate.
-     */
-    where?: GlobalProductWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of GlobalProducts to fetch.
-     */
-    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: GlobalProductWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` GlobalProducts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` GlobalProducts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned GlobalProducts
-    **/
-    _count?: true | GlobalProductCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: GlobalProductAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: GlobalProductSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: GlobalProductMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: GlobalProductMaxAggregateInputType
-  }
-
-  export type GetGlobalProductAggregateType<T extends GlobalProductAggregateArgs> = {
-        [P in keyof T & keyof AggregateGlobalProduct]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateGlobalProduct[P]>
-      : GetScalarType<T[P], AggregateGlobalProduct[P]>
-  }
-
-
-
-
-  export type GlobalProductGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: GlobalProductWhereInput
-    orderBy?: GlobalProductOrderByWithAggregationInput | GlobalProductOrderByWithAggregationInput[]
-    by: GlobalProductScalarFieldEnum[] | GlobalProductScalarFieldEnum
-    having?: GlobalProductScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: GlobalProductCountAggregateInputType | true
-    _avg?: GlobalProductAvgAggregateInputType
-    _sum?: GlobalProductSumAggregateInputType
-    _min?: GlobalProductMinAggregateInputType
-    _max?: GlobalProductMaxAggregateInputType
-  }
-
-  export type GlobalProductGroupByOutputType = {
-    id: string
-    name: string
-    slug: string
-    description: string | null
-    status: string
-    type_billing: string | null
-    setup_price: Decimal | null
-    unit_price: Decimal | null
-    min_price: Decimal | null
-    total_price: Decimal | null
-    currency: string
-    limit_users: string
-    base_users: number
-    help_desk_hours: number
-    backend_module: string | null
-    target_audience: string | null
-    features: JsonValue | null
-    pricing_tiers: JsonValue | null
-    created_at: Date
-    updated_at: Date
-    _count: GlobalProductCountAggregateOutputType | null
-    _avg: GlobalProductAvgAggregateOutputType | null
-    _sum: GlobalProductSumAggregateOutputType | null
-    _min: GlobalProductMinAggregateOutputType | null
-    _max: GlobalProductMaxAggregateOutputType | null
-  }
-
-  type GetGlobalProductGroupByPayload<T extends GlobalProductGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<GlobalProductGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof GlobalProductGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], GlobalProductGroupByOutputType[P]>
-            : GetScalarType<T[P], GlobalProductGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type GlobalProductSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    slug?: boolean
-    description?: boolean
-    status?: boolean
-    type_billing?: boolean
-    setup_price?: boolean
-    unit_price?: boolean
-    min_price?: boolean
-    total_price?: boolean
-    currency?: boolean
-    limit_users?: boolean
-    base_users?: boolean
-    help_desk_hours?: boolean
-    backend_module?: boolean
-    target_audience?: boolean
-    features?: boolean
-    pricing_tiers?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["globalProduct"]>
-
-  export type GlobalProductSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    slug?: boolean
-    description?: boolean
-    status?: boolean
-    type_billing?: boolean
-    setup_price?: boolean
-    unit_price?: boolean
-    min_price?: boolean
-    total_price?: boolean
-    currency?: boolean
-    limit_users?: boolean
-    base_users?: boolean
-    help_desk_hours?: boolean
-    backend_module?: boolean
-    target_audience?: boolean
-    features?: boolean
-    pricing_tiers?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["globalProduct"]>
-
-  export type GlobalProductSelectScalar = {
-    id?: boolean
-    name?: boolean
-    slug?: boolean
-    description?: boolean
-    status?: boolean
-    type_billing?: boolean
-    setup_price?: boolean
-    unit_price?: boolean
-    min_price?: boolean
-    total_price?: boolean
-    currency?: boolean
-    limit_users?: boolean
-    base_users?: boolean
-    help_desk_hours?: boolean
-    backend_module?: boolean
-    target_audience?: boolean
-    features?: boolean
-    pricing_tiers?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }
-
-
-  export type $GlobalProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "GlobalProduct"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      name: string
-      slug: string
-      description: string | null
-      status: string
-      type_billing: string | null
-      setup_price: Prisma.Decimal | null
-      unit_price: Prisma.Decimal | null
-      min_price: Prisma.Decimal | null
-      total_price: Prisma.Decimal | null
-      currency: string
-      limit_users: string
-      base_users: number
-      help_desk_hours: number
-      backend_module: string | null
-      target_audience: string | null
-      features: Prisma.JsonValue | null
-      pricing_tiers: Prisma.JsonValue | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["globalProduct"]>
-    composites: {}
-  }
-
-  type GlobalProductGetPayload<S extends boolean | null | undefined | GlobalProductDefaultArgs> = $Result.GetResult<Prisma.$GlobalProductPayload, S>
-
-  type GlobalProductCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<GlobalProductFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: GlobalProductCountAggregateInputType | true
-    }
-
-  export interface GlobalProductDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GlobalProduct'], meta: { name: 'GlobalProduct' } }
-    /**
-     * Find zero or one GlobalProduct that matches the filter.
-     * @param {GlobalProductFindUniqueArgs} args - Arguments to find a GlobalProduct
-     * @example
-     * // Get one GlobalProduct
-     * const globalProduct = await prisma.globalProduct.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends GlobalProductFindUniqueArgs>(args: SelectSubset<T, GlobalProductFindUniqueArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
-
-    /**
-     * Find one GlobalProduct that matches the filter or throw an error with `error.code='P2025'` 
-     * if no matches were found.
-     * @param {GlobalProductFindUniqueOrThrowArgs} args - Arguments to find a GlobalProduct
-     * @example
-     * // Get one GlobalProduct
-     * const globalProduct = await prisma.globalProduct.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends GlobalProductFindUniqueOrThrowArgs>(args: SelectSubset<T, GlobalProductFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
-
-    /**
-     * Find the first GlobalProduct that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {GlobalProductFindFirstArgs} args - Arguments to find a GlobalProduct
-     * @example
-     * // Get one GlobalProduct
-     * const globalProduct = await prisma.globalProduct.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends GlobalProductFindFirstArgs>(args?: SelectSubset<T, GlobalProductFindFirstArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
-
-    /**
-     * Find the first GlobalProduct that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {GlobalProductFindFirstOrThrowArgs} args - Arguments to find a GlobalProduct
-     * @example
-     * // Get one GlobalProduct
-     * const globalProduct = await prisma.globalProduct.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends GlobalProductFindFirstOrThrowArgs>(args?: SelectSubset<T, GlobalProductFindFirstOrThrowArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
-
-    /**
-     * Find zero or more GlobalProducts that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {GlobalProductFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all GlobalProducts
-     * const globalProducts = await prisma.globalProduct.findMany()
-     * 
-     * // Get first 10 GlobalProducts
-     * const globalProducts = await prisma.globalProduct.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const globalProductWithIdOnly = await prisma.globalProduct.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends GlobalProductFindManyArgs>(args?: SelectSubset<T, GlobalProductFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "findMany">>
-
-    /**
-     * Create a GlobalProduct.
-     * @param {GlobalProductCreateArgs} args - Arguments to create a GlobalProduct.
-     * @example
-     * // Create one GlobalProduct
-     * const GlobalProduct = await prisma.globalProduct.create({
-     *   data: {
-     *     // ... data to create a GlobalProduct
-     *   }
-     * })
-     * 
-     */
-    create<T extends GlobalProductCreateArgs>(args: SelectSubset<T, GlobalProductCreateArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "create">, never, ExtArgs>
-
-    /**
-     * Create many GlobalProducts.
-     * @param {GlobalProductCreateManyArgs} args - Arguments to create many GlobalProducts.
-     * @example
-     * // Create many GlobalProducts
-     * const globalProduct = await prisma.globalProduct.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends GlobalProductCreateManyArgs>(args?: SelectSubset<T, GlobalProductCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many GlobalProducts and returns the data saved in the database.
-     * @param {GlobalProductCreateManyAndReturnArgs} args - Arguments to create many GlobalProducts.
-     * @example
-     * // Create many GlobalProducts
-     * const globalProduct = await prisma.globalProduct.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many GlobalProducts and only return the `id`
-     * const globalProductWithIdOnly = await prisma.globalProduct.createManyAndReturn({ 
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends GlobalProductCreateManyAndReturnArgs>(args?: SelectSubset<T, GlobalProductCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "createManyAndReturn">>
-
-    /**
-     * Delete a GlobalProduct.
-     * @param {GlobalProductDeleteArgs} args - Arguments to delete one GlobalProduct.
-     * @example
-     * // Delete one GlobalProduct
-     * const GlobalProduct = await prisma.globalProduct.delete({
-     *   where: {
-     *     // ... filter to delete one GlobalProduct
-     *   }
-     * })
-     * 
-     */
-    delete<T extends GlobalProductDeleteArgs>(args: SelectSubset<T, GlobalProductDeleteArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "delete">, never, ExtArgs>
-
-    /**
-     * Update one GlobalProduct.
-     * @param {GlobalProductUpdateArgs} args - Arguments to update one GlobalProduct.
-     * @example
-     * // Update one GlobalProduct
-     * const globalProduct = await prisma.globalProduct.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends GlobalProductUpdateArgs>(args: SelectSubset<T, GlobalProductUpdateArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "update">, never, ExtArgs>
-
-    /**
-     * Delete zero or more GlobalProducts.
-     * @param {GlobalProductDeleteManyArgs} args - Arguments to filter GlobalProducts to delete.
-     * @example
-     * // Delete a few GlobalProducts
-     * const { count } = await prisma.globalProduct.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends GlobalProductDeleteManyArgs>(args?: SelectSubset<T, GlobalProductDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more GlobalProducts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {GlobalProductUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many GlobalProducts
-     * const globalProduct = await prisma.globalProduct.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends GlobalProductUpdateManyArgs>(args: SelectSubset<T, GlobalProductUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one GlobalProduct.
-     * @param {GlobalProductUpsertArgs} args - Arguments to update or create a GlobalProduct.
-     * @example
-     * // Update or create a GlobalProduct
-     * const globalProduct = await prisma.globalProduct.upsert({
-     *   create: {
-     *     // ... data to create a GlobalProduct
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the GlobalProduct we want to update
-     *   }
-     * })
-     */
-    upsert<T extends GlobalProductUpsertArgs>(args: SelectSubset<T, GlobalProductUpsertArgs<ExtArgs>>): Prisma__GlobalProductClient<$Result.GetResult<Prisma.$GlobalProductPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
-
-
-    /**
-     * Count the number of GlobalProducts.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {GlobalProductCountArgs} args - Arguments to filter GlobalProducts to count.
-     * @example
-     * // Count the number of GlobalProducts
-     * const count = await prisma.globalProduct.count({
-     *   where: {
-     *     // ... the filter for the GlobalProducts we want to count
-     *   }
-     * })
-    **/
-    count<T extends GlobalProductCountArgs>(
-      args?: Subset<T, GlobalProductCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], GlobalProductCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a GlobalProduct.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {GlobalProductAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends GlobalProductAggregateArgs>(args: Subset<T, GlobalProductAggregateArgs>): Prisma.PrismaPromise<GetGlobalProductAggregateType<T>>
-
-    /**
-     * Group by GlobalProduct.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {GlobalProductGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends GlobalProductGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: GlobalProductGroupByArgs['orderBy'] }
-        : { orderBy?: GlobalProductGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, GlobalProductGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGlobalProductGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the GlobalProduct model
-   */
-  readonly fields: GlobalProductFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for GlobalProduct.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__GlobalProductClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the GlobalProduct model
-   */ 
-  interface GlobalProductFieldRefs {
-    readonly id: FieldRef<"GlobalProduct", 'String'>
-    readonly name: FieldRef<"GlobalProduct", 'String'>
-    readonly slug: FieldRef<"GlobalProduct", 'String'>
-    readonly description: FieldRef<"GlobalProduct", 'String'>
-    readonly status: FieldRef<"GlobalProduct", 'String'>
-    readonly type_billing: FieldRef<"GlobalProduct", 'String'>
-    readonly setup_price: FieldRef<"GlobalProduct", 'Decimal'>
-    readonly unit_price: FieldRef<"GlobalProduct", 'Decimal'>
-    readonly min_price: FieldRef<"GlobalProduct", 'Decimal'>
-    readonly total_price: FieldRef<"GlobalProduct", 'Decimal'>
-    readonly currency: FieldRef<"GlobalProduct", 'String'>
-    readonly limit_users: FieldRef<"GlobalProduct", 'String'>
-    readonly base_users: FieldRef<"GlobalProduct", 'Int'>
-    readonly help_desk_hours: FieldRef<"GlobalProduct", 'Int'>
-    readonly backend_module: FieldRef<"GlobalProduct", 'String'>
-    readonly target_audience: FieldRef<"GlobalProduct", 'String'>
-    readonly features: FieldRef<"GlobalProduct", 'Json'>
-    readonly pricing_tiers: FieldRef<"GlobalProduct", 'Json'>
-    readonly created_at: FieldRef<"GlobalProduct", 'DateTime'>
-    readonly updated_at: FieldRef<"GlobalProduct", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * GlobalProduct findUnique
-   */
-  export type GlobalProductFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * Filter, which GlobalProduct to fetch.
-     */
-    where: GlobalProductWhereUniqueInput
-  }
-
-  /**
-   * GlobalProduct findUniqueOrThrow
-   */
-  export type GlobalProductFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * Filter, which GlobalProduct to fetch.
-     */
-    where: GlobalProductWhereUniqueInput
-  }
-
-  /**
-   * GlobalProduct findFirst
-   */
-  export type GlobalProductFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * Filter, which GlobalProduct to fetch.
-     */
-    where?: GlobalProductWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of GlobalProducts to fetch.
-     */
-    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for GlobalProducts.
-     */
-    cursor?: GlobalProductWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` GlobalProducts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` GlobalProducts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of GlobalProducts.
-     */
-    distinct?: GlobalProductScalarFieldEnum | GlobalProductScalarFieldEnum[]
-  }
-
-  /**
-   * GlobalProduct findFirstOrThrow
-   */
-  export type GlobalProductFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * Filter, which GlobalProduct to fetch.
-     */
-    where?: GlobalProductWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of GlobalProducts to fetch.
-     */
-    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for GlobalProducts.
-     */
-    cursor?: GlobalProductWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` GlobalProducts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` GlobalProducts.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of GlobalProducts.
-     */
-    distinct?: GlobalProductScalarFieldEnum | GlobalProductScalarFieldEnum[]
-  }
-
-  /**
-   * GlobalProduct findMany
-   */
-  export type GlobalProductFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * Filter, which GlobalProducts to fetch.
-     */
-    where?: GlobalProductWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of GlobalProducts to fetch.
-     */
-    orderBy?: GlobalProductOrderByWithRelationInput | GlobalProductOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing GlobalProducts.
-     */
-    cursor?: GlobalProductWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` GlobalProducts from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` GlobalProducts.
-     */
-    skip?: number
-    distinct?: GlobalProductScalarFieldEnum | GlobalProductScalarFieldEnum[]
-  }
-
-  /**
-   * GlobalProduct create
-   */
-  export type GlobalProductCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * The data needed to create a GlobalProduct.
-     */
-    data: XOR<GlobalProductCreateInput, GlobalProductUncheckedCreateInput>
-  }
-
-  /**
-   * GlobalProduct createMany
-   */
-  export type GlobalProductCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many GlobalProducts.
-     */
-    data: GlobalProductCreateManyInput | GlobalProductCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * GlobalProduct createManyAndReturn
-   */
-  export type GlobalProductCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * The data used to create many GlobalProducts.
-     */
-    data: GlobalProductCreateManyInput | GlobalProductCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * GlobalProduct update
-   */
-  export type GlobalProductUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * The data needed to update a GlobalProduct.
-     */
-    data: XOR<GlobalProductUpdateInput, GlobalProductUncheckedUpdateInput>
-    /**
-     * Choose, which GlobalProduct to update.
-     */
-    where: GlobalProductWhereUniqueInput
-  }
-
-  /**
-   * GlobalProduct updateMany
-   */
-  export type GlobalProductUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update GlobalProducts.
-     */
-    data: XOR<GlobalProductUpdateManyMutationInput, GlobalProductUncheckedUpdateManyInput>
-    /**
-     * Filter which GlobalProducts to update
-     */
-    where?: GlobalProductWhereInput
-  }
-
-  /**
-   * GlobalProduct upsert
-   */
-  export type GlobalProductUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * The filter to search for the GlobalProduct to update in case it exists.
-     */
-    where: GlobalProductWhereUniqueInput
-    /**
-     * In case the GlobalProduct found by the `where` argument doesn't exist, create a new GlobalProduct with this data.
-     */
-    create: XOR<GlobalProductCreateInput, GlobalProductUncheckedCreateInput>
-    /**
-     * In case the GlobalProduct was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<GlobalProductUpdateInput, GlobalProductUncheckedUpdateInput>
-  }
-
-  /**
-   * GlobalProduct delete
-   */
-  export type GlobalProductDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-    /**
-     * Filter which GlobalProduct to delete.
-     */
-    where: GlobalProductWhereUniqueInput
-  }
-
-  /**
-   * GlobalProduct deleteMany
-   */
-  export type GlobalProductDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which GlobalProducts to delete
-     */
-    where?: GlobalProductWhereInput
-  }
-
-  /**
-   * GlobalProduct without action
-   */
-  export type GlobalProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the GlobalProduct
-     */
-    select?: GlobalProductSelect<ExtArgs> | null
-  }
-
-
-  /**
    * Enums
    */
 
@@ -20758,7 +19543,6 @@ export namespace Prisma {
   export const SubscriptionScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
-    plan: 'plan',
     status: 'status',
     stripe_subscription_id: 'stripe_subscription_id',
     stripe_price_id: 'stripe_price_id',
@@ -20991,32 +19775,6 @@ export namespace Prisma {
   export type ServiceHealthScalarFieldEnum = (typeof ServiceHealthScalarFieldEnum)[keyof typeof ServiceHealthScalarFieldEnum]
 
 
-  export const GlobalProductScalarFieldEnum: {
-    id: 'id',
-    name: 'name',
-    slug: 'slug',
-    description: 'description',
-    status: 'status',
-    type_billing: 'type_billing',
-    setup_price: 'setup_price',
-    unit_price: 'unit_price',
-    min_price: 'min_price',
-    total_price: 'total_price',
-    currency: 'currency',
-    limit_users: 'limit_users',
-    base_users: 'base_users',
-    help_desk_hours: 'help_desk_hours',
-    backend_module: 'backend_module',
-    target_audience: 'target_audience',
-    features: 'features',
-    pricing_tiers: 'pricing_tiers',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
-  };
-
-  export type GlobalProductScalarFieldEnum = (typeof GlobalProductScalarFieldEnum)[keyof typeof GlobalProductScalarFieldEnum]
-
-
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -21123,20 +19881,6 @@ export namespace Prisma {
    * Reference to a field of type 'UserRole[]'
    */
   export type ListEnumUserRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UserRole[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'SubscriptionPlan'
-   */
-  export type EnumSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPlan'>
-    
-
-
-  /**
-   * Reference to a field of type 'SubscriptionPlan[]'
-   */
-  export type ListEnumSubscriptionPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubscriptionPlan[]'>
     
 
 
@@ -21476,7 +20220,6 @@ export namespace Prisma {
     NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
     id?: StringFilter<"Subscription"> | string
     tenant_id?: StringFilter<"Subscription"> | string
-    plan?: EnumSubscriptionPlanFilter<"Subscription"> | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFilter<"Subscription"> | $Enums.SubscriptionStatus
     stripe_subscription_id?: StringNullableFilter<"Subscription"> | string | null
     stripe_price_id?: StringNullableFilter<"Subscription"> | string | null
@@ -21492,7 +20235,6 @@ export namespace Prisma {
   export type SubscriptionOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    plan?: SortOrder
     status?: SortOrder
     stripe_subscription_id?: SortOrderInput | SortOrder
     stripe_price_id?: SortOrderInput | SortOrder
@@ -21512,7 +20254,6 @@ export namespace Prisma {
     OR?: SubscriptionWhereInput[]
     NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
     tenant_id?: StringFilter<"Subscription"> | string
-    plan?: EnumSubscriptionPlanFilter<"Subscription"> | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFilter<"Subscription"> | $Enums.SubscriptionStatus
     stripe_price_id?: StringNullableFilter<"Subscription"> | string | null
     trial_ends_at?: DateTimeNullableFilter<"Subscription"> | Date | string | null
@@ -21527,7 +20268,6 @@ export namespace Prisma {
   export type SubscriptionOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    plan?: SortOrder
     status?: SortOrder
     stripe_subscription_id?: SortOrderInput | SortOrder
     stripe_price_id?: SortOrderInput | SortOrder
@@ -21548,7 +20288,6 @@ export namespace Prisma {
     NOT?: SubscriptionScalarWhereWithAggregatesInput | SubscriptionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Subscription"> | string
     tenant_id?: StringWithAggregatesFilter<"Subscription"> | string
-    plan?: EnumSubscriptionPlanWithAggregatesFilter<"Subscription"> | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusWithAggregatesFilter<"Subscription"> | $Enums.SubscriptionStatus
     stripe_subscription_id?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     stripe_price_id?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
@@ -22664,135 +21403,6 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"ServiceHealth"> | Date | string
   }
 
-  export type GlobalProductWhereInput = {
-    AND?: GlobalProductWhereInput | GlobalProductWhereInput[]
-    OR?: GlobalProductWhereInput[]
-    NOT?: GlobalProductWhereInput | GlobalProductWhereInput[]
-    id?: StringFilter<"GlobalProduct"> | string
-    name?: StringFilter<"GlobalProduct"> | string
-    slug?: StringFilter<"GlobalProduct"> | string
-    description?: StringNullableFilter<"GlobalProduct"> | string | null
-    status?: StringFilter<"GlobalProduct"> | string
-    type_billing?: StringNullableFilter<"GlobalProduct"> | string | null
-    setup_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    unit_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    min_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    total_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    currency?: StringFilter<"GlobalProduct"> | string
-    limit_users?: StringFilter<"GlobalProduct"> | string
-    base_users?: IntFilter<"GlobalProduct"> | number
-    help_desk_hours?: IntFilter<"GlobalProduct"> | number
-    backend_module?: StringNullableFilter<"GlobalProduct"> | string | null
-    target_audience?: StringNullableFilter<"GlobalProduct"> | string | null
-    features?: JsonNullableFilter<"GlobalProduct">
-    pricing_tiers?: JsonNullableFilter<"GlobalProduct">
-    created_at?: DateTimeFilter<"GlobalProduct"> | Date | string
-    updated_at?: DateTimeFilter<"GlobalProduct"> | Date | string
-  }
-
-  export type GlobalProductOrderByWithRelationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrderInput | SortOrder
-    status?: SortOrder
-    type_billing?: SortOrderInput | SortOrder
-    setup_price?: SortOrderInput | SortOrder
-    unit_price?: SortOrderInput | SortOrder
-    min_price?: SortOrderInput | SortOrder
-    total_price?: SortOrderInput | SortOrder
-    currency?: SortOrder
-    limit_users?: SortOrder
-    base_users?: SortOrder
-    help_desk_hours?: SortOrder
-    backend_module?: SortOrderInput | SortOrder
-    target_audience?: SortOrderInput | SortOrder
-    features?: SortOrderInput | SortOrder
-    pricing_tiers?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type GlobalProductWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    slug?: string
-    AND?: GlobalProductWhereInput | GlobalProductWhereInput[]
-    OR?: GlobalProductWhereInput[]
-    NOT?: GlobalProductWhereInput | GlobalProductWhereInput[]
-    name?: StringFilter<"GlobalProduct"> | string
-    description?: StringNullableFilter<"GlobalProduct"> | string | null
-    status?: StringFilter<"GlobalProduct"> | string
-    type_billing?: StringNullableFilter<"GlobalProduct"> | string | null
-    setup_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    unit_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    min_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    total_price?: DecimalNullableFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    currency?: StringFilter<"GlobalProduct"> | string
-    limit_users?: StringFilter<"GlobalProduct"> | string
-    base_users?: IntFilter<"GlobalProduct"> | number
-    help_desk_hours?: IntFilter<"GlobalProduct"> | number
-    backend_module?: StringNullableFilter<"GlobalProduct"> | string | null
-    target_audience?: StringNullableFilter<"GlobalProduct"> | string | null
-    features?: JsonNullableFilter<"GlobalProduct">
-    pricing_tiers?: JsonNullableFilter<"GlobalProduct">
-    created_at?: DateTimeFilter<"GlobalProduct"> | Date | string
-    updated_at?: DateTimeFilter<"GlobalProduct"> | Date | string
-  }, "id" | "slug">
-
-  export type GlobalProductOrderByWithAggregationInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrderInput | SortOrder
-    status?: SortOrder
-    type_billing?: SortOrderInput | SortOrder
-    setup_price?: SortOrderInput | SortOrder
-    unit_price?: SortOrderInput | SortOrder
-    min_price?: SortOrderInput | SortOrder
-    total_price?: SortOrderInput | SortOrder
-    currency?: SortOrder
-    limit_users?: SortOrder
-    base_users?: SortOrder
-    help_desk_hours?: SortOrder
-    backend_module?: SortOrderInput | SortOrder
-    target_audience?: SortOrderInput | SortOrder
-    features?: SortOrderInput | SortOrder
-    pricing_tiers?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: GlobalProductCountOrderByAggregateInput
-    _avg?: GlobalProductAvgOrderByAggregateInput
-    _max?: GlobalProductMaxOrderByAggregateInput
-    _min?: GlobalProductMinOrderByAggregateInput
-    _sum?: GlobalProductSumOrderByAggregateInput
-  }
-
-  export type GlobalProductScalarWhereWithAggregatesInput = {
-    AND?: GlobalProductScalarWhereWithAggregatesInput | GlobalProductScalarWhereWithAggregatesInput[]
-    OR?: GlobalProductScalarWhereWithAggregatesInput[]
-    NOT?: GlobalProductScalarWhereWithAggregatesInput | GlobalProductScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"GlobalProduct"> | string
-    name?: StringWithAggregatesFilter<"GlobalProduct"> | string
-    slug?: StringWithAggregatesFilter<"GlobalProduct"> | string
-    description?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
-    status?: StringWithAggregatesFilter<"GlobalProduct"> | string
-    type_billing?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
-    setup_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    unit_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    min_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    total_price?: DecimalNullableWithAggregatesFilter<"GlobalProduct"> | Decimal | DecimalJsLike | number | string | null
-    currency?: StringWithAggregatesFilter<"GlobalProduct"> | string
-    limit_users?: StringWithAggregatesFilter<"GlobalProduct"> | string
-    base_users?: IntWithAggregatesFilter<"GlobalProduct"> | number
-    help_desk_hours?: IntWithAggregatesFilter<"GlobalProduct"> | number
-    backend_module?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
-    target_audience?: StringNullableWithAggregatesFilter<"GlobalProduct"> | string | null
-    features?: JsonNullableWithAggregatesFilter<"GlobalProduct">
-    pricing_tiers?: JsonNullableWithAggregatesFilter<"GlobalProduct">
-    created_at?: DateTimeWithAggregatesFilter<"GlobalProduct"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"GlobalProduct"> | Date | string
-  }
-
   export type TenantCreateInput = {
     id?: string
     name: string
@@ -23015,7 +21625,6 @@ export namespace Prisma {
 
   export type SubscriptionCreateInput = {
     id?: string
-    plan?: $Enums.SubscriptionPlan
     status?: $Enums.SubscriptionStatus
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
@@ -23031,7 +21640,6 @@ export namespace Prisma {
   export type SubscriptionUncheckedCreateInput = {
     id?: string
     tenant_id: string
-    plan?: $Enums.SubscriptionPlan
     status?: $Enums.SubscriptionStatus
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
@@ -23045,7 +21653,6 @@ export namespace Prisma {
 
   export type SubscriptionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23061,7 +21668,6 @@ export namespace Prisma {
   export type SubscriptionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23076,7 +21682,6 @@ export namespace Prisma {
   export type SubscriptionCreateManyInput = {
     id?: string
     tenant_id: string
-    plan?: $Enums.SubscriptionPlan
     status?: $Enums.SubscriptionStatus
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
@@ -23090,7 +21695,6 @@ export namespace Prisma {
 
   export type SubscriptionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23105,7 +21709,6 @@ export namespace Prisma {
   export type SubscriptionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -24355,167 +22958,6 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GlobalProductCreateInput = {
-    id?: string
-    name: string
-    slug: string
-    description?: string | null
-    status?: string
-    type_billing?: string | null
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    unit_price?: Decimal | DecimalJsLike | number | string | null
-    min_price?: Decimal | DecimalJsLike | number | string | null
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    currency?: string
-    limit_users?: string
-    base_users?: number
-    help_desk_hours?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    features?: NullableJsonNullValueInput | InputJsonValue
-    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type GlobalProductUncheckedCreateInput = {
-    id?: string
-    name: string
-    slug: string
-    description?: string | null
-    status?: string
-    type_billing?: string | null
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    unit_price?: Decimal | DecimalJsLike | number | string | null
-    min_price?: Decimal | DecimalJsLike | number | string | null
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    currency?: string
-    limit_users?: string
-    base_users?: number
-    help_desk_hours?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    features?: NullableJsonNullValueInput | InputJsonValue
-    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type GlobalProductUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: StringFieldUpdateOperationsInput | string
-    limit_users?: StringFieldUpdateOperationsInput | string
-    base_users?: IntFieldUpdateOperationsInput | number
-    help_desk_hours?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    features?: NullableJsonNullValueInput | InputJsonValue
-    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type GlobalProductUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: StringFieldUpdateOperationsInput | string
-    limit_users?: StringFieldUpdateOperationsInput | string
-    base_users?: IntFieldUpdateOperationsInput | number
-    help_desk_hours?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    features?: NullableJsonNullValueInput | InputJsonValue
-    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type GlobalProductCreateManyInput = {
-    id?: string
-    name: string
-    slug: string
-    description?: string | null
-    status?: string
-    type_billing?: string | null
-    setup_price?: Decimal | DecimalJsLike | number | string | null
-    unit_price?: Decimal | DecimalJsLike | number | string | null
-    min_price?: Decimal | DecimalJsLike | number | string | null
-    total_price?: Decimal | DecimalJsLike | number | string | null
-    currency?: string
-    limit_users?: string
-    base_users?: number
-    help_desk_hours?: number
-    backend_module?: string | null
-    target_audience?: string | null
-    features?: NullableJsonNullValueInput | InputJsonValue
-    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
-  }
-
-  export type GlobalProductUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: StringFieldUpdateOperationsInput | string
-    limit_users?: StringFieldUpdateOperationsInput | string
-    base_users?: IntFieldUpdateOperationsInput | number
-    help_desk_hours?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    features?: NullableJsonNullValueInput | InputJsonValue
-    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type GlobalProductUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    type_billing?: NullableStringFieldUpdateOperationsInput | string | null
-    setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    unit_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    min_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: StringFieldUpdateOperationsInput | string
-    limit_users?: StringFieldUpdateOperationsInput | string
-    base_users?: IntFieldUpdateOperationsInput | number
-    help_desk_hours?: IntFieldUpdateOperationsInput | number
-    backend_module?: NullableStringFieldUpdateOperationsInput | string | null
-    target_audience?: NullableStringFieldUpdateOperationsInput | string | null
-    features?: NullableJsonNullValueInput | InputJsonValue
-    pricing_tiers?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -24807,13 +23249,6 @@ export namespace Prisma {
     _max?: NestedEnumUserRoleFilter<$PrismaModel>
   }
 
-  export type EnumSubscriptionPlanFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubscriptionPlanFilter<$PrismaModel> | $Enums.SubscriptionPlan
-  }
-
   export type EnumSubscriptionStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
     in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
@@ -24835,7 +23270,6 @@ export namespace Prisma {
   export type SubscriptionCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    plan?: SortOrder
     status?: SortOrder
     stripe_subscription_id?: SortOrder
     stripe_price_id?: SortOrder
@@ -24850,7 +23284,6 @@ export namespace Prisma {
   export type SubscriptionMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    plan?: SortOrder
     status?: SortOrder
     stripe_subscription_id?: SortOrder
     stripe_price_id?: SortOrder
@@ -24865,7 +23298,6 @@ export namespace Prisma {
   export type SubscriptionMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
-    plan?: SortOrder
     status?: SortOrder
     stripe_subscription_id?: SortOrder
     stripe_price_id?: SortOrder
@@ -24875,16 +23307,6 @@ export namespace Prisma {
     cancelled_at?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-  }
-
-  export type EnumSubscriptionPlanWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubscriptionPlanWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionPlan
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
-    _max?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
   }
 
   export type EnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -25855,89 +24277,6 @@ export namespace Prisma {
     latency_ms?: SortOrder
   }
 
-  export type GlobalProductCountOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    type_billing?: SortOrder
-    setup_price?: SortOrder
-    unit_price?: SortOrder
-    min_price?: SortOrder
-    total_price?: SortOrder
-    currency?: SortOrder
-    limit_users?: SortOrder
-    base_users?: SortOrder
-    help_desk_hours?: SortOrder
-    backend_module?: SortOrder
-    target_audience?: SortOrder
-    features?: SortOrder
-    pricing_tiers?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type GlobalProductAvgOrderByAggregateInput = {
-    setup_price?: SortOrder
-    unit_price?: SortOrder
-    min_price?: SortOrder
-    total_price?: SortOrder
-    base_users?: SortOrder
-    help_desk_hours?: SortOrder
-  }
-
-  export type GlobalProductMaxOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    type_billing?: SortOrder
-    setup_price?: SortOrder
-    unit_price?: SortOrder
-    min_price?: SortOrder
-    total_price?: SortOrder
-    currency?: SortOrder
-    limit_users?: SortOrder
-    base_users?: SortOrder
-    help_desk_hours?: SortOrder
-    backend_module?: SortOrder
-    target_audience?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type GlobalProductMinOrderByAggregateInput = {
-    id?: SortOrder
-    name?: SortOrder
-    slug?: SortOrder
-    description?: SortOrder
-    status?: SortOrder
-    type_billing?: SortOrder
-    setup_price?: SortOrder
-    unit_price?: SortOrder
-    min_price?: SortOrder
-    total_price?: SortOrder
-    currency?: SortOrder
-    limit_users?: SortOrder
-    base_users?: SortOrder
-    help_desk_hours?: SortOrder
-    backend_module?: SortOrder
-    target_audience?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type GlobalProductSumOrderByAggregateInput = {
-    setup_price?: SortOrder
-    unit_price?: SortOrder
-    min_price?: SortOrder
-    total_price?: SortOrder
-    base_users?: SortOrder
-    help_desk_hours?: SortOrder
-  }
-
   export type UserCreateNestedManyWithoutTenantInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput> | UserCreateWithoutTenantInput[] | UserUncheckedCreateWithoutTenantInput[]
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput | UserCreateOrConnectWithoutTenantInput[]
@@ -26312,10 +24651,6 @@ export namespace Prisma {
     create?: XOR<TenantCreateWithoutSubscriptionsInput, TenantUncheckedCreateWithoutSubscriptionsInput>
     connectOrCreate?: TenantCreateOrConnectWithoutSubscriptionsInput
     connect?: TenantWhereUniqueInput
-  }
-
-  export type EnumSubscriptionPlanFieldUpdateOperationsInput = {
-    set?: $Enums.SubscriptionPlan
   }
 
   export type EnumSubscriptionStatusFieldUpdateOperationsInput = {
@@ -26841,13 +25176,6 @@ export namespace Prisma {
     _max?: NestedEnumUserRoleFilter<$PrismaModel>
   }
 
-  export type NestedEnumSubscriptionPlanFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubscriptionPlanFilter<$PrismaModel> | $Enums.SubscriptionPlan
-  }
-
   export type NestedEnumSubscriptionStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.SubscriptionStatus | EnumSubscriptionStatusFieldRefInput<$PrismaModel>
     in?: $Enums.SubscriptionStatus[] | ListEnumSubscriptionStatusFieldRefInput<$PrismaModel>
@@ -26864,16 +25192,6 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedEnumSubscriptionPlanWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.SubscriptionPlan | EnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    in?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    notIn?: $Enums.SubscriptionPlan[] | ListEnumSubscriptionPlanFieldRefInput<$PrismaModel>
-    not?: NestedEnumSubscriptionPlanWithAggregatesFilter<$PrismaModel> | $Enums.SubscriptionPlan
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
-    _max?: NestedEnumSubscriptionPlanFilter<$PrismaModel>
   }
 
   export type NestedEnumSubscriptionStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -27186,7 +25504,6 @@ export namespace Prisma {
 
   export type SubscriptionCreateWithoutTenantInput = {
     id?: string
-    plan?: $Enums.SubscriptionPlan
     status?: $Enums.SubscriptionStatus
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
@@ -27200,7 +25517,6 @@ export namespace Prisma {
 
   export type SubscriptionUncheckedCreateWithoutTenantInput = {
     id?: string
-    plan?: $Enums.SubscriptionPlan
     status?: $Enums.SubscriptionStatus
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
@@ -27396,7 +25712,6 @@ export namespace Prisma {
     NOT?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
     id?: StringFilter<"Subscription"> | string
     tenant_id?: StringFilter<"Subscription"> | string
-    plan?: EnumSubscriptionPlanFilter<"Subscription"> | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFilter<"Subscription"> | $Enums.SubscriptionStatus
     stripe_subscription_id?: StringNullableFilter<"Subscription"> | string | null
     stripe_price_id?: StringNullableFilter<"Subscription"> | string | null
@@ -28996,7 +27311,6 @@ export namespace Prisma {
 
   export type SubscriptionCreateManyTenantInput = {
     id?: string
-    plan?: $Enums.SubscriptionPlan
     status?: $Enums.SubscriptionStatus
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
@@ -29083,7 +27397,6 @@ export namespace Prisma {
 
   export type SubscriptionUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29097,7 +27410,6 @@ export namespace Prisma {
 
   export type SubscriptionUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29111,7 +27423,6 @@ export namespace Prisma {
 
   export type SubscriptionUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    plan?: EnumSubscriptionPlanFieldUpdateOperationsInput | $Enums.SubscriptionPlan
     status?: EnumSubscriptionStatusFieldUpdateOperationsInput | $Enums.SubscriptionStatus
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29577,10 +27888,6 @@ export namespace Prisma {
      * @deprecated Use ServiceHealthDefaultArgs instead
      */
     export type ServiceHealthArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ServiceHealthDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use GlobalProductDefaultArgs instead
-     */
-    export type GlobalProductArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GlobalProductDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

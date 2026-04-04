@@ -33,12 +33,6 @@ enum SubscriptionStatus {
   INCOMPLETE
 }
 
-enum SubscriptionPlan {
-  STARTER
-  PROFESSIONAL
-  ENTERPRISE
-}
-
 // Roles canônicos do sistema — alinhados com skill antigravity-permissoes
 enum UserRole {
   SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
@@ -79,6 +73,13 @@ model Tenant {
   clerk_org_id       String?      @unique
   stripe_customer_id String?      @unique
 
+  // Dados cadastrais da organização
+  cnpj         String?
+  state        String?
+  city         String?
+  segment      String?
+  tipo_empresa String?
+
   // Metadata
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -89,6 +90,7 @@ model Tenant {
   user_permissions UserPermission[]
   companies        Company[]
   product_configs  ProductConfig[]
+  CompanyProduct   CompanyProduct[]
 
   @@index([status])
   @@index([slug])
@@ -134,7 +136,6 @@ model User {
 model Subscription {
   id        String             @id @default(cuid())
   tenant_id String
-  plan      SubscriptionPlan   @default(STARTER)
   status    SubscriptionStatus @default(TRIALING)
 
   stripe_subscription_id String? @unique
@@ -233,8 +234,9 @@ model Company {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant      Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  memberships UserMembership[]
+  tenant           Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  memberships      UserMembership[]
+  company_products CompanyProduct[]
 
   // Índices obrigatórios
   @@index([tenant_id])
@@ -298,6 +300,34 @@ model ProductConfig {
   @@index([tenant_id])
   @@index([tenant_id, product_key])
   @@index([tenant_id, is_active])
+}
+
+// ---------------------------------------------------------------------------
+// COMPANY PRODUCT (Cadeia 1.5 — Ativação por Workspace)
+// Habilita um produto que o Tenant já possui para um Workspace específico.
+// ---------------------------------------------------------------------------
+
+model CompanyProduct {
+  id          String  @id @default(cuid())
+  tenant_id   String
+  company_id  String
+  product_key String // ex: "simulacusto", "gestao-atividades"
+  is_active   Boolean @default(true)
+
+  // Timestamps
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relações
+  tenant  Tenant  @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  // Apenas uma ativação por produto por workspace
+  @@unique([company_id, product_key])
+  // Índices obrigatórios
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([company_id, is_active])
 }
 
 // ---------------------------------------------------------------------------
@@ -472,25 +502,76 @@ model SupplierTenantAccess {
 }
 
 // ---------------------------------------------------------------------------
-// SERVICE TOKEN
-// Machine tokens de longa duração para S2S assíncrono (Fluxo 2 S2S).
-// Emitidos pelo Configurador, consumidos por serviços em jobs/crons.
+// SECURITY EVENT
+// Eventos de segurança registrados pelo securityAuditLogger.
+// Alimenta o painel /admin/seguranca em tempo real.
 // ---------------------------------------------------------------------------
 
-model ServiceToken {
-  id         String            @id @default(cuid())
-  tenant_id  String
-  user_id    String
-  token_hash String            @unique
-  scope      ServiceTokenScope @default(SERVICE)
-  expires_at DateTime?
-  revoked    Boolean           @default(false)
+model SecurityEvent {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  actor_id       String
+  actor_type     String // USER | SYSTEM | GABI_IA | ADMIN
+  action         String // AUTH_FAILURE, CROSS_TENANT_ATTEMPT, ROLE_CHANGED, etc.
+  severity       String // CRITICAL | WARNING | INFO
+  status         String   @default("DETECTED") // BLOCKED | ALLOWED | DETECTED
+  description    String?
+  ip             String?
+  endpoint       String?
+  user_id        String?
+  product_id     String?
+  correlation_id String?
+  metadata       Json?    @default("{}")
+  created_at     DateTime @default(now())
 
-  // Timestamps
-  created_at DateTime @default(now())
-
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([token_hash])
+  @@index([created_at])
+  @@index([severity])
+  @@index([action])
+  @@index([tenant_id, created_at])
+  @@index([severity, created_at])
 }
+
+// ---------------------------------------------------------------------------
+// RATE LIMIT METRIC
+// Metricas agregadas do rate limiter para monitoramento no painel.
+// ---------------------------------------------------------------------------
+
+model RateLimitMetric {
+  id           String   @id @default(cuid())
+  key          String // tenant:ip combo
+  tenant_id    String?
+  ip           String?
+  endpoint     String
+  count        Int
+  limit_max    Int
+  blocked      Boolean  @default(false)
+  window_start DateTime
+  created_at   DateTime @default(now())
+
+  @@index([created_at])
+  @@index([blocked, created_at])
+  @@index([tenant_id])
+}
+
+// ---------------------------------------------------------------------------
+// SERVICE HEALTH
+// Snapshot do ultimo health check de cada servico.
+// ---------------------------------------------------------------------------
+
+model ServiceHealth {
+  id         String   @id @default(cuid())
+  service    String   @unique // ex: "configurador", "bid-frete"
+  url        String // health check URL
+  status     String   @default("UNKNOWN") // OK | DEGRADED | DOWN | UNKNOWN
+  latency_ms Int?
+  last_error String?
+  checked_at DateTime @default(now())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status])
+  @@index([checked_at])
+}
+
+// ---------------------------------------------------------------------------
+// GLOBAL PRODUCT

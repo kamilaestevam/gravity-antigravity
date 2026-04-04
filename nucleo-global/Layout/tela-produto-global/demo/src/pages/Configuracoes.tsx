@@ -10,7 +10,8 @@ import {
   SquaresFour, Table, Bell, DownloadSimple,
   ArrowCounterClockwise, Eye, EyeSlash, Plus, X, DotsSixVertical,
   Hash, CheckCircle, ArrowsClockwise, SealCheck, CurrencyDollar, ChartBar,
-  PencilSimple, Kanban as KanbanIcon, Lightning,
+  PencilSimple, Kanban as KanbanIcon, Lightning, Check,
+  ChartLine, ChartDonut, NumberSquareOne, Funnel, ChartBarHorizontal,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -32,6 +33,11 @@ import {
   useKanbanConfig,
   CAMPOS_REGRA_DEFAULT,
 } from '../shared/useKanbanConfig'
+import {
+  useDashboardConfig,
+  DEFAULT_WIDGETS,
+  type DemoWidget,
+} from '../shared/useDashboardConfig'
 import './Configuracoes.css'
 
 // ── Período de comparação ─────────────────────────────────────────────────────
@@ -65,6 +71,20 @@ function origemVariant(origem: string): string {
   return 'meus'
 }
 
+// ── Mapa de tipos de gráfico ─────────────────────────────────────────────────
+
+const CHART_TYPE_META: Record<string, { label: string; cor: string; icone: (s: number) => React.ReactNode }> = {
+  LINE:           { label: 'Linha',      cor: '#818cf8', icone: (s) => <ChartLine          size={s} weight="duotone" /> },
+  AREA:           { label: 'Área',       cor: '#6366f1', icone: (s) => <ChartLine          size={s} weight="fill"    /> },
+  BAR:            { label: 'Barras',     cor: '#34d399', icone: (s) => <ChartBar           size={s} weight="duotone" /> },
+  BAR_HORIZONTAL: { label: 'Barras H.', cor: '#34d399', icone: (s) => <ChartBarHorizontal size={s} weight="duotone" /> },
+  DONUT:          { label: 'Donut',      cor: '#f59e0b', icone: (s) => <ChartDonut         size={s} weight="duotone" /> },
+  KPI_CARD:       { label: 'KPI',        cor: '#60a5fa', icone: (s) => <NumberSquareOne    size={s} weight="duotone" /> },
+  FUNNEL:         { label: 'Funil',      cor: '#fb923c', icone: (s) => <Funnel             size={s} weight="duotone" /> },
+}
+
+const CHART_TYPE_OPTIONS = Object.entries(CHART_TYPE_META).map(([type, meta]) => ({ type, ...meta }))
+
 // ── Sidebar hierárquica ───────────────────────────────────────────────────────
 
 type SidebarItemTipo =
@@ -74,6 +94,7 @@ type SidebarItemTipo =
 
 const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   { tipo: 'item', id: 'cards',             label: 'Cards',        icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'item', id: 'dashboard',         label: 'Dashboard',    icone: <ChartBar    size={15} weight="duotone" />, ativo: true  },
   { tipo: 'grupo', label: 'KANBAN' },
   { tipo: 'sub',  id: 'kanban-colunas',    label: 'Colunas',      icone: <KanbanIcon  size={15} weight="duotone" />, ativo: true  },
   { tipo: 'sub',  id: 'kanban-card',       label: 'Card',         icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
@@ -229,6 +250,23 @@ export default function Configuracoes() {
     useCardPreferences()
 
   const { config: kanbanConfig, salvar: salvarKanban } = useKanbanConfig()
+  const { widgets, remover: removerWidget, atualizar: atualizarWidget, resetar: resetarWidgets } = useDashboardConfig()
+
+  const [editandoWidgetId, setEditandoWidgetId] = useState<string | null>(null)
+  const [editTitle,        setEditTitle]        = useState('')
+  const [editChartType,    setEditChartType]    = useState('')
+
+  function abrirEdicaoWidget(w: DemoWidget) {
+    setEditTitle(w.title)
+    setEditChartType(w.chart_type)
+    setEditandoWidgetId(w.id)
+  }
+
+  function salvarEdicaoWidget() {
+    if (!editandoWidgetId) return
+    atualizarWidget(editandoWidgetId, { title: editTitle, chart_type: editChartType })
+    setEditandoWidgetId(null)
+  }
 
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
@@ -418,6 +456,114 @@ export default function Configuracoes() {
               </section>
             )}
 
+          </div>
+        )}
+
+        {/* ── Dashboard ── */}
+        {categoria === 'dashboard' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Widgets do Dashboard</h2>
+                  <p className="cfg-secao__desc">
+                    Gerencie os widgets exibidos no Dashboard · × para remover
+                  </p>
+                </div>
+                <button type="button" className="cfg-reset-btn" onClick={resetarWidgets}>
+                  <ArrowCounterClockwise size={13} weight="bold" />
+                  Restaurar padrão
+                </button>
+              </div>
+
+              {widgets.length === 0 ? (
+                <p className="cfg-empty">Nenhum widget. Restaure o padrão para recriar.</p>
+              ) : (
+                <div className="cfg-cards-lista">
+                  {widgets.map(w => {
+                    const meta     = CHART_TYPE_META[w.chart_type]
+                    const isEditing = editandoWidgetId === w.id
+                    return (
+                      <div key={w.id}>
+                        <div className={`cfg-card-row${isEditing ? ' cfg-card-row--editing' : ''}`}>
+                          <span style={{ color: meta?.cor ?? 'var(--text-muted)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                            {meta?.icone(18) ?? <ChartBar size={18} />}
+                          </span>
+
+                          <div className="cfg-card-row__info">
+                            <div>
+                              <p className="cfg-card-row__nome">{w.title}</p>
+                              <p className="cfg-card-row__desc">{meta?.label ?? w.chart_type} · {w.query_spec.fields.join(', ')}</p>
+                            </div>
+                          </div>
+
+                          <span className="cfg-agg-badge">{w.query_spec.operation}</span>
+
+                          <button
+                            type="button"
+                            className={`cfg-eye-btn${isEditing ? ' cfg-eye-btn--on' : ''}`}
+                            onClick={() => isEditing ? setEditandoWidgetId(null) : abrirEdicaoWidget(w)}
+                            aria-label="Editar widget"
+                          >
+                            <PencilSimple size={14} weight="bold" />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="cfg-remove-btn"
+                            onClick={() => removerWidget(w.id)}
+                            aria-label="Remover widget"
+                          >
+                            <X size={13} weight="bold" />
+                          </button>
+                        </div>
+
+                        {isEditing && (
+                          <div className="cfg-edit-panel">
+                            <div className="cfg-edit-panel__field">
+                              <label className="cfg-edit-panel__label">Título</label>
+                              <input
+                                className="cfg-edit-panel__input"
+                                value={editTitle}
+                                onChange={e => setEditTitle(e.target.value)}
+                                maxLength={80}
+                                autoFocus
+                              />
+                            </div>
+
+                            <div className="cfg-edit-panel__field">
+                              <label className="cfg-edit-panel__label">Tipo de gráfico</label>
+                              <div className="cfg-edit-panel__chart-grid">
+                                {CHART_TYPE_OPTIONS.map(opt => (
+                                  <button
+                                    key={opt.type}
+                                    type="button"
+                                    className={`cfg-chart-opt${editChartType === opt.type ? ' cfg-chart-opt--ativo' : ''}`}
+                                    onClick={() => setEditChartType(opt.type)}
+                                  >
+                                    <span style={{ color: opt.cor }}>{opt.icone(20)}</span>
+                                    <span>{opt.label}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="cfg-edit-panel__actions">
+                              <button type="button" className="cfg-reset-btn" onClick={() => setEditandoWidgetId(null)}>
+                                Cancelar
+                              </button>
+                              <button type="button" className="cfg-save-btn" onClick={salvarEdicaoWidget}>
+                                <Check size={13} weight="bold" /> Salvar
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </section>
           </div>
         )}
 

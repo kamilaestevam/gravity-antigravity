@@ -14,6 +14,7 @@ import { useShellStore } from '@gravity/shell'
 import {
   Package,
   Plus,
+  CaretDown,
   Eye,
   PencilSimple,
   Trash,
@@ -63,6 +64,8 @@ import {
   fmtMoeda,
   fmtData,
 } from '../shared/types'
+import { SmartImportModal } from '../components/SmartImport/SmartImportModal'
+import { DrawerPedido } from '../components/DrawerPedido'
 import './ListaPedidos.css'
 
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
@@ -474,6 +477,14 @@ export default function ListaPedidos() {
   const [busca, setBusca]                   = useState('')
   const [erroLote, setErroLote]             = useState<string | null>(null)
 
+  // ── Estado dos modais de criação ─────────────────────────────────────────────
+  const [drawerAberto, setDrawerAberto]           = useState(false)
+  const [pedidoEditandoId, setPedidoEditandoId]   = useState<string | undefined>(undefined)
+  const [smartImportAberto, setSmartImportAberto] = useState(false)
+  const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+  const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
+  const novoDropdownRef = useRef<HTMLDivElement>(null)
+
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
 
@@ -594,6 +605,18 @@ export default function ListaPedidos() {
       carregandoRef.current = false
     }
   }, [abaAtiva, sortCampo, sortDir, busca])
+
+  // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
+  useEffect(() => {
+    if (!novoDropdownAberto) return
+    const handler = (e: MouseEvent) => {
+      if (novoDropdownRef.current && !novoDropdownRef.current.contains(e.target as Node)) {
+        setNovoDropdownAberto(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [novoDropdownAberto])
 
   useEffect(() => { carregarInicial() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -878,22 +901,115 @@ export default function ListaPedidos() {
 
           acoesBarra={
             <>
-              <BotaoGlobal
-                variante="primario"
-                tamanho="pequeno"
-                icone={<Plus size={14} weight="bold" />}
-                onClick={() => { navigate('novo') }}
-              >
-                Novo
-              </BotaoGlobal>
-              <BotaoGlobal
-                variante="secundario"
-                tamanho="pequeno"
-                icone={<UploadSimple size={14} weight="duotone" />}
-                onClick={() => { console.info('[Pedido] Importar') }}
-              >
-                Importar
-              </BotaoGlobal>
+              {/* ── Dropdown "Novo" ── */}
+              <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+                <BotaoGlobal
+                  variante="primario"
+                  tamanho="pequeno"
+                  icone={<Plus size={14} weight="bold" />}
+                  onClick={() => setNovoDropdownAberto(prev => !prev)}
+                >
+                  Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2 }} />
+                </BotaoGlobal>
+
+                {novoDropdownAberto && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 4px)',
+                    left: 0,
+                    zIndex: 200,
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                    minWidth: '170px',
+                    padding: '0.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.125rem',
+                  }}>
+                    {/* Manual */}
+                    <button
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
+                        background: 'transparent', color: 'var(--text-primary)',
+                        fontSize: '0.8125rem', cursor: 'pointer', textAlign: 'left',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      onClick={() => {
+                        setPedidoEditandoId(undefined)
+                        setDrawerAberto(true)
+                        setNovoDropdownAberto(false)
+                      }}
+                    >
+                      <Plus size={14} weight="bold" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                      Manual
+                    </button>
+
+                    {/* Importar */}
+                    <button
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
+                        background: 'transparent', color: 'var(--text-primary)',
+                        fontSize: '0.8125rem', cursor: 'pointer', textAlign: 'left',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      onClick={() => {
+                        setSmartImportAberto(true)
+                        setNovoDropdownAberto(false)
+                      }}
+                    >
+                      <UploadSimple size={14} weight="duotone" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                      Importar
+                    </button>
+
+                    {/* Smart Read — disabled */}
+                    <button
+                      disabled
+                      title="Em breve"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
+                        background: 'transparent', color: 'var(--text-muted)',
+                        fontSize: '0.8125rem', cursor: 'not-allowed', textAlign: 'left',
+                        opacity: 0.5,
+                      }}
+                    >
+                      <CheckSquare size={14} weight="duotone" style={{ flexShrink: 0 }} />
+                      Smart Read
+                      <span style={{ marginLeft: 'auto', fontSize: '0.6875rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        Em breve
+                      </span>
+                    </button>
+
+                    {/* Divider */}
+                    <div style={{ height: '1px', background: 'var(--border-subtle)', margin: '0.125rem 0.5rem' }} />
+
+                    {/* Cockpit API */}
+                    <button
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        padding: '0.5rem 0.75rem', border: 'none', borderRadius: '0.375rem',
+                        background: 'transparent', color: 'var(--text-primary)',
+                        fontSize: '0.8125rem', cursor: 'pointer', textAlign: 'left',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                      onClick={() => {
+                        setModalCockpitAberto(true)
+                        setNovoDropdownAberto(false)
+                      }}
+                    >
+                      <ArrowsLeftRight size={14} weight="duotone" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+                      Cockpit API
+                    </button>
+                  </div>
+                )}
+              </div>
               <BotaoGlobal
                 variante="secundario"
                 tamanho="pequeno"
@@ -1054,6 +1170,104 @@ export default function ListaPedidos() {
                 Transferir
               </BotaoGlobal>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Drawer Novo/Editar Pedido ── */}
+      <DrawerPedido
+        aberto={drawerAberto}
+        pedidoId={pedidoEditandoId}
+        onFechar={() => setDrawerAberto(false)}
+        onSalvo={async () => {
+          setDrawerAberto(false)
+          await carregarInicial()
+        }}
+      />
+
+      {/* ── Smart Import Modal ── */}
+      <SmartImportModal
+        aberto={smartImportAberto}
+        onFechar={() => setSmartImportAberto(false)}
+        onConcluido={async () => {
+          setSmartImportAberto(false)
+          await carregarInicial()
+        }}
+      />
+
+      {/* ── Modal Cockpit API ── */}
+      {modalCockpitAberto && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => setModalCockpitAberto(false)}
+        >
+          <div
+            style={{ background: 'var(--bg-surface)', borderRadius: '0.75rem', padding: '1.5rem', width: '540px', maxWidth: '90vw', border: '1px solid var(--border-subtle)', boxShadow: '0 24px 48px rgba(0,0,0,0.4)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+                Criar Pedido via API
+              </h3>
+              <button
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '0.25rem', borderRadius: '0.25rem', display: 'flex', alignItems: 'center' }}
+                onClick={() => setModalCockpitAberto(false)}
+                aria-label="Fechar"
+              >
+                <X size={16} weight="bold" />
+              </button>
+            </div>
+
+            {/* Endpoint */}
+            <div style={{ marginBottom: '1rem' }}>
+              <p style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>
+                Endpoint
+              </p>
+              <code style={{ display: 'block', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.625rem 0.875rem', fontSize: '0.8125rem', color: 'var(--ws-accent)', fontFamily: 'monospace', border: '1px solid var(--border-subtle)' }}>
+                POST /api/v1/cockpit/pedidos
+              </code>
+            </div>
+
+            {/* Auth */}
+            <div style={{ marginBottom: '1rem' }}>
+              <p style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>
+                Autenticação
+              </p>
+              <code style={{ display: 'block', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.625rem 0.875rem', fontSize: '0.8125rem', color: 'var(--text-primary)', fontFamily: 'monospace', border: '1px solid var(--border-subtle)', whiteSpace: 'pre' }}>
+                {`Authorization: Bearer gv_live_sk_...`}
+              </code>
+            </div>
+
+            {/* Payload */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <p style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.25rem', letterSpacing: '0.05em' }}>
+                Exemplo de Payload
+              </p>
+              <code style={{ display: 'block', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.875rem', fontSize: '0.8rem', color: 'var(--text-primary)', fontFamily: 'monospace', border: '1px solid var(--border-subtle)', whiteSpace: 'pre', lineHeight: 1.6, overflowX: 'auto' }}>
+                {`{
+  "tipo_operacao": "importacao",
+  "numero_pedido": "PO-2026-001",
+  "exportador_id": "exp_abc123",
+  "incoterm": "FOB",
+  "moeda_pedido": "USD",
+  "data_emissao_pedido": "2026-04-04",
+  "itens": [
+    {
+      "part_number": "ABC-001",
+      "descricao": "Produto exemplo",
+      "quantidade": 100,
+      "valor_unitario": 25.50
+    }
+  ]
+}`}
+              </code>
+            </div>
+
+            {/* Nota */}
+            <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.625rem 0.875rem', border: '1px solid var(--border-subtle)', margin: 0 }}>
+              Gerencie seus tokens em <strong style={{ color: 'var(--ws-accent)' }}>Configurações → API</strong>
+            </p>
           </div>
         </div>
       )}

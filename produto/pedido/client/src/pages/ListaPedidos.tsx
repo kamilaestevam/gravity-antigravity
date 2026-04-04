@@ -54,6 +54,7 @@ import { useCardPreferences } from '../shared/useCardPreferences'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
 import {
+  pedidoApi,
   pedidoVirtualApi,
   pedidoConfigApi,
   pedidoLoteApi,
@@ -251,6 +252,7 @@ function FiltroPopoverColuna({
         maxWidth: 290,
         padding: 0,
         zIndex: 9999,
+        background: '#1e2130',
       }}
       role="dialog"
       aria-label={`Filtrar coluna ${label}`}
@@ -409,6 +411,22 @@ function lerAbasDoLocalStorage(): GTAbaTipo[] | null {
   } catch { return null }
 }
 
+// ── Casas decimais configuráveis pelo usuário ────────────────────────────────
+
+function lerCasasDecimaisConfig(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem('pedido:casas_decimais')
+    if (raw) return JSON.parse(raw) as Record<string, number>
+  } catch { /* ignore */ }
+  return {}
+}
+
+/** Retorna casas decimais para um campo, respeitando config do usuário em Configurações */
+function getCasas(campo: string, padrao: number): number {
+  const config = lerCasasDecimaisConfig()
+  return config[campo] ?? padrao
+}
+
 // ── Colunas pai (Pedido) ──────────────────────────────────────────────────────
 
 const COLUNAS_PAI: GTColuna<Pedido>[] = [
@@ -545,7 +563,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_total_pedido != null
-          ? `${fmtQuantidade(row.quantidade_total_pedido, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_total_pedido, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
@@ -561,7 +579,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_inicial_total != null
-          ? `${fmtQuantidade(row.quantidade_inicial_total, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_inicial_total, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
@@ -581,7 +599,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -605,7 +623,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#fbbf24' : undefined }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -629,7 +647,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -646,7 +664,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_transferida_total != null
-          ? `${fmtQuantidade(row.quantidade_transferida_total, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
@@ -667,7 +685,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {saldo != null
-            ? `${fmtQuantidade(saldo, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(saldo, getCasas('quantidade_total_pedido', row.casas_decimais_quantidade_total_pedido ?? 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -781,7 +799,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_total_pedido != null
-          ? `${fmtQuantidade(row.peso_liquido_total_pedido, row.casas_decimais_peso_pedido ?? 3)} kg`
+          ? `${fmtQuantidade(row.peso_liquido_total_pedido, getCasas('peso_liquido_total_pedido', row.casas_decimais_peso_pedido ?? 3))} kg`
           : '—'}
       </span>
     ),
@@ -800,7 +818,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_total_pedido != null
-          ? `${fmtQuantidade(row.peso_bruto_total_pedido, row.casas_decimais_peso_pedido ?? 3)} kg`
+          ? `${fmtQuantidade(row.peso_bruto_total_pedido, getCasas('peso_bruto_total_pedido', row.casas_decimais_peso_pedido ?? 3))} kg`
           : '—'}
       </span>
     ),
@@ -819,7 +837,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_total_pedido != null
-          ? `${fmtQuantidade(row.cubagem_total_pedido, row.casas_decimais_cubagem_pedido ?? 4)} m³`
+          ? `${fmtQuantidade(row.cubagem_total_pedido, getCasas('cubagem_total_pedido', row.casas_decimais_cubagem_pedido ?? 4))} m³`
           : '—'}
       </span>
     ),
@@ -1975,7 +1993,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_unidade_estatistica != null
-          ? `${fmtQuantidade(row.quantidade_unidade_estatistica, row.casas_decimais_unidade_estatistica ?? 2)} ${row.unidade_estatistica ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_unidade_estatistica, getCasas('quantidade_unidade_estatistica', row.casas_decimais_unidade_estatistica ?? 2))} ${row.unidade_estatistica ?? ''}`
           : '—'}
       </span>
     ),
@@ -1993,7 +2011,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, row.casas_decimais_peso ?? 3)} kg`
+          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', row.casas_decimais_peso ?? 3))} kg`
           : '—'}
       </span>
     ),
@@ -2010,7 +2028,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, row.casas_decimais_peso ?? 3)} kg`
+          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', row.casas_decimais_peso ?? 3))} kg`
           : '—'}
       </span>
     ),
@@ -2027,7 +2045,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, row.casas_decimais_cubagem ?? 4)} m³`
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', row.casas_decimais_cubagem ?? 4))} m³`
           : '—'}
       </span>
     ),
@@ -3169,9 +3187,41 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
   'quantidade_inicial', 'quantidade_atual', 'quantidade_pronta',
   'quantidade_transferida', 'quantidade_cancelada',
   'valor_unitario', 'valor_item',
+  'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
 
+// Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
+const CAMPOS_PAI_TEXTO = new Set([
+  'exportador_nome', 'fabricante_nome',
+  'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+  'numero_proforma', 'numero_invoice',
+  'incoterm', 'condicao_pagamento',
+])
+
+// Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
+type PedidoItemEnriquecido = PedidoItem & {
+  _p: {
+    id: string
+    tipo_operacao: string
+    exportador_nome: string | null
+    fabricante_nome: string | null
+    referencia_importador: string | null
+    referencia_exportador: string | null
+    referencia_fabricante: string | null
+    numero_proforma: string | null
+    numero_invoice: string | null
+    incoterm: string | null
+    condicao_pagamento: string | null
+    moeda_pedido: string | null
+    unidade_comercializada_pedido: string | null
+    cobertura_cambial: string | null
+    data_emissao_pedido: string | null
+    status: string
+  }
+}
+
 const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
+  // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
     editavel: true,
     campo: 'part_number',
@@ -3186,6 +3236,164 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       </span>
     ),
   },
+  // ── Colunas herdadas do pedido pai ────────────────────────────────────────
+  tipo_operacao: {
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      if (!p) return null
+      return (
+        <StatusBadgeGlobal
+          valor={p.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
+          genero="feminino"
+          style={p.tipo_operacao === 'importacao'
+            ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
+            : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
+          }
+        />
+      )
+    },
+  },
+  exportador_nome: {
+    editavel: true,
+    campo: 'exportador_nome',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.exportador_nome ?? '—'}</span>
+    },
+  },
+  fabricante_nome: {
+    editavel: true,
+    campo: 'fabricante_nome',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.fabricante_nome ?? '—'}</span>
+    },
+  },
+  referencia_importador: {
+    editavel: true,
+    campo: 'referencia_importador',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.referencia_importador ?? '—'}</span>
+    },
+  },
+  referencia_exportador: {
+    editavel: true,
+    campo: 'referencia_exportador',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.referencia_exportador ?? '—'}</span>
+    },
+  },
+  numero_proforma: {
+    editavel: true,
+    campo: 'numero_proforma',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.numero_proforma ?? '—'}</span>
+    },
+  },
+  numero_invoice: {
+    editavel: true,
+    campo: 'numero_invoice',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.numero_invoice ?? '—'}</span>
+    },
+  },
+  incoterm: {
+    editavel: true,
+    campo: 'incoterm',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.incoterm ?? '—'}</span>
+    },
+  },
+  status: {
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      if (!p) return null
+      const cor = getStatusCor(p.status)
+      return (
+        <StatusBadgeGlobal
+          valor={STATUS_PEDIDO_LABELS[p.status as keyof typeof STATUS_PEDIDO_LABELS] ?? p.status}
+          genero="masculino"
+          style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33` }}
+        />
+      )
+    },
+  },
+  moeda_pedido: {
+    render: (row: PedidoItem) => <span>{row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? '—'}</span>,
+  },
+  unidade_comercializada_pedido: {
+    render: (row: PedidoItem) => (
+      <span>{row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? '—'}</span>
+    ),
+  },
+  referencia_fabricante: {
+    editavel: true,
+    campo: 'referencia_fabricante',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.referencia_fabricante ?? '—'}</span>
+    },
+  },
+  cobertura_cambial: {
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.cobertura_cambial ?? '—'}</span>
+    },
+  },
+  condicao_pagamento: {
+    editavel: true,
+    campo: 'condicao_pagamento',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.condicao_pagamento ?? '—'}</span>
+    },
+  },
+  data_emissao_pedido: {
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{fmtData(p?.data_emissao_pedido ?? null)}</span>
+    },
+  },
+  // ── Pesos e cubagem do item ───────────────────────────────────────────────
+  peso_liquido_total_pedido: {
+    editavel: true,
+    campo: 'peso_liquido_unitario',
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.peso_liquido_unitario != null
+          ? `${fmtQuantidade(row.peso_liquido_unitario, row.casas_decimais_peso ?? 3)} kg`
+          : '—'}
+      </span>
+    ),
+  },
+  peso_bruto_total_pedido: {
+    editavel: true,
+    campo: 'peso_bruto_unitario',
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.peso_bruto_unitario != null
+          ? `${fmtQuantidade(row.peso_bruto_unitario, row.casas_decimais_peso ?? 3)} kg`
+          : '—'}
+      </span>
+    ),
+  },
+  cubagem_total_pedido: {
+    editavel: true,
+    campo: 'cubagem_unitaria',
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.cubagem_unitaria != null
+          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', row.casas_decimais_cubagem ?? 4))} m³`
+          : '—'}
+      </span>
+    ),
+  },
+  // ── Valores ───────────────────────────────────────────────────────────────
   valor_total_pedido: {
     editavel: true,
     campo: 'valor_item',
@@ -3195,8 +3403,8 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       </span>
     ),
   },
+  // ── Quantidades ───────────────────────────────────────────────────────────
   quantidade_total_pedido: {
-    // Saldo Atual — não editável (campo derivado)
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
         {fmtQuantidade(row.quantidade_atual, row.casas_decimais_quantidade)}
@@ -3211,6 +3419,26 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
         {fmtQuantidade(row.quantidade_inicial, row.casas_decimais_quantidade)}
       </span>
     ),
+  },
+  quantidade_a_embarcar: {
+    render: (row: PedidoItem) => {
+      const qtd = Math.max(0, (row.quantidade_pronta ?? 0) - (row.quantidade_transferida ?? 0))
+      return (
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#fbbf24' : undefined }}>
+          {fmtQuantidade(qtd, row.casas_decimais_quantidade)}
+        </span>
+      )
+    },
+  },
+  quantidade_a_entregar: {
+    render: (row: PedidoItem) => {
+      const qtd = Math.max(0, (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0))
+      return (
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+          {fmtQuantidade(qtd, row.casas_decimais_quantidade)}
+        </span>
+      )
+    },
   },
   quantidade_transferida_total: {
     editavel: true,
@@ -3232,7 +3460,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   saldo_quantidade: {
     render: (row: PedidoItem) => {
-      const saldo = row.quantidade_inicial - row.quantidade_transferida
+      const saldo = (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0)
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {fmtQuantidade(saldo, row.casas_decimais_quantidade)}
@@ -3641,6 +3869,29 @@ export default function ListaPedidos() {
     const pedido = pedidos.find(p => p.itens?.some(i => i.id === id))
     if (!pedido) throw new Error('Não foi possível localizar o pedido deste item. Recarregue a página.')
 
+    // Campos do pedido pai → atualiza o pedido, não o item
+    if (CAMPOS_PAI_TEXTO.has(campo)) {
+      const pedidoAtualizado = await pedidoApi.atualizar(pedido.id, { [campo]: valor as string } as Partial<Pedido>)
+        .catch(() => {
+          if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
+          throw new Error(`Erro ao editar campo ${campo} do pedido`)
+        })
+      // Atualiza o pedido e re-enriquece os itens com o novo valor
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...p,
+          ...pedidoAtualizado,
+          itens: p.itens?.map(i => ({
+            ...i,
+            _p: { ...(i as PedidoItemEnriquecido)._p, [campo]: valor },
+          })),
+        }
+      }))
+      const item = pedido.itens?.find(i => i.id === id)!
+      return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, [campo]: valor } } as PedidoItem
+    }
+
     const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo) ? Number(valor) || 0 : valor
 
     const atualizado = await pedidoItemApi.atualizar(pedido.id, id, { [campo]: valorFinal } as Partial<PedidoItem>)
@@ -3668,7 +3919,27 @@ export default function ListaPedidos() {
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   const handleCarregarFilhos = useCallback(async (pedido: Pedido): Promise<PedidoItem[]> => {
-    return pedido.itens ?? []
+    return (pedido.itens ?? []).map(item => ({
+      ...item,
+      _p: {
+        id: pedido.id,
+        tipo_operacao: pedido.tipo_operacao,
+        exportador_nome: pedido.exportador_nome ?? null,
+        fabricante_nome: pedido.fabricante_nome ?? null,
+        referencia_importador: pedido.referencia_importador ?? null,
+        referencia_exportador: pedido.referencia_exportador ?? null,
+        referencia_fabricante: pedido.referencia_fabricante ?? null,
+        numero_proforma: pedido.numero_proforma ?? null,
+        numero_invoice: pedido.numero_invoice ?? null,
+        incoterm: pedido.incoterm ?? null,
+        condicao_pagamento: pedido.condicao_pagamento ?? null,
+        moeda_pedido: pedido.moeda_pedido ?? null,
+        unidade_comercializada_pedido: pedido.unidade_comercializada_pedido ?? null,
+        cobertura_cambial: pedido.cobertura_cambial ?? null,
+        data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+        status: pedido.status,
+      },
+    }))
   }, [])
 
   // ── Salvar preferências ──────────────────────────────────────────────────────

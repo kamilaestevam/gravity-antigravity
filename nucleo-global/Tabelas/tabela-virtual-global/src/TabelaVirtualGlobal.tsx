@@ -759,9 +759,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [itensSelecionados])
 
   // ── Fechar menus ao clicar fora ───────────────────────────────────────────────
+  const exportMenuRef = useRef<HTMLDivElement>(null)
+  const exportBtnRef  = useRef<HTMLButtonElement>(null)
   useEffect(() => {
     if (!exportAberto) return
     function fora(e: MouseEvent) {
+      const t = e.target as Node
+      if (exportMenuRef.current?.contains(t)) return
+      if (exportBtnRef.current?.contains(t)) return
       setExportAberto(false)
     }
     document.addEventListener('mousedown', fora)
@@ -1391,6 +1396,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {acoesExportacao && acoesExportacao.length > 0 && (
             <div className="gtv-export-wrapper">
               <button
+                ref={exportBtnRef}
                 className={`gtv-btn${exportAberto ? ' gtv-btn--ativo' : ''}`}
                 onClick={e => {
                   e.stopPropagation()
@@ -1403,7 +1409,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 Exportar
               </button>
               {exportAberto && (
-                <div className="gtv-export-menu">
+                <div ref={exportMenuRef} className="gtv-export-menu">
                   {acoesExportacao.map((acao, i) => (
                     <button
                       key={i}

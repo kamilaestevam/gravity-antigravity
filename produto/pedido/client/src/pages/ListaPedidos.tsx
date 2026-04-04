@@ -206,13 +206,13 @@ function FiltroPopoverColuna({
   )
 
   function aplicar() {
-    if (tipo === 'texto') {
+    if (tipo === 'texto' && valoresUnicos.length === 0) {
       if (textoLocal.trim()) {
         onAplicar(campo, { tipo: 'texto', valor: textoLocal.trim() })
       } else {
         onLimpar(campo)
       }
-    } else if (tipo === 'enum') {
+    } else if (tipo === 'enum' || (tipo === 'texto' && valoresUnicos.length > 0)) {
       if (enumLocal.size > 0) {
         onAplicar(campo, { tipo: 'enum', valor: new Set(enumLocal) })
       } else {
@@ -280,8 +280,8 @@ function FiltroPopoverColuna({
 
       <div style={{ height: 1, background: 'var(--gtv-border, rgba(255,255,255,0.07))' }} />
 
-      {/* Filtrar por — texto */}
-      {tipo === 'texto' && (
+      {/* Filtrar por — texto (livre, apenas quando não há valores conhecidos) */}
+      {tipo === 'texto' && valoresUnicos.length === 0 && (
         <div style={{ padding: '0.375rem 0.5rem' }}>
           <div className="lp-filtro-section-title">FILTRAR POR</div>
           <div className="gtv-col-busca" style={{ borderRadius: '6px', marginTop: '0.25rem' }}>
@@ -298,8 +298,8 @@ function FiltroPopoverColuna({
         </div>
       )}
 
-      {/* Filtrar por — enum (checkboxes) */}
-      {tipo === 'enum' && (
+      {/* Filtrar por — enum (checkboxes) — também para texto com valores conhecidos */}
+      {(tipo === 'enum' || (tipo === 'texto' && valoresUnicos.length > 0)) && (
         <div style={{ padding: '0.375rem 0.5rem' }}>
           <div className="lp-filtro-section-title">FILTRAR POR</div>
           {valoresUnicos.length > 6 && (
@@ -3403,6 +3403,16 @@ export default function ListaPedidos() {
     if (abaAtiva !== 'todos') {
       resultado = resultado.filter(p => p.status === abaAtiva)
     }
+    // Busca global client-side (em dev o mock ignora o param de busca do servidor)
+    if (busca.trim()) {
+      const termo = busca.trim().toLowerCase()
+      resultado = resultado.filter(p =>
+        [p.numero_pedido, p.exportador_nome, p.fabricante_nome,
+         p.referencia_importador, p.referencia_exportador,
+         p.numero_proforma, p.numero_invoice]
+          .some(v => v != null && String(v).toLowerCase().includes(termo))
+      )
+    }
     if (Object.keys(filtrosAtivos).length === 0) return resultado
     return resultado.filter(p => {
       const row = p as Record<string, unknown>
@@ -3421,7 +3431,7 @@ export default function ListaPedidos() {
       }
       return true
     })
-  }, [pedidos, filtrosAtivos, abaAtiva])
+  }, [pedidos, filtrosAtivos, abaAtiva, busca])
 
   // ── Handlers de filtro ────────────────────────────────────────────────────────
   const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
@@ -3440,19 +3450,18 @@ export default function ListaPedidos() {
     setFiltrosAtivos({})
   }, [])
 
-  // ── Valores únicos por campo (para filtro enum) ───────────────────────────────
+  // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────
   const valoresUnicosPorCampo = useMemo<Record<string, string[]>>(() => {
     const result: Record<string, string[]> = {}
     for (const col of COLUNAS_PAI) {
       if (!col.filtravel) continue
-      const tipo = detectarTipoColuna(col)
-      if (tipo === 'enum') {
-        const vals = new Set<string>()
-        for (const p of pedidos) {
-          vals.add(String((p as Record<string, unknown>)[col.key] ?? ''))
-        }
-        result[col.key] = Array.from(vals).sort()
+      if (detectarTipoColuna(col) === 'numero') continue // range — sem lista
+      const vals = new Set<string>()
+      for (const p of pedidos) {
+        const v = String((p as Record<string, unknown>)[col.key] ?? '').trim()
+        if (v && v !== 'undefined' && v !== 'null') vals.add(v)
       }
+      if (vals.size > 0) result[col.key] = Array.from(vals).sort()
     }
     return result
   }, [pedidos])

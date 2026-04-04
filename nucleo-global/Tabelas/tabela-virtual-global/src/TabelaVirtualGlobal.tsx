@@ -1055,7 +1055,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {colunasFiltradas.map(col => {
             const mapa = mapaColunasFilho[col.key as string]
             const campo = mapa?.campo ?? (col.key as string)
-            const podeEditar = !!mapa?.editavel && !!onEditarFilho
+            const podeEditar = (!!mapa?.editavel || camposEditaveisFilhos.includes(col.key as string)) && !!onEditarFilho
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
@@ -1105,7 +1105,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     onClick={e => e.stopPropagation()}
                   />
                 ) : (
-                  mapa ? mapa.render(item) : null
+                  mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : null)
                 )}
               </div>
             )

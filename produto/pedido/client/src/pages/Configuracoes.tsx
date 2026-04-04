@@ -675,6 +675,9 @@ export default function Configuracoes() {
   }
 
   // ── Regras state ──
+  const [regrasAlterados, setRegrasAlterados] = useState(false)
+  const regrasInicialRef = useRef<RegrasConfig | null>(null)
+
   const [regrasConfig, setRegrasConfig] = useState<RegrasConfig>({
     duplicar: {
       copiarDatas: true,
@@ -699,6 +702,22 @@ export default function Configuracoes() {
       numeroPedidoResultante: 'automatico',
     },
   })
+
+  // Detecta mudanças nas regras (pula a primeira renderização)
+  useEffect(() => {
+    if (regrasInicialRef.current === null) {
+      regrasInicialRef.current = regrasConfig
+      return
+    }
+    setRegrasAlterados(true)
+  }, [regrasConfig]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function salvarRegras() {
+    try {
+      localStorage.setItem('pedido:regras_config', JSON.stringify(regrasConfig))
+      setRegrasAlterados(false)
+    } catch { /* silenciar erros de quota */ }
+  }
 
   const TODOS_STATUS = [
     { id: 'rascunho',     label: 'Rascunho'      },
@@ -765,6 +784,7 @@ export default function Configuracoes() {
     { id: 'aberto',       label: 'Aberto',       cor: '#60a5fa', sistema: false },
     { id: 'em_andamento', label: 'Em Andamento', cor: '#818cf8', sistema: false },
     { id: 'aprovado',     label: 'Aprovado',     cor: '#34d399', sistema: false },
+    { id: 'transferencia',label: 'Transferido',  cor: '#38bdf8', sistema: true  },
     { id: 'consolidado',  label: 'Consolidado',  cor: '#a78bfa', sistema: true  },
     { id: 'cancelado',    label: 'Cancelado',    cor: '#f87171', sistema: false },
   ]
@@ -794,6 +814,26 @@ export default function Configuracoes() {
   const [statusCriando, setStatusCriando] = useState(false)
   const [statusNovoLabel, setStatusNovoLabel] = useState('')
   const [statusNovoCor, setStatusNovoCor] = useState('#818cf8')
+
+  // Garante que o localStorage sempre tem os status (incluindo novos sistema) na primeira visita
+  useEffect(() => {
+    const raw = localStorage.getItem('pedido:status_config')
+    if (!raw) {
+      persistirStatusConfig(STATUS_INICIAIS)
+    } else {
+      // Garante que status de sistema novos (como transferencia) estejam presentes
+      try {
+        const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
+        const faltando = STATUS_INICIAIS.filter(s => !parsed[s.id])
+        if (faltando.length > 0) {
+          const atualizado = { ...parsed }
+          for (const s of faltando) atualizado[s.id] = { label: s.label, cor: s.cor }
+          localStorage.setItem('pedido:status_config', JSON.stringify(atualizado))
+        }
+      } catch { /* ignore */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const statusSensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
@@ -1735,6 +1775,19 @@ export default function Configuracoes() {
                 </div>
               </div>
             </section>
+
+            {/* Botão salvar regras */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.5rem' }}>
+              <button
+                type="button"
+                className="cfg-btn-primario"
+                disabled={!regrasAlterados}
+                onClick={salvarRegras}
+              >
+                <FloppyDisk size={14} weight="bold" />
+                {regrasAlterados ? 'Salvar alterações' : 'Salvo'}
+              </button>
+            </div>
 
           </div>
         )}

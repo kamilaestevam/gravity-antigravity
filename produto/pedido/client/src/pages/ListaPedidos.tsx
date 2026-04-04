@@ -382,10 +382,27 @@ function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 'enum' 
 const ABAS_PADRAO: GTAbaTipo[] = [
   { valor: 'todos',        label: 'Todos'           },
   { valor: 'aberto',       label: 'Aberto'          },
-  { valor: 'transferencia',label: 'Em Transferência'},
+  { valor: 'em_andamento', label: 'Em Andamento'    },
+  { valor: 'aprovado',     label: 'Aprovado'        },
+  { valor: 'transferencia',label: 'Transferido'     },
   { valor: 'consolidado',  label: 'Consolidado'     },
   { valor: 'cancelado',    label: 'Cancelado'       },
 ]
+
+/** Lê abas do localStorage (salvo pelo Configuracoes) */
+function lerAbasDoLocalStorage(): GTAbaTipo[] | null {
+  try {
+    const raw = localStorage.getItem('pedido:status_config')
+    if (!raw) return null
+    const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
+    const entries = Object.entries(parsed)
+    if (entries.length === 0) return null
+    return [
+      { valor: 'todos', label: 'Todos' },
+      ...entries.map(([id, cfg]) => ({ valor: id, label: cfg.label, cor: cfg.cor })),
+    ]
+  } catch { return null }
+}
 
 // ── Colunas pai (Pedido) ──────────────────────────────────────────────────────
 
@@ -503,7 +520,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Valor FOB total na moeda do pedido',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_total_pedido != null
           ? fmtMoeda(row.valor_total_pedido, row.moeda_pedido)
           : '—'}
@@ -521,7 +538,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Quantidade total contratada no pedido',
     largura: 110,
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_total_pedido != null
           ? `${fmtQuantidade(row.quantidade_total_pedido, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
@@ -537,7 +554,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
     largura: 110,
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_inicial_total != null
           ? `${fmtQuantidade(row.quantidade_inicial_total, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
@@ -553,9 +570,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Soma das quantidades prontas/aprovadas para embarque em todos os itens',
     largura: 110,
     render: (_val: unknown, row: Pedido) => {
-      const qtd = row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0) ?? null
+      const qtd = row.quantidade_pronta_total
+        ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0)
+        ?? null
       return (
-        <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {qtd != null
             ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
@@ -572,11 +591,14 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Pronta − Transferida: quantidade fabricada aguardando embarque',
     largura: 130,
     render: (_val: unknown, row: Pedido) => {
-      const pronta = row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0) ?? null
-      const transf = row.quantidade_transferida_total ?? null
-      const qtd = pronta != null && transf != null ? Math.max(0, pronta - transf) : null
+      const qtd = row.quantidade_a_embarcar
+        ?? (() => {
+          const pronta = row.quantidade_pronta_total ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0) ?? null
+          const transf = row.quantidade_transferida_total ?? null
+          return pronta != null && transf != null ? Math.max(0, pronta - transf) : null
+        })()
       return (
-        <span style={{ fontFamily: 'var(--font-mono, monospace)', color: qtd != null && qtd > 0 ? '#fbbf24' : undefined }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#fbbf24' : undefined }}>
           {qtd != null
             ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
@@ -593,11 +615,14 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Total − Transferida: saldo pendente do contrato',
     largura: 130,
     render: (_val: unknown, row: Pedido) => {
-      const total = row.quantidade_total_pedido ?? null
-      const transf = row.quantidade_transferida_total ?? null
-      const qtd = total != null && transf != null ? Math.max(0, total - transf) : null
+      const qtd = row.quantidade_a_entregar
+        ?? (() => {
+          const total = row.quantidade_total_pedido ?? null
+          const transf = row.quantidade_transferida_total ?? null
+          return total != null && transf != null ? Math.max(0, total - transf) : null
+        })()
       return (
-        <span style={{ fontFamily: 'var(--font-mono, monospace)', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
           {qtd != null
             ? `${fmtQuantidade(qtd, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
@@ -614,7 +639,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Histórico: soma das quantidades já transferidas para processos logísticos',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_transferida_total != null
           ? `${fmtQuantidade(row.quantidade_transferida_total, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
@@ -635,7 +660,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
           ? row.quantidade_inicial_total - row.quantidade_transferida_total
           : null
       return (
-        <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {saldo != null
             ? `${fmtQuantidade(saldo, row.casas_decimais_quantidade_total_pedido)} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
@@ -749,7 +774,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_total_pedido != null
           ? `${fmtQuantidade(row.peso_liquido_total_pedido, row.casas_decimais_peso_pedido ?? 3)} kg`
           : '—'}
@@ -768,7 +793,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
     largura: 140,
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_total_pedido != null
           ? `${fmtQuantidade(row.peso_bruto_total_pedido, row.casas_decimais_peso_pedido ?? 3)} kg`
           : '—'}
@@ -787,7 +812,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_total_pedido != null
           ? `${fmtQuantidade(row.cubagem_total_pedido, row.casas_decimais_cubagem_pedido ?? 4)} m³`
           : '—'}
@@ -1295,7 +1320,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Quantidade de Volumes Total do Pedido',
     tooltipDescricao: 'Número total de volumes (caixas, pallets, etc.) do pedido',
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_volumes_pedido != null ? String(row.quantidade_volumes_pedido) : '—'}
       </span>
     ),
@@ -1780,7 +1805,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Quantidade Inicial',
     tooltipDescricao: 'Quantidade original do item — valor imutável',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_inicial, row.casas_decimais_quantidade)}
       </span>
     ),
@@ -1795,8 +1820,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Saldo vivo disponível para alocação em processos logísticos',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
-        fontFamily: 'var(--font-mono, monospace)',
-        fontSize: '0.8125rem',
+        fontVariantNumeric: 'tabular-nums',
         fontWeight: row.quantidade_atual === 0 ? 400 : 600,
         color: row.quantidade_atual === 0 ? 'var(--text-muted)' : 'var(--color-success, #34d399)',
       }}>
@@ -1813,7 +1837,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Quantidade Pronta',
     tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_pronta, row.casas_decimais_quantidade)}
       </span>
     ),
@@ -1827,7 +1851,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Quantidade Transferida',
     tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_transferida, row.casas_decimais_quantidade)}
       </span>
     ),
@@ -1842,8 +1866,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
-        fontFamily: 'var(--font-mono, monospace)',
-        fontSize: '0.8125rem',
+        fontVariantNumeric: 'tabular-nums',
         color: row.quantidade_cancelada > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
       }}>
         {fmtQuantidade(row.quantidade_cancelada, row.casas_decimais_quantidade)}
@@ -1869,7 +1892,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor Unitário',
     tooltipDescricao: 'Valor unitário na moeda do item',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_unitario != null ? fmtMoeda(row.valor_unitario, row.moeda_item) : '—'}
       </span>
     ),
@@ -1884,7 +1907,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor Total do Item',
     tooltipDescricao: 'Valor total do item (valor unitário × quantidade) na moeda do item',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_item != null ? fmtMoeda(row.valor_item, row.moeda_item) : '—'}
       </span>
     ),
@@ -1910,7 +1933,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Sequência do Item',
     tooltipDescricao: 'Número sequencial do item dentro do pedido (conforme invoice)',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.sequencia_item != null ? String(row.sequencia_item).padStart(3, '0') : '—'}
       </span>
     ),
@@ -1945,7 +1968,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Quantidade na Unidade Estatística',
     tooltipDescricao: 'Quantidade do item expressa na unidade estatística exigida pela DUIMP',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_unidade_estatistica != null
           ? `${fmtQuantidade(row.quantidade_unidade_estatistica, row.casas_decimais_unidade_estatistica ?? 2)} ${row.unidade_estatistica ?? ''}`
           : '—'}
@@ -1963,7 +1986,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Peso Líquido Unitário',
     tooltipDescricao: 'Peso líquido unitário do produto, em kg',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
           ? `${fmtQuantidade(row.peso_liquido_unitario, row.casas_decimais_peso ?? 3)} kg`
           : '—'}
@@ -1980,7 +2003,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Peso Bruto Unitário',
     tooltipDescricao: 'Peso bruto unitário incluindo embalagem, em kg',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
           ? `${fmtQuantidade(row.peso_bruto_unitario, row.casas_decimais_peso ?? 3)} kg`
           : '—'}
@@ -1997,7 +2020,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Cubagem Unitária',
     tooltipDescricao: 'Volume unitário do produto, em m³',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
           ? `${fmtQuantidade(row.cubagem_unitaria, row.casas_decimais_cubagem ?? 4)} m³`
           : '—'}
@@ -2754,7 +2777,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor Unitário do Produto — DUIMP',
     tooltipDescricao: 'Valor unitário do produto na moeda declarada na DUIMP',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_unitario_duimp != null ? fmtMoeda(row.valor_unitario_duimp, row.moeda_produto_duimp ?? 'USD') : '—'}
       </span>
     ),
@@ -2769,7 +2792,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor Total na Condição de Venda — DUIMP',
     tooltipDescricao: 'Valor total do item na condição de venda declarada na DUIMP',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_total_condicao_venda_duimp != null ? fmtMoeda(row.valor_total_condicao_venda_duimp, row.moeda_produto_duimp ?? 'USD') : '—'}
       </span>
     ),
@@ -2784,7 +2807,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor na Condição de Venda (R$) — DUIMP',
     tooltipDescricao: 'Valor do item na condição de venda convertido em reais',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_condicao_venda_brl_duimp != null ? fmtMoeda(row.valor_condicao_venda_brl_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2799,7 +2822,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor do Frete Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do frete internacional em reais para fins de valoração aduaneira',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_frete_internacional_brl_duimp != null ? fmtMoeda(row.valor_frete_internacional_brl_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2814,7 +2837,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor do Seguro Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do seguro internacional em reais para fins de valoração aduaneira',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_seguro_internacional_brl_duimp != null ? fmtMoeda(row.valor_seguro_internacional_brl_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2829,7 +2852,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor no Local de Embarque (R$) — DUIMP',
     tooltipDescricao: 'Valor da mercadoria no local de embarque em reais',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_local_embarque_brl_duimp != null ? fmtMoeda(row.valor_local_embarque_brl_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2844,7 +2867,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor Aduaneiro (R$) — DUIMP',
     tooltipDescricao: 'Valor aduaneiro calculado em reais, base para tributos de importação',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_aduaneiro_brl_duimp != null ? fmtMoeda(row.valor_aduaneiro_brl_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2893,7 +2916,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Base de Cálculo do II (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do Imposto de Importação em reais',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.base_calculo_ii_duimp != null ? fmtMoeda(row.base_calculo_ii_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2908,7 +2931,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Alíquota do II (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do Imposto de Importação',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.percentual_ii_duimp != null ? `${fmtQuantidade(row.percentual_ii_duimp, 2)}%` : '—'}
       </span>
     ),
@@ -2923,7 +2946,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor Devido do II (R$) — DUIMP',
     tooltipDescricao: 'Valor total do Imposto de Importação devido',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_devido_ii_duimp != null ? fmtMoeda(row.valor_devido_ii_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2938,7 +2961,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor a Recolher do II (R$) — DUIMP',
     tooltipDescricao: 'Valor efetivo do Imposto de Importação a recolher (deduzidas suspensões)',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_recolher_ii_duimp != null ? fmtMoeda(row.valor_recolher_ii_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2954,7 +2977,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Base de Cálculo do IPI (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do IPI em reais',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.base_calculo_ipi_duimp != null ? fmtMoeda(row.base_calculo_ipi_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -2969,7 +2992,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Alíquota do IPI (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do IPI',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.percentual_ipi_duimp != null ? `${fmtQuantidade(row.percentual_ipi_duimp, 2)}%` : '—'}
       </span>
     ),
@@ -2984,7 +3007,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor a Recolher do IPI (R$) — DUIMP',
     tooltipDescricao: 'Valor do IPI a recolher',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_recolher_ipi_duimp != null ? fmtMoeda(row.valor_recolher_ipi_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -3000,7 +3023,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Base de Cálculo do PIS (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do PIS/PASEP em reais',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.base_calculo_pis_duimp != null ? fmtMoeda(row.base_calculo_pis_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -3015,7 +3038,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Alíquota do PIS (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do PIS/PASEP',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.percentual_pis_duimp != null ? `${fmtQuantidade(row.percentual_pis_duimp, 2)}%` : '—'}
       </span>
     ),
@@ -3030,7 +3053,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor a Recolher do PIS (R$) — DUIMP',
     tooltipDescricao: 'Valor do PIS/PASEP a recolher',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_recolher_pis_duimp != null ? fmtMoeda(row.valor_recolher_pis_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -3046,7 +3069,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Base de Cálculo do COFINS (R$) — DUIMP',
     tooltipDescricao: 'Base de cálculo do COFINS em reais',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.base_calculo_cofins_duimp != null ? fmtMoeda(row.base_calculo_cofins_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -3061,7 +3084,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Alíquota do COFINS (%) — DUIMP',
     tooltipDescricao: 'Percentual de alíquota do COFINS',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.percentual_cofins_duimp != null ? `${fmtQuantidade(row.percentual_cofins_duimp, 2)}%` : '—'}
       </span>
     ),
@@ -3076,7 +3099,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipTitulo: 'Valor a Recolher do COFINS (R$) — DUIMP',
     tooltipDescricao: 'Valor do COFINS a recolher',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_recolher_cofins_duimp != null ? fmtMoeda(row.valor_recolher_cofins_duimp, 'BRL') : '—'}
       </span>
     ),
@@ -3139,8 +3162,8 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
 
 const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   numero_pedido: {
-    render: (row) => (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.71875rem', fontWeight: 500 }}>
+    render: (row: PedidoItem) => (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
         <span style={{ color: 'var(--gtv-muted, #64748b)', fontVariantNumeric: 'tabular-nums', minWidth: '18px', textAlign: 'right', flexShrink: 0 }}>
           {row.sequencia_item ?? '—'}.
         </span>
@@ -3151,15 +3174,15 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     ),
   },
   valor_total_pedido: {
-    render: (row) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_item != null ? fmtMoeda(row.valor_item, row.moeda_item) : '—'}
       </span>
     ),
   },
   quantidade_total_pedido: {
-    render: (row) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
         {fmtQuantidade(row.quantidade_atual, row.casas_decimais_quantidade)}
       </span>
     ),
@@ -3167,8 +3190,8 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   quantidade_inicial_total: {
     editavel: true,
     campo: 'quantidade_inicial',
-    render: (row) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_inicial, row.casas_decimais_quantidade)}
       </span>
     ),
@@ -3176,17 +3199,26 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   quantidade_transferida_total: {
     editavel: true,
     campo: 'quantidade_transferida',
-    render: (row) => (
-      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_transferida, row.casas_decimais_quantidade)}
       </span>
     ),
   },
+  quantidade_pronta_total: {
+    editavel: true,
+    campo: 'quantidade_pronta',
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {fmtQuantidade(row.quantidade_pronta ?? 0, row.casas_decimais_quantidade)}
+      </span>
+    ),
+  },
   saldo_quantidade: {
-    render: (row) => {
+    render: (row: PedidoItem) => {
       const saldo = row.quantidade_inicial - row.quantidade_transferida
       return (
-        <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {fmtQuantidade(saldo, row.casas_decimais_quantidade)}
         </span>
       )
@@ -3336,13 +3368,6 @@ export default function ListaPedidos() {
     return [...COLUNAS_PAI, ...custom]
   }, [colunasUsuario])
 
-  // ── Drawer criar/editar ───────────────────────────────────────────────────────
-  const [drawerAberto, setDrawerAberto]             = useState(false)
-  const [pedidoEditandoId, setPedidoEditandoId]     = useState<string | undefined>(undefined)
-
-  // ── Smart Import ──────────────────────────────────────────────────────────────
-  const [smartImportAberto, setSmartImportAberto]   = useState(false)
-
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
   const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
@@ -3357,8 +3382,13 @@ export default function ListaPedidos() {
 
   // ── Pedidos filtrados (client-side) ───────────────────────────────────────────
   const pedidosFiltrados = useMemo<Pedido[]>(() => {
-    if (Object.keys(filtrosAtivos).length === 0) return pedidos
-    return pedidos.filter(p => {
+    let resultado = pedidos
+    // Filtro por aba de status (client-side para dev/mock; produção filtra no servidor)
+    if (abaAtiva !== 'todos') {
+      resultado = resultado.filter(p => p.status === abaAtiva)
+    }
+    if (Object.keys(filtrosAtivos).length === 0) return resultado
+    return resultado.filter(p => {
       const row = p as Record<string, unknown>
       for (const [campo, filtro] of Object.entries(filtrosAtivos)) {
         const val = row[campo]
@@ -3375,7 +3405,7 @@ export default function ListaPedidos() {
       }
       return true
     })
-  }, [pedidos, filtrosAtivos])
+  }, [pedidos, filtrosAtivos, abaAtiva])
 
   // ── Handlers de filtro ────────────────────────────────────────────────────────
   const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
@@ -3438,6 +3468,10 @@ export default function ListaPedidos() {
 
   // ── Carregar status e preferências ──────────────────────────────────────────
   useEffect(() => {
+    // Inicializar abas do localStorage imediatamente (enquanto API carrega)
+    const abasLocal = lerAbasDoLocalStorage()
+    if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
+
     pedidoConfigApi.listarStatus()
       .then(res => {
         if (res.data.length > 0) {
@@ -3451,26 +3485,16 @@ export default function ListaPedidos() {
                 cor: s.cor,
               })),
           ]
-          setAbas(abasApi)
+          // Mescla com extras do localStorage (status criados pelo usuário)
+          const idsApi = new Set(abasApi.map(a => a.valor))
+          const extras = (abasLocal ?? []).filter(a => a.valor !== 'todos' && !idsApi.has(a.valor))
+          setAbas([...abasApi, ...extras])
         }
       })
       .catch(() => {
-        // Tentar ler do localStorage (salvo pelo Configuracoes)
-        try {
-          const raw = localStorage.getItem('pedido:status_config')
-          if (raw) {
-            const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
-            const abasLocal: GTAbaTipo[] = [
-              { valor: 'todos', label: 'Todos' },
-              ...Object.entries(parsed).map(([id, cfg]) => ({
-                valor: id,
-                label: cfg.label,
-                cor: cfg.cor,
-              })),
-            ]
-            if (abasLocal.length > 1) setAbas(abasLocal)
-          }
-        } catch { /* manter ABAS_PADRAO */ }
+        // Fallback: usar dados do localStorage ou ABAS_PADRAO
+        if (!abasLocal || abasLocal.length <= 1) return
+        setAbas(abasLocal)
       })
 
     pedidoConfigApi.getPreferenciasUsuario()
@@ -4152,9 +4176,26 @@ export default function ListaPedidos() {
             'numero_proforma',
             'numero_invoice',
             'incoterm',
+            'valor_total_pedido',
+            'quantidade_total_pedido',
+            'quantidade_inicial_total',
+            'quantidade_pronta_total',
+            'quantidade_a_embarcar',
+            'quantidade_a_entregar',
+            'quantidade_transferida_total',
+            'moeda_pedido',
+            'unidade_comercializada_pedido',
+            'cobertura_cambial',
+            'condicao_pagamento',
           ]}
           onEditar={handleEditar}
 
+          camposEditaveisFilhos={[
+            'quantidade_inicial_total',
+            'quantidade_transferida_total',
+            'quantidade_pronta_total',
+            'valor_total_pedido',
+          ]}
           onEditarFilho={handleEditarFilho}
 
           onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}

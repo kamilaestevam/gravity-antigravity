@@ -712,7 +712,7 @@
 }
 
 .gtv-linha--filho .gtv-celula {
-  font-size: 0.78125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--gtv-text);
 }
@@ -749,8 +749,9 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  font-size: 0.78125rem;
+  font-size: 0.875rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 .gtv-celula--check {

@@ -322,6 +322,9 @@ export interface Pedido {
   // Agregados de itens (soma calculada pelo backend)
   quantidade_inicial_total?: number | null
   quantidade_transferida_total?: number | null
+  quantidade_pronta_total?: number | null
+  quantidade_a_embarcar?: number | null
+  quantidade_a_entregar?: number | null
 
   // Catálogo
   partnumber_produto_pedido?: string | null

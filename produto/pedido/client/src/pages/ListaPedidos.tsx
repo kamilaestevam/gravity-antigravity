@@ -4000,7 +4000,8 @@ export default function ListaPedidos() {
   ]
 
   // ── Config de exportação (lida do localStorage — mesmas preferências de Configurações) ──
-  const exportConfig = useMemo(() => {
+  // ── Lê config de exportação fresco no momento do clique (não cache stale) ──
+  function lerExportConfig() {
     try {
       const raw = localStorage.getItem('pedido:export_config')
       if (raw) return JSON.parse(raw) as {
@@ -4013,38 +4014,30 @@ export default function ListaPedidos() {
       }
     } catch { /* ignore */ }
     return { formatoPadrao: 'xlsx' as const, incluirColunasUsuario: true, incluirItens: true, apenasSelection: false, incluirCabecalho: true, separadorCsv: 'ponto-virgula' as const }
-  }, [])
+  }
 
-  // ── Ações de exportação (client-side) ────────────────────────────────────────
-  const acoesExportacao = useMemo((): GTAcaoExport[] => {
-    // Decide quais pedidos exportar
-    const base = exportConfig.apenasSelection && pedidosSelecionados.length > 0
+  function buildDadosExport() {
+    const cfg = lerExportConfig()
+    const base = cfg.apenasSelection && pedidosSelecionados.length > 0
       ? pedidosSelecionados
       : pedidosFiltrados
 
-    // Colunas: padrão + colunas do usuário (se config habilitada)
     const colunasExport: ColunasExport[] = [
       ...COLUNAS_EXPORT,
-      ...(exportConfig.incluirColunasUsuario
-        ? colunasUsuario.map(c => ({ header: c.rotulo, key: c.campo, largura: 18 }))
+      ...(cfg.incluirColunasUsuario
+        ? colunasUsuario.map(c => ({ header: c.nome, key: c.chave, largura: 18 }))
         : []),
     ]
 
-    // Separa CSV
     const sepMap = { virgula: ',' as const, 'ponto-virgula': ';' as const, tab: '\t' as const }
-    const sep = sepMap[exportConfig.separadorCsv] ?? ','
-    const opcoesCsv = { nomeArquivo: 'pedidos', semCabecalho: !exportConfig.incluirCabecalho, separadorCsv: sep }
-    const opcoesBase = { nomeArquivo: 'pedidos', titulo: 'Pedidos' }
+    const sep = sepMap[cfg.separadorCsv] ?? ','
 
-    // Flatten: pedidos + itens (se config habilitada)
     let dados: Record<string, unknown>[]
-    if (exportConfig.incluirItens) {
+    if (cfg.incluirItens) {
       dados = base.flatMap(p => {
         const pai = p as unknown as Record<string, unknown>
-        const itens = (p.itens ?? []).map(i => ({
+        const itensDoPedido = (p.itens ?? []).map(i => ({
           ...pai,
-          // sobrescreve com campos do item
-          numero_pedido: p.numero_pedido,
           part_number: i.part_number,
           descricao: i.descricao,
           ncm: i.ncm,
@@ -4054,42 +4047,60 @@ export default function ListaPedidos() {
           valor_item: i.valor_item,
           moeda_item: i.moeda_item,
           unidade_item: i.unidade_comercializada_item,
-          _is_item: true,
         }))
-        return itens.length > 0 ? [pai, ...itens] : [pai]
+        return itensDoPedido.length > 0 ? [pai, ...itensDoPedido] : [pai]
       })
     } else {
       dados = base as unknown as Record<string, unknown>[]
     }
 
-    return [
-      {
-        label: 'Excel (.xlsx)',
-        icone: <DownloadSimple size={15} weight="duotone" />,
-        onClick: () => exportarExcel(dados, colunasExport, opcoesBase),
+    return { cfg, dados, colunasExport, sep }
+  }
+
+  // ── Ações de exportação (client-side) ────────────────────────────────────────
+  const acoesExportacao = useMemo((): GTAcaoExport[] => [
+    {
+      label: 'Excel (.xlsx)',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: () => {
+        const { dados, colunasExport } = buildDadosExport()
+        exportarExcel(dados, colunasExport, { nomeArquivo: 'pedidos', titulo: 'Pedidos' })
       },
-      {
-        label: 'CSV',
-        icone: <DownloadSimple size={15} weight="duotone" />,
-        onClick: () => exportarCSV(dados, colunasExport, opcoesCsv),
+    },
+    {
+      label: 'CSV',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: () => {
+        const { cfg, dados, colunasExport, sep } = buildDadosExport()
+        exportarCSV(dados, colunasExport, { nomeArquivo: 'pedidos', semCabecalho: !cfg.incluirCabecalho, separadorCsv: sep })
       },
-      {
-        label: 'TXT',
-        icone: <DownloadSimple size={15} weight="duotone" />,
-        onClick: () => exportarTXT(dados, colunasExport, { nomeArquivo: 'pedidos', semCabecalho: !exportConfig.incluirCabecalho }),
+    },
+    {
+      label: 'TXT',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: () => {
+        const { cfg, dados, colunasExport } = buildDadosExport()
+        exportarTXT(dados, colunasExport, { nomeArquivo: 'pedidos', semCabecalho: !cfg.incluirCabecalho })
       },
-      {
-        label: 'XML',
-        icone: <DownloadSimple size={15} weight="duotone" />,
-        onClick: () => exportarXML(dados, colunasExport, { nomeArquivo: 'pedidos' }),
+    },
+    {
+      label: 'XML',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: () => {
+        const { dados, colunasExport } = buildDadosExport()
+        exportarXML(dados, colunasExport, { nomeArquivo: 'pedidos' })
       },
-      {
-        label: 'JSON',
-        icone: <DownloadSimple size={15} weight="duotone" />,
-        onClick: () => exportarJSON(dados, colunasExport, { nomeArquivo: 'pedidos' }),
+    },
+    {
+      label: 'JSON',
+      icone: <DownloadSimple size={15} weight="duotone" />,
+      onClick: () => {
+        const { dados, colunasExport } = buildDadosExport()
+        exportarJSON(dados, colunasExport, { nomeArquivo: 'pedidos' })
       },
-    ]
-  }, [pedidos, pedidosFiltrados, pedidosSelecionados, colunasUsuario, exportConfig])
+    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [pedidos, pedidosFiltrados, pedidosSelecionados, colunasUsuario])
 
   // ── Stats para KPIs ──────────────────────────────────────────────────────────
   const valorTotal    = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
@@ -4394,9 +4405,9 @@ export default function ListaPedidos() {
                 variante="secundario"
                 tamanho="pequeno"
                 icone={<PlusCircle size={14} weight="duotone" />}
-                onClick={() => setModalNovaColunaAberto(true)}
+                onClick={() => navigate('/configuracoes?tab=colunas')}
                 tooltipTitulo="Nova Coluna"
-                tooltipDescricao="Adiciona um campo personalizado à tabela de pedidos"
+                tooltipDescricao="Gerenciar colunas personalizadas em Configurações"
               >
                 Nova Coluna
               </BotaoGlobal>
@@ -4524,7 +4535,7 @@ export default function ListaPedidos() {
           }
 
           rowHeight={44}
-          childRowHeight={36}
+          childRowHeight={44}
           overscan={6}
           ariaLabel="Lista de pedidos"
         />

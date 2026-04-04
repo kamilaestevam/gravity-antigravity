@@ -1293,6 +1293,7 @@ ${tpl ? `<p><strong>Conteúdo do template:</strong></p><pre>${tpl.conteudo.repla
   return {
     url_download: URL.createObjectURL(blob),
     anexo_id: anexoId,
+    is_pdf: false,
   }
 }
 

@@ -159,16 +159,16 @@ function FiltroPopoverColuna({
 }: FiltroPopoverColunaProps) {
   const ref = useRef<HTMLDivElement>(null)
 
-  // Calcular posição abaixo do âncora
   const [pos, setPos] = React.useState({ top: 0, left: 0 })
   useEffect(() => {
     if (anchorRef.current) {
       const rect = anchorRef.current.getBoundingClientRect()
-      setPos({ top: rect.bottom + 6, left: Math.max(8, rect.left - 20) })
+      const left = Math.max(8, rect.left - 20)
+      const top = rect.bottom + 6
+      setPos({ top, left })
     }
   }, [anchorRef])
 
-  // Fechar ao clicar fora
   useEffect(() => {
     function fora(e: MouseEvent) {
       if (
@@ -184,7 +184,6 @@ function FiltroPopoverColuna({
     return () => document.removeEventListener('mousedown', fora)
   }, [onFechar, anchorRef])
 
-  // Estado local do popover
   const [textoLocal, setTextoLocal] = React.useState(
     filtroAtual?.tipo === 'texto' ? filtroAtual.valor : '',
   )
@@ -240,127 +239,130 @@ function FiltroPopoverColuna({
   return (
     <div
       ref={ref}
-      className="lp-filtro-popover"
-      style={{ top: pos.top, left: pos.left }}
+      className="gtv-export-menu"
+      style={{
+        position: 'fixed',
+        top: pos.top,
+        left: pos.left,
+        minWidth: 230,
+        maxWidth: 290,
+        padding: 0,
+        zIndex: 9999,
+      }}
       role="dialog"
       aria-label={`Filtrar coluna ${label}`}
     >
-      {/* Nome da coluna */}
+      {/* Cabeçalho — nome da coluna */}
       <div className="lp-filtro-coluna-nome">{label.toUpperCase()}</div>
 
-      {/* Seção Ordenar */}
-      <div className="lp-filtro-section">
-        <span className="lp-filtro-section-title">ORDENAR</span>
-        <div className="lp-filtro-sort-btns">
-          <button
-            className="lp-filtro-sort-btn"
-            onClick={() => { onOrdenar(campo, 'asc'); onFechar() }}
-            title="Ordem crescente"
-          >
-            <ArrowUp size={12} weight="bold" />
-            Cresc.
-          </button>
-          <button
-            className="lp-filtro-sort-btn"
-            onClick={() => { onOrdenar(campo, 'desc'); onFechar() }}
-            title="Ordem decrescente"
-          >
-            <ArrowDown size={12} weight="bold" />
-            Decresc.
-          </button>
-        </div>
+      {/* Ordenar */}
+      <div className="gtv-col-acoes" style={{ flexDirection: 'row', gap: '0.25rem', padding: '0.375rem 0.5rem' }}>
+        <button
+          type="button"
+          className="gtv-col-acao-btn"
+          style={{ flex: 1, justifyContent: 'center' }}
+          onClick={() => { onOrdenar(campo, 'asc'); onFechar() }}
+        >
+          <ArrowUp size={11} weight="bold" /> Cresc.
+        </button>
+        <button
+          type="button"
+          className="gtv-col-acao-btn"
+          style={{ flex: 1, justifyContent: 'center' }}
+          onClick={() => { onOrdenar(campo, 'desc'); onFechar() }}
+        >
+          <ArrowDown size={11} weight="bold" /> Decresc.
+        </button>
       </div>
 
-      <div className="lp-filtro-divider" />
+      <div style={{ height: 1, background: 'var(--gtv-border, rgba(255,255,255,0.07))' }} />
 
-      {/* Seção Filtrar */}
+      {/* Filtrar por — texto */}
       {tipo === 'texto' && (
-        <div className="lp-filtro-section">
-          <span className="lp-filtro-section-title">FILTRAR POR</span>
-          <input
-            className="lp-filtro-input"
-            type="text"
-            placeholder="Buscar..."
-            value={textoLocal}
-            onChange={e => setTextoLocal(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') aplicar() }}
-            autoFocus
-          />
+        <div style={{ padding: '0.375rem 0.5rem' }}>
+          <div className="lp-filtro-section-title">FILTRAR POR</div>
+          <div className="gtv-col-busca" style={{ borderRadius: '6px', marginTop: '0.25rem' }}>
+            <input
+              type="text"
+              className="gtv-col-busca-input"
+              placeholder="Buscar..."
+              value={textoLocal}
+              onChange={e => setTextoLocal(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') aplicar() }}
+              autoFocus
+            />
+          </div>
         </div>
       )}
 
+      {/* Filtrar por — enum (checkboxes) */}
       {tipo === 'enum' && (
-        <div className="lp-filtro-section">
-          <span className="lp-filtro-section-title">FILTRAR POR</span>
+        <div style={{ padding: '0.375rem 0.5rem' }}>
+          <div className="lp-filtro-section-title">FILTRAR POR</div>
           {valoresUnicos.length > 6 && (
-            <input
-              className="lp-filtro-input"
-              type="text"
-              placeholder="Buscar..."
-              value={enumBusca}
-              onChange={e => setEnumBusca(e.target.value)}
-            />
+            <div className="gtv-col-busca" style={{ borderRadius: '6px', margin: '0.25rem 0' }}>
+              <input
+                type="text"
+                className="gtv-col-busca-input"
+                placeholder="Buscar..."
+                value={enumBusca}
+                onChange={e => setEnumBusca(e.target.value)}
+              />
+            </div>
           )}
-          <div className="lp-filtro-enum-list">
-            {valoresFiltrados.map(v => (
-              <label key={v} className="lp-filtro-enum-item">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem', maxHeight: 168, overflowY: 'auto', padding: '0.25rem 0' }}>
+            {valoresFiltrados.length > 0 ? valoresFiltrados.map(v => (
+              <label
+                key={v}
+                className="gtv-export-item"
+                style={{ cursor: 'pointer', gap: '0.5rem', padding: '0.3rem 0.5rem', borderRadius: '6px' }}
+              >
                 <input
                   type="checkbox"
                   checked={enumLocal.has(v)}
+                  style={{ accentColor: 'var(--gtv-accent, #818cf8)', cursor: 'pointer', flexShrink: 0 }}
                   onChange={() => {
                     const novo = new Set(enumLocal)
                     if (novo.has(v)) novo.delete(v)
                     else novo.add(v)
                     setEnumLocal(novo)
-                    // auto-aplica imediatamente no enum
-                    const novofiltro = novo.size > 0 ? new Set(novo) : undefined
-                    if (novofiltro && novofiltro.size > 0) {
-                      onAplicar(campo, { tipo: 'enum', valor: novofiltro })
-                    } else {
-                      onLimpar(campo)
-                    }
+                    if (novo.size > 0) onAplicar(campo, { tipo: 'enum', valor: novo })
+                    else onLimpar(campo)
                   }}
                 />
-                <span>{v || '(vazio)'}</span>
+                <span style={{ fontSize: '0.8125rem' }}>{v || '(vazio)'}</span>
               </label>
-            ))}
-            {valoresFiltrados.length === 0 && (
-              <span className="lp-filtro-empty">Nenhum valor encontrado</span>
+            )) : (
+              <div className="gtv-col-vazio">Nenhum valor encontrado</div>
             )}
           </div>
         </div>
       )}
 
+      {/* Filtrar por — intervalo numérico */}
       {tipo === 'numero' && (
-        <div className="lp-filtro-section">
-          <span className="lp-filtro-section-title">Intervalo</span>
-          <div className="lp-filtro-range">
-            <input
-              className="lp-filtro-input lp-filtro-input--half"
-              type="number"
-              placeholder="Mín"
-              value={minLocal}
-              onChange={e => setMinLocal(e.target.value)}
-            />
-            <span className="lp-filtro-range-sep">—</span>
-            <input
-              className="lp-filtro-input lp-filtro-input--half"
-              type="number"
-              placeholder="Máx"
-              value={maxLocal}
-              onChange={e => setMaxLocal(e.target.value)}
-            />
+        <div style={{ padding: '0.375rem 0.5rem' }}>
+          <div className="lp-filtro-section-title">INTERVALO</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.25rem' }}>
+            <div className="gtv-col-busca" style={{ borderRadius: '6px', flex: 1 }}>
+              <input type="number" className="gtv-col-busca-input" placeholder="Mín" value={minLocal} onChange={e => setMinLocal(e.target.value)} />
+            </div>
+            <span style={{ color: 'var(--gtv-muted, #64748b)', fontSize: '0.75rem', flexShrink: 0 }}>—</span>
+            <div className="gtv-col-busca" style={{ borderRadius: '6px', flex: 1 }}>
+              <input type="number" className="gtv-col-busca-input" placeholder="Máx" value={maxLocal} onChange={e => setMaxLocal(e.target.value)} />
+            </div>
           </div>
         </div>
       )}
 
-      {/* Ações — Aplicar só aparece para texto e número */}
-      <div className="lp-filtro-acoes">
-        <button className="lp-filtro-btn-limpar" onClick={limpar}>
+      {/* Footer */}
+      <div style={{ height: 1, background: 'var(--gtv-border, rgba(255,255,255,0.07))' }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.375rem 0.5rem' }}>
+        <button type="button" className="gtv-col-acao-btn gtv-col-acao-btn--reset" onClick={limpar}>
           × Limpar filtro
         </button>
         {(tipo === 'texto' || tipo === 'numero') && (
-          <button className="lp-filtro-btn-aplicar" onClick={aplicar}>
+          <button type="button" className="gtv-btn gtv-btn--ativo" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }} onClick={aplicar}>
             Aplicar
           </button>
         )}
@@ -3150,6 +3152,12 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
 ]
 
+// ── Campos editáveis (todos exceto Saldo, que é derivado) ────────────────────
+
+const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
+  .filter(c => c.key !== 'saldo_quantidade')
+  .map(c => c.key)
+
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
 // As linhas de item usam as mesmas colunas do pedido pai para alinhamento perfeito.
 // Colunas sem mapeamento ficam vazias na linha do item.
@@ -3162,6 +3170,8 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
 
 const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   numero_pedido: {
+    editavel: true,
+    campo: 'part_number',
     render: (row: PedidoItem) => (
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
         <span style={{ color: 'var(--gtv-muted, #64748b)', fontVariantNumeric: 'tabular-nums', minWidth: '18px', textAlign: 'right', flexShrink: 0 }}>
@@ -3174,6 +3184,8 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     ),
   },
   valor_total_pedido: {
+    editavel: true,
+    campo: 'valor_item',
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_item != null ? fmtMoeda(row.valor_item, row.moeda_item) : '—'}
@@ -3181,6 +3193,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     ),
   },
   quantidade_total_pedido: {
+    // Saldo Atual — não editável (campo derivado)
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
         {fmtQuantidade(row.quantidade_atual, row.casas_decimais_quantidade)}
@@ -4167,34 +4180,15 @@ export default function ListaPedidos() {
           sortCampo={sortCampo}
           sortDir={sortDir}
 
-          camposEditaveis={[
-            'numero_pedido',
-            'exportador_nome',
-            'fabricante_nome',
-            'referencia_importador',
-            'referencia_exportador',
-            'numero_proforma',
-            'numero_invoice',
-            'incoterm',
-            'valor_total_pedido',
-            'quantidade_total_pedido',
-            'quantidade_inicial_total',
-            'quantidade_pronta_total',
-            'quantidade_a_embarcar',
-            'quantidade_a_entregar',
-            'quantidade_transferida_total',
-            'moeda_pedido',
-            'unidade_comercializada_pedido',
-            'cobertura_cambial',
-            'condicao_pagamento',
-          ]}
+          camposEditaveis={CAMPOS_EDITAVEIS_PAI}
           onEditar={handleEditar}
 
           camposEditaveisFilhos={[
+            'numero_pedido',
+            'valor_total_pedido',
             'quantidade_inicial_total',
             'quantidade_transferida_total',
             'quantidade_pronta_total',
-            'valor_total_pedido',
           ]}
           onEditarFilho={handleEditarFilho}
 

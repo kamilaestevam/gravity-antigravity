@@ -705,10 +705,12 @@
 
 .gtv-linha--pai {
   cursor: pointer;
+  min-height: 44px;
 }
 
 .gtv-linha--filho {
   background: var(--gtv-bg-filho);
+  min-height: 44px;
 }
 
 .gtv-linha--filho .gtv-celula {
@@ -960,6 +962,47 @@
 /* Body */
 .gtv-edit-popover-body {
   padding: 0.75rem 0.875rem 0.625rem;
+}
+
+/* ── Modo lista de opções ────────────────────────────────────────────────────── */
+
+.gtv-edit-popover-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gtv-edit-popover-opcao {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.4375rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gtv-text, #e2e8f0);
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.gtv-edit-popover-opcao:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.gtv-edit-popover-opcao--ativo {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.gtv-edit-popover-opcao--ativo:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.22);
+}
+
+.gtv-edit-popover-footer--hidden {
+  display: none;
 }
 
 .gtv-edit-popover-input {
@@ -1584,4 +1627,36 @@ body.light-theme .gtv-dropdown-filho-item:hover {
 
 body.light-theme .gtv-linha--filho-selecionada {
   background: rgba(79, 70, 229, 0.05);
+}
+
+/* ── Drag de cabeçalho ────────────────────────────────────────────────────── */
+
+.gtv-th--drop-before {
+  position: relative;
+}
+.gtv-th--drop-before::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: #14b8a6;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.gtv-th--drop-after {
+  position: relative;
+}
+.gtv-th--drop-after::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: #14b8a6;
+  border-radius: 2px;
+  pointer-events: none;
 }

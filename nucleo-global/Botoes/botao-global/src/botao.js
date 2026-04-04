@@ -29,9 +29,10 @@ export const BotaoGlobal = React.forwardRef(function BotaoGlobal({ variante = 'p
         blocoCompleto ? 'gb-btn--bloco' : '',
         centralizado ? 'gb-btn--centralizado' : '',
         icone ? 'gb-btn--com-icone' : '',
+        icone && !children ? 'gb-btn--so-icone' : '',
         className,
     ]
         .filter(Boolean)
         .join(' ');
-    return (_jsxs("button", { ref: ref, type: type, className: classes, ...rest, children: [icone && (_jsx("span", { className: "gb-btn__icon-badge", "aria-hidden": "true", children: icone })), children, iconeDireita && (_jsx("span", { className: "gb-btn__icon-direita", "aria-hidden": "true", children: iconeDireita }))] }));
+    return (_jsxs("button", { ref: ref, type: type, className: classes, ...rest, children: [icone && !children && (_jsx("span", { className: "gb-btn__icon-only", "aria-hidden": "true", children: icone })), icone && children && (_jsx("span", { className: "gb-btn__icon-badge", "aria-hidden": "true", children: icone })), children, iconeDireita && (_jsx("span", { className: "gb-btn__icon-direita", "aria-hidden": "true", children: iconeDireita }))] }));
 });

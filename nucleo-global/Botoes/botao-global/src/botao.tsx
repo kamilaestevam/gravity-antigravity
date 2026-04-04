@@ -45,6 +45,7 @@ export const BotaoGlobal = React.forwardRef<HTMLButtonElement, BotaoProps>(
       blocoCompleto ? 'gb-btn--bloco' : '',
       centralizado ? 'gb-btn--centralizado' : '',
       icone ? 'gb-btn--com-icone' : '',
+      icone && !children ? 'gb-btn--so-icone' : '',
       className,
     ]
       .filter(Boolean)
@@ -52,8 +53,14 @@ export const BotaoGlobal = React.forwardRef<HTMLButtonElement, BotaoProps>(
 
     return (
       <button ref={ref} type={type} className={classes} {...rest}>
-        {/* Ícone dentro de badge circular embutido */}
-        {icone && (
+        {/* Icon-only: sem badge, ícone direto centralizado no botão */}
+        {icone && !children && (
+          <span className="gb-btn__icon-only" aria-hidden="true">
+            {icone}
+          </span>
+        )}
+        {/* Com texto: ícone dentro de badge circular embutido */}
+        {icone && children && (
           <span className="gb-btn__icon-badge" aria-hidden="true">
             {icone}
           </span>

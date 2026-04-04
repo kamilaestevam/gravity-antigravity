@@ -99,3 +99,292 @@
   flex-wrap: wrap;
 }
 
+/* ── Chips de filtros ativos ──────────────────────────────────────────────── */
+
+.lp-filtros-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0;
+}
+
+.lp-filtro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem 0.2rem 0.625rem;
+  border-radius: 9999px;
+  background: rgba(129, 140, 248, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  font-size: 0.71875rem;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
+.lp-filtro-chip-label {
+  color: rgba(129, 140, 248, 0.75);
+  font-weight: 500;
+}
+
+.lp-filtro-chip-valor {
+  color: #818cf8;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+  white-space: nowrap;
+}
+
+.lp-filtro-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  background: none;
+  border: none;
+  color: #818cf8;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+.lp-filtro-chip-remove:hover {
+  opacity: 1;
+  background: rgba(129, 140, 248, 0.2);
+}
+
+.lp-filtros-limpar-tudo {
+  background: none;
+  border: none;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  font-size: 0.71875rem;
+  text-decoration: underline;
+  padding: 0 0.25rem;
+  white-space: nowrap;
+}
+
+.lp-filtros-limpar-tudo:hover {
+  color: var(--text-secondary, #94a3b8);
+}
+
+/* ── Barra de filtros por coluna ─────────────────────────────────────────── */
+
+.lp-filtro-barra {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  max-width: 640px;
+}
+
+.lp-filtro-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.3125rem;
+  background: var(--bg-surface-raised, rgba(255,255,255,0.04));
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.08));
+  color: var(--text-muted, #64748b);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.lp-filtro-trigger:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+  color: var(--text-secondary, #94a3b8);
+}
+
+.lp-filtro-trigger--ativo {
+  background: rgba(129, 140, 248, 0.12);
+  border-color: rgba(129, 140, 248, 0.4);
+  color: #818cf8;
+}
+
+/* ── Popover de filtro ───────────────────────────────────────────────────── */
+
+.lp-filtro-popover {
+  position: fixed;
+  z-index: 9999;
+  min-width: 220px;
+  max-width: 280px;
+  background: var(--bg-surface, #1e2531);
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.1));
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.25);
+  padding: 0.625rem 0;
+  animation: lp-popover-in 0.12s ease;
+}
+
+@keyframes lp-popover-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+.lp-filtro-section {
+  padding: 0.375rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.lp-filtro-section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #64748b);
+}
+
+.lp-filtro-divider {
+  height: 1px;
+  background: var(--border-subtle, rgba(255,255,255,0.07));
+  margin: 0.25rem 0;
+}
+
+.lp-filtro-sort-btns {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.lp-filtro-sort-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.3125rem 0.5rem;
+  border-radius: 0.3125rem;
+  background: var(--bg-base, rgba(255,255,255,0.03));
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.08));
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.lp-filtro-sort-btn:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+  color: #818cf8;
+}
+
+.lp-filtro-input {
+  width: 100%;
+  padding: 0.3125rem 0.5rem;
+  background: var(--bg-base, rgba(255,255,255,0.04));
+  border: 1px solid var(--border-subtle, rgba(255,255,255,0.1));
+  border-radius: 0.3125rem;
+  color: var(--text-primary, #e2e8f0);
+  font-size: 0.8125rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.lp-filtro-input:focus {
+  border-color: rgba(129, 140, 248, 0.5);
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.1);
+}
+
+.lp-filtro-input--half {
+  width: calc(50% - 0.375rem);
+}
+
+.lp-filtro-range {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.lp-filtro-range-sep {
+  color: var(--text-muted, #64748b);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.lp-filtro-enum-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 0.125rem 0;
+}
+
+.lp-filtro-enum-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.lp-filtro-enum-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lp-filtro-enum-item input[type="checkbox"] {
+  accent-color: #818cf8;
+  cursor: pointer;
+}
+
+.lp-filtro-empty {
+  font-size: 0.75rem;
+  color: var(--text-muted, #64748b);
+  padding: 0.25rem;
+}
+
+.lp-filtro-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem 0.25rem;
+  border-top: 1px solid var(--border-subtle, rgba(255,255,255,0.07));
+  margin-top: 0.25rem;
+}
+
+.lp-filtro-btn-limpar {
+  background: none;
+  border: none;
+  color: var(--text-muted, #64748b);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
+  transition: color 0.15s;
+}
+
+.lp-filtro-btn-limpar:hover {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.lp-filtro-btn-aplicar {
+  background: rgba(129, 140, 248, 0.15);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  color: #818cf8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.3125rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.lp-filtro-btn-aplicar:hover {
+  background: rgba(129, 140, 248, 0.25);
+  border-color: rgba(129, 140, 248, 0.5);
+}

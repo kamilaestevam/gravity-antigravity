@@ -5,6 +5,8 @@
  * Suporta até 1 milhão de linhas via cursor keyset pagination.
  *
  * Hierarquia: Pedido (pai) → PedidoItem (filho expandível)
+ *
+ * Filtros de coluna: client-side, chips ativos, popover por coluna.
  */
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
@@ -29,6 +31,9 @@ import {
   CheckSquare,
   ArrowsLeftRight,
   PencilLine,
+  Funnel,
+  ArrowUp,
+  ArrowDown,
 } from '@phosphor-icons/react'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
@@ -64,6 +69,250 @@ import {
   fmtData,
 } from '../shared/types'
 import './ListaPedidos.css'
+
+// ── Tipos de filtro ───────────────────────────────────────────────────────────
+
+type FiltroTexto  = { tipo: 'texto';  valor: string }
+type FiltroEnum   = { tipo: 'enum';   valor: Set<string> }
+type FiltroNumero = { tipo: 'numero'; valor: { min?: number; max?: number } }
+type FiltroAtivo  = FiltroTexto | FiltroEnum | FiltroNumero
+
+type FiltrosAtivosMap = Record<string, FiltroAtivo>
+
+// ── Subcomponente: Popover de filtro por coluna ───────────────────────────────
+
+interface FiltroPopoverColunaProps {
+  campo: string
+  label: string
+  tipo: 'texto' | 'numero' | 'enum'
+  filtroAtual: FiltroAtivo | undefined
+  valoresUnicos: string[]
+  onAplicar: (campo: string, filtro: FiltroAtivo) => void
+  onLimpar: (campo: string) => void
+  onOrdenar: (campo: string, dir: 'asc' | 'desc') => void
+  onFechar: () => void
+  anchorRef: React.RefObject<HTMLButtonElement>
+}
+
+function FiltroPopoverColuna({
+  campo,
+  label,
+  tipo,
+  filtroAtual,
+  valoresUnicos,
+  onAplicar,
+  onLimpar,
+  onOrdenar,
+  onFechar,
+  anchorRef,
+}: FiltroPopoverColunaProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  // Calcular posição abaixo do âncora
+  const [pos, setPos] = React.useState({ top: 0, left: 0 })
+  useEffect(() => {
+    if (anchorRef.current) {
+      const rect = anchorRef.current.getBoundingClientRect()
+      setPos({ top: rect.bottom + 6, left: Math.max(8, rect.left - 20) })
+    }
+  }, [anchorRef])
+
+  // Fechar ao clicar fora
+  useEffect(() => {
+    function fora(e: MouseEvent) {
+      if (
+        ref.current &&
+        !ref.current.contains(e.target as Node) &&
+        anchorRef.current &&
+        !anchorRef.current.contains(e.target as Node)
+      ) {
+        onFechar()
+      }
+    }
+    document.addEventListener('mousedown', fora)
+    return () => document.removeEventListener('mousedown', fora)
+  }, [onFechar, anchorRef])
+
+  // Estado local do popover
+  const [textoLocal, setTextoLocal] = React.useState(
+    filtroAtual?.tipo === 'texto' ? filtroAtual.valor : '',
+  )
+  const [enumLocal, setEnumLocal] = React.useState<Set<string>>(
+    filtroAtual?.tipo === 'enum' ? new Set(filtroAtual.valor) : new Set(),
+  )
+  const [enumBusca, setEnumBusca] = React.useState('')
+  const [minLocal, setMinLocal] = React.useState(
+    filtroAtual?.tipo === 'numero' && filtroAtual.valor.min != null
+      ? String(filtroAtual.valor.min)
+      : '',
+  )
+  const [maxLocal, setMaxLocal] = React.useState(
+    filtroAtual?.tipo === 'numero' && filtroAtual.valor.max != null
+      ? String(filtroAtual.valor.max)
+      : '',
+  )
+
+  function aplicar() {
+    if (tipo === 'texto') {
+      if (textoLocal.trim()) {
+        onAplicar(campo, { tipo: 'texto', valor: textoLocal.trim() })
+      } else {
+        onLimpar(campo)
+      }
+    } else if (tipo === 'enum') {
+      if (enumLocal.size > 0) {
+        onAplicar(campo, { tipo: 'enum', valor: new Set(enumLocal) })
+      } else {
+        onLimpar(campo)
+      }
+    } else if (tipo === 'numero') {
+      const min = minLocal !== '' ? Number(minLocal) : undefined
+      const max = maxLocal !== '' ? Number(maxLocal) : undefined
+      if (min != null || max != null) {
+        onAplicar(campo, { tipo: 'numero', valor: { min, max } })
+      } else {
+        onLimpar(campo)
+      }
+    }
+    onFechar()
+  }
+
+  function limpar() {
+    onLimpar(campo)
+    onFechar()
+  }
+
+  const valoresFiltrados = valoresUnicos.filter(v =>
+    v.toLowerCase().includes(enumBusca.toLowerCase()),
+  )
+
+  return (
+    <div
+      ref={ref}
+      className="lp-filtro-popover"
+      style={{ top: pos.top, left: pos.left }}
+      role="dialog"
+      aria-label={`Filtrar coluna ${label}`}
+    >
+      {/* Seção Ordenar */}
+      <div className="lp-filtro-section">
+        <span className="lp-filtro-section-title">Ordenar</span>
+        <div className="lp-filtro-sort-btns">
+          <button
+            className="lp-filtro-sort-btn"
+            onClick={() => { onOrdenar(campo, 'asc'); onFechar() }}
+            title="Ordem crescente"
+          >
+            <ArrowUp size={14} weight="bold" />
+            Crescente
+          </button>
+          <button
+            className="lp-filtro-sort-btn"
+            onClick={() => { onOrdenar(campo, 'desc'); onFechar() }}
+            title="Ordem decrescente"
+          >
+            <ArrowDown size={14} weight="bold" />
+            Decrescente
+          </button>
+        </div>
+      </div>
+
+      <div className="lp-filtro-divider" />
+
+      {/* Seção Filtrar */}
+      {tipo === 'texto' && (
+        <div className="lp-filtro-section">
+          <span className="lp-filtro-section-title">Filtrar por {label}</span>
+          <input
+            className="lp-filtro-input"
+            type="text"
+            placeholder={`Buscar em ${label}...`}
+            value={textoLocal}
+            onChange={e => setTextoLocal(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') aplicar() }}
+            autoFocus
+          />
+        </div>
+      )}
+
+      {tipo === 'enum' && (
+        <div className="lp-filtro-section">
+          <span className="lp-filtro-section-title">Filtrar por {label}</span>
+          {valoresUnicos.length > 6 && (
+            <input
+              className="lp-filtro-input"
+              type="text"
+              placeholder="Buscar..."
+              value={enumBusca}
+              onChange={e => setEnumBusca(e.target.value)}
+            />
+          )}
+          <div className="lp-filtro-enum-list">
+            {valoresFiltrados.map(v => (
+              <label key={v} className="lp-filtro-enum-item">
+                <input
+                  type="checkbox"
+                  checked={enumLocal.has(v)}
+                  onChange={() => {
+                    const novo = new Set(enumLocal)
+                    if (novo.has(v)) novo.delete(v)
+                    else novo.add(v)
+                    setEnumLocal(novo)
+                  }}
+                />
+                <span>{v || '(vazio)'}</span>
+              </label>
+            ))}
+            {valoresFiltrados.length === 0 && (
+              <span className="lp-filtro-empty">Nenhum valor encontrado</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tipo === 'numero' && (
+        <div className="lp-filtro-section">
+          <span className="lp-filtro-section-title">Intervalo</span>
+          <div className="lp-filtro-range">
+            <input
+              className="lp-filtro-input lp-filtro-input--half"
+              type="number"
+              placeholder="Mín"
+              value={minLocal}
+              onChange={e => setMinLocal(e.target.value)}
+            />
+            <span className="lp-filtro-range-sep">—</span>
+            <input
+              className="lp-filtro-input lp-filtro-input--half"
+              type="number"
+              placeholder="Máx"
+              value={maxLocal}
+              onChange={e => setMaxLocal(e.target.value)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Ações */}
+      <div className="lp-filtro-acoes">
+        <button className="lp-filtro-btn-limpar" onClick={limpar}>
+          Limpar filtro
+        </button>
+        <button className="lp-filtro-btn-aplicar" onClick={aplicar}>
+          Aplicar
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Helpers de filtragem ──────────────────────────────────────────────────────
+
+function detectarTipoColuna(col: GTColuna<Pedido>): 'texto' | 'numero' | 'enum' {
+  if (col.tipo === 'numero') return 'numero'
+  if (col.tipo === 'badge' || col.key === 'tipo_operacao' || col.key === 'status' || col.key === 'incoterm') return 'enum'
+  return 'texto'
+}
 
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
@@ -474,6 +723,87 @@ export default function ListaPedidos() {
   const [busca, setBusca]                   = useState('')
   const [erroLote, setErroLote]             = useState<string | null>(null)
 
+  // ── Estado de filtros de coluna ───────────────────────────────────────────────
+  const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
+  const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
+  const popoverAnchorRefs                   = useRef<Record<string, React.RefObject<HTMLButtonElement>>>({})
+
+  function getAnchorRef(campo: string): React.RefObject<HTMLButtonElement> {
+    if (!popoverAnchorRefs.current[campo]) {
+      popoverAnchorRefs.current[campo] = React.createRef<HTMLButtonElement>()
+    }
+    return popoverAnchorRefs.current[campo]
+  }
+
+  // ── Pedidos filtrados (client-side) ───────────────────────────────────────────
+  const pedidosFiltrados = useMemo<Pedido[]>(() => {
+    if (Object.keys(filtrosAtivos).length === 0) return pedidos
+    return pedidos.filter(p => {
+      const row = p as Record<string, unknown>
+      for (const [campo, filtro] of Object.entries(filtrosAtivos)) {
+        const val = row[campo]
+        if (filtro.tipo === 'texto') {
+          if (!String(val ?? '').toLowerCase().includes(filtro.valor.toLowerCase())) return false
+        } else if (filtro.tipo === 'enum') {
+          const strVal = String(val ?? '')
+          if (filtro.valor.size > 0 && !filtro.valor.has(strVal)) return false
+        } else if (filtro.tipo === 'numero') {
+          const n = Number(val)
+          if (filtro.valor.min != null && n < filtro.valor.min) return false
+          if (filtro.valor.max != null && n > filtro.valor.max) return false
+        }
+      }
+      return true
+    })
+  }, [pedidos, filtrosAtivos])
+
+  // ── Handlers de filtro ────────────────────────────────────────────────────────
+  const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
+    setFiltrosAtivos(prev => ({ ...prev, [campo]: filtro }))
+  }, [])
+
+  const handleLimparFiltro = useCallback((campo: string) => {
+    setFiltrosAtivos(prev => {
+      const novo = { ...prev }
+      delete novo[campo]
+      return novo
+    })
+  }, [])
+
+  const handleLimparTodosFiltros = useCallback(() => {
+    setFiltrosAtivos({})
+  }, [])
+
+  // ── Valores únicos por campo (para filtro enum) ───────────────────────────────
+  const valoresUnicosPorCampo = useMemo<Record<string, string[]>>(() => {
+    const result: Record<string, string[]> = {}
+    for (const col of COLUNAS_PAI) {
+      if (!col.filtravel) continue
+      const tipo = detectarTipoColuna(col)
+      if (tipo === 'enum') {
+        const vals = new Set<string>()
+        for (const p of pedidos) {
+          vals.add(String((p as Record<string, unknown>)[col.key] ?? ''))
+        }
+        result[col.key] = Array.from(vals).sort()
+      }
+    }
+    return result
+  }, [pedidos])
+
+  // ── Rótulo legível do valor de filtro ─────────────────────────────────────────
+  function rotulofiltro(campo: string, filtro: FiltroAtivo): string {
+    if (filtro.tipo === 'texto') return filtro.valor
+    if (filtro.tipo === 'enum') return Array.from(filtro.valor).join(', ')
+    if (filtro.tipo === 'numero') {
+      const { min, max } = filtro.valor
+      if (min != null && max != null) return `${min} — ${max}`
+      if (min != null) return `≥ ${min}`
+      if (max != null) return `≤ ${max}`
+    }
+    return ''
+  }
+
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
 
@@ -851,10 +1181,59 @@ export default function ListaPedidos() {
         </div>
       )}
 
+      {/* ── Chips de filtros ativos ── */}
+      {Object.keys(filtrosAtivos).length > 0 && (
+        <div className="lp-filtros-chips" role="status" aria-label="Filtros ativos">
+          {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
+            const filtro = filtrosAtivos[col.key]!
+            return (
+              <span key={col.key} className="lp-filtro-chip">
+                <span className="lp-filtro-chip-label">{col.label}:</span>
+                <span className="lp-filtro-chip-valor">{rotulofiltro(col.key, filtro)}</span>
+                <button
+                  className="lp-filtro-chip-remove"
+                  onClick={() => handleLimparFiltro(col.key)}
+                  aria-label={`Remover filtro ${col.label}`}
+                >
+                  <X size={10} weight="bold" />
+                </button>
+              </span>
+            )
+          })}
+          <button
+            className="lp-filtros-limpar-tudo"
+            onClick={handleLimparTodosFiltros}
+          >
+            Limpar tudo
+          </button>
+        </div>
+      )}
+
+      {/* ── Popovers de filtro (renderizados no nível do page para z-index correto) ── */}
+      {popoverAberto && (() => {
+        const col = COLUNAS_PAI.find(c => c.key === popoverAberto)
+        if (!col) return null
+        const anchorRef = getAnchorRef(popoverAberto)
+        return (
+          <FiltroPopoverColuna
+            campo={col.key}
+            label={col.label}
+            tipo={detectarTipoColuna(col)}
+            filtroAtual={filtrosAtivos[col.key]}
+            valoresUnicos={valoresUnicosPorCampo[col.key] ?? []}
+            onAplicar={handleAplicarFiltro}
+            onLimpar={handleLimparFiltro}
+            onOrdenar={handleOrdenar}
+            onFechar={() => setPopoverAberto(null)}
+            anchorRef={anchorRef}
+          />
+        )
+      })()}
+
       {/* ── Tabela virtual ── */}
       <div className="lp-tabela-wrapper">
         <TabelaVirtualGlobal<Pedido, PedidoItem>
-          dados={pedidos}
+          dados={pedidosFiltrados}
           colunas={COLUNAS_PAI}
           itemId={(p: Pedido) => p.id}
 
@@ -878,6 +1257,27 @@ export default function ListaPedidos() {
 
           acoesBarra={
             <>
+              {/* ── Botões de filtro por coluna ── */}
+              <div className="lp-filtro-barra" role="toolbar" aria-label="Filtros de coluna">
+                {COLUNAS_PAI.filter(col => col.filtravel).map(col => {
+                  const ativo = !!filtrosAtivos[col.key]
+                  const anchorRef = getAnchorRef(col.key)
+                  return (
+                    <button
+                      key={col.key}
+                      ref={anchorRef}
+                      className={`lp-filtro-trigger${ativo ? ' lp-filtro-trigger--ativo' : ''}`}
+                      onClick={() => setPopoverAberto(prev => prev === col.key ? null : col.key)}
+                      aria-pressed={ativo}
+                      title={`Filtrar por ${col.label}`}
+                    >
+                      <Funnel size={11} weight={ativo ? 'fill' : 'regular'} />
+                      <span>{col.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+
               <BotaoGlobal
                 variante="primario"
                 tamanho="pequeno"

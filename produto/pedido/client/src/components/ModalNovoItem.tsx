@@ -209,7 +209,7 @@ export function ModalNovoItem({
         part_number: item.part_number,
         ncm: item.ncm,
         descricao_item: item.descricao_item,
-        quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
+        quantidade_inicial_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
         unidade_comercializada_item: item.unidade_comercializada_item,
         valor_por_unidade_item: item.valor_por_unidade_item ? parseFloat(item.valor_por_unidade_item) : undefined,
       } as Partial<PedidoItem>)

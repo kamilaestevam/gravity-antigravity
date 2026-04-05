@@ -6,9 +6,24 @@
 
 ---
 
-## O que é a GABI
+## O que é a GABI (duas camadas)
 
-GABI (assistente de fórmulas) é um card de ajuda contextual embutido na criação de colunas do tipo `formula` dentro de Configurações → Colunas do Usuário. Ela guia o usuário durante toda a digitação da expressão, detectando erros de sintaxe, problemas semânticos e sugerindo correções com um botão "Usar" que aplica a sugestão instantaneamente.
+### Camada 1 — Análise determinística de fórmulas (gratuita, sempre-ativa)
+Card de ajuda embutido na criação de colunas do tipo `formula`. Detecta erros de sintaxe e problemas semânticos via AST local — zero chamadas LLM, zero tokens consumidos.
+
+### Camada 2 — GABI on-demand via ícone ✦ (consome tokens)
+Ícone `✦` em campos selecionados de qualquer produto. O usuário clica para receber explicação contextual via Gemini 2.5 Flash. Cada chamada consome tokens da quota mensal do tenant.
+
+> **Documento de referência para a Camada 2:** `GABI-ONDEMAND-TOKENS.md`
+
+---
+
+## Histórico de paradigma
+
+| Versão | Modelo | Status |
+|--------|--------|--------|
+| v1.0 | LLM auto-disparado após debounce (Gemini) | **Abandonado** — custo descontrolado |
+| v2.0 | Análise determinística sempre-ativa + LLM on-demand via ✦ | **Atual** |
 
 ---
 

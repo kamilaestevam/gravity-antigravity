@@ -1,35 +1,55 @@
-# GABI — Guia do Usuário: Assistente de Fórmulas
+# GABI — Guia do Usuário: Assistente de Campos
 
-> **Para quem é este guia:** usuários que criam colunas personalizadas do tipo Fórmula em Configurações → Colunas.
+> **Para quem é este guia:** usuários que utilizam qualquer campo com o ícone ✦ nos produtos Gravity.
 
 ---
 
 ## O que é a GABI
 
-A GABI é uma assistente integrada que aparece automaticamente quando você cria uma coluna do tipo **Fórmula**. Ela analisa em tempo real o que você está digitando e oferece orientações, alertas e sugestões de correção — sem que você precise pedir.
+A GABI é uma assistente integrada disponível em campos selecionados de todos os produtos Gravity. Ela fica em silêncio até você precisar: clique no ícone `✦` ao lado do label de um campo para receber uma explicação contextual, exemplos e orientações de negócio.
+
+Cada consulta consome **tokens** da sua quota mensal. O badge `✦ X / Y tokens` no topo da tela mostra quanto você já usou.
+
+> **Fórmulas:** a análise de sintaxe e erros semânticos de fórmulas (card colorido abaixo do campo de expressão) é gratuita e não consome tokens — funciona de forma automática.
 
 ---
 
-## Como acessar
+## Como usar a GABI
 
-1. Acesse **Configurações** no menu lateral
-2. Clique na aba **Colunas**
-3. Role até **Colunas Personalizadas**
-4. Selecione o tipo **Fórmula** no campo Tipo
-5. A GABI aparece automaticamente na área de Expressão
+1. Localize o ícone `✦` ao lado do label de um campo
+2. Clique no ícone — o popover abre imediatamente com a resposta carregando
+3. Leia a explicação contextual da GABI
+4. Feche o popover com `[×]` ou clicando fora
+
+**Se o ícone estiver acinzentado:** sua quota de tokens do mês foi esgotada. Se você tiver permissão, verá a opção de adquirir tokens adicionais. Caso contrário, contate o administrador.
 
 ---
 
-## O que cada cor do card significa
+## Badge de tokens
 
-| Cor | Significado | O que fazer |
+O badge `✦ X / Y tokens` no topo da tela mostra seu consumo mensal em tempo real.
+
+| Cor do badge | Significado |
+|---|---|
+| Verde | 0–69% da quota usada |
+| Amarelo | 70–89% — use com moderação |
+| Laranja | 90–99% — quase no limite |
+| Vermelho | 100% — quota esgotada |
+
+---
+
+## Análise automática de fórmulas (gratuita, sem tokens)
+
+Ao criar uma coluna do tipo **Fórmula** em Configurações, o card colorido abaixo do campo de expressão funciona de forma automática e **não consome tokens**:
+
+| Cor do card | Significado | O que fazer |
 |-----|-------------|-------------|
-| **Roxo** | Instruções iniciais — campo vazio | Comece digitando ou clique em um campo |
-| **Amarelo** | Aviso — fórmula válida, mas pode ter problema | Leia a sugestão e decida se aplica |
+| **Roxo** | Campo vazio — instruções iniciais | Comece digitando ou clique em um chip de campo |
+| **Amarelo** | Aviso semântico — fórmula válida mas suspeita | Leia a sugestão e decida se aplica |
 | **Vermelho** | Erro — fórmula inválida | Corrija antes de salvar |
-| **Verde** | Tudo certo — fórmula válida e sem alertas | Preencha os demais campos e salve |
+| **Verde** | Tudo certo — fórmula válida | Preencha os demais campos e salve |
 
-> A GABI analisa automaticamente após **0,6 segundos** sem digitação. Enquanto você digita, o card some — é normal.
+> Durante a digitação o card some — é normal. Ele reaparece 0,6 segundos após você parar de digitar.
 
 ---
 

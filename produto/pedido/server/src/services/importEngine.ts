@@ -120,6 +120,12 @@ export async function parseArquivo(
     }
 
     case 'pdf': {
+      // Tentar extração via Gemini (GEMINI_PDF_ENABLED=true no .env)
+      const { extrairPdfComGemini } = await import('./geminiPdfExtractor.js')
+      const gemini = await extrairPdfComGemini(buffer)
+      if (gemini) return gemini.linhas
+
+      // Fallback: parser local de texto
       const { PDFParse } = await import('pdf-parse')
       const parser = new PDFParse({ data: buffer })
       await parser.load()

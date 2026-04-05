@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@clerk/backend": "^1.0.0",
+    "@google/generative-ai": "^0.21.0",
     "@prisma/client": "^5.13.0",
     "cors": "^2.8.5",
     "express": "^4.19.0",

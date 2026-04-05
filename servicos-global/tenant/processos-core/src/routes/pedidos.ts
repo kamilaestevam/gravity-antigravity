@@ -173,7 +173,10 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
     const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const where: Record<string, unknown> = { tenant_id, company_id }
-    if (status) where.status = status
+    if (status) {
+      const statusList = (status as string).split(',').map(s => s.trim()).filter(Boolean)
+      where.status = statusList.length > 1 ? { in: statusList } : statusList[0]
+    }
     if (tipo_operacao) where.tipo_operacao = tipo_operacao
     if (busca) {
       where.numero_pedido = { contains: busca as string, mode: 'insensitive' }

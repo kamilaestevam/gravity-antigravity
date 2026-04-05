@@ -550,6 +550,8 @@ export default function Configuracoes() {
   const [formulaAviso,      setFormulaAviso]      = useState<string | null>(null)
   const [formulaGabi,       setFormulaGabi]       = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
   const [formulaAnalisando, setFormulaAnalisando] = useState(false)
+  // Uma vez que o usuário começa a digitar, o card GABI fica permanentemente ativo até sair da tela
+  const [gabiAtiva,         setGabiAtiva]         = useState(false)
 
   const TIPOS_NUMERICOS: TipoColunaUsuario[] = ['numero', 'percentual', 'formula']
 
@@ -618,15 +620,19 @@ export default function Configuracoes() {
 
   const handleFormulaChange = useCallback((valor: string) => {
     setNovaColuna(prev => ({ ...prev, formula_expressao: valor }))
-    setFormulaValida(false); setFormulaErro(null); setFormulaAviso(null); setFormulaGabi(null)
+    setFormulaValida(false); setFormulaErro(null); setFormulaAviso(null)
+    // Primeira interação: ativa o card GABI permanentemente (não some mais até sair)
     if (valor.trim()) {
+      setGabiAtiva(true)
       setFormulaAnalisando(true)
     } else {
       setFormulaAnalisando(false)
     }
+    // Não zera formulaGabi aqui — o card mantém o conteúdo anterior enquanto debounce roda
     if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current)
     formulaDebounceRef.current = setTimeout(() => {
       setFormulaAnalisando(false)
+      setFormulaGabi(null) // limpa só aqui para validarFormulaConfig preencher o novo
       validarFormulaConfig(valor)
     }, 600)
   }, [validarFormulaConfig])
@@ -2270,50 +2276,69 @@ export default function Configuracoes() {
                       aria-describedby={formulaErro ? 'cfg-formula-msg' : undefined}
                     />
 
-                    {/* Analisando — enquanto digita */}
-                    {formulaAnalisando && !formulaErro && (
-                      <div className="cfg-formula-msg cfg-formula-msg--analisando">
-                        <span className="cfg-formula-dots">···</span> analisando fórmula
-                      </div>
-                    )}
+                    {/* Card Gabi — permanente: aparece ao abrir e nunca some até sair da tela */}
+                    {(() => {
+                      // Deriva o conteúdo do card conforme estado atual
+                      let titulo = 'Como montar sua fórmula'
+                      let texto: React.ReactNode = (
+                        <>
+                          Clique em um campo acima para inseri-lo na expressão, ou digite diretamente.
+                          Use <code>+  −  *  /</code> entre campos numéricos.
+                          Para evitar divisão por zero, envolva com{' '}
+                          <code>SE(denominador == 0, 0, numerador / denominador)</code>.
+                          Campos de texto, data e checkbox valem 0 em aritmética — prefira Numérico, Percentual ou outra Fórmula.
+                        </>
+                      )
+                      let sugestao: string | undefined
+                      let variante: 'info' | 'analisando' | 'erro' | 'ok' | 'aviso' = 'info'
 
-                    {/* Feedback: erro de sintaxe */}
-                    {!formulaAnalisando && formulaErro && (
-                      <div id="cfg-formula-msg" className="cfg-formula-msg cfg-formula-msg--erro" role="alert">
-                        <span>✕</span> {formulaErro}
-                      </div>
-                    )}
+                      if (gabiAtiva) {
+                        if (formulaAnalisando) {
+                          titulo = 'Analisando...'
+                          texto = 'Verificando sintaxe e campos da expressão.'
+                          variante = 'analisando'
+                        } else if (formulaErro) {
+                          titulo = 'Erro na expressão'
+                          texto = formulaErro
+                          variante = 'erro'
+                        } else if (formulaGabi) {
+                          titulo = formulaGabi.titulo
+                          texto = formulaGabi.texto
+                          sugestao = formulaGabi.sugestao
+                          variante = 'aviso'
+                        } else if (formulaValida) {
+                          titulo = 'Fórmula válida ✓'
+                          texto = 'Tudo certo! Preencha os campos restantes e clique em Salvar.'
+                          variante = 'ok'
+                        } else {
+                          titulo = 'Como montar sua fórmula'
+                          variante = 'info'
+                        }
+                      }
 
-                    {/* Feedback: válida sem avisos */}
-                    {!formulaAnalisando && formulaValida && !formulaErro && !formulaGabi && novaColuna.formula_expressao.trim() && (
-                      <div className="cfg-formula-msg cfg-formula-msg--ok">
-                        <span>✓</span> Fórmula válida
-                      </div>
-                    )}
-
-                    {/* Card Gabi — sugestão inteligente */}
-                    {!formulaAnalisando && formulaGabi && !formulaErro && (
-                      <div className="cfg-gabi-card" role="note">
-                        <div className="cfg-gabi-card__header">
-                          <span className="cfg-gabi-card__ico">✦</span>
-                          <span className="cfg-gabi-card__titulo">Gabi · {formulaGabi.titulo}</span>
-                        </div>
-                        <p className="cfg-gabi-card__texto">{formulaGabi.texto}</p>
-                        {formulaGabi.sugestao && (
-                          <div className="cfg-gabi-card__sugestao-row">
-                            <code className="cfg-gabi-card__sugestao">{formulaGabi.sugestao}</code>
-                            <button
-                              type="button"
-                              className="cfg-gabi-card__usar"
-                              onClick={() => handleFormulaChange(formulaGabi.sugestao!)}
-                              title="Usar esta sugestão"
-                            >
-                              Usar
-                            </button>
+                      return (
+                        <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite">
+                          <div className="cfg-gabi-card__header">
+                            <span className="cfg-gabi-card__ico">✦</span>
+                            <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
                           </div>
-                        )}
-                      </div>
-                    )}
+                          <p className="cfg-gabi-card__texto">{texto}</p>
+                          {sugestao && (
+                            <div className="cfg-gabi-card__sugestao-row">
+                              <code className="cfg-gabi-card__sugestao">{sugestao}</code>
+                              <button
+                                type="button"
+                                className="cfg-gabi-card__usar"
+                                onClick={() => handleFormulaChange(sugestao!)}
+                                title="Usar esta sugestão"
+                              >
+                                Usar
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
 
                     <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
                       Operadores: <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px' }}>+ - * / ( )</code>

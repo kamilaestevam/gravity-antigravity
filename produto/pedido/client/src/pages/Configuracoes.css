@@ -1401,6 +1401,43 @@ body.light-theme .cfg-formula-chip:hover {
   background: rgba(139,92,246,0.35);
 }
 
+/* Variantes de estado do card Gabi */
+.cfg-gabi-card--analisando {
+  background: linear-gradient(135deg, rgba(30,64,175,0.18) 0%, rgba(37,99,235,0.12) 100%);
+  border-color: rgba(96,165,250,0.3);
+}
+.cfg-gabi-card--analisando .cfg-gabi-card__ico,
+.cfg-gabi-card--analisando .cfg-gabi-card__titulo {
+  color: #93c5fd;
+}
+
+.cfg-gabi-card--erro {
+  background: linear-gradient(135deg, rgba(127,29,29,0.22) 0%, rgba(185,28,28,0.14) 100%);
+  border-color: rgba(248,113,113,0.4);
+}
+.cfg-gabi-card--erro .cfg-gabi-card__ico,
+.cfg-gabi-card--erro .cfg-gabi-card__titulo {
+  color: #fca5a5;
+}
+
+.cfg-gabi-card--ok {
+  background: linear-gradient(135deg, rgba(6,78,59,0.22) 0%, rgba(5,150,105,0.14) 100%);
+  border-color: rgba(52,211,153,0.4);
+}
+.cfg-gabi-card--ok .cfg-gabi-card__ico,
+.cfg-gabi-card--ok .cfg-gabi-card__titulo {
+  color: #6ee7b7;
+}
+
+.cfg-gabi-card--aviso {
+  background: linear-gradient(135deg, rgba(120,53,15,0.22) 0%, rgba(180,83,9,0.14) 100%);
+  border-color: rgba(251,191,36,0.4);
+}
+.cfg-gabi-card--aviso .cfg-gabi-card__ico,
+.cfg-gabi-card--aviso .cfg-gabi-card__titulo {
+  color: #fcd34d;
+}
+
 /* ── Fórmula — estado analisando ── */
 
 .cfg-formula-msg--analisando {

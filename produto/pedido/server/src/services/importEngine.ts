@@ -275,7 +275,7 @@ function parseXml(conteudo: string): LinhaArquivo[] {
 //
 // Limitacao: PDFs escaneados (imagem) nao geram texto — retorna linha com aviso.
 
-function parsePdfText(texto: string): LinhaArquivo[] {
+export function parsePdfText(texto: string): LinhaArquivo[] {
   const linhas = texto
     .split(/\r?\n/)
     .map(l => l.trim())

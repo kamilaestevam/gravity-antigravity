@@ -642,12 +642,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_total_inicial_pedido',
     label: 'Qtd. Inicial do Pedido',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Inicial do Pedido',
     tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
     grupo: 'Quantidades',
     largura: 110,
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
+    getValorEditar: (row: Pedido) => ({
+      unit: row.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_total_inicial_pedido ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_total_inicial_pedido != null
@@ -659,12 +665,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_pronta_itens_pedido_total',
     label: 'Qtd. Pronta do Pedido',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
     grupo: 'Quantidades',
     largura: 110,
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
+    getValorEditar: (row: Pedido) => ({
+      unit: row.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_pronta_itens_pedido_total ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total ?? 0), 0) ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => {
       const qtd = row.quantidade_pronta_itens_pedido_total
         ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total ?? 0), 0)
@@ -681,12 +693,14 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'saldo_itens_do_pedido',
     label: 'Saldo do Pedido',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Saldo do Pedido',
     tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
     grupo: 'Quantidades',
     largura: 130,
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
     render: (_val: unknown, row: Pedido) => {
       const qtd = row.saldo_itens_do_pedido
         ?? (() => {
@@ -706,12 +720,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_transferida_total',
     label: 'Qtd. Transferida do Pedido',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Transferida do Pedido',
     tooltipDescricao: 'Total já transferido para outros pedidos.',
     grupo: 'Quantidades',
     largura: 130,
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
+    getValorEditar: (row: Pedido) => ({
+      unit: row.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_transferida_total ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_transferida_total != null
@@ -723,12 +743,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_cancelada_total_pedido',
     label: 'Qtd. Cancelada do Pedido',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Cancelada do Pedido',
     tooltipDescricao: 'Total cancelado permanentemente nos itens do pedido — subtrai do saldo inicial.',
     grupo: 'Quantidades',
     largura: 120,
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
+    getValorEditar: (row: Pedido) => ({
+      unit: row.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_cancelada_total_pedido ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
         {row.quantidade_cancelada_total_pedido != null
@@ -846,7 +872,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'peso_liquido_total_pedido',
     label: 'Peso Líq. Total',
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
@@ -855,6 +881,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
     grupo: 'Dados Físicos',
     largura: 130,
+    unidades: ['kg'],
+    casasDecimais: getCasas('peso_liquido_total_pedido', 3),
+    getValorEditar: (row: Pedido) => ({
+      unit: 'kg',
+      quantity: row.peso_liquido_total_pedido ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_total_pedido != null
@@ -866,7 +898,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'peso_bruto_total_pedido',
     label: 'Peso Bruto Total',
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
@@ -875,6 +907,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
     grupo: 'Dados Físicos',
     largura: 140,
+    unidades: ['kg'],
+    casasDecimais: getCasas('peso_bruto_total_pedido', 3),
+    getValorEditar: (row: Pedido) => ({
+      unit: 'kg',
+      quantity: row.peso_bruto_total_pedido ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_total_pedido != null
@@ -886,7 +924,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'cubagem_total_pedido',
     label: 'Cubagem Total',
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
@@ -895,6 +933,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
     grupo: 'Dados Físicos',
     largura: 130,
+    unidades: ['m³'],
+    casasDecimais: getCasas('cubagem_total_pedido', 4),
+    getValorEditar: (row: Pedido) => ({
+      unit: 'm³',
+      quantity: row.cubagem_total_pedido ?? 0,
+    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_total_pedido != null
@@ -2053,12 +2097,18 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'quantidade_inicial_item_pedido',
     label: 'Qtd Inicial',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     grupo: 'Quantidades',
     largura: 110,
     tooltipTitulo: 'Quantidade Inicial',
     tooltipDescricao: 'Quantidade original do item — valor imutável',
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_inicial_item_pedido ?? 0,
+    }),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
@@ -2068,12 +2118,18 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'saldo_item_pedido',
     label: 'Saldo',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     grupo: 'Quantidades',
     largura: 110,
     tooltipTitulo: 'Saldo',
     tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.saldo_item_pedido ?? 0,
+    }),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
         fontVariantNumeric: 'tabular-nums',
@@ -2087,12 +2143,18 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'quantidade_pronta_total',
     label: 'Qtd Pronta',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     grupo: 'Quantidades',
     largura: 110,
     tooltipTitulo: 'Quantidade Pronta',
     tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_pronta_total ?? 0,
+    }),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_pronta_total, getCasas('quantidade_item', 0))}
@@ -2102,12 +2164,18 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'quantidade_transferida_item',
     label: 'Qtd Transferida',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     grupo: 'Quantidades',
     largura: 130,
     tooltipTitulo: 'Quantidade Transferida',
     tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_transferida_item ?? 0,
+    }),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
@@ -2117,12 +2185,18 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'quantidade_cancelada_item_pedido',
     label: 'Qtd Cancelada',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     grupo: 'Quantidades',
     largura: 120,
     tooltipTitulo: 'Quantidade Cancelada',
     tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
+    unidades: UNIDADES_COMEX,
+    casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_cancelada_item_pedido ?? 0,
+    }),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
         fontVariantNumeric: 'tabular-nums',
@@ -2146,12 +2220,18 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'valor_por_unidade_item',
     label: 'Valor por Unidade do Item',
-    tipo: 'numero',
+    tipo: 'moeda',
     align: 'right',
     grupo: 'Financeiro',
     largura: 110,
     tooltipTitulo: 'Valor por Unidade do Item',
     tooltipDescricao: 'Valor unitário na moeda do item',
+    moedas: ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU'],
+    casasDecimais: getCasas('valor_por_unidade_item', 2),
+    getValorEditar: (row: PedidoItem) => ({
+      currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
+      amount: row.valor_por_unidade_item ?? 0,
+    }),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.valor_por_unidade_item != null ? fmtMoeda(row.valor_por_unidade_item, row.moeda_item) : '—'}
@@ -3694,6 +3774,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_liquido_unitario',
     casasDecimais: getCasas('peso_liquido_unitario', 3),
+    unidades: ['kg'],
+    getValorEditar: (row: PedidoItem) => ({
+      unit: 'kg',
+      quantity: row.peso_liquido_unitario ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
@@ -3706,6 +3791,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_bruto_unitario',
     casasDecimais: getCasas('peso_bruto_unitario', 3),
+    unidades: ['kg'],
+    getValorEditar: (row: PedidoItem) => ({
+      unit: 'kg',
+      quantity: row.peso_bruto_unitario ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
@@ -3718,6 +3808,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'cubagem_unitaria',
     casasDecimais: getCasas('cubagem_unitaria', 4),
+    unidades: ['m³'],
+    getValorEditar: (row: PedidoItem) => ({
+      unit: 'm³',
+      quantity: row.cubagem_unitaria ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
@@ -3760,6 +3855,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'quantidade_inicial_item_pedido',
     casasDecimais: getCasas('quantidade_item', 0),
+    unidades: UNIDADES_COMEX,
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_inicial_item_pedido ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
@@ -3780,6 +3880,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'quantidade_transferida_item',
     casasDecimais: getCasas('quantidade_item', 0),
+    unidades: UNIDADES_COMEX,
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_transferida_item ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
@@ -3790,6 +3895,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'quantidade_pronta_total',
     casasDecimais: getCasas('quantidade_item', 0),
+    unidades: UNIDADES_COMEX,
+    getValorEditar: (row: PedidoItem) => ({
+      unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
+      quantity: row.quantidade_pronta_total ?? 0,
+    }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_pronta_total ?? 0, getCasas('quantidade_item', 0))}
@@ -3909,6 +4019,7 @@ interface BarraAcoesPedidoProps {
   novoDropdownAberto: boolean
   novoSubmenu: 'pedido' | 'item' | null
   pedidosSelecionados: Pedido[]
+  itensSelecionados: PedidoItem[]
   excluindoLote: boolean
   filtrosAtivos: FiltrosAtivosMap
   setNovoDropdownAberto: React.Dispatch<React.SetStateAction<boolean>>
@@ -3933,6 +4044,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   novoDropdownAberto,
   novoSubmenu,
   pedidosSelecionados,
+  itensSelecionados,
   excluindoLote,
   filtrosAtivos,
   setNovoDropdownAberto,
@@ -4100,17 +4212,25 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Transferir */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Transferir'}
+          titulo={pedidosSelecionados.length > 0
+            ? `Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`
+            : itensSelecionados.length > 0
+              ? `Transferir · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''}`
+              : 'Transferir'}
           descricao="Transfere saldo dos pedidos selecionados para um processo logístico"
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<ArrowRight size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0}
+            disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
             onClick={() => { setModalTransferirAberto(true) }}
           >
-            {pedidosSelecionados.length > 0 ? `Transferir (${pedidosSelecionados.length})` : 'Transferir'}
+            {pedidosSelecionados.length > 0
+              ? `Transferir (${pedidosSelecionados.length})`
+              : itensSelecionados.length > 0
+                ? `Transferir (${itensSelecionados.length})`
+                : 'Transferir'}
           </BotaoGlobal>
         </TooltipGlobal>
 
@@ -4549,6 +4669,7 @@ export default function ListaPedidos() {
       novoDropdownAberto={novoDropdownAberto}
       novoSubmenu={novoSubmenu}
       pedidosSelecionados={pedidosSelecionados}
+      itensSelecionados={itensSelecionados}
       excluindoLote={excluindoLote}
       filtrosAtivos={filtrosAtivos}
       setNovoDropdownAberto={setNovoDropdownAberto}
@@ -4568,7 +4689,7 @@ export default function ListaPedidos() {
       handleLimparTodosFiltros={handleLimparTodosFiltros}
     />
   ), [
-    novoDropdownAberto, novoSubmenu, pedidosSelecionados, excluindoLote, filtrosAtivos,
+    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos,
     novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
     setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
@@ -4724,17 +4845,31 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
     }
-    // Campo de quantidade composta: { unit, quantity } → salva quantidade + unidade separados
-    if (campo === 'quantidade_total_inicial_pedido' && valor != null && typeof valor === 'object' && 'unit' in valor) {
+    // Campos de quantidade composta: { unit, quantity } → salva campo numérico + campo de unidade (se houver)
+    const CAMPOS_UNIDADE_PEDIDO: Record<string, string | null> = {
+      quantidade_total_inicial_pedido:      'unidade_comercializada_pedido',
+      quantidade_pronta_itens_pedido_total: 'unidade_comercializada_pedido',
+      quantidade_transferida_total:         'unidade_comercializada_pedido',
+      quantidade_cancelada_total_pedido:    'unidade_comercializada_pedido',
+      peso_liquido_total_pedido:            null,
+      peso_bruto_total_pedido:              null,
+      cubagem_total_pedido:                 null,
+    }
+    if (campo in CAMPOS_UNIDADE_PEDIDO && valor != null && typeof valor === 'object' && 'unit' in valor) {
       const uv = valor as GTValorUnidade
-      const atualizado = await pedidoVirtualApi.editarCampo(id, 'quantidade_total_inicial_pedido', uv.quantity)
-        .then(p => pedidoVirtualApi.editarCampo(p.id ?? id, 'unidade_comercializada_pedido', uv.unit))
+      const campUnidade = CAMPOS_UNIDADE_PEDIDO[campo]
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      const atualizado = await pedidoVirtualApi.editarCampo(id, campo, uv.quantity)
+        .then(p => campUnidade ? pedidoVirtualApi.editarCampo(p.id ?? id, campUnidade, uv.unit) : p)
         .catch(() => {
           if (import.meta.env.DEV) {
-            const pedidoAtual = pedidos.find(p => p.id === id)
-            return { ...pedidoAtual!, quantidade_total_inicial_pedido: uv.quantity, unidade_comercializada_pedido: uv.unit } as Pedido
+            return {
+              ...pedidoAtual!,
+              [campo]: uv.quantity,
+              ...(campUnidade ? { [campUnidade]: uv.unit } : {}),
+            } as Pedido
           }
-          throw new Error('Erro ao salvar quantidade do pedido')
+          throw new Error(`Erro ao salvar ${campo}`)
         })
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
@@ -5252,9 +5387,11 @@ export default function ListaPedidos() {
       )}
 
       {/* ── Modal Transferir Pedidos ── */}
-      {modalTransferirAberto && pedidosSelecionados.length > 0 && (
+      {modalTransferirAberto && (pedidosSelecionados.length > 0 || itensSelecionados.length > 0) && (
         <ModalTransferir
-          pedidos={pedidosSelecionados}
+          pedidos={pedidosSelecionados.length > 0
+            ? pedidosSelecionados
+            : pedidos.filter(p => itensSelecionados.some(i => i.pedido_id === p.id))}
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {
             setModalTransferirAberto(false)

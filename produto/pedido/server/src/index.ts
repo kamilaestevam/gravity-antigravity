@@ -130,6 +130,17 @@ app.use((_req: Request, res: Response) => {
 
 // ── 10. Error handler global ─────────────────────────────────────────────────
 app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
+  // Traduzir erros conhecidos do Prisma para HTTP semântico
+  const prismaCode = (err as unknown as { code?: string }).code
+  if (prismaCode === 'P2002') {
+    // Unique constraint — ex: numero_pedido duplicado no mesmo tenant
+    return res.status(409).json({ error: { message: 'Já existe um pedido com este número neste workspace. Use um número diferente.', code: 'DUPLICATE_NUMERO_PEDIDO' } })
+  }
+  if (prismaCode === 'P2025') {
+    // Record not found
+    return res.status(404).json({ error: { message: 'Registro não encontrado.', code: 'NOT_FOUND' } })
+  }
+
   const status = err.statusCode ?? 500
   const code   = err.code ?? (status === 500 ? 'INTERNAL_ERROR' : 'ERROR')
   // Garante message mesmo se err não for instância de Error

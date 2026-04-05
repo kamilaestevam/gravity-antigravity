@@ -78,7 +78,7 @@ async function fetchWithRetry(url: string, init: RequestInit, attempt = 0): Prom
  * Nunca bloqueia a operação principal.
  */
 export function auditLog(payload: AuditLogPayload): void {
-  const url = `${HISTORICO_URL}/api/tenant/historico-global/logs`
+  const url = `${HISTORICO_URL}/api/v1/historico/logs`
 
   fetchWithRetry(url, {
     method: 'POST',

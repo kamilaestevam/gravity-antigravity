@@ -125,8 +125,8 @@ export function GabiFieldIcon(_props: Record<string, unknown>) {
 export function GabiTokenBadge(_props: Record<string, unknown>) {
   return null
 }
-export function useGabiOnDemand(_campo: string, _endpoint?: string) {
-  return { consultar: async () => {}, resposta: null, carregando: false, esgotado: false, erro: null, limpar: () => {} }
+export function useGabiOnDemand(_campo: string, _label: string, _endpoint?: string) {
+  return { consultar: async () => {}, titulo: null, texto: null, resposta: null, carregando: false, esgotado: false, erro: null, limpar: () => {} }
 }
 export function useGabiQuota(_endpoint?: string) {
   return { quota: null, carregando: false, recarregar: async () => {} }

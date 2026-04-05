@@ -499,7 +499,8 @@
 .gtv-th {
   position: relative; /* base para o resize handle absoluto */
   padding: 0.75rem 1.25rem;
-  text-align: left;
+  text-align: center;
+  justify-content: center;
   font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -751,6 +752,8 @@
   min-width: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   font-size: 0.875rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-variant-numeric: tabular-nums;

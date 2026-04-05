@@ -1400,16 +1400,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const estaEditando =
       editandoCelula?.id === id && editandoCelula?.campo === col.key
 
-    const alignEfetivo = col.align ?? (
-      col.tipo === 'numero' || col.tipo === 'moeda' || col.tipo === 'unidade' ? 'right' :
-      col.tipo === 'badge' || col.tipo === 'periodo' ? 'center' :
-      undefined
-    )
-    const classeAlinhamento = alignEfetivo === 'center'
-      ? ' gtv-celula--center'
-      : alignEfetivo === 'right'
-        ? ' gtv-celula--right'
-        : ''
+    const classeAlinhamento = ' gtv-celula--center'
 
     const classeIndent   = ''
     const classeEditavel = podeEditar ? ' gtv-celula--editavel' : ''
@@ -1660,11 +1651,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
-            const classeAlinhamento = col.align === 'center'
-              ? ' gtv-celula--center'
-              : col.align === 'right'
-                ? ' gtv-celula--right'
-                : ''
+            const classeAlinhamento = ' gtv-celula--center'
             const classeEditavel = podeEditar ? ' gtv-celula--editavel' : ''
             const classeFrozen   = col.frozen ? ' gtv-celula--frozen' : ''
 
@@ -2071,16 +2058,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               const classeSort  = col.sortavel
                 ? ` gtv-th--sort${sortAtivo ? ' gtv-th--sorted' : ''}`
                 : ''
-              const alignEfetivoTh = col.align ?? (
-                col.tipo === 'numero' || col.tipo === 'moeda' || col.tipo === 'unidade' ? 'right' :
-                col.tipo === 'badge' || col.tipo === 'periodo' ? 'center' :
-                undefined
-              )
-              const classeAlign = alignEfetivoTh === 'center'
-                ? ' gtv-th--center'
-                : alignEfetivoTh === 'right'
-                  ? ' gtv-th--right'
-                  : ''
+              const classeAlign = ' gtv-th--center'
               const classeFrozen = col.frozen ? ' gtv-th--frozen' : ''
               const colWidth = getColWidth(col as GTColuna<unknown>)
 

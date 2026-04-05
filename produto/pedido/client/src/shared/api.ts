@@ -200,10 +200,10 @@ export const pedidoConfigApi = {
     request<{ data: PedidoColunaConfig[] }>('/api/v1/pedidos/config/colunas'),
 
   getPreferenciasUsuario: () =>
-    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias-usuario'),
+    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias/usuario'),
 
   salvarPreferenciasUsuario: (prefs: PedidoPreferenciasColunas) =>
-    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias-usuario', {
+    request<PedidoPreferenciasColunas>('/api/v1/pedidos/config/preferencias/usuario', {
       method: 'PUT',
       body: JSON.stringify(prefs),
     }),

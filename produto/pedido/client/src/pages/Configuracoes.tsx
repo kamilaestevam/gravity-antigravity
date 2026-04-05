@@ -38,6 +38,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, type PdfTemplate } from '../shared/api'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
+import type { FormulaAST } from '../shared/formulaEngine'
 import type {
   ColunaUsuario as ColunaUsuarioApi,
   TipoColunaUsuario,
@@ -500,6 +501,180 @@ function ToggleRow({
   )
 }
 
+// ─── Semântica dos campos de fórmula ──────────────────────────────────────────
+//
+// Cada campo tem:
+//   unidade  — tipo físico do valor (impede misturar qtd + financeiro, etc.)
+//   papel    — total | parcela | calculado (detecta soma de parte com o todo)
+//   parcelaDe — chave do campo pai quando papel = 'parcela'
+//   label    — nome legível para mensagens
+//
+// Para adicionar um novo campo basta incluir aqui — as regras são genéricas.
+
+type UnidadeSemantica = 'qtd' | 'fin' | 'peso' | 'vol'
+type PapelSemantico   = 'total' | 'parcela' | 'calculado'
+
+interface MetaCampo {
+  label:      string
+  unidade:    UnidadeSemantica
+  papel:      PapelSemantico
+  parcelaDe?: string
+}
+
+const SEMANTICA_CAMPOS: Record<string, MetaCampo> = {
+  quantidade_total_inicial_pedido:      { label: 'Quantidade Inicial',     unidade: 'qtd',  papel: 'total' },
+  quantidade_cancelada_total_pedido:    { label: 'Quantidade Cancelada',   unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
+  quantidade_transferida_total:         { label: 'Quantidade Transferida', unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
+  quantidade_pronta_itens_pedido_total: { label: 'Quantidade Pronta',      unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
+  saldo_itens_do_pedido:               { label: 'Saldo',                  unidade: 'qtd',  papel: 'calculado' },
+  valor_total_pedido:                  { label: 'Valor Total',            unidade: 'fin',  papel: 'total' },
+  peso_liquido_total_pedido:           { label: 'Peso Líquido',           unidade: 'peso', papel: 'total' },
+  peso_bruto_total_pedido:             { label: 'Peso Bruto',             unidade: 'peso', papel: 'total' },
+  cubagem_total_pedido:                { label: 'Cubagem',                unidade: 'vol',  papel: 'total' },
+}
+
+const LABEL_UNIDADE: Record<UnidadeSemantica, string> = {
+  qtd:  'quantidade',
+  fin:  'valor financeiro',
+  peso: 'peso',
+  vol:  'volume',
+}
+
+/** Coleta campos e operações do AST */
+function _coletarAST(no: FormulaAST, campos: string[], divisoes: Array<{ num: FormulaAST; den: FormulaAST }>, temSE: { v: boolean }) {
+  switch (no.tipo) {
+    case 'campo':
+      campos.push(no.chave)
+      break
+    case 'binop':
+      if (no.op === '/') divisoes.push({ num: no.esq, den: no.dir })
+      _coletarAST(no.esq, campos, divisoes, temSE)
+      _coletarAST(no.dir, campos, divisoes, temSE)
+      break
+    case 'se':
+      temSE.v = true
+      _coletarAST(no.condicao, campos, divisoes, temSE)
+      _coletarAST(no.verdadeiro, campos, divisoes, temSE)
+      _coletarAST(no.falso, campos, divisoes, temSE)
+      break
+    case 'condicao':
+      _coletarAST(no.esq, campos, divisoes, temSE)
+      _coletarAST(no.dir, campos, divisoes, temSE)
+      break
+  }
+}
+
+/** Coleta pares de operandos de campo em operações + e - */
+function _coletarSomas(no: FormulaAST): Array<{ op: '+' | '-'; esq: string | null; dir: string | null }> {
+  const resultado: Array<{ op: '+' | '-'; esq: string | null; dir: string | null }> = []
+  function visitar(n: FormulaAST) {
+    if (n.tipo === 'binop') {
+      if (n.op === '+' || n.op === '-') {
+        resultado.push({
+          op: n.op,
+          esq: n.esq.tipo === 'campo' ? n.esq.chave : null,
+          dir: n.dir.tipo === 'campo' ? n.dir.chave : null,
+        })
+      }
+      visitar(n.esq)
+      visitar(n.dir)
+    } else if (n.tipo === 'se') {
+      visitar(n.verdadeiro)
+      visitar(n.falso)
+    } else if (n.tipo === 'condicao') {
+      visitar(n.esq)
+      visitar(n.dir)
+    }
+  }
+  visitar(no)
+  return resultado
+}
+
+/**
+ * Analisa a semântica da fórmula e retorna um aviso para a GABI, ou null se OK.
+ * As regras são genéricas — não hardcoded por campo específico.
+ *
+ * Regra 1 — Parcela somada ao seu total:
+ *   Detecta qualquer `a + b` onde b.parcelaDe === a (ou vice-versa).
+ *   Ex: Quantidade Inicial + Quantidade Cancelada → duplica o cancelado.
+ *
+ * Regra 2 — Unidades incompatíveis:
+ *   Detecta operações entre campos de unidades físicas distintas.
+ *   Ex: Quantidade + Valor Financeiro → não faz sentido dimensional.
+ *
+ * Regra 3 — Divisão sem proteção:
+ *   Qualquer divisão fora de um SE() pode gerar divisão por zero.
+ */
+function analisarSemanticaFormula(expressao: string): { titulo: string; texto: string; sugestao?: string } | null {
+  let ast: FormulaAST
+  try { ast = parsearFormula(expressao) } catch { return null }
+
+  const campos: string[]  = []
+  const divisoes: Array<{ num: FormulaAST; den: FormulaAST }> = []
+  const temSE = { v: false }
+  _coletarAST(ast, campos, divisoes, temSE)
+  const somas = _coletarSomas(ast)
+
+  // ── Regra 1: parcela somada ao seu total ──────────────────────────────────
+  for (const op of somas) {
+    if (op.op !== '+') continue
+    const metaEsq = op.esq ? SEMANTICA_CAMPOS[op.esq] : null
+    const metaDir = op.dir ? SEMANTICA_CAMPOS[op.dir] : null
+    if (!metaEsq || !metaDir) continue
+
+    let labelParcela: string | null = null
+    let labelTotal:   string | null = null
+    let sugestao:     string | undefined
+
+    if (metaEsq.papel === 'parcela' && metaEsq.parcelaDe === op.dir) {
+      labelParcela = metaEsq.label
+      labelTotal   = metaDir.label
+      sugestao     = `${op.dir} - ${op.esq}`
+    } else if (metaDir.papel === 'parcela' && metaDir.parcelaDe === op.esq) {
+      labelParcela = metaDir.label
+      labelTotal   = metaEsq.label
+      sugestao     = `${op.esq} - ${op.dir}`
+    }
+
+    if (labelParcela && labelTotal) {
+      return {
+        titulo: 'Parcela somada ao seu total',
+        texto:  `"${labelParcela}" já está contida em "${labelTotal}" — somá-las dobra o valor. Se quer o que ainda está ativo, use subtração.`,
+        sugestao,
+      }
+    }
+  }
+
+  // ── Regra 2: unidades físicas incompatíveis ───────────────────────────────
+  const unidadesCampos = campos
+    .map(c => SEMANTICA_CAMPOS[c]?.unidade)
+    .filter((u): u is UnidadeSemantica => !!u)
+  const unidades = [...new Set(unidadesCampos)]
+
+  if (unidades.length > 1) {
+    const nomes = unidades.map(u => LABEL_UNIDADE[u])
+    return {
+      titulo: 'Unidades incompatíveis',
+      texto:  `A fórmula combina ${nomes.join(' com ')}. Operações entre grandezas diferentes raramente fazem sentido de negócio — verifique se os campos estão corretos.`,
+    }
+  }
+
+  // ── Regra 3: divisão sem SE ───────────────────────────────────────────────
+  if (divisoes.length > 0 && !temSE.v) {
+    const den = divisoes[0].den
+    const nomeDen = den.tipo === 'campo' ? SEMANTICA_CAMPOS[den.chave]?.label ?? den.chave
+                  : den.tipo === 'numero' ? String(den.valor)
+                  : null
+    return {
+      titulo: 'Divisão sem proteção',
+      texto:  `Se ${nomeDen ? `"${nomeDen}"` : 'o denominador'} for zero em algum pedido, a fórmula gerará erro. Proteja com SE(denominador == 0, 0, numerador / denominador).`,
+      sugestao: expressao.replace(/(.+)\/(.+)/, 'SE($2 == 0, 0, $1 / $2)'),
+    }
+  }
+
+  return null
+}
+
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function Configuracoes() {
@@ -593,24 +768,8 @@ export default function Configuracoes() {
         return
       }
 
-      // Avisos semânticos → Gabi
-      const expr = expressao.trim()
-      let gabi: { titulo: string; texto: string; sugestao?: string } | null = null
-
-      if (/\+/.test(expr) && /quantidade_total_inicial_pedido/.test(expr) && /saldo_itens_do_pedido/.test(expr)) {
-        gabi = {
-          titulo: 'Você quis dizer o saldo?',
-          texto: 'Somando Quantidade Inicial + Saldo. Se o objetivo é calcular o saldo disponível, a operação correta é subtração.',
-          sugestao: 'quantidade_total_inicial_pedido - quantidade_transferida_total',
-        }
-      } else if (/\//.test(expr) && !/SE\s*\(/.test(expr)) {
-        gabi = {
-          titulo: 'Divisão sem proteção',
-          texto: 'Se o denominador puder ser zero, a fórmula gerará erro. Proteja com SE().',
-          sugestao: expr.replace(/(.+)\/(.+)/, 'SE($2 == 0, 0, $1 / $2)'),
-        }
-      }
-
+      // Avisos semânticos → Gabi (análise genérica por AST + metadados)
+      const gabi = analisarSemanticaFormula(expressao)
       setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null); setFormulaGabi(gabi)
     } catch (err) {
       setFormulaErro(err instanceof Error ? `${err.message}` : 'Fórmula inválida')

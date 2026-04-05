@@ -128,11 +128,11 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
         } else {
           itensPorPart[item.part_number] = {
             part_number: item.part_number,
-            descricao: item.descricao,
+            descricao_item: item.descricao_item,
             ncm: item.ncm,
             unidade_comercializada_item: item.unidade_comercializada_item,
             moeda_item: item.moeda_item,
-            valor_unitario: item.valor_unitario,
+            valor_unitario: item.valor_por_unidade_item,
             quantidade_total: item.saldo_item_pedido,
             pedidos_origem: [pedido.numero_pedido],
             pode_fundir: false,
@@ -209,7 +209,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
             existente.quantidade_inicial_item_pedido += item.quantidade_inicial_item_pedido
             existente.saldo_item_pedido += item.saldo_item_pedido
             existente.quantidade_pronta_total += item.quantidade_pronta_total
-            existente.valor_item = (existente.valor_item ?? 0) + (item.valor_item ?? 0)
+            existente.valor_total_item = (existente.valor_total_item ?? 0) + (item.valor_total_item ?? 0)
           }
         } else {
           partNumbersVistos.add(item.part_number)

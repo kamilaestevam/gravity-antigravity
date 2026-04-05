@@ -27,11 +27,11 @@ const CAMPOS_SISTEMA_FALLBACK = [
   { valor: 'data_embarque',        rotulo: 'Data de Embarque'    },
   { valor: 'part_number',          rotulo: 'Part Number'         },
   { valor: 'ncm',                  rotulo: 'NCM'                 },
-  { valor: 'descricao',            rotulo: 'Descricao'           },
+  { valor: 'descricao_item',        rotulo: 'Descricao do Item'   },
   { valor: 'quantidade_inicial_item_pedido',   rotulo: 'Quantidade'          },
   { valor: 'unidade',              rotulo: 'Unidade'             },
-  { valor: 'valor_unitario',       rotulo: 'Valor Unitario'      },
-  { valor: 'valor_item',           rotulo: 'Valor Total Item'    },
+  { valor: 'valor_por_unidade_item',    rotulo: 'Valor por Unidade'   },
+  { valor: 'valor_total_item',     rotulo: 'Valor Total Item'    },
 ]
 
 // ── Props ─────────────────────────────────────────────────────────────────────

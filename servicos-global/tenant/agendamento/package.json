@@ -1,4 +1,4 @@
-﻿{
+{
     "scripts":  {
                     "typecheck":  "tsc --noEmit",
                     "dev":  "tsx watch server/index.ts",

@@ -13,7 +13,7 @@
  *     - Máximo ~90 caracteres na descricao
  *     - descricao responde: "o que esse campo faz pela minha empresa?"
  */
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useId } from 'react'
 import ReactDOM from 'react-dom'
 import './tooltip.css'
 import type { TooltipProps } from './tipos.js'
@@ -22,22 +22,14 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
   const [show, setShow] = useState(false)
   const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
   const ref = useRef<HTMLSpanElement>(null)
+  const tooltipId = useId()
 
-  const mostra = () => {
-    // Se estiver desabilitado globalmente via body class, não abre.
-    if (document.body.classList.contains('tooltips-disabled')) return
-
+  const calcularPos = () => {
     if (ref.current) {
       const r = ref.current.getBoundingClientRect()
-      
-      // Tentamos posicionar o card ACIMA do elemento.
-      // E usamos `bottom` (do viewport) como âncora para o card crescer para cima,
-      // a menos que não caiba, aí usamos `top` (abaixo do elemento).
       const espacoAcima = r.top
-      const usaBottom = espacoAcima > 80 // Se tiver mais que 80px acima, aparece em cima.
-      
+      const usaBottom = espacoAcima > 80
       const pxLeft = Math.max(138, Math.min(r.left + r.width / 2, window.innerWidth - 138))
-      
       setPos({
         usaBottom,
         bottom: usaBottom ? window.innerHeight - r.top + 8 : 0,
@@ -45,7 +37,18 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
         left: pxLeft,
       })
     }
+  }
+
+  const mostra = () => {
+    if (document.body.classList.contains('tooltips-disabled')) return
+    calcularPos()
     setShow(true)
+  }
+
+  const esconde = () => setShow(false)
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') esconde()
   }
 
   return (
@@ -53,16 +56,22 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
       <span
         ref={ref}
         onMouseEnter={mostra}
-        onMouseLeave={() => setShow(false)}
+        onMouseLeave={esconde}
+        onFocus={mostra}
+        onBlur={esconde}
+        onKeyDown={onKeyDown}
         className="tg-trigger"
         data-tg-mute={!descricao}
+        aria-describedby={show ? tooltipId : undefined}
       >
         {children}
       </span>
 
       {show && ReactDOM.createPortal(
-        <div 
-          className="tg-card" 
+        <div
+          id={tooltipId}
+          role="tooltip"
+          className="tg-card"
           data-start={pos.usaBottom ? 'bottom' : 'top'}
           style={{
             bottom: pos.usaBottom ? pos.bottom : 'auto',

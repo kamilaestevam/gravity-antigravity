@@ -279,6 +279,52 @@ describe('SmartImportService — cross-tenant', () => {
     expect(resultadoA).not.toBeNull()
     expect(resultadoB).toBeNull()
   })
+
+  it('confirmar com preview_id de outro tenant deve ser rejeitado', async () => {
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+
+    const csv = ['PO Number,NCM,Qty', 'PO-001,8471.30.19,100'].join('\n')
+    // Tenant A gera o preview
+    const preview = await svc.analisar('tenantA', toBuffer(csv), 'pedido.csv')
+
+    // Tenant B tenta confirmar o preview de Tenant A — deve lançar AppError
+    await expect(
+      svc.confirmar('tenantB', 'userB', {
+        preview_id: preview.preview_id,
+        mapeamento_confirmado: preview.mapeamento,
+        decisoes_duplicatas: {},
+        linhas_incluidas: preview.linhas.map(l => l.linha_arquivo),
+        salvar_mapeamento: false,
+      })
+    ).rejects.toThrow('Preview nao pertence a este tenant')
+  })
+
+  it('analisar para dois tenants diferentes nao compartilha estado', async () => {
+    const dbA = makeMockPrisma()
+    const dbB = makeMockPrisma()
+    const svcA = new SmartImportService(dbA)
+    const svcB = new SmartImportService(dbB)
+
+    const csvA = ['PO Number,NCM,Qty', 'PO-TENANT-A,8471.30.19,50'].join('\n')
+    const csvB = ['PO Number,NCM,Qty', 'PO-TENANT-B,8542.31.90,100'].join('\n')
+
+    const [previewA, previewB] = await Promise.all([
+      svcA.analisar('tenantA', toBuffer(csvA), 'a.csv'),
+      svcB.analisar('tenantB', toBuffer(csvB), 'b.csv'),
+    ])
+
+    // Preview IDs devem ser escopo do tenant correspondente
+    expect(previewA.preview_id.startsWith('tenantA-')).toBe(true)
+    expect(previewB.preview_id.startsWith('tenantB-')).toBe(true)
+    // Prisma de cada tenant foi chamado de forma independente
+    expect(dbA.pedido.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ tenant_id: 'tenantA' }) })
+    )
+    expect(dbB.pedido.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ tenant_id: 'tenantB' }) })
+    )
+  })
 })
 
 // ── Testes: Hash de colunas ───────────────────────────────────────────────────
@@ -489,7 +535,7 @@ describe('SmartImportService — stateless fallback (P0.3)', () => {
     }))
 
     const resultado = await svc.confirmar('tenant1', 'user1', {
-      preview_id: 'preview-id-inexistente-no-cache-xyz123',
+      preview_id: 'tenant1-preview-inexistente-xyz123',
       mapeamento_confirmado: [],
       decisoes_duplicatas: {},
       linhas_incluidas: [2],
@@ -516,7 +562,7 @@ describe('SmartImportService — stateless fallback (P0.3)', () => {
     }))
 
     const resultado = await svc.confirmar('tenant1', 'user1', {
-      preview_id: 'cache-miss-sem-linhas',
+      preview_id: 'tenant1-cache-miss-sem-linhas',
       mapeamento_confirmado: [],
       decisoes_duplicatas: {},
       linhas_incluidas: [2, 3],

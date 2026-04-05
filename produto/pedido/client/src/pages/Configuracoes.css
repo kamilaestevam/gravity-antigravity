@@ -679,6 +679,15 @@
   cursor: pointer;
 }
 
+.cfg-escopo-option--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cfg-escopo-option--disabled input[type="radio"] {
+  cursor: not-allowed;
+}
+
 /* ── Botão criar coluna ── */
 
 .cfg-criar-coluna-btn {

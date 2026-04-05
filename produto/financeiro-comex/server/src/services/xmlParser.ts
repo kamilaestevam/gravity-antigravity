@@ -129,3 +129,6 @@ export async function extrairImpostosXML(xmlString: string): Promise<ImpostoExtr
 
   return impostos
 }
+
+// Alias para compatibilidade com importar.ts
+export const parseXmlDuimp = extrairImpostosXML

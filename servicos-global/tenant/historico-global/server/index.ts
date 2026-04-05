@@ -34,7 +34,7 @@ app.get('/health', async (_req, res) => {
 
   try {
     const { PrismaClient } = await import('../generated/index.js')
-    const p = new PrismaClient()
+    const p = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
     await p.$queryRaw`SELECT 1`
     await p.$disconnect()
     dbStatus = 'ok'
@@ -52,7 +52,7 @@ app.get('/health', async (_req, res) => {
 
     // Conta jobs em estado 'failed' na tabela do pg-boss (DLQ)
     const { PrismaClient } = await import('../generated/index.js')
-    const p = new PrismaClient()
+    const p = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
     const result = await p.$queryRaw<[{ count: bigint }]>`
       SELECT count(*) FROM pgboss.job
       WHERE name = 'audit:log:ingestion' AND state = 'failed'
@@ -87,16 +87,26 @@ async function bootstrap() {
     process.exit(1)
   }
 
-  await initPgBoss(databaseUrl)
+  const boss = await initPgBoss(databaseUrl)
+  // Garantir que as queues existem antes de registrar workers e enviar jobs
+  await boss.createQueue('audit:log:ingestion').catch(() => { /* já existe */ })
   await startAuditWorker()
   await startExportWorker()
   await startIntegrityCheckWorker()
   await startPartitionWorker()
 
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`[historico] Serviço rodando na porta ${PORT}`)
     console.log(`[historico] Health check: http://localhost:${PORT}/health`)
   })
+
+  // Graceful shutdown — garante que tsx watch libera a porta antes de reiniciar
+  const shutdown = () => {
+    server.close(() => process.exit(0))
+    setTimeout(() => process.exit(0), 2000)
+  }
+  process.on('SIGTERM', shutdown)
+  process.on('SIGINT', shutdown)
 }
 
 bootstrap().catch((err) => {

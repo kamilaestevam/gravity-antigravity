@@ -13,6 +13,7 @@ import { Package, Tag, Plus, Trash, Warning } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
 import { pedidoApi } from '../shared/api'
 
@@ -46,10 +47,10 @@ interface ItemForm {
   key: string
   part_number: string
   ncm: string
-  descricao: string
+  descricao_item: string
   quantidade_inicial_item_pedido: string
   unidade_comercializada_item: string
-  valor_unitario: string
+  valor_por_unidade_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -73,10 +74,10 @@ const ITEM_VAZIO = (): ItemForm => ({
   key: crypto.randomUUID(),
   part_number: '',
   ncm: '',
-  descricao: '',
+  descricao_item: '',
   quantidade_inicial_item_pedido: '',
   unidade_comercializada_item: 'UN',
-  valor_unitario: '',
+  valor_por_unidade_item: '',
 })
 
 // ── Opções de select ───────────────────────────────────────────────────────────
@@ -135,7 +136,7 @@ function traduzirErroApi(err: unknown): string {
     return 'Sem conexão com o servidor. Verifique sua internet e tente novamente.'
   }
 
-  if (!(err instanceof Error)) return 'Erro desconhecido. Tente novamente.'
+  if (!(err instanceof Error)) return 'Erro inesperado. Verifique o console e tente novamente.'
 
   const msg = err.message
 
@@ -300,6 +301,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   const [itens, setItens]       = useState<ItemForm[]>([ITEM_VAZIO()])
   const [salvando, setSalvando] = useState(false)
   const [erros, setErros]       = useState<ErrosValidacao>({})
+  const { addNotification } = useShellStore()
 
   // Bloqueia fechar enquanto está salvando (evita pedido duplicado)
   const handleFechar = useCallback(() => {
@@ -362,14 +364,14 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     setErros({})
     try {
       const itensMapped = itens
-        .filter(it => it.part_number.trim() !== '' || it.descricao.trim() !== '' || it.ncm.trim() !== '' || it.quantidade_inicial_item_pedido.trim() !== '')
+        .filter(it => it.part_number.trim() !== '' || it.descricao_item.trim() !== '' || it.ncm.trim() !== '' || it.quantidade_inicial_item_pedido.trim() !== '')
         .map(it => ({
           part_number: it.part_number,
           ncm: it.ncm,
-          descricao: it.descricao,
-          quantidade_inicial: parseFloat(it.quantidade_inicial_item_pedido) || 0,
+          descricao_item: it.descricao_item,
+          quantidade_inicial_pedido: parseFloat(it.quantidade_inicial_item_pedido) || 0,
           unidade_comercializada_item: it.unidade_comercializada_item,
-          valor_unitario: it.valor_unitario ? parseFloat(it.valor_unitario) : undefined,
+          valor_por_unidade_item: it.valor_por_unidade_item ? parseFloat(it.valor_por_unidade_item) : undefined,
         }))
 
       // Converter data para ISO 8601 completo (z.string().datetime() no backend)
@@ -377,17 +379,33 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
         ? new Date(`${form.data_emissao_pedido}T00:00:00.000Z`).toISOString()
         : undefined
 
+      // Converter strings vazias para null nos campos opcionais
+      const formLimpo = Object.fromEntries(
+        Object.entries(form).map(([k, v]) =>
+          k === 'tipo_operacao' || k === 'numero_pedido'
+            ? [k, v]
+            : [k, typeof v === 'string' && v.trim() === '' ? null : v]
+        )
+      )
+
       const payload = {
-        ...form,
+        ...formLimpo,
         data_emissao_pedido: dataISO,
         itens: itensMapped as PedidoItem[],
       }
 
       const resultado = await pedidoApi.criar(payload)
+      addNotification({
+        type: 'success',
+        message: `Pedido ${resultado.numero_pedido} criado com sucesso.`,
+      })
       onSalvo(resultado)
       handleFechar()
     } catch (err: unknown) {
-      setErros({ geral: traduzirErroApi(err) })
+      console.error('[ModalNovoPedido] erro ao criar pedido:', err)
+      const msg = traduzirErroApi(err)
+      setErros({ geral: msg })
+      addNotification({ type: 'error', message: msg })
     } finally {
       setSalvando(false)
     }
@@ -655,8 +673,8 @@ function Passo2Itens({
               <input
                 id={`mnp-desc-${index}`}
                 style={s.inputCompacto}
-                value={item.descricao}
-                onChange={e => onChangeItem(index, 'descricao', e.target.value)}
+                value={item.descricao_item}
+                onChange={e => onChangeItem(index, 'descricao_item', e.target.value)}
                 placeholder="Descrição do item"
               />
             </div>
@@ -693,8 +711,8 @@ function Passo2Itens({
                 id={`mnp-vl-${index}`}
                 type="number"
                 style={{ ...s.inputCompacto, textAlign: 'right' }}
-                value={item.valor_unitario}
-                onChange={e => onChangeItem(index, 'valor_unitario', e.target.value)}
+                value={item.valor_por_unidade_item}
+                onChange={e => onChangeItem(index, 'valor_por_unidade_item', e.target.value)}
                 placeholder="0,00"
                 min="0"
                 step="0.01"

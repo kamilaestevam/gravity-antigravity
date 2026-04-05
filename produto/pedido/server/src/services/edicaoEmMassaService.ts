@@ -29,7 +29,7 @@ const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
 ])
 
 const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_item',
+  'valor_total_item',
   'saldo_item_pedido',
   'id',
   'tenant_id',
@@ -318,7 +318,7 @@ export class EdicaoEmMassaService {
       select: {
         quantidade_inicial_item_pedido: true,
         quantidade_transferida_item: true,
-        valor_unitario: true,
+        valor_por_unidade_item: true,
         saldo_item_pedido: true,
       },
     })
@@ -332,8 +332,8 @@ export class EdicaoEmMassaService {
       0,
     )
     const valorTotal = itens.reduce(
-      (acc: number, i: { valor_unitario: number | null; saldo_item_pedido: number }) =>
-        acc + ((i.valor_unitario ?? 0) * (i.saldo_item_pedido ?? 0)),
+      (acc: number, i: { valor_por_unidade_item: number | null; saldo_item_pedido: number }) =>
+        acc + ((i.valor_por_unidade_item ?? 0) * (i.saldo_item_pedido ?? 0)),
       0,
     )
 

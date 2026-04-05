@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,SC-BACK,PROC-BACK -c blue,green,yellow,magenta \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd produto/simula-custo/server && npx tsx watch src/index.ts\" \"cd produto/processo/server && npx tsx watch src/index.ts\"",
+    "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,SC-BACK,PROC-BACK,HIST-BACK -c blue,green,yellow,magenta,cyan \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd produto/simula-custo/server && npx tsx watch src/index.ts\" \"cd produto/processo/server && npx tsx watch src/index.ts\" \"cd servicos-global/tenant/historico-global && npm run dev\"",
     "db:compose": "npx ts-node scripts/compose-tenant-schema.ts",
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/tenant/prisma/schema.prisma",
     "db:migrate:deploy": "npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/tenant/prisma/schema.prisma",

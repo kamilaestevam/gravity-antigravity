@@ -13,6 +13,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Tag, MagnifyingGlass } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { useShellStore } from '@gravity/shell'
 import type { Pedido, PedidoItem } from '../shared/types'
 import { pedidoApi, pedidoItemApi } from '../shared/api'
 
@@ -32,19 +33,19 @@ const PASSOS_DIRETO: PassoConfig[] = [
 interface ItemForm {
   part_number: string
   ncm: string
-  descricao: string
+  descricao_item: string
   quantidade_inicial_item_pedido: string
   unidade_comercializada_item: string
-  valor_unitario: string
+  valor_por_unidade_item: string
 }
 
 const ITEM_VAZIO: ItemForm = {
   part_number: '',
   ncm: '',
-  descricao: '',
+  descricao_item: '',
   quantidade_inicial_item_pedido: '',
   unidade_comercializada_item: 'UN',
-  valor_unitario: '',
+  valor_por_unidade_item: '',
 }
 
 const OPCOES_UOM = ['UN','MT','M2','KG','LT','TON','CM3','PC']
@@ -132,6 +133,7 @@ export function ModalNovoItem({
   onFechar,
   onSalvo,
 }: ModalNovoItemProps) {
+  const { addNotification } = useShellStore()
   const modoContexto = Boolean(pedidoIdProp)
 
   const [passo, setPasso]                         = useState(modoContexto ? 1 : 1)
@@ -175,10 +177,10 @@ export function ModalNovoItem({
   // Validação por passo
   const podeAvancar = (() => {
     if (modoContexto) {
-      return item.part_number.trim() !== '' || item.descricao.trim() !== ''
+      return item.part_number.trim() !== '' || item.descricao_item.trim() !== ''
     }
     if (passo === 1) return pedidoSelecionadoId.trim() !== ''
-    return item.part_number.trim() !== '' || item.descricao.trim() !== ''
+    return item.part_number.trim() !== '' || item.descricao_item.trim() !== ''
   })()
 
   async function handleProximo() {
@@ -198,15 +200,19 @@ export function ModalNovoItem({
       const resultado = await pedidoItemApi.adicionar(pedidoAlvo, {
         part_number: item.part_number,
         ncm: item.ncm,
-        descricao: item.descricao,
+        descricao_item: item.descricao_item,
         quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
         unidade_comercializada_item: item.unidade_comercializada_item,
-        valor_unitario: item.valor_unitario ? parseFloat(item.valor_unitario) : undefined,
+        valor_por_unidade_item: item.valor_por_unidade_item ? parseFloat(item.valor_por_unidade_item) : undefined,
       } as Partial<PedidoItem>)
+      const pn = item.part_number.trim() || item.descricao_item.trim() || 'item'
+      addNotification({ type: 'success', message: `Item ${pn} adicionado ao PO.`, duration: 4000 })
       onSalvo(resultado)
       handleFechar()
     } catch (err: unknown) {
-      setErro(err instanceof Error ? err.message : 'Erro ao adicionar item. Tente novamente.')
+      const msg = err instanceof Error ? err.message : 'Erro ao adicionar item. Tente novamente.'
+      setErro(msg)
+      addNotification({ type: 'error', message: `Falha ao adicionar item: ${msg}`, duration: 4000 })
     } finally {
       setSalvando(false)
     }
@@ -297,8 +303,8 @@ export function ModalNovoItem({
               <input
                 id="mni-desc"
                 style={s.input}
-                value={item.descricao}
-                onChange={e => setItemField('descricao', e.target.value)}
+                value={item.descricao_item}
+                onChange={e => setItemField('descricao_item', e.target.value)}
                 placeholder="Descrição do item"
               />
             </div>
@@ -329,8 +335,8 @@ export function ModalNovoItem({
                 id="mni-vl"
                 type="number"
                 style={{ ...s.input, textAlign: 'right' }}
-                value={item.valor_unitario}
-                onChange={e => setItemField('valor_unitario', e.target.value)}
+                value={item.valor_por_unidade_item}
+                onChange={e => setItemField('valor_por_unidade_item', e.target.value)}
                 placeholder="0,00"
                 min="0"
                 step="0.01"

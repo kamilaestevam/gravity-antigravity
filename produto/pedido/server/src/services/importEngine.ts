@@ -12,58 +12,62 @@
  * Retorna sempre Array<Record<string, string>> — cabecalhos como chaves.
  */
 
+import { createHash } from 'node:crypto'
+
 // ── Aliases conhecidos de campos para sugestao de mapeamento ─────────────────
 
 export const ALIASES_CAMPOS: Record<string, string[]> = {
   numero_pedido: [
-    'po number', 'po no', 'purchase order', 'order number', 'order no', 'pedido',
+    'po number', 'po no', 'purchase order', 'order number', 'order no',
     'numero pedido', 'num pedido', 'po#', 'so number', 'so no', 'sales order',
-    'ref', 'referencia', 'ref pedido', 'num po', 'n pedido', 'n. pedido',
+    'referencia', 'ref pedido', 'num po', 'n pedido', 'n. pedido',
     'purchase order number', 'po num', 'order ref',
   ],
   tipo_operacao: ['type', 'tipo', 'operation', 'operacao', 'import/export'],
   exportador: [
     'supplier', 'vendor', 'fornecedor', 'exportador', 'seller', 'shipper',
-    'exporter', 'fabricante', 'manufacturer',
-    'nome exportador', 'company', 'empresa', 'nome empresa', 'supply company',
+    'exporter', 'nome exportador', 'company', 'empresa', 'nome empresa', 'supply company',
   ],
-  fabricante: ['manufacturer', 'fabricante', 'maker', 'brand'],
-  incoterm: ['incoterm', 'incoterms', 'delivery terms', 'terms', 'trade terms'],
-  moeda_pedido: ['currency', 'moeda', 'cur', 'ccy'],
+  // fabricante NÃO é alias de exportador — campos distintos
+  fabricante: ['manufacturer', 'fabricante', 'maker', 'brand', 'produced by'],
+  incoterm: ['incoterm', 'incoterms', 'delivery terms', 'trade terms'],
+  moeda_pedido: ['currency', 'moeda', 'cur', 'ccy', 'moeda pedido'],
   data_emissao_pedido: [
-    'date', 'order date', 'po date', 'data', 'data pedido', 'issue date',
-    'data emissao', 'data emissão',
-    'data do pedido', 'data criacao', 'emissao', 'emissão',
+    'order date', 'po date', 'issue date',
+    'data emissao', 'data emissão', 'data pedido',
+    'data do pedido', 'data criacao', 'emissao', 'emissão', 'data emissao pedido',
   ],
   data_embarque: [
     'ship date', 'shipment date', 'etd', 'eta', 'data embarque',
     'data envio', 'expected ship', 'delivery date',
-    'previsao embarque', 'prev embarque', 'ship', 'embarcamento',
+    'previsao embarque', 'prev embarque', 'embarcamento',
   ],
   part_number: [
     'part number', 'part no', 'part#', 'sku', 'item code', 'product code',
-    'part', 'codigo', 'codigo produto', 'item number', 'reference',
+    'codigo', 'codigo produto', 'item number', 'reference', 'part num',
   ],
-  ncm: ['ncm', 'hs code', 'hs', 'harmonized code', 'tariff code', 'classificacao'],
-  descricao: [
+  ncm: ['ncm', 'hs code', 'hs', 'harmonized code', 'tariff code', 'classificacao', 'customs tariff'],
+  descricao_item: [
     'description', 'desc', 'item description', 'product description',
-    'descricao', 'descricão', 'nome', 'name', 'product name',
-    'descr', 'item', 'produto', 'product', 'goods description',
+    'descricao', 'descricão', 'product name',
+    'descr', 'produto', 'product', 'goods description',
   ],
   quantidade_inicial_item_pedido: [
-    'qty', 'quantity', 'qtd', 'quantidade', 'amount', 'ordered qty',
+    'qty', 'quantity', 'qtd', 'quantidade', 'ordered qty',
     'order qty', 'qtde',
     'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'count',
+    'quantidade inicial item pedido',
   ],
-  unidade: ['unit', 'uom', 'unidade', 'un', 'measure', 'unit of measure'],
-  valor_unitario: [
+  unidade: ['uom', 'unidade', 'un', 'measure', 'unit of measure'],
+  // 'unit' sozinho removido — muito curto e causa falsos positivos (valor_unitario, unit price)
+  valor_por_unidade_item: [
     'unit price', 'price', 'unit value', 'valor unitario', 'preco unitario',
-    'valor unit', 'unit cost', 'preco',
+    'valor unit', 'unit cost', 'preco', 'unit price value',
     'vl unitario', 'vl unit', 'valor un', 'preco un',
   ],
-  valor_item: [
-    'total', 'total value', 'amount', 'line total', 'valor total', 'total item',
-    'valor item', 'line amount',
+  valor_total_item: [
+    'total value', 'line total', 'valor total', 'total item',
+    'valor item', 'line amount', 'total amount',
     'vl total', 'vl item', 'valor linha', 'line value',
   ],
 }
@@ -72,13 +76,18 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
 
 export type LinhaArquivo = Record<string, string>
 
+export interface ParseResultado {
+  linhas: LinhaArquivo[]
+  extrator_usado: string
+}
+
 // ── Parser principal ──────────────────────────────────────────────────────────
 
 export async function parseArquivo(
   buffer: Buffer,
   nomeArquivo: string,
   nomePlanilha?: string,
-): Promise<LinhaArquivo[]> {
+): Promise<ParseResultado> {
   const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
 
   switch (ext) {
@@ -91,16 +100,19 @@ export async function parseArquivo(
         : workbook.SheetNames[0]
       const sheet = workbook.Sheets[sheetName]
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' })
-      return rows.map(row =>
-        Object.fromEntries(
-          Object.entries(row).map(([k, v]) => [String(k), String(v ?? '')])
-        )
-      )
+      return {
+        linhas: rows.map(row =>
+          Object.fromEntries(
+            Object.entries(row).map(([k, v]) => [String(k), String(v ?? '')])
+          )
+        ),
+        extrator_usado: ext,
+      }
     }
 
     case 'csv':
     case 'txt': {
-      return parseCsv(buffer.toString('utf-8'))
+      return { linhas: parseCsv(buffer.toString('utf-8')), extrator_usado: ext }
     }
 
     case 'json': {
@@ -108,29 +120,44 @@ export async function parseArquivo(
       if (!Array.isArray(parsed)) {
         throw new Error('JSON deve ser um array de objetos')
       }
-      return (parsed as Record<string, unknown>[]).map(row =>
-        Object.fromEntries(
-          Object.entries(row).map(([k, v]) => [String(k), String(v ?? '')])
-        )
-      )
+      return {
+        linhas: (parsed as Record<string, unknown>[]).map(row =>
+          Object.fromEntries(
+            Object.entries(row).map(([k, v]) => [String(k), String(v ?? '')])
+          )
+        ),
+        extrator_usado: 'json',
+      }
     }
 
     case 'xml': {
-      return parseXml(buffer.toString('utf-8'))
+      return { linhas: parseXml(buffer.toString('utf-8')), extrator_usado: 'xml' }
     }
 
     case 'pdf': {
       // Tentar extração via Gemini (GEMINI_PDF_ENABLED=true no .env)
       const { extrairPdfComGemini } = await import('./geminiPdfExtractor.js')
       const gemini = await extrairPdfComGemini(buffer)
-      if (gemini) return gemini.linhas
+      if (gemini) return { linhas: gemini.linhas, extrator_usado: 'gemini' }
 
       // Fallback: parser local de texto
-      const { PDFParse } = await import('pdf-parse')
-      const parser = new PDFParse({ data: buffer })
-      await parser.load()
-      const result = await parser.getText()
-      return parsePdfText(result.text)
+      try {
+        const { PDFParse } = await import('pdf-parse')
+        const parser = new PDFParse({ data: buffer })
+        await parser.load()
+        const result = await parser.getText()
+        return { linhas: parsePdfText(result.text), extrator_usado: 'pdf-parse' }
+      } catch (pdfErr: unknown) {
+        const msg = pdfErr instanceof Error ? pdfErr.message : String(pdfErr)
+        console.warn(`[PDF] Parser local falhou (${msg}) — retornando aviso`)
+        return {
+          linhas: [{
+            _aviso: 'PDF nao pode ser lido automaticamente. Use Excel ou CSV para melhores resultados.',
+            _conteudo: `Erro: ${msg}`,
+          }],
+          extrator_usado: 'pdf-erro',
+        }
+      }
     }
 
     default:
@@ -297,16 +324,9 @@ function parsePdfText(texto: string): LinhaArquivo[] {
   return resultado
 }
 
-// ── Calcular hash SHA256 dos cabecalhos ───────────────────────────────────────
+// ── Calcular hash dos cabecalhos (SHA-256 via Node crypto) ───────────────────
 
 export function calcularHashColunas(cabecalhos: string[]): string {
   const str = cabecalhos.slice().sort().join('|').toLowerCase()
-  // Hash simples sem crypto para evitar dependencia de Node crypto no browser
-  let hash = 0
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash |= 0
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0')
+  return createHash('sha256').update(str).digest('hex').slice(0, 16)
 }

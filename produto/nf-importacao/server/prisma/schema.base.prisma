@@ -1,0 +1,13 @@
+// schema.base.prisma — NF Importacao
+// Skill: antigravity-criar-produto (Passo 8)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos específicos de NF Importacao são definidos em fragment.prisma

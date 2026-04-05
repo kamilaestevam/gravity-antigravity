@@ -44,11 +44,11 @@ const ROTULOS_CAMPO: Record<string, string> = {
   data_embarque:       'Data Embarque',
   part_number:         'Part Number',
   ncm:                 'NCM',
-  descricao:           'Descrição',
+  descricao_item:      'Descrição do Item',
   quantidade_inicial_item_pedido:  'Quantidade',
   unidade:             'Unidade',
-  valor_unitario:      'Valor Unit.',
-  valor_item:          'Valor Total',
+  valor_por_unidade_item:   'Valor Unit.',
+  valor_total_item:    'Valor Total',
 }
 
 function rotulo(campo: string): string {
@@ -88,7 +88,7 @@ function CardPedido({
   const [numeroTemp, setNumeroTemp]              = useState('')
 
   const temDuplicata = linha.alertas.some(a => a.tipo === 'duplicado_sistema')
-  const numeroAtual  = numeroEditado ?? linha.numero_pedido_sugerido ?? linha.numero_pedido ?? '—'
+  const numeroAtual  = numeroEditado ?? linha.numero_pedido ?? '—'
 
   const camposVisiveis = Object.entries(linha.dados)
     .filter(([k]) => k !== 'numero_pedido')

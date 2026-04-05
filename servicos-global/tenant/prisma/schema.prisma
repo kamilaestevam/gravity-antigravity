@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-03T00:31:16.365Z
+// Gerado em: 2026-04-05T11:21:44.041Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core
 // Todos os fragments encontrados.
 // ============================================================================
@@ -547,40 +547,137 @@ model WhatsAppAutomation {
 
 
 // --- Fragment: dashboard ---
-// servicos-global/tenant/dashboard/prisma/fragment.prisma
+// fragment.prisma — Dashboard Service
+// NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
+// Coordenador compõe via scripts/compose-tenant-schema.ts
 
-model ConfigDashboard {
-  id             String   @id @default(cuid())
-  tenant_id      String
-  product_id     String?
-  user_id        String?
-  widgets_layout Json?    // Layout grid state
-  refresh_rate   Int      @default(300000) // Default 5 min polling
+enum DashboardMode {
+  PRODUCT
+  GENERAL
+}
 
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
+enum WidgetType {
+  CATALOG
+  CUSTOM
+  GABI
+}
+
+enum ChartType {
+  KPI_CARD
+  LINE
+  BAR
+  BAR_HORIZONTAL
+  DONUT
+  HISTOGRAM
+  FUNNEL
+  GAUGE
+  MAP
+  TABLE
+  AREA
+}
+
+model DashboardConfig {
+  id         String        @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String
+  name       String        @default("Meu Dashboard")
+  mode       DashboardMode @default(PRODUCT)
+  layout     Json          @default("[]")
+  filters    Json?
+  is_default Boolean       @default(false)
+  widgets    DashboardWidget[]
+  alerts     DashboardAlert[]
+  shares     DashboardShare[]
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
 }
 
-model MetricaSnapshot {
-  id            String   @id @default(cuid())
-  tenant_id     String
-  product_id    String?
-  metric_name   String
-  value         Float
-  unit          String?
-  snapshot_date DateTime @default(now())
-
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+model DashboardWidget {
+  id           String          @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String
+  dashboard_id String
+  widget_key   String
+  widget_type  WidgetType      @default(CATALOG)
+  chart_type   ChartType       @default(KPI_CARD)
+  title        String
+  query_spec   Json
+  position     Json            @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
+  config       Json?
+  dashboard    DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  // Extra index heavily used for aggregation
-  @@index([tenant_id, metric_name, snapshot_date])
+  @@index([tenant_id, user_id])
+}
+
+model DashboardMetricSnapshot {
+  id          String   @id @default(cuid())
+  tenant_id   String
+  product_id  String
+  user_id     String?
+  metric_key  String
+  dimensions  Json?
+  value       Json
+  period_from DateTime
+  period_to   DateTime
+  captured_at DateTime @default(now())
+
+  @@unique([tenant_id, product_id, metric_key, period_from, period_to])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model DashboardAlert {
+  id             String          @id @default(cuid())
+  tenant_id      String
+  product_id     String?
+  user_id        String
+  dashboard_id   String
+  widget_id      String?
+  metric_key     String
+  condition      String
+  threshold      Json
+  channels       String[]        @default([])
+  is_active      Boolean         @default(true)
+  last_triggered DateTime?
+  dashboard      DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+model DashboardShare {
+  id              String          @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String
+  dashboard_id    String
+  share_token     String          @unique @default(cuid())
+  channel         String
+  recipient_email String?
+  recipient_phone String?
+  snapshot_data   Json?
+  expires_at      DateTime?
+  dashboard       DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  created_at      DateTime        @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([share_token])
+  @@index([tenant_id, user_id])
 }
 
 
@@ -795,6 +892,24 @@ enum AlertStatus {
   ESCALATED
 }
 
+/// Resultado de exportação em background (acima de 10k registros).
+/// Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
+model ExportResult {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  format       String   // 'csv' | 'json'
+  content      String   @db.Text
+  status       String   @default("processing") // 'processing' | 'ready' | 'failed'
+  record_count Int      @default(0)
+  filters      Json?
+  error        String?
+  created_at   DateTime @default(now())
+  expires_at   DateTime // cleanup job remove após 24h
+
+  @@index([tenant_id, status])
+  @@index([expires_at])
+}
+
 
 // --- Fragment: agendamento ---
 model Agenda {
@@ -1006,6 +1121,7 @@ model Pedido {
   // Parceiros Negociais Internacionais
   importacao_exportador_id String? // Se importacao: A Fábrica/Fornecedor (Exterior)
   exportacao_importador_id String? // Se exportacao: O Cliente Final (Exterior)
+  fabricante_id            String? // Fabricante do produto (pode diferir do exportador)
 
   // DADOS COMERCIAIS GLOBAIS (Capa do Pedido)
   incoterm                               String?
@@ -1019,6 +1135,13 @@ model Pedido {
   // DADOS FINANCEIROS & FECHAMENTO DE CÂMBIO (FX)
   cobertura_cambial  String  @default("com_cobertura") // com_cobertura | sem_cobertura
   condicao_pagamento String? // Ex: 30% Antecipado, 70% Contra-Documento
+
+  // Referências Documentais
+  numero_proforma         String? // Número da Proforma Invoice
+  numero_invoice          String? // Número da Commercial Invoice
+  referencia_importador   String? // Referência interna do importador
+  referencia_exportador   String? // Referência interna do exportador
+  referencia_fabricante   String? // Referência do fabricante
 
   valor_total_cambio   Decimal? @db.Decimal(18,6) // O montante do boleto cambial real fechado
   moeda_cambio         String? // Padrão cruzado: Ex: BRL (Saindo) -> USD (Comprando)
@@ -1401,4 +1524,27 @@ model PedidoPreferenciaPadrao {
   @@unique([tenant_id])
   @@index([tenant_id])
   @@map("pedido_preferencias_padrao")
+}
+
+// Mapeamento de colunas de importacao salvo por tenant (Smart Import — Memoria)
+// Associa hash dos cabecalhos de um arquivo ao mapeamento confirmado pelo usuario.
+// Nas proximas importacoes com o mesmo arquivo, o mapeamento e aplicado automaticamente.
+model MapeamentoImport {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?  // null = mapeamento compartilhado no workspace; preenchido = mapeamento pessoal
+
+  hash_colunas String               // SHA256 (ou hash simples) dos cabecalhos ordenados
+  mapeamento   String               // JSON serializado de ColunaMapeada[]
+  uso_count    Int      @default(1) // quantas vezes o mapeamento foi utilizado
+
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, hash_colunas])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@map("mapeamento_import")
 }

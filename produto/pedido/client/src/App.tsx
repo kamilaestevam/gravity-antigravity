@@ -6,6 +6,7 @@ import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-g
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
+import { setApiContext } from './shared/api'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
@@ -92,6 +93,14 @@ export function App() {
   } = useShellStore()
 
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
+
+  // Sincroniza tenant/user do Shell com o contexto de API
+  useEffect(() => {
+    setApiContext({
+      tenantId: currentUser.tenantId ?? import.meta.env.VITE_DEV_TENANT_ID ?? '',
+      userId:   currentUser.id       ?? '',
+    })
+  }, [currentUser.tenantId, currentUser.id])
 
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'

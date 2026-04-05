@@ -72,8 +72,8 @@ model TransferHistorico {
   created_at       DateTime  @default(now())
   created_by       String
 
-  // Relação com PedidoComercial (alias canônico do produto Pedido)
-  pedido_origem    PedidoComercial @relation(fields: [pedido_origem_id], references: [id])
+  // Relação com Pedido (pedidos_comerciais)
+  pedido_origem    Pedido @relation(fields: [pedido_origem_id], references: [id])
 
   // Índices obrigatórios (agent-policy)
   @@index([tenant_id])

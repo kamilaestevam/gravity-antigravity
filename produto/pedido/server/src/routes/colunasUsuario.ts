@@ -19,10 +19,26 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
-import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
 import { ColunasUsuarioService } from '../services/colunasUsuarioService.js'
 import { analisarFormulaComGemini } from '../services/geminiFormulaAdvisor.js'
+import {
+  CriarColunaSchema,
+  AtualizarColunaSchema,
+  ReordenarSchema,
+  SalvarValoresSchema,
+  ListarValoresQuerySchema,
+  GabiAnaliseSchema,
+} from './colunasUsuarioSchemas.js'
+
+export {
+  CriarColunaSchema,
+  AtualizarColunaSchema,
+  ReordenarSchema,
+  SalvarValoresSchema,
+  ListarValoresQuerySchema,
+  GabiAnaliseSchema,
+}
 
 export const colunasUsuarioRouter = Router()
 
@@ -48,50 +64,6 @@ function getUserRoles(req: Request): string[] {
 function getDb(req: Request): Record<string, unknown> {
   return (req as unknown as Record<string, unknown>).prisma as Record<string, unknown>
 }
-
-// ── Zod Schemas ───────────────────────────────────────────────────────────────
-
-const CriarColunaSchema = z.object({
-  nome:             z.string().min(1).max(60),
-  tipo:             z.enum(['texto', 'numero', 'data', 'select', 'checkbox', 'percentual', 'tipo_documento']),
-  escopo:           z.enum(['pedido', 'item', 'ambos']),
-  visibilidade:     z.enum(['todos', 'roles', 'privado']),
-  roles_permitidas: z.array(z.string()).optional(),
-  obrigatorio:      z.boolean().default(false),
-  opcoes:           z.array(z.string()).optional(),
-  descricao:        z.string().max(200).optional(),
-  valor_padrao:     z.string().optional(),
-})
-
-const AtualizarColunaSchema = z.object({
-  nome:             z.string().min(1).max(60).optional(),
-  // tipo é propositalmente ausente — não pode ser alterado
-  escopo:           z.enum(['pedido', 'item', 'ambos']).optional(),
-  visibilidade:     z.enum(['todos', 'roles', 'privado']).optional(),
-  roles_permitidas: z.array(z.string()).optional(),
-  obrigatorio:      z.boolean().optional(),
-  opcoes:           z.array(z.string()).optional(),
-  descricao:        z.string().max(200).optional(),
-  valor_padrao:     z.string().optional(),
-}).refine(
-  data => !('tipo' in data),
-  { message: 'O tipo de uma coluna não pode ser alterado após a criação.', path: ['tipo'] },
-)
-
-const ReordenarSchema = z.object({
-  ids: z.array(z.string().min(1)).min(1),
-})
-
-const SalvarValoresSchema = z.object({
-  vinculo:    z.enum(['pedido', 'item']),
-  vinculo_id: z.string().min(1),
-  valores:    z.record(z.string()),
-})
-
-const ListarValoresQuerySchema = z.object({
-  vinculo:    z.enum(['pedido', 'item']),
-  vinculo_id: z.string().min(1),
-})
 
 // ── GET / — listar colunas ────────────────────────────────────────────────────
 
@@ -255,17 +227,6 @@ colunasUsuarioRouter.put('/:id', async (req: Request, res: Response, next: NextF
 //
 // Quando GEMINI_GABI_ENABLED=false (padrão), retorna { gemini: false } e o
 // frontend usa a análise determinística local como fallback transparente.
-
-const GabiAnaliseSchema = z.object({
-  expressao: z.string().min(1).max(2000),
-  campos: z.array(z.object({
-    chave:    z.string(),
-    label:    z.string(),
-    unidade:  z.string().optional(),
-    papel:    z.string().optional(),
-    tipo:     z.string().optional(),
-  })),
-})
 
 colunasUsuarioRouter.post('/gabi-analise', async (req: Request, res: Response, next: NextFunction) => {
   const parse = GabiAnaliseSchema.safeParse(req.body)

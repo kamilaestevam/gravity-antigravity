@@ -148,14 +148,14 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       quantidade_total_inicial_pedido?: number | null
       itens: Array<{
         part_number: string
-        descricao: string
+        descricao_item: string
         ncm: string
         saldo_item_pedido: number
         quantidade_inicial_item_pedido: number
         unidade_comercializada_item?: string | null
         moeda_item: string
-        valor_unitario?: number | null
-        valor_item?: number | null
+        valor_por_unidade_item?: number | null
+        valor_total_item?: number | null
       }>
       [key: string]: unknown
     }
@@ -260,14 +260,14 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
       quantidade_total_inicial_pedido?: number | null
       itens: Array<{
         part_number: string
-        descricao: string
+        descricao_item: string
         ncm: string
         saldo_item_pedido: number
         quantidade_inicial_item_pedido: number
         unidade_comercializada_item?: string | null
         moeda_item: string
-        valor_unitario?: number | null
-        valor_item?: number | null
+        valor_por_unidade_item?: number | null
+        valor_total_item?: number | null
       }>
     }
 

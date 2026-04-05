@@ -16,6 +16,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { UploadSimple, X, Spinner } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import { StepperPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import type { PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { EtapaUpload }       from './EtapaUpload'
@@ -98,6 +99,7 @@ function etapaParaId(e: Etapa): number {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportModalProps) {
+  const { addNotification } = useShellStore()
   const [etapa, setEtapa]             = useState<Etapa>('upload')
   const [analisando, setAnalisando]   = useState(false)
   const [confirmando, setConfirmando] = useState(false)
@@ -122,19 +124,29 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
 
   React.useEffect(() => {
     if (!analisando) return
-    const msgs = [
-      'Lendo colunas do arquivo...',
-      'Mapeando campos com IA...',
-      'Verificando duplicatas no sistema...',
-      'Preparando preview...',
-    ]
+    const isPdf = arquivoAtual?.name.toLowerCase().endsWith('.pdf') ?? false
+    const msgs = isPdf
+      ? [
+          'Enviando PDF para análise com IA...',
+          'Extraindo itens do documento (pode levar até 60s)...',
+          'Identificando campos: número do pedido, exportador, itens...',
+          'Mapeando campos com IA...',
+          'Verificando duplicatas no sistema...',
+          'Preparando preview...',
+        ]
+      : [
+          'Lendo colunas do arquivo...',
+          'Mapeando campos com IA...',
+          'Verificando duplicatas no sistema...',
+          'Preparando preview...',
+        ]
     let idx = 0
     const interval = setInterval(() => {
       idx = (idx + 1) % msgs.length
       setMsgProgresso(msgs[idx])
-    }, 1800)
+    }, isPdf ? 4000 : 1800)
     return () => clearInterval(interval)
-  }, [analisando])
+  }, [analisando, arquivoAtual])
 
   // Resetar ao fechar
   useEffect(() => {
@@ -258,12 +270,15 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
       const dados = await smartImportApi.confirmar(payload)
       setResultado(dados)
       setEtapa('confirmacao')
+      addNotification({ type: 'success', message: `${dados.ids_criados?.length ?? 0} PO(s) importadas via SmartImport.`, duration: 4000 })
     } catch (err: unknown) {
-      setErro(traduzirErro(err, 'confirmar'))
+      const msg = traduzirErro(err, 'confirmar')
+      setErro(msg)
+      addNotification({ type: 'error', message: `Falha na importação: ${msg}`, duration: 4000 })
     } finally {
       setConfirmando(false)
     }
-  }, [preview, mapeamento, decisoesDuplicatas, linhasSelecionadas, lembrarMapeamento, numerosEditados])
+  }, [preview, mapeamento, decisoesDuplicatas, linhasSelecionadas, lembrarMapeamento, numerosEditados, addNotification])
 
   function handleDecisaoDuplicata(numeroPedido: string, decisao: DecisaoDuplicata) {
     setDecisoesDuplicatas(prev => ({ ...prev, [numeroPedido]: decisao }))
@@ -319,6 +334,11 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
         {preview && (etapa === 'mapeamento' || etapa === 'preview') && (
           <div className="smart-import__contexto-arquivo">
             <span>{preview.total_pedidos} pedido(s) — {preview.total_itens} item(ns) — {preview.total_linhas} linha(s)</span>
+            {preview.extrator_usado && (
+              <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginLeft: '0.75rem', opacity: 0.7 }}>
+                {preview.extrator_usado === 'gemini' ? '✦ Extraído com IA (Gemini)' : `parser: ${preview.extrator_usado}`}
+              </span>
+            )}
           </div>
         )}
 
@@ -355,7 +375,9 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
               <Spinner size={32} className="smart-import__spinner" aria-hidden="true" />
               <span>{msgProgresso}</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                Isso pode levar alguns segundos para arquivos grandes
+                {arquivoAtual?.name.toLowerCase().endsWith('.pdf')
+                  ? 'PDFs com muitas páginas podem levar até 60–90 segundos — aguarde'
+                  : 'Isso pode levar alguns segundos para arquivos grandes'}
               </span>
             </div>
           )}

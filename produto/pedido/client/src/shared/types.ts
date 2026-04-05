@@ -37,7 +37,7 @@ export interface PedidoItem {
   // Identificação do produto
   part_number: string
   ncm: string
-  descricao: string
+  descricao_item: string
   descricao_completa?: string | null
   descricao_en?: string | null
   descricao_es?: string | null
@@ -51,7 +51,7 @@ export interface PedidoItem {
   quantidade_pronta_total: number
   quantidade_transferida_item: number
   quantidade_cancelada_item_pedido: number
-  casas_decimais_quantidade: number
+  casas_decimais_quantidade_item: number
 
   // Unidade comercializada
   unidade_comercializada_item: string | null
@@ -64,9 +64,9 @@ export interface PedidoItem {
 
   // Financeiro
   moeda_item: string
-  valor_unitario: number | null
+  valor_por_unidade_item: number | null
   casas_decimais_valor_unitario?: number
-  valor_item: number | null
+  valor_total_item: number | null
   casas_decimais_total_item: number
 
   // Pesos e cubagem
@@ -308,6 +308,7 @@ export interface Pedido {
 
   // Exportacao
   exportacao_importador_id: string | null
+  importador_nome?: string | null
 
   // Dados comerciais
   incoterm: string | null
@@ -428,11 +429,11 @@ export interface CampoDivergente {
 
 export interface ItemConsolidado {
   part_number: string
-  descricao: string
+  descricao_item: string
   ncm: string
   unidade_comercializada_item: string | null
   moeda_item: string
-  valor_unitario: number | null
+  valor_por_unidade_item: number | null
   quantidade_total: number
   pedidos_origem: string[]
   pode_fundir: boolean
@@ -580,7 +581,7 @@ export interface TransferHistorico {
   pedido_origem_id: string
   item_origem_id: string
   cenario: CenarioTransfer
-  quantidade: number
+  quantidade_item_transferida: number
   destinos: TransferDestino[]
   revertido: boolean
   created_at: string
@@ -667,7 +668,7 @@ export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
 
 /** Campos calculados do PedidoItem — nunca editáveis em massa */
 export const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_item',
+  'valor_total_item',
   'saldo_item_pedido',
   'id',
   'tenant_id',
@@ -707,14 +708,14 @@ export interface SmartImportPreview {
   linhas: SmartImportLinha[]
   /** Linhas brutas do arquivo para exibição do documento original */
   dados_brutos?: SmartImportLinhaRaw[]
+  /** Extrator utilizado: 'gemini' | 'pdf-parse' | 'xlsx' | 'csv' | 'json' | 'xml' | 'txt' */
+  extrator_usado?: string
 }
 
 /** Uma linha do arquivo apos mapeamento e validacao */
 export interface SmartImportLinha {
   linha_arquivo: number
   numero_pedido: string | null
-  /** Número sugerido para o pedido que será criado (editável pelo usuário) */
-  numero_pedido_sugerido?: string | null
   status: 'ok' | 'aviso' | 'erro'
   alertas: SmartImportAlerta[]
   dados: Record<string, unknown>

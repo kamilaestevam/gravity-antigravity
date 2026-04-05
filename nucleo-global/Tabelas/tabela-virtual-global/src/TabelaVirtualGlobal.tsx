@@ -992,10 +992,43 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   } | null>(null)
   const rafRef = useRef<number | null>(null)
 
+  // ── Auto-fit: calcula largura com base nos caracteres do conteúdo ─────────────
+  // Fórmula: min(max(header, maxConteúdo) + 4, 50) * 8px
+  // Calculado UMA única vez quando os dados chegam (ref — sem re-render).
+  // Itera sobre as primeiras 500 linhas para limitar custo computacional.
+  const autoFitWidthsRef = useRef<Record<string, number>>({})
+  const autoFitDoneRef = useRef(false)
+
+  if (!autoFitDoneRef.current && dados.length > 0) {
+    const amostra = (dados as Record<string, unknown>[]).slice(0, 500)
+    const resultado: Record<string, number> = {}
+    const autoFitText = (v: unknown): string => {
+      if (v == null) return ''
+      if (typeof v === 'string') return v
+      if (typeof v === 'number') return String(v)
+      if (typeof v === 'object') {
+        const obj = v as Record<string, unknown>
+        // GTValorMoeda / GTValorUnidade — extract the numeric value
+        if ('valor' in obj) return String(obj.valor ?? '')
+        return ''
+      }
+      return String(v)
+    }
+    for (const col of colunas as GTColuna<unknown>[]) {
+      if (col.autoFitDisabled) continue
+      const maxConteudo = Math.max(...amostra.map(item => autoFitText(item[col.key]).length))
+      resultado[col.key] = Math.min(Math.max(col.label.length, maxConteudo) + 4, 150) * 8
+    }
+    autoFitWidthsRef.current = resultado
+    autoFitDoneRef.current = true
+  }
+
   const getColWidth = useCallback(
     (col: GTColuna<unknown>): number => {
       const saved = larguraColunas[col.key]
       if (saved != null) return saved
+      const autoFit = autoFitWidthsRef.current[col.key]
+      if (autoFit != null) return autoFit
       if (typeof col.largura === 'number') return col.largura
       if (typeof col.largura === 'string') return parseInt(col.largura, 10) || 150
       return 150
@@ -1074,7 +1107,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const onSelecaoFilhoRef = useRef(onSelecaoFilho)
   useLayoutEffect(() => {
     onSelecaoFilhoRef.current = onSelecaoFilho
-  })
+  }, [onSelecaoFilho])
 
   const toggleFilho = useCallback(
     (id: string, item: C) => {
@@ -1212,6 +1245,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   // ── Load more via intersection ────────────────────────────────────────────────
   const sentinelaRef = useRef<HTMLDivElement>(null)
+  const onCarregarMaisRef = useRef(onCarregarMais)
+  useEffect(() => { onCarregarMaisRef.current = onCarregarMais }, [onCarregarMais])
 
   useEffect(() => {
     if (!temMais || !onCarregarMais || carregandoMais) return
@@ -1221,13 +1256,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) onCarregarMais()
+        if (entry.isIntersecting) onCarregarMaisRef.current?.()
       },
       { root: parentRef.current, threshold: 0.1 },
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [temMais, carregandoMais, onCarregarMais])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [temMais, carregandoMais])
 
   // ── Itens selecionados (objetos) ──────────────────────────────────────────────
   const itensSelecionados = useMemo(
@@ -1352,9 +1388,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const estaEditando =
       editandoCelula?.id === id && editandoCelula?.campo === col.key
 
-    const classeAlinhamento = col.align === 'center'
+    const alignEfetivo = col.align ?? (
+      col.tipo === 'numero' || col.tipo === 'moeda' || col.tipo === 'unidade' ? 'right' :
+      col.tipo === 'badge' || col.tipo === 'periodo' ? 'center' :
+      undefined
+    )
+    const classeAlinhamento = alignEfetivo === 'center'
       ? ' gtv-celula--center'
-      : col.align === 'right'
+      : alignEfetivo === 'right'
         ? ' gtv-celula--right'
         : ''
 
@@ -1371,14 +1412,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const overlayAtivo = overlayInfo?.id === id && overlayInfo?.campo === col.key
 
     // Conteúdo renderizado da célula (fora do estado de edição)
-    const innerContent = col.render ? col.render(valor, item) : String(valor ?? '')
+    const valorStr = !col.render ? String(valor ?? '') : ''
+    const valorTruncado = valorStr.length > 150 ? valorStr.slice(0, 150) + '…' : valorStr
+    const innerContent = col.render ? col.render(valor, item) : valorTruncado
 
     // Tooltip: só para células sem render customizado (texto puro).
     // Células com render (badges, ícones) já são auto-descritivas.
-    // A descrição usa o valor bruto; fallback para dica de edição.
+    // Quando conteúdo > 150 chars, tooltip mostra valor completo; abaixo, idem (ou dica de edição).
     const tooltipDescr = !col.render && !estaEditando && !overlayAtivo
       ? (valor != null && valor !== ''
-          ? String(valor)
+          ? valorStr
           : podeEditar ? 'Clique para editar' : undefined)
       : undefined
 
@@ -2016,9 +2059,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               const classeSort  = col.sortavel
                 ? ` gtv-th--sort${sortAtivo ? ' gtv-th--sorted' : ''}`
                 : ''
-              const classeAlign = col.align === 'center'
+              const alignEfetivoTh = col.align ?? (
+                col.tipo === 'numero' || col.tipo === 'moeda' || col.tipo === 'unidade' ? 'right' :
+                col.tipo === 'badge' || col.tipo === 'periodo' ? 'center' :
+                undefined
+              )
+              const classeAlign = alignEfetivoTh === 'center'
                 ? ' gtv-th--center'
-                : col.align === 'right'
+                : alignEfetivoTh === 'right'
                   ? ' gtv-th--right'
                   : ''
               const classeFrozen = col.frozen ? ' gtv-th--frozen' : ''

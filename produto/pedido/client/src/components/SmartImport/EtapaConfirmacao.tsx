@@ -76,7 +76,11 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
   const [erroReversao, setErroReversao] = React.useState<string | null>(null)
 
   async function handleReverter() {
-    if (!window.confirm(`Confirmar reversão? Os ${resultado.criados} pedido(s) criados serão marcados como Cancelado.`)) return
+    const totalAfetados = resultado.criados + resultado.atualizados
+    const descricao = resultado.atualizados > 0
+      ? `${resultado.criados} criado(s) e ${resultado.atualizados} atualizado(s)`
+      : `${resultado.criados} criado(s)`
+    if (!window.confirm(`Confirmar reversão? Os pedidos ${descricao} serão marcados como Cancelado. Total: ${totalAfetados} pedido(s).`)) return
     setRevertendo(true)
     setErroReversao(null)
     try {
@@ -227,7 +231,7 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
             <span style={{ fontSize: '0.75rem', color: '#ef4444' }}>{erroReversao}</span>
           )}
           <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)' }}>
-            Marca os pedidos criados como Cancelado
+            Marca os pedidos criados{resultado.atualizados > 0 ? ' e atualizados' : ''} como Cancelado
           </span>
         </div>
       )}

@@ -64,6 +64,8 @@ export default defineConfig({
       '@nucleo/select-colunas-global':             nucleo('Tabelas/select-colunas-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':             nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
       '@nucleo/tabela-virtual-global':             nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
+      // ── Gabi ──
+      '@nucleo/gabi-field-icon-global':            nucleo('Gabi/gabi-field-icon-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils':                             nucleo('Utilidades/utils/src/index.ts'),
       '@nucleo/Utilidades/localization/i18n':      nucleo('Utilidades/Localization/i18n.ts'),
@@ -107,6 +109,8 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8026',
         changeOrigin: true,
+        timeout: 120000,      // 2 min — suporta Gemini PDF (pode levar 60s+)
+        proxyTimeout: 120000,
       },
       '/historico-api': {
         target: 'http://localhost:8012',

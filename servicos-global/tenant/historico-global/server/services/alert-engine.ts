@@ -2,7 +2,7 @@ import { PrismaClient, ActorType, AlertStatus } from '../../../generated/index.j
 import { AuditLogInput } from './audit.service.js'
 import { NotificationDispatcher } from './notification-dispatcher.js'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
 
 export const AlertEngine = {
   /**

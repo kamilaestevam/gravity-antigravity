@@ -63,11 +63,11 @@ const confirmarSchema = z.object({
     itens: z.array(z.object({
       part_number: z.string().min(1),
       ncm: z.string().min(1),
-      descricao: z.string().min(1),
-      quantidade_inicial: z.number().positive(),
+      descricao_item: z.string().min(1),
+      quantidade_inicial_pedido: z.number().positive(),
       unidade_comercializada_item: z.string().optional(),
-      valor_unitario: z.number().optional(),
-      valor_item: z.number().optional(),
+      valor_por_unidade_item: z.number().optional(),
+      valor_total_item: z.number().optional(),
     })).min(1),
   })).min(1),
 })
@@ -88,9 +88,9 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
       for (const pedidoData of result.data.pedidos) {
         const pedidoId = gerarId('pedi')
         const valorTotal = pedidoData.itens.reduce((acc, item) => {
-          return acc + (item.valor_item ?? (item.valor_unitario ?? 0) * item.quantidade_inicial)
+          return acc + (item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido)
         }, 0)
-        const qtdTotal = pedidoData.itens.reduce((acc, item) => acc + item.quantidade_inicial, 0)
+        const qtdTotal = pedidoData.itens.reduce((acc, item) => acc + item.quantidade_inicial_pedido, 0)
 
         await tx.pedido.create({
           data: {
@@ -123,17 +123,17 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
                 sequencia_item: (index + 1) * 10,
                 part_number: item.part_number,
                 ncm: item.ncm,
-                descricao: item.descricao,
-                quantidade_inicial: item.quantidade_inicial,
-                quantidade_atual: item.quantidade_inicial,
-                quantidade_pronta: 0,
-                quantidade_transferida: 0,
-                quantidade_cancelada: 0,
-                casas_decimais_quantidade: 2,
+                descricao_item: item.descricao_item,
+                quantidade_inicial_pedido: item.quantidade_inicial_pedido,
+                quantidade_atual_pedido: item.quantidade_inicial_pedido,
+                quantidade_pronta_pedido: 0,
+                quantidade_transferida_pedido: 0,
+                quantidade_cancelada_pedido: 0,
+                casas_decimais_quantidade_item: 2,
                 unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
                 moeda_item: pedidoData.moeda_pedido ?? 'USD',
-                valor_unitario: item.valor_unitario ?? null,
-                valor_item: item.valor_item ?? (item.valor_unitario ?? 0) * item.quantidade_inicial,
+                valor_por_unidade_item: item.valor_por_unidade_item ?? null,
+                valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido,
                 casas_decimais_total_item: 2,
               })),
             },
@@ -188,9 +188,9 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
           [
             p.numero_pedido, p.tipo_operacao, p.status, p.incoterm ?? '', p.moeda_pedido,
             p.valor_total_pedido ?? '', p.quantidade_total_pedido ?? '', p.data_emissao_pedido,
-            item.part_number, item.ncm, item.descricao,
-            item.quantidade_inicial, item.quantidade_atual, item.quantidade_transferida,
-            item.unidade_comercializada_item ?? '', item.valor_item ?? '',
+            item.part_number, item.ncm, item.descricao_item,
+            item.quantidade_inicial_pedido, item.quantidade_atual_pedido, item.quantidade_transferida_pedido,
+            item.unidade_comercializada_item ?? '', item.valor_total_item ?? '',
           ].map((v) => `"${String(v).replace(/"/g, '""')}"`)
            .join(',')
         )

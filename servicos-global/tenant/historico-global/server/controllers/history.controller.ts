@@ -15,7 +15,11 @@ import { securityAudit } from '../lib/securityAuditLogger.js'
 import { getBoss } from '../queue/pg-boss.js'
 import { EXPORT_QUEUE, EXPORT_DIR } from '../queue/export-worker.js'
 
-const prisma = new PrismaClient()
+let _prisma: PrismaClient | null = null
+function getPrisma(): PrismaClient {
+  if (!_prisma) _prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
+  return _prisma
+}
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 
 // POST /logs
@@ -119,7 +123,7 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
         : {}),
     }
 
-    const logs = await prisma.historyLog.findMany({
+    const logs = await getPrisma().historyLog.findMany({
       where,
       orderBy: { created_at: 'desc' },
       take: q.limit + 1, // +1 para saber se há próxima página
@@ -144,14 +148,14 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
     const user = extractAuthUser(req)
     const visibilityFilter = user ? buildVisibilityFilter(user) : { tenant_id }
 
-    const log = await prisma.historyLog.findFirst({
+    const log = await getPrisma().historyLog.findFirst({
       where: { id: req.params.id, ...visibilityFilter },
     })
 
     if (!log) {
       // Ponto Cego 3 — verificar se o log existe mas foi bloqueado por visibilidade (cross-tenant)
       if (user && (user.role === 'STANDARD' || user.role === 'SUPPLIER')) {
-        const exists = await prisma.historyLog.count({ where: { id: req.params.id } })
+        const exists = await getPrisma().historyLog.count({ where: { id: req.params.id } })
         if (exists > 0) {
           setImmediate(() => {
             securityAudit.crossTenantAttempt(user.tenant_id, user.id, {
@@ -220,7 +224,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
         : {}),
     }
 
-    const count = await prisma.historyLog.count({ where })
+    const count = await getPrisma().historyLog.count({ where })
 
     if (count > 10_000) {
       // Enfileira job de exportação via PG Boss
@@ -249,7 +253,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
       })
     }
 
-    const logs = await prisma.historyLog.findMany({
+    const logs = await getPrisma().historyLog.findMany({
       where,
       orderBy: { created_at: 'desc' },
     })

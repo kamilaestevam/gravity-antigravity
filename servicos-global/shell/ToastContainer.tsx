@@ -1,4 +1,5 @@
 import React from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import {
   CheckCircle,
@@ -29,7 +30,7 @@ export function ToastContainer() {
 
   if (notifications.length === 0) return null
 
-  return (
+  return createPortal(
     <div
       className="shell-toast-container"
       role="region"
@@ -63,6 +64,7 @@ export function ToastContainer() {
           </button>
         </div>
       ))}
-    </div>
+    </div>,
+    document.body,
   )
 }

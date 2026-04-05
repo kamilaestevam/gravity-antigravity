@@ -18,6 +18,7 @@ model Pedido {
   // Parceiros Negociais Internacionais
   importacao_exportador_id String? // Se importacao: A Fábrica/Fornecedor (Exterior)
   exportacao_importador_id String? // Se exportacao: O Cliente Final (Exterior)
+  fabricante_id            String? // Fabricante do produto (pode diferir do exportador)
 
   // DADOS COMERCIAIS GLOBAIS (Capa do Pedido)
   incoterm                               String?
@@ -32,6 +33,13 @@ model Pedido {
   cobertura_cambial  String  @default("com_cobertura") // com_cobertura | sem_cobertura
   condicao_pagamento String? // Ex: 30% Antecipado, 70% Contra-Documento
 
+  // Referências Documentais
+  numero_proforma         String? // Número da Proforma Invoice
+  numero_invoice          String? // Número da Commercial Invoice
+  referencia_importador   String? // Referência interna do importador
+  referencia_exportador   String? // Referência interna do exportador
+  referencia_fabricante   String? // Referência do fabricante
+
   valor_total_cambio   Decimal? @db.Decimal(18,6) // O montante do boleto cambial real fechado
   moeda_cambio         String? // Padrão cruzado: Ex: BRL (Saindo) -> USD (Comprando)
   taxa_cambio_estimada Decimal? @db.Decimal(18,6) // A PTAX alvo/estimada na hora do fechamento da PO
@@ -44,7 +52,8 @@ model Pedido {
   campos_custom         Json? // custom columns storage (JSONB + GIN index in SQL)
 
   // Lista Fatiável de Itens (A ORDEM 1:N SALVA!)
-  itens PedidoItem[]
+  itens          PedidoItem[]
+  transferencias TransferHistorico[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

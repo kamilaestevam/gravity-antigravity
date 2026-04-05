@@ -17,6 +17,7 @@
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
 import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import type {
   Pedido,
   CampoEdicaoMassa,
@@ -175,7 +176,7 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   // Identificação do produto
   { campo: 'part_number',                             rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'ncm',                                     rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao',                               rotulo: 'Descrição',                              tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_item',                          rotulo: 'Descrição do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_completa',                      rotulo: 'Descrição Completa',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_en',                            rotulo: 'Descrição (EN)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_es',                            rotulo: 'Descrição (ES)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
@@ -191,7 +192,7 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'quantidade_transferida_item',             rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'quantidade_pronta_total',                 rotulo: 'Qtd. Pronta',                            tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'quantidade_cancelada_item_pedido',        rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'casas_decimais_quantidade',               rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'casas_decimais_quantidade_item',           rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Unidade comercializada
   { campo: 'unidade_comercializada_item',             rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'item', grupo: 'Unidades' },
@@ -200,7 +201,7 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
 
   // Financeiro
   { campo: 'moeda_item',                              rotulo: 'Moeda (Item)',                           tipo: 'texto',  nivel: 'item', grupo: 'Financeiro' },
-  { campo: 'valor_unitario',                          rotulo: 'Valor Unitário',                         tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
+  { campo: 'valor_por_unidade_item',                  rotulo: 'Valor por Unidade do Item',              tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
 
   // Pesos e cubagem
   { campo: 'peso_liquido_unitario',                   rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
@@ -628,6 +629,7 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdicaoEmMassaProps) {
+  const { addNotification } = useShellStore()
   const [passo, setPasso] = useState<1 | 2>(1)
   const [nivel, setNivel] = useState<NivelEdicao>('pedido')
   const [campos, setCampos] = useState<CampoEmEdicao[]>([])
@@ -767,13 +769,17 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
 
     try {
       await pedidoEdicaoMassaApi.confirmar(payload)
+      const camposNomes = camposValidos.map(c => c.campo).join(', ')
+      addNotification({ type: 'success', message: `${camposNomes} atualizado(s) em ${pedidos.length} PO(s).`, duration: 4000 })
       onConcluido()
     } catch (err: unknown) {
-      setErroSalvar(err instanceof Error ? err.message : 'Erro ao aplicar edição em massa')
+      const msg = err instanceof Error ? err.message : 'Erro ao aplicar edição em massa'
+      setErroSalvar(msg)
+      addNotification({ type: 'error', message: `Falha na edição em massa: ${msg}`, duration: 4000 })
     } finally {
       setSalvando(false)
     }
-  }, [campos, pedidos, nivel, onConcluido])
+  }, [campos, pedidos, nivel, onConcluido, addNotification])
 
   // ── Render helpers ────────────────────────────────────────────────────────────
 

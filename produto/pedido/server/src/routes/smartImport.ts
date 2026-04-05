@@ -185,7 +185,8 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
     })
   }
 
-  const tenantId = (req as Request & { tenantId: string }).tenantId
+  const tenantId  = (req as Request & { tenantId: string }).tenantId
+  const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
 
   // SEC.3 — Validar que o preview_id pertence ao tenant da requisicao
   if (!parse.data.preview_id.startsWith(tenantId + '-')) {
@@ -199,7 +200,7 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
 
   try {
     const service   = criarSmartImportService(db)
-    const resultado = await service.confirmar(tenantId, userId, parse.data)
+    const resultado = await service.confirmar(tenantId, userId, parse.data, companyId)
     res.json(resultado)
   } catch (err) {
     next(err)
@@ -243,11 +244,11 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
     { valor: 'data_embarque',        rotulo: 'Data de Embarque'     },
     { valor: 'part_number',          rotulo: 'Part Number'          },
     { valor: 'ncm',                  rotulo: 'NCM'                  },
-    { valor: 'descricao',            rotulo: 'Descricao'            },
-    { valor: 'quantidade_inicial_item_pedido',   rotulo: 'Quantidade'           },
+    { valor: 'descricao_item',        rotulo: 'Descricao do Item'    },
+    { valor: 'quantidade_inicial_item_pedido', rotulo: 'Quantidade'           },
     { valor: 'unidade',              rotulo: 'Unidade'              },
-    { valor: 'valor_unitario',       rotulo: 'Valor Unitario'       },
-    { valor: 'valor_item',           rotulo: 'Valor Total Item'     },
+    { valor: 'valor_por_unidade_item', rotulo: 'Valor Unitario'       },
+    { valor: 'valor_total_item',     rotulo: 'Valor Total Item'     },
   ]
 
   const tenantId = (req as Request & { tenantId: string }).tenantId

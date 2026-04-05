@@ -539,9 +539,11 @@ export interface HistoricoProps {
   apiBaseUrl: string
   /** Usa dados mock locais em vez de chamar a API. Útil para demos e dev. */
   useMock?: boolean
+  /** tenant_id enviado via header x-tenant-id */
+  tenantId?: string
 }
 
-export function Historico({ productId, apiBaseUrl, useMock = false }: HistoricoProps) {
+export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: HistoricoProps) {
   const { t } = useTranslation()
 
   const [logs, setLogs] = useState<AuditLog[]>([])
@@ -555,7 +557,9 @@ export function Historico({ productId, apiBaseUrl, useMock = false }: HistoricoP
         setLogs(MOCK_LOGS)
       } else {
         const url = `${apiBaseUrl}/api/v1/historico/logs?product_id=${encodeURIComponent(productId)}&limit=200`
-        const res = await fetch(url, { credentials: 'include' })
+        const headers: Record<string, string> = {}
+        if (tenantId) headers['x-tenant-id'] = tenantId
+        const res = await fetch(url, { credentials: 'include', headers })
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json() as { logs?: AuditLog[]; data?: AuditLog[] } | AuditLog[]
         setLogs(Array.isArray(data) ? data : (data.logs ?? data.data ?? []))

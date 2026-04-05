@@ -3,7 +3,15 @@ import { PrismaClient, ActorType, EventStatus } from '../../../generated/index.j
 import { getBoss } from '../queue/pg-boss.js'
 import { captureException, captureMessage } from '../lib/sentry.js'
 
-const prisma = new PrismaClient()
+let _prisma: PrismaClient | null = null
+function getPrisma(): PrismaClient {
+  if (!_prisma) {
+    _prisma = new PrismaClient({
+      datasources: { db: { url: process.env.TENANT_DATABASE_URL } },
+    })
+  }
+  return _prisma
+}
 
 export const AUDIT_QUEUE = 'audit:log:ingestion'
 
@@ -99,14 +107,22 @@ export const AuditService = {
         retryBackoff: true,
       })
     } catch (error) {
-      // NUNCA lançar erro — não pode bloquear a operação principal.
-      captureException(error, {
-        tag: 'audit_queue_failure',
-        tenant_id: input.tenant_id,
-        actor_id: input.actor_id,
-        action: input.action,
-        module: input.module,
-      })
+      console.error('[AuditService] boss.send falhou:', (error as Error).message)
+      // Fallback: persistir diretamente se a fila falhar
+      try {
+        console.log('[AuditService] tentando persist direto, TENANT_DATABASE_URL:', process.env.TENANT_DATABASE_URL ? 'SET' : 'UNSET')
+        await AuditService.persist(input)
+        console.log('[AuditService] persist direto OK')
+      } catch (persistError) {
+        console.error('[AuditService] persist direto falhou:', (persistError as Error).message)
+        captureException(persistError, {
+          tag: 'audit_queue_failure',
+          tenant_id: input.tenant_id,
+          actor_id: input.actor_id,
+          action: input.action,
+          module: input.module,
+        })
+      }
     }
   },
 
@@ -117,7 +133,7 @@ export const AuditService = {
     const createdAt = new Date()
     const integrity_hash = computeIntegrityHash(input, createdAt)
 
-    const log = await prisma.historyLog.create({
+    const log = await getPrisma().historyLog.create({
       data: {
         tenant_id: input.tenant_id,
         actor_type: input.actor_type,

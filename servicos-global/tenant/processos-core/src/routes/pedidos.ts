@@ -35,6 +35,12 @@ const criarPedidoSchema = z.object({
   numero_pedido: z.string().min(1).max(100),
   importacao_exportador_id: z.string().optional().nullable(),
   exportacao_importador_id: z.string().optional().nullable(),
+  fabricante_id:            z.string().optional().nullable(),
+  numero_proforma:          z.string().optional().nullable(),
+  numero_invoice:           z.string().optional().nullable(),
+  referencia_importador:    z.string().optional().nullable(),
+  referencia_exportador:    z.string().optional().nullable(),
+  referencia_fabricante:    z.string().optional().nullable(),
   incoterm: z.string().optional().nullable(),
   moeda_pedido: z.string().default('USD'),
   valor_total_pedido: z.number().optional().nullable(),
@@ -49,13 +55,13 @@ const criarPedidoSchema = z.object({
   itens: z.array(z.object({
     part_number: z.string().optional().nullable().default(''),
     ncm: z.string().optional().nullable().default(''),
-    descricao: z.string().optional().nullable().default(''),
-    quantidade_inicial: z.number().min(0).optional().default(0),
+    descricao_item: z.string().optional().nullable().default(''),
+    quantidade_inicial_pedido: z.number().min(0).optional().default(0),
     unidade_comercializada_item: z.string().optional().nullable(),
     moeda_item: z.string().default('USD'),
-    valor_unitario: z.number().optional().nullable(),
-    valor_item: z.number().optional().nullable(),
-    casas_decimais_quantidade: z.number().int().default(2),
+    valor_por_unidade_item: z.number().optional().nullable(),
+    valor_total_item: z.number().optional().nullable(),
+    casas_decimais_quantidade_item: z.number().int().default(2),
     casas_decimais_total_item: z.number().int().default(2),
     sequencia_item: z.number().int().optional().nullable(),
   })).optional().default([]),
@@ -66,11 +72,11 @@ const atualizarPedidoSchema = criarPedidoSchema.partial().omit({ itens: true })
 const atualizarItemSchema = z.object({
   part_number: z.string().min(1).optional(),
   ncm: z.string().min(1).optional(),
-  descricao: z.string().min(1).optional(),
+  descricao_item: z.string().min(1).optional(),
   unidade_comercializada_item: z.string().optional().nullable(),
   moeda_item: z.string().optional(),
-  valor_unitario: z.number().optional().nullable(),
-  valor_item: z.number().optional().nullable(),
+  valor_por_unidade_item: z.number().optional().nullable(),
+  valor_total_item: z.number().optional().nullable(),
 })
 
 const cancelarQuantidadeSchema = z.object({
@@ -78,7 +84,7 @@ const cancelarQuantidadeSchema = z.object({
 })
 
 const atualizarProntaSchema = z.object({
-  quantidade_pronta: z.number().min(0),
+  quantidade_pronta_pedido: z.number().min(0),
 })
 
 const statusTransicaoSchema = z.object({
@@ -91,6 +97,32 @@ function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
   const ano = String(new Date().getFullYear()).slice(-2)
   return `${prefixo}_id_${seq}/${ano}`
+}
+
+/**
+ * mapItem — Renomeia campos do Prisma para os aliases esperados pelo frontend.
+ * Prisma usa nomes curtos (quantidade_inicial_pedido, quantidade_atual_pedido, …),
+ * o frontend (types.ts / mockData) usa aliases descritivos.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapItem(item: any): any {
+  return {
+    ...item,
+    quantidade_inicial_item_pedido:   item.quantidade_inicial_pedido,
+    saldo_item_pedido:                item.quantidade_atual_pedido,
+    quantidade_pronta_total:          item.quantidade_pronta_pedido,
+    quantidade_transferida_item:      item.quantidade_transferida_pedido,
+    quantidade_cancelada_item_pedido: item.quantidade_cancelada_pedido,
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapPedido(pedido: any): any {
+  if (!pedido) return pedido
+  return {
+    ...pedido,
+    itens: Array.isArray(pedido.itens) ? pedido.itens.map(mapItem) : pedido.itens,
+  }
 }
 
 // ── Cursor pagination helpers ─────────────────────────────────────────────────
@@ -197,7 +229,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         })
       }
 
-      return res.json({ data: registros, cursor_proximo, tem_mais })
+      return res.json({ data: registros.map(mapPedido), nextCursor: cursor_proximo, hasMore: tem_mais })
     }
 
     // ── Offset pagination (backward compat) ──
@@ -216,7 +248,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       req.prisma.pedido.count({ where }),
     ])
 
-    res.json({ data, total, page: pageNum, limit: limitNum })
+    res.json({ data: data.map(mapPedido), total, page: pageNum, limit: limitNum })
   } catch (err) {
     next(err)
   }
@@ -238,7 +270,7 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
       throw new AppError(404, 'Pedido nao encontrado')
     }
 
-    res.json(pedido)
+    res.json(mapPedido(pedido))
   } catch (err) {
     next(err)
   }
@@ -262,12 +294,12 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
       // Calcular totais automaticamente
       const valorTotal = itens.reduce((acc, item) => {
-        const qty = item.quantidade_inicial ?? 0
-        const valorItem = item.valor_item ?? (item.valor_unitario ?? 0) * qty
+        const qty = item.quantidade_inicial_pedido ?? 0
+        const valorItem = item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * qty
         return acc + valorItem
       }, 0)
 
-      const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial ?? 0), 0)
+      const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial_pedido ?? 0), 0)
 
       const novoPedido = await tx.pedido.create({
         data: {
@@ -286,17 +318,17 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               sequencia_item: item.sequencia_item ?? (index + 1) * 10,
               part_number: item.part_number ?? '',
               ncm: item.ncm ?? '',
-              descricao: item.descricao ?? '',
-              quantidade_inicial: item.quantidade_inicial ?? 0,
-              quantidade_atual: item.quantidade_inicial ?? 0,
-              quantidade_pronta: 0,
-              quantidade_transferida: 0,
-              quantidade_cancelada: 0,
-              casas_decimais_quantidade: item.casas_decimais_quantidade,
+              descricao_item: item.descricao_item ?? '',
+              quantidade_inicial_pedido: item.quantidade_inicial_pedido ?? 0,
+              quantidade_atual_pedido: item.quantidade_inicial_pedido ?? 0,
+              quantidade_pronta_pedido: 0,
+              quantidade_transferida_pedido: 0,
+              quantidade_cancelada_pedido: 0,
+              casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
-              valor_unitario: item.valor_unitario,
-              valor_item: item.valor_item ?? (item.valor_unitario ?? 0) * (item.quantidade_inicial ?? 0),
+              valor_por_unidade_item: item.valor_por_unidade_item,
+              valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_pedido ?? 0),
               casas_decimais_total_item: item.casas_decimais_total_item,
             })),
           },
@@ -307,7 +339,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
       return novoPedido
     })
 
-    res.status(201).json(pedido)
+    res.status(201).json(mapPedido(pedido))
   } catch (err) {
     next(err)
   }
@@ -343,7 +375,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
       include: { itens: true },
     })
 
-    res.json(updated)
+    res.json(mapPedido(updated))
   } catch (err) {
     next(err)
   }
@@ -414,7 +446,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
       include: { itens: true },
     })
 
-    res.json(updated)
+    res.json(mapPedido(updated))
   } catch (err) {
     next(err)
   }
@@ -503,7 +535,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       include: { itens: true },
     })
 
-    res.json(updated)
+    res.json(mapPedido(updated))
   } catch (err) {
     next(err)
   }
@@ -555,17 +587,17 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
             sequencia_item: item.sequencia_item,
             part_number: item.part_number,
             ncm: item.ncm,
-            descricao: item.descricao,
-            quantidade_inicial: item.quantidade_inicial,
-            quantidade_atual: item.quantidade_inicial,
-            quantidade_pronta: 0,
-            quantidade_transferida: 0,
-            quantidade_cancelada: 0,
-            casas_decimais_quantidade: item.casas_decimais_quantidade,
+            descricao_item: item.descricao_item,
+            quantidade_inicial_pedido: item.quantidade_inicial_pedido,
+            quantidade_atual_pedido: item.quantidade_inicial_pedido,
+            quantidade_pronta_pedido: 0,
+            quantidade_transferida_pedido: 0,
+            quantidade_cancelada_pedido: 0,
+            casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
             unidade_comercializada_item: item.unidade_comercializada_item,
             moeda_item: item.moeda_item,
-            valor_unitario: item.valor_unitario,
-            valor_item: item.valor_item,
+            valor_por_unidade_item: item.valor_por_unidade_item,
+            valor_total_item: item.valor_total_item,
             casas_decimais_total_item: item.casas_decimais_total_item,
           })),
         },
@@ -573,7 +605,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
       include: { itens: true },
     })
 
-    res.status(201).json(duplicado)
+    res.status(201).json(mapPedido(duplicado))
   } catch (err) {
     next(err)
   }
@@ -611,15 +643,15 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
         company_id,
         pedido_id: req.params.id,
         ...result.data,
-        quantidade_atual: result.data.quantidade_inicial,
-        quantidade_pronta: 0,
-        quantidade_transferida: 0,
-        quantidade_cancelada: 0,
-        valor_item: result.data.valor_item ?? (result.data.valor_unitario ?? 0) * result.data.quantidade_inicial,
+        quantidade_atual_pedido: result.data.quantidade_inicial_pedido,
+        quantidade_pronta_pedido: 0,
+        quantidade_transferida_pedido: 0,
+        quantidade_cancelada_pedido: 0,
+        valor_total_item: result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * result.data.quantidade_inicial_pedido,
       },
     })
 
-    res.status(201).json(item)
+    res.status(201).json(mapItem(item))
   } catch (err) {
     next(err)
   }
@@ -650,7 +682,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       data: result.data,
     })
 
-    res.json(updated)
+    res.json(mapItem(updated))
   } catch (err) {
     next(err)
   }
@@ -671,7 +703,7 @@ pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, n
       throw new AppError(404, 'Item do pedido nao encontrado')
     }
 
-    if (item.quantidade_transferida > 0) {
+    if (item.quantidade_transferida_pedido > 0) {
       throw new AppError(400, 'Item com quantidade transferida nao pode ser removido')
     }
 
@@ -701,7 +733,7 @@ pedidosRouter.patch('/:id/itens/:itemId/cancelar', async (req: Request, res: Res
       company_id,
     })
 
-    res.json(saldo)
+    res.json(mapItem(saldo))
   } catch (err) {
     next(err)
   }
@@ -721,12 +753,12 @@ pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Respo
 
     const saldo = await saldoEngine.atualizarPronta(req.prisma, {
       pedido_item_id: req.params.itemId,
-      quantidade_pronta: result.data.quantidade_pronta,
+      quantidade_pronta_pedido: result.data.quantidade_pronta_pedido,
       tenant_id,
       company_id,
     })
 
-    res.json(saldo)
+    res.json(mapItem(saldo))
   } catch (err) {
     next(err)
   }

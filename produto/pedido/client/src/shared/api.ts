@@ -70,10 +70,18 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     },
   })
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: { message: 'Erro desconhecido' } }))
-    throw new Error(error.error?.message || `HTTP ${response.status}`)
+    const raw = await response.json().catch(() => null)
+    // Servidor retorna { error: { message } } ou { error: string }
+    const msg = raw?.error?.message || (typeof raw?.error === 'string' ? raw.error : null)
+    throw new Error(msg || `HTTP ${response.status}`)
   }
-  return response.json()
+  const text = await response.text()
+  try {
+    return JSON.parse(text) as T
+  } catch {
+    console.error('[api] resposta não-JSON do servidor (status:', response.status, ')')
+    throw new Error(`Resposta inválida do servidor (${response.status})`)
+  }
 }
 
 // ── Pedidos ───────────────────────────────────────────────────────────────────
@@ -139,7 +147,7 @@ export const pedidoItemApi = {
   atualizarPronta: (pedidoId: string, itemId: string, quantidade: number) =>
     request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}/pronta`, {
       method: 'PATCH',
-      body: JSON.stringify({ quantidade_pronta: quantidade }),
+      body: JSON.stringify({ quantidade_pronta_pedido: quantidade }),
     }),
 }
 
@@ -311,11 +319,11 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
       } else {
         itensPorPart[item.part_number] = {
           part_number: item.part_number,
-          descricao: item.descricao,
+          descricao_item: item.descricao_item,
           ncm: item.ncm,
           unidade_comercializada_item: item.unidade_comercializada_item,
           moeda_item: item.moeda_item,
-          valor_unitario: item.valor_unitario,
+          valor_por_unidade_item: item.valor_por_unidade_item,
           quantidade_total: item.saldo_item_pedido,
           pedidos_origem: [pedido.numero_pedido],
           pode_fundir: false,
@@ -695,10 +703,10 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     { coluna: 'Supplier',     campo: 'exportador',          conf: 88, exemplo: 'STORK THERMEQ B.V.' },
     { coluna: 'NCM',          campo: 'ncm',                 conf: 95, exemplo: '8471.30.19'          },
     { coluna: 'Part No.',     campo: 'part_number',         conf: 91, exemplo: 'STE-A4-001'          },
-    { coluna: 'Description',  campo: 'descricao',           conf: 85, exemplo: 'Heat exchanger plate'},
+    { coluna: 'Description',  campo: 'descricao_item',       conf: 85, exemplo: 'Heat exchanger plate'},
     { coluna: 'Qty',          campo: 'quantidade_inicial_item_pedido',  conf: 78, exemplo: '100'                 },
     { coluna: 'Unit',         campo: 'unidade',             conf: 72, exemplo: 'UN'                  },
-    { coluna: 'Unit Price',   campo: 'valor_unitario',      conf: 83, exemplo: '330,00'              },
+    { coluna: 'Unit Price',   campo: 'valor_por_unidade_item',   conf: 83, exemplo: '330,00'              },
     { coluna: 'Currency',     campo: 'moeda_pedido',        conf: 90, exemplo: 'USD'                 },
     { coluna: 'Incoterms',    campo: 'incoterm',            conf: 94, exemplo: 'FOB'                 },
     { coluna: 'Ship Date',    campo: 'data_embarque',       conf: 67, exemplo: '30/05/2023'          },
@@ -725,7 +733,6 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     {
       linha_arquivo: 2,
       numero_pedido: '021597-00',
-      numero_pedido_sugerido: 'PO-2026/010',
       status: 'ok',
       alertas: [],
       dados: {
@@ -735,17 +742,16 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         moeda_pedido: 'USD',
         data_embarque: '30/05/2023',
         part_number: 'STE-A4-001',
-        descricao: 'Heat exchanger plate',
+        descricao_item: 'Heat exchanger plate',
         quantidade_inicial_item_pedido: 100,
         unidade: 'UN',
-        valor_unitario: 330.00,
+        valor_por_unidade_item: 330.00,
         ncm: '8471.30.19',
       },
     },
     {
       linha_arquivo: 3,
       numero_pedido: 'PO-2026/011',
-      numero_pedido_sugerido: 'PO-2026/011',
       status: 'ok',
       alertas: [],
       dados: {
@@ -754,17 +760,16 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         incoterm: 'CIF',
         moeda_pedido: 'USD',
         part_number: 'DGL-7700',
-        descricao: 'Motor controller board',
+        descricao_item: 'Motor controller board',
         quantidade_inicial_item_pedido: 50,
         unidade: 'UN',
-        valor_unitario: 85.00,
+        valor_por_unidade_item: 85.00,
         ncm: '8544.42.90',
       },
     },
     {
       linha_arquivo: 4,
       numero_pedido: 'PO-2026/003',
-      numero_pedido_sugerido: 'PO-2026/003',
       status: 'aviso',
       alertas: alertasDuplicata,
       dados: {
@@ -773,16 +778,15 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         incoterm: 'DAP',
         moeda_pedido: 'EUR',
         part_number: 'BRL-220V',
-        descricao: 'Power supply unit',
+        descricao_item: 'Power supply unit',
         quantidade_inicial_item_pedido: 200,
         unidade: 'UN',
-        valor_unitario: 45.00,
+        valor_por_unidade_item: 45.00,
       },
     },
     {
       linha_arquivo: 5,
       numero_pedido: 'PO-2026/012',
-      numero_pedido_sugerido: 'PO-2026/012',
       status: 'aviso',
       alertas: [{
         campo: 'ncm',
@@ -796,17 +800,16 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         incoterm: 'FOB',
         moeda_pedido: 'USD',
         part_number: 'GZH-CAB-001',
-        descricao: 'Cable assembly',
+        descricao_item: 'Cable assembly',
         quantidade_inicial_item_pedido: 500,
         unidade: 'MT',
-        valor_unitario: 3.20,
+        valor_por_unidade_item: 3.20,
         ncm: '8471',
       },
     },
     {
       linha_arquivo: 6,
       numero_pedido: null,
-      numero_pedido_sugerido: null,
       status: 'erro',
       alertas: [
         {

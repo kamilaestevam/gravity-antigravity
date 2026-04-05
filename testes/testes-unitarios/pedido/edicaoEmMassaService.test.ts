@@ -40,8 +40,8 @@ function criarItemMock(id: string, overrides: Record<string, unknown> = {}) {
     quantidade_inicial_item_pedido: 100,
     saldo_item_pedido: 100,
     quantidade_transferida_item: 0,
-    valor_unitario: 10,
-    valor_item: 1000,
+    valor_por_unidade_item: 10,
+    valor_total_item: 1000,
     ...overrides,
   }
 }
@@ -202,7 +202,7 @@ describe('EdicaoEmMassaService', () => {
         campos: [{ campo: 'valor_total_pedido', tipo: 'numero', nivel: 'pedido', operacao: 'substituir', valor: 9999 }],
         nivel: 'pedido',
       })
-    ).rejects.toThrow('CAMPO_BLOQUEADO')
+    ).rejects.toThrow('calculado e não pode ser editado')
   })
 
   it('campo bloqueado — rejeita saldo_item_pedido no item', async () => {
@@ -214,7 +214,7 @@ describe('EdicaoEmMassaService', () => {
         campos: [{ campo: 'saldo_item_pedido', tipo: 'numero', nivel: 'item', operacao: 'substituir', valor: 999 }],
         nivel: 'item',
       })
-    ).rejects.toThrow('CAMPO_BLOQUEADO')
+    ).rejects.toThrow('calculado e não pode ser editado')
   })
 
   // ── multiplos_valores — detecta corretamente ────────────────────────────────
@@ -306,7 +306,7 @@ describe('EdicaoEmMassaService', () => {
         campos: [{ campo: 'incoterm', tipo: 'texto', nivel: 'pedido', operacao: 'substituir', valor: 'CIF' }],
         nivel: 'pedido',
       })
-    ).rejects.toThrow('NOT_FOUND')
+    ).rejects.toThrow('Nenhum pedido encontrado')
   })
 
   // ── preview retorna afetados corretamente ───────────────────────────────────

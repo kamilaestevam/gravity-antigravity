@@ -89,15 +89,30 @@ export type WhatsAppUsageLog = $Result.DefaultSelection<Prisma.$WhatsAppUsageLog
  */
 export type WhatsAppAutomation = $Result.DefaultSelection<Prisma.$WhatsAppAutomationPayload>
 /**
- * Model ConfigDashboard
+ * Model DashboardConfig
  * 
  */
-export type ConfigDashboard = $Result.DefaultSelection<Prisma.$ConfigDashboardPayload>
+export type DashboardConfig = $Result.DefaultSelection<Prisma.$DashboardConfigPayload>
 /**
- * Model MetricaSnapshot
+ * Model DashboardWidget
  * 
  */
-export type MetricaSnapshot = $Result.DefaultSelection<Prisma.$MetricaSnapshotPayload>
+export type DashboardWidget = $Result.DefaultSelection<Prisma.$DashboardWidgetPayload>
+/**
+ * Model DashboardMetricSnapshot
+ * 
+ */
+export type DashboardMetricSnapshot = $Result.DefaultSelection<Prisma.$DashboardMetricSnapshotPayload>
+/**
+ * Model DashboardAlert
+ * 
+ */
+export type DashboardAlert = $Result.DefaultSelection<Prisma.$DashboardAlertPayload>
+/**
+ * Model DashboardShare
+ * 
+ */
+export type DashboardShare = $Result.DefaultSelection<Prisma.$DashboardSharePayload>
 /**
  * Model Relatorio
  * 
@@ -133,6 +148,12 @@ export type AlertEvent = $Result.DefaultSelection<Prisma.$AlertEventPayload>
  * 
  */
 export type AlertNotificationLog = $Result.DefaultSelection<Prisma.$AlertNotificationLogPayload>
+/**
+ * Model ExportResult
+ * Resultado de exportação em background (acima de 10k registros).
+ * Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
+ */
+export type ExportResult = $Result.DefaultSelection<Prisma.$ExportResultPayload>
 /**
  * Model Agenda
  * 
@@ -223,6 +244,11 @@ export type PedidoPreferenciaUsuario = $Result.DefaultSelection<Prisma.$PedidoPr
  * 
  */
 export type PedidoPreferenciaPadrao = $Result.DefaultSelection<Prisma.$PedidoPreferenciaPadraoPayload>
+/**
+ * Model MapeamentoImport
+ * 
+ */
+export type MapeamentoImport = $Result.DefaultSelection<Prisma.$MapeamentoImportPayload>
 
 /**
  * Enums
@@ -277,6 +303,40 @@ export const FilaEmailPrioridade: {
 export type FilaEmailPrioridade = (typeof FilaEmailPrioridade)[keyof typeof FilaEmailPrioridade]
 
 
+export const DashboardMode: {
+  PRODUCT: 'PRODUCT',
+  GENERAL: 'GENERAL'
+};
+
+export type DashboardMode = (typeof DashboardMode)[keyof typeof DashboardMode]
+
+
+export const WidgetType: {
+  CATALOG: 'CATALOG',
+  CUSTOM: 'CUSTOM',
+  GABI: 'GABI'
+};
+
+export type WidgetType = (typeof WidgetType)[keyof typeof WidgetType]
+
+
+export const ChartType: {
+  KPI_CARD: 'KPI_CARD',
+  LINE: 'LINE',
+  BAR: 'BAR',
+  BAR_HORIZONTAL: 'BAR_HORIZONTAL',
+  DONUT: 'DONUT',
+  HISTOGRAM: 'HISTOGRAM',
+  FUNNEL: 'FUNNEL',
+  GAUGE: 'GAUGE',
+  MAP: 'MAP',
+  TABLE: 'TABLE',
+  AREA: 'AREA'
+};
+
+export type ChartType = (typeof ChartType)[keyof typeof ChartType]
+
+
 export const ActorType: {
   USER: 'USER',
   API: 'API',
@@ -326,6 +386,18 @@ export const EmailStatus: typeof $Enums.EmailStatus
 export type FilaEmailPrioridade = $Enums.FilaEmailPrioridade
 
 export const FilaEmailPrioridade: typeof $Enums.FilaEmailPrioridade
+
+export type DashboardMode = $Enums.DashboardMode
+
+export const DashboardMode: typeof $Enums.DashboardMode
+
+export type WidgetType = $Enums.WidgetType
+
+export const WidgetType: typeof $Enums.WidgetType
+
+export type ChartType = $Enums.ChartType
+
+export const ChartType: typeof $Enums.ChartType
 
 export type ActorType = $Enums.ActorType
 
@@ -613,24 +685,54 @@ export class PrismaClient<
   get whatsAppAutomation(): Prisma.WhatsAppAutomationDelegate<ExtArgs>;
 
   /**
-   * `prisma.configDashboard`: Exposes CRUD operations for the **ConfigDashboard** model.
+   * `prisma.dashboardConfig`: Exposes CRUD operations for the **DashboardConfig** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ConfigDashboards
-    * const configDashboards = await prisma.configDashboard.findMany()
+    * // Fetch zero or more DashboardConfigs
+    * const dashboardConfigs = await prisma.dashboardConfig.findMany()
     * ```
     */
-  get configDashboard(): Prisma.ConfigDashboardDelegate<ExtArgs>;
+  get dashboardConfig(): Prisma.DashboardConfigDelegate<ExtArgs>;
 
   /**
-   * `prisma.metricaSnapshot`: Exposes CRUD operations for the **MetricaSnapshot** model.
+   * `prisma.dashboardWidget`: Exposes CRUD operations for the **DashboardWidget** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more MetricaSnapshots
-    * const metricaSnapshots = await prisma.metricaSnapshot.findMany()
+    * // Fetch zero or more DashboardWidgets
+    * const dashboardWidgets = await prisma.dashboardWidget.findMany()
     * ```
     */
-  get metricaSnapshot(): Prisma.MetricaSnapshotDelegate<ExtArgs>;
+  get dashboardWidget(): Prisma.DashboardWidgetDelegate<ExtArgs>;
+
+  /**
+   * `prisma.dashboardMetricSnapshot`: Exposes CRUD operations for the **DashboardMetricSnapshot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DashboardMetricSnapshots
+    * const dashboardMetricSnapshots = await prisma.dashboardMetricSnapshot.findMany()
+    * ```
+    */
+  get dashboardMetricSnapshot(): Prisma.DashboardMetricSnapshotDelegate<ExtArgs>;
+
+  /**
+   * `prisma.dashboardAlert`: Exposes CRUD operations for the **DashboardAlert** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DashboardAlerts
+    * const dashboardAlerts = await prisma.dashboardAlert.findMany()
+    * ```
+    */
+  get dashboardAlert(): Prisma.DashboardAlertDelegate<ExtArgs>;
+
+  /**
+   * `prisma.dashboardShare`: Exposes CRUD operations for the **DashboardShare** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DashboardShares
+    * const dashboardShares = await prisma.dashboardShare.findMany()
+    * ```
+    */
+  get dashboardShare(): Prisma.DashboardShareDelegate<ExtArgs>;
 
   /**
    * `prisma.relatorio`: Exposes CRUD operations for the **Relatorio** model.
@@ -701,6 +803,16 @@ export class PrismaClient<
     * ```
     */
   get alertNotificationLog(): Prisma.AlertNotificationLogDelegate<ExtArgs>;
+
+  /**
+   * `prisma.exportResult`: Exposes CRUD operations for the **ExportResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExportResults
+    * const exportResults = await prisma.exportResult.findMany()
+    * ```
+    */
+  get exportResult(): Prisma.ExportResultDelegate<ExtArgs>;
 
   /**
    * `prisma.agenda`: Exposes CRUD operations for the **Agenda** model.
@@ -881,6 +993,16 @@ export class PrismaClient<
     * ```
     */
   get pedidoPreferenciaPadrao(): Prisma.PedidoPreferenciaPadraoDelegate<ExtArgs>;
+
+  /**
+   * `prisma.mapeamentoImport`: Exposes CRUD operations for the **MapeamentoImport** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MapeamentoImports
+    * const mapeamentoImports = await prisma.mapeamentoImport.findMany()
+    * ```
+    */
+  get mapeamentoImport(): Prisma.MapeamentoImportDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1337,8 +1459,11 @@ export namespace Prisma {
     WhatsAppMessage: 'WhatsAppMessage',
     WhatsAppUsageLog: 'WhatsAppUsageLog',
     WhatsAppAutomation: 'WhatsAppAutomation',
-    ConfigDashboard: 'ConfigDashboard',
-    MetricaSnapshot: 'MetricaSnapshot',
+    DashboardConfig: 'DashboardConfig',
+    DashboardWidget: 'DashboardWidget',
+    DashboardMetricSnapshot: 'DashboardMetricSnapshot',
+    DashboardAlert: 'DashboardAlert',
+    DashboardShare: 'DashboardShare',
     Relatorio: 'Relatorio',
     ConfigRelatorio: 'ConfigRelatorio',
     ExportJob: 'ExportJob',
@@ -1346,6 +1471,7 @@ export namespace Prisma {
     AlertRule: 'AlertRule',
     AlertEvent: 'AlertEvent',
     AlertNotificationLog: 'AlertNotificationLog',
+    ExportResult: 'ExportResult',
     Agenda: 'Agenda',
     Slot: 'Slot',
     Reserva: 'Reserva',
@@ -1363,7 +1489,8 @@ export namespace Prisma {
     PedidoStatus: 'PedidoStatus',
     PedidoColuna: 'PedidoColuna',
     PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
-    PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao'
+    PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao',
+    MapeamentoImport: 'MapeamentoImport'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1379,7 +1506,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "configDashboard" | "metricaSnapshot" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao"
+      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "mapeamentoImport"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2433,143 +2560,353 @@ export namespace Prisma {
           }
         }
       }
-      ConfigDashboard: {
-        payload: Prisma.$ConfigDashboardPayload<ExtArgs>
-        fields: Prisma.ConfigDashboardFieldRefs
+      DashboardConfig: {
+        payload: Prisma.$DashboardConfigPayload<ExtArgs>
+        fields: Prisma.DashboardConfigFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ConfigDashboardFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload> | null
+            args: Prisma.DashboardConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ConfigDashboardFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>
+            args: Prisma.DashboardConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>
           }
           findFirst: {
-            args: Prisma.ConfigDashboardFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload> | null
+            args: Prisma.DashboardConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ConfigDashboardFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>
+            args: Prisma.DashboardConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>
           }
           findMany: {
-            args: Prisma.ConfigDashboardFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>[]
+            args: Prisma.DashboardConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>[]
           }
           create: {
-            args: Prisma.ConfigDashboardCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>
+            args: Prisma.DashboardConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>
           }
           createMany: {
-            args: Prisma.ConfigDashboardCreateManyArgs<ExtArgs>
+            args: Prisma.DashboardConfigCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ConfigDashboardCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>[]
+            args: Prisma.DashboardConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>[]
           }
           delete: {
-            args: Prisma.ConfigDashboardDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>
+            args: Prisma.DashboardConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>
           }
           update: {
-            args: Prisma.ConfigDashboardUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>
+            args: Prisma.DashboardConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>
           }
           deleteMany: {
-            args: Prisma.ConfigDashboardDeleteManyArgs<ExtArgs>
+            args: Prisma.DashboardConfigDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ConfigDashboardUpdateManyArgs<ExtArgs>
+            args: Prisma.DashboardConfigUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ConfigDashboardUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ConfigDashboardPayload>
+            args: Prisma.DashboardConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardConfigPayload>
           }
           aggregate: {
-            args: Prisma.ConfigDashboardAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateConfigDashboard>
+            args: Prisma.DashboardConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDashboardConfig>
           }
           groupBy: {
-            args: Prisma.ConfigDashboardGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ConfigDashboardGroupByOutputType>[]
+            args: Prisma.DashboardConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DashboardConfigGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ConfigDashboardCountArgs<ExtArgs>
-            result: $Utils.Optional<ConfigDashboardCountAggregateOutputType> | number
+            args: Prisma.DashboardConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<DashboardConfigCountAggregateOutputType> | number
           }
         }
       }
-      MetricaSnapshot: {
-        payload: Prisma.$MetricaSnapshotPayload<ExtArgs>
-        fields: Prisma.MetricaSnapshotFieldRefs
+      DashboardWidget: {
+        payload: Prisma.$DashboardWidgetPayload<ExtArgs>
+        fields: Prisma.DashboardWidgetFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.MetricaSnapshotFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload> | null
+            args: Prisma.DashboardWidgetFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.MetricaSnapshotFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>
+            args: Prisma.DashboardWidgetFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>
           }
           findFirst: {
-            args: Prisma.MetricaSnapshotFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload> | null
+            args: Prisma.DashboardWidgetFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.MetricaSnapshotFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>
+            args: Prisma.DashboardWidgetFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>
           }
           findMany: {
-            args: Prisma.MetricaSnapshotFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>[]
+            args: Prisma.DashboardWidgetFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>[]
           }
           create: {
-            args: Prisma.MetricaSnapshotCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>
+            args: Prisma.DashboardWidgetCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>
           }
           createMany: {
-            args: Prisma.MetricaSnapshotCreateManyArgs<ExtArgs>
+            args: Prisma.DashboardWidgetCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.MetricaSnapshotCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>[]
+            args: Prisma.DashboardWidgetCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>[]
           }
           delete: {
-            args: Prisma.MetricaSnapshotDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>
+            args: Prisma.DashboardWidgetDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>
           }
           update: {
-            args: Prisma.MetricaSnapshotUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>
+            args: Prisma.DashboardWidgetUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>
           }
           deleteMany: {
-            args: Prisma.MetricaSnapshotDeleteManyArgs<ExtArgs>
+            args: Prisma.DashboardWidgetDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.MetricaSnapshotUpdateManyArgs<ExtArgs>
+            args: Prisma.DashboardWidgetUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.MetricaSnapshotUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$MetricaSnapshotPayload>
+            args: Prisma.DashboardWidgetUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardWidgetPayload>
           }
           aggregate: {
-            args: Prisma.MetricaSnapshotAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateMetricaSnapshot>
+            args: Prisma.DashboardWidgetAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDashboardWidget>
           }
           groupBy: {
-            args: Prisma.MetricaSnapshotGroupByArgs<ExtArgs>
-            result: $Utils.Optional<MetricaSnapshotGroupByOutputType>[]
+            args: Prisma.DashboardWidgetGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DashboardWidgetGroupByOutputType>[]
           }
           count: {
-            args: Prisma.MetricaSnapshotCountArgs<ExtArgs>
-            result: $Utils.Optional<MetricaSnapshotCountAggregateOutputType> | number
+            args: Prisma.DashboardWidgetCountArgs<ExtArgs>
+            result: $Utils.Optional<DashboardWidgetCountAggregateOutputType> | number
+          }
+        }
+      }
+      DashboardMetricSnapshot: {
+        payload: Prisma.$DashboardMetricSnapshotPayload<ExtArgs>
+        fields: Prisma.DashboardMetricSnapshotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DashboardMetricSnapshotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DashboardMetricSnapshotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>
+          }
+          findFirst: {
+            args: Prisma.DashboardMetricSnapshotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DashboardMetricSnapshotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>
+          }
+          findMany: {
+            args: Prisma.DashboardMetricSnapshotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>[]
+          }
+          create: {
+            args: Prisma.DashboardMetricSnapshotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>
+          }
+          createMany: {
+            args: Prisma.DashboardMetricSnapshotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DashboardMetricSnapshotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>[]
+          }
+          delete: {
+            args: Prisma.DashboardMetricSnapshotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>
+          }
+          update: {
+            args: Prisma.DashboardMetricSnapshotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>
+          }
+          deleteMany: {
+            args: Prisma.DashboardMetricSnapshotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DashboardMetricSnapshotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DashboardMetricSnapshotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardMetricSnapshotPayload>
+          }
+          aggregate: {
+            args: Prisma.DashboardMetricSnapshotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDashboardMetricSnapshot>
+          }
+          groupBy: {
+            args: Prisma.DashboardMetricSnapshotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DashboardMetricSnapshotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DashboardMetricSnapshotCountArgs<ExtArgs>
+            result: $Utils.Optional<DashboardMetricSnapshotCountAggregateOutputType> | number
+          }
+        }
+      }
+      DashboardAlert: {
+        payload: Prisma.$DashboardAlertPayload<ExtArgs>
+        fields: Prisma.DashboardAlertFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DashboardAlertFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DashboardAlertFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>
+          }
+          findFirst: {
+            args: Prisma.DashboardAlertFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DashboardAlertFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>
+          }
+          findMany: {
+            args: Prisma.DashboardAlertFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>[]
+          }
+          create: {
+            args: Prisma.DashboardAlertCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>
+          }
+          createMany: {
+            args: Prisma.DashboardAlertCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DashboardAlertCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>[]
+          }
+          delete: {
+            args: Prisma.DashboardAlertDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>
+          }
+          update: {
+            args: Prisma.DashboardAlertUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>
+          }
+          deleteMany: {
+            args: Prisma.DashboardAlertDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DashboardAlertUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DashboardAlertUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardAlertPayload>
+          }
+          aggregate: {
+            args: Prisma.DashboardAlertAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDashboardAlert>
+          }
+          groupBy: {
+            args: Prisma.DashboardAlertGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DashboardAlertGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DashboardAlertCountArgs<ExtArgs>
+            result: $Utils.Optional<DashboardAlertCountAggregateOutputType> | number
+          }
+        }
+      }
+      DashboardShare: {
+        payload: Prisma.$DashboardSharePayload<ExtArgs>
+        fields: Prisma.DashboardShareFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DashboardShareFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DashboardShareFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>
+          }
+          findFirst: {
+            args: Prisma.DashboardShareFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DashboardShareFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>
+          }
+          findMany: {
+            args: Prisma.DashboardShareFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>[]
+          }
+          create: {
+            args: Prisma.DashboardShareCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>
+          }
+          createMany: {
+            args: Prisma.DashboardShareCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DashboardShareCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>[]
+          }
+          delete: {
+            args: Prisma.DashboardShareDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>
+          }
+          update: {
+            args: Prisma.DashboardShareUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>
+          }
+          deleteMany: {
+            args: Prisma.DashboardShareDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DashboardShareUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DashboardShareUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DashboardSharePayload>
+          }
+          aggregate: {
+            args: Prisma.DashboardShareAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDashboardShare>
+          }
+          groupBy: {
+            args: Prisma.DashboardShareGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DashboardShareGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DashboardShareCountArgs<ExtArgs>
+            result: $Utils.Optional<DashboardShareCountAggregateOutputType> | number
           }
         }
       }
@@ -3060,6 +3397,76 @@ export namespace Prisma {
           count: {
             args: Prisma.AlertNotificationLogCountArgs<ExtArgs>
             result: $Utils.Optional<AlertNotificationLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      ExportResult: {
+        payload: Prisma.$ExportResultPayload<ExtArgs>
+        fields: Prisma.ExportResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExportResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExportResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>
+          }
+          findFirst: {
+            args: Prisma.ExportResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExportResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>
+          }
+          findMany: {
+            args: Prisma.ExportResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>[]
+          }
+          create: {
+            args: Prisma.ExportResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>
+          }
+          createMany: {
+            args: Prisma.ExportResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ExportResultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>[]
+          }
+          delete: {
+            args: Prisma.ExportResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>
+          }
+          update: {
+            args: Prisma.ExportResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExportResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExportResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ExportResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExportResultPayload>
+          }
+          aggregate: {
+            args: Prisma.ExportResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExportResult>
+          }
+          groupBy: {
+            args: Prisma.ExportResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExportResultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ExportResultCountArgs<ExtArgs>
+            result: $Utils.Optional<ExportResultCountAggregateOutputType> | number
           }
         }
       }
@@ -4323,6 +4730,76 @@ export namespace Prisma {
           }
         }
       }
+      MapeamentoImport: {
+        payload: Prisma.$MapeamentoImportPayload<ExtArgs>
+        fields: Prisma.MapeamentoImportFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MapeamentoImportFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MapeamentoImportFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>
+          }
+          findFirst: {
+            args: Prisma.MapeamentoImportFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MapeamentoImportFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>
+          }
+          findMany: {
+            args: Prisma.MapeamentoImportFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>[]
+          }
+          create: {
+            args: Prisma.MapeamentoImportCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>
+          }
+          createMany: {
+            args: Prisma.MapeamentoImportCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MapeamentoImportCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>[]
+          }
+          delete: {
+            args: Prisma.MapeamentoImportDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>
+          }
+          update: {
+            args: Prisma.MapeamentoImportUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>
+          }
+          deleteMany: {
+            args: Prisma.MapeamentoImportDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MapeamentoImportUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MapeamentoImportUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MapeamentoImportPayload>
+          }
+          aggregate: {
+            args: Prisma.MapeamentoImportAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMapeamentoImport>
+          }
+          groupBy: {
+            args: Prisma.MapeamentoImportGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MapeamentoImportGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MapeamentoImportCountArgs<ExtArgs>
+            result: $Utils.Optional<MapeamentoImportCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4547,6 +5024,55 @@ export namespace Prisma {
    */
   export type EmailThreadCountOutputTypeCountMensagensArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EmailMessageWhereInput
+  }
+
+
+  /**
+   * Count Type DashboardConfigCountOutputType
+   */
+
+  export type DashboardConfigCountOutputType = {
+    widgets: number
+    alerts: number
+    shares: number
+  }
+
+  export type DashboardConfigCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    widgets?: boolean | DashboardConfigCountOutputTypeCountWidgetsArgs
+    alerts?: boolean | DashboardConfigCountOutputTypeCountAlertsArgs
+    shares?: boolean | DashboardConfigCountOutputTypeCountSharesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DashboardConfigCountOutputType without action
+   */
+  export type DashboardConfigCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardConfigCountOutputType
+     */
+    select?: DashboardConfigCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DashboardConfigCountOutputType without action
+   */
+  export type DashboardConfigCountOutputTypeCountWidgetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardWidgetWhereInput
+  }
+
+  /**
+   * DashboardConfigCountOutputType without action
+   */
+  export type DashboardConfigCountOutputTypeCountAlertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardAlertWhereInput
+  }
+
+  /**
+   * DashboardConfigCountOutputType without action
+   */
+  export type DashboardConfigCountOutputTypeCountSharesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardShareWhereInput
   }
 
 
@@ -20218,390 +20744,400 @@ export namespace Prisma {
 
 
   /**
-   * Model ConfigDashboard
+   * Model DashboardConfig
    */
 
-  export type AggregateConfigDashboard = {
-    _count: ConfigDashboardCountAggregateOutputType | null
-    _avg: ConfigDashboardAvgAggregateOutputType | null
-    _sum: ConfigDashboardSumAggregateOutputType | null
-    _min: ConfigDashboardMinAggregateOutputType | null
-    _max: ConfigDashboardMaxAggregateOutputType | null
+  export type AggregateDashboardConfig = {
+    _count: DashboardConfigCountAggregateOutputType | null
+    _min: DashboardConfigMinAggregateOutputType | null
+    _max: DashboardConfigMaxAggregateOutputType | null
   }
 
-  export type ConfigDashboardAvgAggregateOutputType = {
-    refresh_rate: number | null
-  }
-
-  export type ConfigDashboardSumAggregateOutputType = {
-    refresh_rate: number | null
-  }
-
-  export type ConfigDashboardMinAggregateOutputType = {
+  export type DashboardConfigMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     product_id: string | null
     user_id: string | null
-    refresh_rate: number | null
+    name: string | null
+    mode: $Enums.DashboardMode | null
+    is_default: boolean | null
     created_at: Date | null
     updated_at: Date | null
   }
 
-  export type ConfigDashboardMaxAggregateOutputType = {
+  export type DashboardConfigMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     product_id: string | null
     user_id: string | null
-    refresh_rate: number | null
+    name: string | null
+    mode: $Enums.DashboardMode | null
+    is_default: boolean | null
     created_at: Date | null
     updated_at: Date | null
   }
 
-  export type ConfigDashboardCountAggregateOutputType = {
+  export type DashboardConfigCountAggregateOutputType = {
     id: number
     tenant_id: number
     product_id: number
     user_id: number
-    widgets_layout: number
-    refresh_rate: number
+    name: number
+    mode: number
+    layout: number
+    filters: number
+    is_default: number
     created_at: number
     updated_at: number
     _all: number
   }
 
 
-  export type ConfigDashboardAvgAggregateInputType = {
-    refresh_rate?: true
-  }
-
-  export type ConfigDashboardSumAggregateInputType = {
-    refresh_rate?: true
-  }
-
-  export type ConfigDashboardMinAggregateInputType = {
+  export type DashboardConfigMinAggregateInputType = {
     id?: true
     tenant_id?: true
     product_id?: true
     user_id?: true
-    refresh_rate?: true
+    name?: true
+    mode?: true
+    is_default?: true
     created_at?: true
     updated_at?: true
   }
 
-  export type ConfigDashboardMaxAggregateInputType = {
+  export type DashboardConfigMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     product_id?: true
     user_id?: true
-    refresh_rate?: true
+    name?: true
+    mode?: true
+    is_default?: true
     created_at?: true
     updated_at?: true
   }
 
-  export type ConfigDashboardCountAggregateInputType = {
+  export type DashboardConfigCountAggregateInputType = {
     id?: true
     tenant_id?: true
     product_id?: true
     user_id?: true
-    widgets_layout?: true
-    refresh_rate?: true
+    name?: true
+    mode?: true
+    layout?: true
+    filters?: true
+    is_default?: true
     created_at?: true
     updated_at?: true
     _all?: true
   }
 
-  export type ConfigDashboardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ConfigDashboard to aggregate.
+     * Filter which DashboardConfig to aggregate.
      */
-    where?: ConfigDashboardWhereInput
+    where?: DashboardConfigWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfigDashboards to fetch.
+     * Determine the order of DashboardConfigs to fetch.
      */
-    orderBy?: ConfigDashboardOrderByWithRelationInput | ConfigDashboardOrderByWithRelationInput[]
+    orderBy?: DashboardConfigOrderByWithRelationInput | DashboardConfigOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ConfigDashboardWhereUniqueInput
+    cursor?: DashboardConfigWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfigDashboards from the position of the cursor.
+     * Take `±n` DashboardConfigs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfigDashboards.
+     * Skip the first `n` DashboardConfigs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ConfigDashboards
+     * Count returned DashboardConfigs
     **/
-    _count?: true | ConfigDashboardCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: ConfigDashboardAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: ConfigDashboardSumAggregateInputType
+    _count?: true | DashboardConfigCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ConfigDashboardMinAggregateInputType
+    _min?: DashboardConfigMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ConfigDashboardMaxAggregateInputType
+    _max?: DashboardConfigMaxAggregateInputType
   }
 
-  export type GetConfigDashboardAggregateType<T extends ConfigDashboardAggregateArgs> = {
-        [P in keyof T & keyof AggregateConfigDashboard]: P extends '_count' | 'count'
+  export type GetDashboardConfigAggregateType<T extends DashboardConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateDashboardConfig]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateConfigDashboard[P]>
-      : GetScalarType<T[P], AggregateConfigDashboard[P]>
+        : GetScalarType<T[P], AggregateDashboardConfig[P]>
+      : GetScalarType<T[P], AggregateDashboardConfig[P]>
   }
 
 
 
 
-  export type ConfigDashboardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ConfigDashboardWhereInput
-    orderBy?: ConfigDashboardOrderByWithAggregationInput | ConfigDashboardOrderByWithAggregationInput[]
-    by: ConfigDashboardScalarFieldEnum[] | ConfigDashboardScalarFieldEnum
-    having?: ConfigDashboardScalarWhereWithAggregatesInput
+  export type DashboardConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardConfigWhereInput
+    orderBy?: DashboardConfigOrderByWithAggregationInput | DashboardConfigOrderByWithAggregationInput[]
+    by: DashboardConfigScalarFieldEnum[] | DashboardConfigScalarFieldEnum
+    having?: DashboardConfigScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ConfigDashboardCountAggregateInputType | true
-    _avg?: ConfigDashboardAvgAggregateInputType
-    _sum?: ConfigDashboardSumAggregateInputType
-    _min?: ConfigDashboardMinAggregateInputType
-    _max?: ConfigDashboardMaxAggregateInputType
+    _count?: DashboardConfigCountAggregateInputType | true
+    _min?: DashboardConfigMinAggregateInputType
+    _max?: DashboardConfigMaxAggregateInputType
   }
 
-  export type ConfigDashboardGroupByOutputType = {
+  export type DashboardConfigGroupByOutputType = {
     id: string
     tenant_id: string
     product_id: string | null
-    user_id: string | null
-    widgets_layout: JsonValue | null
-    refresh_rate: number
+    user_id: string
+    name: string
+    mode: $Enums.DashboardMode
+    layout: JsonValue
+    filters: JsonValue | null
+    is_default: boolean
     created_at: Date
     updated_at: Date
-    _count: ConfigDashboardCountAggregateOutputType | null
-    _avg: ConfigDashboardAvgAggregateOutputType | null
-    _sum: ConfigDashboardSumAggregateOutputType | null
-    _min: ConfigDashboardMinAggregateOutputType | null
-    _max: ConfigDashboardMaxAggregateOutputType | null
+    _count: DashboardConfigCountAggregateOutputType | null
+    _min: DashboardConfigMinAggregateOutputType | null
+    _max: DashboardConfigMaxAggregateOutputType | null
   }
 
-  type GetConfigDashboardGroupByPayload<T extends ConfigDashboardGroupByArgs> = Prisma.PrismaPromise<
+  type GetDashboardConfigGroupByPayload<T extends DashboardConfigGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ConfigDashboardGroupByOutputType, T['by']> &
+      PickEnumerable<DashboardConfigGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ConfigDashboardGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof DashboardConfigGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ConfigDashboardGroupByOutputType[P]>
-            : GetScalarType<T[P], ConfigDashboardGroupByOutputType[P]>
+              : GetScalarType<T[P], DashboardConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], DashboardConfigGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ConfigDashboardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type DashboardConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     product_id?: boolean
     user_id?: boolean
-    widgets_layout?: boolean
-    refresh_rate?: boolean
+    name?: boolean
+    mode?: boolean
+    layout?: boolean
+    filters?: boolean
+    is_default?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["configDashboard"]>
+    widgets?: boolean | DashboardConfig$widgetsArgs<ExtArgs>
+    alerts?: boolean | DashboardConfig$alertsArgs<ExtArgs>
+    shares?: boolean | DashboardConfig$sharesArgs<ExtArgs>
+    _count?: boolean | DashboardConfigCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardConfig"]>
 
-  export type ConfigDashboardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type DashboardConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     product_id?: boolean
     user_id?: boolean
-    widgets_layout?: boolean
-    refresh_rate?: boolean
+    name?: boolean
+    mode?: boolean
+    layout?: boolean
+    filters?: boolean
+    is_default?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["configDashboard"]>
+  }, ExtArgs["result"]["dashboardConfig"]>
 
-  export type ConfigDashboardSelectScalar = {
+  export type DashboardConfigSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     product_id?: boolean
     user_id?: boolean
-    widgets_layout?: boolean
-    refresh_rate?: boolean
+    name?: boolean
+    mode?: boolean
+    layout?: boolean
+    filters?: boolean
+    is_default?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
+  export type DashboardConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    widgets?: boolean | DashboardConfig$widgetsArgs<ExtArgs>
+    alerts?: boolean | DashboardConfig$alertsArgs<ExtArgs>
+    shares?: boolean | DashboardConfig$sharesArgs<ExtArgs>
+    _count?: boolean | DashboardConfigCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DashboardConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $ConfigDashboardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ConfigDashboard"
-    objects: {}
+  export type $DashboardConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DashboardConfig"
+    objects: {
+      widgets: Prisma.$DashboardWidgetPayload<ExtArgs>[]
+      alerts: Prisma.$DashboardAlertPayload<ExtArgs>[]
+      shares: Prisma.$DashboardSharePayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       tenant_id: string
       product_id: string | null
-      user_id: string | null
-      widgets_layout: Prisma.JsonValue | null
-      refresh_rate: number
+      user_id: string
+      name: string
+      mode: $Enums.DashboardMode
+      layout: Prisma.JsonValue
+      filters: Prisma.JsonValue | null
+      is_default: boolean
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["configDashboard"]>
+    }, ExtArgs["result"]["dashboardConfig"]>
     composites: {}
   }
 
-  type ConfigDashboardGetPayload<S extends boolean | null | undefined | ConfigDashboardDefaultArgs> = $Result.GetResult<Prisma.$ConfigDashboardPayload, S>
+  type DashboardConfigGetPayload<S extends boolean | null | undefined | DashboardConfigDefaultArgs> = $Result.GetResult<Prisma.$DashboardConfigPayload, S>
 
-  type ConfigDashboardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ConfigDashboardFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ConfigDashboardCountAggregateInputType | true
+  type DashboardConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DashboardConfigFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DashboardConfigCountAggregateInputType | true
     }
 
-  export interface ConfigDashboardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConfigDashboard'], meta: { name: 'ConfigDashboard' } }
+  export interface DashboardConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DashboardConfig'], meta: { name: 'DashboardConfig' } }
     /**
-     * Find zero or one ConfigDashboard that matches the filter.
-     * @param {ConfigDashboardFindUniqueArgs} args - Arguments to find a ConfigDashboard
+     * Find zero or one DashboardConfig that matches the filter.
+     * @param {DashboardConfigFindUniqueArgs} args - Arguments to find a DashboardConfig
      * @example
-     * // Get one ConfigDashboard
-     * const configDashboard = await prisma.configDashboard.findUnique({
+     * // Get one DashboardConfig
+     * const dashboardConfig = await prisma.dashboardConfig.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ConfigDashboardFindUniqueArgs>(args: SelectSubset<T, ConfigDashboardFindUniqueArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends DashboardConfigFindUniqueArgs>(args: SelectSubset<T, DashboardConfigFindUniqueArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ConfigDashboard that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one DashboardConfig that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ConfigDashboardFindUniqueOrThrowArgs} args - Arguments to find a ConfigDashboard
+     * @param {DashboardConfigFindUniqueOrThrowArgs} args - Arguments to find a DashboardConfig
      * @example
-     * // Get one ConfigDashboard
-     * const configDashboard = await prisma.configDashboard.findUniqueOrThrow({
+     * // Get one DashboardConfig
+     * const dashboardConfig = await prisma.dashboardConfig.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ConfigDashboardFindUniqueOrThrowArgs>(args: SelectSubset<T, ConfigDashboardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends DashboardConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, DashboardConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first ConfigDashboard that matches the filter.
+     * Find the first DashboardConfig that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfigDashboardFindFirstArgs} args - Arguments to find a ConfigDashboard
+     * @param {DashboardConfigFindFirstArgs} args - Arguments to find a DashboardConfig
      * @example
-     * // Get one ConfigDashboard
-     * const configDashboard = await prisma.configDashboard.findFirst({
+     * // Get one DashboardConfig
+     * const dashboardConfig = await prisma.dashboardConfig.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ConfigDashboardFindFirstArgs>(args?: SelectSubset<T, ConfigDashboardFindFirstArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends DashboardConfigFindFirstArgs>(args?: SelectSubset<T, DashboardConfigFindFirstArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first ConfigDashboard that matches the filter or
+     * Find the first DashboardConfig that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfigDashboardFindFirstOrThrowArgs} args - Arguments to find a ConfigDashboard
+     * @param {DashboardConfigFindFirstOrThrowArgs} args - Arguments to find a DashboardConfig
      * @example
-     * // Get one ConfigDashboard
-     * const configDashboard = await prisma.configDashboard.findFirstOrThrow({
+     * // Get one DashboardConfig
+     * const dashboardConfig = await prisma.dashboardConfig.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ConfigDashboardFindFirstOrThrowArgs>(args?: SelectSubset<T, ConfigDashboardFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends DashboardConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, DashboardConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more ConfigDashboards that matches the filter.
+     * Find zero or more DashboardConfigs that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfigDashboardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {DashboardConfigFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ConfigDashboards
-     * const configDashboards = await prisma.configDashboard.findMany()
+     * // Get all DashboardConfigs
+     * const dashboardConfigs = await prisma.dashboardConfig.findMany()
      * 
-     * // Get first 10 ConfigDashboards
-     * const configDashboards = await prisma.configDashboard.findMany({ take: 10 })
+     * // Get first 10 DashboardConfigs
+     * const dashboardConfigs = await prisma.dashboardConfig.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const configDashboardWithIdOnly = await prisma.configDashboard.findMany({ select: { id: true } })
+     * const dashboardConfigWithIdOnly = await prisma.dashboardConfig.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ConfigDashboardFindManyArgs>(args?: SelectSubset<T, ConfigDashboardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends DashboardConfigFindManyArgs>(args?: SelectSubset<T, DashboardConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a ConfigDashboard.
-     * @param {ConfigDashboardCreateArgs} args - Arguments to create a ConfigDashboard.
+     * Create a DashboardConfig.
+     * @param {DashboardConfigCreateArgs} args - Arguments to create a DashboardConfig.
      * @example
-     * // Create one ConfigDashboard
-     * const ConfigDashboard = await prisma.configDashboard.create({
+     * // Create one DashboardConfig
+     * const DashboardConfig = await prisma.dashboardConfig.create({
      *   data: {
-     *     // ... data to create a ConfigDashboard
+     *     // ... data to create a DashboardConfig
      *   }
      * })
      * 
      */
-    create<T extends ConfigDashboardCreateArgs>(args: SelectSubset<T, ConfigDashboardCreateArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends DashboardConfigCreateArgs>(args: SelectSubset<T, DashboardConfigCreateArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many ConfigDashboards.
-     * @param {ConfigDashboardCreateManyArgs} args - Arguments to create many ConfigDashboards.
+     * Create many DashboardConfigs.
+     * @param {DashboardConfigCreateManyArgs} args - Arguments to create many DashboardConfigs.
      * @example
-     * // Create many ConfigDashboards
-     * const configDashboard = await prisma.configDashboard.createMany({
+     * // Create many DashboardConfigs
+     * const dashboardConfig = await prisma.dashboardConfig.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ConfigDashboardCreateManyArgs>(args?: SelectSubset<T, ConfigDashboardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends DashboardConfigCreateManyArgs>(args?: SelectSubset<T, DashboardConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ConfigDashboards and returns the data saved in the database.
-     * @param {ConfigDashboardCreateManyAndReturnArgs} args - Arguments to create many ConfigDashboards.
+     * Create many DashboardConfigs and returns the data saved in the database.
+     * @param {DashboardConfigCreateManyAndReturnArgs} args - Arguments to create many DashboardConfigs.
      * @example
-     * // Create many ConfigDashboards
-     * const configDashboard = await prisma.configDashboard.createManyAndReturn({
+     * // Create many DashboardConfigs
+     * const dashboardConfig = await prisma.dashboardConfig.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ConfigDashboards and only return the `id`
-     * const configDashboardWithIdOnly = await prisma.configDashboard.createManyAndReturn({ 
+     * // Create many DashboardConfigs and only return the `id`
+     * const dashboardConfigWithIdOnly = await prisma.dashboardConfig.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -20611,28 +21147,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ConfigDashboardCreateManyAndReturnArgs>(args?: SelectSubset<T, ConfigDashboardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends DashboardConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, DashboardConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a ConfigDashboard.
-     * @param {ConfigDashboardDeleteArgs} args - Arguments to delete one ConfigDashboard.
+     * Delete a DashboardConfig.
+     * @param {DashboardConfigDeleteArgs} args - Arguments to delete one DashboardConfig.
      * @example
-     * // Delete one ConfigDashboard
-     * const ConfigDashboard = await prisma.configDashboard.delete({
+     * // Delete one DashboardConfig
+     * const DashboardConfig = await prisma.dashboardConfig.delete({
      *   where: {
-     *     // ... filter to delete one ConfigDashboard
+     *     // ... filter to delete one DashboardConfig
      *   }
      * })
      * 
      */
-    delete<T extends ConfigDashboardDeleteArgs>(args: SelectSubset<T, ConfigDashboardDeleteArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends DashboardConfigDeleteArgs>(args: SelectSubset<T, DashboardConfigDeleteArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one ConfigDashboard.
-     * @param {ConfigDashboardUpdateArgs} args - Arguments to update one ConfigDashboard.
+     * Update one DashboardConfig.
+     * @param {DashboardConfigUpdateArgs} args - Arguments to update one DashboardConfig.
      * @example
-     * // Update one ConfigDashboard
-     * const configDashboard = await prisma.configDashboard.update({
+     * // Update one DashboardConfig
+     * const dashboardConfig = await prisma.dashboardConfig.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -20642,30 +21178,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ConfigDashboardUpdateArgs>(args: SelectSubset<T, ConfigDashboardUpdateArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends DashboardConfigUpdateArgs>(args: SelectSubset<T, DashboardConfigUpdateArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more ConfigDashboards.
-     * @param {ConfigDashboardDeleteManyArgs} args - Arguments to filter ConfigDashboards to delete.
+     * Delete zero or more DashboardConfigs.
+     * @param {DashboardConfigDeleteManyArgs} args - Arguments to filter DashboardConfigs to delete.
      * @example
-     * // Delete a few ConfigDashboards
-     * const { count } = await prisma.configDashboard.deleteMany({
+     * // Delete a few DashboardConfigs
+     * const { count } = await prisma.dashboardConfig.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ConfigDashboardDeleteManyArgs>(args?: SelectSubset<T, ConfigDashboardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends DashboardConfigDeleteManyArgs>(args?: SelectSubset<T, DashboardConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ConfigDashboards.
+     * Update zero or more DashboardConfigs.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfigDashboardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {DashboardConfigUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ConfigDashboards
-     * const configDashboard = await prisma.configDashboard.updateMany({
+     * // Update many DashboardConfigs
+     * const dashboardConfig = await prisma.dashboardConfig.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -20675,56 +21211,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ConfigDashboardUpdateManyArgs>(args: SelectSubset<T, ConfigDashboardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends DashboardConfigUpdateManyArgs>(args: SelectSubset<T, DashboardConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one ConfigDashboard.
-     * @param {ConfigDashboardUpsertArgs} args - Arguments to update or create a ConfigDashboard.
+     * Create or update one DashboardConfig.
+     * @param {DashboardConfigUpsertArgs} args - Arguments to update or create a DashboardConfig.
      * @example
-     * // Update or create a ConfigDashboard
-     * const configDashboard = await prisma.configDashboard.upsert({
+     * // Update or create a DashboardConfig
+     * const dashboardConfig = await prisma.dashboardConfig.upsert({
      *   create: {
-     *     // ... data to create a ConfigDashboard
+     *     // ... data to create a DashboardConfig
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ConfigDashboard we want to update
+     *     // ... the filter for the DashboardConfig we want to update
      *   }
      * })
      */
-    upsert<T extends ConfigDashboardUpsertArgs>(args: SelectSubset<T, ConfigDashboardUpsertArgs<ExtArgs>>): Prisma__ConfigDashboardClient<$Result.GetResult<Prisma.$ConfigDashboardPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends DashboardConfigUpsertArgs>(args: SelectSubset<T, DashboardConfigUpsertArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of ConfigDashboards.
+     * Count the number of DashboardConfigs.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfigDashboardCountArgs} args - Arguments to filter ConfigDashboards to count.
+     * @param {DashboardConfigCountArgs} args - Arguments to filter DashboardConfigs to count.
      * @example
-     * // Count the number of ConfigDashboards
-     * const count = await prisma.configDashboard.count({
+     * // Count the number of DashboardConfigs
+     * const count = await prisma.dashboardConfig.count({
      *   where: {
-     *     // ... the filter for the ConfigDashboards we want to count
+     *     // ... the filter for the DashboardConfigs we want to count
      *   }
      * })
     **/
-    count<T extends ConfigDashboardCountArgs>(
-      args?: Subset<T, ConfigDashboardCountArgs>,
+    count<T extends DashboardConfigCountArgs>(
+      args?: Subset<T, DashboardConfigCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ConfigDashboardCountAggregateOutputType>
+          : GetScalarType<T['select'], DashboardConfigCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ConfigDashboard.
+     * Allows you to perform aggregations operations on a DashboardConfig.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfigDashboardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {DashboardConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -20744,13 +21280,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ConfigDashboardAggregateArgs>(args: Subset<T, ConfigDashboardAggregateArgs>): Prisma.PrismaPromise<GetConfigDashboardAggregateType<T>>
+    aggregate<T extends DashboardConfigAggregateArgs>(args: Subset<T, DashboardConfigAggregateArgs>): Prisma.PrismaPromise<GetDashboardConfigAggregateType<T>>
 
     /**
-     * Group by ConfigDashboard.
+     * Group by DashboardConfig.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ConfigDashboardGroupByArgs} args - Group by arguments.
+     * @param {DashboardConfigGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -20765,14 +21301,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ConfigDashboardGroupByArgs,
+      T extends DashboardConfigGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ConfigDashboardGroupByArgs['orderBy'] }
-        : { orderBy?: ConfigDashboardGroupByArgs['orderBy'] },
+        ? { orderBy: DashboardConfigGroupByArgs['orderBy'] }
+        : { orderBy?: DashboardConfigGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -20821,21 +21357,24 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ConfigDashboardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConfigDashboardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, DashboardConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDashboardConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ConfigDashboard model
+   * Fields of the DashboardConfig model
    */
-  readonly fields: ConfigDashboardFieldRefs;
+  readonly fields: DashboardConfigFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ConfigDashboard.
+   * The delegate class that acts as a "Promise-like" for DashboardConfig.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ConfigDashboardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__DashboardConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    widgets<T extends DashboardConfig$widgetsArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfig$widgetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "findMany"> | Null>
+    alerts<T extends DashboardConfig$alertsArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfig$alertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "findMany"> | Null>
+    shares<T extends DashboardConfig$sharesArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfig$sharesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -20862,705 +21401,827 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ConfigDashboard model
+   * Fields of the DashboardConfig model
    */ 
-  interface ConfigDashboardFieldRefs {
-    readonly id: FieldRef<"ConfigDashboard", 'String'>
-    readonly tenant_id: FieldRef<"ConfigDashboard", 'String'>
-    readonly product_id: FieldRef<"ConfigDashboard", 'String'>
-    readonly user_id: FieldRef<"ConfigDashboard", 'String'>
-    readonly widgets_layout: FieldRef<"ConfigDashboard", 'Json'>
-    readonly refresh_rate: FieldRef<"ConfigDashboard", 'Int'>
-    readonly created_at: FieldRef<"ConfigDashboard", 'DateTime'>
-    readonly updated_at: FieldRef<"ConfigDashboard", 'DateTime'>
+  interface DashboardConfigFieldRefs {
+    readonly id: FieldRef<"DashboardConfig", 'String'>
+    readonly tenant_id: FieldRef<"DashboardConfig", 'String'>
+    readonly product_id: FieldRef<"DashboardConfig", 'String'>
+    readonly user_id: FieldRef<"DashboardConfig", 'String'>
+    readonly name: FieldRef<"DashboardConfig", 'String'>
+    readonly mode: FieldRef<"DashboardConfig", 'DashboardMode'>
+    readonly layout: FieldRef<"DashboardConfig", 'Json'>
+    readonly filters: FieldRef<"DashboardConfig", 'Json'>
+    readonly is_default: FieldRef<"DashboardConfig", 'Boolean'>
+    readonly created_at: FieldRef<"DashboardConfig", 'DateTime'>
+    readonly updated_at: FieldRef<"DashboardConfig", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ConfigDashboard findUnique
+   * DashboardConfig findUnique
    */
-  export type ConfigDashboardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * Filter, which ConfigDashboard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: ConfigDashboardWhereUniqueInput
+    include?: DashboardConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardConfig to fetch.
+     */
+    where: DashboardConfigWhereUniqueInput
   }
 
   /**
-   * ConfigDashboard findUniqueOrThrow
+   * DashboardConfig findUniqueOrThrow
    */
-  export type ConfigDashboardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * Filter, which ConfigDashboard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: ConfigDashboardWhereUniqueInput
+    include?: DashboardConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardConfig to fetch.
+     */
+    where: DashboardConfigWhereUniqueInput
   }
 
   /**
-   * ConfigDashboard findFirst
+   * DashboardConfig findFirst
    */
-  export type ConfigDashboardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * Filter, which ConfigDashboard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: ConfigDashboardWhereInput
+    include?: DashboardConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardConfig to fetch.
+     */
+    where?: DashboardConfigWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfigDashboards to fetch.
+     * Determine the order of DashboardConfigs to fetch.
      */
-    orderBy?: ConfigDashboardOrderByWithRelationInput | ConfigDashboardOrderByWithRelationInput[]
+    orderBy?: DashboardConfigOrderByWithRelationInput | DashboardConfigOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ConfigDashboards.
+     * Sets the position for searching for DashboardConfigs.
      */
-    cursor?: ConfigDashboardWhereUniqueInput
+    cursor?: DashboardConfigWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfigDashboards from the position of the cursor.
+     * Take `±n` DashboardConfigs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfigDashboards.
+     * Skip the first `n` DashboardConfigs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ConfigDashboards.
+     * Filter by unique combinations of DashboardConfigs.
      */
-    distinct?: ConfigDashboardScalarFieldEnum | ConfigDashboardScalarFieldEnum[]
+    distinct?: DashboardConfigScalarFieldEnum | DashboardConfigScalarFieldEnum[]
   }
 
   /**
-   * ConfigDashboard findFirstOrThrow
+   * DashboardConfig findFirstOrThrow
    */
-  export type ConfigDashboardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * Filter, which ConfigDashboard to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: ConfigDashboardWhereInput
+    include?: DashboardConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardConfig to fetch.
+     */
+    where?: DashboardConfigWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfigDashboards to fetch.
+     * Determine the order of DashboardConfigs to fetch.
      */
-    orderBy?: ConfigDashboardOrderByWithRelationInput | ConfigDashboardOrderByWithRelationInput[]
+    orderBy?: DashboardConfigOrderByWithRelationInput | DashboardConfigOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ConfigDashboards.
+     * Sets the position for searching for DashboardConfigs.
      */
-    cursor?: ConfigDashboardWhereUniqueInput
+    cursor?: DashboardConfigWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfigDashboards from the position of the cursor.
+     * Take `±n` DashboardConfigs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfigDashboards.
+     * Skip the first `n` DashboardConfigs.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ConfigDashboards.
+     * Filter by unique combinations of DashboardConfigs.
      */
-    distinct?: ConfigDashboardScalarFieldEnum | ConfigDashboardScalarFieldEnum[]
+    distinct?: DashboardConfigScalarFieldEnum | DashboardConfigScalarFieldEnum[]
   }
 
   /**
-   * ConfigDashboard findMany
+   * DashboardConfig findMany
    */
-  export type ConfigDashboardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * Filter, which ConfigDashboards to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: ConfigDashboardWhereInput
+    include?: DashboardConfigInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardConfigs to fetch.
+     */
+    where?: DashboardConfigWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ConfigDashboards to fetch.
+     * Determine the order of DashboardConfigs to fetch.
      */
-    orderBy?: ConfigDashboardOrderByWithRelationInput | ConfigDashboardOrderByWithRelationInput[]
+    orderBy?: DashboardConfigOrderByWithRelationInput | DashboardConfigOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ConfigDashboards.
+     * Sets the position for listing DashboardConfigs.
      */
-    cursor?: ConfigDashboardWhereUniqueInput
+    cursor?: DashboardConfigWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ConfigDashboards from the position of the cursor.
+     * Take `±n` DashboardConfigs from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ConfigDashboards.
+     * Skip the first `n` DashboardConfigs.
      */
     skip?: number
-    distinct?: ConfigDashboardScalarFieldEnum | ConfigDashboardScalarFieldEnum[]
+    distinct?: DashboardConfigScalarFieldEnum | DashboardConfigScalarFieldEnum[]
   }
 
   /**
-   * ConfigDashboard create
+   * DashboardConfig create
    */
-  export type ConfigDashboardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * The data needed to create a ConfigDashboard.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<ConfigDashboardCreateInput, ConfigDashboardUncheckedCreateInput>
+    include?: DashboardConfigInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DashboardConfig.
+     */
+    data: XOR<DashboardConfigCreateInput, DashboardConfigUncheckedCreateInput>
   }
 
   /**
-   * ConfigDashboard createMany
+   * DashboardConfig createMany
    */
-  export type ConfigDashboardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ConfigDashboards.
+     * The data used to create many DashboardConfigs.
      */
-    data: ConfigDashboardCreateManyInput | ConfigDashboardCreateManyInput[]
+    data: DashboardConfigCreateManyInput | DashboardConfigCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ConfigDashboard createManyAndReturn
+   * DashboardConfig createManyAndReturn
    */
-  export type ConfigDashboardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelectCreateManyAndReturn<ExtArgs> | null
+    select?: DashboardConfigSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many ConfigDashboards.
+     * The data used to create many DashboardConfigs.
      */
-    data: ConfigDashboardCreateManyInput | ConfigDashboardCreateManyInput[]
+    data: DashboardConfigCreateManyInput | DashboardConfigCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ConfigDashboard update
+   * DashboardConfig update
    */
-  export type ConfigDashboardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * The data needed to update a ConfigDashboard.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<ConfigDashboardUpdateInput, ConfigDashboardUncheckedUpdateInput>
+    include?: DashboardConfigInclude<ExtArgs> | null
     /**
-     * Choose, which ConfigDashboard to update.
+     * The data needed to update a DashboardConfig.
      */
-    where: ConfigDashboardWhereUniqueInput
+    data: XOR<DashboardConfigUpdateInput, DashboardConfigUncheckedUpdateInput>
+    /**
+     * Choose, which DashboardConfig to update.
+     */
+    where: DashboardConfigWhereUniqueInput
   }
 
   /**
-   * ConfigDashboard updateMany
+   * DashboardConfig updateMany
    */
-  export type ConfigDashboardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ConfigDashboards.
+     * The data used to update DashboardConfigs.
      */
-    data: XOR<ConfigDashboardUpdateManyMutationInput, ConfigDashboardUncheckedUpdateManyInput>
+    data: XOR<DashboardConfigUpdateManyMutationInput, DashboardConfigUncheckedUpdateManyInput>
     /**
-     * Filter which ConfigDashboards to update
+     * Filter which DashboardConfigs to update
      */
-    where?: ConfigDashboardWhereInput
+    where?: DashboardConfigWhereInput
   }
 
   /**
-   * ConfigDashboard upsert
+   * DashboardConfig upsert
    */
-  export type ConfigDashboardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * The filter to search for the ConfigDashboard to update in case it exists.
+     * Choose, which related nodes to fetch as well
      */
-    where: ConfigDashboardWhereUniqueInput
+    include?: DashboardConfigInclude<ExtArgs> | null
     /**
-     * In case the ConfigDashboard found by the `where` argument doesn't exist, create a new ConfigDashboard with this data.
+     * The filter to search for the DashboardConfig to update in case it exists.
      */
-    create: XOR<ConfigDashboardCreateInput, ConfigDashboardUncheckedCreateInput>
+    where: DashboardConfigWhereUniqueInput
     /**
-     * In case the ConfigDashboard was found with the provided `where` argument, update it with this data.
+     * In case the DashboardConfig found by the `where` argument doesn't exist, create a new DashboardConfig with this data.
      */
-    update: XOR<ConfigDashboardUpdateInput, ConfigDashboardUncheckedUpdateInput>
+    create: XOR<DashboardConfigCreateInput, DashboardConfigUncheckedCreateInput>
+    /**
+     * In case the DashboardConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DashboardConfigUpdateInput, DashboardConfigUncheckedUpdateInput>
   }
 
   /**
-   * ConfigDashboard delete
+   * DashboardConfig delete
    */
-  export type ConfigDashboardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardConfig
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardConfigSelect<ExtArgs> | null
     /**
-     * Filter which ConfigDashboard to delete.
+     * Choose, which related nodes to fetch as well
      */
-    where: ConfigDashboardWhereUniqueInput
+    include?: DashboardConfigInclude<ExtArgs> | null
+    /**
+     * Filter which DashboardConfig to delete.
+     */
+    where: DashboardConfigWhereUniqueInput
   }
 
   /**
-   * ConfigDashboard deleteMany
+   * DashboardConfig deleteMany
    */
-  export type ConfigDashboardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ConfigDashboards to delete
+     * Filter which DashboardConfigs to delete
      */
-    where?: ConfigDashboardWhereInput
+    where?: DashboardConfigWhereInput
   }
 
   /**
-   * ConfigDashboard without action
+   * DashboardConfig.widgets
    */
-  export type ConfigDashboardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfig$widgetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ConfigDashboard
+     * Select specific fields to fetch from the DashboardWidget
      */
-    select?: ConfigDashboardSelect<ExtArgs> | null
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    where?: DashboardWidgetWhereInput
+    orderBy?: DashboardWidgetOrderByWithRelationInput | DashboardWidgetOrderByWithRelationInput[]
+    cursor?: DashboardWidgetWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DashboardWidgetScalarFieldEnum | DashboardWidgetScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardConfig.alerts
+   */
+  export type DashboardConfig$alertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    where?: DashboardAlertWhereInput
+    orderBy?: DashboardAlertOrderByWithRelationInput | DashboardAlertOrderByWithRelationInput[]
+    cursor?: DashboardAlertWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DashboardAlertScalarFieldEnum | DashboardAlertScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardConfig.shares
+   */
+  export type DashboardConfig$sharesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    where?: DashboardShareWhereInput
+    orderBy?: DashboardShareOrderByWithRelationInput | DashboardShareOrderByWithRelationInput[]
+    cursor?: DashboardShareWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DashboardShareScalarFieldEnum | DashboardShareScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardConfig without action
+   */
+  export type DashboardConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardConfig
+     */
+    select?: DashboardConfigSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardConfigInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model MetricaSnapshot
+   * Model DashboardWidget
    */
 
-  export type AggregateMetricaSnapshot = {
-    _count: MetricaSnapshotCountAggregateOutputType | null
-    _avg: MetricaSnapshotAvgAggregateOutputType | null
-    _sum: MetricaSnapshotSumAggregateOutputType | null
-    _min: MetricaSnapshotMinAggregateOutputType | null
-    _max: MetricaSnapshotMaxAggregateOutputType | null
+  export type AggregateDashboardWidget = {
+    _count: DashboardWidgetCountAggregateOutputType | null
+    _min: DashboardWidgetMinAggregateOutputType | null
+    _max: DashboardWidgetMaxAggregateOutputType | null
   }
 
-  export type MetricaSnapshotAvgAggregateOutputType = {
-    value: number | null
-  }
-
-  export type MetricaSnapshotSumAggregateOutputType = {
-    value: number | null
-  }
-
-  export type MetricaSnapshotMinAggregateOutputType = {
+  export type DashboardWidgetMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     product_id: string | null
-    metric_name: string | null
-    value: number | null
-    unit: string | null
-    snapshot_date: Date | null
+    user_id: string | null
+    dashboard_id: string | null
+    widget_key: string | null
+    widget_type: $Enums.WidgetType | null
+    chart_type: $Enums.ChartType | null
+    title: string | null
     created_at: Date | null
     updated_at: Date | null
   }
 
-  export type MetricaSnapshotMaxAggregateOutputType = {
+  export type DashboardWidgetMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     product_id: string | null
-    metric_name: string | null
-    value: number | null
-    unit: string | null
-    snapshot_date: Date | null
+    user_id: string | null
+    dashboard_id: string | null
+    widget_key: string | null
+    widget_type: $Enums.WidgetType | null
+    chart_type: $Enums.ChartType | null
+    title: string | null
     created_at: Date | null
     updated_at: Date | null
   }
 
-  export type MetricaSnapshotCountAggregateOutputType = {
+  export type DashboardWidgetCountAggregateOutputType = {
     id: number
     tenant_id: number
     product_id: number
-    metric_name: number
-    value: number
-    unit: number
-    snapshot_date: number
+    user_id: number
+    dashboard_id: number
+    widget_key: number
+    widget_type: number
+    chart_type: number
+    title: number
+    query_spec: number
+    position: number
+    config: number
     created_at: number
     updated_at: number
     _all: number
   }
 
 
-  export type MetricaSnapshotAvgAggregateInputType = {
-    value?: true
-  }
-
-  export type MetricaSnapshotSumAggregateInputType = {
-    value?: true
-  }
-
-  export type MetricaSnapshotMinAggregateInputType = {
+  export type DashboardWidgetMinAggregateInputType = {
     id?: true
     tenant_id?: true
     product_id?: true
-    metric_name?: true
-    value?: true
-    unit?: true
-    snapshot_date?: true
+    user_id?: true
+    dashboard_id?: true
+    widget_key?: true
+    widget_type?: true
+    chart_type?: true
+    title?: true
     created_at?: true
     updated_at?: true
   }
 
-  export type MetricaSnapshotMaxAggregateInputType = {
+  export type DashboardWidgetMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     product_id?: true
-    metric_name?: true
-    value?: true
-    unit?: true
-    snapshot_date?: true
+    user_id?: true
+    dashboard_id?: true
+    widget_key?: true
+    widget_type?: true
+    chart_type?: true
+    title?: true
     created_at?: true
     updated_at?: true
   }
 
-  export type MetricaSnapshotCountAggregateInputType = {
+  export type DashboardWidgetCountAggregateInputType = {
     id?: true
     tenant_id?: true
     product_id?: true
-    metric_name?: true
-    value?: true
-    unit?: true
-    snapshot_date?: true
+    user_id?: true
+    dashboard_id?: true
+    widget_key?: true
+    widget_type?: true
+    chart_type?: true
+    title?: true
+    query_spec?: true
+    position?: true
+    config?: true
     created_at?: true
     updated_at?: true
     _all?: true
   }
 
-  export type MetricaSnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardWidgetAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MetricaSnapshot to aggregate.
+     * Filter which DashboardWidget to aggregate.
      */
-    where?: MetricaSnapshotWhereInput
+    where?: DashboardWidgetWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricaSnapshots to fetch.
+     * Determine the order of DashboardWidgets to fetch.
      */
-    orderBy?: MetricaSnapshotOrderByWithRelationInput | MetricaSnapshotOrderByWithRelationInput[]
+    orderBy?: DashboardWidgetOrderByWithRelationInput | DashboardWidgetOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: MetricaSnapshotWhereUniqueInput
+    cursor?: DashboardWidgetWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricaSnapshots from the position of the cursor.
+     * Take `±n` DashboardWidgets from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricaSnapshots.
+     * Skip the first `n` DashboardWidgets.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned MetricaSnapshots
+     * Count returned DashboardWidgets
     **/
-    _count?: true | MetricaSnapshotCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: MetricaSnapshotAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: MetricaSnapshotSumAggregateInputType
+    _count?: true | DashboardWidgetCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: MetricaSnapshotMinAggregateInputType
+    _min?: DashboardWidgetMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: MetricaSnapshotMaxAggregateInputType
+    _max?: DashboardWidgetMaxAggregateInputType
   }
 
-  export type GetMetricaSnapshotAggregateType<T extends MetricaSnapshotAggregateArgs> = {
-        [P in keyof T & keyof AggregateMetricaSnapshot]: P extends '_count' | 'count'
+  export type GetDashboardWidgetAggregateType<T extends DashboardWidgetAggregateArgs> = {
+        [P in keyof T & keyof AggregateDashboardWidget]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateMetricaSnapshot[P]>
-      : GetScalarType<T[P], AggregateMetricaSnapshot[P]>
+        : GetScalarType<T[P], AggregateDashboardWidget[P]>
+      : GetScalarType<T[P], AggregateDashboardWidget[P]>
   }
 
 
 
 
-  export type MetricaSnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MetricaSnapshotWhereInput
-    orderBy?: MetricaSnapshotOrderByWithAggregationInput | MetricaSnapshotOrderByWithAggregationInput[]
-    by: MetricaSnapshotScalarFieldEnum[] | MetricaSnapshotScalarFieldEnum
-    having?: MetricaSnapshotScalarWhereWithAggregatesInput
+  export type DashboardWidgetGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardWidgetWhereInput
+    orderBy?: DashboardWidgetOrderByWithAggregationInput | DashboardWidgetOrderByWithAggregationInput[]
+    by: DashboardWidgetScalarFieldEnum[] | DashboardWidgetScalarFieldEnum
+    having?: DashboardWidgetScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: MetricaSnapshotCountAggregateInputType | true
-    _avg?: MetricaSnapshotAvgAggregateInputType
-    _sum?: MetricaSnapshotSumAggregateInputType
-    _min?: MetricaSnapshotMinAggregateInputType
-    _max?: MetricaSnapshotMaxAggregateInputType
+    _count?: DashboardWidgetCountAggregateInputType | true
+    _min?: DashboardWidgetMinAggregateInputType
+    _max?: DashboardWidgetMaxAggregateInputType
   }
 
-  export type MetricaSnapshotGroupByOutputType = {
+  export type DashboardWidgetGroupByOutputType = {
     id: string
     tenant_id: string
     product_id: string | null
-    metric_name: string
-    value: number
-    unit: string | null
-    snapshot_date: Date
+    user_id: string
+    dashboard_id: string
+    widget_key: string
+    widget_type: $Enums.WidgetType
+    chart_type: $Enums.ChartType
+    title: string
+    query_spec: JsonValue
+    position: JsonValue
+    config: JsonValue | null
     created_at: Date
     updated_at: Date
-    _count: MetricaSnapshotCountAggregateOutputType | null
-    _avg: MetricaSnapshotAvgAggregateOutputType | null
-    _sum: MetricaSnapshotSumAggregateOutputType | null
-    _min: MetricaSnapshotMinAggregateOutputType | null
-    _max: MetricaSnapshotMaxAggregateOutputType | null
+    _count: DashboardWidgetCountAggregateOutputType | null
+    _min: DashboardWidgetMinAggregateOutputType | null
+    _max: DashboardWidgetMaxAggregateOutputType | null
   }
 
-  type GetMetricaSnapshotGroupByPayload<T extends MetricaSnapshotGroupByArgs> = Prisma.PrismaPromise<
+  type GetDashboardWidgetGroupByPayload<T extends DashboardWidgetGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<MetricaSnapshotGroupByOutputType, T['by']> &
+      PickEnumerable<DashboardWidgetGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof MetricaSnapshotGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof DashboardWidgetGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], MetricaSnapshotGroupByOutputType[P]>
-            : GetScalarType<T[P], MetricaSnapshotGroupByOutputType[P]>
+              : GetScalarType<T[P], DashboardWidgetGroupByOutputType[P]>
+            : GetScalarType<T[P], DashboardWidgetGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type MetricaSnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type DashboardWidgetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     product_id?: boolean
-    metric_name?: boolean
-    value?: boolean
-    unit?: boolean
-    snapshot_date?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    widget_key?: boolean
+    widget_type?: boolean
+    chart_type?: boolean
+    title?: boolean
+    query_spec?: boolean
+    position?: boolean
+    config?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["metricaSnapshot"]>
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardWidget"]>
 
-  export type MetricaSnapshotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type DashboardWidgetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     product_id?: boolean
-    metric_name?: boolean
-    value?: boolean
-    unit?: boolean
-    snapshot_date?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    widget_key?: boolean
+    widget_type?: boolean
+    chart_type?: boolean
+    title?: boolean
+    query_spec?: boolean
+    position?: boolean
+    config?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["metricaSnapshot"]>
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardWidget"]>
 
-  export type MetricaSnapshotSelectScalar = {
+  export type DashboardWidgetSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     product_id?: boolean
-    metric_name?: boolean
-    value?: boolean
-    unit?: boolean
-    snapshot_date?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    widget_key?: boolean
+    widget_type?: boolean
+    chart_type?: boolean
+    title?: boolean
+    query_spec?: boolean
+    position?: boolean
+    config?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
+  export type DashboardWidgetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }
+  export type DashboardWidgetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }
 
-  export type $MetricaSnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "MetricaSnapshot"
-    objects: {}
+  export type $DashboardWidgetPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DashboardWidget"
+    objects: {
+      dashboard: Prisma.$DashboardConfigPayload<ExtArgs>
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       tenant_id: string
       product_id: string | null
-      metric_name: string
-      value: number
-      unit: string | null
-      snapshot_date: Date
+      user_id: string
+      dashboard_id: string
+      widget_key: string
+      widget_type: $Enums.WidgetType
+      chart_type: $Enums.ChartType
+      title: string
+      query_spec: Prisma.JsonValue
+      position: Prisma.JsonValue
+      config: Prisma.JsonValue | null
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["metricaSnapshot"]>
+    }, ExtArgs["result"]["dashboardWidget"]>
     composites: {}
   }
 
-  type MetricaSnapshotGetPayload<S extends boolean | null | undefined | MetricaSnapshotDefaultArgs> = $Result.GetResult<Prisma.$MetricaSnapshotPayload, S>
+  type DashboardWidgetGetPayload<S extends boolean | null | undefined | DashboardWidgetDefaultArgs> = $Result.GetResult<Prisma.$DashboardWidgetPayload, S>
 
-  type MetricaSnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<MetricaSnapshotFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: MetricaSnapshotCountAggregateInputType | true
+  type DashboardWidgetCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DashboardWidgetFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DashboardWidgetCountAggregateInputType | true
     }
 
-  export interface MetricaSnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MetricaSnapshot'], meta: { name: 'MetricaSnapshot' } }
+  export interface DashboardWidgetDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DashboardWidget'], meta: { name: 'DashboardWidget' } }
     /**
-     * Find zero or one MetricaSnapshot that matches the filter.
-     * @param {MetricaSnapshotFindUniqueArgs} args - Arguments to find a MetricaSnapshot
+     * Find zero or one DashboardWidget that matches the filter.
+     * @param {DashboardWidgetFindUniqueArgs} args - Arguments to find a DashboardWidget
      * @example
-     * // Get one MetricaSnapshot
-     * const metricaSnapshot = await prisma.metricaSnapshot.findUnique({
+     * // Get one DashboardWidget
+     * const dashboardWidget = await prisma.dashboardWidget.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends MetricaSnapshotFindUniqueArgs>(args: SelectSubset<T, MetricaSnapshotFindUniqueArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends DashboardWidgetFindUniqueArgs>(args: SelectSubset<T, DashboardWidgetFindUniqueArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one MetricaSnapshot that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one DashboardWidget that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {MetricaSnapshotFindUniqueOrThrowArgs} args - Arguments to find a MetricaSnapshot
+     * @param {DashboardWidgetFindUniqueOrThrowArgs} args - Arguments to find a DashboardWidget
      * @example
-     * // Get one MetricaSnapshot
-     * const metricaSnapshot = await prisma.metricaSnapshot.findUniqueOrThrow({
+     * // Get one DashboardWidget
+     * const dashboardWidget = await prisma.dashboardWidget.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends MetricaSnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, MetricaSnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends DashboardWidgetFindUniqueOrThrowArgs>(args: SelectSubset<T, DashboardWidgetFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first MetricaSnapshot that matches the filter.
+     * Find the first DashboardWidget that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricaSnapshotFindFirstArgs} args - Arguments to find a MetricaSnapshot
+     * @param {DashboardWidgetFindFirstArgs} args - Arguments to find a DashboardWidget
      * @example
-     * // Get one MetricaSnapshot
-     * const metricaSnapshot = await prisma.metricaSnapshot.findFirst({
+     * // Get one DashboardWidget
+     * const dashboardWidget = await prisma.dashboardWidget.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends MetricaSnapshotFindFirstArgs>(args?: SelectSubset<T, MetricaSnapshotFindFirstArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends DashboardWidgetFindFirstArgs>(args?: SelectSubset<T, DashboardWidgetFindFirstArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first MetricaSnapshot that matches the filter or
+     * Find the first DashboardWidget that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricaSnapshotFindFirstOrThrowArgs} args - Arguments to find a MetricaSnapshot
+     * @param {DashboardWidgetFindFirstOrThrowArgs} args - Arguments to find a DashboardWidget
      * @example
-     * // Get one MetricaSnapshot
-     * const metricaSnapshot = await prisma.metricaSnapshot.findFirstOrThrow({
+     * // Get one DashboardWidget
+     * const dashboardWidget = await prisma.dashboardWidget.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends MetricaSnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, MetricaSnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends DashboardWidgetFindFirstOrThrowArgs>(args?: SelectSubset<T, DashboardWidgetFindFirstOrThrowArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more MetricaSnapshots that matches the filter.
+     * Find zero or more DashboardWidgets that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricaSnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {DashboardWidgetFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all MetricaSnapshots
-     * const metricaSnapshots = await prisma.metricaSnapshot.findMany()
+     * // Get all DashboardWidgets
+     * const dashboardWidgets = await prisma.dashboardWidget.findMany()
      * 
-     * // Get first 10 MetricaSnapshots
-     * const metricaSnapshots = await prisma.metricaSnapshot.findMany({ take: 10 })
+     * // Get first 10 DashboardWidgets
+     * const dashboardWidgets = await prisma.dashboardWidget.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const metricaSnapshotWithIdOnly = await prisma.metricaSnapshot.findMany({ select: { id: true } })
+     * const dashboardWidgetWithIdOnly = await prisma.dashboardWidget.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends MetricaSnapshotFindManyArgs>(args?: SelectSubset<T, MetricaSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends DashboardWidgetFindManyArgs>(args?: SelectSubset<T, DashboardWidgetFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a MetricaSnapshot.
-     * @param {MetricaSnapshotCreateArgs} args - Arguments to create a MetricaSnapshot.
+     * Create a DashboardWidget.
+     * @param {DashboardWidgetCreateArgs} args - Arguments to create a DashboardWidget.
      * @example
-     * // Create one MetricaSnapshot
-     * const MetricaSnapshot = await prisma.metricaSnapshot.create({
+     * // Create one DashboardWidget
+     * const DashboardWidget = await prisma.dashboardWidget.create({
      *   data: {
-     *     // ... data to create a MetricaSnapshot
+     *     // ... data to create a DashboardWidget
      *   }
      * })
      * 
      */
-    create<T extends MetricaSnapshotCreateArgs>(args: SelectSubset<T, MetricaSnapshotCreateArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends DashboardWidgetCreateArgs>(args: SelectSubset<T, DashboardWidgetCreateArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many MetricaSnapshots.
-     * @param {MetricaSnapshotCreateManyArgs} args - Arguments to create many MetricaSnapshots.
+     * Create many DashboardWidgets.
+     * @param {DashboardWidgetCreateManyArgs} args - Arguments to create many DashboardWidgets.
      * @example
-     * // Create many MetricaSnapshots
-     * const metricaSnapshot = await prisma.metricaSnapshot.createMany({
+     * // Create many DashboardWidgets
+     * const dashboardWidget = await prisma.dashboardWidget.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends MetricaSnapshotCreateManyArgs>(args?: SelectSubset<T, MetricaSnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends DashboardWidgetCreateManyArgs>(args?: SelectSubset<T, DashboardWidgetCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many MetricaSnapshots and returns the data saved in the database.
-     * @param {MetricaSnapshotCreateManyAndReturnArgs} args - Arguments to create many MetricaSnapshots.
+     * Create many DashboardWidgets and returns the data saved in the database.
+     * @param {DashboardWidgetCreateManyAndReturnArgs} args - Arguments to create many DashboardWidgets.
      * @example
-     * // Create many MetricaSnapshots
-     * const metricaSnapshot = await prisma.metricaSnapshot.createManyAndReturn({
+     * // Create many DashboardWidgets
+     * const dashboardWidget = await prisma.dashboardWidget.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many MetricaSnapshots and only return the `id`
-     * const metricaSnapshotWithIdOnly = await prisma.metricaSnapshot.createManyAndReturn({ 
+     * // Create many DashboardWidgets and only return the `id`
+     * const dashboardWidgetWithIdOnly = await prisma.dashboardWidget.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -21570,28 +22231,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends MetricaSnapshotCreateManyAndReturnArgs>(args?: SelectSubset<T, MetricaSnapshotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends DashboardWidgetCreateManyAndReturnArgs>(args?: SelectSubset<T, DashboardWidgetCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a MetricaSnapshot.
-     * @param {MetricaSnapshotDeleteArgs} args - Arguments to delete one MetricaSnapshot.
+     * Delete a DashboardWidget.
+     * @param {DashboardWidgetDeleteArgs} args - Arguments to delete one DashboardWidget.
      * @example
-     * // Delete one MetricaSnapshot
-     * const MetricaSnapshot = await prisma.metricaSnapshot.delete({
+     * // Delete one DashboardWidget
+     * const DashboardWidget = await prisma.dashboardWidget.delete({
      *   where: {
-     *     // ... filter to delete one MetricaSnapshot
+     *     // ... filter to delete one DashboardWidget
      *   }
      * })
      * 
      */
-    delete<T extends MetricaSnapshotDeleteArgs>(args: SelectSubset<T, MetricaSnapshotDeleteArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends DashboardWidgetDeleteArgs>(args: SelectSubset<T, DashboardWidgetDeleteArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one MetricaSnapshot.
-     * @param {MetricaSnapshotUpdateArgs} args - Arguments to update one MetricaSnapshot.
+     * Update one DashboardWidget.
+     * @param {DashboardWidgetUpdateArgs} args - Arguments to update one DashboardWidget.
      * @example
-     * // Update one MetricaSnapshot
-     * const metricaSnapshot = await prisma.metricaSnapshot.update({
+     * // Update one DashboardWidget
+     * const dashboardWidget = await prisma.dashboardWidget.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -21601,30 +22262,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends MetricaSnapshotUpdateArgs>(args: SelectSubset<T, MetricaSnapshotUpdateArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends DashboardWidgetUpdateArgs>(args: SelectSubset<T, DashboardWidgetUpdateArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more MetricaSnapshots.
-     * @param {MetricaSnapshotDeleteManyArgs} args - Arguments to filter MetricaSnapshots to delete.
+     * Delete zero or more DashboardWidgets.
+     * @param {DashboardWidgetDeleteManyArgs} args - Arguments to filter DashboardWidgets to delete.
      * @example
-     * // Delete a few MetricaSnapshots
-     * const { count } = await prisma.metricaSnapshot.deleteMany({
+     * // Delete a few DashboardWidgets
+     * const { count } = await prisma.dashboardWidget.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends MetricaSnapshotDeleteManyArgs>(args?: SelectSubset<T, MetricaSnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends DashboardWidgetDeleteManyArgs>(args?: SelectSubset<T, DashboardWidgetDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more MetricaSnapshots.
+     * Update zero or more DashboardWidgets.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricaSnapshotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {DashboardWidgetUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many MetricaSnapshots
-     * const metricaSnapshot = await prisma.metricaSnapshot.updateMany({
+     * // Update many DashboardWidgets
+     * const dashboardWidget = await prisma.dashboardWidget.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -21634,56 +22295,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends MetricaSnapshotUpdateManyArgs>(args: SelectSubset<T, MetricaSnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends DashboardWidgetUpdateManyArgs>(args: SelectSubset<T, DashboardWidgetUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one MetricaSnapshot.
-     * @param {MetricaSnapshotUpsertArgs} args - Arguments to update or create a MetricaSnapshot.
+     * Create or update one DashboardWidget.
+     * @param {DashboardWidgetUpsertArgs} args - Arguments to update or create a DashboardWidget.
      * @example
-     * // Update or create a MetricaSnapshot
-     * const metricaSnapshot = await prisma.metricaSnapshot.upsert({
+     * // Update or create a DashboardWidget
+     * const dashboardWidget = await prisma.dashboardWidget.upsert({
      *   create: {
-     *     // ... data to create a MetricaSnapshot
+     *     // ... data to create a DashboardWidget
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the MetricaSnapshot we want to update
+     *     // ... the filter for the DashboardWidget we want to update
      *   }
      * })
      */
-    upsert<T extends MetricaSnapshotUpsertArgs>(args: SelectSubset<T, MetricaSnapshotUpsertArgs<ExtArgs>>): Prisma__MetricaSnapshotClient<$Result.GetResult<Prisma.$MetricaSnapshotPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends DashboardWidgetUpsertArgs>(args: SelectSubset<T, DashboardWidgetUpsertArgs<ExtArgs>>): Prisma__DashboardWidgetClient<$Result.GetResult<Prisma.$DashboardWidgetPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of MetricaSnapshots.
+     * Count the number of DashboardWidgets.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricaSnapshotCountArgs} args - Arguments to filter MetricaSnapshots to count.
+     * @param {DashboardWidgetCountArgs} args - Arguments to filter DashboardWidgets to count.
      * @example
-     * // Count the number of MetricaSnapshots
-     * const count = await prisma.metricaSnapshot.count({
+     * // Count the number of DashboardWidgets
+     * const count = await prisma.dashboardWidget.count({
      *   where: {
-     *     // ... the filter for the MetricaSnapshots we want to count
+     *     // ... the filter for the DashboardWidgets we want to count
      *   }
      * })
     **/
-    count<T extends MetricaSnapshotCountArgs>(
-      args?: Subset<T, MetricaSnapshotCountArgs>,
+    count<T extends DashboardWidgetCountArgs>(
+      args?: Subset<T, DashboardWidgetCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], MetricaSnapshotCountAggregateOutputType>
+          : GetScalarType<T['select'], DashboardWidgetCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a MetricaSnapshot.
+     * Allows you to perform aggregations operations on a DashboardWidget.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricaSnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {DashboardWidgetAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -21703,13 +22364,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends MetricaSnapshotAggregateArgs>(args: Subset<T, MetricaSnapshotAggregateArgs>): Prisma.PrismaPromise<GetMetricaSnapshotAggregateType<T>>
+    aggregate<T extends DashboardWidgetAggregateArgs>(args: Subset<T, DashboardWidgetAggregateArgs>): Prisma.PrismaPromise<GetDashboardWidgetAggregateType<T>>
 
     /**
-     * Group by MetricaSnapshot.
+     * Group by DashboardWidget.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {MetricaSnapshotGroupByArgs} args - Group by arguments.
+     * @param {DashboardWidgetGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -21724,14 +22385,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends MetricaSnapshotGroupByArgs,
+      T extends DashboardWidgetGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: MetricaSnapshotGroupByArgs['orderBy'] }
-        : { orderBy?: MetricaSnapshotGroupByArgs['orderBy'] },
+        ? { orderBy: DashboardWidgetGroupByArgs['orderBy'] }
+        : { orderBy?: DashboardWidgetGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -21780,20 +22441,999 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, MetricaSnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMetricaSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, DashboardWidgetGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDashboardWidgetGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the MetricaSnapshot model
+   * Fields of the DashboardWidget model
    */
-  readonly fields: MetricaSnapshotFieldRefs;
+  readonly fields: DashboardWidgetFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for MetricaSnapshot.
+   * The delegate class that acts as a "Promise-like" for DashboardWidget.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__MetricaSnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__DashboardWidgetClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    dashboard<T extends DashboardConfigDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfigDefaultArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DashboardWidget model
+   */ 
+  interface DashboardWidgetFieldRefs {
+    readonly id: FieldRef<"DashboardWidget", 'String'>
+    readonly tenant_id: FieldRef<"DashboardWidget", 'String'>
+    readonly product_id: FieldRef<"DashboardWidget", 'String'>
+    readonly user_id: FieldRef<"DashboardWidget", 'String'>
+    readonly dashboard_id: FieldRef<"DashboardWidget", 'String'>
+    readonly widget_key: FieldRef<"DashboardWidget", 'String'>
+    readonly widget_type: FieldRef<"DashboardWidget", 'WidgetType'>
+    readonly chart_type: FieldRef<"DashboardWidget", 'ChartType'>
+    readonly title: FieldRef<"DashboardWidget", 'String'>
+    readonly query_spec: FieldRef<"DashboardWidget", 'Json'>
+    readonly position: FieldRef<"DashboardWidget", 'Json'>
+    readonly config: FieldRef<"DashboardWidget", 'Json'>
+    readonly created_at: FieldRef<"DashboardWidget", 'DateTime'>
+    readonly updated_at: FieldRef<"DashboardWidget", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DashboardWidget findUnique
+   */
+  export type DashboardWidgetFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardWidget to fetch.
+     */
+    where: DashboardWidgetWhereUniqueInput
+  }
+
+  /**
+   * DashboardWidget findUniqueOrThrow
+   */
+  export type DashboardWidgetFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardWidget to fetch.
+     */
+    where: DashboardWidgetWhereUniqueInput
+  }
+
+  /**
+   * DashboardWidget findFirst
+   */
+  export type DashboardWidgetFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardWidget to fetch.
+     */
+    where?: DashboardWidgetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardWidgets to fetch.
+     */
+    orderBy?: DashboardWidgetOrderByWithRelationInput | DashboardWidgetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardWidgets.
+     */
+    cursor?: DashboardWidgetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardWidgets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardWidgets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardWidgets.
+     */
+    distinct?: DashboardWidgetScalarFieldEnum | DashboardWidgetScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardWidget findFirstOrThrow
+   */
+  export type DashboardWidgetFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardWidget to fetch.
+     */
+    where?: DashboardWidgetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardWidgets to fetch.
+     */
+    orderBy?: DashboardWidgetOrderByWithRelationInput | DashboardWidgetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardWidgets.
+     */
+    cursor?: DashboardWidgetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardWidgets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardWidgets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardWidgets.
+     */
+    distinct?: DashboardWidgetScalarFieldEnum | DashboardWidgetScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardWidget findMany
+   */
+  export type DashboardWidgetFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardWidgets to fetch.
+     */
+    where?: DashboardWidgetWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardWidgets to fetch.
+     */
+    orderBy?: DashboardWidgetOrderByWithRelationInput | DashboardWidgetOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DashboardWidgets.
+     */
+    cursor?: DashboardWidgetWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardWidgets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardWidgets.
+     */
+    skip?: number
+    distinct?: DashboardWidgetScalarFieldEnum | DashboardWidgetScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardWidget create
+   */
+  export type DashboardWidgetCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DashboardWidget.
+     */
+    data: XOR<DashboardWidgetCreateInput, DashboardWidgetUncheckedCreateInput>
+  }
+
+  /**
+   * DashboardWidget createMany
+   */
+  export type DashboardWidgetCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DashboardWidgets.
+     */
+    data: DashboardWidgetCreateManyInput | DashboardWidgetCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DashboardWidget createManyAndReturn
+   */
+  export type DashboardWidgetCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many DashboardWidgets.
+     */
+    data: DashboardWidgetCreateManyInput | DashboardWidgetCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DashboardWidget update
+   */
+  export type DashboardWidgetUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DashboardWidget.
+     */
+    data: XOR<DashboardWidgetUpdateInput, DashboardWidgetUncheckedUpdateInput>
+    /**
+     * Choose, which DashboardWidget to update.
+     */
+    where: DashboardWidgetWhereUniqueInput
+  }
+
+  /**
+   * DashboardWidget updateMany
+   */
+  export type DashboardWidgetUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DashboardWidgets.
+     */
+    data: XOR<DashboardWidgetUpdateManyMutationInput, DashboardWidgetUncheckedUpdateManyInput>
+    /**
+     * Filter which DashboardWidgets to update
+     */
+    where?: DashboardWidgetWhereInput
+  }
+
+  /**
+   * DashboardWidget upsert
+   */
+  export type DashboardWidgetUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DashboardWidget to update in case it exists.
+     */
+    where: DashboardWidgetWhereUniqueInput
+    /**
+     * In case the DashboardWidget found by the `where` argument doesn't exist, create a new DashboardWidget with this data.
+     */
+    create: XOR<DashboardWidgetCreateInput, DashboardWidgetUncheckedCreateInput>
+    /**
+     * In case the DashboardWidget was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DashboardWidgetUpdateInput, DashboardWidgetUncheckedUpdateInput>
+  }
+
+  /**
+   * DashboardWidget delete
+   */
+  export type DashboardWidgetDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+    /**
+     * Filter which DashboardWidget to delete.
+     */
+    where: DashboardWidgetWhereUniqueInput
+  }
+
+  /**
+   * DashboardWidget deleteMany
+   */
+  export type DashboardWidgetDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardWidgets to delete
+     */
+    where?: DashboardWidgetWhereInput
+  }
+
+  /**
+   * DashboardWidget without action
+   */
+  export type DashboardWidgetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardWidget
+     */
+    select?: DashboardWidgetSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardWidgetInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DashboardMetricSnapshot
+   */
+
+  export type AggregateDashboardMetricSnapshot = {
+    _count: DashboardMetricSnapshotCountAggregateOutputType | null
+    _min: DashboardMetricSnapshotMinAggregateOutputType | null
+    _max: DashboardMetricSnapshotMaxAggregateOutputType | null
+  }
+
+  export type DashboardMetricSnapshotMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    metric_key: string | null
+    period_from: Date | null
+    period_to: Date | null
+    captured_at: Date | null
+  }
+
+  export type DashboardMetricSnapshotMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    metric_key: string | null
+    period_from: Date | null
+    period_to: Date | null
+    captured_at: Date | null
+  }
+
+  export type DashboardMetricSnapshotCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    metric_key: number
+    dimensions: number
+    value: number
+    period_from: number
+    period_to: number
+    captured_at: number
+    _all: number
+  }
+
+
+  export type DashboardMetricSnapshotMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    metric_key?: true
+    period_from?: true
+    period_to?: true
+    captured_at?: true
+  }
+
+  export type DashboardMetricSnapshotMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    metric_key?: true
+    period_from?: true
+    period_to?: true
+    captured_at?: true
+  }
+
+  export type DashboardMetricSnapshotCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    metric_key?: true
+    dimensions?: true
+    value?: true
+    period_from?: true
+    period_to?: true
+    captured_at?: true
+    _all?: true
+  }
+
+  export type DashboardMetricSnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardMetricSnapshot to aggregate.
+     */
+    where?: DashboardMetricSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardMetricSnapshots to fetch.
+     */
+    orderBy?: DashboardMetricSnapshotOrderByWithRelationInput | DashboardMetricSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DashboardMetricSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardMetricSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardMetricSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DashboardMetricSnapshots
+    **/
+    _count?: true | DashboardMetricSnapshotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DashboardMetricSnapshotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DashboardMetricSnapshotMaxAggregateInputType
+  }
+
+  export type GetDashboardMetricSnapshotAggregateType<T extends DashboardMetricSnapshotAggregateArgs> = {
+        [P in keyof T & keyof AggregateDashboardMetricSnapshot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDashboardMetricSnapshot[P]>
+      : GetScalarType<T[P], AggregateDashboardMetricSnapshot[P]>
+  }
+
+
+
+
+  export type DashboardMetricSnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardMetricSnapshotWhereInput
+    orderBy?: DashboardMetricSnapshotOrderByWithAggregationInput | DashboardMetricSnapshotOrderByWithAggregationInput[]
+    by: DashboardMetricSnapshotScalarFieldEnum[] | DashboardMetricSnapshotScalarFieldEnum
+    having?: DashboardMetricSnapshotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DashboardMetricSnapshotCountAggregateInputType | true
+    _min?: DashboardMetricSnapshotMinAggregateInputType
+    _max?: DashboardMetricSnapshotMaxAggregateInputType
+  }
+
+  export type DashboardMetricSnapshotGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string
+    user_id: string | null
+    metric_key: string
+    dimensions: JsonValue | null
+    value: JsonValue
+    period_from: Date
+    period_to: Date
+    captured_at: Date
+    _count: DashboardMetricSnapshotCountAggregateOutputType | null
+    _min: DashboardMetricSnapshotMinAggregateOutputType | null
+    _max: DashboardMetricSnapshotMaxAggregateOutputType | null
+  }
+
+  type GetDashboardMetricSnapshotGroupByPayload<T extends DashboardMetricSnapshotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DashboardMetricSnapshotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DashboardMetricSnapshotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DashboardMetricSnapshotGroupByOutputType[P]>
+            : GetScalarType<T[P], DashboardMetricSnapshotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DashboardMetricSnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    metric_key?: boolean
+    dimensions?: boolean
+    value?: boolean
+    period_from?: boolean
+    period_to?: boolean
+    captured_at?: boolean
+  }, ExtArgs["result"]["dashboardMetricSnapshot"]>
+
+  export type DashboardMetricSnapshotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    metric_key?: boolean
+    dimensions?: boolean
+    value?: boolean
+    period_from?: boolean
+    period_to?: boolean
+    captured_at?: boolean
+  }, ExtArgs["result"]["dashboardMetricSnapshot"]>
+
+  export type DashboardMetricSnapshotSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    metric_key?: boolean
+    dimensions?: boolean
+    value?: boolean
+    period_from?: boolean
+    period_to?: boolean
+    captured_at?: boolean
+  }
+
+
+  export type $DashboardMetricSnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DashboardMetricSnapshot"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string
+      user_id: string | null
+      metric_key: string
+      dimensions: Prisma.JsonValue | null
+      value: Prisma.JsonValue
+      period_from: Date
+      period_to: Date
+      captured_at: Date
+    }, ExtArgs["result"]["dashboardMetricSnapshot"]>
+    composites: {}
+  }
+
+  type DashboardMetricSnapshotGetPayload<S extends boolean | null | undefined | DashboardMetricSnapshotDefaultArgs> = $Result.GetResult<Prisma.$DashboardMetricSnapshotPayload, S>
+
+  type DashboardMetricSnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DashboardMetricSnapshotFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DashboardMetricSnapshotCountAggregateInputType | true
+    }
+
+  export interface DashboardMetricSnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DashboardMetricSnapshot'], meta: { name: 'DashboardMetricSnapshot' } }
+    /**
+     * Find zero or one DashboardMetricSnapshot that matches the filter.
+     * @param {DashboardMetricSnapshotFindUniqueArgs} args - Arguments to find a DashboardMetricSnapshot
+     * @example
+     * // Get one DashboardMetricSnapshot
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DashboardMetricSnapshotFindUniqueArgs>(args: SelectSubset<T, DashboardMetricSnapshotFindUniqueArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one DashboardMetricSnapshot that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {DashboardMetricSnapshotFindUniqueOrThrowArgs} args - Arguments to find a DashboardMetricSnapshot
+     * @example
+     * // Get one DashboardMetricSnapshot
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DashboardMetricSnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, DashboardMetricSnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first DashboardMetricSnapshot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricSnapshotFindFirstArgs} args - Arguments to find a DashboardMetricSnapshot
+     * @example
+     * // Get one DashboardMetricSnapshot
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DashboardMetricSnapshotFindFirstArgs>(args?: SelectSubset<T, DashboardMetricSnapshotFindFirstArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first DashboardMetricSnapshot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricSnapshotFindFirstOrThrowArgs} args - Arguments to find a DashboardMetricSnapshot
+     * @example
+     * // Get one DashboardMetricSnapshot
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DashboardMetricSnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, DashboardMetricSnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more DashboardMetricSnapshots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricSnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DashboardMetricSnapshots
+     * const dashboardMetricSnapshots = await prisma.dashboardMetricSnapshot.findMany()
+     * 
+     * // Get first 10 DashboardMetricSnapshots
+     * const dashboardMetricSnapshots = await prisma.dashboardMetricSnapshot.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dashboardMetricSnapshotWithIdOnly = await prisma.dashboardMetricSnapshot.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DashboardMetricSnapshotFindManyArgs>(args?: SelectSubset<T, DashboardMetricSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a DashboardMetricSnapshot.
+     * @param {DashboardMetricSnapshotCreateArgs} args - Arguments to create a DashboardMetricSnapshot.
+     * @example
+     * // Create one DashboardMetricSnapshot
+     * const DashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.create({
+     *   data: {
+     *     // ... data to create a DashboardMetricSnapshot
+     *   }
+     * })
+     * 
+     */
+    create<T extends DashboardMetricSnapshotCreateArgs>(args: SelectSubset<T, DashboardMetricSnapshotCreateArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many DashboardMetricSnapshots.
+     * @param {DashboardMetricSnapshotCreateManyArgs} args - Arguments to create many DashboardMetricSnapshots.
+     * @example
+     * // Create many DashboardMetricSnapshots
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DashboardMetricSnapshotCreateManyArgs>(args?: SelectSubset<T, DashboardMetricSnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DashboardMetricSnapshots and returns the data saved in the database.
+     * @param {DashboardMetricSnapshotCreateManyAndReturnArgs} args - Arguments to create many DashboardMetricSnapshots.
+     * @example
+     * // Create many DashboardMetricSnapshots
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DashboardMetricSnapshots and only return the `id`
+     * const dashboardMetricSnapshotWithIdOnly = await prisma.dashboardMetricSnapshot.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DashboardMetricSnapshotCreateManyAndReturnArgs>(args?: SelectSubset<T, DashboardMetricSnapshotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a DashboardMetricSnapshot.
+     * @param {DashboardMetricSnapshotDeleteArgs} args - Arguments to delete one DashboardMetricSnapshot.
+     * @example
+     * // Delete one DashboardMetricSnapshot
+     * const DashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.delete({
+     *   where: {
+     *     // ... filter to delete one DashboardMetricSnapshot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DashboardMetricSnapshotDeleteArgs>(args: SelectSubset<T, DashboardMetricSnapshotDeleteArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one DashboardMetricSnapshot.
+     * @param {DashboardMetricSnapshotUpdateArgs} args - Arguments to update one DashboardMetricSnapshot.
+     * @example
+     * // Update one DashboardMetricSnapshot
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DashboardMetricSnapshotUpdateArgs>(args: SelectSubset<T, DashboardMetricSnapshotUpdateArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more DashboardMetricSnapshots.
+     * @param {DashboardMetricSnapshotDeleteManyArgs} args - Arguments to filter DashboardMetricSnapshots to delete.
+     * @example
+     * // Delete a few DashboardMetricSnapshots
+     * const { count } = await prisma.dashboardMetricSnapshot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DashboardMetricSnapshotDeleteManyArgs>(args?: SelectSubset<T, DashboardMetricSnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DashboardMetricSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricSnapshotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DashboardMetricSnapshots
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DashboardMetricSnapshotUpdateManyArgs>(args: SelectSubset<T, DashboardMetricSnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DashboardMetricSnapshot.
+     * @param {DashboardMetricSnapshotUpsertArgs} args - Arguments to update or create a DashboardMetricSnapshot.
+     * @example
+     * // Update or create a DashboardMetricSnapshot
+     * const dashboardMetricSnapshot = await prisma.dashboardMetricSnapshot.upsert({
+     *   create: {
+     *     // ... data to create a DashboardMetricSnapshot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DashboardMetricSnapshot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DashboardMetricSnapshotUpsertArgs>(args: SelectSubset<T, DashboardMetricSnapshotUpsertArgs<ExtArgs>>): Prisma__DashboardMetricSnapshotClient<$Result.GetResult<Prisma.$DashboardMetricSnapshotPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of DashboardMetricSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricSnapshotCountArgs} args - Arguments to filter DashboardMetricSnapshots to count.
+     * @example
+     * // Count the number of DashboardMetricSnapshots
+     * const count = await prisma.dashboardMetricSnapshot.count({
+     *   where: {
+     *     // ... the filter for the DashboardMetricSnapshots we want to count
+     *   }
+     * })
+    **/
+    count<T extends DashboardMetricSnapshotCountArgs>(
+      args?: Subset<T, DashboardMetricSnapshotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DashboardMetricSnapshotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DashboardMetricSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricSnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DashboardMetricSnapshotAggregateArgs>(args: Subset<T, DashboardMetricSnapshotAggregateArgs>): Prisma.PrismaPromise<GetDashboardMetricSnapshotAggregateType<T>>
+
+    /**
+     * Group by DashboardMetricSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardMetricSnapshotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DashboardMetricSnapshotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DashboardMetricSnapshotGroupByArgs['orderBy'] }
+        : { orderBy?: DashboardMetricSnapshotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DashboardMetricSnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDashboardMetricSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DashboardMetricSnapshot model
+   */
+  readonly fields: DashboardMetricSnapshotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DashboardMetricSnapshot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DashboardMetricSnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -21821,303 +23461,2350 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the MetricaSnapshot model
+   * Fields of the DashboardMetricSnapshot model
    */ 
-  interface MetricaSnapshotFieldRefs {
-    readonly id: FieldRef<"MetricaSnapshot", 'String'>
-    readonly tenant_id: FieldRef<"MetricaSnapshot", 'String'>
-    readonly product_id: FieldRef<"MetricaSnapshot", 'String'>
-    readonly metric_name: FieldRef<"MetricaSnapshot", 'String'>
-    readonly value: FieldRef<"MetricaSnapshot", 'Float'>
-    readonly unit: FieldRef<"MetricaSnapshot", 'String'>
-    readonly snapshot_date: FieldRef<"MetricaSnapshot", 'DateTime'>
-    readonly created_at: FieldRef<"MetricaSnapshot", 'DateTime'>
-    readonly updated_at: FieldRef<"MetricaSnapshot", 'DateTime'>
+  interface DashboardMetricSnapshotFieldRefs {
+    readonly id: FieldRef<"DashboardMetricSnapshot", 'String'>
+    readonly tenant_id: FieldRef<"DashboardMetricSnapshot", 'String'>
+    readonly product_id: FieldRef<"DashboardMetricSnapshot", 'String'>
+    readonly user_id: FieldRef<"DashboardMetricSnapshot", 'String'>
+    readonly metric_key: FieldRef<"DashboardMetricSnapshot", 'String'>
+    readonly dimensions: FieldRef<"DashboardMetricSnapshot", 'Json'>
+    readonly value: FieldRef<"DashboardMetricSnapshot", 'Json'>
+    readonly period_from: FieldRef<"DashboardMetricSnapshot", 'DateTime'>
+    readonly period_to: FieldRef<"DashboardMetricSnapshot", 'DateTime'>
+    readonly captured_at: FieldRef<"DashboardMetricSnapshot", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * MetricaSnapshot findUnique
+   * DashboardMetricSnapshot findUnique
    */
-  export type MetricaSnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * Filter, which MetricaSnapshot to fetch.
+     * Filter, which DashboardMetricSnapshot to fetch.
      */
-    where: MetricaSnapshotWhereUniqueInput
+    where: DashboardMetricSnapshotWhereUniqueInput
   }
 
   /**
-   * MetricaSnapshot findUniqueOrThrow
+   * DashboardMetricSnapshot findUniqueOrThrow
    */
-  export type MetricaSnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * Filter, which MetricaSnapshot to fetch.
+     * Filter, which DashboardMetricSnapshot to fetch.
      */
-    where: MetricaSnapshotWhereUniqueInput
+    where: DashboardMetricSnapshotWhereUniqueInput
   }
 
   /**
-   * MetricaSnapshot findFirst
+   * DashboardMetricSnapshot findFirst
    */
-  export type MetricaSnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * Filter, which MetricaSnapshot to fetch.
+     * Filter, which DashboardMetricSnapshot to fetch.
      */
-    where?: MetricaSnapshotWhereInput
+    where?: DashboardMetricSnapshotWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricaSnapshots to fetch.
+     * Determine the order of DashboardMetricSnapshots to fetch.
      */
-    orderBy?: MetricaSnapshotOrderByWithRelationInput | MetricaSnapshotOrderByWithRelationInput[]
+    orderBy?: DashboardMetricSnapshotOrderByWithRelationInput | DashboardMetricSnapshotOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MetricaSnapshots.
+     * Sets the position for searching for DashboardMetricSnapshots.
      */
-    cursor?: MetricaSnapshotWhereUniqueInput
+    cursor?: DashboardMetricSnapshotWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricaSnapshots from the position of the cursor.
+     * Take `±n` DashboardMetricSnapshots from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricaSnapshots.
+     * Skip the first `n` DashboardMetricSnapshots.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MetricaSnapshots.
+     * Filter by unique combinations of DashboardMetricSnapshots.
      */
-    distinct?: MetricaSnapshotScalarFieldEnum | MetricaSnapshotScalarFieldEnum[]
+    distinct?: DashboardMetricSnapshotScalarFieldEnum | DashboardMetricSnapshotScalarFieldEnum[]
   }
 
   /**
-   * MetricaSnapshot findFirstOrThrow
+   * DashboardMetricSnapshot findFirstOrThrow
    */
-  export type MetricaSnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * Filter, which MetricaSnapshot to fetch.
+     * Filter, which DashboardMetricSnapshot to fetch.
      */
-    where?: MetricaSnapshotWhereInput
+    where?: DashboardMetricSnapshotWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricaSnapshots to fetch.
+     * Determine the order of DashboardMetricSnapshots to fetch.
      */
-    orderBy?: MetricaSnapshotOrderByWithRelationInput | MetricaSnapshotOrderByWithRelationInput[]
+    orderBy?: DashboardMetricSnapshotOrderByWithRelationInput | DashboardMetricSnapshotOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for MetricaSnapshots.
+     * Sets the position for searching for DashboardMetricSnapshots.
      */
-    cursor?: MetricaSnapshotWhereUniqueInput
+    cursor?: DashboardMetricSnapshotWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricaSnapshots from the position of the cursor.
+     * Take `±n` DashboardMetricSnapshots from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricaSnapshots.
+     * Skip the first `n` DashboardMetricSnapshots.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of MetricaSnapshots.
+     * Filter by unique combinations of DashboardMetricSnapshots.
      */
-    distinct?: MetricaSnapshotScalarFieldEnum | MetricaSnapshotScalarFieldEnum[]
+    distinct?: DashboardMetricSnapshotScalarFieldEnum | DashboardMetricSnapshotScalarFieldEnum[]
   }
 
   /**
-   * MetricaSnapshot findMany
+   * DashboardMetricSnapshot findMany
    */
-  export type MetricaSnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * Filter, which MetricaSnapshots to fetch.
+     * Filter, which DashboardMetricSnapshots to fetch.
      */
-    where?: MetricaSnapshotWhereInput
+    where?: DashboardMetricSnapshotWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of MetricaSnapshots to fetch.
+     * Determine the order of DashboardMetricSnapshots to fetch.
      */
-    orderBy?: MetricaSnapshotOrderByWithRelationInput | MetricaSnapshotOrderByWithRelationInput[]
+    orderBy?: DashboardMetricSnapshotOrderByWithRelationInput | DashboardMetricSnapshotOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing MetricaSnapshots.
+     * Sets the position for listing DashboardMetricSnapshots.
      */
-    cursor?: MetricaSnapshotWhereUniqueInput
+    cursor?: DashboardMetricSnapshotWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` MetricaSnapshots from the position of the cursor.
+     * Take `±n` DashboardMetricSnapshots from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` MetricaSnapshots.
+     * Skip the first `n` DashboardMetricSnapshots.
      */
     skip?: number
-    distinct?: MetricaSnapshotScalarFieldEnum | MetricaSnapshotScalarFieldEnum[]
+    distinct?: DashboardMetricSnapshotScalarFieldEnum | DashboardMetricSnapshotScalarFieldEnum[]
   }
 
   /**
-   * MetricaSnapshot create
+   * DashboardMetricSnapshot create
    */
-  export type MetricaSnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * The data needed to create a MetricaSnapshot.
+     * The data needed to create a DashboardMetricSnapshot.
      */
-    data: XOR<MetricaSnapshotCreateInput, MetricaSnapshotUncheckedCreateInput>
+    data: XOR<DashboardMetricSnapshotCreateInput, DashboardMetricSnapshotUncheckedCreateInput>
   }
 
   /**
-   * MetricaSnapshot createMany
+   * DashboardMetricSnapshot createMany
    */
-  export type MetricaSnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many MetricaSnapshots.
+     * The data used to create many DashboardMetricSnapshots.
      */
-    data: MetricaSnapshotCreateManyInput | MetricaSnapshotCreateManyInput[]
+    data: DashboardMetricSnapshotCreateManyInput | DashboardMetricSnapshotCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * MetricaSnapshot createManyAndReturn
+   * DashboardMetricSnapshot createManyAndReturn
    */
-  export type MetricaSnapshotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelectCreateManyAndReturn<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many MetricaSnapshots.
+     * The data used to create many DashboardMetricSnapshots.
      */
-    data: MetricaSnapshotCreateManyInput | MetricaSnapshotCreateManyInput[]
+    data: DashboardMetricSnapshotCreateManyInput | DashboardMetricSnapshotCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * MetricaSnapshot update
+   * DashboardMetricSnapshot update
    */
-  export type MetricaSnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * The data needed to update a MetricaSnapshot.
+     * The data needed to update a DashboardMetricSnapshot.
      */
-    data: XOR<MetricaSnapshotUpdateInput, MetricaSnapshotUncheckedUpdateInput>
+    data: XOR<DashboardMetricSnapshotUpdateInput, DashboardMetricSnapshotUncheckedUpdateInput>
     /**
-     * Choose, which MetricaSnapshot to update.
+     * Choose, which DashboardMetricSnapshot to update.
      */
-    where: MetricaSnapshotWhereUniqueInput
+    where: DashboardMetricSnapshotWhereUniqueInput
   }
 
   /**
-   * MetricaSnapshot updateMany
+   * DashboardMetricSnapshot updateMany
    */
-  export type MetricaSnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update MetricaSnapshots.
+     * The data used to update DashboardMetricSnapshots.
      */
-    data: XOR<MetricaSnapshotUpdateManyMutationInput, MetricaSnapshotUncheckedUpdateManyInput>
+    data: XOR<DashboardMetricSnapshotUpdateManyMutationInput, DashboardMetricSnapshotUncheckedUpdateManyInput>
     /**
-     * Filter which MetricaSnapshots to update
+     * Filter which DashboardMetricSnapshots to update
      */
-    where?: MetricaSnapshotWhereInput
+    where?: DashboardMetricSnapshotWhereInput
   }
 
   /**
-   * MetricaSnapshot upsert
+   * DashboardMetricSnapshot upsert
    */
-  export type MetricaSnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * The filter to search for the MetricaSnapshot to update in case it exists.
+     * The filter to search for the DashboardMetricSnapshot to update in case it exists.
      */
-    where: MetricaSnapshotWhereUniqueInput
+    where: DashboardMetricSnapshotWhereUniqueInput
     /**
-     * In case the MetricaSnapshot found by the `where` argument doesn't exist, create a new MetricaSnapshot with this data.
+     * In case the DashboardMetricSnapshot found by the `where` argument doesn't exist, create a new DashboardMetricSnapshot with this data.
      */
-    create: XOR<MetricaSnapshotCreateInput, MetricaSnapshotUncheckedCreateInput>
+    create: XOR<DashboardMetricSnapshotCreateInput, DashboardMetricSnapshotUncheckedCreateInput>
     /**
-     * In case the MetricaSnapshot was found with the provided `where` argument, update it with this data.
+     * In case the DashboardMetricSnapshot was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<MetricaSnapshotUpdateInput, MetricaSnapshotUncheckedUpdateInput>
+    update: XOR<DashboardMetricSnapshotUpdateInput, DashboardMetricSnapshotUncheckedUpdateInput>
   }
 
   /**
-   * MetricaSnapshot delete
+   * DashboardMetricSnapshot delete
    */
-  export type MetricaSnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
     /**
-     * Filter which MetricaSnapshot to delete.
+     * Filter which DashboardMetricSnapshot to delete.
      */
-    where: MetricaSnapshotWhereUniqueInput
+    where: DashboardMetricSnapshotWhereUniqueInput
   }
 
   /**
-   * MetricaSnapshot deleteMany
+   * DashboardMetricSnapshot deleteMany
    */
-  export type MetricaSnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which MetricaSnapshots to delete
+     * Filter which DashboardMetricSnapshots to delete
      */
-    where?: MetricaSnapshotWhereInput
+    where?: DashboardMetricSnapshotWhereInput
   }
 
   /**
-   * MetricaSnapshot without action
+   * DashboardMetricSnapshot without action
    */
-  export type MetricaSnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardMetricSnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the MetricaSnapshot
+     * Select specific fields to fetch from the DashboardMetricSnapshot
      */
-    select?: MetricaSnapshotSelect<ExtArgs> | null
+    select?: DashboardMetricSnapshotSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DashboardAlert
+   */
+
+  export type AggregateDashboardAlert = {
+    _count: DashboardAlertCountAggregateOutputType | null
+    _min: DashboardAlertMinAggregateOutputType | null
+    _max: DashboardAlertMaxAggregateOutputType | null
+  }
+
+  export type DashboardAlertMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    dashboard_id: string | null
+    widget_id: string | null
+    metric_key: string | null
+    condition: string | null
+    is_active: boolean | null
+    last_triggered: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type DashboardAlertMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    dashboard_id: string | null
+    widget_id: string | null
+    metric_key: string | null
+    condition: string | null
+    is_active: boolean | null
+    last_triggered: Date | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type DashboardAlertCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    dashboard_id: number
+    widget_id: number
+    metric_key: number
+    condition: number
+    threshold: number
+    channels: number
+    is_active: number
+    last_triggered: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type DashboardAlertMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    dashboard_id?: true
+    widget_id?: true
+    metric_key?: true
+    condition?: true
+    is_active?: true
+    last_triggered?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type DashboardAlertMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    dashboard_id?: true
+    widget_id?: true
+    metric_key?: true
+    condition?: true
+    is_active?: true
+    last_triggered?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type DashboardAlertCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    dashboard_id?: true
+    widget_id?: true
+    metric_key?: true
+    condition?: true
+    threshold?: true
+    channels?: true
+    is_active?: true
+    last_triggered?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type DashboardAlertAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardAlert to aggregate.
+     */
+    where?: DashboardAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardAlerts to fetch.
+     */
+    orderBy?: DashboardAlertOrderByWithRelationInput | DashboardAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DashboardAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardAlerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DashboardAlerts
+    **/
+    _count?: true | DashboardAlertCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DashboardAlertMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DashboardAlertMaxAggregateInputType
+  }
+
+  export type GetDashboardAlertAggregateType<T extends DashboardAlertAggregateArgs> = {
+        [P in keyof T & keyof AggregateDashboardAlert]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDashboardAlert[P]>
+      : GetScalarType<T[P], AggregateDashboardAlert[P]>
+  }
+
+
+
+
+  export type DashboardAlertGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardAlertWhereInput
+    orderBy?: DashboardAlertOrderByWithAggregationInput | DashboardAlertOrderByWithAggregationInput[]
+    by: DashboardAlertScalarFieldEnum[] | DashboardAlertScalarFieldEnum
+    having?: DashboardAlertScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DashboardAlertCountAggregateInputType | true
+    _min?: DashboardAlertMinAggregateInputType
+    _max?: DashboardAlertMaxAggregateInputType
+  }
+
+  export type DashboardAlertGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string | null
+    user_id: string
+    dashboard_id: string
+    widget_id: string | null
+    metric_key: string
+    condition: string
+    threshold: JsonValue
+    channels: string[]
+    is_active: boolean
+    last_triggered: Date | null
+    created_at: Date
+    updated_at: Date
+    _count: DashboardAlertCountAggregateOutputType | null
+    _min: DashboardAlertMinAggregateOutputType | null
+    _max: DashboardAlertMaxAggregateOutputType | null
+  }
+
+  type GetDashboardAlertGroupByPayload<T extends DashboardAlertGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DashboardAlertGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DashboardAlertGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DashboardAlertGroupByOutputType[P]>
+            : GetScalarType<T[P], DashboardAlertGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DashboardAlertSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    widget_id?: boolean
+    metric_key?: boolean
+    condition?: boolean
+    threshold?: boolean
+    channels?: boolean
+    is_active?: boolean
+    last_triggered?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardAlert"]>
+
+  export type DashboardAlertSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    widget_id?: boolean
+    metric_key?: boolean
+    condition?: boolean
+    threshold?: boolean
+    channels?: boolean
+    is_active?: boolean
+    last_triggered?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardAlert"]>
+
+  export type DashboardAlertSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    widget_id?: boolean
+    metric_key?: boolean
+    condition?: boolean
+    threshold?: boolean
+    channels?: boolean
+    is_active?: boolean
+    last_triggered?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type DashboardAlertInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }
+  export type DashboardAlertIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }
+
+  export type $DashboardAlertPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DashboardAlert"
+    objects: {
+      dashboard: Prisma.$DashboardConfigPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string | null
+      user_id: string
+      dashboard_id: string
+      widget_id: string | null
+      metric_key: string
+      condition: string
+      threshold: Prisma.JsonValue
+      channels: string[]
+      is_active: boolean
+      last_triggered: Date | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["dashboardAlert"]>
+    composites: {}
+  }
+
+  type DashboardAlertGetPayload<S extends boolean | null | undefined | DashboardAlertDefaultArgs> = $Result.GetResult<Prisma.$DashboardAlertPayload, S>
+
+  type DashboardAlertCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DashboardAlertFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DashboardAlertCountAggregateInputType | true
+    }
+
+  export interface DashboardAlertDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DashboardAlert'], meta: { name: 'DashboardAlert' } }
+    /**
+     * Find zero or one DashboardAlert that matches the filter.
+     * @param {DashboardAlertFindUniqueArgs} args - Arguments to find a DashboardAlert
+     * @example
+     * // Get one DashboardAlert
+     * const dashboardAlert = await prisma.dashboardAlert.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DashboardAlertFindUniqueArgs>(args: SelectSubset<T, DashboardAlertFindUniqueArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one DashboardAlert that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {DashboardAlertFindUniqueOrThrowArgs} args - Arguments to find a DashboardAlert
+     * @example
+     * // Get one DashboardAlert
+     * const dashboardAlert = await prisma.dashboardAlert.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DashboardAlertFindUniqueOrThrowArgs>(args: SelectSubset<T, DashboardAlertFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first DashboardAlert that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardAlertFindFirstArgs} args - Arguments to find a DashboardAlert
+     * @example
+     * // Get one DashboardAlert
+     * const dashboardAlert = await prisma.dashboardAlert.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DashboardAlertFindFirstArgs>(args?: SelectSubset<T, DashboardAlertFindFirstArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first DashboardAlert that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardAlertFindFirstOrThrowArgs} args - Arguments to find a DashboardAlert
+     * @example
+     * // Get one DashboardAlert
+     * const dashboardAlert = await prisma.dashboardAlert.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DashboardAlertFindFirstOrThrowArgs>(args?: SelectSubset<T, DashboardAlertFindFirstOrThrowArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more DashboardAlerts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardAlertFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DashboardAlerts
+     * const dashboardAlerts = await prisma.dashboardAlert.findMany()
+     * 
+     * // Get first 10 DashboardAlerts
+     * const dashboardAlerts = await prisma.dashboardAlert.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dashboardAlertWithIdOnly = await prisma.dashboardAlert.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DashboardAlertFindManyArgs>(args?: SelectSubset<T, DashboardAlertFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a DashboardAlert.
+     * @param {DashboardAlertCreateArgs} args - Arguments to create a DashboardAlert.
+     * @example
+     * // Create one DashboardAlert
+     * const DashboardAlert = await prisma.dashboardAlert.create({
+     *   data: {
+     *     // ... data to create a DashboardAlert
+     *   }
+     * })
+     * 
+     */
+    create<T extends DashboardAlertCreateArgs>(args: SelectSubset<T, DashboardAlertCreateArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many DashboardAlerts.
+     * @param {DashboardAlertCreateManyArgs} args - Arguments to create many DashboardAlerts.
+     * @example
+     * // Create many DashboardAlerts
+     * const dashboardAlert = await prisma.dashboardAlert.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DashboardAlertCreateManyArgs>(args?: SelectSubset<T, DashboardAlertCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DashboardAlerts and returns the data saved in the database.
+     * @param {DashboardAlertCreateManyAndReturnArgs} args - Arguments to create many DashboardAlerts.
+     * @example
+     * // Create many DashboardAlerts
+     * const dashboardAlert = await prisma.dashboardAlert.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DashboardAlerts and only return the `id`
+     * const dashboardAlertWithIdOnly = await prisma.dashboardAlert.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DashboardAlertCreateManyAndReturnArgs>(args?: SelectSubset<T, DashboardAlertCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a DashboardAlert.
+     * @param {DashboardAlertDeleteArgs} args - Arguments to delete one DashboardAlert.
+     * @example
+     * // Delete one DashboardAlert
+     * const DashboardAlert = await prisma.dashboardAlert.delete({
+     *   where: {
+     *     // ... filter to delete one DashboardAlert
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DashboardAlertDeleteArgs>(args: SelectSubset<T, DashboardAlertDeleteArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one DashboardAlert.
+     * @param {DashboardAlertUpdateArgs} args - Arguments to update one DashboardAlert.
+     * @example
+     * // Update one DashboardAlert
+     * const dashboardAlert = await prisma.dashboardAlert.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DashboardAlertUpdateArgs>(args: SelectSubset<T, DashboardAlertUpdateArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more DashboardAlerts.
+     * @param {DashboardAlertDeleteManyArgs} args - Arguments to filter DashboardAlerts to delete.
+     * @example
+     * // Delete a few DashboardAlerts
+     * const { count } = await prisma.dashboardAlert.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DashboardAlertDeleteManyArgs>(args?: SelectSubset<T, DashboardAlertDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DashboardAlerts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardAlertUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DashboardAlerts
+     * const dashboardAlert = await prisma.dashboardAlert.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DashboardAlertUpdateManyArgs>(args: SelectSubset<T, DashboardAlertUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DashboardAlert.
+     * @param {DashboardAlertUpsertArgs} args - Arguments to update or create a DashboardAlert.
+     * @example
+     * // Update or create a DashboardAlert
+     * const dashboardAlert = await prisma.dashboardAlert.upsert({
+     *   create: {
+     *     // ... data to create a DashboardAlert
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DashboardAlert we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DashboardAlertUpsertArgs>(args: SelectSubset<T, DashboardAlertUpsertArgs<ExtArgs>>): Prisma__DashboardAlertClient<$Result.GetResult<Prisma.$DashboardAlertPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of DashboardAlerts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardAlertCountArgs} args - Arguments to filter DashboardAlerts to count.
+     * @example
+     * // Count the number of DashboardAlerts
+     * const count = await prisma.dashboardAlert.count({
+     *   where: {
+     *     // ... the filter for the DashboardAlerts we want to count
+     *   }
+     * })
+    **/
+    count<T extends DashboardAlertCountArgs>(
+      args?: Subset<T, DashboardAlertCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DashboardAlertCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DashboardAlert.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardAlertAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DashboardAlertAggregateArgs>(args: Subset<T, DashboardAlertAggregateArgs>): Prisma.PrismaPromise<GetDashboardAlertAggregateType<T>>
+
+    /**
+     * Group by DashboardAlert.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardAlertGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DashboardAlertGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DashboardAlertGroupByArgs['orderBy'] }
+        : { orderBy?: DashboardAlertGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DashboardAlertGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDashboardAlertGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DashboardAlert model
+   */
+  readonly fields: DashboardAlertFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DashboardAlert.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DashboardAlertClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    dashboard<T extends DashboardConfigDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfigDefaultArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DashboardAlert model
+   */ 
+  interface DashboardAlertFieldRefs {
+    readonly id: FieldRef<"DashboardAlert", 'String'>
+    readonly tenant_id: FieldRef<"DashboardAlert", 'String'>
+    readonly product_id: FieldRef<"DashboardAlert", 'String'>
+    readonly user_id: FieldRef<"DashboardAlert", 'String'>
+    readonly dashboard_id: FieldRef<"DashboardAlert", 'String'>
+    readonly widget_id: FieldRef<"DashboardAlert", 'String'>
+    readonly metric_key: FieldRef<"DashboardAlert", 'String'>
+    readonly condition: FieldRef<"DashboardAlert", 'String'>
+    readonly threshold: FieldRef<"DashboardAlert", 'Json'>
+    readonly channels: FieldRef<"DashboardAlert", 'String[]'>
+    readonly is_active: FieldRef<"DashboardAlert", 'Boolean'>
+    readonly last_triggered: FieldRef<"DashboardAlert", 'DateTime'>
+    readonly created_at: FieldRef<"DashboardAlert", 'DateTime'>
+    readonly updated_at: FieldRef<"DashboardAlert", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DashboardAlert findUnique
+   */
+  export type DashboardAlertFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardAlert to fetch.
+     */
+    where: DashboardAlertWhereUniqueInput
+  }
+
+  /**
+   * DashboardAlert findUniqueOrThrow
+   */
+  export type DashboardAlertFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardAlert to fetch.
+     */
+    where: DashboardAlertWhereUniqueInput
+  }
+
+  /**
+   * DashboardAlert findFirst
+   */
+  export type DashboardAlertFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardAlert to fetch.
+     */
+    where?: DashboardAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardAlerts to fetch.
+     */
+    orderBy?: DashboardAlertOrderByWithRelationInput | DashboardAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardAlerts.
+     */
+    cursor?: DashboardAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardAlerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardAlerts.
+     */
+    distinct?: DashboardAlertScalarFieldEnum | DashboardAlertScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardAlert findFirstOrThrow
+   */
+  export type DashboardAlertFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardAlert to fetch.
+     */
+    where?: DashboardAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardAlerts to fetch.
+     */
+    orderBy?: DashboardAlertOrderByWithRelationInput | DashboardAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardAlerts.
+     */
+    cursor?: DashboardAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardAlerts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardAlerts.
+     */
+    distinct?: DashboardAlertScalarFieldEnum | DashboardAlertScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardAlert findMany
+   */
+  export type DashboardAlertFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardAlerts to fetch.
+     */
+    where?: DashboardAlertWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardAlerts to fetch.
+     */
+    orderBy?: DashboardAlertOrderByWithRelationInput | DashboardAlertOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DashboardAlerts.
+     */
+    cursor?: DashboardAlertWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardAlerts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardAlerts.
+     */
+    skip?: number
+    distinct?: DashboardAlertScalarFieldEnum | DashboardAlertScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardAlert create
+   */
+  export type DashboardAlertCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DashboardAlert.
+     */
+    data: XOR<DashboardAlertCreateInput, DashboardAlertUncheckedCreateInput>
+  }
+
+  /**
+   * DashboardAlert createMany
+   */
+  export type DashboardAlertCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DashboardAlerts.
+     */
+    data: DashboardAlertCreateManyInput | DashboardAlertCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DashboardAlert createManyAndReturn
+   */
+  export type DashboardAlertCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many DashboardAlerts.
+     */
+    data: DashboardAlertCreateManyInput | DashboardAlertCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DashboardAlert update
+   */
+  export type DashboardAlertUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DashboardAlert.
+     */
+    data: XOR<DashboardAlertUpdateInput, DashboardAlertUncheckedUpdateInput>
+    /**
+     * Choose, which DashboardAlert to update.
+     */
+    where: DashboardAlertWhereUniqueInput
+  }
+
+  /**
+   * DashboardAlert updateMany
+   */
+  export type DashboardAlertUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DashboardAlerts.
+     */
+    data: XOR<DashboardAlertUpdateManyMutationInput, DashboardAlertUncheckedUpdateManyInput>
+    /**
+     * Filter which DashboardAlerts to update
+     */
+    where?: DashboardAlertWhereInput
+  }
+
+  /**
+   * DashboardAlert upsert
+   */
+  export type DashboardAlertUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DashboardAlert to update in case it exists.
+     */
+    where: DashboardAlertWhereUniqueInput
+    /**
+     * In case the DashboardAlert found by the `where` argument doesn't exist, create a new DashboardAlert with this data.
+     */
+    create: XOR<DashboardAlertCreateInput, DashboardAlertUncheckedCreateInput>
+    /**
+     * In case the DashboardAlert was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DashboardAlertUpdateInput, DashboardAlertUncheckedUpdateInput>
+  }
+
+  /**
+   * DashboardAlert delete
+   */
+  export type DashboardAlertDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+    /**
+     * Filter which DashboardAlert to delete.
+     */
+    where: DashboardAlertWhereUniqueInput
+  }
+
+  /**
+   * DashboardAlert deleteMany
+   */
+  export type DashboardAlertDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardAlerts to delete
+     */
+    where?: DashboardAlertWhereInput
+  }
+
+  /**
+   * DashboardAlert without action
+   */
+  export type DashboardAlertDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardAlert
+     */
+    select?: DashboardAlertSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardAlertInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DashboardShare
+   */
+
+  export type AggregateDashboardShare = {
+    _count: DashboardShareCountAggregateOutputType | null
+    _min: DashboardShareMinAggregateOutputType | null
+    _max: DashboardShareMaxAggregateOutputType | null
+  }
+
+  export type DashboardShareMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    dashboard_id: string | null
+    share_token: string | null
+    channel: string | null
+    recipient_email: string | null
+    recipient_phone: string | null
+    expires_at: Date | null
+    created_at: Date | null
+  }
+
+  export type DashboardShareMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    dashboard_id: string | null
+    share_token: string | null
+    channel: string | null
+    recipient_email: string | null
+    recipient_phone: string | null
+    expires_at: Date | null
+    created_at: Date | null
+  }
+
+  export type DashboardShareCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    dashboard_id: number
+    share_token: number
+    channel: number
+    recipient_email: number
+    recipient_phone: number
+    snapshot_data: number
+    expires_at: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type DashboardShareMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    dashboard_id?: true
+    share_token?: true
+    channel?: true
+    recipient_email?: true
+    recipient_phone?: true
+    expires_at?: true
+    created_at?: true
+  }
+
+  export type DashboardShareMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    dashboard_id?: true
+    share_token?: true
+    channel?: true
+    recipient_email?: true
+    recipient_phone?: true
+    expires_at?: true
+    created_at?: true
+  }
+
+  export type DashboardShareCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    dashboard_id?: true
+    share_token?: true
+    channel?: true
+    recipient_email?: true
+    recipient_phone?: true
+    snapshot_data?: true
+    expires_at?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type DashboardShareAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardShare to aggregate.
+     */
+    where?: DashboardShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardShares to fetch.
+     */
+    orderBy?: DashboardShareOrderByWithRelationInput | DashboardShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DashboardShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardShares.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DashboardShares
+    **/
+    _count?: true | DashboardShareCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DashboardShareMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DashboardShareMaxAggregateInputType
+  }
+
+  export type GetDashboardShareAggregateType<T extends DashboardShareAggregateArgs> = {
+        [P in keyof T & keyof AggregateDashboardShare]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDashboardShare[P]>
+      : GetScalarType<T[P], AggregateDashboardShare[P]>
+  }
+
+
+
+
+  export type DashboardShareGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DashboardShareWhereInput
+    orderBy?: DashboardShareOrderByWithAggregationInput | DashboardShareOrderByWithAggregationInput[]
+    by: DashboardShareScalarFieldEnum[] | DashboardShareScalarFieldEnum
+    having?: DashboardShareScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DashboardShareCountAggregateInputType | true
+    _min?: DashboardShareMinAggregateInputType
+    _max?: DashboardShareMaxAggregateInputType
+  }
+
+  export type DashboardShareGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string | null
+    user_id: string
+    dashboard_id: string
+    share_token: string
+    channel: string
+    recipient_email: string | null
+    recipient_phone: string | null
+    snapshot_data: JsonValue | null
+    expires_at: Date | null
+    created_at: Date
+    _count: DashboardShareCountAggregateOutputType | null
+    _min: DashboardShareMinAggregateOutputType | null
+    _max: DashboardShareMaxAggregateOutputType | null
+  }
+
+  type GetDashboardShareGroupByPayload<T extends DashboardShareGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DashboardShareGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DashboardShareGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DashboardShareGroupByOutputType[P]>
+            : GetScalarType<T[P], DashboardShareGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DashboardShareSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    share_token?: boolean
+    channel?: boolean
+    recipient_email?: boolean
+    recipient_phone?: boolean
+    snapshot_data?: boolean
+    expires_at?: boolean
+    created_at?: boolean
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardShare"]>
+
+  export type DashboardShareSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    share_token?: boolean
+    channel?: boolean
+    recipient_email?: boolean
+    recipient_phone?: boolean
+    snapshot_data?: boolean
+    expires_at?: boolean
+    created_at?: boolean
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dashboardShare"]>
+
+  export type DashboardShareSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    dashboard_id?: boolean
+    share_token?: boolean
+    channel?: boolean
+    recipient_email?: boolean
+    recipient_phone?: boolean
+    snapshot_data?: boolean
+    expires_at?: boolean
+    created_at?: boolean
+  }
+
+  export type DashboardShareInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }
+  export type DashboardShareIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dashboard?: boolean | DashboardConfigDefaultArgs<ExtArgs>
+  }
+
+  export type $DashboardSharePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DashboardShare"
+    objects: {
+      dashboard: Prisma.$DashboardConfigPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string | null
+      user_id: string
+      dashboard_id: string
+      share_token: string
+      channel: string
+      recipient_email: string | null
+      recipient_phone: string | null
+      snapshot_data: Prisma.JsonValue | null
+      expires_at: Date | null
+      created_at: Date
+    }, ExtArgs["result"]["dashboardShare"]>
+    composites: {}
+  }
+
+  type DashboardShareGetPayload<S extends boolean | null | undefined | DashboardShareDefaultArgs> = $Result.GetResult<Prisma.$DashboardSharePayload, S>
+
+  type DashboardShareCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DashboardShareFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DashboardShareCountAggregateInputType | true
+    }
+
+  export interface DashboardShareDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DashboardShare'], meta: { name: 'DashboardShare' } }
+    /**
+     * Find zero or one DashboardShare that matches the filter.
+     * @param {DashboardShareFindUniqueArgs} args - Arguments to find a DashboardShare
+     * @example
+     * // Get one DashboardShare
+     * const dashboardShare = await prisma.dashboardShare.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DashboardShareFindUniqueArgs>(args: SelectSubset<T, DashboardShareFindUniqueArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one DashboardShare that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {DashboardShareFindUniqueOrThrowArgs} args - Arguments to find a DashboardShare
+     * @example
+     * // Get one DashboardShare
+     * const dashboardShare = await prisma.dashboardShare.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DashboardShareFindUniqueOrThrowArgs>(args: SelectSubset<T, DashboardShareFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first DashboardShare that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardShareFindFirstArgs} args - Arguments to find a DashboardShare
+     * @example
+     * // Get one DashboardShare
+     * const dashboardShare = await prisma.dashboardShare.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DashboardShareFindFirstArgs>(args?: SelectSubset<T, DashboardShareFindFirstArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first DashboardShare that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardShareFindFirstOrThrowArgs} args - Arguments to find a DashboardShare
+     * @example
+     * // Get one DashboardShare
+     * const dashboardShare = await prisma.dashboardShare.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DashboardShareFindFirstOrThrowArgs>(args?: SelectSubset<T, DashboardShareFindFirstOrThrowArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more DashboardShares that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardShareFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DashboardShares
+     * const dashboardShares = await prisma.dashboardShare.findMany()
+     * 
+     * // Get first 10 DashboardShares
+     * const dashboardShares = await prisma.dashboardShare.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dashboardShareWithIdOnly = await prisma.dashboardShare.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DashboardShareFindManyArgs>(args?: SelectSubset<T, DashboardShareFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a DashboardShare.
+     * @param {DashboardShareCreateArgs} args - Arguments to create a DashboardShare.
+     * @example
+     * // Create one DashboardShare
+     * const DashboardShare = await prisma.dashboardShare.create({
+     *   data: {
+     *     // ... data to create a DashboardShare
+     *   }
+     * })
+     * 
+     */
+    create<T extends DashboardShareCreateArgs>(args: SelectSubset<T, DashboardShareCreateArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many DashboardShares.
+     * @param {DashboardShareCreateManyArgs} args - Arguments to create many DashboardShares.
+     * @example
+     * // Create many DashboardShares
+     * const dashboardShare = await prisma.dashboardShare.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DashboardShareCreateManyArgs>(args?: SelectSubset<T, DashboardShareCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DashboardShares and returns the data saved in the database.
+     * @param {DashboardShareCreateManyAndReturnArgs} args - Arguments to create many DashboardShares.
+     * @example
+     * // Create many DashboardShares
+     * const dashboardShare = await prisma.dashboardShare.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DashboardShares and only return the `id`
+     * const dashboardShareWithIdOnly = await prisma.dashboardShare.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DashboardShareCreateManyAndReturnArgs>(args?: SelectSubset<T, DashboardShareCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a DashboardShare.
+     * @param {DashboardShareDeleteArgs} args - Arguments to delete one DashboardShare.
+     * @example
+     * // Delete one DashboardShare
+     * const DashboardShare = await prisma.dashboardShare.delete({
+     *   where: {
+     *     // ... filter to delete one DashboardShare
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DashboardShareDeleteArgs>(args: SelectSubset<T, DashboardShareDeleteArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one DashboardShare.
+     * @param {DashboardShareUpdateArgs} args - Arguments to update one DashboardShare.
+     * @example
+     * // Update one DashboardShare
+     * const dashboardShare = await prisma.dashboardShare.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DashboardShareUpdateArgs>(args: SelectSubset<T, DashboardShareUpdateArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more DashboardShares.
+     * @param {DashboardShareDeleteManyArgs} args - Arguments to filter DashboardShares to delete.
+     * @example
+     * // Delete a few DashboardShares
+     * const { count } = await prisma.dashboardShare.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DashboardShareDeleteManyArgs>(args?: SelectSubset<T, DashboardShareDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DashboardShares.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardShareUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DashboardShares
+     * const dashboardShare = await prisma.dashboardShare.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DashboardShareUpdateManyArgs>(args: SelectSubset<T, DashboardShareUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DashboardShare.
+     * @param {DashboardShareUpsertArgs} args - Arguments to update or create a DashboardShare.
+     * @example
+     * // Update or create a DashboardShare
+     * const dashboardShare = await prisma.dashboardShare.upsert({
+     *   create: {
+     *     // ... data to create a DashboardShare
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DashboardShare we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DashboardShareUpsertArgs>(args: SelectSubset<T, DashboardShareUpsertArgs<ExtArgs>>): Prisma__DashboardShareClient<$Result.GetResult<Prisma.$DashboardSharePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of DashboardShares.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardShareCountArgs} args - Arguments to filter DashboardShares to count.
+     * @example
+     * // Count the number of DashboardShares
+     * const count = await prisma.dashboardShare.count({
+     *   where: {
+     *     // ... the filter for the DashboardShares we want to count
+     *   }
+     * })
+    **/
+    count<T extends DashboardShareCountArgs>(
+      args?: Subset<T, DashboardShareCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DashboardShareCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DashboardShare.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardShareAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DashboardShareAggregateArgs>(args: Subset<T, DashboardShareAggregateArgs>): Prisma.PrismaPromise<GetDashboardShareAggregateType<T>>
+
+    /**
+     * Group by DashboardShare.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DashboardShareGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DashboardShareGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DashboardShareGroupByArgs['orderBy'] }
+        : { orderBy?: DashboardShareGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DashboardShareGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDashboardShareGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DashboardShare model
+   */
+  readonly fields: DashboardShareFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DashboardShare.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DashboardShareClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    dashboard<T extends DashboardConfigDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfigDefaultArgs<ExtArgs>>): Prisma__DashboardConfigClient<$Result.GetResult<Prisma.$DashboardConfigPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DashboardShare model
+   */ 
+  interface DashboardShareFieldRefs {
+    readonly id: FieldRef<"DashboardShare", 'String'>
+    readonly tenant_id: FieldRef<"DashboardShare", 'String'>
+    readonly product_id: FieldRef<"DashboardShare", 'String'>
+    readonly user_id: FieldRef<"DashboardShare", 'String'>
+    readonly dashboard_id: FieldRef<"DashboardShare", 'String'>
+    readonly share_token: FieldRef<"DashboardShare", 'String'>
+    readonly channel: FieldRef<"DashboardShare", 'String'>
+    readonly recipient_email: FieldRef<"DashboardShare", 'String'>
+    readonly recipient_phone: FieldRef<"DashboardShare", 'String'>
+    readonly snapshot_data: FieldRef<"DashboardShare", 'Json'>
+    readonly expires_at: FieldRef<"DashboardShare", 'DateTime'>
+    readonly created_at: FieldRef<"DashboardShare", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DashboardShare findUnique
+   */
+  export type DashboardShareFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardShare to fetch.
+     */
+    where: DashboardShareWhereUniqueInput
+  }
+
+  /**
+   * DashboardShare findUniqueOrThrow
+   */
+  export type DashboardShareFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardShare to fetch.
+     */
+    where: DashboardShareWhereUniqueInput
+  }
+
+  /**
+   * DashboardShare findFirst
+   */
+  export type DashboardShareFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardShare to fetch.
+     */
+    where?: DashboardShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardShares to fetch.
+     */
+    orderBy?: DashboardShareOrderByWithRelationInput | DashboardShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardShares.
+     */
+    cursor?: DashboardShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardShares.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardShares.
+     */
+    distinct?: DashboardShareScalarFieldEnum | DashboardShareScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardShare findFirstOrThrow
+   */
+  export type DashboardShareFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardShare to fetch.
+     */
+    where?: DashboardShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardShares to fetch.
+     */
+    orderBy?: DashboardShareOrderByWithRelationInput | DashboardShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DashboardShares.
+     */
+    cursor?: DashboardShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardShares.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DashboardShares.
+     */
+    distinct?: DashboardShareScalarFieldEnum | DashboardShareScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardShare findMany
+   */
+  export type DashboardShareFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * Filter, which DashboardShares to fetch.
+     */
+    where?: DashboardShareWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DashboardShares to fetch.
+     */
+    orderBy?: DashboardShareOrderByWithRelationInput | DashboardShareOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DashboardShares.
+     */
+    cursor?: DashboardShareWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DashboardShares from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DashboardShares.
+     */
+    skip?: number
+    distinct?: DashboardShareScalarFieldEnum | DashboardShareScalarFieldEnum[]
+  }
+
+  /**
+   * DashboardShare create
+   */
+  export type DashboardShareCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DashboardShare.
+     */
+    data: XOR<DashboardShareCreateInput, DashboardShareUncheckedCreateInput>
+  }
+
+  /**
+   * DashboardShare createMany
+   */
+  export type DashboardShareCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DashboardShares.
+     */
+    data: DashboardShareCreateManyInput | DashboardShareCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DashboardShare createManyAndReturn
+   */
+  export type DashboardShareCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many DashboardShares.
+     */
+    data: DashboardShareCreateManyInput | DashboardShareCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DashboardShare update
+   */
+  export type DashboardShareUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DashboardShare.
+     */
+    data: XOR<DashboardShareUpdateInput, DashboardShareUncheckedUpdateInput>
+    /**
+     * Choose, which DashboardShare to update.
+     */
+    where: DashboardShareWhereUniqueInput
+  }
+
+  /**
+   * DashboardShare updateMany
+   */
+  export type DashboardShareUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DashboardShares.
+     */
+    data: XOR<DashboardShareUpdateManyMutationInput, DashboardShareUncheckedUpdateManyInput>
+    /**
+     * Filter which DashboardShares to update
+     */
+    where?: DashboardShareWhereInput
+  }
+
+  /**
+   * DashboardShare upsert
+   */
+  export type DashboardShareUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DashboardShare to update in case it exists.
+     */
+    where: DashboardShareWhereUniqueInput
+    /**
+     * In case the DashboardShare found by the `where` argument doesn't exist, create a new DashboardShare with this data.
+     */
+    create: XOR<DashboardShareCreateInput, DashboardShareUncheckedCreateInput>
+    /**
+     * In case the DashboardShare was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DashboardShareUpdateInput, DashboardShareUncheckedUpdateInput>
+  }
+
+  /**
+   * DashboardShare delete
+   */
+  export type DashboardShareDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
+    /**
+     * Filter which DashboardShare to delete.
+     */
+    where: DashboardShareWhereUniqueInput
+  }
+
+  /**
+   * DashboardShare deleteMany
+   */
+  export type DashboardShareDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DashboardShares to delete
+     */
+    where?: DashboardShareWhereInput
+  }
+
+  /**
+   * DashboardShare without action
+   */
+  export type DashboardShareDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DashboardShare
+     */
+    select?: DashboardShareSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DashboardShareInclude<ExtArgs> | null
   }
 
 
@@ -29316,6 +33003,974 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: AlertNotificationLogInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ExportResult
+   */
+
+  export type AggregateExportResult = {
+    _count: ExportResultCountAggregateOutputType | null
+    _avg: ExportResultAvgAggregateOutputType | null
+    _sum: ExportResultSumAggregateOutputType | null
+    _min: ExportResultMinAggregateOutputType | null
+    _max: ExportResultMaxAggregateOutputType | null
+  }
+
+  export type ExportResultAvgAggregateOutputType = {
+    record_count: number | null
+  }
+
+  export type ExportResultSumAggregateOutputType = {
+    record_count: number | null
+  }
+
+  export type ExportResultMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    format: string | null
+    content: string | null
+    status: string | null
+    record_count: number | null
+    error: string | null
+    created_at: Date | null
+    expires_at: Date | null
+  }
+
+  export type ExportResultMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    format: string | null
+    content: string | null
+    status: string | null
+    record_count: number | null
+    error: string | null
+    created_at: Date | null
+    expires_at: Date | null
+  }
+
+  export type ExportResultCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    format: number
+    content: number
+    status: number
+    record_count: number
+    filters: number
+    error: number
+    created_at: number
+    expires_at: number
+    _all: number
+  }
+
+
+  export type ExportResultAvgAggregateInputType = {
+    record_count?: true
+  }
+
+  export type ExportResultSumAggregateInputType = {
+    record_count?: true
+  }
+
+  export type ExportResultMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    format?: true
+    content?: true
+    status?: true
+    record_count?: true
+    error?: true
+    created_at?: true
+    expires_at?: true
+  }
+
+  export type ExportResultMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    format?: true
+    content?: true
+    status?: true
+    record_count?: true
+    error?: true
+    created_at?: true
+    expires_at?: true
+  }
+
+  export type ExportResultCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    format?: true
+    content?: true
+    status?: true
+    record_count?: true
+    filters?: true
+    error?: true
+    created_at?: true
+    expires_at?: true
+    _all?: true
+  }
+
+  export type ExportResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExportResult to aggregate.
+     */
+    where?: ExportResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportResults to fetch.
+     */
+    orderBy?: ExportResultOrderByWithRelationInput | ExportResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExportResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExportResults
+    **/
+    _count?: true | ExportResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ExportResultAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ExportResultSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExportResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExportResultMaxAggregateInputType
+  }
+
+  export type GetExportResultAggregateType<T extends ExportResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateExportResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExportResult[P]>
+      : GetScalarType<T[P], AggregateExportResult[P]>
+  }
+
+
+
+
+  export type ExportResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExportResultWhereInput
+    orderBy?: ExportResultOrderByWithAggregationInput | ExportResultOrderByWithAggregationInput[]
+    by: ExportResultScalarFieldEnum[] | ExportResultScalarFieldEnum
+    having?: ExportResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExportResultCountAggregateInputType | true
+    _avg?: ExportResultAvgAggregateInputType
+    _sum?: ExportResultSumAggregateInputType
+    _min?: ExportResultMinAggregateInputType
+    _max?: ExportResultMaxAggregateInputType
+  }
+
+  export type ExportResultGroupByOutputType = {
+    id: string
+    tenant_id: string
+    format: string
+    content: string
+    status: string
+    record_count: number
+    filters: JsonValue | null
+    error: string | null
+    created_at: Date
+    expires_at: Date
+    _count: ExportResultCountAggregateOutputType | null
+    _avg: ExportResultAvgAggregateOutputType | null
+    _sum: ExportResultSumAggregateOutputType | null
+    _min: ExportResultMinAggregateOutputType | null
+    _max: ExportResultMaxAggregateOutputType | null
+  }
+
+  type GetExportResultGroupByPayload<T extends ExportResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExportResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExportResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExportResultGroupByOutputType[P]>
+            : GetScalarType<T[P], ExportResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExportResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    format?: boolean
+    content?: boolean
+    status?: boolean
+    record_count?: boolean
+    filters?: boolean
+    error?: boolean
+    created_at?: boolean
+    expires_at?: boolean
+  }, ExtArgs["result"]["exportResult"]>
+
+  export type ExportResultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    format?: boolean
+    content?: boolean
+    status?: boolean
+    record_count?: boolean
+    filters?: boolean
+    error?: boolean
+    created_at?: boolean
+    expires_at?: boolean
+  }, ExtArgs["result"]["exportResult"]>
+
+  export type ExportResultSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    format?: boolean
+    content?: boolean
+    status?: boolean
+    record_count?: boolean
+    filters?: boolean
+    error?: boolean
+    created_at?: boolean
+    expires_at?: boolean
+  }
+
+
+  export type $ExportResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExportResult"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      format: string
+      content: string
+      status: string
+      record_count: number
+      filters: Prisma.JsonValue | null
+      error: string | null
+      created_at: Date
+      expires_at: Date
+    }, ExtArgs["result"]["exportResult"]>
+    composites: {}
+  }
+
+  type ExportResultGetPayload<S extends boolean | null | undefined | ExportResultDefaultArgs> = $Result.GetResult<Prisma.$ExportResultPayload, S>
+
+  type ExportResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ExportResultFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ExportResultCountAggregateInputType | true
+    }
+
+  export interface ExportResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExportResult'], meta: { name: 'ExportResult' } }
+    /**
+     * Find zero or one ExportResult that matches the filter.
+     * @param {ExportResultFindUniqueArgs} args - Arguments to find a ExportResult
+     * @example
+     * // Get one ExportResult
+     * const exportResult = await prisma.exportResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExportResultFindUniqueArgs>(args: SelectSubset<T, ExportResultFindUniqueArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ExportResult that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ExportResultFindUniqueOrThrowArgs} args - Arguments to find a ExportResult
+     * @example
+     * // Get one ExportResult
+     * const exportResult = await prisma.exportResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExportResultFindUniqueOrThrowArgs>(args: SelectSubset<T, ExportResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ExportResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportResultFindFirstArgs} args - Arguments to find a ExportResult
+     * @example
+     * // Get one ExportResult
+     * const exportResult = await prisma.exportResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExportResultFindFirstArgs>(args?: SelectSubset<T, ExportResultFindFirstArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ExportResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportResultFindFirstOrThrowArgs} args - Arguments to find a ExportResult
+     * @example
+     * // Get one ExportResult
+     * const exportResult = await prisma.exportResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExportResultFindFirstOrThrowArgs>(args?: SelectSubset<T, ExportResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ExportResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExportResults
+     * const exportResults = await prisma.exportResult.findMany()
+     * 
+     * // Get first 10 ExportResults
+     * const exportResults = await prisma.exportResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const exportResultWithIdOnly = await prisma.exportResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExportResultFindManyArgs>(args?: SelectSubset<T, ExportResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ExportResult.
+     * @param {ExportResultCreateArgs} args - Arguments to create a ExportResult.
+     * @example
+     * // Create one ExportResult
+     * const ExportResult = await prisma.exportResult.create({
+     *   data: {
+     *     // ... data to create a ExportResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExportResultCreateArgs>(args: SelectSubset<T, ExportResultCreateArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ExportResults.
+     * @param {ExportResultCreateManyArgs} args - Arguments to create many ExportResults.
+     * @example
+     * // Create many ExportResults
+     * const exportResult = await prisma.exportResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExportResultCreateManyArgs>(args?: SelectSubset<T, ExportResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ExportResults and returns the data saved in the database.
+     * @param {ExportResultCreateManyAndReturnArgs} args - Arguments to create many ExportResults.
+     * @example
+     * // Create many ExportResults
+     * const exportResult = await prisma.exportResult.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ExportResults and only return the `id`
+     * const exportResultWithIdOnly = await prisma.exportResult.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ExportResultCreateManyAndReturnArgs>(args?: SelectSubset<T, ExportResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ExportResult.
+     * @param {ExportResultDeleteArgs} args - Arguments to delete one ExportResult.
+     * @example
+     * // Delete one ExportResult
+     * const ExportResult = await prisma.exportResult.delete({
+     *   where: {
+     *     // ... filter to delete one ExportResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExportResultDeleteArgs>(args: SelectSubset<T, ExportResultDeleteArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ExportResult.
+     * @param {ExportResultUpdateArgs} args - Arguments to update one ExportResult.
+     * @example
+     * // Update one ExportResult
+     * const exportResult = await prisma.exportResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExportResultUpdateArgs>(args: SelectSubset<T, ExportResultUpdateArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ExportResults.
+     * @param {ExportResultDeleteManyArgs} args - Arguments to filter ExportResults to delete.
+     * @example
+     * // Delete a few ExportResults
+     * const { count } = await prisma.exportResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExportResultDeleteManyArgs>(args?: SelectSubset<T, ExportResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExportResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExportResults
+     * const exportResult = await prisma.exportResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExportResultUpdateManyArgs>(args: SelectSubset<T, ExportResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ExportResult.
+     * @param {ExportResultUpsertArgs} args - Arguments to update or create a ExportResult.
+     * @example
+     * // Update or create a ExportResult
+     * const exportResult = await prisma.exportResult.upsert({
+     *   create: {
+     *     // ... data to create a ExportResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExportResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExportResultUpsertArgs>(args: SelectSubset<T, ExportResultUpsertArgs<ExtArgs>>): Prisma__ExportResultClient<$Result.GetResult<Prisma.$ExportResultPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ExportResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportResultCountArgs} args - Arguments to filter ExportResults to count.
+     * @example
+     * // Count the number of ExportResults
+     * const count = await prisma.exportResult.count({
+     *   where: {
+     *     // ... the filter for the ExportResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExportResultCountArgs>(
+      args?: Subset<T, ExportResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExportResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExportResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExportResultAggregateArgs>(args: Subset<T, ExportResultAggregateArgs>): Prisma.PrismaPromise<GetExportResultAggregateType<T>>
+
+    /**
+     * Group by ExportResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExportResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExportResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExportResultGroupByArgs['orderBy'] }
+        : { orderBy?: ExportResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExportResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExportResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExportResult model
+   */
+  readonly fields: ExportResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExportResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExportResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExportResult model
+   */ 
+  interface ExportResultFieldRefs {
+    readonly id: FieldRef<"ExportResult", 'String'>
+    readonly tenant_id: FieldRef<"ExportResult", 'String'>
+    readonly format: FieldRef<"ExportResult", 'String'>
+    readonly content: FieldRef<"ExportResult", 'String'>
+    readonly status: FieldRef<"ExportResult", 'String'>
+    readonly record_count: FieldRef<"ExportResult", 'Int'>
+    readonly filters: FieldRef<"ExportResult", 'Json'>
+    readonly error: FieldRef<"ExportResult", 'String'>
+    readonly created_at: FieldRef<"ExportResult", 'DateTime'>
+    readonly expires_at: FieldRef<"ExportResult", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExportResult findUnique
+   */
+  export type ExportResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportResult to fetch.
+     */
+    where: ExportResultWhereUniqueInput
+  }
+
+  /**
+   * ExportResult findUniqueOrThrow
+   */
+  export type ExportResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportResult to fetch.
+     */
+    where: ExportResultWhereUniqueInput
+  }
+
+  /**
+   * ExportResult findFirst
+   */
+  export type ExportResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportResult to fetch.
+     */
+    where?: ExportResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportResults to fetch.
+     */
+    orderBy?: ExportResultOrderByWithRelationInput | ExportResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExportResults.
+     */
+    cursor?: ExportResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExportResults.
+     */
+    distinct?: ExportResultScalarFieldEnum | ExportResultScalarFieldEnum[]
+  }
+
+  /**
+   * ExportResult findFirstOrThrow
+   */
+  export type ExportResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportResult to fetch.
+     */
+    where?: ExportResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportResults to fetch.
+     */
+    orderBy?: ExportResultOrderByWithRelationInput | ExportResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExportResults.
+     */
+    cursor?: ExportResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExportResults.
+     */
+    distinct?: ExportResultScalarFieldEnum | ExportResultScalarFieldEnum[]
+  }
+
+  /**
+   * ExportResult findMany
+   */
+  export type ExportResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * Filter, which ExportResults to fetch.
+     */
+    where?: ExportResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExportResults to fetch.
+     */
+    orderBy?: ExportResultOrderByWithRelationInput | ExportResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExportResults.
+     */
+    cursor?: ExportResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExportResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExportResults.
+     */
+    skip?: number
+    distinct?: ExportResultScalarFieldEnum | ExportResultScalarFieldEnum[]
+  }
+
+  /**
+   * ExportResult create
+   */
+  export type ExportResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * The data needed to create a ExportResult.
+     */
+    data: XOR<ExportResultCreateInput, ExportResultUncheckedCreateInput>
+  }
+
+  /**
+   * ExportResult createMany
+   */
+  export type ExportResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExportResults.
+     */
+    data: ExportResultCreateManyInput | ExportResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExportResult createManyAndReturn
+   */
+  export type ExportResultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ExportResults.
+     */
+    data: ExportResultCreateManyInput | ExportResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ExportResult update
+   */
+  export type ExportResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * The data needed to update a ExportResult.
+     */
+    data: XOR<ExportResultUpdateInput, ExportResultUncheckedUpdateInput>
+    /**
+     * Choose, which ExportResult to update.
+     */
+    where: ExportResultWhereUniqueInput
+  }
+
+  /**
+   * ExportResult updateMany
+   */
+  export type ExportResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExportResults.
+     */
+    data: XOR<ExportResultUpdateManyMutationInput, ExportResultUncheckedUpdateManyInput>
+    /**
+     * Filter which ExportResults to update
+     */
+    where?: ExportResultWhereInput
+  }
+
+  /**
+   * ExportResult upsert
+   */
+  export type ExportResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * The filter to search for the ExportResult to update in case it exists.
+     */
+    where: ExportResultWhereUniqueInput
+    /**
+     * In case the ExportResult found by the `where` argument doesn't exist, create a new ExportResult with this data.
+     */
+    create: XOR<ExportResultCreateInput, ExportResultUncheckedCreateInput>
+    /**
+     * In case the ExportResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExportResultUpdateInput, ExportResultUncheckedUpdateInput>
+  }
+
+  /**
+   * ExportResult delete
+   */
+  export type ExportResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
+    /**
+     * Filter which ExportResult to delete.
+     */
+    where: ExportResultWhereUniqueInput
+  }
+
+  /**
+   * ExportResult deleteMany
+   */
+  export type ExportResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExportResults to delete
+     */
+    where?: ExportResultWhereInput
+  }
+
+  /**
+   * ExportResult without action
+   */
+  export type ExportResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExportResult
+     */
+    select?: ExportResultSelect<ExtArgs> | null
   }
 
 
@@ -37196,6 +41851,7 @@ export namespace Prisma {
     status_id: string | null
     importacao_exportador_id: string | null
     exportacao_importador_id: string | null
+    fabricante_id: string | null
     incoterm: string | null
     moeda_pedido: string | null
     valor_total_pedido: Decimal | null
@@ -37205,6 +41861,11 @@ export namespace Prisma {
     unidade_comercializada_pedido: string | null
     cobertura_cambial: string | null
     condicao_pagamento: string | null
+    numero_proforma: string | null
+    numero_invoice: string | null
+    referencia_importador: string | null
+    referencia_exportador: string | null
+    referencia_fabricante: string | null
     valor_total_cambio: Decimal | null
     moeda_cambio: string | null
     taxa_cambio_estimada: Decimal | null
@@ -37224,6 +41885,7 @@ export namespace Prisma {
     status_id: string | null
     importacao_exportador_id: string | null
     exportacao_importador_id: string | null
+    fabricante_id: string | null
     incoterm: string | null
     moeda_pedido: string | null
     valor_total_pedido: Decimal | null
@@ -37233,6 +41895,11 @@ export namespace Prisma {
     unidade_comercializada_pedido: string | null
     cobertura_cambial: string | null
     condicao_pagamento: string | null
+    numero_proforma: string | null
+    numero_invoice: string | null
+    referencia_importador: string | null
+    referencia_exportador: string | null
+    referencia_fabricante: string | null
     valor_total_cambio: Decimal | null
     moeda_cambio: string | null
     taxa_cambio_estimada: Decimal | null
@@ -37252,6 +41919,7 @@ export namespace Prisma {
     status_id: number
     importacao_exportador_id: number
     exportacao_importador_id: number
+    fabricante_id: number
     incoterm: number
     moeda_pedido: number
     valor_total_pedido: number
@@ -37261,6 +41929,11 @@ export namespace Prisma {
     unidade_comercializada_pedido: number
     cobertura_cambial: number
     condicao_pagamento: number
+    numero_proforma: number
+    numero_invoice: number
+    referencia_importador: number
+    referencia_exportador: number
+    referencia_fabricante: number
     valor_total_cambio: number
     moeda_cambio: number
     taxa_cambio_estimada: number
@@ -37302,6 +41975,7 @@ export namespace Prisma {
     status_id?: true
     importacao_exportador_id?: true
     exportacao_importador_id?: true
+    fabricante_id?: true
     incoterm?: true
     moeda_pedido?: true
     valor_total_pedido?: true
@@ -37311,6 +41985,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: true
     cobertura_cambial?: true
     condicao_pagamento?: true
+    numero_proforma?: true
+    numero_invoice?: true
+    referencia_importador?: true
+    referencia_exportador?: true
+    referencia_fabricante?: true
     valor_total_cambio?: true
     moeda_cambio?: true
     taxa_cambio_estimada?: true
@@ -37330,6 +42009,7 @@ export namespace Prisma {
     status_id?: true
     importacao_exportador_id?: true
     exportacao_importador_id?: true
+    fabricante_id?: true
     incoterm?: true
     moeda_pedido?: true
     valor_total_pedido?: true
@@ -37339,6 +42019,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: true
     cobertura_cambial?: true
     condicao_pagamento?: true
+    numero_proforma?: true
+    numero_invoice?: true
+    referencia_importador?: true
+    referencia_exportador?: true
+    referencia_fabricante?: true
     valor_total_cambio?: true
     moeda_cambio?: true
     taxa_cambio_estimada?: true
@@ -37358,6 +42043,7 @@ export namespace Prisma {
     status_id?: true
     importacao_exportador_id?: true
     exportacao_importador_id?: true
+    fabricante_id?: true
     incoterm?: true
     moeda_pedido?: true
     valor_total_pedido?: true
@@ -37367,6 +42053,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: true
     cobertura_cambial?: true
     condicao_pagamento?: true
+    numero_proforma?: true
+    numero_invoice?: true
+    referencia_importador?: true
+    referencia_exportador?: true
+    referencia_fabricante?: true
     valor_total_cambio?: true
     moeda_cambio?: true
     taxa_cambio_estimada?: true
@@ -37475,6 +42166,7 @@ export namespace Prisma {
     status_id: string | null
     importacao_exportador_id: string | null
     exportacao_importador_id: string | null
+    fabricante_id: string | null
     incoterm: string | null
     moeda_pedido: string
     valor_total_pedido: Decimal | null
@@ -37484,6 +42176,11 @@ export namespace Prisma {
     unidade_comercializada_pedido: string | null
     cobertura_cambial: string
     condicao_pagamento: string | null
+    numero_proforma: string | null
+    numero_invoice: string | null
+    referencia_importador: string | null
+    referencia_exportador: string | null
+    referencia_fabricante: string | null
     valor_total_cambio: Decimal | null
     moeda_cambio: string | null
     taxa_cambio_estimada: Decimal | null
@@ -37524,6 +42221,7 @@ export namespace Prisma {
     status_id?: boolean
     importacao_exportador_id?: boolean
     exportacao_importador_id?: boolean
+    fabricante_id?: boolean
     incoterm?: boolean
     moeda_pedido?: boolean
     valor_total_pedido?: boolean
@@ -37533,6 +42231,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: boolean
     cobertura_cambial?: boolean
     condicao_pagamento?: boolean
+    numero_proforma?: boolean
+    numero_invoice?: boolean
+    referencia_importador?: boolean
+    referencia_exportador?: boolean
+    referencia_fabricante?: boolean
     valor_total_cambio?: boolean
     moeda_cambio?: boolean
     taxa_cambio_estimada?: boolean
@@ -37556,6 +42259,7 @@ export namespace Prisma {
     status_id?: boolean
     importacao_exportador_id?: boolean
     exportacao_importador_id?: boolean
+    fabricante_id?: boolean
     incoterm?: boolean
     moeda_pedido?: boolean
     valor_total_pedido?: boolean
@@ -37565,6 +42269,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: boolean
     cobertura_cambial?: boolean
     condicao_pagamento?: boolean
+    numero_proforma?: boolean
+    numero_invoice?: boolean
+    referencia_importador?: boolean
+    referencia_exportador?: boolean
+    referencia_fabricante?: boolean
     valor_total_cambio?: boolean
     moeda_cambio?: boolean
     taxa_cambio_estimada?: boolean
@@ -37586,6 +42295,7 @@ export namespace Prisma {
     status_id?: boolean
     importacao_exportador_id?: boolean
     exportacao_importador_id?: boolean
+    fabricante_id?: boolean
     incoterm?: boolean
     moeda_pedido?: boolean
     valor_total_pedido?: boolean
@@ -37595,6 +42305,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: boolean
     cobertura_cambial?: boolean
     condicao_pagamento?: boolean
+    numero_proforma?: boolean
+    numero_invoice?: boolean
+    referencia_importador?: boolean
+    referencia_exportador?: boolean
+    referencia_fabricante?: boolean
     valor_total_cambio?: boolean
     moeda_cambio?: boolean
     taxa_cambio_estimada?: boolean
@@ -37627,6 +42342,7 @@ export namespace Prisma {
       status_id: string | null
       importacao_exportador_id: string | null
       exportacao_importador_id: string | null
+      fabricante_id: string | null
       incoterm: string | null
       moeda_pedido: string
       valor_total_pedido: Prisma.Decimal | null
@@ -37636,6 +42352,11 @@ export namespace Prisma {
       unidade_comercializada_pedido: string | null
       cobertura_cambial: string
       condicao_pagamento: string | null
+      numero_proforma: string | null
+      numero_invoice: string | null
+      referencia_importador: string | null
+      referencia_exportador: string | null
+      referencia_fabricante: string | null
       valor_total_cambio: Prisma.Decimal | null
       moeda_cambio: string | null
       taxa_cambio_estimada: Prisma.Decimal | null
@@ -38048,6 +42769,7 @@ export namespace Prisma {
     readonly status_id: FieldRef<"Pedido", 'String'>
     readonly importacao_exportador_id: FieldRef<"Pedido", 'String'>
     readonly exportacao_importador_id: FieldRef<"Pedido", 'String'>
+    readonly fabricante_id: FieldRef<"Pedido", 'String'>
     readonly incoterm: FieldRef<"Pedido", 'String'>
     readonly moeda_pedido: FieldRef<"Pedido", 'String'>
     readonly valor_total_pedido: FieldRef<"Pedido", 'Decimal'>
@@ -38057,6 +42779,11 @@ export namespace Prisma {
     readonly unidade_comercializada_pedido: FieldRef<"Pedido", 'String'>
     readonly cobertura_cambial: FieldRef<"Pedido", 'String'>
     readonly condicao_pagamento: FieldRef<"Pedido", 'String'>
+    readonly numero_proforma: FieldRef<"Pedido", 'String'>
+    readonly numero_invoice: FieldRef<"Pedido", 'String'>
+    readonly referencia_importador: FieldRef<"Pedido", 'String'>
+    readonly referencia_exportador: FieldRef<"Pedido", 'String'>
+    readonly referencia_fabricante: FieldRef<"Pedido", 'String'>
     readonly valor_total_cambio: FieldRef<"Pedido", 'Decimal'>
     readonly moeda_cambio: FieldRef<"Pedido", 'String'>
     readonly taxa_cambio_estimada: FieldRef<"Pedido", 'Decimal'>
@@ -49040,6 +53767,966 @@ export namespace Prisma {
 
 
   /**
+   * Model MapeamentoImport
+   */
+
+  export type AggregateMapeamentoImport = {
+    _count: MapeamentoImportCountAggregateOutputType | null
+    _avg: MapeamentoImportAvgAggregateOutputType | null
+    _sum: MapeamentoImportSumAggregateOutputType | null
+    _min: MapeamentoImportMinAggregateOutputType | null
+    _max: MapeamentoImportMaxAggregateOutputType | null
+  }
+
+  export type MapeamentoImportAvgAggregateOutputType = {
+    uso_count: number | null
+  }
+
+  export type MapeamentoImportSumAggregateOutputType = {
+    uso_count: number | null
+  }
+
+  export type MapeamentoImportMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    hash_colunas: string | null
+    mapeamento: string | null
+    uso_count: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type MapeamentoImportMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    hash_colunas: string | null
+    mapeamento: string | null
+    uso_count: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type MapeamentoImportCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    hash_colunas: number
+    mapeamento: number
+    uso_count: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type MapeamentoImportAvgAggregateInputType = {
+    uso_count?: true
+  }
+
+  export type MapeamentoImportSumAggregateInputType = {
+    uso_count?: true
+  }
+
+  export type MapeamentoImportMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    hash_colunas?: true
+    mapeamento?: true
+    uso_count?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type MapeamentoImportMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    hash_colunas?: true
+    mapeamento?: true
+    uso_count?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type MapeamentoImportCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    hash_colunas?: true
+    mapeamento?: true
+    uso_count?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type MapeamentoImportAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MapeamentoImport to aggregate.
+     */
+    where?: MapeamentoImportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MapeamentoImports to fetch.
+     */
+    orderBy?: MapeamentoImportOrderByWithRelationInput | MapeamentoImportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MapeamentoImportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MapeamentoImports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MapeamentoImports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MapeamentoImports
+    **/
+    _count?: true | MapeamentoImportCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MapeamentoImportAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MapeamentoImportSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MapeamentoImportMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MapeamentoImportMaxAggregateInputType
+  }
+
+  export type GetMapeamentoImportAggregateType<T extends MapeamentoImportAggregateArgs> = {
+        [P in keyof T & keyof AggregateMapeamentoImport]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMapeamentoImport[P]>
+      : GetScalarType<T[P], AggregateMapeamentoImport[P]>
+  }
+
+
+
+
+  export type MapeamentoImportGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MapeamentoImportWhereInput
+    orderBy?: MapeamentoImportOrderByWithAggregationInput | MapeamentoImportOrderByWithAggregationInput[]
+    by: MapeamentoImportScalarFieldEnum[] | MapeamentoImportScalarFieldEnum
+    having?: MapeamentoImportScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MapeamentoImportCountAggregateInputType | true
+    _avg?: MapeamentoImportAvgAggregateInputType
+    _sum?: MapeamentoImportSumAggregateInputType
+    _min?: MapeamentoImportMinAggregateInputType
+    _max?: MapeamentoImportMaxAggregateInputType
+  }
+
+  export type MapeamentoImportGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string | null
+    user_id: string | null
+    hash_colunas: string
+    mapeamento: string
+    uso_count: number
+    created_at: Date
+    updated_at: Date
+    _count: MapeamentoImportCountAggregateOutputType | null
+    _avg: MapeamentoImportAvgAggregateOutputType | null
+    _sum: MapeamentoImportSumAggregateOutputType | null
+    _min: MapeamentoImportMinAggregateOutputType | null
+    _max: MapeamentoImportMaxAggregateOutputType | null
+  }
+
+  type GetMapeamentoImportGroupByPayload<T extends MapeamentoImportGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MapeamentoImportGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MapeamentoImportGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MapeamentoImportGroupByOutputType[P]>
+            : GetScalarType<T[P], MapeamentoImportGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MapeamentoImportSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    hash_colunas?: boolean
+    mapeamento?: boolean
+    uso_count?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["mapeamentoImport"]>
+
+  export type MapeamentoImportSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    hash_colunas?: boolean
+    mapeamento?: boolean
+    uso_count?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["mapeamentoImport"]>
+
+  export type MapeamentoImportSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    hash_colunas?: boolean
+    mapeamento?: boolean
+    uso_count?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+
+  export type $MapeamentoImportPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MapeamentoImport"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string | null
+      user_id: string | null
+      hash_colunas: string
+      mapeamento: string
+      uso_count: number
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["mapeamentoImport"]>
+    composites: {}
+  }
+
+  type MapeamentoImportGetPayload<S extends boolean | null | undefined | MapeamentoImportDefaultArgs> = $Result.GetResult<Prisma.$MapeamentoImportPayload, S>
+
+  type MapeamentoImportCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<MapeamentoImportFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: MapeamentoImportCountAggregateInputType | true
+    }
+
+  export interface MapeamentoImportDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MapeamentoImport'], meta: { name: 'MapeamentoImport' } }
+    /**
+     * Find zero or one MapeamentoImport that matches the filter.
+     * @param {MapeamentoImportFindUniqueArgs} args - Arguments to find a MapeamentoImport
+     * @example
+     * // Get one MapeamentoImport
+     * const mapeamentoImport = await prisma.mapeamentoImport.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MapeamentoImportFindUniqueArgs>(args: SelectSubset<T, MapeamentoImportFindUniqueArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one MapeamentoImport that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {MapeamentoImportFindUniqueOrThrowArgs} args - Arguments to find a MapeamentoImport
+     * @example
+     * // Get one MapeamentoImport
+     * const mapeamentoImport = await prisma.mapeamentoImport.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MapeamentoImportFindUniqueOrThrowArgs>(args: SelectSubset<T, MapeamentoImportFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first MapeamentoImport that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MapeamentoImportFindFirstArgs} args - Arguments to find a MapeamentoImport
+     * @example
+     * // Get one MapeamentoImport
+     * const mapeamentoImport = await prisma.mapeamentoImport.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MapeamentoImportFindFirstArgs>(args?: SelectSubset<T, MapeamentoImportFindFirstArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first MapeamentoImport that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MapeamentoImportFindFirstOrThrowArgs} args - Arguments to find a MapeamentoImport
+     * @example
+     * // Get one MapeamentoImport
+     * const mapeamentoImport = await prisma.mapeamentoImport.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MapeamentoImportFindFirstOrThrowArgs>(args?: SelectSubset<T, MapeamentoImportFindFirstOrThrowArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more MapeamentoImports that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MapeamentoImportFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MapeamentoImports
+     * const mapeamentoImports = await prisma.mapeamentoImport.findMany()
+     * 
+     * // Get first 10 MapeamentoImports
+     * const mapeamentoImports = await prisma.mapeamentoImport.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mapeamentoImportWithIdOnly = await prisma.mapeamentoImport.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MapeamentoImportFindManyArgs>(args?: SelectSubset<T, MapeamentoImportFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a MapeamentoImport.
+     * @param {MapeamentoImportCreateArgs} args - Arguments to create a MapeamentoImport.
+     * @example
+     * // Create one MapeamentoImport
+     * const MapeamentoImport = await prisma.mapeamentoImport.create({
+     *   data: {
+     *     // ... data to create a MapeamentoImport
+     *   }
+     * })
+     * 
+     */
+    create<T extends MapeamentoImportCreateArgs>(args: SelectSubset<T, MapeamentoImportCreateArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many MapeamentoImports.
+     * @param {MapeamentoImportCreateManyArgs} args - Arguments to create many MapeamentoImports.
+     * @example
+     * // Create many MapeamentoImports
+     * const mapeamentoImport = await prisma.mapeamentoImport.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MapeamentoImportCreateManyArgs>(args?: SelectSubset<T, MapeamentoImportCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MapeamentoImports and returns the data saved in the database.
+     * @param {MapeamentoImportCreateManyAndReturnArgs} args - Arguments to create many MapeamentoImports.
+     * @example
+     * // Create many MapeamentoImports
+     * const mapeamentoImport = await prisma.mapeamentoImport.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MapeamentoImports and only return the `id`
+     * const mapeamentoImportWithIdOnly = await prisma.mapeamentoImport.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MapeamentoImportCreateManyAndReturnArgs>(args?: SelectSubset<T, MapeamentoImportCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a MapeamentoImport.
+     * @param {MapeamentoImportDeleteArgs} args - Arguments to delete one MapeamentoImport.
+     * @example
+     * // Delete one MapeamentoImport
+     * const MapeamentoImport = await prisma.mapeamentoImport.delete({
+     *   where: {
+     *     // ... filter to delete one MapeamentoImport
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MapeamentoImportDeleteArgs>(args: SelectSubset<T, MapeamentoImportDeleteArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one MapeamentoImport.
+     * @param {MapeamentoImportUpdateArgs} args - Arguments to update one MapeamentoImport.
+     * @example
+     * // Update one MapeamentoImport
+     * const mapeamentoImport = await prisma.mapeamentoImport.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MapeamentoImportUpdateArgs>(args: SelectSubset<T, MapeamentoImportUpdateArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more MapeamentoImports.
+     * @param {MapeamentoImportDeleteManyArgs} args - Arguments to filter MapeamentoImports to delete.
+     * @example
+     * // Delete a few MapeamentoImports
+     * const { count } = await prisma.mapeamentoImport.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MapeamentoImportDeleteManyArgs>(args?: SelectSubset<T, MapeamentoImportDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MapeamentoImports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MapeamentoImportUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MapeamentoImports
+     * const mapeamentoImport = await prisma.mapeamentoImport.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MapeamentoImportUpdateManyArgs>(args: SelectSubset<T, MapeamentoImportUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MapeamentoImport.
+     * @param {MapeamentoImportUpsertArgs} args - Arguments to update or create a MapeamentoImport.
+     * @example
+     * // Update or create a MapeamentoImport
+     * const mapeamentoImport = await prisma.mapeamentoImport.upsert({
+     *   create: {
+     *     // ... data to create a MapeamentoImport
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MapeamentoImport we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MapeamentoImportUpsertArgs>(args: SelectSubset<T, MapeamentoImportUpsertArgs<ExtArgs>>): Prisma__MapeamentoImportClient<$Result.GetResult<Prisma.$MapeamentoImportPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of MapeamentoImports.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MapeamentoImportCountArgs} args - Arguments to filter MapeamentoImports to count.
+     * @example
+     * // Count the number of MapeamentoImports
+     * const count = await prisma.mapeamentoImport.count({
+     *   where: {
+     *     // ... the filter for the MapeamentoImports we want to count
+     *   }
+     * })
+    **/
+    count<T extends MapeamentoImportCountArgs>(
+      args?: Subset<T, MapeamentoImportCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MapeamentoImportCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MapeamentoImport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MapeamentoImportAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MapeamentoImportAggregateArgs>(args: Subset<T, MapeamentoImportAggregateArgs>): Prisma.PrismaPromise<GetMapeamentoImportAggregateType<T>>
+
+    /**
+     * Group by MapeamentoImport.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MapeamentoImportGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MapeamentoImportGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MapeamentoImportGroupByArgs['orderBy'] }
+        : { orderBy?: MapeamentoImportGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MapeamentoImportGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMapeamentoImportGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MapeamentoImport model
+   */
+  readonly fields: MapeamentoImportFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MapeamentoImport.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MapeamentoImportClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MapeamentoImport model
+   */ 
+  interface MapeamentoImportFieldRefs {
+    readonly id: FieldRef<"MapeamentoImport", 'String'>
+    readonly tenant_id: FieldRef<"MapeamentoImport", 'String'>
+    readonly product_id: FieldRef<"MapeamentoImport", 'String'>
+    readonly user_id: FieldRef<"MapeamentoImport", 'String'>
+    readonly hash_colunas: FieldRef<"MapeamentoImport", 'String'>
+    readonly mapeamento: FieldRef<"MapeamentoImport", 'String'>
+    readonly uso_count: FieldRef<"MapeamentoImport", 'Int'>
+    readonly created_at: FieldRef<"MapeamentoImport", 'DateTime'>
+    readonly updated_at: FieldRef<"MapeamentoImport", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MapeamentoImport findUnique
+   */
+  export type MapeamentoImportFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * Filter, which MapeamentoImport to fetch.
+     */
+    where: MapeamentoImportWhereUniqueInput
+  }
+
+  /**
+   * MapeamentoImport findUniqueOrThrow
+   */
+  export type MapeamentoImportFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * Filter, which MapeamentoImport to fetch.
+     */
+    where: MapeamentoImportWhereUniqueInput
+  }
+
+  /**
+   * MapeamentoImport findFirst
+   */
+  export type MapeamentoImportFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * Filter, which MapeamentoImport to fetch.
+     */
+    where?: MapeamentoImportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MapeamentoImports to fetch.
+     */
+    orderBy?: MapeamentoImportOrderByWithRelationInput | MapeamentoImportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MapeamentoImports.
+     */
+    cursor?: MapeamentoImportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MapeamentoImports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MapeamentoImports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MapeamentoImports.
+     */
+    distinct?: MapeamentoImportScalarFieldEnum | MapeamentoImportScalarFieldEnum[]
+  }
+
+  /**
+   * MapeamentoImport findFirstOrThrow
+   */
+  export type MapeamentoImportFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * Filter, which MapeamentoImport to fetch.
+     */
+    where?: MapeamentoImportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MapeamentoImports to fetch.
+     */
+    orderBy?: MapeamentoImportOrderByWithRelationInput | MapeamentoImportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MapeamentoImports.
+     */
+    cursor?: MapeamentoImportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MapeamentoImports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MapeamentoImports.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MapeamentoImports.
+     */
+    distinct?: MapeamentoImportScalarFieldEnum | MapeamentoImportScalarFieldEnum[]
+  }
+
+  /**
+   * MapeamentoImport findMany
+   */
+  export type MapeamentoImportFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * Filter, which MapeamentoImports to fetch.
+     */
+    where?: MapeamentoImportWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MapeamentoImports to fetch.
+     */
+    orderBy?: MapeamentoImportOrderByWithRelationInput | MapeamentoImportOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MapeamentoImports.
+     */
+    cursor?: MapeamentoImportWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MapeamentoImports from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MapeamentoImports.
+     */
+    skip?: number
+    distinct?: MapeamentoImportScalarFieldEnum | MapeamentoImportScalarFieldEnum[]
+  }
+
+  /**
+   * MapeamentoImport create
+   */
+  export type MapeamentoImportCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * The data needed to create a MapeamentoImport.
+     */
+    data: XOR<MapeamentoImportCreateInput, MapeamentoImportUncheckedCreateInput>
+  }
+
+  /**
+   * MapeamentoImport createMany
+   */
+  export type MapeamentoImportCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MapeamentoImports.
+     */
+    data: MapeamentoImportCreateManyInput | MapeamentoImportCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MapeamentoImport createManyAndReturn
+   */
+  export type MapeamentoImportCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many MapeamentoImports.
+     */
+    data: MapeamentoImportCreateManyInput | MapeamentoImportCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MapeamentoImport update
+   */
+  export type MapeamentoImportUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * The data needed to update a MapeamentoImport.
+     */
+    data: XOR<MapeamentoImportUpdateInput, MapeamentoImportUncheckedUpdateInput>
+    /**
+     * Choose, which MapeamentoImport to update.
+     */
+    where: MapeamentoImportWhereUniqueInput
+  }
+
+  /**
+   * MapeamentoImport updateMany
+   */
+  export type MapeamentoImportUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MapeamentoImports.
+     */
+    data: XOR<MapeamentoImportUpdateManyMutationInput, MapeamentoImportUncheckedUpdateManyInput>
+    /**
+     * Filter which MapeamentoImports to update
+     */
+    where?: MapeamentoImportWhereInput
+  }
+
+  /**
+   * MapeamentoImport upsert
+   */
+  export type MapeamentoImportUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * The filter to search for the MapeamentoImport to update in case it exists.
+     */
+    where: MapeamentoImportWhereUniqueInput
+    /**
+     * In case the MapeamentoImport found by the `where` argument doesn't exist, create a new MapeamentoImport with this data.
+     */
+    create: XOR<MapeamentoImportCreateInput, MapeamentoImportUncheckedCreateInput>
+    /**
+     * In case the MapeamentoImport was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MapeamentoImportUpdateInput, MapeamentoImportUncheckedUpdateInput>
+  }
+
+  /**
+   * MapeamentoImport delete
+   */
+  export type MapeamentoImportDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+    /**
+     * Filter which MapeamentoImport to delete.
+     */
+    where: MapeamentoImportWhereUniqueInput
+  }
+
+  /**
+   * MapeamentoImport deleteMany
+   */
+  export type MapeamentoImportDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MapeamentoImports to delete
+     */
+    where?: MapeamentoImportWhereInput
+  }
+
+  /**
+   * MapeamentoImport without action
+   */
+  export type MapeamentoImportDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MapeamentoImport
+     */
+    select?: MapeamentoImportSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -49345,33 +55032,95 @@ export namespace Prisma {
   export type WhatsAppAutomationScalarFieldEnum = (typeof WhatsAppAutomationScalarFieldEnum)[keyof typeof WhatsAppAutomationScalarFieldEnum]
 
 
-  export const ConfigDashboardScalarFieldEnum: {
+  export const DashboardConfigScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     product_id: 'product_id',
     user_id: 'user_id',
-    widgets_layout: 'widgets_layout',
-    refresh_rate: 'refresh_rate',
+    name: 'name',
+    mode: 'mode',
+    layout: 'layout',
+    filters: 'filters',
+    is_default: 'is_default',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
 
-  export type ConfigDashboardScalarFieldEnum = (typeof ConfigDashboardScalarFieldEnum)[keyof typeof ConfigDashboardScalarFieldEnum]
+  export type DashboardConfigScalarFieldEnum = (typeof DashboardConfigScalarFieldEnum)[keyof typeof DashboardConfigScalarFieldEnum]
 
 
-  export const MetricaSnapshotScalarFieldEnum: {
+  export const DashboardWidgetScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     product_id: 'product_id',
-    metric_name: 'metric_name',
-    value: 'value',
-    unit: 'unit',
-    snapshot_date: 'snapshot_date',
+    user_id: 'user_id',
+    dashboard_id: 'dashboard_id',
+    widget_key: 'widget_key',
+    widget_type: 'widget_type',
+    chart_type: 'chart_type',
+    title: 'title',
+    query_spec: 'query_spec',
+    position: 'position',
+    config: 'config',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
 
-  export type MetricaSnapshotScalarFieldEnum = (typeof MetricaSnapshotScalarFieldEnum)[keyof typeof MetricaSnapshotScalarFieldEnum]
+  export type DashboardWidgetScalarFieldEnum = (typeof DashboardWidgetScalarFieldEnum)[keyof typeof DashboardWidgetScalarFieldEnum]
+
+
+  export const DashboardMetricSnapshotScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    metric_key: 'metric_key',
+    dimensions: 'dimensions',
+    value: 'value',
+    period_from: 'period_from',
+    period_to: 'period_to',
+    captured_at: 'captured_at'
+  };
+
+  export type DashboardMetricSnapshotScalarFieldEnum = (typeof DashboardMetricSnapshotScalarFieldEnum)[keyof typeof DashboardMetricSnapshotScalarFieldEnum]
+
+
+  export const DashboardAlertScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    dashboard_id: 'dashboard_id',
+    widget_id: 'widget_id',
+    metric_key: 'metric_key',
+    condition: 'condition',
+    threshold: 'threshold',
+    channels: 'channels',
+    is_active: 'is_active',
+    last_triggered: 'last_triggered',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type DashboardAlertScalarFieldEnum = (typeof DashboardAlertScalarFieldEnum)[keyof typeof DashboardAlertScalarFieldEnum]
+
+
+  export const DashboardShareScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    dashboard_id: 'dashboard_id',
+    share_token: 'share_token',
+    channel: 'channel',
+    recipient_email: 'recipient_email',
+    recipient_phone: 'recipient_phone',
+    snapshot_data: 'snapshot_data',
+    expires_at: 'expires_at',
+    created_at: 'created_at'
+  };
+
+  export type DashboardShareScalarFieldEnum = (typeof DashboardShareScalarFieldEnum)[keyof typeof DashboardShareScalarFieldEnum]
 
 
   export const RelatorioScalarFieldEnum: {
@@ -49516,6 +55265,22 @@ export namespace Prisma {
   export type AlertNotificationLogScalarFieldEnum = (typeof AlertNotificationLogScalarFieldEnum)[keyof typeof AlertNotificationLogScalarFieldEnum]
 
 
+  export const ExportResultScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    format: 'format',
+    content: 'content',
+    status: 'status',
+    record_count: 'record_count',
+    filters: 'filters',
+    error: 'error',
+    created_at: 'created_at',
+    expires_at: 'expires_at'
+  };
+
+  export type ExportResultScalarFieldEnum = (typeof ExportResultScalarFieldEnum)[keyof typeof ExportResultScalarFieldEnum]
+
+
   export const AgendaScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
@@ -49642,6 +55407,7 @@ export namespace Prisma {
     status_id: 'status_id',
     importacao_exportador_id: 'importacao_exportador_id',
     exportacao_importador_id: 'exportacao_importador_id',
+    fabricante_id: 'fabricante_id',
     incoterm: 'incoterm',
     moeda_pedido: 'moeda_pedido',
     valor_total_pedido: 'valor_total_pedido',
@@ -49651,6 +55417,11 @@ export namespace Prisma {
     unidade_comercializada_pedido: 'unidade_comercializada_pedido',
     cobertura_cambial: 'cobertura_cambial',
     condicao_pagamento: 'condicao_pagamento',
+    numero_proforma: 'numero_proforma',
+    numero_invoice: 'numero_invoice',
+    referencia_importador: 'referencia_importador',
+    referencia_exportador: 'referencia_exportador',
+    referencia_fabricante: 'referencia_fabricante',
     valor_total_cambio: 'valor_total_cambio',
     moeda_cambio: 'moeda_cambio',
     taxa_cambio_estimada: 'taxa_cambio_estimada',
@@ -49932,6 +55703,21 @@ export namespace Prisma {
   export type PedidoPreferenciaPadraoScalarFieldEnum = (typeof PedidoPreferenciaPadraoScalarFieldEnum)[keyof typeof PedidoPreferenciaPadraoScalarFieldEnum]
 
 
+  export const MapeamentoImportScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    hash_colunas: 'hash_colunas',
+    mapeamento: 'mapeamento',
+    uso_count: 'uso_count',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type MapeamentoImportScalarFieldEnum = (typeof MapeamentoImportScalarFieldEnum)[keyof typeof MapeamentoImportScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -50136,6 +55922,48 @@ export namespace Prisma {
    * Reference to a field of type 'Decimal[]'
    */
   export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DashboardMode'
+   */
+  export type EnumDashboardModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DashboardMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'DashboardMode[]'
+   */
+  export type ListEnumDashboardModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DashboardMode[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'WidgetType'
+   */
+  export type EnumWidgetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WidgetType'>
+    
+
+
+  /**
+   * Reference to a field of type 'WidgetType[]'
+   */
+  export type ListEnumWidgetTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WidgetType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ChartType'
+   */
+  export type EnumChartTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChartType'>
+    
+
+
+  /**
+   * Reference to a field of type 'ChartType[]'
+   */
+  export type ListEnumChartTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ChartType[]'>
     
 
 
@@ -51641,147 +57469,463 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"WhatsAppAutomation"> | Date | string
   }
 
-  export type ConfigDashboardWhereInput = {
-    AND?: ConfigDashboardWhereInput | ConfigDashboardWhereInput[]
-    OR?: ConfigDashboardWhereInput[]
-    NOT?: ConfigDashboardWhereInput | ConfigDashboardWhereInput[]
-    id?: StringFilter<"ConfigDashboard"> | string
-    tenant_id?: StringFilter<"ConfigDashboard"> | string
-    product_id?: StringNullableFilter<"ConfigDashboard"> | string | null
-    user_id?: StringNullableFilter<"ConfigDashboard"> | string | null
-    widgets_layout?: JsonNullableFilter<"ConfigDashboard">
-    refresh_rate?: IntFilter<"ConfigDashboard"> | number
-    created_at?: DateTimeFilter<"ConfigDashboard"> | Date | string
-    updated_at?: DateTimeFilter<"ConfigDashboard"> | Date | string
+  export type DashboardConfigWhereInput = {
+    AND?: DashboardConfigWhereInput | DashboardConfigWhereInput[]
+    OR?: DashboardConfigWhereInput[]
+    NOT?: DashboardConfigWhereInput | DashboardConfigWhereInput[]
+    id?: StringFilter<"DashboardConfig"> | string
+    tenant_id?: StringFilter<"DashboardConfig"> | string
+    product_id?: StringNullableFilter<"DashboardConfig"> | string | null
+    user_id?: StringFilter<"DashboardConfig"> | string
+    name?: StringFilter<"DashboardConfig"> | string
+    mode?: EnumDashboardModeFilter<"DashboardConfig"> | $Enums.DashboardMode
+    layout?: JsonFilter<"DashboardConfig">
+    filters?: JsonNullableFilter<"DashboardConfig">
+    is_default?: BoolFilter<"DashboardConfig"> | boolean
+    created_at?: DateTimeFilter<"DashboardConfig"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardConfig"> | Date | string
+    widgets?: DashboardWidgetListRelationFilter
+    alerts?: DashboardAlertListRelationFilter
+    shares?: DashboardShareListRelationFilter
   }
 
-  export type ConfigDashboardOrderByWithRelationInput = {
+  export type DashboardConfigOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    widgets_layout?: SortOrderInput | SortOrder
-    refresh_rate?: SortOrder
+    user_id?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    layout?: SortOrder
+    filters?: SortOrderInput | SortOrder
+    is_default?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    widgets?: DashboardWidgetOrderByRelationAggregateInput
+    alerts?: DashboardAlertOrderByRelationAggregateInput
+    shares?: DashboardShareOrderByRelationAggregateInput
   }
 
-  export type ConfigDashboardWhereUniqueInput = Prisma.AtLeast<{
+  export type DashboardConfigWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: ConfigDashboardWhereInput | ConfigDashboardWhereInput[]
-    OR?: ConfigDashboardWhereInput[]
-    NOT?: ConfigDashboardWhereInput | ConfigDashboardWhereInput[]
-    tenant_id?: StringFilter<"ConfigDashboard"> | string
-    product_id?: StringNullableFilter<"ConfigDashboard"> | string | null
-    user_id?: StringNullableFilter<"ConfigDashboard"> | string | null
-    widgets_layout?: JsonNullableFilter<"ConfigDashboard">
-    refresh_rate?: IntFilter<"ConfigDashboard"> | number
-    created_at?: DateTimeFilter<"ConfigDashboard"> | Date | string
-    updated_at?: DateTimeFilter<"ConfigDashboard"> | Date | string
+    AND?: DashboardConfigWhereInput | DashboardConfigWhereInput[]
+    OR?: DashboardConfigWhereInput[]
+    NOT?: DashboardConfigWhereInput | DashboardConfigWhereInput[]
+    tenant_id?: StringFilter<"DashboardConfig"> | string
+    product_id?: StringNullableFilter<"DashboardConfig"> | string | null
+    user_id?: StringFilter<"DashboardConfig"> | string
+    name?: StringFilter<"DashboardConfig"> | string
+    mode?: EnumDashboardModeFilter<"DashboardConfig"> | $Enums.DashboardMode
+    layout?: JsonFilter<"DashboardConfig">
+    filters?: JsonNullableFilter<"DashboardConfig">
+    is_default?: BoolFilter<"DashboardConfig"> | boolean
+    created_at?: DateTimeFilter<"DashboardConfig"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardConfig"> | Date | string
+    widgets?: DashboardWidgetListRelationFilter
+    alerts?: DashboardAlertListRelationFilter
+    shares?: DashboardShareListRelationFilter
   }, "id">
 
-  export type ConfigDashboardOrderByWithAggregationInput = {
+  export type DashboardConfigOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    widgets_layout?: SortOrderInput | SortOrder
-    refresh_rate?: SortOrder
+    user_id?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    layout?: SortOrder
+    filters?: SortOrderInput | SortOrder
+    is_default?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: ConfigDashboardCountOrderByAggregateInput
-    _avg?: ConfigDashboardAvgOrderByAggregateInput
-    _max?: ConfigDashboardMaxOrderByAggregateInput
-    _min?: ConfigDashboardMinOrderByAggregateInput
-    _sum?: ConfigDashboardSumOrderByAggregateInput
+    _count?: DashboardConfigCountOrderByAggregateInput
+    _max?: DashboardConfigMaxOrderByAggregateInput
+    _min?: DashboardConfigMinOrderByAggregateInput
   }
 
-  export type ConfigDashboardScalarWhereWithAggregatesInput = {
-    AND?: ConfigDashboardScalarWhereWithAggregatesInput | ConfigDashboardScalarWhereWithAggregatesInput[]
-    OR?: ConfigDashboardScalarWhereWithAggregatesInput[]
-    NOT?: ConfigDashboardScalarWhereWithAggregatesInput | ConfigDashboardScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ConfigDashboard"> | string
-    tenant_id?: StringWithAggregatesFilter<"ConfigDashboard"> | string
-    product_id?: StringNullableWithAggregatesFilter<"ConfigDashboard"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"ConfigDashboard"> | string | null
-    widgets_layout?: JsonNullableWithAggregatesFilter<"ConfigDashboard">
-    refresh_rate?: IntWithAggregatesFilter<"ConfigDashboard"> | number
-    created_at?: DateTimeWithAggregatesFilter<"ConfigDashboard"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ConfigDashboard"> | Date | string
+  export type DashboardConfigScalarWhereWithAggregatesInput = {
+    AND?: DashboardConfigScalarWhereWithAggregatesInput | DashboardConfigScalarWhereWithAggregatesInput[]
+    OR?: DashboardConfigScalarWhereWithAggregatesInput[]
+    NOT?: DashboardConfigScalarWhereWithAggregatesInput | DashboardConfigScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DashboardConfig"> | string
+    tenant_id?: StringWithAggregatesFilter<"DashboardConfig"> | string
+    product_id?: StringNullableWithAggregatesFilter<"DashboardConfig"> | string | null
+    user_id?: StringWithAggregatesFilter<"DashboardConfig"> | string
+    name?: StringWithAggregatesFilter<"DashboardConfig"> | string
+    mode?: EnumDashboardModeWithAggregatesFilter<"DashboardConfig"> | $Enums.DashboardMode
+    layout?: JsonWithAggregatesFilter<"DashboardConfig">
+    filters?: JsonNullableWithAggregatesFilter<"DashboardConfig">
+    is_default?: BoolWithAggregatesFilter<"DashboardConfig"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"DashboardConfig"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"DashboardConfig"> | Date | string
   }
 
-  export type MetricaSnapshotWhereInput = {
-    AND?: MetricaSnapshotWhereInput | MetricaSnapshotWhereInput[]
-    OR?: MetricaSnapshotWhereInput[]
-    NOT?: MetricaSnapshotWhereInput | MetricaSnapshotWhereInput[]
-    id?: StringFilter<"MetricaSnapshot"> | string
-    tenant_id?: StringFilter<"MetricaSnapshot"> | string
-    product_id?: StringNullableFilter<"MetricaSnapshot"> | string | null
-    metric_name?: StringFilter<"MetricaSnapshot"> | string
-    value?: FloatFilter<"MetricaSnapshot"> | number
-    unit?: StringNullableFilter<"MetricaSnapshot"> | string | null
-    snapshot_date?: DateTimeFilter<"MetricaSnapshot"> | Date | string
-    created_at?: DateTimeFilter<"MetricaSnapshot"> | Date | string
-    updated_at?: DateTimeFilter<"MetricaSnapshot"> | Date | string
+  export type DashboardWidgetWhereInput = {
+    AND?: DashboardWidgetWhereInput | DashboardWidgetWhereInput[]
+    OR?: DashboardWidgetWhereInput[]
+    NOT?: DashboardWidgetWhereInput | DashboardWidgetWhereInput[]
+    id?: StringFilter<"DashboardWidget"> | string
+    tenant_id?: StringFilter<"DashboardWidget"> | string
+    product_id?: StringNullableFilter<"DashboardWidget"> | string | null
+    user_id?: StringFilter<"DashboardWidget"> | string
+    dashboard_id?: StringFilter<"DashboardWidget"> | string
+    widget_key?: StringFilter<"DashboardWidget"> | string
+    widget_type?: EnumWidgetTypeFilter<"DashboardWidget"> | $Enums.WidgetType
+    chart_type?: EnumChartTypeFilter<"DashboardWidget"> | $Enums.ChartType
+    title?: StringFilter<"DashboardWidget"> | string
+    query_spec?: JsonFilter<"DashboardWidget">
+    position?: JsonFilter<"DashboardWidget">
+    config?: JsonNullableFilter<"DashboardWidget">
+    created_at?: DateTimeFilter<"DashboardWidget"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardWidget"> | Date | string
+    dashboard?: XOR<DashboardConfigRelationFilter, DashboardConfigWhereInput>
   }
 
-  export type MetricaSnapshotOrderByWithRelationInput = {
+  export type DashboardWidgetOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_id?: SortOrderInput | SortOrder
-    metric_name?: SortOrder
-    value?: SortOrder
-    unit?: SortOrderInput | SortOrder
-    snapshot_date?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_key?: SortOrder
+    widget_type?: SortOrder
+    chart_type?: SortOrder
+    title?: SortOrder
+    query_spec?: SortOrder
+    position?: SortOrder
+    config?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    dashboard?: DashboardConfigOrderByWithRelationInput
   }
 
-  export type MetricaSnapshotWhereUniqueInput = Prisma.AtLeast<{
+  export type DashboardWidgetWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: MetricaSnapshotWhereInput | MetricaSnapshotWhereInput[]
-    OR?: MetricaSnapshotWhereInput[]
-    NOT?: MetricaSnapshotWhereInput | MetricaSnapshotWhereInput[]
-    tenant_id?: StringFilter<"MetricaSnapshot"> | string
-    product_id?: StringNullableFilter<"MetricaSnapshot"> | string | null
-    metric_name?: StringFilter<"MetricaSnapshot"> | string
-    value?: FloatFilter<"MetricaSnapshot"> | number
-    unit?: StringNullableFilter<"MetricaSnapshot"> | string | null
-    snapshot_date?: DateTimeFilter<"MetricaSnapshot"> | Date | string
-    created_at?: DateTimeFilter<"MetricaSnapshot"> | Date | string
-    updated_at?: DateTimeFilter<"MetricaSnapshot"> | Date | string
+    AND?: DashboardWidgetWhereInput | DashboardWidgetWhereInput[]
+    OR?: DashboardWidgetWhereInput[]
+    NOT?: DashboardWidgetWhereInput | DashboardWidgetWhereInput[]
+    tenant_id?: StringFilter<"DashboardWidget"> | string
+    product_id?: StringNullableFilter<"DashboardWidget"> | string | null
+    user_id?: StringFilter<"DashboardWidget"> | string
+    dashboard_id?: StringFilter<"DashboardWidget"> | string
+    widget_key?: StringFilter<"DashboardWidget"> | string
+    widget_type?: EnumWidgetTypeFilter<"DashboardWidget"> | $Enums.WidgetType
+    chart_type?: EnumChartTypeFilter<"DashboardWidget"> | $Enums.ChartType
+    title?: StringFilter<"DashboardWidget"> | string
+    query_spec?: JsonFilter<"DashboardWidget">
+    position?: JsonFilter<"DashboardWidget">
+    config?: JsonNullableFilter<"DashboardWidget">
+    created_at?: DateTimeFilter<"DashboardWidget"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardWidget"> | Date | string
+    dashboard?: XOR<DashboardConfigRelationFilter, DashboardConfigWhereInput>
   }, "id">
 
-  export type MetricaSnapshotOrderByWithAggregationInput = {
+  export type DashboardWidgetOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_id?: SortOrderInput | SortOrder
-    metric_name?: SortOrder
-    value?: SortOrder
-    unit?: SortOrderInput | SortOrder
-    snapshot_date?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_key?: SortOrder
+    widget_type?: SortOrder
+    chart_type?: SortOrder
+    title?: SortOrder
+    query_spec?: SortOrder
+    position?: SortOrder
+    config?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: MetricaSnapshotCountOrderByAggregateInput
-    _avg?: MetricaSnapshotAvgOrderByAggregateInput
-    _max?: MetricaSnapshotMaxOrderByAggregateInput
-    _min?: MetricaSnapshotMinOrderByAggregateInput
-    _sum?: MetricaSnapshotSumOrderByAggregateInput
+    _count?: DashboardWidgetCountOrderByAggregateInput
+    _max?: DashboardWidgetMaxOrderByAggregateInput
+    _min?: DashboardWidgetMinOrderByAggregateInput
   }
 
-  export type MetricaSnapshotScalarWhereWithAggregatesInput = {
-    AND?: MetricaSnapshotScalarWhereWithAggregatesInput | MetricaSnapshotScalarWhereWithAggregatesInput[]
-    OR?: MetricaSnapshotScalarWhereWithAggregatesInput[]
-    NOT?: MetricaSnapshotScalarWhereWithAggregatesInput | MetricaSnapshotScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"MetricaSnapshot"> | string
-    tenant_id?: StringWithAggregatesFilter<"MetricaSnapshot"> | string
-    product_id?: StringNullableWithAggregatesFilter<"MetricaSnapshot"> | string | null
-    metric_name?: StringWithAggregatesFilter<"MetricaSnapshot"> | string
-    value?: FloatWithAggregatesFilter<"MetricaSnapshot"> | number
-    unit?: StringNullableWithAggregatesFilter<"MetricaSnapshot"> | string | null
-    snapshot_date?: DateTimeWithAggregatesFilter<"MetricaSnapshot"> | Date | string
-    created_at?: DateTimeWithAggregatesFilter<"MetricaSnapshot"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"MetricaSnapshot"> | Date | string
+  export type DashboardWidgetScalarWhereWithAggregatesInput = {
+    AND?: DashboardWidgetScalarWhereWithAggregatesInput | DashboardWidgetScalarWhereWithAggregatesInput[]
+    OR?: DashboardWidgetScalarWhereWithAggregatesInput[]
+    NOT?: DashboardWidgetScalarWhereWithAggregatesInput | DashboardWidgetScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DashboardWidget"> | string
+    tenant_id?: StringWithAggregatesFilter<"DashboardWidget"> | string
+    product_id?: StringNullableWithAggregatesFilter<"DashboardWidget"> | string | null
+    user_id?: StringWithAggregatesFilter<"DashboardWidget"> | string
+    dashboard_id?: StringWithAggregatesFilter<"DashboardWidget"> | string
+    widget_key?: StringWithAggregatesFilter<"DashboardWidget"> | string
+    widget_type?: EnumWidgetTypeWithAggregatesFilter<"DashboardWidget"> | $Enums.WidgetType
+    chart_type?: EnumChartTypeWithAggregatesFilter<"DashboardWidget"> | $Enums.ChartType
+    title?: StringWithAggregatesFilter<"DashboardWidget"> | string
+    query_spec?: JsonWithAggregatesFilter<"DashboardWidget">
+    position?: JsonWithAggregatesFilter<"DashboardWidget">
+    config?: JsonNullableWithAggregatesFilter<"DashboardWidget">
+    created_at?: DateTimeWithAggregatesFilter<"DashboardWidget"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"DashboardWidget"> | Date | string
+  }
+
+  export type DashboardMetricSnapshotWhereInput = {
+    AND?: DashboardMetricSnapshotWhereInput | DashboardMetricSnapshotWhereInput[]
+    OR?: DashboardMetricSnapshotWhereInput[]
+    NOT?: DashboardMetricSnapshotWhereInput | DashboardMetricSnapshotWhereInput[]
+    id?: StringFilter<"DashboardMetricSnapshot"> | string
+    tenant_id?: StringFilter<"DashboardMetricSnapshot"> | string
+    product_id?: StringFilter<"DashboardMetricSnapshot"> | string
+    user_id?: StringNullableFilter<"DashboardMetricSnapshot"> | string | null
+    metric_key?: StringFilter<"DashboardMetricSnapshot"> | string
+    dimensions?: JsonNullableFilter<"DashboardMetricSnapshot">
+    value?: JsonFilter<"DashboardMetricSnapshot">
+    period_from?: DateTimeFilter<"DashboardMetricSnapshot"> | Date | string
+    period_to?: DateTimeFilter<"DashboardMetricSnapshot"> | Date | string
+    captured_at?: DateTimeFilter<"DashboardMetricSnapshot"> | Date | string
+  }
+
+  export type DashboardMetricSnapshotOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrderInput | SortOrder
+    metric_key?: SortOrder
+    dimensions?: SortOrderInput | SortOrder
+    value?: SortOrder
+    period_from?: SortOrder
+    period_to?: SortOrder
+    captured_at?: SortOrder
+  }
+
+  export type DashboardMetricSnapshotWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenant_id_product_id_metric_key_period_from_period_to?: DashboardMetricSnapshotTenant_idProduct_idMetric_keyPeriod_fromPeriod_toCompoundUniqueInput
+    AND?: DashboardMetricSnapshotWhereInput | DashboardMetricSnapshotWhereInput[]
+    OR?: DashboardMetricSnapshotWhereInput[]
+    NOT?: DashboardMetricSnapshotWhereInput | DashboardMetricSnapshotWhereInput[]
+    tenant_id?: StringFilter<"DashboardMetricSnapshot"> | string
+    product_id?: StringFilter<"DashboardMetricSnapshot"> | string
+    user_id?: StringNullableFilter<"DashboardMetricSnapshot"> | string | null
+    metric_key?: StringFilter<"DashboardMetricSnapshot"> | string
+    dimensions?: JsonNullableFilter<"DashboardMetricSnapshot">
+    value?: JsonFilter<"DashboardMetricSnapshot">
+    period_from?: DateTimeFilter<"DashboardMetricSnapshot"> | Date | string
+    period_to?: DateTimeFilter<"DashboardMetricSnapshot"> | Date | string
+    captured_at?: DateTimeFilter<"DashboardMetricSnapshot"> | Date | string
+  }, "id" | "tenant_id_product_id_metric_key_period_from_period_to">
+
+  export type DashboardMetricSnapshotOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrderInput | SortOrder
+    metric_key?: SortOrder
+    dimensions?: SortOrderInput | SortOrder
+    value?: SortOrder
+    period_from?: SortOrder
+    period_to?: SortOrder
+    captured_at?: SortOrder
+    _count?: DashboardMetricSnapshotCountOrderByAggregateInput
+    _max?: DashboardMetricSnapshotMaxOrderByAggregateInput
+    _min?: DashboardMetricSnapshotMinOrderByAggregateInput
+  }
+
+  export type DashboardMetricSnapshotScalarWhereWithAggregatesInput = {
+    AND?: DashboardMetricSnapshotScalarWhereWithAggregatesInput | DashboardMetricSnapshotScalarWhereWithAggregatesInput[]
+    OR?: DashboardMetricSnapshotScalarWhereWithAggregatesInput[]
+    NOT?: DashboardMetricSnapshotScalarWhereWithAggregatesInput | DashboardMetricSnapshotScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DashboardMetricSnapshot"> | string
+    tenant_id?: StringWithAggregatesFilter<"DashboardMetricSnapshot"> | string
+    product_id?: StringWithAggregatesFilter<"DashboardMetricSnapshot"> | string
+    user_id?: StringNullableWithAggregatesFilter<"DashboardMetricSnapshot"> | string | null
+    metric_key?: StringWithAggregatesFilter<"DashboardMetricSnapshot"> | string
+    dimensions?: JsonNullableWithAggregatesFilter<"DashboardMetricSnapshot">
+    value?: JsonWithAggregatesFilter<"DashboardMetricSnapshot">
+    period_from?: DateTimeWithAggregatesFilter<"DashboardMetricSnapshot"> | Date | string
+    period_to?: DateTimeWithAggregatesFilter<"DashboardMetricSnapshot"> | Date | string
+    captured_at?: DateTimeWithAggregatesFilter<"DashboardMetricSnapshot"> | Date | string
+  }
+
+  export type DashboardAlertWhereInput = {
+    AND?: DashboardAlertWhereInput | DashboardAlertWhereInput[]
+    OR?: DashboardAlertWhereInput[]
+    NOT?: DashboardAlertWhereInput | DashboardAlertWhereInput[]
+    id?: StringFilter<"DashboardAlert"> | string
+    tenant_id?: StringFilter<"DashboardAlert"> | string
+    product_id?: StringNullableFilter<"DashboardAlert"> | string | null
+    user_id?: StringFilter<"DashboardAlert"> | string
+    dashboard_id?: StringFilter<"DashboardAlert"> | string
+    widget_id?: StringNullableFilter<"DashboardAlert"> | string | null
+    metric_key?: StringFilter<"DashboardAlert"> | string
+    condition?: StringFilter<"DashboardAlert"> | string
+    threshold?: JsonFilter<"DashboardAlert">
+    channels?: StringNullableListFilter<"DashboardAlert">
+    is_active?: BoolFilter<"DashboardAlert"> | boolean
+    last_triggered?: DateTimeNullableFilter<"DashboardAlert"> | Date | string | null
+    created_at?: DateTimeFilter<"DashboardAlert"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardAlert"> | Date | string
+    dashboard?: XOR<DashboardConfigRelationFilter, DashboardConfigWhereInput>
+  }
+
+  export type DashboardAlertOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_id?: SortOrderInput | SortOrder
+    metric_key?: SortOrder
+    condition?: SortOrder
+    threshold?: SortOrder
+    channels?: SortOrder
+    is_active?: SortOrder
+    last_triggered?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    dashboard?: DashboardConfigOrderByWithRelationInput
+  }
+
+  export type DashboardAlertWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DashboardAlertWhereInput | DashboardAlertWhereInput[]
+    OR?: DashboardAlertWhereInput[]
+    NOT?: DashboardAlertWhereInput | DashboardAlertWhereInput[]
+    tenant_id?: StringFilter<"DashboardAlert"> | string
+    product_id?: StringNullableFilter<"DashboardAlert"> | string | null
+    user_id?: StringFilter<"DashboardAlert"> | string
+    dashboard_id?: StringFilter<"DashboardAlert"> | string
+    widget_id?: StringNullableFilter<"DashboardAlert"> | string | null
+    metric_key?: StringFilter<"DashboardAlert"> | string
+    condition?: StringFilter<"DashboardAlert"> | string
+    threshold?: JsonFilter<"DashboardAlert">
+    channels?: StringNullableListFilter<"DashboardAlert">
+    is_active?: BoolFilter<"DashboardAlert"> | boolean
+    last_triggered?: DateTimeNullableFilter<"DashboardAlert"> | Date | string | null
+    created_at?: DateTimeFilter<"DashboardAlert"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardAlert"> | Date | string
+    dashboard?: XOR<DashboardConfigRelationFilter, DashboardConfigWhereInput>
+  }, "id">
+
+  export type DashboardAlertOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_id?: SortOrderInput | SortOrder
+    metric_key?: SortOrder
+    condition?: SortOrder
+    threshold?: SortOrder
+    channels?: SortOrder
+    is_active?: SortOrder
+    last_triggered?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: DashboardAlertCountOrderByAggregateInput
+    _max?: DashboardAlertMaxOrderByAggregateInput
+    _min?: DashboardAlertMinOrderByAggregateInput
+  }
+
+  export type DashboardAlertScalarWhereWithAggregatesInput = {
+    AND?: DashboardAlertScalarWhereWithAggregatesInput | DashboardAlertScalarWhereWithAggregatesInput[]
+    OR?: DashboardAlertScalarWhereWithAggregatesInput[]
+    NOT?: DashboardAlertScalarWhereWithAggregatesInput | DashboardAlertScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DashboardAlert"> | string
+    tenant_id?: StringWithAggregatesFilter<"DashboardAlert"> | string
+    product_id?: StringNullableWithAggregatesFilter<"DashboardAlert"> | string | null
+    user_id?: StringWithAggregatesFilter<"DashboardAlert"> | string
+    dashboard_id?: StringWithAggregatesFilter<"DashboardAlert"> | string
+    widget_id?: StringNullableWithAggregatesFilter<"DashboardAlert"> | string | null
+    metric_key?: StringWithAggregatesFilter<"DashboardAlert"> | string
+    condition?: StringWithAggregatesFilter<"DashboardAlert"> | string
+    threshold?: JsonWithAggregatesFilter<"DashboardAlert">
+    channels?: StringNullableListFilter<"DashboardAlert">
+    is_active?: BoolWithAggregatesFilter<"DashboardAlert"> | boolean
+    last_triggered?: DateTimeNullableWithAggregatesFilter<"DashboardAlert"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"DashboardAlert"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"DashboardAlert"> | Date | string
+  }
+
+  export type DashboardShareWhereInput = {
+    AND?: DashboardShareWhereInput | DashboardShareWhereInput[]
+    OR?: DashboardShareWhereInput[]
+    NOT?: DashboardShareWhereInput | DashboardShareWhereInput[]
+    id?: StringFilter<"DashboardShare"> | string
+    tenant_id?: StringFilter<"DashboardShare"> | string
+    product_id?: StringNullableFilter<"DashboardShare"> | string | null
+    user_id?: StringFilter<"DashboardShare"> | string
+    dashboard_id?: StringFilter<"DashboardShare"> | string
+    share_token?: StringFilter<"DashboardShare"> | string
+    channel?: StringFilter<"DashboardShare"> | string
+    recipient_email?: StringNullableFilter<"DashboardShare"> | string | null
+    recipient_phone?: StringNullableFilter<"DashboardShare"> | string | null
+    snapshot_data?: JsonNullableFilter<"DashboardShare">
+    expires_at?: DateTimeNullableFilter<"DashboardShare"> | Date | string | null
+    created_at?: DateTimeFilter<"DashboardShare"> | Date | string
+    dashboard?: XOR<DashboardConfigRelationFilter, DashboardConfigWhereInput>
+  }
+
+  export type DashboardShareOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    share_token?: SortOrder
+    channel?: SortOrder
+    recipient_email?: SortOrderInput | SortOrder
+    recipient_phone?: SortOrderInput | SortOrder
+    snapshot_data?: SortOrderInput | SortOrder
+    expires_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    dashboard?: DashboardConfigOrderByWithRelationInput
+  }
+
+  export type DashboardShareWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    share_token?: string
+    AND?: DashboardShareWhereInput | DashboardShareWhereInput[]
+    OR?: DashboardShareWhereInput[]
+    NOT?: DashboardShareWhereInput | DashboardShareWhereInput[]
+    tenant_id?: StringFilter<"DashboardShare"> | string
+    product_id?: StringNullableFilter<"DashboardShare"> | string | null
+    user_id?: StringFilter<"DashboardShare"> | string
+    dashboard_id?: StringFilter<"DashboardShare"> | string
+    channel?: StringFilter<"DashboardShare"> | string
+    recipient_email?: StringNullableFilter<"DashboardShare"> | string | null
+    recipient_phone?: StringNullableFilter<"DashboardShare"> | string | null
+    snapshot_data?: JsonNullableFilter<"DashboardShare">
+    expires_at?: DateTimeNullableFilter<"DashboardShare"> | Date | string | null
+    created_at?: DateTimeFilter<"DashboardShare"> | Date | string
+    dashboard?: XOR<DashboardConfigRelationFilter, DashboardConfigWhereInput>
+  }, "id" | "share_token">
+
+  export type DashboardShareOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    share_token?: SortOrder
+    channel?: SortOrder
+    recipient_email?: SortOrderInput | SortOrder
+    recipient_phone?: SortOrderInput | SortOrder
+    snapshot_data?: SortOrderInput | SortOrder
+    expires_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    _count?: DashboardShareCountOrderByAggregateInput
+    _max?: DashboardShareMaxOrderByAggregateInput
+    _min?: DashboardShareMinOrderByAggregateInput
+  }
+
+  export type DashboardShareScalarWhereWithAggregatesInput = {
+    AND?: DashboardShareScalarWhereWithAggregatesInput | DashboardShareScalarWhereWithAggregatesInput[]
+    OR?: DashboardShareScalarWhereWithAggregatesInput[]
+    NOT?: DashboardShareScalarWhereWithAggregatesInput | DashboardShareScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DashboardShare"> | string
+    tenant_id?: StringWithAggregatesFilter<"DashboardShare"> | string
+    product_id?: StringNullableWithAggregatesFilter<"DashboardShare"> | string | null
+    user_id?: StringWithAggregatesFilter<"DashboardShare"> | string
+    dashboard_id?: StringWithAggregatesFilter<"DashboardShare"> | string
+    share_token?: StringWithAggregatesFilter<"DashboardShare"> | string
+    channel?: StringWithAggregatesFilter<"DashboardShare"> | string
+    recipient_email?: StringNullableWithAggregatesFilter<"DashboardShare"> | string | null
+    recipient_phone?: StringNullableWithAggregatesFilter<"DashboardShare"> | string | null
+    snapshot_data?: JsonNullableWithAggregatesFilter<"DashboardShare">
+    expires_at?: DateTimeNullableWithAggregatesFilter<"DashboardShare"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"DashboardShare"> | Date | string
   }
 
   export type RelatorioWhereInput = {
@@ -52491,6 +58635,85 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"AlertNotificationLog"> | Date | string
   }
 
+  export type ExportResultWhereInput = {
+    AND?: ExportResultWhereInput | ExportResultWhereInput[]
+    OR?: ExportResultWhereInput[]
+    NOT?: ExportResultWhereInput | ExportResultWhereInput[]
+    id?: StringFilter<"ExportResult"> | string
+    tenant_id?: StringFilter<"ExportResult"> | string
+    format?: StringFilter<"ExportResult"> | string
+    content?: StringFilter<"ExportResult"> | string
+    status?: StringFilter<"ExportResult"> | string
+    record_count?: IntFilter<"ExportResult"> | number
+    filters?: JsonNullableFilter<"ExportResult">
+    error?: StringNullableFilter<"ExportResult"> | string | null
+    created_at?: DateTimeFilter<"ExportResult"> | Date | string
+    expires_at?: DateTimeFilter<"ExportResult"> | Date | string
+  }
+
+  export type ExportResultOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    format?: SortOrder
+    content?: SortOrder
+    status?: SortOrder
+    record_count?: SortOrder
+    filters?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    expires_at?: SortOrder
+  }
+
+  export type ExportResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ExportResultWhereInput | ExportResultWhereInput[]
+    OR?: ExportResultWhereInput[]
+    NOT?: ExportResultWhereInput | ExportResultWhereInput[]
+    tenant_id?: StringFilter<"ExportResult"> | string
+    format?: StringFilter<"ExportResult"> | string
+    content?: StringFilter<"ExportResult"> | string
+    status?: StringFilter<"ExportResult"> | string
+    record_count?: IntFilter<"ExportResult"> | number
+    filters?: JsonNullableFilter<"ExportResult">
+    error?: StringNullableFilter<"ExportResult"> | string | null
+    created_at?: DateTimeFilter<"ExportResult"> | Date | string
+    expires_at?: DateTimeFilter<"ExportResult"> | Date | string
+  }, "id">
+
+  export type ExportResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    format?: SortOrder
+    content?: SortOrder
+    status?: SortOrder
+    record_count?: SortOrder
+    filters?: SortOrderInput | SortOrder
+    error?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    expires_at?: SortOrder
+    _count?: ExportResultCountOrderByAggregateInput
+    _avg?: ExportResultAvgOrderByAggregateInput
+    _max?: ExportResultMaxOrderByAggregateInput
+    _min?: ExportResultMinOrderByAggregateInput
+    _sum?: ExportResultSumOrderByAggregateInput
+  }
+
+  export type ExportResultScalarWhereWithAggregatesInput = {
+    AND?: ExportResultScalarWhereWithAggregatesInput | ExportResultScalarWhereWithAggregatesInput[]
+    OR?: ExportResultScalarWhereWithAggregatesInput[]
+    NOT?: ExportResultScalarWhereWithAggregatesInput | ExportResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExportResult"> | string
+    tenant_id?: StringWithAggregatesFilter<"ExportResult"> | string
+    format?: StringWithAggregatesFilter<"ExportResult"> | string
+    content?: StringWithAggregatesFilter<"ExportResult"> | string
+    status?: StringWithAggregatesFilter<"ExportResult"> | string
+    record_count?: IntWithAggregatesFilter<"ExportResult"> | number
+    filters?: JsonNullableWithAggregatesFilter<"ExportResult">
+    error?: StringNullableWithAggregatesFilter<"ExportResult"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"ExportResult"> | Date | string
+    expires_at?: DateTimeWithAggregatesFilter<"ExportResult"> | Date | string
+  }
+
   export type AgendaWhereInput = {
     AND?: AgendaWhereInput | AgendaWhereInput[]
     OR?: AgendaWhereInput[]
@@ -53088,6 +59311,7 @@ export namespace Prisma {
     status_id?: StringNullableFilter<"Pedido"> | string | null
     importacao_exportador_id?: StringNullableFilter<"Pedido"> | string | null
     exportacao_importador_id?: StringNullableFilter<"Pedido"> | string | null
+    fabricante_id?: StringNullableFilter<"Pedido"> | string | null
     incoterm?: StringNullableFilter<"Pedido"> | string | null
     moeda_pedido?: StringFilter<"Pedido"> | string
     valor_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
@@ -53097,6 +59321,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: StringNullableFilter<"Pedido"> | string | null
     cobertura_cambial?: StringFilter<"Pedido"> | string
     condicao_pagamento?: StringNullableFilter<"Pedido"> | string | null
+    numero_proforma?: StringNullableFilter<"Pedido"> | string | null
+    numero_invoice?: StringNullableFilter<"Pedido"> | string | null
+    referencia_importador?: StringNullableFilter<"Pedido"> | string | null
+    referencia_exportador?: StringNullableFilter<"Pedido"> | string | null
+    referencia_fabricante?: StringNullableFilter<"Pedido"> | string | null
     valor_total_cambio?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: StringNullableFilter<"Pedido"> | string | null
     taxa_cambio_estimada?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
@@ -53119,6 +59348,7 @@ export namespace Prisma {
     status_id?: SortOrderInput | SortOrder
     importacao_exportador_id?: SortOrderInput | SortOrder
     exportacao_importador_id?: SortOrderInput | SortOrder
+    fabricante_id?: SortOrderInput | SortOrder
     incoterm?: SortOrderInput | SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrderInput | SortOrder
@@ -53128,6 +59358,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: SortOrderInput | SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrderInput | SortOrder
+    numero_proforma?: SortOrderInput | SortOrder
+    numero_invoice?: SortOrderInput | SortOrder
+    referencia_importador?: SortOrderInput | SortOrder
+    referencia_exportador?: SortOrderInput | SortOrder
+    referencia_fabricante?: SortOrderInput | SortOrder
     valor_total_cambio?: SortOrderInput | SortOrder
     moeda_cambio?: SortOrderInput | SortOrder
     taxa_cambio_estimada?: SortOrderInput | SortOrder
@@ -53153,6 +59388,7 @@ export namespace Prisma {
     status_id?: StringNullableFilter<"Pedido"> | string | null
     importacao_exportador_id?: StringNullableFilter<"Pedido"> | string | null
     exportacao_importador_id?: StringNullableFilter<"Pedido"> | string | null
+    fabricante_id?: StringNullableFilter<"Pedido"> | string | null
     incoterm?: StringNullableFilter<"Pedido"> | string | null
     moeda_pedido?: StringFilter<"Pedido"> | string
     valor_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
@@ -53162,6 +59398,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: StringNullableFilter<"Pedido"> | string | null
     cobertura_cambial?: StringFilter<"Pedido"> | string
     condicao_pagamento?: StringNullableFilter<"Pedido"> | string | null
+    numero_proforma?: StringNullableFilter<"Pedido"> | string | null
+    numero_invoice?: StringNullableFilter<"Pedido"> | string | null
+    referencia_importador?: StringNullableFilter<"Pedido"> | string | null
+    referencia_exportador?: StringNullableFilter<"Pedido"> | string | null
+    referencia_fabricante?: StringNullableFilter<"Pedido"> | string | null
     valor_total_cambio?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: StringNullableFilter<"Pedido"> | string | null
     taxa_cambio_estimada?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
@@ -53184,6 +59425,7 @@ export namespace Prisma {
     status_id?: SortOrderInput | SortOrder
     importacao_exportador_id?: SortOrderInput | SortOrder
     exportacao_importador_id?: SortOrderInput | SortOrder
+    fabricante_id?: SortOrderInput | SortOrder
     incoterm?: SortOrderInput | SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrderInput | SortOrder
@@ -53193,6 +59435,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: SortOrderInput | SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrderInput | SortOrder
+    numero_proforma?: SortOrderInput | SortOrder
+    numero_invoice?: SortOrderInput | SortOrder
+    referencia_importador?: SortOrderInput | SortOrder
+    referencia_exportador?: SortOrderInput | SortOrder
+    referencia_fabricante?: SortOrderInput | SortOrder
     valor_total_cambio?: SortOrderInput | SortOrder
     moeda_cambio?: SortOrderInput | SortOrder
     taxa_cambio_estimada?: SortOrderInput | SortOrder
@@ -53222,6 +59469,7 @@ export namespace Prisma {
     status_id?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     importacao_exportador_id?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     exportacao_importador_id?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    fabricante_id?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     incoterm?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     moeda_pedido?: StringWithAggregatesFilter<"Pedido"> | string
     valor_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
@@ -53231,6 +59479,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     cobertura_cambial?: StringWithAggregatesFilter<"Pedido"> | string
     condicao_pagamento?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    numero_proforma?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    numero_invoice?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    referencia_importador?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    referencia_exportador?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    referencia_fabricante?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     valor_total_cambio?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     taxa_cambio_estimada?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
@@ -54592,6 +60845,81 @@ export namespace Prisma {
     colunas_visiveis?: StringNullableListFilter<"PedidoPreferenciaPadrao">
     colunas_largura?: JsonNullableWithAggregatesFilter<"PedidoPreferenciaPadrao">
     updated_at?: DateTimeWithAggregatesFilter<"PedidoPreferenciaPadrao"> | Date | string
+  }
+
+  export type MapeamentoImportWhereInput = {
+    AND?: MapeamentoImportWhereInput | MapeamentoImportWhereInput[]
+    OR?: MapeamentoImportWhereInput[]
+    NOT?: MapeamentoImportWhereInput | MapeamentoImportWhereInput[]
+    id?: StringFilter<"MapeamentoImport"> | string
+    tenant_id?: StringFilter<"MapeamentoImport"> | string
+    product_id?: StringNullableFilter<"MapeamentoImport"> | string | null
+    user_id?: StringNullableFilter<"MapeamentoImport"> | string | null
+    hash_colunas?: StringFilter<"MapeamentoImport"> | string
+    mapeamento?: StringFilter<"MapeamentoImport"> | string
+    uso_count?: IntFilter<"MapeamentoImport"> | number
+    created_at?: DateTimeFilter<"MapeamentoImport"> | Date | string
+    updated_at?: DateTimeFilter<"MapeamentoImport"> | Date | string
+  }
+
+  export type MapeamentoImportOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    hash_colunas?: SortOrder
+    mapeamento?: SortOrder
+    uso_count?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type MapeamentoImportWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenant_id_hash_colunas?: MapeamentoImportTenant_idHash_colunasCompoundUniqueInput
+    AND?: MapeamentoImportWhereInput | MapeamentoImportWhereInput[]
+    OR?: MapeamentoImportWhereInput[]
+    NOT?: MapeamentoImportWhereInput | MapeamentoImportWhereInput[]
+    tenant_id?: StringFilter<"MapeamentoImport"> | string
+    product_id?: StringNullableFilter<"MapeamentoImport"> | string | null
+    user_id?: StringNullableFilter<"MapeamentoImport"> | string | null
+    hash_colunas?: StringFilter<"MapeamentoImport"> | string
+    mapeamento?: StringFilter<"MapeamentoImport"> | string
+    uso_count?: IntFilter<"MapeamentoImport"> | number
+    created_at?: DateTimeFilter<"MapeamentoImport"> | Date | string
+    updated_at?: DateTimeFilter<"MapeamentoImport"> | Date | string
+  }, "id" | "tenant_id_hash_colunas">
+
+  export type MapeamentoImportOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    hash_colunas?: SortOrder
+    mapeamento?: SortOrder
+    uso_count?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: MapeamentoImportCountOrderByAggregateInput
+    _avg?: MapeamentoImportAvgOrderByAggregateInput
+    _max?: MapeamentoImportMaxOrderByAggregateInput
+    _min?: MapeamentoImportMinOrderByAggregateInput
+    _sum?: MapeamentoImportSumOrderByAggregateInput
+  }
+
+  export type MapeamentoImportScalarWhereWithAggregatesInput = {
+    AND?: MapeamentoImportScalarWhereWithAggregatesInput | MapeamentoImportScalarWhereWithAggregatesInput[]
+    OR?: MapeamentoImportScalarWhereWithAggregatesInput[]
+    NOT?: MapeamentoImportScalarWhereWithAggregatesInput | MapeamentoImportScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MapeamentoImport"> | string
+    tenant_id?: StringWithAggregatesFilter<"MapeamentoImport"> | string
+    product_id?: StringNullableWithAggregatesFilter<"MapeamentoImport"> | string | null
+    user_id?: StringNullableWithAggregatesFilter<"MapeamentoImport"> | string | null
+    hash_colunas?: StringWithAggregatesFilter<"MapeamentoImport"> | string
+    mapeamento?: StringWithAggregatesFilter<"MapeamentoImport"> | string
+    uso_count?: IntWithAggregatesFilter<"MapeamentoImport"> | number
+    created_at?: DateTimeWithAggregatesFilter<"MapeamentoImport"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"MapeamentoImport"> | Date | string
   }
 
   export type AtividadeCreateInput = {
@@ -56332,165 +62660,545 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfigDashboardCreateInput = {
+  export type DashboardConfigCreateInput = {
     id?: string
     tenant_id: string
     product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    widgets?: DashboardWidgetCreateNestedManyWithoutDashboardInput
+    alerts?: DashboardAlertCreateNestedManyWithoutDashboardInput
+    shares?: DashboardShareCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    widgets?: DashboardWidgetUncheckedCreateNestedManyWithoutDashboardInput
+    alerts?: DashboardAlertUncheckedCreateNestedManyWithoutDashboardInput
+    shares?: DashboardShareUncheckedCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets?: DashboardWidgetUpdateManyWithoutDashboardNestedInput
+    alerts?: DashboardAlertUpdateManyWithoutDashboardNestedInput
+    shares?: DashboardShareUpdateManyWithoutDashboardNestedInput
+  }
+
+  export type DashboardConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets?: DashboardWidgetUncheckedUpdateManyWithoutDashboardNestedInput
+    alerts?: DashboardAlertUncheckedUpdateManyWithoutDashboardNestedInput
+    shares?: DashboardShareUncheckedUpdateManyWithoutDashboardNestedInput
+  }
+
+  export type DashboardConfigCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardWidgetCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    widget_key: string
+    widget_type?: $Enums.WidgetType
+    chart_type?: $Enums.ChartType
+    title: string
+    query_spec: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: Date | string
+    updated_at?: Date | string
+    dashboard: DashboardConfigCreateNestedOneWithoutWidgetsInput
+  }
+
+  export type DashboardWidgetUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    dashboard_id: string
+    widget_key: string
+    widget_type?: $Enums.WidgetType
+    chart_type?: $Enums.ChartType
+    title: string
+    query_spec: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardWidgetUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_key?: StringFieldUpdateOperationsInput | string
+    widget_type?: EnumWidgetTypeFieldUpdateOperationsInput | $Enums.WidgetType
+    chart_type?: EnumChartTypeFieldUpdateOperationsInput | $Enums.ChartType
+    title?: StringFieldUpdateOperationsInput | string
+    query_spec?: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    dashboard?: DashboardConfigUpdateOneRequiredWithoutWidgetsNestedInput
+  }
+
+  export type DashboardWidgetUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    dashboard_id?: StringFieldUpdateOperationsInput | string
+    widget_key?: StringFieldUpdateOperationsInput | string
+    widget_type?: EnumWidgetTypeFieldUpdateOperationsInput | $Enums.WidgetType
+    chart_type?: EnumChartTypeFieldUpdateOperationsInput | $Enums.ChartType
+    title?: StringFieldUpdateOperationsInput | string
+    query_spec?: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardWidgetCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    dashboard_id: string
+    widget_key: string
+    widget_type?: $Enums.WidgetType
+    chart_type?: $Enums.ChartType
+    title: string
+    query_spec: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardWidgetUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_key?: StringFieldUpdateOperationsInput | string
+    widget_type?: EnumWidgetTypeFieldUpdateOperationsInput | $Enums.WidgetType
+    chart_type?: EnumChartTypeFieldUpdateOperationsInput | $Enums.ChartType
+    title?: StringFieldUpdateOperationsInput | string
+    query_spec?: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardWidgetUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    dashboard_id?: StringFieldUpdateOperationsInput | string
+    widget_key?: StringFieldUpdateOperationsInput | string
+    widget_type?: EnumWidgetTypeFieldUpdateOperationsInput | $Enums.WidgetType
+    chart_type?: EnumChartTypeFieldUpdateOperationsInput | $Enums.ChartType
+    title?: StringFieldUpdateOperationsInput | string
+    query_spec?: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardMetricSnapshotCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id: string
     user_id?: string | null
-    widgets_layout?: NullableJsonNullValueInput | InputJsonValue
-    refresh_rate?: number
-    created_at?: Date | string
-    updated_at?: Date | string
+    metric_key: string
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    value: JsonNullValueInput | InputJsonValue
+    period_from: Date | string
+    period_to: Date | string
+    captured_at?: Date | string
   }
 
-  export type ConfigDashboardUncheckedCreateInput = {
+  export type DashboardMetricSnapshotUncheckedCreateInput = {
     id?: string
     tenant_id: string
-    product_id?: string | null
+    product_id: string
     user_id?: string | null
-    widgets_layout?: NullableJsonNullValueInput | InputJsonValue
-    refresh_rate?: number
-    created_at?: Date | string
-    updated_at?: Date | string
+    metric_key: string
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    value: JsonNullValueInput | InputJsonValue
+    period_from: Date | string
+    period_to: Date | string
+    captured_at?: Date | string
   }
 
-  export type ConfigDashboardUpdateInput = {
+  export type DashboardMetricSnapshotUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    product_id?: StringFieldUpdateOperationsInput | string
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    widgets_layout?: NullableJsonNullValueInput | InputJsonValue
-    refresh_rate?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    metric_key?: StringFieldUpdateOperationsInput | string
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    value?: JsonNullValueInput | InputJsonValue
+    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
+    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfigDashboardUncheckedUpdateInput = {
+  export type DashboardMetricSnapshotUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    product_id?: StringFieldUpdateOperationsInput | string
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    widgets_layout?: NullableJsonNullValueInput | InputJsonValue
-    refresh_rate?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    metric_key?: StringFieldUpdateOperationsInput | string
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    value?: JsonNullValueInput | InputJsonValue
+    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
+    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfigDashboardCreateManyInput = {
+  export type DashboardMetricSnapshotCreateManyInput = {
     id?: string
     tenant_id: string
-    product_id?: string | null
+    product_id: string
     user_id?: string | null
-    widgets_layout?: NullableJsonNullValueInput | InputJsonValue
-    refresh_rate?: number
-    created_at?: Date | string
-    updated_at?: Date | string
+    metric_key: string
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    value: JsonNullValueInput | InputJsonValue
+    period_from: Date | string
+    period_to: Date | string
+    captured_at?: Date | string
   }
 
-  export type ConfigDashboardUpdateManyMutationInput = {
+  export type DashboardMetricSnapshotUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    product_id?: StringFieldUpdateOperationsInput | string
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    widgets_layout?: NullableJsonNullValueInput | InputJsonValue
-    refresh_rate?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    metric_key?: StringFieldUpdateOperationsInput | string
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    value?: JsonNullValueInput | InputJsonValue
+    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
+    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ConfigDashboardUncheckedUpdateManyInput = {
+  export type DashboardMetricSnapshotUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    product_id?: StringFieldUpdateOperationsInput | string
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    widgets_layout?: NullableJsonNullValueInput | InputJsonValue
-    refresh_rate?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    metric_key?: StringFieldUpdateOperationsInput | string
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    value?: JsonNullValueInput | InputJsonValue
+    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
+    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
+    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MetricaSnapshotCreateInput = {
+  export type DashboardAlertCreateInput = {
     id?: string
     tenant_id: string
     product_id?: string | null
-    metric_name: string
-    value: number
-    unit?: string | null
-    snapshot_date?: Date | string
+    user_id: string
+    widget_id?: string | null
+    metric_key: string
+    condition: string
+    threshold: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertCreatechannelsInput | string[]
+    is_active?: boolean
+    last_triggered?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    dashboard: DashboardConfigCreateNestedOneWithoutAlertsInput
+  }
+
+  export type DashboardAlertUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    dashboard_id: string
+    widget_id?: string | null
+    metric_key: string
+    condition: string
+    threshold: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertCreatechannelsInput | string[]
+    is_active?: boolean
+    last_triggered?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type MetricaSnapshotUncheckedCreateInput = {
+  export type DashboardAlertUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
+    metric_key?: StringFieldUpdateOperationsInput | string
+    condition?: StringFieldUpdateOperationsInput | string
+    threshold?: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertUpdatechannelsInput | string[]
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    dashboard?: DashboardConfigUpdateOneRequiredWithoutAlertsNestedInput
+  }
+
+  export type DashboardAlertUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    dashboard_id?: StringFieldUpdateOperationsInput | string
+    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
+    metric_key?: StringFieldUpdateOperationsInput | string
+    condition?: StringFieldUpdateOperationsInput | string
+    threshold?: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertUpdatechannelsInput | string[]
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardAlertCreateManyInput = {
     id?: string
     tenant_id: string
     product_id?: string | null
-    metric_name: string
-    value: number
-    unit?: string | null
-    snapshot_date?: Date | string
+    user_id: string
+    dashboard_id: string
+    widget_id?: string | null
+    metric_key: string
+    condition: string
+    threshold: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertCreatechannelsInput | string[]
+    is_active?: boolean
+    last_triggered?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type MetricaSnapshotUpdateInput = {
+  export type DashboardAlertUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_name?: StringFieldUpdateOperationsInput | string
-    value?: FloatFieldUpdateOperationsInput | number
-    unit?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
+    metric_key?: StringFieldUpdateOperationsInput | string
+    condition?: StringFieldUpdateOperationsInput | string
+    threshold?: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertUpdatechannelsInput | string[]
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MetricaSnapshotUncheckedUpdateInput = {
+  export type DashboardAlertUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_name?: StringFieldUpdateOperationsInput | string
-    value?: FloatFieldUpdateOperationsInput | number
-    unit?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    dashboard_id?: StringFieldUpdateOperationsInput | string
+    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
+    metric_key?: StringFieldUpdateOperationsInput | string
+    condition?: StringFieldUpdateOperationsInput | string
+    threshold?: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertUpdatechannelsInput | string[]
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type MetricaSnapshotCreateManyInput = {
+  export type DashboardShareCreateInput = {
     id?: string
     tenant_id: string
     product_id?: string | null
-    metric_name: string
-    value: number
-    unit?: string | null
-    snapshot_date?: Date | string
+    user_id: string
+    share_token?: string
+    channel: string
+    recipient_email?: string | null
+    recipient_phone?: string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: Date | string | null
     created_at?: Date | string
-    updated_at?: Date | string
+    dashboard: DashboardConfigCreateNestedOneWithoutSharesInput
   }
 
-  export type MetricaSnapshotUpdateManyMutationInput = {
+  export type DashboardShareUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    dashboard_id: string
+    share_token?: string
+    channel: string
+    recipient_email?: string | null
+    recipient_phone?: string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: Date | string | null
+    created_at?: Date | string
+  }
+
+  export type DashboardShareUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_name?: StringFieldUpdateOperationsInput | string
-    value?: FloatFieldUpdateOperationsInput | number
-    unit?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    share_token?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    dashboard?: DashboardConfigUpdateOneRequiredWithoutSharesNestedInput
   }
 
-  export type MetricaSnapshotUncheckedUpdateManyInput = {
+  export type DashboardShareUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_name?: StringFieldUpdateOperationsInput | string
-    value?: FloatFieldUpdateOperationsInput | number
-    unit?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_date?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    dashboard_id?: StringFieldUpdateOperationsInput | string
+    share_token?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardShareCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    dashboard_id: string
+    share_token?: string
+    channel: string
+    recipient_email?: string | null
+    recipient_phone?: string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: Date | string | null
+    created_at?: Date | string
+  }
+
+  export type DashboardShareUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    share_token?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardShareUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    dashboard_id?: StringFieldUpdateOperationsInput | string
+    share_token?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatorioCreateInput = {
@@ -57346,6 +64054,97 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExportResultCreateInput = {
+    id?: string
+    tenant_id: string
+    format: string
+    content: string
+    status?: string
+    record_count?: number
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    error?: string | null
+    created_at?: Date | string
+    expires_at: Date | string
+  }
+
+  export type ExportResultUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    format: string
+    content: string
+    status?: string
+    record_count?: number
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    error?: string | null
+    created_at?: Date | string
+    expires_at: Date | string
+  }
+
+  export type ExportResultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    record_count?: IntFieldUpdateOperationsInput | number
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExportResultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    record_count?: IntFieldUpdateOperationsInput | number
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExportResultCreateManyInput = {
+    id?: string
+    tenant_id: string
+    format: string
+    content: string
+    status?: string
+    record_count?: number
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    error?: string | null
+    created_at?: Date | string
+    expires_at: Date | string
+  }
+
+  export type ExportResultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    record_count?: IntFieldUpdateOperationsInput | number
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExportResultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    format?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    record_count?: IntFieldUpdateOperationsInput | number
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    error?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AgendaCreateInput = {
     id?: string
     tenant_id: string
@@ -58012,6 +64811,7 @@ export namespace Prisma {
     status_id?: string | null
     importacao_exportador_id?: string | null
     exportacao_importador_id?: string | null
+    fabricante_id?: string | null
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
@@ -58021,6 +64821,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: string | null
     cobertura_cambial?: string
     condicao_pagamento?: string | null
+    numero_proforma?: string | null
+    numero_invoice?: string | null
+    referencia_importador?: string | null
+    referencia_exportador?: string | null
+    referencia_fabricante?: string | null
     valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: string | null
     taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
@@ -58043,6 +64848,7 @@ export namespace Prisma {
     status_id?: string | null
     importacao_exportador_id?: string | null
     exportacao_importador_id?: string | null
+    fabricante_id?: string | null
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
@@ -58052,6 +64858,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: string | null
     cobertura_cambial?: string
     condicao_pagamento?: string | null
+    numero_proforma?: string | null
+    numero_invoice?: string | null
+    referencia_importador?: string | null
+    referencia_exportador?: string | null
+    referencia_fabricante?: string | null
     valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: string | null
     taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
@@ -58074,6 +64885,7 @@ export namespace Prisma {
     status_id?: NullableStringFieldUpdateOperationsInput | string | null
     importacao_exportador_id?: NullableStringFieldUpdateOperationsInput | string | null
     exportacao_importador_id?: NullableStringFieldUpdateOperationsInput | string | null
+    fabricante_id?: NullableStringFieldUpdateOperationsInput | string | null
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -58083,6 +64895,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
     taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -58105,6 +64922,7 @@ export namespace Prisma {
     status_id?: NullableStringFieldUpdateOperationsInput | string | null
     importacao_exportador_id?: NullableStringFieldUpdateOperationsInput | string | null
     exportacao_importador_id?: NullableStringFieldUpdateOperationsInput | string | null
+    fabricante_id?: NullableStringFieldUpdateOperationsInput | string | null
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -58114,6 +64932,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
     taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -58136,6 +64959,7 @@ export namespace Prisma {
     status_id?: string | null
     importacao_exportador_id?: string | null
     exportacao_importador_id?: string | null
+    fabricante_id?: string | null
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
@@ -58145,6 +64969,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: string | null
     cobertura_cambial?: string
     condicao_pagamento?: string | null
+    numero_proforma?: string | null
+    numero_invoice?: string | null
+    referencia_importador?: string | null
+    referencia_exportador?: string | null
+    referencia_fabricante?: string | null
     valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: string | null
     taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
@@ -58166,6 +64995,7 @@ export namespace Prisma {
     status_id?: NullableStringFieldUpdateOperationsInput | string | null
     importacao_exportador_id?: NullableStringFieldUpdateOperationsInput | string | null
     exportacao_importador_id?: NullableStringFieldUpdateOperationsInput | string | null
+    fabricante_id?: NullableStringFieldUpdateOperationsInput | string | null
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -58175,6 +65005,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
     taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -58196,6 +65031,7 @@ export namespace Prisma {
     status_id?: NullableStringFieldUpdateOperationsInput | string | null
     importacao_exportador_id?: NullableStringFieldUpdateOperationsInput | string | null
     exportacao_importador_id?: NullableStringFieldUpdateOperationsInput | string | null
+    fabricante_id?: NullableStringFieldUpdateOperationsInput | string | null
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -58205,6 +65041,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
     taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -59907,6 +66748,90 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MapeamentoImportCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    hash_colunas: string
+    mapeamento: string
+    uso_count?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type MapeamentoImportUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    hash_colunas: string
+    mapeamento: string
+    uso_count?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type MapeamentoImportUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_colunas?: StringFieldUpdateOperationsInput | string
+    mapeamento?: StringFieldUpdateOperationsInput | string
+    uso_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MapeamentoImportUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_colunas?: StringFieldUpdateOperationsInput | string
+    mapeamento?: StringFieldUpdateOperationsInput | string
+    uso_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MapeamentoImportCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    hash_colunas: string
+    mapeamento: string
+    uso_count?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type MapeamentoImportUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_colunas?: StringFieldUpdateOperationsInput | string
+    mapeamento?: StringFieldUpdateOperationsInput | string
+    uso_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MapeamentoImportUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    hash_colunas?: StringFieldUpdateOperationsInput | string
+    mapeamento?: StringFieldUpdateOperationsInput | string
+    uso_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -61195,87 +68120,11 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type ConfigDashboardCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    widgets_layout?: SortOrder
-    refresh_rate?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type ConfigDashboardAvgOrderByAggregateInput = {
-    refresh_rate?: SortOrder
-  }
-
-  export type ConfigDashboardMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    refresh_rate?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type ConfigDashboardMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    refresh_rate?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type ConfigDashboardSumOrderByAggregateInput = {
-    refresh_rate?: SortOrder
-  }
-
-  export type MetricaSnapshotCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    metric_name?: SortOrder
-    value?: SortOrder
-    unit?: SortOrder
-    snapshot_date?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type MetricaSnapshotAvgOrderByAggregateInput = {
-    value?: SortOrder
-  }
-
-  export type MetricaSnapshotMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    metric_name?: SortOrder
-    value?: SortOrder
-    unit?: SortOrder
-    snapshot_date?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type MetricaSnapshotMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    metric_name?: SortOrder
-    value?: SortOrder
-    unit?: SortOrder
-    snapshot_date?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-  }
-
-  export type MetricaSnapshotSumOrderByAggregateInput = {
-    value?: SortOrder
+  export type EnumDashboardModeFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardMode | EnumDashboardModeFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModeFilter<$PrismaModel> | $Enums.DashboardMode
   }
   export type JsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -61298,6 +68147,326 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type DashboardWidgetListRelationFilter = {
+    every?: DashboardWidgetWhereInput
+    some?: DashboardWidgetWhereInput
+    none?: DashboardWidgetWhereInput
+  }
+
+  export type DashboardAlertListRelationFilter = {
+    every?: DashboardAlertWhereInput
+    some?: DashboardAlertWhereInput
+    none?: DashboardAlertWhereInput
+  }
+
+  export type DashboardShareListRelationFilter = {
+    every?: DashboardShareWhereInput
+    some?: DashboardShareWhereInput
+    none?: DashboardShareWhereInput
+  }
+
+  export type DashboardWidgetOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DashboardAlertOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DashboardShareOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DashboardConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    layout?: SortOrder
+    filters?: SortOrder
+    is_default?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DashboardConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    is_default?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DashboardConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    name?: SortOrder
+    mode?: SortOrder
+    is_default?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type EnumDashboardModeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardMode | EnumDashboardModeFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModeWithAggregatesFilter<$PrismaModel> | $Enums.DashboardMode
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDashboardModeFilter<$PrismaModel>
+    _max?: NestedEnumDashboardModeFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type EnumWidgetTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.WidgetType | EnumWidgetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumWidgetTypeFilter<$PrismaModel> | $Enums.WidgetType
+  }
+
+  export type EnumChartTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ChartType | EnumChartTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumChartTypeFilter<$PrismaModel> | $Enums.ChartType
+  }
+
+  export type DashboardConfigRelationFilter = {
+    is?: DashboardConfigWhereInput
+    isNot?: DashboardConfigWhereInput
+  }
+
+  export type DashboardWidgetCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_key?: SortOrder
+    widget_type?: SortOrder
+    chart_type?: SortOrder
+    title?: SortOrder
+    query_spec?: SortOrder
+    position?: SortOrder
+    config?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DashboardWidgetMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_key?: SortOrder
+    widget_type?: SortOrder
+    chart_type?: SortOrder
+    title?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DashboardWidgetMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_key?: SortOrder
+    widget_type?: SortOrder
+    chart_type?: SortOrder
+    title?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type EnumWidgetTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.WidgetType | EnumWidgetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumWidgetTypeWithAggregatesFilter<$PrismaModel> | $Enums.WidgetType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumWidgetTypeFilter<$PrismaModel>
+    _max?: NestedEnumWidgetTypeFilter<$PrismaModel>
+  }
+
+  export type EnumChartTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ChartType | EnumChartTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumChartTypeWithAggregatesFilter<$PrismaModel> | $Enums.ChartType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumChartTypeFilter<$PrismaModel>
+    _max?: NestedEnumChartTypeFilter<$PrismaModel>
+  }
+
+  export type DashboardMetricSnapshotTenant_idProduct_idMetric_keyPeriod_fromPeriod_toCompoundUniqueInput = {
+    tenant_id: string
+    product_id: string
+    metric_key: string
+    period_from: Date | string
+    period_to: Date | string
+  }
+
+  export type DashboardMetricSnapshotCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    metric_key?: SortOrder
+    dimensions?: SortOrder
+    value?: SortOrder
+    period_from?: SortOrder
+    period_to?: SortOrder
+    captured_at?: SortOrder
+  }
+
+  export type DashboardMetricSnapshotMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    metric_key?: SortOrder
+    period_from?: SortOrder
+    period_to?: SortOrder
+    captured_at?: SortOrder
+  }
+
+  export type DashboardMetricSnapshotMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    metric_key?: SortOrder
+    period_from?: SortOrder
+    period_to?: SortOrder
+    captured_at?: SortOrder
+  }
+
+  export type DashboardAlertCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_id?: SortOrder
+    metric_key?: SortOrder
+    condition?: SortOrder
+    threshold?: SortOrder
+    channels?: SortOrder
+    is_active?: SortOrder
+    last_triggered?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DashboardAlertMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_id?: SortOrder
+    metric_key?: SortOrder
+    condition?: SortOrder
+    is_active?: SortOrder
+    last_triggered?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DashboardAlertMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    widget_id?: SortOrder
+    metric_key?: SortOrder
+    condition?: SortOrder
+    is_active?: SortOrder
+    last_triggered?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type DashboardShareCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    share_token?: SortOrder
+    channel?: SortOrder
+    recipient_email?: SortOrder
+    recipient_phone?: SortOrder
+    snapshot_data?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DashboardShareMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    share_token?: SortOrder
+    channel?: SortOrder
+    recipient_email?: SortOrder
+    recipient_phone?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DashboardShareMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    dashboard_id?: SortOrder
+    share_token?: SortOrder
+    channel?: SortOrder
+    recipient_email?: SortOrder
+    recipient_phone?: SortOrder
+    expires_at?: SortOrder
+    created_at?: SortOrder
   }
 
   export type RelatorioCountOrderByAggregateInput = {
@@ -61337,31 +68506,6 @@ export namespace Prisma {
     is_shared?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> = 
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type ConfigRelatorioCountOrderByAggregateInput = {
@@ -61809,6 +68953,51 @@ export namespace Prisma {
     attempts?: SortOrder
   }
 
+  export type ExportResultCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    format?: SortOrder
+    content?: SortOrder
+    status?: SortOrder
+    record_count?: SortOrder
+    filters?: SortOrder
+    error?: SortOrder
+    created_at?: SortOrder
+    expires_at?: SortOrder
+  }
+
+  export type ExportResultAvgOrderByAggregateInput = {
+    record_count?: SortOrder
+  }
+
+  export type ExportResultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    format?: SortOrder
+    content?: SortOrder
+    status?: SortOrder
+    record_count?: SortOrder
+    error?: SortOrder
+    created_at?: SortOrder
+    expires_at?: SortOrder
+  }
+
+  export type ExportResultMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    format?: SortOrder
+    content?: SortOrder
+    status?: SortOrder
+    record_count?: SortOrder
+    error?: SortOrder
+    created_at?: SortOrder
+    expires_at?: SortOrder
+  }
+
+  export type ExportResultSumOrderByAggregateInput = {
+    record_count?: SortOrder
+  }
+
   export type SlotListRelationFilter = {
     every?: SlotWhereInput
     some?: SlotWhereInput
@@ -62192,6 +69381,7 @@ export namespace Prisma {
     status_id?: SortOrder
     importacao_exportador_id?: SortOrder
     exportacao_importador_id?: SortOrder
+    fabricante_id?: SortOrder
     incoterm?: SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrder
@@ -62201,6 +69391,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrder
+    numero_proforma?: SortOrder
+    numero_invoice?: SortOrder
+    referencia_importador?: SortOrder
+    referencia_exportador?: SortOrder
+    referencia_fabricante?: SortOrder
     valor_total_cambio?: SortOrder
     moeda_cambio?: SortOrder
     taxa_cambio_estimada?: SortOrder
@@ -62231,6 +69426,7 @@ export namespace Prisma {
     status_id?: SortOrder
     importacao_exportador_id?: SortOrder
     exportacao_importador_id?: SortOrder
+    fabricante_id?: SortOrder
     incoterm?: SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrder
@@ -62240,6 +69436,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrder
+    numero_proforma?: SortOrder
+    numero_invoice?: SortOrder
+    referencia_importador?: SortOrder
+    referencia_exportador?: SortOrder
+    referencia_fabricante?: SortOrder
     valor_total_cambio?: SortOrder
     moeda_cambio?: SortOrder
     taxa_cambio_estimada?: SortOrder
@@ -62259,6 +69460,7 @@ export namespace Prisma {
     status_id?: SortOrder
     importacao_exportador_id?: SortOrder
     exportacao_importador_id?: SortOrder
+    fabricante_id?: SortOrder
     incoterm?: SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrder
@@ -62268,6 +69470,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrder
+    numero_proforma?: SortOrder
+    numero_invoice?: SortOrder
+    referencia_importador?: SortOrder
+    referencia_exportador?: SortOrder
+    referencia_fabricante?: SortOrder
     valor_total_cambio?: SortOrder
     moeda_cambio?: SortOrder
     taxa_cambio_estimada?: SortOrder
@@ -63180,6 +70387,55 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
+  export type MapeamentoImportTenant_idHash_colunasCompoundUniqueInput = {
+    tenant_id: string
+    hash_colunas: string
+  }
+
+  export type MapeamentoImportCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    hash_colunas?: SortOrder
+    mapeamento?: SortOrder
+    uso_count?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type MapeamentoImportAvgOrderByAggregateInput = {
+    uso_count?: SortOrder
+  }
+
+  export type MapeamentoImportMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    hash_colunas?: SortOrder
+    mapeamento?: SortOrder
+    uso_count?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type MapeamentoImportMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    hash_colunas?: SortOrder
+    mapeamento?: SortOrder
+    uso_count?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type MapeamentoImportSumOrderByAggregateInput = {
+    uso_count?: SortOrder
+  }
+
   export type AtividadeParticipanteCreateNestedManyWithoutAtividadeInput = {
     create?: XOR<AtividadeParticipanteCreateWithoutAtividadeInput, AtividadeParticipanteUncheckedCreateWithoutAtividadeInput> | AtividadeParticipanteCreateWithoutAtividadeInput[] | AtividadeParticipanteUncheckedCreateWithoutAtividadeInput[]
     connectOrCreate?: AtividadeParticipanteCreateOrConnectWithoutAtividadeInput | AtividadeParticipanteCreateOrConnectWithoutAtividadeInput[]
@@ -63435,6 +70691,195 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type DashboardWidgetCreateNestedManyWithoutDashboardInput = {
+    create?: XOR<DashboardWidgetCreateWithoutDashboardInput, DashboardWidgetUncheckedCreateWithoutDashboardInput> | DashboardWidgetCreateWithoutDashboardInput[] | DashboardWidgetUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardWidgetCreateOrConnectWithoutDashboardInput | DashboardWidgetCreateOrConnectWithoutDashboardInput[]
+    createMany?: DashboardWidgetCreateManyDashboardInputEnvelope
+    connect?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+  }
+
+  export type DashboardAlertCreateNestedManyWithoutDashboardInput = {
+    create?: XOR<DashboardAlertCreateWithoutDashboardInput, DashboardAlertUncheckedCreateWithoutDashboardInput> | DashboardAlertCreateWithoutDashboardInput[] | DashboardAlertUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardAlertCreateOrConnectWithoutDashboardInput | DashboardAlertCreateOrConnectWithoutDashboardInput[]
+    createMany?: DashboardAlertCreateManyDashboardInputEnvelope
+    connect?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+  }
+
+  export type DashboardShareCreateNestedManyWithoutDashboardInput = {
+    create?: XOR<DashboardShareCreateWithoutDashboardInput, DashboardShareUncheckedCreateWithoutDashboardInput> | DashboardShareCreateWithoutDashboardInput[] | DashboardShareUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardShareCreateOrConnectWithoutDashboardInput | DashboardShareCreateOrConnectWithoutDashboardInput[]
+    createMany?: DashboardShareCreateManyDashboardInputEnvelope
+    connect?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+  }
+
+  export type DashboardWidgetUncheckedCreateNestedManyWithoutDashboardInput = {
+    create?: XOR<DashboardWidgetCreateWithoutDashboardInput, DashboardWidgetUncheckedCreateWithoutDashboardInput> | DashboardWidgetCreateWithoutDashboardInput[] | DashboardWidgetUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardWidgetCreateOrConnectWithoutDashboardInput | DashboardWidgetCreateOrConnectWithoutDashboardInput[]
+    createMany?: DashboardWidgetCreateManyDashboardInputEnvelope
+    connect?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+  }
+
+  export type DashboardAlertUncheckedCreateNestedManyWithoutDashboardInput = {
+    create?: XOR<DashboardAlertCreateWithoutDashboardInput, DashboardAlertUncheckedCreateWithoutDashboardInput> | DashboardAlertCreateWithoutDashboardInput[] | DashboardAlertUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardAlertCreateOrConnectWithoutDashboardInput | DashboardAlertCreateOrConnectWithoutDashboardInput[]
+    createMany?: DashboardAlertCreateManyDashboardInputEnvelope
+    connect?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+  }
+
+  export type DashboardShareUncheckedCreateNestedManyWithoutDashboardInput = {
+    create?: XOR<DashboardShareCreateWithoutDashboardInput, DashboardShareUncheckedCreateWithoutDashboardInput> | DashboardShareCreateWithoutDashboardInput[] | DashboardShareUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardShareCreateOrConnectWithoutDashboardInput | DashboardShareCreateOrConnectWithoutDashboardInput[]
+    createMany?: DashboardShareCreateManyDashboardInputEnvelope
+    connect?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+  }
+
+  export type EnumDashboardModeFieldUpdateOperationsInput = {
+    set?: $Enums.DashboardMode
+  }
+
+  export type DashboardWidgetUpdateManyWithoutDashboardNestedInput = {
+    create?: XOR<DashboardWidgetCreateWithoutDashboardInput, DashboardWidgetUncheckedCreateWithoutDashboardInput> | DashboardWidgetCreateWithoutDashboardInput[] | DashboardWidgetUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardWidgetCreateOrConnectWithoutDashboardInput | DashboardWidgetCreateOrConnectWithoutDashboardInput[]
+    upsert?: DashboardWidgetUpsertWithWhereUniqueWithoutDashboardInput | DashboardWidgetUpsertWithWhereUniqueWithoutDashboardInput[]
+    createMany?: DashboardWidgetCreateManyDashboardInputEnvelope
+    set?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    disconnect?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    delete?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    connect?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    update?: DashboardWidgetUpdateWithWhereUniqueWithoutDashboardInput | DashboardWidgetUpdateWithWhereUniqueWithoutDashboardInput[]
+    updateMany?: DashboardWidgetUpdateManyWithWhereWithoutDashboardInput | DashboardWidgetUpdateManyWithWhereWithoutDashboardInput[]
+    deleteMany?: DashboardWidgetScalarWhereInput | DashboardWidgetScalarWhereInput[]
+  }
+
+  export type DashboardAlertUpdateManyWithoutDashboardNestedInput = {
+    create?: XOR<DashboardAlertCreateWithoutDashboardInput, DashboardAlertUncheckedCreateWithoutDashboardInput> | DashboardAlertCreateWithoutDashboardInput[] | DashboardAlertUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardAlertCreateOrConnectWithoutDashboardInput | DashboardAlertCreateOrConnectWithoutDashboardInput[]
+    upsert?: DashboardAlertUpsertWithWhereUniqueWithoutDashboardInput | DashboardAlertUpsertWithWhereUniqueWithoutDashboardInput[]
+    createMany?: DashboardAlertCreateManyDashboardInputEnvelope
+    set?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    disconnect?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    delete?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    connect?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    update?: DashboardAlertUpdateWithWhereUniqueWithoutDashboardInput | DashboardAlertUpdateWithWhereUniqueWithoutDashboardInput[]
+    updateMany?: DashboardAlertUpdateManyWithWhereWithoutDashboardInput | DashboardAlertUpdateManyWithWhereWithoutDashboardInput[]
+    deleteMany?: DashboardAlertScalarWhereInput | DashboardAlertScalarWhereInput[]
+  }
+
+  export type DashboardShareUpdateManyWithoutDashboardNestedInput = {
+    create?: XOR<DashboardShareCreateWithoutDashboardInput, DashboardShareUncheckedCreateWithoutDashboardInput> | DashboardShareCreateWithoutDashboardInput[] | DashboardShareUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardShareCreateOrConnectWithoutDashboardInput | DashboardShareCreateOrConnectWithoutDashboardInput[]
+    upsert?: DashboardShareUpsertWithWhereUniqueWithoutDashboardInput | DashboardShareUpsertWithWhereUniqueWithoutDashboardInput[]
+    createMany?: DashboardShareCreateManyDashboardInputEnvelope
+    set?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    disconnect?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    delete?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    connect?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    update?: DashboardShareUpdateWithWhereUniqueWithoutDashboardInput | DashboardShareUpdateWithWhereUniqueWithoutDashboardInput[]
+    updateMany?: DashboardShareUpdateManyWithWhereWithoutDashboardInput | DashboardShareUpdateManyWithWhereWithoutDashboardInput[]
+    deleteMany?: DashboardShareScalarWhereInput | DashboardShareScalarWhereInput[]
+  }
+
+  export type DashboardWidgetUncheckedUpdateManyWithoutDashboardNestedInput = {
+    create?: XOR<DashboardWidgetCreateWithoutDashboardInput, DashboardWidgetUncheckedCreateWithoutDashboardInput> | DashboardWidgetCreateWithoutDashboardInput[] | DashboardWidgetUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardWidgetCreateOrConnectWithoutDashboardInput | DashboardWidgetCreateOrConnectWithoutDashboardInput[]
+    upsert?: DashboardWidgetUpsertWithWhereUniqueWithoutDashboardInput | DashboardWidgetUpsertWithWhereUniqueWithoutDashboardInput[]
+    createMany?: DashboardWidgetCreateManyDashboardInputEnvelope
+    set?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    disconnect?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    delete?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    connect?: DashboardWidgetWhereUniqueInput | DashboardWidgetWhereUniqueInput[]
+    update?: DashboardWidgetUpdateWithWhereUniqueWithoutDashboardInput | DashboardWidgetUpdateWithWhereUniqueWithoutDashboardInput[]
+    updateMany?: DashboardWidgetUpdateManyWithWhereWithoutDashboardInput | DashboardWidgetUpdateManyWithWhereWithoutDashboardInput[]
+    deleteMany?: DashboardWidgetScalarWhereInput | DashboardWidgetScalarWhereInput[]
+  }
+
+  export type DashboardAlertUncheckedUpdateManyWithoutDashboardNestedInput = {
+    create?: XOR<DashboardAlertCreateWithoutDashboardInput, DashboardAlertUncheckedCreateWithoutDashboardInput> | DashboardAlertCreateWithoutDashboardInput[] | DashboardAlertUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardAlertCreateOrConnectWithoutDashboardInput | DashboardAlertCreateOrConnectWithoutDashboardInput[]
+    upsert?: DashboardAlertUpsertWithWhereUniqueWithoutDashboardInput | DashboardAlertUpsertWithWhereUniqueWithoutDashboardInput[]
+    createMany?: DashboardAlertCreateManyDashboardInputEnvelope
+    set?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    disconnect?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    delete?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    connect?: DashboardAlertWhereUniqueInput | DashboardAlertWhereUniqueInput[]
+    update?: DashboardAlertUpdateWithWhereUniqueWithoutDashboardInput | DashboardAlertUpdateWithWhereUniqueWithoutDashboardInput[]
+    updateMany?: DashboardAlertUpdateManyWithWhereWithoutDashboardInput | DashboardAlertUpdateManyWithWhereWithoutDashboardInput[]
+    deleteMany?: DashboardAlertScalarWhereInput | DashboardAlertScalarWhereInput[]
+  }
+
+  export type DashboardShareUncheckedUpdateManyWithoutDashboardNestedInput = {
+    create?: XOR<DashboardShareCreateWithoutDashboardInput, DashboardShareUncheckedCreateWithoutDashboardInput> | DashboardShareCreateWithoutDashboardInput[] | DashboardShareUncheckedCreateWithoutDashboardInput[]
+    connectOrCreate?: DashboardShareCreateOrConnectWithoutDashboardInput | DashboardShareCreateOrConnectWithoutDashboardInput[]
+    upsert?: DashboardShareUpsertWithWhereUniqueWithoutDashboardInput | DashboardShareUpsertWithWhereUniqueWithoutDashboardInput[]
+    createMany?: DashboardShareCreateManyDashboardInputEnvelope
+    set?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    disconnect?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    delete?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    connect?: DashboardShareWhereUniqueInput | DashboardShareWhereUniqueInput[]
+    update?: DashboardShareUpdateWithWhereUniqueWithoutDashboardInput | DashboardShareUpdateWithWhereUniqueWithoutDashboardInput[]
+    updateMany?: DashboardShareUpdateManyWithWhereWithoutDashboardInput | DashboardShareUpdateManyWithWhereWithoutDashboardInput[]
+    deleteMany?: DashboardShareScalarWhereInput | DashboardShareScalarWhereInput[]
+  }
+
+  export type DashboardConfigCreateNestedOneWithoutWidgetsInput = {
+    create?: XOR<DashboardConfigCreateWithoutWidgetsInput, DashboardConfigUncheckedCreateWithoutWidgetsInput>
+    connectOrCreate?: DashboardConfigCreateOrConnectWithoutWidgetsInput
+    connect?: DashboardConfigWhereUniqueInput
+  }
+
+  export type EnumWidgetTypeFieldUpdateOperationsInput = {
+    set?: $Enums.WidgetType
+  }
+
+  export type EnumChartTypeFieldUpdateOperationsInput = {
+    set?: $Enums.ChartType
+  }
+
+  export type DashboardConfigUpdateOneRequiredWithoutWidgetsNestedInput = {
+    create?: XOR<DashboardConfigCreateWithoutWidgetsInput, DashboardConfigUncheckedCreateWithoutWidgetsInput>
+    connectOrCreate?: DashboardConfigCreateOrConnectWithoutWidgetsInput
+    upsert?: DashboardConfigUpsertWithoutWidgetsInput
+    connect?: DashboardConfigWhereUniqueInput
+    update?: XOR<XOR<DashboardConfigUpdateToOneWithWhereWithoutWidgetsInput, DashboardConfigUpdateWithoutWidgetsInput>, DashboardConfigUncheckedUpdateWithoutWidgetsInput>
+  }
+
+  export type DashboardAlertCreatechannelsInput = {
+    set: string[]
+  }
+
+  export type DashboardConfigCreateNestedOneWithoutAlertsInput = {
+    create?: XOR<DashboardConfigCreateWithoutAlertsInput, DashboardConfigUncheckedCreateWithoutAlertsInput>
+    connectOrCreate?: DashboardConfigCreateOrConnectWithoutAlertsInput
+    connect?: DashboardConfigWhereUniqueInput
+  }
+
+  export type DashboardAlertUpdatechannelsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type DashboardConfigUpdateOneRequiredWithoutAlertsNestedInput = {
+    create?: XOR<DashboardConfigCreateWithoutAlertsInput, DashboardConfigUncheckedCreateWithoutAlertsInput>
+    connectOrCreate?: DashboardConfigCreateOrConnectWithoutAlertsInput
+    upsert?: DashboardConfigUpsertWithoutAlertsInput
+    connect?: DashboardConfigWhereUniqueInput
+    update?: XOR<XOR<DashboardConfigUpdateToOneWithWhereWithoutAlertsInput, DashboardConfigUpdateWithoutAlertsInput>, DashboardConfigUncheckedUpdateWithoutAlertsInput>
+  }
+
+  export type DashboardConfigCreateNestedOneWithoutSharesInput = {
+    create?: XOR<DashboardConfigCreateWithoutSharesInput, DashboardConfigUncheckedCreateWithoutSharesInput>
+    connectOrCreate?: DashboardConfigCreateOrConnectWithoutSharesInput
+    connect?: DashboardConfigWhereUniqueInput
+  }
+
+  export type DashboardConfigUpdateOneRequiredWithoutSharesNestedInput = {
+    create?: XOR<DashboardConfigCreateWithoutSharesInput, DashboardConfigUncheckedCreateWithoutSharesInput>
+    connectOrCreate?: DashboardConfigCreateOrConnectWithoutSharesInput
+    upsert?: DashboardConfigUpsertWithoutSharesInput
+    connect?: DashboardConfigWhereUniqueInput
+    update?: XOR<XOR<DashboardConfigUpdateToOneWithWhereWithoutSharesInput, DashboardConfigUpdateWithoutSharesInput>, DashboardConfigUncheckedUpdateWithoutSharesInput>
   }
 
   export type EnumActorTypeFieldUpdateOperationsInput = {
@@ -64502,6 +71947,23 @@ export namespace Prisma {
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
   }
+
+  export type NestedEnumDashboardModeFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardMode | EnumDashboardModeFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModeFilter<$PrismaModel> | $Enums.DashboardMode
+  }
+
+  export type NestedEnumDashboardModeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardMode | EnumDashboardModeFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardMode[] | ListEnumDashboardModeFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModeWithAggregatesFilter<$PrismaModel> | $Enums.DashboardMode
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDashboardModeFilter<$PrismaModel>
+    _max?: NestedEnumDashboardModeFilter<$PrismaModel>
+  }
   export type NestedJsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -64523,6 +71985,40 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumWidgetTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.WidgetType | EnumWidgetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumWidgetTypeFilter<$PrismaModel> | $Enums.WidgetType
+  }
+
+  export type NestedEnumChartTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.ChartType | EnumChartTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumChartTypeFilter<$PrismaModel> | $Enums.ChartType
+  }
+
+  export type NestedEnumWidgetTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.WidgetType | EnumWidgetTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.WidgetType[] | ListEnumWidgetTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumWidgetTypeWithAggregatesFilter<$PrismaModel> | $Enums.WidgetType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumWidgetTypeFilter<$PrismaModel>
+    _max?: NestedEnumWidgetTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumChartTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ChartType | EnumChartTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ChartType[] | ListEnumChartTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumChartTypeWithAggregatesFilter<$PrismaModel> | $Enums.ChartType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumChartTypeFilter<$PrismaModel>
+    _max?: NestedEnumChartTypeFilter<$PrismaModel>
   }
 
   export type NestedEnumActorTypeFilter<$PrismaModel = never> = {
@@ -65134,6 +72630,474 @@ export namespace Prisma {
     deep_link?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardWidgetCreateWithoutDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    widget_key: string
+    widget_type?: $Enums.WidgetType
+    chart_type?: $Enums.ChartType
+    title: string
+    query_spec: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardWidgetUncheckedCreateWithoutDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    widget_key: string
+    widget_type?: $Enums.WidgetType
+    chart_type?: $Enums.ChartType
+    title: string
+    query_spec: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardWidgetCreateOrConnectWithoutDashboardInput = {
+    where: DashboardWidgetWhereUniqueInput
+    create: XOR<DashboardWidgetCreateWithoutDashboardInput, DashboardWidgetUncheckedCreateWithoutDashboardInput>
+  }
+
+  export type DashboardWidgetCreateManyDashboardInputEnvelope = {
+    data: DashboardWidgetCreateManyDashboardInput | DashboardWidgetCreateManyDashboardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DashboardAlertCreateWithoutDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    widget_id?: string | null
+    metric_key: string
+    condition: string
+    threshold: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertCreatechannelsInput | string[]
+    is_active?: boolean
+    last_triggered?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardAlertUncheckedCreateWithoutDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    widget_id?: string | null
+    metric_key: string
+    condition: string
+    threshold: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertCreatechannelsInput | string[]
+    is_active?: boolean
+    last_triggered?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardAlertCreateOrConnectWithoutDashboardInput = {
+    where: DashboardAlertWhereUniqueInput
+    create: XOR<DashboardAlertCreateWithoutDashboardInput, DashboardAlertUncheckedCreateWithoutDashboardInput>
+  }
+
+  export type DashboardAlertCreateManyDashboardInputEnvelope = {
+    data: DashboardAlertCreateManyDashboardInput | DashboardAlertCreateManyDashboardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DashboardShareCreateWithoutDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    share_token?: string
+    channel: string
+    recipient_email?: string | null
+    recipient_phone?: string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: Date | string | null
+    created_at?: Date | string
+  }
+
+  export type DashboardShareUncheckedCreateWithoutDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    share_token?: string
+    channel: string
+    recipient_email?: string | null
+    recipient_phone?: string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: Date | string | null
+    created_at?: Date | string
+  }
+
+  export type DashboardShareCreateOrConnectWithoutDashboardInput = {
+    where: DashboardShareWhereUniqueInput
+    create: XOR<DashboardShareCreateWithoutDashboardInput, DashboardShareUncheckedCreateWithoutDashboardInput>
+  }
+
+  export type DashboardShareCreateManyDashboardInputEnvelope = {
+    data: DashboardShareCreateManyDashboardInput | DashboardShareCreateManyDashboardInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DashboardWidgetUpsertWithWhereUniqueWithoutDashboardInput = {
+    where: DashboardWidgetWhereUniqueInput
+    update: XOR<DashboardWidgetUpdateWithoutDashboardInput, DashboardWidgetUncheckedUpdateWithoutDashboardInput>
+    create: XOR<DashboardWidgetCreateWithoutDashboardInput, DashboardWidgetUncheckedCreateWithoutDashboardInput>
+  }
+
+  export type DashboardWidgetUpdateWithWhereUniqueWithoutDashboardInput = {
+    where: DashboardWidgetWhereUniqueInput
+    data: XOR<DashboardWidgetUpdateWithoutDashboardInput, DashboardWidgetUncheckedUpdateWithoutDashboardInput>
+  }
+
+  export type DashboardWidgetUpdateManyWithWhereWithoutDashboardInput = {
+    where: DashboardWidgetScalarWhereInput
+    data: XOR<DashboardWidgetUpdateManyMutationInput, DashboardWidgetUncheckedUpdateManyWithoutDashboardInput>
+  }
+
+  export type DashboardWidgetScalarWhereInput = {
+    AND?: DashboardWidgetScalarWhereInput | DashboardWidgetScalarWhereInput[]
+    OR?: DashboardWidgetScalarWhereInput[]
+    NOT?: DashboardWidgetScalarWhereInput | DashboardWidgetScalarWhereInput[]
+    id?: StringFilter<"DashboardWidget"> | string
+    tenant_id?: StringFilter<"DashboardWidget"> | string
+    product_id?: StringNullableFilter<"DashboardWidget"> | string | null
+    user_id?: StringFilter<"DashboardWidget"> | string
+    dashboard_id?: StringFilter<"DashboardWidget"> | string
+    widget_key?: StringFilter<"DashboardWidget"> | string
+    widget_type?: EnumWidgetTypeFilter<"DashboardWidget"> | $Enums.WidgetType
+    chart_type?: EnumChartTypeFilter<"DashboardWidget"> | $Enums.ChartType
+    title?: StringFilter<"DashboardWidget"> | string
+    query_spec?: JsonFilter<"DashboardWidget">
+    position?: JsonFilter<"DashboardWidget">
+    config?: JsonNullableFilter<"DashboardWidget">
+    created_at?: DateTimeFilter<"DashboardWidget"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardWidget"> | Date | string
+  }
+
+  export type DashboardAlertUpsertWithWhereUniqueWithoutDashboardInput = {
+    where: DashboardAlertWhereUniqueInput
+    update: XOR<DashboardAlertUpdateWithoutDashboardInput, DashboardAlertUncheckedUpdateWithoutDashboardInput>
+    create: XOR<DashboardAlertCreateWithoutDashboardInput, DashboardAlertUncheckedCreateWithoutDashboardInput>
+  }
+
+  export type DashboardAlertUpdateWithWhereUniqueWithoutDashboardInput = {
+    where: DashboardAlertWhereUniqueInput
+    data: XOR<DashboardAlertUpdateWithoutDashboardInput, DashboardAlertUncheckedUpdateWithoutDashboardInput>
+  }
+
+  export type DashboardAlertUpdateManyWithWhereWithoutDashboardInput = {
+    where: DashboardAlertScalarWhereInput
+    data: XOR<DashboardAlertUpdateManyMutationInput, DashboardAlertUncheckedUpdateManyWithoutDashboardInput>
+  }
+
+  export type DashboardAlertScalarWhereInput = {
+    AND?: DashboardAlertScalarWhereInput | DashboardAlertScalarWhereInput[]
+    OR?: DashboardAlertScalarWhereInput[]
+    NOT?: DashboardAlertScalarWhereInput | DashboardAlertScalarWhereInput[]
+    id?: StringFilter<"DashboardAlert"> | string
+    tenant_id?: StringFilter<"DashboardAlert"> | string
+    product_id?: StringNullableFilter<"DashboardAlert"> | string | null
+    user_id?: StringFilter<"DashboardAlert"> | string
+    dashboard_id?: StringFilter<"DashboardAlert"> | string
+    widget_id?: StringNullableFilter<"DashboardAlert"> | string | null
+    metric_key?: StringFilter<"DashboardAlert"> | string
+    condition?: StringFilter<"DashboardAlert"> | string
+    threshold?: JsonFilter<"DashboardAlert">
+    channels?: StringNullableListFilter<"DashboardAlert">
+    is_active?: BoolFilter<"DashboardAlert"> | boolean
+    last_triggered?: DateTimeNullableFilter<"DashboardAlert"> | Date | string | null
+    created_at?: DateTimeFilter<"DashboardAlert"> | Date | string
+    updated_at?: DateTimeFilter<"DashboardAlert"> | Date | string
+  }
+
+  export type DashboardShareUpsertWithWhereUniqueWithoutDashboardInput = {
+    where: DashboardShareWhereUniqueInput
+    update: XOR<DashboardShareUpdateWithoutDashboardInput, DashboardShareUncheckedUpdateWithoutDashboardInput>
+    create: XOR<DashboardShareCreateWithoutDashboardInput, DashboardShareUncheckedCreateWithoutDashboardInput>
+  }
+
+  export type DashboardShareUpdateWithWhereUniqueWithoutDashboardInput = {
+    where: DashboardShareWhereUniqueInput
+    data: XOR<DashboardShareUpdateWithoutDashboardInput, DashboardShareUncheckedUpdateWithoutDashboardInput>
+  }
+
+  export type DashboardShareUpdateManyWithWhereWithoutDashboardInput = {
+    where: DashboardShareScalarWhereInput
+    data: XOR<DashboardShareUpdateManyMutationInput, DashboardShareUncheckedUpdateManyWithoutDashboardInput>
+  }
+
+  export type DashboardShareScalarWhereInput = {
+    AND?: DashboardShareScalarWhereInput | DashboardShareScalarWhereInput[]
+    OR?: DashboardShareScalarWhereInput[]
+    NOT?: DashboardShareScalarWhereInput | DashboardShareScalarWhereInput[]
+    id?: StringFilter<"DashboardShare"> | string
+    tenant_id?: StringFilter<"DashboardShare"> | string
+    product_id?: StringNullableFilter<"DashboardShare"> | string | null
+    user_id?: StringFilter<"DashboardShare"> | string
+    dashboard_id?: StringFilter<"DashboardShare"> | string
+    share_token?: StringFilter<"DashboardShare"> | string
+    channel?: StringFilter<"DashboardShare"> | string
+    recipient_email?: StringNullableFilter<"DashboardShare"> | string | null
+    recipient_phone?: StringNullableFilter<"DashboardShare"> | string | null
+    snapshot_data?: JsonNullableFilter<"DashboardShare">
+    expires_at?: DateTimeNullableFilter<"DashboardShare"> | Date | string | null
+    created_at?: DateTimeFilter<"DashboardShare"> | Date | string
+  }
+
+  export type DashboardConfigCreateWithoutWidgetsInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    alerts?: DashboardAlertCreateNestedManyWithoutDashboardInput
+    shares?: DashboardShareCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigUncheckedCreateWithoutWidgetsInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    alerts?: DashboardAlertUncheckedCreateNestedManyWithoutDashboardInput
+    shares?: DashboardShareUncheckedCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigCreateOrConnectWithoutWidgetsInput = {
+    where: DashboardConfigWhereUniqueInput
+    create: XOR<DashboardConfigCreateWithoutWidgetsInput, DashboardConfigUncheckedCreateWithoutWidgetsInput>
+  }
+
+  export type DashboardConfigUpsertWithoutWidgetsInput = {
+    update: XOR<DashboardConfigUpdateWithoutWidgetsInput, DashboardConfigUncheckedUpdateWithoutWidgetsInput>
+    create: XOR<DashboardConfigCreateWithoutWidgetsInput, DashboardConfigUncheckedCreateWithoutWidgetsInput>
+    where?: DashboardConfigWhereInput
+  }
+
+  export type DashboardConfigUpdateToOneWithWhereWithoutWidgetsInput = {
+    where?: DashboardConfigWhereInput
+    data: XOR<DashboardConfigUpdateWithoutWidgetsInput, DashboardConfigUncheckedUpdateWithoutWidgetsInput>
+  }
+
+  export type DashboardConfigUpdateWithoutWidgetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    alerts?: DashboardAlertUpdateManyWithoutDashboardNestedInput
+    shares?: DashboardShareUpdateManyWithoutDashboardNestedInput
+  }
+
+  export type DashboardConfigUncheckedUpdateWithoutWidgetsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    alerts?: DashboardAlertUncheckedUpdateManyWithoutDashboardNestedInput
+    shares?: DashboardShareUncheckedUpdateManyWithoutDashboardNestedInput
+  }
+
+  export type DashboardConfigCreateWithoutAlertsInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    widgets?: DashboardWidgetCreateNestedManyWithoutDashboardInput
+    shares?: DashboardShareCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigUncheckedCreateWithoutAlertsInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    widgets?: DashboardWidgetUncheckedCreateNestedManyWithoutDashboardInput
+    shares?: DashboardShareUncheckedCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigCreateOrConnectWithoutAlertsInput = {
+    where: DashboardConfigWhereUniqueInput
+    create: XOR<DashboardConfigCreateWithoutAlertsInput, DashboardConfigUncheckedCreateWithoutAlertsInput>
+  }
+
+  export type DashboardConfigUpsertWithoutAlertsInput = {
+    update: XOR<DashboardConfigUpdateWithoutAlertsInput, DashboardConfigUncheckedUpdateWithoutAlertsInput>
+    create: XOR<DashboardConfigCreateWithoutAlertsInput, DashboardConfigUncheckedCreateWithoutAlertsInput>
+    where?: DashboardConfigWhereInput
+  }
+
+  export type DashboardConfigUpdateToOneWithWhereWithoutAlertsInput = {
+    where?: DashboardConfigWhereInput
+    data: XOR<DashboardConfigUpdateWithoutAlertsInput, DashboardConfigUncheckedUpdateWithoutAlertsInput>
+  }
+
+  export type DashboardConfigUpdateWithoutAlertsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets?: DashboardWidgetUpdateManyWithoutDashboardNestedInput
+    shares?: DashboardShareUpdateManyWithoutDashboardNestedInput
+  }
+
+  export type DashboardConfigUncheckedUpdateWithoutAlertsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets?: DashboardWidgetUncheckedUpdateManyWithoutDashboardNestedInput
+    shares?: DashboardShareUncheckedUpdateManyWithoutDashboardNestedInput
+  }
+
+  export type DashboardConfigCreateWithoutSharesInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    widgets?: DashboardWidgetCreateNestedManyWithoutDashboardInput
+    alerts?: DashboardAlertCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigUncheckedCreateWithoutSharesInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    name?: string
+    mode?: $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: boolean
+    created_at?: Date | string
+    updated_at?: Date | string
+    widgets?: DashboardWidgetUncheckedCreateNestedManyWithoutDashboardInput
+    alerts?: DashboardAlertUncheckedCreateNestedManyWithoutDashboardInput
+  }
+
+  export type DashboardConfigCreateOrConnectWithoutSharesInput = {
+    where: DashboardConfigWhereUniqueInput
+    create: XOR<DashboardConfigCreateWithoutSharesInput, DashboardConfigUncheckedCreateWithoutSharesInput>
+  }
+
+  export type DashboardConfigUpsertWithoutSharesInput = {
+    update: XOR<DashboardConfigUpdateWithoutSharesInput, DashboardConfigUncheckedUpdateWithoutSharesInput>
+    create: XOR<DashboardConfigCreateWithoutSharesInput, DashboardConfigUncheckedCreateWithoutSharesInput>
+    where?: DashboardConfigWhereInput
+  }
+
+  export type DashboardConfigUpdateToOneWithWhereWithoutSharesInput = {
+    where?: DashboardConfigWhereInput
+    data: XOR<DashboardConfigUpdateWithoutSharesInput, DashboardConfigUncheckedUpdateWithoutSharesInput>
+  }
+
+  export type DashboardConfigUpdateWithoutSharesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets?: DashboardWidgetUpdateManyWithoutDashboardNestedInput
+    alerts?: DashboardAlertUpdateManyWithoutDashboardNestedInput
+  }
+
+  export type DashboardConfigUncheckedUpdateWithoutSharesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    mode?: EnumDashboardModeFieldUpdateOperationsInput | $Enums.DashboardMode
+    layout?: JsonNullValueInput | InputJsonValue
+    filters?: NullableJsonNullValueInput | InputJsonValue
+    is_default?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets?: DashboardWidgetUncheckedUpdateManyWithoutDashboardNestedInput
+    alerts?: DashboardAlertUncheckedUpdateManyWithoutDashboardNestedInput
   }
 
   export type AlertEventCreateWithoutRuleInput = {
@@ -66086,6 +74050,7 @@ export namespace Prisma {
     status_id?: string | null
     importacao_exportador_id?: string | null
     exportacao_importador_id?: string | null
+    fabricante_id?: string | null
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
@@ -66095,6 +74060,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: string | null
     cobertura_cambial?: string
     condicao_pagamento?: string | null
+    numero_proforma?: string | null
+    numero_invoice?: string | null
+    referencia_importador?: string | null
+    referencia_exportador?: string | null
+    referencia_fabricante?: string | null
     valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: string | null
     taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
@@ -66116,6 +74086,7 @@ export namespace Prisma {
     status_id?: string | null
     importacao_exportador_id?: string | null
     exportacao_importador_id?: string | null
+    fabricante_id?: string | null
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
@@ -66125,6 +74096,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: string | null
     cobertura_cambial?: string
     condicao_pagamento?: string | null
+    numero_proforma?: string | null
+    numero_invoice?: string | null
+    referencia_importador?: string | null
+    referencia_exportador?: string | null
+    referencia_fabricante?: string | null
     valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: string | null
     taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
@@ -66210,6 +74186,7 @@ export namespace Prisma {
     status_id?: NullableStringFieldUpdateOperationsInput | string | null
     importacao_exportador_id?: NullableStringFieldUpdateOperationsInput | string | null
     exportacao_importador_id?: NullableStringFieldUpdateOperationsInput | string | null
+    fabricante_id?: NullableStringFieldUpdateOperationsInput | string | null
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -66219,6 +74196,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
     taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -66240,6 +74222,7 @@ export namespace Prisma {
     status_id?: NullableStringFieldUpdateOperationsInput | string | null
     importacao_exportador_id?: NullableStringFieldUpdateOperationsInput | string | null
     exportacao_importador_id?: NullableStringFieldUpdateOperationsInput | string | null
+    fabricante_id?: NullableStringFieldUpdateOperationsInput | string | null
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -66249,6 +74232,11 @@ export namespace Prisma {
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
+    numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
+    referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
     taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
@@ -68212,6 +76200,190 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DashboardWidgetCreateManyDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    widget_key: string
+    widget_type?: $Enums.WidgetType
+    chart_type?: $Enums.ChartType
+    title: string
+    query_spec: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardAlertCreateManyDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    widget_id?: string | null
+    metric_key: string
+    condition: string
+    threshold: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertCreatechannelsInput | string[]
+    is_active?: boolean
+    last_triggered?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type DashboardShareCreateManyDashboardInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id: string
+    share_token?: string
+    channel: string
+    recipient_email?: string | null
+    recipient_phone?: string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: Date | string | null
+    created_at?: Date | string
+  }
+
+  export type DashboardWidgetUpdateWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_key?: StringFieldUpdateOperationsInput | string
+    widget_type?: EnumWidgetTypeFieldUpdateOperationsInput | $Enums.WidgetType
+    chart_type?: EnumChartTypeFieldUpdateOperationsInput | $Enums.ChartType
+    title?: StringFieldUpdateOperationsInput | string
+    query_spec?: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardWidgetUncheckedUpdateWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_key?: StringFieldUpdateOperationsInput | string
+    widget_type?: EnumWidgetTypeFieldUpdateOperationsInput | $Enums.WidgetType
+    chart_type?: EnumChartTypeFieldUpdateOperationsInput | $Enums.ChartType
+    title?: StringFieldUpdateOperationsInput | string
+    query_spec?: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardWidgetUncheckedUpdateManyWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_key?: StringFieldUpdateOperationsInput | string
+    widget_type?: EnumWidgetTypeFieldUpdateOperationsInput | $Enums.WidgetType
+    chart_type?: EnumChartTypeFieldUpdateOperationsInput | $Enums.ChartType
+    title?: StringFieldUpdateOperationsInput | string
+    query_spec?: JsonNullValueInput | InputJsonValue
+    position?: JsonNullValueInput | InputJsonValue
+    config?: NullableJsonNullValueInput | InputJsonValue
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardAlertUpdateWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
+    metric_key?: StringFieldUpdateOperationsInput | string
+    condition?: StringFieldUpdateOperationsInput | string
+    threshold?: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertUpdatechannelsInput | string[]
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardAlertUncheckedUpdateWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
+    metric_key?: StringFieldUpdateOperationsInput | string
+    condition?: StringFieldUpdateOperationsInput | string
+    threshold?: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertUpdatechannelsInput | string[]
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardAlertUncheckedUpdateManyWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
+    metric_key?: StringFieldUpdateOperationsInput | string
+    condition?: StringFieldUpdateOperationsInput | string
+    threshold?: JsonNullValueInput | InputJsonValue
+    channels?: DashboardAlertUpdatechannelsInput | string[]
+    is_active?: BoolFieldUpdateOperationsInput | boolean
+    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardShareUpdateWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    share_token?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardShareUncheckedUpdateWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    share_token?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DashboardShareUncheckedUpdateManyWithoutDashboardInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
+    share_token?: StringFieldUpdateOperationsInput | string
+    channel?: StringFieldUpdateOperationsInput | string
+    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
+    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
+    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AlertEventCreateManyRuleInput = {
     id?: string
     tenant_id: string
@@ -68836,6 +77008,10 @@ export namespace Prisma {
      */
     export type EmailThreadCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmailThreadCountOutputTypeDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use DashboardConfigCountOutputTypeDefaultArgs instead
+     */
+    export type DashboardConfigCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardConfigCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use AlertRuleCountOutputTypeDefaultArgs instead
      */
     export type AlertRuleCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertRuleCountOutputTypeDefaultArgs<ExtArgs>
@@ -68928,13 +77104,25 @@ export namespace Prisma {
      */
     export type WhatsAppAutomationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WhatsAppAutomationDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ConfigDashboardDefaultArgs instead
+     * @deprecated Use DashboardConfigDefaultArgs instead
      */
-    export type ConfigDashboardArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfigDashboardDefaultArgs<ExtArgs>
+    export type DashboardConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardConfigDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use MetricaSnapshotDefaultArgs instead
+     * @deprecated Use DashboardWidgetDefaultArgs instead
      */
-    export type MetricaSnapshotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MetricaSnapshotDefaultArgs<ExtArgs>
+    export type DashboardWidgetArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardWidgetDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DashboardMetricSnapshotDefaultArgs instead
+     */
+    export type DashboardMetricSnapshotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardMetricSnapshotDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DashboardAlertDefaultArgs instead
+     */
+    export type DashboardAlertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardAlertDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DashboardShareDefaultArgs instead
+     */
+    export type DashboardShareArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardShareDefaultArgs<ExtArgs>
     /**
      * @deprecated Use RelatorioDefaultArgs instead
      */
@@ -68963,6 +77151,10 @@ export namespace Prisma {
      * @deprecated Use AlertNotificationLogDefaultArgs instead
      */
     export type AlertNotificationLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertNotificationLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ExportResultDefaultArgs instead
+     */
+    export type ExportResultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExportResultDefaultArgs<ExtArgs>
     /**
      * @deprecated Use AgendaDefaultArgs instead
      */
@@ -69035,6 +77227,10 @@ export namespace Prisma {
      * @deprecated Use PedidoPreferenciaPadraoDefaultArgs instead
      */
     export type PedidoPreferenciaPadraoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PedidoPreferenciaPadraoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use MapeamentoImportDefaultArgs instead
+     */
+    export type MapeamentoImportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MapeamentoImportDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

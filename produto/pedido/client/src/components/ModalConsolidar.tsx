@@ -15,6 +15,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Warning, CheckCircle, MagnifyingGlass, Spinner } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import type { Pedido, ConsolidacaoPreview, ConsolidacaoPayload, CampoDivergente } from '../shared/types'
 import { pedidoConsolidarApi } from '../shared/api'
 import { fmtMoeda } from '../shared/types'
@@ -90,6 +91,7 @@ function LinhaCampoDivergente({ campo, valorEscolhido, onMudar }: LinhaCampoDive
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: ModalConsolidarProps) {
+  const { addNotification } = useShellStore()
   const [preview, setPreview] = useState<ConsolidacaoPreview | null>(null)
   const [carregandoPreview, setCarregandoPreview] = useState(true)
   const [erroPreview, setErroPreview] = useState<string | null>(null)
@@ -149,13 +151,16 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: 
 
     try {
       await pedidoConsolidarApi.confirmar(payload)
+      addNotification({ type: 'success', message: `${pedidosSelecionados.length} POs consolidadas em ${numeroPedido.trim()}.`, duration: 4000 })
       onConcluido()
     } catch (err: unknown) {
-      setErroSalvar(err instanceof Error ? err.message : 'Erro ao consolidar pedidos')
+      const msg = err instanceof Error ? err.message : 'Erro ao consolidar pedidos'
+      setErroSalvar(msg)
+      addNotification({ type: 'error', message: `Falha ao consolidar: ${msg}`, duration: 4000 })
     } finally {
       setSalvando(false)
     }
-  }, [preview, numeroPedido, camposEscolhidos, fundirItens, ids, onConcluido])
+  }, [preview, numeroPedido, camposEscolhidos, fundirItens, ids, onConcluido, pedidosSelecionados, addNotification])
 
   // Fechar com Escape
   useEffect(() => {

@@ -369,27 +369,80 @@ exports.Prisma.WhatsAppAutomationScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ConfigDashboardScalarFieldEnum = {
+exports.Prisma.DashboardConfigScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
   user_id: 'user_id',
-  widgets_layout: 'widgets_layout',
-  refresh_rate: 'refresh_rate',
+  name: 'name',
+  mode: 'mode',
+  layout: 'layout',
+  filters: 'filters',
+  is_default: 'is_default',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
 
-exports.Prisma.MetricaSnapshotScalarFieldEnum = {
+exports.Prisma.DashboardWidgetScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
-  metric_name: 'metric_name',
-  value: 'value',
-  unit: 'unit',
-  snapshot_date: 'snapshot_date',
+  user_id: 'user_id',
+  dashboard_id: 'dashboard_id',
+  widget_key: 'widget_key',
+  widget_type: 'widget_type',
+  chart_type: 'chart_type',
+  title: 'title',
+  query_spec: 'query_spec',
+  position: 'position',
+  config: 'config',
   created_at: 'created_at',
   updated_at: 'updated_at'
+};
+
+exports.Prisma.DashboardMetricSnapshotScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  metric_key: 'metric_key',
+  dimensions: 'dimensions',
+  value: 'value',
+  period_from: 'period_from',
+  period_to: 'period_to',
+  captured_at: 'captured_at'
+};
+
+exports.Prisma.DashboardAlertScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  dashboard_id: 'dashboard_id',
+  widget_id: 'widget_id',
+  metric_key: 'metric_key',
+  condition: 'condition',
+  threshold: 'threshold',
+  channels: 'channels',
+  is_active: 'is_active',
+  last_triggered: 'last_triggered',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.DashboardShareScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  dashboard_id: 'dashboard_id',
+  share_token: 'share_token',
+  channel: 'channel',
+  recipient_email: 'recipient_email',
+  recipient_phone: 'recipient_phone',
+  snapshot_data: 'snapshot_data',
+  expires_at: 'expires_at',
+  created_at: 'created_at'
 };
 
 exports.Prisma.RelatorioScalarFieldEnum = {
@@ -513,6 +566,19 @@ exports.Prisma.AlertNotificationLogScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.ExportResultScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  format: 'format',
+  content: 'content',
+  status: 'status',
+  record_count: 'record_count',
+  filters: 'filters',
+  error: 'error',
+  created_at: 'created_at',
+  expires_at: 'expires_at'
+};
+
 exports.Prisma.AgendaScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
@@ -615,6 +681,7 @@ exports.Prisma.PedidoScalarFieldEnum = {
   status_id: 'status_id',
   importacao_exportador_id: 'importacao_exportador_id',
   exportacao_importador_id: 'exportacao_importador_id',
+  fabricante_id: 'fabricante_id',
   incoterm: 'incoterm',
   moeda_pedido: 'moeda_pedido',
   valor_total_pedido: 'valor_total_pedido',
@@ -624,6 +691,11 @@ exports.Prisma.PedidoScalarFieldEnum = {
   unidade_comercializada_pedido: 'unidade_comercializada_pedido',
   cobertura_cambial: 'cobertura_cambial',
   condicao_pagamento: 'condicao_pagamento',
+  numero_proforma: 'numero_proforma',
+  numero_invoice: 'numero_invoice',
+  referencia_importador: 'referencia_importador',
+  referencia_exportador: 'referencia_exportador',
+  referencia_fabricante: 'referencia_fabricante',
   valor_total_cambio: 'valor_total_cambio',
   moeda_cambio: 'moeda_cambio',
   taxa_cambio_estimada: 'taxa_cambio_estimada',
@@ -875,6 +947,18 @@ exports.Prisma.PedidoPreferenciaPadraoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.MapeamentoImportScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  hash_colunas: 'hash_colunas',
+  mapeamento: 'mapeamento',
+  uso_count: 'uso_count',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -938,6 +1022,31 @@ exports.FilaEmailPrioridade = exports.$Enums.FilaEmailPrioridade = {
   URGENTE: 'URGENTE'
 };
 
+exports.DashboardMode = exports.$Enums.DashboardMode = {
+  PRODUCT: 'PRODUCT',
+  GENERAL: 'GENERAL'
+};
+
+exports.WidgetType = exports.$Enums.WidgetType = {
+  CATALOG: 'CATALOG',
+  CUSTOM: 'CUSTOM',
+  GABI: 'GABI'
+};
+
+exports.ChartType = exports.$Enums.ChartType = {
+  KPI_CARD: 'KPI_CARD',
+  LINE: 'LINE',
+  BAR: 'BAR',
+  BAR_HORIZONTAL: 'BAR_HORIZONTAL',
+  DONUT: 'DONUT',
+  HISTOGRAM: 'HISTOGRAM',
+  FUNNEL: 'FUNNEL',
+  GAUGE: 'GAUGE',
+  MAP: 'MAP',
+  TABLE: 'TABLE',
+  AREA: 'AREA'
+};
+
 exports.ActorType = exports.$Enums.ActorType = {
   USER: 'USER',
   API: 'API',
@@ -974,8 +1083,11 @@ exports.Prisma.ModelName = {
   WhatsAppMessage: 'WhatsAppMessage',
   WhatsAppUsageLog: 'WhatsAppUsageLog',
   WhatsAppAutomation: 'WhatsAppAutomation',
-  ConfigDashboard: 'ConfigDashboard',
-  MetricaSnapshot: 'MetricaSnapshot',
+  DashboardConfig: 'DashboardConfig',
+  DashboardWidget: 'DashboardWidget',
+  DashboardMetricSnapshot: 'DashboardMetricSnapshot',
+  DashboardAlert: 'DashboardAlert',
+  DashboardShare: 'DashboardShare',
   Relatorio: 'Relatorio',
   ConfigRelatorio: 'ConfigRelatorio',
   ExportJob: 'ExportJob',
@@ -983,6 +1095,7 @@ exports.Prisma.ModelName = {
   AlertRule: 'AlertRule',
   AlertEvent: 'AlertEvent',
   AlertNotificationLog: 'AlertNotificationLog',
+  ExportResult: 'ExportResult',
   Agenda: 'Agenda',
   Slot: 'Slot',
   Reserva: 'Reserva',
@@ -1000,7 +1113,8 @@ exports.Prisma.ModelName = {
   PedidoStatus: 'PedidoStatus',
   PedidoColuna: 'PedidoColuna',
   PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
-  PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao'
+  PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao',
+  MapeamentoImport: 'MapeamentoImport'
 };
 
 /**

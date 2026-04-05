@@ -58,6 +58,12 @@ export interface GTColuna<T = unknown> {
    */
   opcoes?: { valor: string; label: string }[]
   largura?: string | number
+  /**
+   * Desativa o auto-fit de largura para esta coluna.
+   * Use em colunas com render customizado (badges, ícones, moeda formatada)
+   * onde o valor bruto não representa o tamanho visual real.
+   */
+  autoFitDisabled?: boolean
   /** Grupo de agrupamento exibido no gerenciador de colunas */
   grupo?: string
   /** Códigos ISO 4217 disponíveis no seletor (ativo quando tipo='moeda') */

@@ -48,10 +48,10 @@ interface ItemForm {
   key: string
   part_number: string
   ncm: string
-  descricao: string
+  descricao_item: string
   quantidade_inicial_item_pedido: string
   unidade_comercializada_item: string
-  valor_unitario: string
+  valor_por_unidade_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -75,10 +75,10 @@ const ITEM_VAZIO = (): ItemForm => ({
   key: crypto.randomUUID(),
   part_number: '',
   ncm: '',
-  descricao: '',
+  descricao_item: '',
   quantidade_inicial_item_pedido: '',
   unidade_comercializada_item: 'UN',
-  valor_unitario: '',
+  valor_por_unidade_item: '',
 })
 
 // ── Estilos ───────────────────────────────────────────────────────────────────
@@ -166,10 +166,10 @@ export default function NovoPedido() {
             key: item.id,
             part_number: item.part_number,
             ncm: item.ncm,
-            descricao: item.descricao,
+            descricao_item: item.descricao_item,
             quantidade_inicial_item_pedido: String(item.quantidade_inicial_item_pedido),
             unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
-            valor_unitario: item.valor_unitario != null ? String(item.valor_unitario) : '',
+            valor_por_unidade_item: item.valor_por_unidade_item != null ? String(item.valor_por_unidade_item) : '',
           })))
         }
       })
@@ -182,10 +182,10 @@ export default function NovoPedido() {
       const itensMapped = itens.map(item => ({
         part_number: item.part_number,
         ncm: item.ncm,
-        descricao: item.descricao,
+        descricao_item: item.descricao_item,
         quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
         unidade_comercializada_item: item.unidade_comercializada_item,
-        valor_unitario: item.valor_unitario ? parseFloat(item.valor_unitario) : undefined,
+        valor_por_unidade_item: item.valor_por_unidade_item ? parseFloat(item.valor_por_unidade_item) : undefined,
       }))
       const payload = {
         ...form,
@@ -459,8 +459,8 @@ export default function NovoPedido() {
                 <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Descricao *</label>
                 <input
                   style={inputStyle}
-                  value={item.descricao}
-                  onChange={(e) => handleItemChange(index, 'descricao', e.target.value)}
+                  value={item.descricao_item}
+                  onChange={(e) => handleItemChange(index, 'descricao_item', e.target.value)}
                   placeholder="Descricao do item"
                 />
               </div>
@@ -498,8 +498,8 @@ export default function NovoPedido() {
                 <input
                   type="number"
                   style={{ ...inputStyle, textAlign: 'right' }}
-                  value={item.valor_unitario}
-                  onChange={(e) => handleItemChange(index, 'valor_unitario', e.target.value)}
+                  value={item.valor_por_unidade_item}
+                  onChange={(e) => handleItemChange(index, 'valor_por_unidade_item', e.target.value)}
                   placeholder="0,00"
                   min="0"
                   step="0.01"

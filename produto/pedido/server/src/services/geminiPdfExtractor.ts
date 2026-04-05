@@ -16,6 +16,7 @@
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { z } from 'zod'
 import type { LinhaArquivo } from './importEngine.js'
 
 // ── Config ────────────────────────────────────────────────────────────────────
@@ -23,29 +24,39 @@ import type { LinhaArquivo } from './importEngine.js'
 const GEMINI_API_KEY      = process.env.GEMINI_API_KEY ?? ''
 const GEMINI_PDF_ENABLED  = process.env.GEMINI_PDF_ENABLED === 'true'
 
-// Modelo mais barato para extração estruturada — ~$0.001/documento
-const MODEL = 'gemini-2.0-flash'
+// Modelo para extração estruturada
+const MODEL = 'gemini-2.5-flash'
+
+// ── Timeout para chamada Gemini (ms) ─────────────────────────────────────────
+
+const GEMINI_TIMEOUT_MS = 90_000
+
+// ── Schema Zod para validação da resposta do Gemini ───────────────────────────
+
+const InvoiceItemSchema = z.object({
+  invoice_number:  z.string().nullish(),
+  invoice_date:    z.string().nullish(),
+  shipper:         z.string().nullish(),
+  manufacturer:    z.string().nullish(),
+  incoterms:       z.string().nullish(),
+  currency:        z.string().nullish(),
+  payment_terms:   z.string().nullish(),
+  po_number:       z.string().nullish(),
+  code:            z.string().nullish(),
+  description:     z.string().nullish(),
+  unit:            z.string().nullish(),
+  quantity:        z.union([z.string(), z.number()]).nullish(),
+  unit_price:      z.union([z.string(), z.number()]).nullish(),
+  total_amount:    z.union([z.string(), z.number()]).nullish(),
+  customs_tariff:  z.string().nullish(),
+  net_weight:      z.union([z.string(), z.number()]).nullish(),
+}).passthrough()
+
+const InvoiceArraySchema = z.array(InvoiceItemSchema)
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
-interface InvoiceItem {
-  invoice_number?:  string
-  invoice_date?:    string
-  shipper?:         string
-  manufacturer?:    string
-  incoterms?:       string
-  currency?:        string
-  payment_terms?:   string
-  po_number?:       string
-  code?:            string
-  description?:     string
-  unit?:            string
-  quantity?:        string | number
-  unit_price?:      string | number
-  total_amount?:    string | number
-  customs_tariff?:  string
-  net_weight?:      string | number
-}
+type InvoiceItem = z.infer<typeof InvoiceItemSchema>
 
 // ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -88,14 +99,22 @@ export async function extrairPdfComGemini(
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
     const model = genAI.getGenerativeModel({ model: MODEL })
 
-    const result = await model.generateContent([
-      { text: SYSTEM_PROMPT },
-      {
-        inlineData: {
-          mimeType: 'application/pdf',
-          data: buffer.toString('base64'),
+    // Timeout explícito de 90s para evitar hang indefinido
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`Gemini timeout após ${GEMINI_TIMEOUT_MS / 1000}s`)), GEMINI_TIMEOUT_MS)
+    )
+
+    const result = await Promise.race([
+      model.generateContent([
+        { text: SYSTEM_PROMPT },
+        {
+          inlineData: {
+            mimeType: 'application/pdf',
+            data: buffer.toString('base64'),
+          },
         },
-      },
+      ]),
+      timeoutPromise,
     ])
 
     const usage = result.response.usageMetadata
@@ -114,10 +133,17 @@ export async function extrairPdfComGemini(
       .replace(/\s*```$/i, '')
       .trim()
 
-    const itens: InvoiceItem[] = JSON.parse(jsonBruto)
+    // Validar estrutura com Zod antes de usar
+    const parsed = InvoiceArraySchema.safeParse(JSON.parse(jsonBruto))
+    if (!parsed.success) {
+      console.warn('[GeminiPDF] Resposta fora do schema esperado:', parsed.error.issues.slice(0, 3))
+      return null
+    }
 
-    if (!Array.isArray(itens) || itens.length === 0) {
-      console.warn('[GeminiPDF] JSON retornado não é array ou está vazio')
+    const itens: InvoiceItem[] = parsed.data
+
+    if (itens.length === 0) {
+      console.warn('[GeminiPDF] JSON retornado está vazio')
       return null
     }
 
@@ -153,11 +179,11 @@ function mapearCampos(item: InvoiceItem): Record<string, string | number | null>
 
     // Itens
     part_number:            item.code              ?? null,
-    descricao:              item.description       ?? null,
+    descricao_item:         item.description       ?? null,
     unidade:                item.unit              ?? null,
     quantidade_inicial_item_pedido: item.quantity  ?? null,
-    valor_unitario:         item.unit_price        ?? null,
-    valor_item:             item.total_amount      ?? null,
+    valor_por_unidade_item: item.unit_price        ?? null,
+    valor_total_item:       item.total_amount      ?? null,
     ncm:                    item.customs_tariff    ?? null,
 
     // Metadados (para exibição na etapa de mapeamento)
@@ -170,8 +196,8 @@ function mapearCampos(item: InvoiceItem): Record<string, string | number | null>
 // ── Cálculo de custo ──────────────────────────────────────────────────────────
 
 const PRICING: Record<string, { input: number; output: number }> = {
-  'gemini-2.0-flash': { input: 0.075, output: 0.30 },
   'gemini-2.5-flash': { input: 0.15,  output: 0.60 },
+  'gemini-1.5-flash': { input: 0.075, output: 0.30 },
 }
 
 function calcularCusto(tokensIn: number, tokensOut: number): number {

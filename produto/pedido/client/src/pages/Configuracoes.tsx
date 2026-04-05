@@ -1771,7 +1771,7 @@ export default function Configuracoes() {
                               { grupo: 'Parceiros',   vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
                               { grupo: 'Financeiro',  vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
                               { grupo: 'Datas',       vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
-                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario_item}}','{{valor_item}}','{{/each}}'] },
+                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_por_unidade_item}}','{{valor_total_item}}','{{/each}}'] },
                             ].map(({ grupo, vars }) => (
                               <div key={grupo} className="cfg-tpl-variaveis__grupo">
                                 <span className="cfg-tpl-variaveis__grupo-label">{grupo}</span>
@@ -2432,18 +2432,31 @@ export default function Configuracoes() {
                 <div className="cfg-form-group">
                   <label className="cfg-form-label">Escopo <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                   <div className="cfg-escopo-row">
-                    {(['pedido', 'item', 'ambos'] as EscopoColunaUsuario[]).map(esc => (
-                      <label key={esc} className="cfg-escopo-option">
-                        <input
-                          type="radio"
-                          name="escopo"
-                          value={esc}
-                          checked={novaColuna.escopo === esc}
-                          onChange={() => setNovaColuna(prev => ({ ...prev, escopo: esc }))}
-                        />
-                        <span>{esc.charAt(0).toUpperCase() + esc.slice(1)}</span>
-                      </label>
-                    ))}
+                    {(['pedido', 'item', 'ambos'] as EscopoColunaUsuario[]).map(esc => {
+                      const bloqueado = esc === 'item' || esc === 'ambos'
+                      const radio = (
+                        <label
+                          key={esc}
+                          className={`cfg-escopo-option${bloqueado ? ' cfg-escopo-option--disabled' : ''}`}
+                          aria-disabled={bloqueado ? 'true' : undefined}
+                        >
+                          <input
+                            type="radio"
+                            name="escopo"
+                            value={esc}
+                            checked={novaColuna.escopo === esc}
+                            onChange={() => !bloqueado && setNovaColuna(prev => ({ ...prev, escopo: esc }))}
+                            disabled={bloqueado}
+                          />
+                          <span>{esc.charAt(0).toUpperCase() + esc.slice(1)}</span>
+                        </label>
+                      )
+                      return bloqueado ? (
+                        <TooltipGlobal key={esc} descricao="Em breve — colunas de item serão exibidas nas linhas expandidas">
+                          {radio}
+                        </TooltipGlobal>
+                      ) : radio
+                    })}
                   </div>
                 </div>
 

@@ -34,14 +34,14 @@ interface PedidoParaTemplate {
 
 interface ItemParaTemplate {
   part_number: string
-  descricao: string
+  descricao_item: string
   ncm: string
   saldo_item_pedido: number
   quantidade_inicial_item_pedido: number
   unidade_comercializada_item?: string | null
   moeda_item: string
-  valor_unitario?: number | null
-  valor_item?: number | null
+  valor_por_unidade_item?: number | null
+  valor_total_item?: number | null
   [key: string]: unknown
 }
 
@@ -78,11 +78,11 @@ export function compilarVariaveis(
     base['quantidade'] = item.saldo_item_pedido
     base['unidade'] = item.unidade_comercializada_item ?? ''
     base['moeda'] = item.moeda_item
-    base['valor_unitario'] = item.valor_unitario != null
-      ? item.valor_unitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+    base['valor_unitario'] = item.valor_por_unidade_item != null
+      ? item.valor_por_unidade_item.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
       : ''
-    base['valor_total'] = item.valor_item != null
-      ? item.valor_item.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+    base['valor_total'] = item.valor_total_item != null
+      ? item.valor_total_item.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
       : ''
     return base
   })

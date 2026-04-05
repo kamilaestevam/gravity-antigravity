@@ -36,11 +36,11 @@ export interface PedidoImportado {
 export interface ItemImportado {
   part_number: string
   ncm: string
-  descricao: string
-  quantidade_inicial: number
+  descricao_item: string
+  quantidade_inicial_pedido: number
   unidade_comercializada_item?: string
-  valor_unitario?: number
-  valor_item?: number
+  valor_por_unidade_item?: number
+  valor_total_item?: number
 }
 
 interface MapeamentoColunas {
@@ -64,11 +64,11 @@ const MAPEAMENTO_PADRAO: MapeamentoColunas = {
   data_emissao_pedido: 'data|data_pedido|data_emissao|date|po_date|order_date',
   part_number: 'part_number|sku|codigo|code|item_code|produto',
   ncm: 'ncm|hs_code|hts|tariff|classificacao',
-  descricao: 'descricao|description|desc|produto|product|item',
-  quantidade_inicial: 'quantidade|qty|quantity|qtd|quantidade_inicial',
+  descricao_item: 'descricao|description|desc|produto|product|item',
+  quantidade_inicial_pedido: 'quantidade|qty|quantity|qtd|quantidade_inicial_pedido',
   unidade_comercializada_item: 'unidade|uom|unit|um|medida',
-  valor_unitario: 'valor_unitario|unit_price|preco|price|unit_value',
-  valor_item: 'valor_total|total|valor_item|total_value|amount',
+  valor_por_unidade_item: 'valor_unitario_item|unit_price|preco|price|unit_value',
+  valor_total_item: 'valor_total|total|valor_item|total_value|amount',
 }
 
 // ── Engine ────────────────────────────────────────────────────────────────────
@@ -134,19 +134,19 @@ export const importEngine = {
       }
 
       const partNumber = resolverCampo(row, map, 'part_number')
-      const descricao = resolverCampo(row, map, 'descricao')
+      const descricaoItem = resolverCampo(row, map, 'descricao_item')
       const ncm = resolverCampo(row, map, 'ncm')
-      const quantidade = resolverCampo(row, map, 'quantidade_inicial')
+      const quantidade = resolverCampo(row, map, 'quantidade_inicial_pedido')
 
-      if (partNumber || descricao) {
+      if (partNumber || descricaoItem) {
         pedidosMap.get(key)!.itens.push({
           part_number: asString(partNumber) || 'SEM-SKU',
           ncm: asString(ncm) || '0000.00.00',
-          descricao: asString(descricao) || 'Sem descricao',
-          quantidade_inicial: asNumber(quantidade) || 0,
+          descricao_item: asString(descricaoItem) || 'Sem descricao',
+          quantidade_inicial_pedido: asNumber(quantidade) || 0,
           unidade_comercializada_item: asString(resolverCampo(row, map, 'unidade_comercializada_item')) || 'UN',
-          valor_unitario: asNumber(resolverCampo(row, map, 'valor_unitario')),
-          valor_item: asNumber(resolverCampo(row, map, 'valor_item')),
+          valor_por_unidade_item: asNumber(resolverCampo(row, map, 'valor_por_unidade_item')),
+          valor_total_item: asNumber(resolverCampo(row, map, 'valor_total_item')),
         })
       }
     }

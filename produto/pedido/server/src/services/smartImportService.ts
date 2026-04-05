@@ -14,6 +14,12 @@ import { parseArquivo, ALIASES_CAMPOS, calcularHashColunas, type LinhaArquivo } 
 import { MapeamentoMemoriaService, type ColunaMapeadaBackend } from './mapeamentoMemoriaService.js'
 import { AppError } from '../errors/AppError.js'
 
+function gerarId(prefixo: string): string {
+  const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
+  const ano = String(new Date().getFullYear()).slice(-2)
+  return `${prefixo}_id_${seq}/${ano}`
+}
+
 // ── Tipos locais (espelham os tipos do client) ────────────────────────────────
 
 export interface SmartImportAlerta {
@@ -41,6 +47,8 @@ export interface SmartImportPreview {
   preview_id: string
   linhas: SmartImportLinha[]
   limite_excedido: boolean
+  extrator_usado: string
+  dados_brutos: Array<{ linha: number; valores: Record<string, string> }>
 }
 
 export interface SmartImportConfirmar {
@@ -88,7 +96,7 @@ export class SmartImportService {
 
   async analisar(tenantId: string, buffer: Buffer, nomeArquivo: string, nomePlanilha?: string): Promise<SmartImportPreview> {
     // 1. Parse do arquivo
-    const linhasBrutas = await parseArquivo(buffer, nomeArquivo, nomePlanilha)
+    const { linhas: linhasBrutas, extrator_usado } = await parseArquivo(buffer, nomeArquivo, nomePlanilha)
     if (linhasBrutas.length === 0) {
       throw new Error('Arquivo vazio ou sem dados validos')
     }
@@ -101,13 +109,24 @@ export class SmartImportService {
     let mapeamento: ColunaMapeadaBackend[]
     let memoriaAplicada = false
 
+    // Amostra para exemplo_valor (usada tanto na memória quanto no mapearComIA)
+    const amostra = linhasBrutas.slice(0, 10)
+    const exemplosPorColuna: Record<string, string> = {}
+    for (const cab of cabecalhos) {
+      const val = amostra.map(r => r[cab]).find(v => v !== undefined && v !== null && String(v).trim() !== '')
+      if (val) exemplosPorColuna[cab] = String(val).slice(0, 80)
+    }
+
     const mapeamentoSalvo = await this.memoriaService.buscar(tenantId, hashColunas)
     if (mapeamentoSalvo) {
-      mapeamento = mapeamentoSalvo.map(m => ({ ...m, inferido_por: 'memoria' as const }))
+      mapeamento = mapeamentoSalvo.map(m => ({
+        ...m,
+        inferido_por: 'memoria' as const,
+        exemplo_valor: exemplosPorColuna[m.coluna_arquivo] ?? null,
+      }))
       memoriaAplicada = true
     } else {
       // 4. Mapeamento mock-IA (aliases conhecidos + scores)
-      const amostra = linhasBrutas.slice(0, 10)
       mapeamento = this.mapearComIA(cabecalhos, amostra)
       // Refinar com inferencia pelos dados
       mapeamento = mapeamento.map(m => {
@@ -178,6 +197,13 @@ export class SmartImportService {
 
     const confiancaGlobal = mapeamento.reduce((sum, m) => sum + m.confianca, 0) / mapeamento.length
 
+    const dados_brutos = linhasBrutas.map((row, i) => ({
+      linha: i + 2, // linha 1 = cabeçalho
+      valores: Object.fromEntries(
+        Object.entries(row).map(([k, v]) => [k, String(v ?? '')])
+      ),
+    }))
+
     return {
       total_linhas:    linhasComDuplicatas.length,
       total_pedidos:   pedidosUnicos.size,
@@ -188,6 +214,8 @@ export class SmartImportService {
       preview_id:      previewId,
       linhas:          linhasComDuplicatas,
       limite_excedido: linhasComDuplicatas.length > LIMITE_LINHAS_AVISO,
+      extrator_usado,
+      dados_brutos,
     }
   }
 
@@ -195,7 +223,12 @@ export class SmartImportService {
     tenantId: string,
     userId: string,
     payload: SmartImportConfirmar,
+    companyId?: string,
   ): Promise<SmartImportResultado> {
+    // SEC — Garantir que o preview pertence ao tenant (defense in depth além da rota)
+    if (!payload.preview_id.startsWith(tenantId + '-')) {
+      throw new AppError('Preview nao pertence a este tenant', 403, 'UNAUTHORIZED_PREVIEW')
+    }
     const cached = previewCache.get(payload.preview_id)
 
     // Usar linhas do cache; fallback stateless para multi-instancia (P0.3)
@@ -228,6 +261,16 @@ export class SmartImportService {
           const dados = { ...linha.dados }
           if (numeroEditado) dados['numero_pedido'] = numeroEditado
 
+          // Validar valor_por_unidade_item não-negativo
+          const valorUnitRaw = dados['valor_por_unidade_item']
+          if (valorUnitRaw !== undefined && valorUnitRaw !== null && valorUnitRaw !== '') {
+            const valorUnit = Number(valorUnitRaw)
+            if (!isNaN(valorUnit) && valorUnit < 0) {
+              erros.push({ linha: linha.linha_arquivo, motivo: 'Valor unitario do item nao pode ser negativo' })
+              continue
+            }
+          }
+
           const numeroPedido = (dados['numero_pedido'] as string) || linha.numero_pedido
 
           // Aplicar decisao de duplicata
@@ -236,7 +279,7 @@ export class SmartImportService {
             continue
           }
 
-          const dadosPedido = this.montarDadosPedido(dados, tenantId)
+          const dadosPedido = this.montarDadosPedido(dados, tenantId, companyId ?? tenantId)
 
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
             // Atualizar pedido existente
@@ -263,36 +306,55 @@ export class SmartImportService {
               select: { id: true },
             })
 
-            if (pedidoExistente && dados['part_number']) {
-              // Adicionar item ao pedido existente
+            if (pedidoExistente && (dados['part_number'] || dados['descricao_item'])) {
+              // Adicionar item ao pedido existente — .catch(() => null) para graceful fallback
+              // (ex: unique constraint já satisfeita → pedido já atualizado, segue em frente)
               await (tx as Record<string, any>)['pedidoItem'].create({
                 data: {
-                  tenant_id: tenantId,
-                  pedido_id: pedidoExistente.id,
-                  part_number: String(dados['part_number'] ?? ''),
-                  ncm: String(dados['ncm'] ?? ''),
-                  descricao: String(dados['descricao'] ?? ''),
-                  quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                  saldo_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                  quantidade_pronta_total: 0,
-                  quantidade_transferida_item: 0,
-                  quantidade_cancelada_item_pedido: 0,
-                  casas_decimais_quantidade: 3,
-                  moeda_item: String(dados['moeda_pedido'] ?? 'USD'),
-                  valor_unitario: dados['valor_unitario'] ? Number(dados['valor_unitario']) : null,
-                  casas_decimais_valor_unitario: 4,
-                  valor_item: dados['valor_item'] ? Number(dados['valor_item']) : null,
+                  id:                  gerarId('pite'),
+                  tenant_id:           tenantId,
+                  company_id:          companyId ?? tenantId,
+                  pedido_id:           pedidoExistente.id,
+                  part_number:         String(dados['part_number'] ?? ''),
+                  ncm:                 String(dados['ncm'] ?? ''),
+                  descricao_item:      String(dados['descricao_item'] ?? ''),
+                  quantidade_inicial_pedido:  Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  quantidade_atual_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  casas_decimais_quantidade_item: 2,
+                  moeda_item:            String(dados['moeda_pedido'] ?? 'USD'),
+                  valor_por_unidade_item: dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
+                  valor_total_item:       dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
                   casas_decimais_total_item: 2,
                 },
-              }).catch(() => null) // Se falhar, segue para criar pedido novo
+              }).catch(() => null)
               atualizados.push(linha.linha_arquivo)
               continue
             }
           }
 
-          // Criar pedido novo
+          // Criar pedido novo com o item da linha atual
+          const itemPayload = (dados['part_number'] || dados['descricao_item']) ? {
+            itens: {
+              create: [{
+                id:                  gerarId('pite'),
+                tenant_id:           tenantId,
+                company_id:          companyId ?? tenantId,
+                part_number:         String(dados['part_number'] ?? ''),
+                ncm:                 String(dados['ncm'] ?? ''),
+                descricao_item:      String(dados['descricao_item'] ?? ''),
+                quantidade_inicial_pedido:  Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                quantidade_atual_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                casas_decimais_quantidade_item: 2,
+                moeda_item:            String(dados['moeda_pedido'] ?? 'USD'),
+                valor_por_unidade_item: dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
+                valor_total_item:       dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
+                casas_decimais_total_item: 2,
+              }],
+            },
+          } : {}
+
           const novo = await (tx as Record<string, any>)['pedido'].create({
-            data: dadosPedido,
+            data: { ...dadosPedido, ...itemPayload },
           })
           criados.push(novo.id)
         } catch (err: unknown) {
@@ -323,18 +385,40 @@ export class SmartImportService {
 
   // ── Privados ──────────────────────────────────────────────────────────────────
 
-  private mapearComIA(cabecalhos: string[], _amostra: LinhaArquivo[]): ColunaMapeadaBackend[] {
+  private mapearComIA(cabecalhos: string[], amostra: LinhaArquivo[]): ColunaMapeadaBackend[] {
+    const camposSistema = Object.keys(ALIASES_CAMPOS)
+
     return cabecalhos.map(cabecalho => {
-      const cab = cabecalho.toLowerCase().trim()
+      // Primeiro valor não-vazio da amostra
+      const exemploValor = amostra
+        .map(linha => linha[cabecalho])
+        .find(v => v !== undefined && v !== null && String(v).trim() !== '')
+        ?? null
+      const exemploStr = exemploValor ? String(exemploValor).slice(0, 80) : null
+
+      // Caso 1: coluna já é exatamente um campo do sistema (Gemini usa nomes internos)
+      if (camposSistema.includes(cabecalho)) {
+        return {
+          coluna_arquivo: cabecalho,
+          campo_sistema:  cabecalho,
+          confianca:      99,
+          nivel:          'auto' as const,
+          inferido_por:   'ia' as const,
+          exemplo_valor:  exemploStr,
+        }
+      }
+
+      // Caso 2: matching por aliases (arquivos Excel/CSV com nomes humanos)
+      // Normaliza underscores/hífens para espaço: "valor_unitario" → "valor unitario"
+      const cab = cabecalho.toLowerCase().trim().replace(/[_-]/g, ' ')
       let melhorCampo: string | null = null
       let melhorScore = 0
 
       for (const [campo, aliases] of Object.entries(ALIASES_CAMPOS)) {
         for (const alias of aliases) {
-          // Match exato
           if (cab === alias) { melhorCampo = campo; melhorScore = 97; break }
-          // Contém
-          if (cab.includes(alias) || alias.includes(cab)) {
+          // Partial match: só pontua se o overlap for significativo (alias com 4+ chars)
+          if (alias.length >= 4 && (cab === alias || cab.includes(alias) || alias.includes(cab))) {
             const score = Math.round(70 + (Math.min(cab.length, alias.length) / Math.max(cab.length, alias.length)) * 25)
             if (score > melhorScore) { melhorCampo = campo; melhorScore = score }
           }
@@ -353,6 +437,7 @@ export class SmartImportService {
         confianca:      melhorScore,
         nivel,
         inferido_por:   'ia',
+        exemplo_valor:  exemploStr,
       }
     })
   }
@@ -388,10 +473,10 @@ export class SmartImportService {
       return { campo: 'data_embarque', confianca: 72 }
     }
 
-    // Detectar valor numerico grande (possivelmente valor_unitario)
+    // Detectar valor numerico grande (possivelmente valor_por_unidade_item)
     const numeros = amostras.map(v => parseFloat(v.replace(',', '.'))).filter(n => !isNaN(n))
     if (numeros.length >= amostras.length * 0.9 && numeros.some(n => n > 10)) {
-      return { campo: 'valor_unitario', confianca: 58 }
+      return { campo: 'valor_por_unidade_item', confianca: 58 }
     }
 
     return null
@@ -448,9 +533,9 @@ export class SmartImportService {
       alertas.push({ campo: 'quantidade_inicial_item_pedido', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
     }
 
-    const val = Number(dados['valor_unitario'])
-    if (dados['valor_unitario'] !== undefined && !isNaN(val) && val < 0) {
-      alertas.push({ campo: 'valor_unitario', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
+    const val = Number(dados['valor_por_unidade_item'])
+    if (dados['valor_por_unidade_item'] !== undefined && !isNaN(val) && val < 0) {
+      alertas.push({ campo: 'valor_por_unidade_item', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
     }
 
     const ncm = String(dados['ncm'] ?? '').replace(/[.\s-]/g, '')
@@ -471,7 +556,7 @@ export class SmartImportService {
     return alertas
   }
 
-  private montarDadosPedido(dados: Record<string, unknown>, tenantId: string): Record<string, unknown> {
+  private montarDadosPedido(dados: Record<string, unknown>, tenantId: string, companyId: string): Record<string, unknown> {
     // P1.3 — validar enum tipo_operacao para evitar valores arbitrarios
     const TIPOS_OPERACAO_VALIDOS = ['importacao', 'exportacao'] as const
     const tipoOperacao = TIPOS_OPERACAO_VALIDOS.includes(dados['tipo_operacao'] as typeof TIPOS_OPERACAO_VALIDOS[number])
@@ -479,12 +564,14 @@ export class SmartImportService {
       : 'importacao'
 
     return {
+      id:                gerarId('pedi'),
       tenant_id:         tenantId,
+      company_id:        companyId,
       numero_pedido:     String(dados['numero_pedido'] ?? `IMP-${Date.now()}`),
       tipo_operacao:     tipoOperacao,
       status:            'draft',
-      exportador_nome:   dados['exportador'] ?? null,
-      fabricante_nome:   dados['fabricante'] ?? null,
+      importacao_exportador_id: dados['exportador'] ? String(dados['exportador']) : null,
+      fabricante_id:     dados['fabricante'] ? String(dados['fabricante']) : null,
       incoterm:          dados['incoterm'] ?? null,
       moeda_pedido:      dados['moeda_pedido'] ?? 'USD',
       cobertura_cambial: 'com_cobertura',

@@ -6,7 +6,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next'],
+    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
     alias: {
       // ── Botoes ──
       '@nucleo/botao-global': path.resolve(__dirname, '../../nucleo-global/Botoes/botao-global/src/index.ts'),
@@ -42,12 +42,40 @@ export default defineConfig({
       '@nucleo/modal-sem-sessoes-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-sem-sessoes-global/src/index.ts'),
       '@nucleo/modal-campo-select-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-select-global/src/index.ts'),
       // ── Tabelas ──
+      '@nucleo/kanban-global': path.resolve(__dirname, '../../nucleo-global/Kanban/kanban-global/src/index.ts'),
+      // peerDeps do kanban-global — forçar resolução a partir do configurador
+      '@dnd-kit/core': path.resolve(__dirname, 'node_modules/@dnd-kit/core'),
+      '@dnd-kit/sortable': path.resolve(__dirname, 'node_modules/@dnd-kit/sortable'),
+      '@dnd-kit/utilities': path.resolve(__dirname, 'node_modules/@dnd-kit/utilities'),
       '@nucleo/tabela-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-virtual-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-virtual-global/src/index.ts'),
       '@nucleo/tabela-camadas-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/tabela-camadas-global/src/index.ts'),
       '@nucleo/select-colunas-global': path.resolve(__dirname, '../../nucleo-global/Tabelas/select-colunas-global/src/index.ts'),
+      // ── Layout (extras) ──
+      '@nucleo/tela-produto-global': path.resolve(__dirname, '../../nucleo-global/Layout/tela-produto-global/src/index.ts'),
+      '@nucleo/menu-topo-global': path.resolve(__dirname, '../../nucleo-global/Layout/menu-topo-global/src/index.ts'),
+      // ── Logo ──
+      '@nucleo/logo-produtos': path.resolve(__dirname, '../../nucleo-global/Logo/produtos/src/index.ts'),
+      // ── Dashboard ──
+      '@nucleo/dashboard': path.resolve(__dirname, '../../nucleo-global/Dashboard'),
+      '@nucleo/query-builder-global': path.resolve(__dirname, '../../nucleo-global/Dashboard/QueryBuilder'),
+      // ── Gabi ──
+      '@nucleo/gabi-field-icon-global': path.resolve(__dirname, '../../nucleo-global/Gabi/gabi-field-icon-global/src/index.ts'),
+      // ── Modais (extras) ──
+      '@nucleo/modal-passo-passo-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-passo-passo-global/src/index.ts'),
+      '@nucleo/modal-gabi-caixa-aviso': path.resolve(__dirname, '../../nucleo-global/Modais/modal-gabi-caixa-aviso/src/index.ts'),
+      // ── Templates ──
+      '@nucleo/pagina-dashboard-global': path.resolve(__dirname, '../../nucleo-global/Templates/pagina-dashboard-global/src/index.ts'),
+      '@nucleo/pagina-formulario-global': path.resolve(__dirname, '../../nucleo-global/Templates/pagina-formulario-global/src/index.ts'),
+      '@nucleo/pagina-tabela-global': path.resolve(__dirname, '../../nucleo-global/Templates/pagina-tabela-global/src/index.ts'),
+      // ── Composição ──
+      '@nucleo/flex-global': path.resolve(__dirname, '../../nucleo-global/Composicao/flex-global/src/index.ts'),
+      '@nucleo/grid-global': path.resolve(__dirname, '../../nucleo-global/Composicao/grid-global/src/index.ts'),
+      '@nucleo/secao-global': path.resolve(__dirname, '../../nucleo-global/Composicao/secao-global/src/index.ts'),
+      '@nucleo/stack-global': path.resolve(__dirname, '../../nucleo-global/Composicao/stack-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils': path.resolve(__dirname, '../../nucleo-global/Utilidades/utils/src/index.ts'),
+      '@nucleo/export-utils': path.resolve(__dirname, '../../nucleo-global/Utilidades/export-utils/exportUtils.ts'),
       '@nucleo/Utilidades/localization/provider': path.resolve(__dirname, '../../nucleo-global/Utilidades/localization/provider.tsx'),
       '@nucleo/Utilidades/localization/i18n': path.resolve(__dirname, '../../nucleo-global/Utilidades/localization/i18n.ts'),
       // ── Login ──

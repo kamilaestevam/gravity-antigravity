@@ -280,8 +280,8 @@ export class TransferirService {
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            saldo_item_pedido: itemOrigem.saldo_item_pedido + historico.quantidade,
-            quantidade_transferida_item: Math.max(0, itemOrigem.quantidade_transferida_item - historico.quantidade),
+            saldo_item_pedido: itemOrigem.saldo_item_pedido + historico.quantidade_item_transferida,
+            quantidade_transferida_item: Math.max(0, itemOrigem.quantidade_transferida_item - historico.quantidade_item_transferida),
           },
         })
       }
@@ -483,7 +483,7 @@ export class TransferirService {
           pedido_origem_id: payload.pedido_id,
           item_origem_id: payload.item_id,
           cenario: payload.cenario,
-          quantidade: payload.quantidade_origem,
+          quantidade_item_transferida: payload.quantidade_origem,
           destinos_json: JSON.stringify(
             payload.destinos.map((d, idx) => ({
               ...d,

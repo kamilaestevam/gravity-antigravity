@@ -13,6 +13,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Info, CheckCircle, Spinner, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import type { Pedido, DuplicarPayload, DuplicarResultado } from '../shared/types'
 import { pedidoDuplicarApi } from '../shared/api'
 
@@ -41,6 +42,7 @@ interface PreviewPedido {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarProps) {
+  const { addNotification } = useShellStore()
   const [config, setConfig] = useState<PreviewConfig | null>(null)
   const [previewPedidos, setPreviewPedidos] = useState<PreviewPedido[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -96,12 +98,18 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
       }
       const res = await pedidoDuplicarApi.confirmar(payload)
       setResultado(res)
+      if (res.criados.length > 0) {
+        const nums = res.criados.map(c => c.numero_pedido).join(', ')
+        addNotification({ type: 'success', message: `${res.criados.length} PO(s) duplicada(s): ${nums}.`, duration: 4000 })
+      }
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro ao duplicar pedidos')
+      const msg = err instanceof Error ? err.message : 'Erro ao duplicar pedidos'
+      setErro(msg)
+      addNotification({ type: 'error', message: `Falha ao duplicar PO: ${msg}`, duration: 4000 })
     } finally {
       setConfirmando(false)
     }
-  }, [config, ids, numeros])
+  }, [config, ids, numeros, addNotification])
 
   const labelStatus = (statusInicial: string) => {
     if (statusInicial === 'copiar') return 'copiado do original'

@@ -25,7 +25,7 @@ import { z } from 'zod'
 import { Webhook } from 'svix'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
-import { auditLog } from '../../tenant/historico-global/src/audit-client.js'
+import { auditLog } from '../../../tenant/historico-global/src/audit-client.js'
 
 export const authRouter = Router()
 

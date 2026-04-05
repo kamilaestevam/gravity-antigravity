@@ -79,11 +79,11 @@ analyticsRouter.get('/metadata', (_req: Request, res: Response) => {
           { name: 'tenant_id',         type: 'Edm.String',   nullable: false },
           { name: 'id',                type: 'Edm.String',   nullable: false, key: true },
           { name: 'pedido_id',         type: 'Edm.String',   nullable: false },
-          { name: 'descricao',         type: 'Edm.String' },
+          { name: 'descricao_item',     type: 'Edm.String' },
           { name: 'qtd_inicial',       type: 'Edm.Decimal',  precision: 18, scale: 4 },
           { name: 'qtd_atual',         type: 'Edm.Decimal',  precision: 18, scale: 4 },
           { name: 'qtd_transferida',   type: 'Edm.Decimal',  precision: 18, scale: 4 },
-          { name: 'valor_unitario',    type: 'Edm.Decimal',  precision: 18, scale: 2 },
+          { name: 'valor_por_unidade_item', type: 'Edm.Decimal',  precision: 18, scale: 2 },
           { name: 'pronto',            type: 'Edm.Boolean' },
         ],
       },
@@ -124,7 +124,7 @@ analyticsRouter.get('/kpis', async (req: Request, res: Response) => {
           qtd_inicial: true,
           qtd_atual: true,
           qtd_transferida: true,
-          valor_unitario: true,
+          valor_por_unidade_item: true,
           qtd_inicial_val: true,
           pronto: true,
         },
@@ -148,7 +148,7 @@ analyticsRouter.get('/kpis', async (req: Request, res: Response) => {
     const qtd_atual_total        = itensPedido.reduce((s: number, i: any) => s + Number(i.qtd_atual ?? 0), 0)
     const qtd_transferida_total  = itensPedido.reduce((s: number, i: any) => s + Number(i.qtd_transferida ?? 0), 0)
     const valor_itens_total      = itensPedido.reduce(
-      (s: number, i: any) => s + Number(i.valor_unitario ?? 0) * Number(i.qtd_inicial ?? 0), 0,
+      (s: number, i: any) => s + Number(i.valor_por_unidade_item ?? 0) * Number(i.qtd_inicial ?? 0), 0,
     )
 
     res.json({
@@ -302,11 +302,11 @@ analyticsRouter.get('/items', async (req: Request, res: Response) => {
       select: {
         id: true,
         pedido_id: true,
-        descricao: true,
+        descricao_item: true,
         qtd_inicial: true,
         qtd_atual: true,
         qtd_transferida: true,
-        valor_unitario: true,
+        valor_por_unidade_item: true,
         pronto: true,
       },
       orderBy: { pedido_id: 'asc' },
@@ -356,11 +356,11 @@ analyticsRouter.get('/raw', async (req: Request, res: Response) => {
           itens: {
             select: {
               id: true,
-              descricao: true,
+              descricao_item: true,
               qtd_inicial: true,
               qtd_atual: true,
               qtd_transferida: true,
-              valor_unitario: true,
+              valor_por_unidade_item: true,
               pronto: true,
             },
           },

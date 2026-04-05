@@ -17,6 +17,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Warning, Spinner, CheckCircle, ArrowRight, Plus, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { useShellStore } from '@gravity/shell'
 import type {
   Pedido,
   PedidoItem,
@@ -217,8 +218,8 @@ function SeletorItemQuantidade({
                   <strong>{item.part_number}</strong>
                 </label>
               </td>
-              <td>{item.descricao}</td>
-              <td>{fmtQuantidade(item.saldo_item_pedido, item.casas_decimais_quantidade)}</td>
+              <td>{item.descricao_item}</td>
+              <td>{fmtQuantidade(item.saldo_item_pedido, item.casas_decimais_quantidade_item)}</td>
               <td onClick={e => e.stopPropagation()}>
                 {selecionado ? (
                   <div>
@@ -234,7 +235,7 @@ function SeletorItemQuantidade({
                       aria-invalid={qtyInvalida}
                     />
                     <div className="modal-transferir__qty-disponivel">
-                      Máx: {fmtQuantidade(qtyMax, item.casas_decimais_quantidade)}
+                      Máx: {fmtQuantidade(qtyMax, item.casas_decimais_quantidade_item)}
                     </div>
                   </div>
                 ) : (
@@ -612,6 +613,7 @@ const NOMES_PASSOS: Record<Passo, string> = {
 }
 
 export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransferirProps) {
+  const { addNotification } = useShellStore()
   const pedido = pedidos[0]
 
   const [passo, setPasso] = useState<Passo>(1)
@@ -735,12 +737,15 @@ export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransfe
       const res = await pedidoTransferirApi.confirmar(payload)
       setResultado(res)
       setConcluido(true)
+      addNotification({ type: 'success', message: `Transferência concluída: ${quantidadeOrigem} un. de ${pedido.numero_pedido} processadas.`, duration: 4000 })
     } catch (err: unknown) {
-      setErroConfirmar(err instanceof Error ? err.message : 'Erro ao confirmar transferência')
+      const msg = err instanceof Error ? err.message : 'Erro ao confirmar transferência'
+      setErroConfirmar(msg)
+      addNotification({ type: 'error', message: `Falha na transferência: ${msg}`, duration: 4000 })
     } finally {
       setConfirmando(false)
     }
-  }, [cenario, itemId, pedido, quantidadeOrigem, destinos, numeroPedidoNovo])
+  }, [cenario, itemId, pedido, quantidadeOrigem, destinos, numeroPedidoNovo, addNotification])
 
   // ── Renderização ──────────────────────────────────────────────────────────────
 

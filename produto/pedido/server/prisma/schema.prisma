@@ -1,0 +1,467 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pedido {
+  id                                     String              @id
+  tenant_id                              String
+  company_id                             String
+  tipo_operacao                          String
+  numero_pedido                          String
+  status                                 String              @default("draft")
+  status_id                              String?
+  importacao_exportador_id               String?
+  exportacao_importador_id               String?
+  fabricante_id                          String?
+  incoterm                               String?
+  moeda_pedido                           String              @default("USD")
+  valor_total_pedido                     Decimal?            @db.Decimal(18, 6)
+  casas_decimais_total_pedido            Int                 @default(2)
+  quantidade_total_pedido                Float?
+  casas_decimais_quantidade_total_pedido Int                 @default(2)
+  unidade_comercializada_pedido          String?
+  cobertura_cambial                      String              @default("com_cobertura")
+  condicao_pagamento                     String?
+  numero_proforma                        String?
+  numero_invoice                         String?
+  referencia_importador                  String?
+  referencia_exportador                  String?
+  referencia_fabricante                  String?
+  valor_total_cambio                     Decimal?            @db.Decimal(18, 6)
+  moeda_cambio                           String?
+  taxa_cambio_estimada                   Decimal?            @db.Decimal(18, 6)
+  contrato_cambio_id                     String?
+  data_emissao_pedido                    DateTime            @default(now())
+  detalhes_operacionais                  Json?
+  campos_custom                          Json?
+  created_at                             DateTime            @default(now())
+  updated_at                             DateTime            @updatedAt
+  itens                                  PedidoItem[]
+  transferencias                         TransferHistorico[]
+
+  @@unique([tenant_id, numero_pedido])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, status_id])
+  @@index([tenant_id, tipo_operacao])
+  @@index([tenant_id, data_emissao_pedido])
+  @@map("pedidos_comerciais")
+}
+
+model PedidoItem {
+  id                          String         @id
+  tenant_id                   String
+  company_id                  String
+  pedido_id                   String
+  sequencia_item              Int?
+  part_number                 String
+  ncm                         String
+  descricao_item              String
+  unidade_comercializada_item String?
+  quantidade_inicial_pedido          Decimal        @db.Decimal(18, 6)
+  quantidade_atual_pedido            Decimal        @db.Decimal(18, 6)
+  quantidade_pronta_pedido           Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_transferida_pedido      Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_cancelada_pedido        Decimal        @default(0) @db.Decimal(18, 6)
+  casas_decimais_quantidade_item     Int            @default(2)
+  moeda_item                         String         @default("USD")
+  valor_total_item                   Decimal?       @db.Decimal(18, 6)
+  valor_por_unidade_item             Decimal?       @db.Decimal(18, 6)
+  casas_decimais_total_item   Int            @default(2)
+  campos_custom               Json?
+  created_at                  DateTime       @default(now())
+  updated_at                  DateTime       @updatedAt
+  pedido                      Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  embarques_efetivos          ProcessoItem[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([pedido_id])
+  @@map("pedido_itens")
+}
+
+model Processo {
+  id                                            String              @id
+  tenant_id                                     String
+  company_id                                    String
+  estimativa_custo_id                           String?
+  cotacao_frete_id                              String?
+  status_embarque                               String              @default("aberto")
+  tipo_operacao                                 String
+  referencia_processo                           String?
+  numero_processo                               String?
+  responsavel_processo                          String?
+  responsavel_rotina                            String?
+  setor_responsavel                             String?
+  vendedor_responsavel                          String?
+  canal_parametrizacao                          String?
+  importacao_exportador_id                      String?
+  exportacao_importador_id                      String?
+  agente_carga_id                               String?
+  armador_id                                    String?
+  cia_aerea_id                                  String?
+  transportador_rodo_internacional_id           String?
+  transportador_rodo_nacional_id                String?
+  transportador_ferroviario_id                  String?
+  despachante_id                                String?
+  armazem_alfandegado_id                        String?
+  securadora_internacional_id                   String?
+  banco_id                                      String?
+  corretora_cambio_id                           String?
+  moeda_pedido                                  String              @default("USD")
+  valor_total_pedido                            Float?
+  incoterm                                      String?
+  premio_seguro_internacional                   Decimal?            @db.Decimal(18, 6)
+  modal_frete_internacional                     String?
+  porto_origem                                  String?
+  porto_transbordo                              String?
+  porto_destino                                 String?
+  aeroporto_origem                              String?
+  aeroporto_escala                              String?
+  aeroporto_destino                             String?
+  transit_time_previsto_frete_internacional     Int?
+  moeda_frete_internacional                     String?             @default("USD")
+  tipo_frete_internacional                      String?
+  proposta_frete_internacional                  String?
+  valor_frete_internacional_estimado            Decimal?            @db.Decimal(18, 6)
+  valor_total_frete_internacional               Decimal?            @db.Decimal(18, 6)
+  valor_total_taxas_origem_frete_internacional  Decimal?            @db.Decimal(18, 6)
+  valor_total_taxas_destino_frete_internacional Decimal?            @db.Decimal(18, 6)
+  tipo_volume                                   String?
+  quantidade_total_volumes                      Int?                @default(0)
+  peso_bruto_total                              Decimal?            @default(0) @db.Decimal(18, 6)
+  peso_liquido_total                            Decimal?            @default(0) @db.Decimal(18, 6)
+  data_pedido                                   DateTime?
+  data_pedido_aberto                            DateTime?           @default(now())
+  data_previsao_pedido                          DateTime?
+  data_pedido_pronto                            DateTime?
+  data_pedido_consolidado                       DateTime?
+  data_previsao_coleta_pedido_origem            DateTime?
+  data_coleta_pedido_origem                     DateTime?
+  data_previsao_entrega_pedido_origem           DateTime?
+  data_entrega_pedido_origem                    DateTime?
+  data_previsao_carregamento_container          DateTime?
+  data_carregamento_container                   DateTime?
+  data_previsao_coleta_embarque_origem          DateTime?
+  data_coleta_embarque_origem                   DateTime?
+  data_previsao_entrega_embarque_origem         DateTime?
+  data_entrega_embarque_origem                  DateTime?
+  data_previsao_coleta_container_origem         DateTime?
+  data_coleta_container_origem                  DateTime?
+  data_previsao_entrega_container_origem        DateTime?
+  data_entrega_container_origem                 DateTime?
+  data_previsao_embarque_origem_etd             DateTime?
+  data_embarque_origem                          DateTime?
+  data_previsao_transbordo_embarque             DateTime?
+  data_transbordo_embarque                      DateTime?
+  data_previsao_chegada_destino_eta             DateTime?
+  data_chegada_destino_eta                      DateTime?
+  data_previsao_presenca_carga_destino          DateTime?
+  data_presenca_carga_destino                   DateTime?
+  data_previsao_registro_duimp                  DateTime?
+  data_registro_duimp                           DateTime?
+  data_previsao_liberacao_duimp                 DateTime?
+  data_liberacao_duimp                          DateTime?
+  data_consulta_liberacao_duimp                 DateTime?
+  data_previsao_registro_lpco                   DateTime?
+  data_registro_lpco                            DateTime?
+  data_deferimento_lpco                         DateTime?
+  data_indeferimento_lpco                       DateTime?
+  data_pendencia_lpco                           DateTime?
+  data_consulta_liberacao_lpco                  DateTime?
+  numero_certificado_origem                     String?
+  numero_bl                                     String?
+  numero_mbl                                    String?
+  numero_hbl                                    String?
+  numero_awb                                    String?
+  numero_mawb                                   String?
+  numero_hawb                                   String?
+  numero_crt                                    String?
+  numero_cim                                    String?
+  numero_ce_mercante                            String?
+  numero_presenca_carga_destino                 String?
+  numero_duimp                                  String?
+  numero_nfe                                    String?
+  chave_acesso_nfe                              String?
+  total_imposto_ii                              Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_ipi                             Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_pis                             Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_cofins                          Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_icms                            Decimal?            @default(0) @db.Decimal(18, 6)
+  detalhes_fiscais                              Json?
+  detalhes_logisticos                           Json?
+  detalhes_financeiros                          Json?
+  created_at                                    DateTime            @default(now())
+  updated_at                                    DateTime            @updatedAt
+  containers                                    ProcessoContainer[]
+  faturas                                       ProcessoFatura[]
+  itens_processo                                ProcessoItem[]
+
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
+  @@map("processos_logisticos")
+}
+
+model ProcessoFatura {
+  id               String    @id
+  tenant_id        String
+  company_id       String
+  processo_id      String
+  tipo_fatura      String
+  numero_fatura    String
+  moeda_fatura     String    @default("USD")
+  valor_total      Decimal   @db.Decimal(18, 6)
+  valor_pago       Decimal   @default(0) @db.Decimal(18, 6)
+  data_vencimento  DateTime?
+  status_pagamento String    @default("pendente")
+  processo         Processo  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, processo_id])
+  @@map("processo_faturas")
+}
+
+model ProcessoItem {
+  id                          String      @id
+  tenant_id                   String
+  company_id                  String
+  processo_id                 String
+  pedido_item_id              String?
+  sequencia_item              Int?
+  part_number                 String
+  ncm                         String
+  descricao_po                String
+  descricao_en                String?
+  quantidade                  Decimal     @db.Decimal(18, 6)
+  unidade_comercializada_item String?
+  valor_unitario              Decimal     @db.Decimal(18, 6)
+  valor_total                 Decimal     @db.Decimal(18, 6)
+  peso_liquido_unitario       Decimal?    @db.Decimal(18, 6)
+  peso_bruto_unitario         Decimal?    @db.Decimal(18, 6)
+  detalhes_do_produto         Json?
+  pedido_item                 PedidoItem? @relation(fields: [pedido_item_id], references: [id])
+  processo                    Processo    @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id, company_id])
+  @@index([processo_id])
+  @@index([pedido_item_id])
+  @@map("processo_itens")
+}
+
+model ProcessoContainer {
+  id                      String    @id
+  tenant_id               String
+  company_id              String
+  processo_id             String
+  numero_container        String
+  numero_lacre            String?
+  tipo_container          String
+  tara                    Decimal?  @db.Decimal(18, 6)
+  peso_bruto              Decimal?  @db.Decimal(18, 6)
+  data_devolucao_prevista DateTime?
+  data_devolucao_real     DateTime?
+  local_devolucao         String?
+  processo                Processo  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id, company_id])
+  @@index([processo_id])
+  @@map("processo_containers")
+}
+
+model PedidoStatus {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+  nome       String
+  rotulo     String
+  cor        String
+  icone      String?
+  ordem      Int      @default(0)
+  is_padrao  Boolean  @default(false)
+  is_sistema Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("pedido_status")
+}
+
+model PedidoColuna {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  company_id     String?
+  nome           String
+  rotulo         String
+  tipo           String
+  casas_decimais Int      @default(2)
+  opcoes         Json?
+  ordem          Int      @default(0)
+  filtravel      Boolean  @default(true)
+  exibida_padrao Boolean  @default(false)
+  index_criado   Boolean  @default(false)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("pedido_colunas")
+}
+
+model PedidoPreferenciaUsuario {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String?
+  user_id          String
+  colunas_visiveis String[]
+  colunas_largura  Json?
+  updated_at       DateTime @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("pedido_preferencias_usuario")
+}
+
+model PedidoPreferenciaPadrao {
+  id               String   @id @default(cuid())
+  tenant_id        String   @unique
+  company_id       String?
+  colunas_visiveis String[]
+  colunas_largura  Json?
+  updated_at       DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@map("pedido_preferencias_padrao")
+}
+
+model MapeamentoImport {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?
+  hash_colunas String
+  mapeamento   String
+  uso_count    Int      @default(1)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, hash_colunas])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@map("mapeamento_import")
+}
+
+model PedidoAnexo {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  vinculo       String
+  vinculo_id    String
+  nome_arquivo  String
+  tipo_arquivo  String
+  tamanho_bytes Int
+  descricao     String?
+  categoria     String?
+  storage_key   String
+  uploaded_by   String
+  created_at    DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, vinculo_id])
+  @@map("pedido_anexos")
+}
+
+model PedidoTemplatePdf {
+  id            String   @id @default(cuid())
+  tenant_id     String
+  product_id    String?
+  nome          String
+  descricao     String?
+  conteudo_html String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_templates_pdf")
+}
+
+model TransferHistorico {
+  id               String    @id @default(cuid())
+  tenant_id        String
+  product_id       String?
+  pedido_origem_id String
+  item_origem_id   String
+  cenario                   String
+  quantidade_item_transferida Float
+  destinos_json    String
+  revertido        Boolean   @default(false)
+  revertido_em     DateTime?
+  revertido_por    String?
+  created_at       DateTime  @default(now())
+  created_by       String
+  pedido_origem    Pedido    @relation(fields: [pedido_origem_id], references: [id])
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, pedido_origem_id])
+  @@map("transfer_historico")
+}
+
+model ColunaUsuarioPedido {
+  id               String                     @id @default(cuid())
+  tenant_id        String
+  product_id       String?
+  nome             String
+  chave            String
+  tipo             String
+  escopo           String
+  visibilidade     String
+  roles_permitidas String[]                   @default([])
+  obrigatorio      Boolean                    @default(false)
+  opcoes           String[]                   @default([])
+  descricao        String?
+  valor_padrao     String?
+  ordem            Int                        @default(0)
+  ativo            Boolean                    @default(true)
+  created_by       String
+  created_at       DateTime                   @default(now())
+  updated_at       DateTime                   @updatedAt
+  valores          ValorColunaUsuarioPedido[]
+
+  @@unique([tenant_id, chave])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, ativo])
+  @@map("colunas_usuario_pedido")
+}
+
+model ValorColunaUsuarioPedido {
+  id         String              @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  coluna_id  String
+  vinculo    String
+  vinculo_id String
+  valor      String
+  coluna     ColunaUsuarioPedido @relation(fields: [coluna_id], references: [id])
+
+  @@unique([tenant_id, coluna_id, vinculo_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, vinculo_id])
+  @@map("valores_colunas_usuario_pedido")
+}

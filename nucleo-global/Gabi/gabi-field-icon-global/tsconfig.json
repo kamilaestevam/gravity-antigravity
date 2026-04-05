@@ -1,0 +1,15 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "paths": {
+      "@nucleo/*": ["../../nucleo-global/*"],
+      "@tenant/*": ["../../servicos-global/tenant/*"],
+      "@produto/*": ["../../servicos-global/produto/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

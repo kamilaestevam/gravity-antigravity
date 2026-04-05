@@ -1,0 +1,142 @@
+/* @nucleo/gabi-field-icon-global */
+
+/* ── Ícone ✦ ─────────────────────────────────────────── */
+.gabi-field-icon {
+  display:      inline-flex;
+  align-items:  center;
+  justify-content: center;
+  width:        16px;
+  height:       16px;
+  font-size:    11px;
+  cursor:       pointer;
+  color:        var(--text-muted);
+  border-radius: var(--radius-pill, 9999px);
+  transition:   color 0.15s, opacity 0.15s;
+  user-select:  none;
+  flex-shrink:  0;
+}
+
+.gabi-field-icon:hover {
+  color: var(--accent);
+}
+
+.gabi-field-icon--carregando {
+  color:     var(--accent);
+  animation: gabi-spin 0.8s linear infinite;
+}
+
+.gabi-field-icon--esgotado {
+  color:   var(--text-muted);
+  opacity: 0.4;
+  cursor:  not-allowed;
+}
+
+@keyframes gabi-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Popover ─────────────────────────────────────────── */
+.gabi-popover {
+  position:         absolute;
+  z-index:          1000;
+  width:            360px;
+  max-height:       320px;
+  overflow-y:       auto;
+  background:       var(--bg-surface);
+  border:           1px solid var(--border-default);
+  border-radius:    var(--radius-lg);
+  box-shadow:       var(--shadow-md);
+  padding:          0;
+}
+
+.gabi-popover__header {
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  padding:          var(--space-3) var(--space-4);
+  border-bottom:    1px solid var(--border-default);
+}
+
+.gabi-popover__titulo {
+  font-size:   12px;
+  font-weight: 600;
+  color:       var(--accent);
+  letter-spacing: 0.02em;
+}
+
+.gabi-popover__fechar {
+  background: none;
+  border:     none;
+  cursor:     pointer;
+  color:      var(--text-muted);
+  font-size:  16px;
+  line-height: 1;
+  padding:    0 2px;
+  transition: color 0.15s;
+}
+
+.gabi-popover__fechar:hover {
+  color: var(--text-secondary);
+}
+
+.gabi-popover__body {
+  padding: var(--space-4);
+}
+
+/* ── Skeleton loading ────────────────────────────────── */
+.gabi-skeleton {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm, 4px);
+  height: 12px;
+  margin-bottom: var(--space-2);
+  animation: gabi-pulse 1.4s ease-in-out infinite;
+}
+
+.gabi-skeleton--longa  { width: 90%; }
+.gabi-skeleton--media  { width: 65%; }
+
+@keyframes gabi-pulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+/* ── Resposta (fade-in) ──────────────────────────────── */
+.gabi-resposta {
+  font-size:   13px;
+  line-height: 1.6;
+  color:       var(--text-secondary);
+  animation:   gabi-fadein 0.25s ease;
+}
+
+@keyframes gabi-fadein {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Badge de tokens ─────────────────────────────────── */
+.gabi-token-badge {
+  display:     inline-flex;
+  align-items: center;
+  gap:         var(--space-2);
+  font-size:   11px;
+  font-weight: 500;
+  padding:     3px var(--space-2);
+  border-radius: var(--radius-pill, 9999px);
+  border:      1px solid var(--border-default);
+  background:  var(--bg-surface);
+  color:       var(--text-secondary);
+  transition:  color 0.2s, border-color 0.2s;
+}
+
+.gabi-token-badge--verde   { color: var(--success); border-color: var(--success); }
+.gabi-token-badge--amarelo { color: var(--warning); border-color: var(--warning); }
+.gabi-token-badge--laranja { color: #f97316; border-color: #f97316; }
+.gabi-token-badge--vermelho{ color: var(--danger); border-color: var(--danger); }
+
+/* ── Wrapper (relativo para o popover) ───────────────── */
+.gabi-field-icon-wrapper {
+  position: relative;
+  display:  inline-flex;
+  align-items: center;
+}

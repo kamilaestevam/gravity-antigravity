@@ -220,6 +220,12 @@ export function ProdutosAdmin() {
   // 07. Faixas de Preço (Novo na Onda 3)
   const [faixas, setFaixas] = React.useState<FaixaPreco[]>([])
 
+  // 08. GABI Tokens
+  const [gabiQuotaMensal, setGabiQuotaMensal] = React.useState('')
+  const [gabiTokenStats, setGabiTokenStats] = React.useState<{
+    total_consumido: number; total_tenants: number; media_por_tenant: number; percentual: number
+  } | null>(null)
+
   const dirty = (fn: () => void) => { fn(); setFormDirty(true) }
 
   const handleFecharModal = () => {
@@ -234,6 +240,8 @@ export function ProdutosAdmin() {
     setVincularOrg('nao'); setOrgSelecionada(null)
     setVigenciaIlimitada('nao'); setVigenciaPeriodo({ inicio: null, fim: null }); setVigenciaNeg('')
     setFaixas([])
+    setGabiQuotaMensal('')
+    setGabiTokenStats(null)
   }
 
   const handleEditarProduto = (item: ProdutoCatalogo) => {
@@ -258,6 +266,8 @@ export function ProdutosAdmin() {
     setTotalHoras(String(item.horasHelpDesk))
     setMoedaHelpDesk(item.precoHoraAdicional?.moeda || 'BRL')
     setFaixas(item.faixasPreco || [])
+    setGabiQuotaMensal(String(item.gabiQuotaMensal ?? 0))
+    setGabiTokenStats(null)
     setModalAberto(true)
   }
 
@@ -566,7 +576,8 @@ export function ProdutosAdmin() {
             precoUsuarioAdicional: valorUsuarioAdicional ? { valor: valorUsuarioAdicional, moeda: moedaUsuario } : undefined,
             horasHelpDesk: Number(totalHoras) || 0,
             precoHoraAdicional: { valor: '0,00', moeda: moedaHelpDesk },
-            faixasPreco: faixas.length > 0 ? faixas : undefined
+            faixasPreco: faixas.length > 0 ? faixas : undefined,
+            gabiQuotaMensal: Number(gabiQuotaMensal.replace(/\./g, '').replace(',', '.')) || 0,
           }
 
           try {
@@ -1036,6 +1047,119 @@ export function ProdutosAdmin() {
                       buscavel
                     />
                   </GeralCampoGlobal>
+                </div>
+              </div>
+            )
+          },
+          {
+            id: 'tokens',
+            rotulo: 'Tokens',
+            tooltipTitulo: 'GABI — Tokens on-demand',
+            tooltipDescricao: 'Quota mensal de tokens IA por tenant. Cada chamada GABI consome tokens reais do Gemini.',
+            conteudo: (
+              <div style={{ padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <SecaoFormularioGlobal icone={<Coins size={16} weight="duotone" />} titulo="Tokens GABI" tooltip="Controle da quota de tokens IA por tenant/mês" />
+
+                {/* Quota Padrão */}
+                <GeralCampoGlobal
+                  label="Token padrão mensal por tenant"
+                  tooltipTitulo="QUOTA MENSAL"
+                  tooltipDescricao="Tokens disponíveis por mês para cada tenant deste produto. Aplica-se a todos os tenants, salvo negociação especial. Tokens não usados expiram no dia 1 de cada mês (sem rollover)."
+                >
+                  <div className="ws-input-icon-wrap">
+                    <Coins size={16} />
+                    <input
+                      type="number"
+                      min={0}
+                      step={1000}
+                      placeholder="ex: 50000"
+                      style={{ width: '100%' }}
+                      value={gabiQuotaMensal}
+                      onChange={e => dirty(() => setGabiQuotaMensal(e.target.value))}
+                    />
+                  </div>
+                </GeralCampoGlobal>
+
+                {/* Referência rápida */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                  {[
+                    { rotulo: '50k tokens', desc: 'R$ 9,90/mês', valor: '50000' },
+                    { rotulo: '200k tokens', desc: 'R$ 29,90/mês', valor: '200000' },
+                    { rotulo: '1M tokens', desc: 'R$ 99,90/mês', valor: '1000000' },
+                  ].map(opt => (
+                    <button
+                      key={opt.valor}
+                      type="button"
+                      onClick={() => dirty(() => setGabiQuotaMensal(opt.valor))}
+                      style={{
+                        padding: '0.625rem 0.75rem', borderRadius: 8, cursor: 'pointer',
+                        border: `1px solid ${gabiQuotaMensal === opt.valor ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)'}`,
+                        background: gabiQuotaMensal === opt.valor ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.04)',
+                        textAlign: 'left' as const, display: 'flex', flexDirection: 'column' as const, gap: '0.125rem',
+                      }}
+                    >
+                      <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: gabiQuotaMensal === opt.valor ? 'var(--color-primary)' : 'var(--ws-text)' }}>{opt.rotulo}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Consumo do mês (donut visual) */}
+                {produtoEditando && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>
+                      Consumo este mês (todos os tenants)
+                    </span>
+                    {gabiTokenStats ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                        {[
+                          { label: 'Total consumido', valor: gabiTokenStats.total_consumido.toLocaleString('pt-BR') + ' tk' },
+                          { label: 'Tenants ativos', valor: String(gabiTokenStats.total_tenants) },
+                          { label: 'Média / tenant', valor: gabiTokenStats.media_por_tenant.toLocaleString('pt-BR') + ' tk' },
+                        ].map(stat => (
+                          <div key={stat.label} style={{ padding: '0.75rem', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                            <span style={{ fontSize: '0.6875rem', color: 'var(--ws-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stat.label}</span>
+                            <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--ws-text)' }}>{stat.valor}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            const resp = await fetch(`/api/v1/gabi/admin/products/${produtoEditando.id}/tokens/stats`, {
+                              headers: { 'x-internal-key': '' }
+                            })
+                            if (resp.ok) {
+                              const data = await resp.json() as any
+                              setGabiTokenStats({ total_consumido: data.total_consumido, total_tenants: data.total_tenants, media_por_tenant: data.media_por_tenant, percentual: 0 })
+                            }
+                          } catch { /* silencia */ }
+                        }}
+                        style={{ padding: '0.5rem 1rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.8125rem', color: 'var(--ws-muted)', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', width: 'fit-content' }}
+                      >
+                        Carregar estatísticas do mês
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Regras */}
+                <div style={{ padding: '0.875rem 1rem', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <span style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ws-muted)' }}>Regras aplicadas automaticamente</span>
+                  {[
+                    'Reset automático: dia 1 de cada mês às 00:05 BRT',
+                    'Tokens não usados expiram (sem rollover)',
+                    'Ao atingir 80%: badge amarelo no cliente',
+                    'Ao atingir 90%: notificação para o admin do tenant',
+                    'Ao atingir 100%: GABI desabilitada → opção de compra adicional',
+                  ].map(rule => (
+                    <span key={rule} style={{ fontSize: '0.8125rem', color: 'var(--ws-text)', display: 'flex', gap: '0.5rem' }}>
+                      <span style={{ color: 'var(--color-primary)', flexShrink: 0 }}>✓</span>
+                      {rule}
+                    </span>
+                  ))}
                 </div>
               </div>
             )

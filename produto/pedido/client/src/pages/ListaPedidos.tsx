@@ -68,6 +68,7 @@ import {
   pedidoExcluirApi,
   colunasUsuarioApi,
 } from '../shared/api'
+import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { ModalConsolidar } from '../components/ModalConsolidar'
 import '../components/ModalConsolidar.css'
 import { ModalGerarPdf } from '../components/ModalGerarPdf'
@@ -80,6 +81,7 @@ import { ModalEdicaoEmMassa } from '../components/ModalEdicaoEmMassa'
 import '../components/ModalEdicaoEmMassa.css'
 import { DrawerPedido } from '../components/DrawerPedido'
 import '../components/DrawerPedido.css'
+import { GabiTokenBadge, useGabiQuota } from '@nucleo/gabi-field-icon-global'
 import { ModalNovoPedido } from '../components/ModalNovoPedido'
 import { ModalNovoItem } from '../components/ModalNovoItem'
 import { SmartImportModal } from '../components/SmartImport/SmartImportModal'
@@ -155,6 +157,18 @@ type FiltroNumero = { tipo: 'numero'; valor: { min?: number; max?: number } }
 type FiltroAtivo  = FiltroTexto | FiltroEnum | FiltroNumero
 
 type FiltrosAtivosMap = Record<string, FiltroAtivo>
+
+function rotulofiltro(campo: string, filtro: FiltroAtivo): string {
+  if (filtro.tipo === 'texto') return filtro.valor
+  if (filtro.tipo === 'enum') return Array.from(filtro.valor).join(', ')
+  if (filtro.tipo === 'numero') {
+    const { min, max } = filtro.valor
+    if (min != null && max != null) return `${min} — ${max}`
+    if (min != null) return `≥ ${min}`
+    if (max != null) return `≤ ${max}`
+  }
+  return ''
+}
 
 // ── Subcomponente: Popover de filtro por coluna ───────────────────────────────
 
@@ -485,7 +499,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'tipo_operacao',
-    label: 'Tipo',
+    label: 'Tipo de Operação',
     tipo: 'badge',
     align: 'center',
     filtravel: true,
@@ -493,6 +507,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
     grupo: 'Identificação',
     largura: 170,
+    autoFitDisabled: true,
     render: (_val: unknown, row: Pedido) => (
       <StatusBadgeGlobal
         valor={row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
@@ -506,11 +521,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'exportador_nome',
-    label: 'Exportador',
+    label: 'Nome do Exportador / Importador',
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    tooltipTitulo: 'Exportador / Fornecedor',
+    tooltipTitulo: 'Nome do Exportador / Importador',
     tooltipDescricao: 'Fornecedor estrangeiro (na importação) ou entidade exportadora',
     grupo: 'Partes',
     largura: 180,
@@ -552,10 +567,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'numero_proforma',
-    label: 'Proforma',
+    label: 'Número da Proforma',
     tipo: 'texto',
     filtravel: true,
-    tooltipTitulo: 'Número Proforma',
+    tooltipTitulo: 'Número da Proforma',
     tooltipDescricao: 'Referência da Proforma Invoice vinculada',
     grupo: 'Identificação',
     largura: 120,
@@ -563,10 +578,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'numero_invoice',
-    label: 'Invoice',
+    label: 'Número da Invoice',
     tipo: 'texto',
     filtravel: true,
-    tooltipTitulo: 'Número Invoice',
+    tooltipTitulo: 'Número da Invoice',
     tooltipDescricao: 'Identificador da Commercial Invoice (Fatura)',
     grupo: 'Identificação',
     largura: 120,
@@ -582,11 +597,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Financeiro',
     largura: 90,
     align: 'center',
+    autoFitDisabled: true,
     render: (_val: unknown, row: Pedido) => <span>{row.incoterm ?? '—'}</span>,
   },
   {
     key: 'valor_total_pedido',
-    label: 'Valor Total',
+    label: 'Valor Total do Pedido',
     tipo: 'moeda',
     filtravel: true,
     sortavel: true,
@@ -610,10 +626,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_total_inicial_pedido',
-    label: 'Qtd. Inicial',
+    label: 'Qtd. Inicial do Pedido',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Quantidade Inicial',
+    tooltipTitulo: 'Qtd. Inicial do Pedido',
     tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
     grupo: 'Quantidades',
     largura: 110,
@@ -627,10 +643,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
-    label: 'Qtd. Pronta',
+    label: 'Qtd. Pronta do Pedido',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Quantidade Pronta',
+    tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
     grupo: 'Quantidades',
     largura: 110,
@@ -649,10 +665,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'saldo_itens_do_pedido',
-    label: 'Saldo',
+    label: 'Saldo do Pedido',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Saldo',
+    tooltipTitulo: 'Saldo do Pedido',
     tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
     grupo: 'Quantidades',
     largura: 130,
@@ -674,10 +690,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_transferida_total',
-    label: 'Qtd. Transferida',
+    label: 'Qtd. Transferida do Pedido',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Quantidade Transferida',
+    tooltipTitulo: 'Qtd. Transferida do Pedido',
     tooltipDescricao: 'Total já transferido para outros pedidos.',
     grupo: 'Quantidades',
     largura: 130,
@@ -691,10 +707,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_cancelada_total_pedido',
-    label: 'Qtd. Cancelada',
+    label: 'Qtd. Cancelada do Pedido',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Quantidade Cancelada',
+    tooltipTitulo: 'Qtd. Cancelada do Pedido',
     tooltipDescricao: 'Total cancelado permanentemente nos itens do pedido — subtrai do saldo inicial.',
     grupo: 'Quantidades',
     largura: 120,
@@ -728,6 +744,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     oculta: true,
     grupo: 'Identificação',
     largura: 130,
+    autoFitDisabled: true,
     render: (_val: unknown, row: Pedido) => {
       const cor = getStatusCor(row.status)
       return (
@@ -746,7 +763,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Dados comerciais ────────────────────────────────────────────────────────
   {
     key: 'moeda_pedido',
-    label: 'Moeda',
+    label: 'Moeda do Pedido',
     tipo: 'texto',
     filtravel: true,
     oculta: true,
@@ -755,6 +772,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Financeiro',
     largura: 90,
     align: 'center',
+    autoFitDisabled: true,
     render: (_val: unknown, row: Pedido) => <span>{row.moeda_pedido ?? '—'}</span>,
   },
   {
@@ -768,6 +786,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     largura: 100,
     align: 'center',
+    autoFitDisabled: true,
     render: (_val: unknown, row: Pedido) => <span>{row.unidade_comercializada_pedido ?? '—'}</span>,
   },
   {
@@ -1884,43 +1903,94 @@ export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
 
 // ── Mapper: ColunaUsuario → GTColuna<Pedido> ──────────────────────────────────
 
+// Contexto numérico do pedido para avaliação de fórmulas C2 (T03)
+function buildFormulaContexto(row: Pedido): Record<string, number | null> {
+  const n = (v: unknown): number | null => {
+    if (v == null) return null
+    const num = typeof v === 'object' ? (v as Record<string, unknown>).valor : v
+    const parsed = Number(num)
+    return isNaN(parsed) ? null : parsed
+  }
+  const r = row as Record<string, unknown>
+  return {
+    quantidade_total_inicial_pedido:      n(r.quantidade_total_inicial_pedido),
+    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido),
+    quantidade_transferida_total:         n(r.quantidade_transferida_total),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total),
+    saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido),
+    valor_total:                          n(r.valor_total_pedido),
+    peso_liquido_total_pedido:            n(r.peso_liquido_total_pedido),
+    peso_bruto_total_pedido:              n(r.peso_bruto_total_pedido),
+    cubagem_total_pedido:                 n(r.cubagem_total_pedido),
+  }
+}
+
+// Helper: texto com truncamento a 150 chars + tooltip (T04)
+function renderTextoC2(valor: string, label: string): React.ReactElement {
+  if (valor === '—') return <span>{valor}</span>
+  if (valor.length > 150) {
+    return (
+      <TooltipGlobal titulo={label} descricao={valor}>
+        <span>{valor.slice(0, 150) + '…'}</span>
+      </TooltipGlobal>
+    )
+  }
+  return <span>{valor}</span>
+}
+
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
   return {
     key:             col.chave as keyof Pedido,
     label:           col.nome,
     tipo:            col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula' ? 'numero' : col.tipo === 'data' ? 'periodo' : 'texto',
+    align:           col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula' ? 'right'
+                   : col.tipo === 'data' || col.tipo === 'select' || col.tipo === 'checkbox' ? 'center'
+                   : undefined,
     filtravel:       true,
     oculta:          true,
     tooltipTitulo:   col.nome,
     tooltipDescricao: col.descricao,
-    largura:         140,
     render: (_val: unknown, row: Pedido) => {
       const valores = (row as Record<string, unknown>)['_colunas_usuario'] as
         Record<string, string> | undefined
       const valor = valores?.[col.id] ?? '—'
+
+      // ── Checkbox ────────────────────────────────────────────────────────────
       if (col.tipo === 'checkbox') {
         return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
       }
+
+      // ── Fórmula: calcula em tempo real a partir dos campos do pedido (T03) ──
       if (col.tipo === 'formula') {
-        const meta = (row as Record<string, unknown>)['_colunas_usuario_meta'] as
-          Record<string, { temNulo?: boolean }> | undefined
-        const temNulo = meta?.[col.id]?.temNulo ?? false
-        if (valor !== '—') {
-          const num = Number(valor)
-          if (!isNaN(num)) {
+        if (col.formula_expressao) {
+          try {
+            const ast = parsearFormula(col.formula_expressao)
+            const contexto = buildFormulaContexto(row)
+            // Inclui valores de outras colunas C2 numéricas no contexto
+            if (valores) {
+              for (const [k, v] of Object.entries(valores)) {
+                const num = Number(v)
+                if (!isNaN(num)) contexto[k] = num
+              }
+            }
+            const { valor: num, temNulo } = avaliarFormula(ast, contexto)
             const casas = getCasas(col.id, 2)
             return (
               <span style={{ fontVariantNumeric: 'tabular-nums' }}>
                 {fmtQuantidade(num, casas)}
                 {temNulo && (
-                  <span title="Um ou mais campos usados nesta formula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>
+                  <span title="Um ou mais campos usados nesta fórmula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>
                 )}
               </span>
             )
+          } catch {
+            // expressão inválida — exibe '—'
           }
         }
-        return <span>{valor}{temNulo && <span title="Um ou mais campos usados nesta formula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>}</span>
+        return <span>—</span>
       }
+
+      // ── Numérico / Percentual ────────────────────────────────────────────────
       if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
         const num = Number(valor)
         if (!isNaN(num)) {
@@ -1929,7 +1999,9 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
           return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casas)}{sufixo}</span>
         }
       }
-      return <span>{valor}</span>
+
+      // ── Texto / Select / Tipo Documento — trunca em 150 chars (T04) ─────────
+      return renderTextoC2(valor, col.nome)
     },
   }
 }
@@ -1954,12 +2026,12 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm}</span>,
   },
   {
-    key: 'descricao',
-    label: 'Descrição',
+    key: 'descricao_item',
+    label: 'Descrição do Item',
     tipo: 'texto',
     grupo: 'Identificação',
     largura: 220,
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_item}</span>,
   },
   {
     key: 'quantidade_inicial_item_pedido',
@@ -2045,33 +2117,33 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'unidade_comercializada_item',
-    label: 'UoM',
+    label: 'Unidade Comercializada do Item',
     tipo: 'texto',
     align: 'center',
     grupo: 'Quantidades',
     largura: 80,
-    tooltipTitulo: 'Unidade de Medida',
+    tooltipTitulo: 'Unidade Comercializada do Item',
     tooltipDescricao: 'Unidade de medida do item',
     render: (_val: unknown, row: PedidoItem) => <span>{row.unidade_comercializada_item ?? '—'}</span>,
   },
   {
-    key: 'valor_unitario',
-    label: 'Vlr Unitário',
+    key: 'valor_por_unidade_item',
+    label: 'Valor por Unidade do Item',
     tipo: 'numero',
     align: 'right',
     grupo: 'Financeiro',
     largura: 110,
-    tooltipTitulo: 'Valor Unitário',
+    tooltipTitulo: 'Valor por Unidade do Item',
     tooltipDescricao: 'Valor unitário na moeda do item',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_unitario != null ? fmtMoeda(row.valor_unitario, row.moeda_item) : '—'}
+        {row.valor_por_unidade_item != null ? fmtMoeda(row.valor_por_unidade_item, row.moeda_item) : '—'}
       </span>
     ),
   },
   {
-    key: 'valor_item',
-    label: 'Vlr Total Item',
+    key: 'valor_total_item',
+    label: 'Valor Total do Item',
     tipo: 'numero',
     align: 'right',
     oculta: true,
@@ -2081,7 +2153,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Valor total do item (valor unitário × quantidade) na moeda do item',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_item != null ? fmtMoeda(row.valor_item, row.moeda_item) : '—'}
+        {row.valor_total_item != null ? fmtMoeda(row.valor_total_item, row.moeda_item) : '—'}
       </span>
     ),
   },
@@ -3436,7 +3508,7 @@ const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
 const CAMPOS_NUMERICOS_ITEM = new Set([
   'quantidade_inicial_item_pedido', 'saldo_item_pedido', 'quantidade_pronta_total',
   'quantidade_transferida_item', 'quantidade_cancelada_item_pedido',
-  'valor_unitario', 'valor_item',
+  'valor_por_unidade_item', 'valor_total_item',
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
 
@@ -3640,14 +3712,14 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   // ── Valores ───────────────────────────────────────────────────────────────
   valor_total_pedido: {
     editavel: true,
-    campo: 'valor_item',
+    campo: 'valor_total_item',
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
-      amount: row.valor_item ?? 0,
+      amount: row.valor_total_item ?? 0,
     }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_item != null ? fmtMoeda(row.valor_item, row.moeda_item) : '—'}
+        {row.valor_total_item != null ? fmtMoeda(row.valor_total_item, row.moeda_item) : '—'}
       </span>
     ),
   },
@@ -3750,6 +3822,18 @@ const COLUNAS_EXPORT: ColunasExport[] = [
 
 // ── Ações de linha (pai) — criadas dentro do componente para acesso ao navigate ─
 
+// ── Estáveis: funções de identidade para props da tabela ─────────────────────
+// CRÍTICO: devem ser module-level para evitar nova referência a cada render,
+// o que quebraria a comparação de deps do itensSelecionados useMemo dentro de
+// TabelaVirtualGlobal e causaria loop infinito via onSelecaoMudar → setPedidosSelecionados.
+const pedidoItemId   = (p: Pedido): string    => p.id
+const pedidoFilhoId  = (i: PedidoItem): string => i.id
+const pedidoRenderConectorFilho = (i: PedidoItem) => (
+  <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+    {i.sequencia_item ?? '—'}
+  </span>
+)
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
 // ── Helper: traduz erro de API em mensagem clara para o usuário ───────────────
@@ -3798,6 +3882,325 @@ function mensagemErro(err: unknown): string {
   return 'Erro ao salvar. Tente novamente ou contate o suporte.'
 }
 
+// ── BarraAcoesPedido — sub-componente memoizado da barra de ações ────────────
+// Extraído para evitar que ~250 linhas de JSX sejam recriadas a cada render de
+// ListaPedidos. React.memo faz shallow comparison das props; useMemo no pai
+// garante que o nó JSX só é recriado quando os deps de estado mudam de fato.
+
+interface BarraAcoesPedidoProps {
+  novoDropdownRef: React.RefObject<HTMLDivElement>
+  novoDropdownAberto: boolean
+  novoSubmenu: 'pedido' | 'item' | null
+  pedidosSelecionados: Pedido[]
+  excluindoLote: boolean
+  filtrosAtivos: FiltrosAtivosMap
+  setNovoDropdownAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setNovoSubmenu: React.Dispatch<React.SetStateAction<'pedido' | 'item' | null>>
+  setSmartImportAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalCockpitAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalNovoPedidoAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalNovoItemAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalTransferirAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalConsolidarAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalEdicaoMassaAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalGerarPdfAberto: React.Dispatch<React.SetStateAction<boolean>>
+  setModalDuplicarAberto: React.Dispatch<React.SetStateAction<boolean>>
+  onExcluirLote: () => Promise<void>
+  onNavigateToConfiguracoes: () => void
+  handleLimparFiltro: (campo: string) => void
+  handleLimparTodosFiltros: () => void
+}
+
+const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
+  novoDropdownRef,
+  novoDropdownAberto,
+  novoSubmenu,
+  pedidosSelecionados,
+  excluindoLote,
+  filtrosAtivos,
+  setNovoDropdownAberto,
+  setNovoSubmenu,
+  setSmartImportAberto,
+  setModalCockpitAberto,
+  setModalNovoPedidoAberto,
+  setModalNovoItemAberto,
+  setModalTransferirAberto,
+  setModalConsolidarAberto,
+  setModalEdicaoMassaAberto,
+  setModalGerarPdfAberto,
+  setModalDuplicarAberto,
+  onExcluirLote,
+  onNavigateToConfiguracoes,
+  handleLimparFiltro,
+  handleLimparTodosFiltros,
+}: BarraAcoesPedidoProps) {
+  return (
+    <>
+      {/* ── Dropdown "Novo" — Pedido · Item · Coluna ── */}
+      <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+        <BotaoGlobal
+          variante="primario"
+          tamanho="pequeno"
+          icone={<Plus size={14} weight="bold" />}
+          onClick={() => { setNovoDropdownAberto(prev => !prev); setNovoSubmenu(null) }}
+        >
+          Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
+        </BotaoGlobal>
+
+        {novoDropdownAberto && (
+          <div style={{
+            position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300,
+            background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+            borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+            minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+          }}>
+
+            {/* ── Novo Pedido ── */}
+            <div style={{ position: 'relative' }}
+              onMouseEnter={() => setNovoSubmenu('pedido')}
+              onMouseLeave={() => setNovoSubmenu(null)}
+            >
+              <button type="button" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                background: novoSubmenu === 'pedido' ? 'var(--bg-hover)' : 'transparent',
+                color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(129,140,248,0.12)', flexShrink: 0 }}>
+                    <Package size={13} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)' }} />
+                  </span>
+                  Novo Pedido
+                </span>
+                <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+              </button>
+
+              {novoSubmenu === 'pedido' && (
+                <div style={{
+                  position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                  background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                  borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                  minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+                }}>
+                  {([
+                    { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
+                  ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
+                    <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
+                      <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                        {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
+                        {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
+                        {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
+                        {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
+                      </span>
+                      <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                          {item.label}
+                          {item.badge && <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{item.badge}</span>}
+                        </span>
+                        <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── Novo Item ── */}
+            <div style={{ position: 'relative' }}
+              onMouseEnter={() => setNovoSubmenu('item')}
+              onMouseLeave={() => setNovoSubmenu(null)}
+            >
+              <button type="button" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
+                background: novoSubmenu === 'item' ? 'var(--bg-hover)' : 'transparent',
+                color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
+                cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(52,211,153,0.12)', flexShrink: 0 }}>
+                    <Tag size={13} weight="duotone" style={{ color: '#34d399' }} />
+                  </span>
+                  Novo Item
+                </span>
+                <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+              </button>
+
+              {novoSubmenu === 'item' && (
+                <div style={{
+                  position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
+                  background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
+                  borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
+                  minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
+                }}>
+                  {([
+                    { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
+                  ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
+                    <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
+                      <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
+                        {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
+                        {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
+                        {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
+                        {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
+                      </span>
+                      <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
+                          {item.label}
+                          {item.badge && <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{item.badge}</span>}
+                        </span>
+                        <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── Nova Coluna ── */}
+            <button type="button" className="lp-dropdown-item-btn" onClick={onNavigateToConfiguracoes}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(99,102,241,0.12)', flexShrink: 0 }}>
+                  <Columns size={13} weight="duotone" style={{ color: '#818cf8' }} />
+                </span>
+                Nova Coluna
+              </span>
+              <ArrowRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Ações contextuais — sempre visíveis, desativadas sem seleção ── */}
+      <>
+        <div style={{ width: 1, height: 20, background: 'var(--border-subtle)', margin: '0 2px', flexShrink: 0 }} />
+
+        {/* Transferir */}
+        <TooltipGlobal
+          titulo={pedidosSelecionados.length > 0 ? `Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Transferir'}
+          descricao="Transfere saldo dos pedidos selecionados para um processo logístico"
+        >
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            icone={<ArrowRight size={14} weight="duotone" />}
+            disabled={pedidosSelecionados.length === 0}
+            onClick={() => { setModalTransferirAberto(true) }}
+          >
+            {pedidosSelecionados.length > 0 ? `Transferir (${pedidosSelecionados.length})` : 'Transferir'}
+          </BotaoGlobal>
+        </TooltipGlobal>
+
+        {/* Consolidar */}
+        <TooltipGlobal
+          titulo={pedidosSelecionados.length >= 2 ? `Consolidar · ${pedidosSelecionados.length} pedidos` : 'Consolidar'}
+          descricao={pedidosSelecionados.length < 2 ? 'Selecione ao menos 2 pedidos para consolidar' : 'Agrupa os pedidos selecionados em um único processo logístico'}
+        >
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            icone={<CheckSquare size={14} weight="duotone" />}
+            disabled={pedidosSelecionados.length < 2}
+            onClick={() => { setModalConsolidarAberto(true) }}
+          />
+        </TooltipGlobal>
+
+        {/* Editar em Massa */}
+        <TooltipGlobal
+          titulo={pedidosSelecionados.length > 0 ? `Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Editar em Massa'}
+          descricao="Edita campos comuns nos pedidos selecionados"
+        >
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            icone={<PencilLine size={14} weight="duotone" />}
+            disabled={pedidosSelecionados.length === 0}
+            onClick={() => { setModalEdicaoMassaAberto(true) }}
+          />
+        </TooltipGlobal>
+
+        {/* Gerar Documento */}
+        <TooltipGlobal
+          titulo={pedidosSelecionados.length > 0 ? `Gerar Documento · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Gerar Documento'}
+          descricao="Gera PDF a partir de um template ou documento padrão"
+        >
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            icone={<FilePdf size={14} weight="duotone" />}
+            disabled={pedidosSelecionados.length === 0}
+            onClick={() => setModalGerarPdfAberto(true)}
+          />
+        </TooltipGlobal>
+
+        {/* Duplicar */}
+        <TooltipGlobal
+          titulo={pedidosSelecionados.length > 0 ? `Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Duplicar'}
+          descricao="Cria cópias dos pedidos selecionados"
+        >
+          <BotaoGlobal
+            variante="secundario"
+            tamanho="pequeno"
+            icone={<CopySimple size={14} weight="duotone" />}
+            disabled={pedidosSelecionados.length === 0}
+            onClick={() => setModalDuplicarAberto(true)}
+          />
+        </TooltipGlobal>
+
+        {/* Excluir */}
+        <TooltipGlobal
+          titulo={pedidosSelecionados.length > 0 ? `Excluir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Excluir'}
+          descricao="Exclui permanentemente os pedidos selecionados"
+        >
+          <BotaoGlobal
+            variante="perigo"
+            tamanho="pequeno"
+            icone={<Trash size={14} weight="duotone" />}
+            disabled={pedidosSelecionados.length === 0}
+            carregando={excluindoLote}
+            onClick={onExcluirLote}
+          />
+        </TooltipGlobal>
+      </>
+
+      {/* ── Chips de filtros ativos (dentro da toolbar) ── */}
+      {Object.keys(filtrosAtivos).length > 0 && (
+        <div
+          role="status"
+          aria-label="Filtros ativos"
+          style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
+        >
+          {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
+            const filtro = filtrosAtivos[col.key]!
+            return (
+              <span key={col.key} className="lp-filtro-chip">
+                <span className="lp-filtro-chip-label">{col.label}:</span>
+                <span className="lp-filtro-chip-valor">{rotulofiltro(col.key, filtro)}</span>
+                <button
+                  className="lp-filtro-chip-remove"
+                  onClick={() => handleLimparFiltro(col.key)}
+                  aria-label={`Remover filtro ${col.label}`}
+                >
+                  <X size={10} weight="bold" />
+                </button>
+              </span>
+            )
+          })}
+          <button className="lp-filtros-limpar-tudo" onClick={handleLimparTodosFiltros}>
+            Limpar tudo
+          </button>
+        </div>
+      )}
+    </>
+  )
+})
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function ListaPedidos() {
@@ -3805,6 +4208,9 @@ export default function ListaPedidos() {
   const { visiveis: cardsVisiveis } = useCardPreferences()
   const navigate = useNavigate()
   const addNotification = useShellStore(s => s.addNotification)
+
+  // ── GABI quota badge ────────────────────────────────────────────────────────
+  const { quota: gabiQuota } = useGabiQuota('/api/v1/pedidos/gabi/quota')
 
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
@@ -3903,6 +4309,7 @@ export default function ListaPedidos() {
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
+  const filtrosAtivosKeys = useMemo(() => new Set(Object.keys(filtrosAtivos)), [filtrosAtivos])
   const [popoverAberto, setPopoverAberto]   = useState<string | null>(null)
   const popoverAnchorRefs                   = useRef<Record<string, React.MutableRefObject<HTMLElement | null>>>({})
 
@@ -3971,6 +4378,187 @@ export default function ListaPedidos() {
     setFiltrosAtivos({})
   }, [])
 
+  // ── Estado dos modais de criação ─────────────────────────────────────────────
+  const [drawerAberto, setDrawerAberto]           = useState(false)
+  const [pedidoEditandoId, setPedidoEditandoId]   = useState<string | undefined>(undefined)
+  const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
+  const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
+  const [smartImportAberto, setSmartImportAberto] = useState(false)
+  const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
+  const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
+  const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
+  const novoDropdownRef = useRef<HTMLDivElement>(null)
+
+  // ── Refs para evitar duplo carregamento ──────────────────────────────────────
+  const carregandoRef = useRef(false)
+
+  // ── Props estáveis para TabelaVirtualGlobal ──────────────────────────────────
+  // REGRA: qualquer função/array passado como prop que entra em dep de useMemo/useEffect
+  // dentro da tabela DEVE ser estável. useMemo/useCallback evitam recriação a cada render.
+
+  // ── Primeira carga ───────────────────────────────────────────────────────────
+  const carregarInicial = useCallback(async (
+    novaAba: string = abaAtiva,
+    novaOrdem: string = sortCampo,
+    novaDir: 'asc' | 'desc' = sortDir,
+    novaBusca: string = busca,
+  ) => {
+    if (carregandoRef.current) return
+    carregandoRef.current = true
+    setCarregando(true)
+    setCursor(undefined)
+    try {
+      const res = await pedidoVirtualApi.listar({
+        sort: novaOrdem,
+        dir: novaDir,
+        limit: 100,
+        status: novaAba !== 'todos' ? novaAba : undefined,
+        busca: novaBusca || undefined,
+      })
+      setPedidos(res.data)
+      setTotal(res.total)
+      setTemMais(res.hasMore)
+      setCursor(res.nextCursor ?? undefined)
+    } catch {
+      // Em dev sem backend, usar mock vazio para não bloquear UI
+      setPedidos([])
+      setTotal(0)
+      setTemMais(false)
+    } finally {
+      setCarregando(false)
+      carregandoRef.current = false
+    }
+  }, [abaAtiva, sortCampo, sortDir, busca])
+
+  const acoesPai = useMemo(() => ([
+    {
+      id: 'editar',
+      tooltip: 'Editar pedido',
+      icone: <PencilLine size={14} weight="duotone" />,
+      onClick: (pedido: Pedido) => {
+        setPedidoEditandoId(pedido.id)
+        setDrawerAberto(true)
+      },
+    },
+  ]), [])
+
+  const acoesFilhoEstavel = useCallback((item: PedidoItem) => ([
+    {
+      label: 'Transferir',
+      icone: <ArrowsLeftRight size={13} weight="duotone" />,
+      onClick: () => {
+        setItensSelecionados([item])
+        setModalTransferirAberto(true)
+      },
+    },
+    {
+      label: 'Duplicar',
+      icone: <CopySimple size={13} weight="duotone" />,
+      onClick: () => {
+        setItensSelecionados([item])
+        setModalDuplicarAberto(true)
+      },
+    },
+    {
+      label: 'Excluir',
+      icone: <Trash size={13} weight="duotone" />,
+      perigo: true,
+      onClick: async () => {
+        setExcluindoItens(true)
+        try {
+          await pedidoExcluirApi.excluirItens(item.pedido_id, [item.id])
+          addNotification({ type: 'success', message: 'Item excluído com sucesso.' })
+          await carregarInicial()
+        } catch {
+          addNotification({ type: 'error', message: 'Erro ao excluir item. Tente novamente.' })
+        } finally {
+          setExcluindoItens(false)
+        }
+      },
+    },
+  ]), [carregarInicial, addNotification])
+
+  const onSelecaoFilhoEstavel = useCallback(
+    (itens: PedidoItem[]) => setItensSelecionados(itens),
+    [],
+  )
+
+  const onFiltroColuna = useCallback((key: string, anchor: HTMLElement) => {
+    setPopoverAberto(prev => prev === key ? null : key)
+    const ref = getAnchorRef(key)
+    if (ref && 'current' in ref) (ref as React.MutableRefObject<HTMLElement | null>).current = anchor
+  }, [])
+
+  const handleExcluirLote = useCallback(async () => {
+    const ids = pedidosSelecionados.map(p => p.id)
+    setExcluindoLote(true)
+    try {
+      const preview = await pedidoExcluirApi.preview(ids)
+      const totalPermitidos = preview.permitidos.length
+      const totalBloqueados = preview.bloqueados.length
+      const resumo: string[] = []
+      if (totalPermitidos > 0) {
+        resumo.push(`✓ ${totalPermitidos} pedido${totalPermitidos !== 1 ? 's' : ''} serão excluídos permanentemente.`)
+      }
+      if (totalBloqueados > 0) {
+        resumo.push(`✗ ${totalBloqueados} pedido${totalBloqueados !== 1 ? 's' : ''} bloqueado${totalBloqueados !== 1 ? 's' : ''} (status não permitido):`)
+        preview.bloqueados.forEach(b => resumo.push(`  - ${b.numero_pedido}: ${b.motivo}`))
+      }
+      if (totalPermitidos === 0) {
+        setErroLote('Nenhum pedido pode ser excluído com os status atuais.')
+        return
+      }
+      const mensagem = `${resumo.join('\n')}\n\nEsta ação não pode ser desfeita. Deseja prosseguir?`
+      if (window.confirm(mensagem)) {
+        await pedidoExcluirApi.confirmar(preview.permitidos.map(p => p.id))
+        setPedidosSelecionados([])
+        await carregarInicial()
+      }
+    } catch (err) {
+      setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
+    } finally {
+      setExcluindoLote(false)
+    }
+  }, [pedidosSelecionados, carregarInicial])
+
+  const handleNavConfiguracoes = useCallback(() => {
+    navigate('/configuracoes?tab=colunas&acao=nova')
+    setNovoDropdownAberto(false)
+  }, [navigate])
+
+  const acoesBarra = useMemo(() => (
+    <BarraAcoesPedido
+      novoDropdownRef={novoDropdownRef}
+      novoDropdownAberto={novoDropdownAberto}
+      novoSubmenu={novoSubmenu}
+      pedidosSelecionados={pedidosSelecionados}
+      excluindoLote={excluindoLote}
+      filtrosAtivos={filtrosAtivos}
+      setNovoDropdownAberto={setNovoDropdownAberto}
+      setNovoSubmenu={setNovoSubmenu}
+      setSmartImportAberto={setSmartImportAberto}
+      setModalCockpitAberto={setModalCockpitAberto}
+      setModalNovoPedidoAberto={setModalNovoPedidoAberto}
+      setModalNovoItemAberto={setModalNovoItemAberto}
+      setModalTransferirAberto={setModalTransferirAberto}
+      setModalConsolidarAberto={setModalConsolidarAberto}
+      setModalEdicaoMassaAberto={setModalEdicaoMassaAberto}
+      setModalGerarPdfAberto={setModalGerarPdfAberto}
+      setModalDuplicarAberto={setModalDuplicarAberto}
+      onExcluirLote={handleExcluirLote}
+      onNavigateToConfiguracoes={handleNavConfiguracoes}
+      handleLimparFiltro={handleLimparFiltro}
+      handleLimparTodosFiltros={handleLimparTodosFiltros}
+    />
+  ), [
+    novoDropdownAberto, novoSubmenu, pedidosSelecionados, excluindoLote, filtrosAtivos,
+    novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
+    setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
+    setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
+    setModalGerarPdfAberto, setModalDuplicarAberto,
+    handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
+  ])
+
   // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────
   const valoresUnicosPorCampo = useMemo<Record<string, string[]>>(() => {
     const result: Record<string, string[]> = {}
@@ -3989,34 +4577,6 @@ export default function ListaPedidos() {
     }
     return result
   }, [pedidos])
-
-  // ── Rótulo legível do valor de filtro ─────────────────────────────────────────
-  function rotulofiltro(campo: string, filtro: FiltroAtivo): string {
-    if (filtro.tipo === 'texto') return filtro.valor
-    if (filtro.tipo === 'enum') return Array.from(filtro.valor).join(', ')
-    if (filtro.tipo === 'numero') {
-      const { min, max } = filtro.valor
-      if (min != null && max != null) return `${min} — ${max}`
-      if (min != null) return `≥ ${min}`
-      if (max != null) return `≤ ${max}`
-    }
-    return ''
-  }
-
-  // ── Estado dos modais de criação ─────────────────────────────────────────────
-  const [drawerAberto, setDrawerAberto]           = useState(false)
-  const [pedidoEditandoId, setPedidoEditandoId]   = useState<string | undefined>(undefined)
-  const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
-  const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
-  const [smartImportAberto, setSmartImportAberto] = useState(false)
-  const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
-  const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
-  const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
-  const novoDropdownRef = useRef<HTMLDivElement>(null)
-
-  // ── Refs para evitar duplo carregamento ──────────────────────────────────────
-  const carregandoRef = useRef(false)
-
 
   // ── Carregar status e preferências ──────────────────────────────────────────
   useEffect(() => {
@@ -4065,40 +4625,6 @@ export default function ListaPedidos() {
       .then(lista => setColunasUsuario(lista))
       .catch(() => { /* fallback: sem colunas customizadas */ })
   }, [])
-
-  // ── Primeira carga ───────────────────────────────────────────────────────────
-  const carregarInicial = useCallback(async (
-    novaAba: string = abaAtiva,
-    novaOrdem: string = sortCampo,
-    novaDir: 'asc' | 'desc' = sortDir,
-    novaBusca: string = busca,
-  ) => {
-    if (carregandoRef.current) return
-    carregandoRef.current = true
-    setCarregando(true)
-    setCursor(undefined)
-    try {
-      const res = await pedidoVirtualApi.listar({
-        sort: novaOrdem,
-        dir: novaDir,
-        limit: 100,
-        status: novaAba !== 'todos' ? novaAba : undefined,
-        busca: novaBusca || undefined,
-      })
-      setPedidos(res.data)
-      setTotal(res.total)
-      setTemMais(res.hasMore)
-      setCursor(res.nextCursor ?? undefined)
-    } catch {
-      // Em dev sem backend, usar mock vazio para não bloquear UI
-      setPedidos([])
-      setTotal(0)
-      setTemMais(false)
-    } finally {
-      setCarregando(false)
-      carregandoRef.current = false
-    }
-  }, [abaAtiva, sortCampo, sortDir, busca])
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -4368,12 +4894,12 @@ export default function ListaPedidos() {
           _tipo_linha: 'Item',
           numero_item: i.part_number ?? '',
           part_number: i.part_number,
-          descricao: i.descricao,
+          descricao_item: i.descricao_item,
           ncm: i.ncm,
           quantidade_item: i.saldo_item_pedido,
           quantidade_inicial_item: i.quantidade_inicial_item_pedido,
-          valor_unitario: i.valor_unitario,
-          valor_item: i.valor_item,
+          valor_unitario: i.valor_por_unidade_item,
+          valor_item: i.valor_total_item,
           moeda_item: i.moeda_item,
           unidade_item: i.unidade_comercializada_item,
         }))
@@ -4453,6 +4979,13 @@ export default function ListaPedidos() {
 
   return (
     <div className="ws-fade-up lp-page">
+
+      {/* ── GABI Token Badge — exibe consumo mensal quando quota estiver configurada ── */}
+      {gabiQuota && gabiQuota.quota_mensal > 0 && (
+        <div style={{ position: 'fixed', top: '0.75rem', right: '1rem', zIndex: 500 }}>
+          <GabiTokenBadge tokensUsados={gabiQuota.tokens_usados} quotaMensal={gabiQuota.quota_mensal} />
+        </div>
+      )}
 
       {/* ── KPI cards ── */}
       <div className="lp-stats-row">
@@ -4547,16 +5080,12 @@ export default function ListaPedidos() {
         <TabelaVirtualGlobal<Pedido, PedidoItem>
           dados={pedidosFiltrados}
           colunas={colunasComUsuario}
-          itemId={(p: Pedido) => p.id}
+          itemId={pedidoItemId}
 
           mapaColunasFilho={MAPA_COLUNAS_FILHO}
           onCarregarFilhos={handleCarregarFilhos}
-          filhoId={(i: PedidoItem) => i.id}
-          renderConectorFilho={(i: PedidoItem) => (
-            <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              {i.sequencia_item ?? '—'}
-            </span>
-          )}
+          filhoId={pedidoFilhoId}
+          renderConectorFilho={pedidoRenderConectorFilho}
           temMais={temMais}
           carregandoMais={carregandoMais}
           onCarregarMais={handleCarregarMais}
@@ -4565,389 +5094,17 @@ export default function ListaPedidos() {
           abaAtiva={abaAtiva}
           onMudarAba={handleMudarAba}
 
-          acoes={[
-            {
-              id: 'editar',
-              tooltip: 'Editar pedido',
-              icone: <PencilLine size={14} weight="duotone" />,
-              onClick: (pedido: Pedido) => {
-                setPedidoEditandoId(pedido.id)
-                setDrawerAberto(true)
-              },
-            },
-          ]}
+          acoes={acoesPai}
           acoesExportacao={acoesExportacao}
           onSelecaoMudar={setPedidosSelecionados}
-          onFiltroColuna={(key, anchor) => {
-            setPopoverAberto(prev => prev === key ? null : key)
-            // Armazena o elemento âncora para posicionamento do popover
-            const ref = getAnchorRef(key)
-            if (ref && 'current' in ref) (ref as React.MutableRefObject<HTMLElement | null>).current = anchor
-          }}
-          filtrosAtivosKeys={new Set(Object.keys(filtrosAtivos))}
+          onFiltroColuna={onFiltroColuna}
+          filtrosAtivosKeys={filtrosAtivosKeys}
 
           selecionavelFilhos
-          onSelecaoFilho={(itens: PedidoItem[]) => setItensSelecionados(itens)}
-          acoesFilho={(item: PedidoItem) => [
-            {
-              label: 'Transferir',
-              icone: <ArrowsLeftRight size={13} weight="duotone" />,
-              onClick: () => {
-                setItensSelecionados([item])
-                setModalTransferirAberto(true)
-              },
-            },
-            {
-              label: 'Duplicar',
-              icone: <CopySimple size={13} weight="duotone" />,
-              onClick: () => {
-                setItensSelecionados([item])
-                setModalDuplicarAberto(true)
-              },
-            },
-            {
-              label: 'Excluir',
-              icone: <Trash size={13} weight="duotone" />,
-              perigo: true,
-              onClick: async () => {
-                setExcluindoItens(true)
-                try {
-                  await pedidoExcluirApi.excluirItens(item.pedido_id, [item.id])
-                  addNotification({ tipo: 'sucesso', mensagem: 'Item excluído com sucesso.' })
-                  await carregarInicial()
-                } catch {
-                  addNotification({ tipo: 'erro', mensagem: 'Erro ao excluir item. Tente novamente.' })
-                } finally {
-                  setExcluindoItens(false)
-                }
-              },
-            },
-          ]}
+          onSelecaoFilho={onSelecaoFilhoEstavel}
+          acoesFilho={acoesFilhoEstavel}
 
-          acoesBarra={
-            <>
-              {/* ── Dropdown "Novo" — Pedido · Item · Coluna ── */}
-              <div ref={novoDropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
-                <BotaoGlobal
-                  variante="primario"
-                  tamanho="pequeno"
-                  icone={<Plus size={14} weight="bold" />}
-                  onClick={() => { setNovoDropdownAberto(prev => !prev); setNovoSubmenu(null) }}
-                >
-                  Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
-                </BotaoGlobal>
-
-                {novoDropdownAberto && (
-                  <div style={{
-                    position: 'absolute', top: 'calc(100% + 6px)', left: 0, zIndex: 300,
-                    background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-                    borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
-                    minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
-                  }}>
-
-                    {/* ── Novo Pedido ── */}
-                    <div style={{ position: 'relative' }}
-                      onMouseEnter={() => setNovoSubmenu('pedido')}
-                      onMouseLeave={() => setNovoSubmenu(null)}
-                    >
-                      <button type="button" style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
-                        background: novoSubmenu === 'pedido' ? 'var(--bg-hover)' : 'transparent',
-                        color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
-                        cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                      }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(129,140,248,0.12)', flexShrink: 0 }}>
-                            <Package size={13} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)' }} />
-                          </span>
-                          Novo Pedido
-                        </span>
-                        <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                      </button>
-
-                      {novoSubmenu === 'pedido' && (
-                        <div style={{
-                          position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
-                          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-                          borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
-                          minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
-                        }}>
-                          {([
-                            { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
-                          ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
-                            <button key={item.label} type="button" style={{
-                              display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
-                              padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
-                              background: 'transparent', color: 'var(--text-primary)',
-                              fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                              textAlign: 'left',
-                            }}
-                              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                              onClick={item.action}
-                            >
-                              <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-                                {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
-                                {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
-                                {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
-                                {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
-                              </span>
-                              <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
-                                  {item.label}
-                                  {item.badge && <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{item.badge}</span>}
-                                </span>
-                                <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ── Novo Item ── */}
-                    <div style={{ position: 'relative' }}
-                      onMouseEnter={() => setNovoSubmenu('item')}
-                      onMouseLeave={() => setNovoSubmenu(null)}
-                    >
-                      <button type="button" style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
-                        background: novoSubmenu === 'item' ? 'var(--bg-hover)' : 'transparent',
-                        color: 'var(--text-primary)', fontSize: '0.8125rem', fontWeight: 600,
-                        cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                      }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(52,211,153,0.12)', flexShrink: 0 }}>
-                            <Tag size={13} weight="duotone" style={{ color: '#34d399' }} />
-                          </span>
-                          Novo Item
-                        </span>
-                        <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                      </button>
-
-                      {novoSubmenu === 'item' && (
-                        <div style={{
-                          position: 'absolute', left: '100%', top: 0, marginLeft: '4px', zIndex: 301,
-                          background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)',
-                          borderRadius: '0.625rem', boxShadow: '0 12px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2)',
-                          minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
-                        }}>
-                          {([
-                            { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
-                          ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
-                            <button key={item.label} type="button" style={{
-                              display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
-                              padding: '0.375rem 0.625rem', border: 'none', borderRadius: '0.375rem',
-                              background: 'transparent', color: 'var(--text-primary)',
-                              fontSize: '0.8125rem', cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                              textAlign: 'left',
-                            }}
-                              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                              onClick={item.action}
-                            >
-                              <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
-                                {item.icon === 'pencil' && <PencilSimple size={16} weight="duotone" />}
-                                {item.icon === 'sparkle' && <Sparkle size={16} weight="duotone" />}
-                                {item.icon === 'upload' && <UploadSimple size={16} weight="duotone" />}
-                                {item.icon === 'api' && <ArrowsLeftRight size={16} weight="duotone" />}
-                              </span>
-                              <span style={{ display: 'flex', flexDirection: 'column', gap: '0.0625rem' }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontWeight: 500 }}>
-                                  {item.label}
-                                  {item.badge && <span style={{ fontSize: '0.625rem', fontWeight: 600, padding: '1px 5px', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{item.badge}</span>}
-                                </span>
-                                <span style={{ fontSize: '0.6875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>{item.desc}</span>
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ── Nova Coluna ── */}
-                    <button type="button" style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      gap: '0.5rem', padding: '0.5rem 0.625rem', border: 'none', borderRadius: '0.5rem',
-                      background: 'transparent', color: 'var(--text-primary)',
-                      fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', width: '100%', fontFamily: 'inherit',
-                    }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onClick={() => { navigate('/configuracoes?tab=colunas&acao=nova'); setNovoDropdownAberto(false) }}
-                    >
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(99,102,241,0.12)', flexShrink: 0 }}>
-                          <Columns size={13} weight="duotone" style={{ color: '#818cf8' }} />
-                        </span>
-                        Nova Coluna
-                      </span>
-                      <ArrowRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* ── Ações contextuais — sempre visíveis, desativadas sem seleção ── */}
-              <>
-                <div style={{ width: 1, height: 20, background: 'var(--border-subtle)', margin: '0 2px', flexShrink: 0 }} />
-
-                {/* Transferir */}
-                <TooltipGlobal
-                  titulo={pedidosSelecionados.length > 0 ? `Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Transferir'}
-                  descricao="Transfere saldo dos pedidos selecionados para um processo logístico"
-                >
-                  <BotaoGlobal
-                    variante="secundario"
-                    tamanho="pequeno"
-                    icone={<ArrowRight size={14} weight="duotone" />}
-                    disabled={pedidosSelecionados.length === 0}
-                    onClick={() => { setModalTransferirAberto(true) }}
-                  >
-                    {pedidosSelecionados.length > 0 ? `Transferir (${pedidosSelecionados.length})` : 'Transferir'}
-                  </BotaoGlobal>
-                </TooltipGlobal>
-
-                {/* Consolidar */}
-                <TooltipGlobal
-                  titulo={pedidosSelecionados.length >= 2 ? `Consolidar · ${pedidosSelecionados.length} pedidos` : 'Consolidar'}
-                  descricao={pedidosSelecionados.length < 2 ? 'Selecione ao menos 2 pedidos para consolidar' : 'Agrupa os pedidos selecionados em um único processo logístico'}
-                >
-                  <BotaoGlobal
-                    variante="secundario"
-                    tamanho="pequeno"
-                    icone={<CheckSquare size={14} weight="duotone" />}
-                    disabled={pedidosSelecionados.length < 2}
-                    onClick={() => { setModalConsolidarAberto(true) }}
-                  />
-                </TooltipGlobal>
-
-                {/* Editar em Massa */}
-                <TooltipGlobal
-                  titulo={pedidosSelecionados.length > 0 ? `Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Editar em Massa'}
-                  descricao="Edita campos comuns nos pedidos selecionados"
-                >
-                  <BotaoGlobal
-                    variante="secundario"
-                    tamanho="pequeno"
-                    icone={<PencilLine size={14} weight="duotone" />}
-                    disabled={pedidosSelecionados.length === 0}
-                    onClick={() => { setModalEdicaoMassaAberto(true) }}
-                  />
-                </TooltipGlobal>
-
-                {/* Gerar Documento */}
-                <TooltipGlobal
-                  titulo={pedidosSelecionados.length > 0 ? `Gerar Documento · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Gerar Documento'}
-                  descricao="Gera PDF a partir de um template ou documento padrão"
-                >
-                  <BotaoGlobal
-                    variante="secundario"
-                    tamanho="pequeno"
-                    icone={<FilePdf size={14} weight="duotone" />}
-                    disabled={pedidosSelecionados.length === 0}
-                    onClick={() => setModalGerarPdfAberto(true)}
-                  />
-                </TooltipGlobal>
-
-                {/* Duplicar */}
-                <TooltipGlobal
-                  titulo={pedidosSelecionados.length > 0 ? `Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Duplicar'}
-                  descricao="Cria cópias dos pedidos selecionados"
-                >
-                  <BotaoGlobal
-                    variante="secundario"
-                    tamanho="pequeno"
-                    icone={<CopySimple size={14} weight="duotone" />}
-                    disabled={pedidosSelecionados.length === 0}
-                    onClick={() => setModalDuplicarAberto(true)}
-                  />
-                </TooltipGlobal>
-
-                {/* Excluir */}
-                <TooltipGlobal
-                  titulo={pedidosSelecionados.length > 0 ? `Excluir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Excluir'}
-                  descricao="Exclui permanentemente os pedidos selecionados"
-                >
-                  <BotaoGlobal
-                    variante="perigo"
-                    tamanho="pequeno"
-                    icone={<Trash size={14} weight="duotone" />}
-                    disabled={pedidosSelecionados.length === 0}
-                    carregando={excluindoLote}
-                    onClick={async () => {
-                      const ids = pedidosSelecionados.map(p => p.id)
-                      setExcluindoLote(true)
-                      try {
-                        const preview = await pedidoExcluirApi.preview(ids)
-                        const totalPermitidos = preview.permitidos.length
-                        const totalBloqueados = preview.bloqueados.length
-                        const resumo: string[] = []
-                        if (totalPermitidos > 0) {
-                          resumo.push(`✓ ${totalPermitidos} pedido${totalPermitidos !== 1 ? 's' : ''} serão excluídos permanentemente.`)
-                        }
-                        if (totalBloqueados > 0) {
-                          resumo.push(`✗ ${totalBloqueados} pedido${totalBloqueados !== 1 ? 's' : ''} bloqueado${totalBloqueados !== 1 ? 's' : ''} (status não permitido):`)
-                          preview.bloqueados.forEach(b => resumo.push(`  - ${b.numero_pedido}: ${b.motivo}`))
-                        }
-                        if (totalPermitidos === 0) {
-                          setErroLote('Nenhum pedido pode ser excluído com os status atuais.')
-                          return
-                        }
-                        const mensagem = `${resumo.join('\n')}\n\nEsta ação não pode ser desfeita. Deseja prosseguir?`
-                        if (window.confirm(mensagem)) {
-                          await pedidoExcluirApi.confirmar(preview.permitidos.map(p => p.id))
-                          setPedidosSelecionados([])
-                          await carregarInicial()
-                        }
-                      } catch (err) {
-                        setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
-                      } finally {
-                        setExcluindoLote(false)
-                      }
-                    }}
-                  />
-                </TooltipGlobal>
-              </>
-
-              {/* ── Chips de filtros ativos (dentro da toolbar) ── */}
-              {Object.keys(filtrosAtivos).length > 0 && (
-                <div
-                  role="status"
-                  aria-label="Filtros ativos"
-                  style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
-                >
-                  {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
-                    const filtro = filtrosAtivos[col.key]!
-                    return (
-                      <span key={col.key} className="lp-filtro-chip">
-                        <span className="lp-filtro-chip-label">{col.label}:</span>
-                        <span className="lp-filtro-chip-valor">{rotulofiltro(col.key, filtro)}</span>
-                        <button
-                          className="lp-filtro-chip-remove"
-                          onClick={() => handleLimparFiltro(col.key)}
-                          aria-label={`Remover filtro ${col.label}`}
-                        >
-                          <X size={10} weight="bold" />
-                        </button>
-                      </span>
-                    )
-                  })}
-                  <button className="lp-filtros-limpar-tudo" onClick={handleLimparTodosFiltros}>
-                    Limpar tudo
-                  </button>
-                </div>
-              )}
-            </>
-          }
+          acoesBarra={acoesBarra}
 
           onBuscar={handleBuscar}
           placeholderBusca="Buscar pedido, exportador, referência..."
@@ -5200,9 +5357,9 @@ export default function ListaPedidos() {
   "itens": [
     {
       "part_number": "ABC-001",
-      "descricao": "Produto exemplo",
-      "quantidade": 100,
-      "valor_unitario": 25.50
+      "descricao_item": "Produto exemplo",
+      "quantidade_inicial_pedido": 100,
+      "valor_por_unidade_item": 25.50
     }
   ]
 }`}

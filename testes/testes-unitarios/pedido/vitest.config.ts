@@ -28,12 +28,15 @@ export default defineConfig({
     include: [
       'testes/testes-unitarios/pedido/ListaPedidos.test.tsx',
       'testes/testes-unitarios/pedido/colunasUsuarioService.test.ts',
+      'testes/testes-unitarios/pedido/colunasUsuarioSchemas.test.ts',
+      'testes/testes-unitarios/pedido/colunaFormula.test.ts',
       'testes/testes-unitarios/pedido/duplicarExcluirService.test.ts',
       'testes/testes-unitarios/pedido/edicaoEmMassaService.test.ts',
       'testes/testes-unitarios/pedido/importEngine.test.ts',
       'testes/testes-unitarios/pedido/saldoEngine.test.ts',
       'testes/testes-unitarios/pedido/smartImportService.test.ts',
       'testes/testes-unitarios/pedido/gabiSemantica.test.ts',
+      'testes/testes-unitarios/pedido/gabiFieldHelp.test.ts',
     ],
     env: {
       NODE_ENV: 'test',
@@ -57,6 +60,7 @@ export default defineConfig({
         'produto/pedido/client/src/shared/gabiSemantica.ts',
         'produto/pedido/server/src/services/colunasUsuarioService.ts',
         'produto/pedido/server/src/routes/colunasUsuario.ts',
+        'produto/pedido/server/src/routes/colunasUsuarioSchemas.ts',
       ],
       thresholds: {
         lines: 70,
@@ -88,6 +92,9 @@ export default defineConfig({
       '@nucleo/status-badge-global':   path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       '@nucleo/botao-global':          path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       '@nucleo/tooltip-global':        path.resolve(__dirname, '__mocks__/nucleo.tsx'),
+      '@nucleo/campo-select-global':   path.resolve(__dirname, '__mocks__/nucleo.tsx'),
+      '@nucleo/modal-passo-passo-global': path.resolve(__dirname, '__mocks__/nucleo.tsx'),
+      '@nucleo/gabi-field-icon-global':   path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       // Shell
       '@gravity/shell':               path.resolve(__dirname, '__mocks__/shell.tsx'),
       '@shell':                       path.resolve(__dirname, '__mocks__/shell.tsx'),

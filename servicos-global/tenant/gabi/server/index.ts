@@ -15,6 +15,8 @@ import { conversasRouter } from './routes/conversas.js'
 import { mensagensRouter } from './routes/mensagens.js'
 import { chatRouter } from './routes/chat.js'
 import { acoesRouter } from './routes/acoes.js'
+import { usageRouter } from './routes/usage.js'
+import { fieldHelpRouter } from './routes/fieldHelp.js'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 8000)
@@ -37,6 +39,8 @@ app.use(conversasRouter)
 app.use(mensagensRouter)
 app.use(chatRouter)
 app.use(acoesRouter)
+app.use(usageRouter)
+app.use(fieldHelpRouter)
 
 // ---------------------------------------------------------------------------
 // Handler global de erros — deve ser o último middleware

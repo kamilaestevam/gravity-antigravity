@@ -95,6 +95,8 @@ const CreateProductSchema = z.object({
   backend_module: z.string().max(50).optional(),
   target_audience: z.string().max(300).optional(),
 
+  gabi_quota_mensal: z.number().int().min(0).default(0),
+
   price_tiers: z.array(PriceTierSchema).optional(),
 })
 

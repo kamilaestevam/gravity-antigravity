@@ -94,6 +94,7 @@ function apiToUi(p: ProductApi): ProdutoCatalogo {
           moeda: t.currency,
         }))
       : undefined,
+    gabiQuotaMensal: (p as any).gabi_quota_mensal ?? 0,
   }
 }
 
@@ -117,6 +118,7 @@ function uiToApiCreate(p: {
   moduloBackend?: string
   publicoAlvo?: string
   faixasPreco?: FaixaPreco[]
+  gabiQuotaMensal?: number
 }): Record<string, unknown> {
   return {
     name: p.nome,
@@ -143,6 +145,7 @@ function uiToApiCreate(p: {
     extra_hour_currency: p.precoHoraAdicional?.moeda ?? 'BRL',
     backend_module: p.moduloBackend ?? undefined,
     target_audience: p.publicoAlvo ?? undefined,
+    gabi_quota_mensal: p.gabiQuotaMensal ?? 0,
     price_tiers: p.faixasPreco?.map(f => ({
       range_from: f.de,
       range_to: f.ate ?? undefined,

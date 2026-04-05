@@ -49,6 +49,9 @@ export interface ProdutoCatalogo {
   moduloBackend?: string // ex: "simula-custo", "atividades"
   publicoAlvo?: string
   faixasPreco?: FaixaPreco[] // Adicionado para precificação por camadas (Tiers)
+
+  // GABI — Quota mensal de tokens on-demand
+  gabiQuotaMensal?: number
 }
 
 export interface NegociacaoEspecial {

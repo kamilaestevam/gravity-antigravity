@@ -105,9 +105,29 @@ export function BotaoGlobal({
 export function TooltipGlobal({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
+export function SelectGlobal(props: Record<string, unknown>) {
+  return <select data-testid="select-global" {...(props as any)} />
+}
+export function ModalPassoPassoGlobal({ children }: { children?: React.ReactNode }) {
+  return <div data-testid="modal-passo-passo">{children}</div>
+}
 export function ModalGlobal({ children }: { children?: React.ReactNode }) {
   return <>{children}</>
 }
 export function InputGlobal(props: Record<string, unknown>) {
   return <input data-testid="input-global" {...(props as any)} />
+}
+
+// ── GABI Field Icon (mock para testes) ──
+export function GabiFieldIcon(_props: Record<string, unknown>) {
+  return null
+}
+export function GabiTokenBadge(_props: Record<string, unknown>) {
+  return null
+}
+export function useGabiOnDemand(_campo: string, _endpoint?: string) {
+  return { consultar: async () => {}, resposta: null, carregando: false, esgotado: false, erro: null, limpar: () => {} }
+}
+export function useGabiQuota(_endpoint?: string) {
+  return { quota: null, carregando: false, recarregar: async () => {} }
 }

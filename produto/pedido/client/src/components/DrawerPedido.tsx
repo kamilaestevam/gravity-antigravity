@@ -27,6 +27,7 @@ import {
   ArrowsLeftRight,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
 import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
 import { pedidoApi, pedidoTransferirApi } from '../shared/api'
 import './DrawerPedido.css'
@@ -66,10 +67,10 @@ interface ItemForm {
   key: string
   part_number: string
   ncm: string
-  descricao: string
+  descricao_item: string
   quantidade_inicial_item_pedido: string
   unidade_comercializada_item: string
-  valor_unitario: string
+  valor_por_unidade_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -93,16 +94,16 @@ const ITEM_VAZIO = (): ItemForm => ({
   key: crypto.randomUUID(),
   part_number: '',
   ncm: '',
-  descricao: '',
+  descricao_item: '',
   quantidade_inicial_item_pedido: '',
   unidade_comercializada_item: 'UN',
-  valor_unitario: '',
+  valor_por_unidade_item: '',
 })
 
 function formFoiAlterado(form: PedidoForm, itens: ItemForm[]): boolean {
   if (form.numero_pedido.trim() !== '') return true
   if (form.importacao_exportador_id.trim() !== '') return true
-  if (itens.some(i => i.part_number.trim() !== '' || i.descricao.trim() !== '')) return true
+  if (itens.some(i => i.part_number.trim() !== '' || i.descricao_item.trim() !== '')) return true
   return false
 }
 
@@ -203,10 +204,10 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
             key: item.id,
             part_number: item.part_number,
             ncm: item.ncm,
-            descricao: item.descricao,
+            descricao_item: item.descricao_item,
             quantidade_inicial_item_pedido: String(item.quantidade_inicial_item_pedido),
             unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
-            valor_unitario: item.valor_unitario != null ? String(item.valor_unitario) : '',
+            valor_por_unidade_item: item.valor_por_unidade_item != null ? String(item.valor_por_unidade_item) : '',
           })))
         }
       })
@@ -262,10 +263,10 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
       const itensMapped = itens.map(item => ({
         part_number: item.part_number,
         ncm: item.ncm,
-        descricao: item.descricao,
+        descricao_item: item.descricao_item,
         quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
         unidade_comercializada_item: item.unidade_comercializada_item,
-        valor_unitario: item.valor_unitario ? parseFloat(item.valor_unitario) : undefined,
+        valor_por_unidade_item: item.valor_por_unidade_item ? parseFloat(item.valor_por_unidade_item) : undefined,
       }))
       const payload = { ...form, data_emissao_pedido: form.data_emissao_pedido, itens: itensMapped as PedidoItem[] }
 
@@ -408,7 +409,10 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-incoterm">Incoterm</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-incoterm" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        Incoterm
+                        <GabiFieldIcon campo="incoterm" label="Incoterm" gabiEndpoint="/api/v1/pedidos/gabi/field-help" />
+                      </label>
                       <select
                         id="dp-incoterm"
                         className="drawer-pedido__select"
@@ -434,7 +438,10 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                       </select>
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-cobertura">Cobertura Cambial</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-cobertura" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        Cobertura Cambial
+                        <GabiFieldIcon campo="cobertura_cambial" label="Cobertura Cambial" gabiEndpoint="/api/v1/pedidos/gabi/field-help" />
+                      </label>
                       <select
                         id="dp-cobertura"
                         className="drawer-pedido__select"
@@ -446,7 +453,10 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                       </select>
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-pagamento">Condicao Pagamento</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-pagamento" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                        Condição de Pagamento
+                        <GabiFieldIcon campo="condicao_pagamento" label="Condição de Pagamento" gabiEndpoint="/api/v1/pedidos/gabi/field-help" />
+                      </label>
                       <input
                         id="dp-pagamento"
                         className="drawer-pedido__input"
@@ -574,8 +584,8 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                         <input
                           id={`dp-desc-${index}`}
                           className="drawer-pedido__input"
-                          value={item.descricao}
-                          onChange={e => handleItemChange(index, 'descricao', e.target.value)}
+                          value={item.descricao_item}
+                          onChange={e => handleItemChange(index, 'descricao_item', e.target.value)}
                           placeholder="Descricao do item"
                           aria-label="Descricao"
                         />
@@ -616,8 +626,8 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                           type="number"
                           className="drawer-pedido__input"
                           style={{ textAlign: 'right' }}
-                          value={item.valor_unitario}
-                          onChange={e => handleItemChange(index, 'valor_unitario', e.target.value)}
+                          value={item.valor_por_unidade_item}
+                          onChange={e => handleItemChange(index, 'valor_por_unidade_item', e.target.value)}
                           placeholder="0,00"
                           min="0"
                           step="0.01"
@@ -692,7 +702,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                               Por: <strong>{t.created_by}</strong>
                             </p>
                             <p className="drawer-pedido__timeline-qtd">
-                              Quantidade: <strong>{t.quantidade}</strong>
+                              Quantidade: <strong>{t.quantidade_item_transferida}</strong>
                             </p>
                             <p className="drawer-pedido__timeline-cenario">
                               Cenario: <span className="drawer-pedido__timeline-cenario-tag">{t.cenario}</span>

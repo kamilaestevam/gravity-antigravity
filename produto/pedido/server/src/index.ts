@@ -28,6 +28,7 @@ import { edicaoEmMassaRouter } from './routes/edicaoEmMassa.js'
 import { smartImportRouter } from './routes/smartImport.js'
 import { duplicarExcluirRouter } from './routes/duplicarExcluir.js'
 import { colunasUsuarioRouter } from './routes/colunasUsuario.js'
+import { gabiProxyRouter } from './routes/gabiProxy.js'
 import { anexosRouter } from './routes/anexos.js'
 import { pdfRouter } from './routes/pdf.js'
 import { loteRouter } from './routes/lote.js'
@@ -110,6 +111,7 @@ app.use('/api/v1/pedidos/transferir',        transferirRouter)
 app.use('/api/v1/pedidos/edicao-em-massa',   edicaoEmMassaRouter)
 app.use('/api/v1/pedidos/smart-import',      smartImportRouter)
 app.use('/api/v1/pedidos/colunas-usuario',   colunasUsuarioRouter)
+app.use(gabiProxyRouter)
 app.use('/api/v1/pedidos/anexos',            anexosRouter)
 app.use('/api/v1/pedidos/pdf',               pdfRouter)
 app.use('/api/v1/pedidos/lote',              loteRouter)
@@ -130,11 +132,19 @@ app.use((_req: Request, res: Response) => {
 app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.statusCode ?? 500
   const code   = err.code ?? (status === 500 ? 'INTERNAL_ERROR' : 'ERROR')
-  if (status >= 500) console.error('[Pedido/Server]', err.message, err.stack)
-  res.status(status).json({ error: { message: err.message, code } })
+  // Garante message mesmo se err não for instância de Error
+  const message = err.message || (err as unknown as { toString(): string }).toString?.() || 'Erro interno'
+  if (status >= 500) console.error('[Pedido/Server]', message, err.stack)
+  res.status(status).json({ error: { message, code } })
 })
 
 // ── Start ─────────────────────────────────────────────────────────────────────
+// Validações de ambiente obrigatórias — falham antes de aceitar qualquer request
+if (!process.env.INTERNAL_SERVICE_KEY) {
+  console.error('[Pedido] FATAL: INTERNAL_SERVICE_KEY não configurada. Encerrando.')
+  process.exit(1)
+}
+
 app.listen(PORT, () => {
   console.log(`[Pedido] Servidor rodando na porta ${PORT}`)
   console.log(`[Pedido] Power BI endpoint: http://localhost:${PORT}/api/v1/analytics/pedido`)

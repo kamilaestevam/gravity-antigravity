@@ -9,15 +9,23 @@
   height:       16px;
   font-size:    11px;
   cursor:       pointer;
-  color:        var(--text-muted);
+  color:        #a78bfa;
   border-radius: var(--radius-pill, 9999px);
-  transition:   color 0.15s, opacity 0.15s;
+  transition:   color 0.15s, opacity 0.15s, text-shadow 0.15s;
   user-select:  none;
   flex-shrink:  0;
+  animation:    gabi-breathe 2.4s ease-in-out infinite;
 }
 
 .gabi-field-icon:hover {
-  color: var(--accent);
+  color:        #c4b5fd;
+  text-shadow:  0 0 8px rgba(167, 139, 250, 0.7);
+  animation:    none;
+}
+
+@keyframes gabi-breathe {
+  0%, 100% { opacity: 0.6; text-shadow: 0 0 0px rgba(167, 139, 250, 0); }
+  50%       { opacity: 1;   text-shadow: 0 0 6px rgba(167, 139, 250, 0.5); }
 }
 
 .gabi-field-icon--carregando {

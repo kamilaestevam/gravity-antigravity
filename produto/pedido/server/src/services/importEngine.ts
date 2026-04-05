@@ -120,8 +120,10 @@ export async function parseArquivo(
     }
 
     case 'pdf': {
-      const pdfParse = (await import('pdf-parse')).default
-      const result = await pdfParse(buffer)
+      const { PDFParse } = await import('pdf-parse')
+      const parser = new PDFParse({ data: buffer })
+      await parser.load()
+      const result = await parser.getText()
       return parsePdfText(result.text)
     }
 

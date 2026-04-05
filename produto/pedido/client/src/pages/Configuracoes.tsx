@@ -735,13 +735,10 @@ export default function Configuracoes() {
   // Ref que mantém os campos disponíveis atualizados para o validarFormulaConfig (evita TDZ com CAMPOS_FORMULA)
   const camposFormulaRef = useRef<Array<{ chave: string; label: string; unidade?: string; papel?: string }>>([])
 
-  const [formulaErro,       setFormulaErro]       = useState<string | null>(null)
-  const [formulaValida,     setFormulaValida]     = useState(false)
-  const [formulaAviso,      setFormulaAviso]      = useState<string | null>(null)
-  const [formulaGabi,       setFormulaGabi]       = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
-  const [formulaAnalisando, setFormulaAnalisando] = useState(false)
-  // Uma vez que o usuário começa a digitar, o card GABI fica permanentemente ativo até sair da tela
-  const [gabiAtiva,         setGabiAtiva]         = useState(false)
+  const [formulaErro,   setFormulaErro]   = useState<string | null>(null)
+  const [formulaValida, setFormulaValida] = useState(false)
+  const [formulaAviso,  setFormulaAviso]  = useState<string | null>(null)
+  const [formulaGabi,   setFormulaGabi]   = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
 
   const TIPOS_NUMERICOS: TipoColunaUsuario[] = ['numero', 'percentual', 'formula']
 
@@ -806,21 +803,14 @@ export default function Configuracoes() {
 
   const handleFormulaChange = useCallback((valor: string) => {
     setNovaColuna(prev => ({ ...prev, formula_expressao: valor }))
-    setFormulaValida(false); setFormulaErro(null); setFormulaAviso(null)
-    // Primeira interação: ativa o card GABI permanentemente (não some mais até sair)
-    if (valor.trim()) {
-      setGabiAtiva(true)
-      setFormulaAnalisando(true)
-    } else {
-      setFormulaAnalisando(false)
-    }
-    // Não zera formulaGabi aqui — o card mantém o conteúdo anterior enquanto debounce roda
+    // Limpa resultado anterior — o card mostra intro até o debounce responder
+    setFormulaErro(null); setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
     if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current)
-    formulaDebounceRef.current = setTimeout(() => {
-      setFormulaAnalisando(false)
-      setFormulaGabi(null) // limpa só aqui para validarFormulaConfig preencher o novo
-      void validarFormulaConfig(valor, camposFormulaRef.current)
-    }, 600)
+    if (valor.trim()) {
+      formulaDebounceRef.current = setTimeout(() => {
+        void validarFormulaConfig(valor, camposFormulaRef.current)
+      }, 600)
+    }
   }, [validarFormulaConfig])
 
   useEffect(() => {
@@ -2473,45 +2463,36 @@ export default function Configuracoes() {
                       aria-describedby={formulaErro ? 'cfg-formula-msg' : undefined}
                     />
 
-                    {/* Card Gabi — permanente: aparece ao abrir e nunca some até sair da tela */}
+                    {/* Card Gabi — regra: vazio → intro; com conteúdo → resultado da análise */}
                     {(() => {
-                      // Deriva o conteúdo do card conforme estado atual
-                      let titulo = 'Como montar sua fórmula'
-                      let texto: React.ReactNode = (
-                        <>
-                          Clique em um campo acima para inseri-lo na expressão, ou digite diretamente.
-                          Use <code>+  −  *  /</code> entre campos numéricos.
-                          Para evitar divisão por zero, envolva com{' '}
-                          <code>SE(denominador == 0, 0, numerador / denominador)</code>.
-                          Campos de texto, data e checkbox valem 0 em aritmética — prefira Numérico, Percentual ou outra Fórmula.
-                        </>
-                      )
-                      let sugestao: string | undefined
-                      let variante: 'info' | 'analisando' | 'erro' | 'ok' | 'aviso' = 'info'
+                      const vazio = !novaColuna.formula_expressao.trim()
 
-                      if (gabiAtiva) {
-                        if (formulaAnalisando) {
-                          titulo = 'Analisando...'
-                          texto = 'Verificando sintaxe e campos da expressão.'
-                          variante = 'analisando'
-                        } else if (formulaErro) {
-                          titulo = 'Erro na expressão'
-                          texto = formulaErro
-                          variante = 'erro'
-                        } else if (formulaGabi) {
-                          titulo = formulaGabi.titulo
-                          texto = formulaGabi.texto
-                          sugestao = formulaGabi.sugestao
-                          variante = 'aviso'
-                        } else if (formulaValida) {
-                          titulo = 'Fórmula válida ✓'
-                          texto = 'Tudo certo! Preencha os campos restantes e clique em Salvar.'
-                          variante = 'ok'
-                        } else {
-                          titulo = 'Como montar sua fórmula'
-                          variante = 'info'
-                        }
-                      }
+                      // Vazio: instrução inicial
+                      if (vazio) return (
+                        <div className="cfg-gabi-card cfg-gabi-card--info" role="note">
+                          <div className="cfg-gabi-card__header">
+                            <span className="cfg-gabi-card__ico">✦</span>
+                            <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                          </div>
+                          <p className="cfg-gabi-card__texto">
+                            Clique em um campo acima para inseri-lo, ou digite diretamente.
+                            Use <code>+  −  *  /</code> entre campos numéricos.
+                            Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
+                            Campos texto, data ou checkbox valem 0 em aritmética.
+                          </p>
+                        </div>
+                      )
+
+                      // Com conteúdo mas ainda aguardando debounce (estados limpos)
+                      if (!formulaErro && !formulaGabi && !formulaValida) return null
+
+                      // Resultado da análise
+                      const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
+                      const titulo   = formulaErro ? 'Erro na expressão'
+                                     : formulaGabi ? formulaGabi.titulo
+                                     : 'Fórmula válida ✓'
+                      const texto    = formulaErro ?? formulaGabi?.texto ?? 'Tudo certo! Preencha os campos restantes e clique em Salvar.'
+                      const sugestao = formulaGabi?.sugestao
 
                       return (
                         <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite">

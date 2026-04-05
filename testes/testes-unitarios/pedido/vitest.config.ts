@@ -33,6 +33,7 @@ export default defineConfig({
       'testes/testes-unitarios/pedido/importEngine.test.ts',
       'testes/testes-unitarios/pedido/saldoEngine.test.ts',
       'testes/testes-unitarios/pedido/smartImportService.test.ts',
+      'testes/testes-unitarios/pedido/gabiSemantica.test.ts',
     ],
     env: {
       NODE_ENV: 'test',
@@ -52,6 +53,8 @@ export default defineConfig({
         'produto/pedido/client/src/pages/ListaPedidos.tsx',
         'produto/pedido/client/src/shared/api.ts',
         'produto/pedido/client/src/shared/types.ts',
+        'produto/pedido/client/src/shared/formulaEngine.ts',
+        'produto/pedido/client/src/shared/gabiSemantica.ts',
         'produto/pedido/server/src/services/colunasUsuarioService.ts',
         'produto/pedido/server/src/routes/colunasUsuario.ts',
       ],

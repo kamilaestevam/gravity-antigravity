@@ -14,7 +14,7 @@
  *  └── Categorias Anexos  ← gerenciar categorias de anexo
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import {
@@ -39,6 +39,7 @@ import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../sha
 import { pdfApi, colunasUsuarioApi, type PdfTemplate } from '../shared/api'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type { FormulaAST } from '../shared/formulaEngine'
+import { analisarSemanticaFormula, SEMANTICA_CAMPOS } from '../shared/gabiSemantica'
 import type {
   ColunaUsuario as ColunaUsuarioApi,
   TipoColunaUsuario,
@@ -501,192 +502,6 @@ function ToggleRow({
   )
 }
 
-// ─── Semântica dos campos de fórmula ──────────────────────────────────────────
-//
-// Cada campo tem:
-//   unidade  — tipo físico do valor (impede misturar qtd + financeiro, etc.)
-//   papel    — total | parcela | calculado (detecta soma de parte com o todo)
-//   parcelaDe — chave do campo pai quando papel = 'parcela'
-//   label    — nome legível para mensagens
-//
-// Para adicionar um novo campo basta incluir aqui — as regras são genéricas.
-
-type UnidadeSemantica = 'qtd' | 'fin' | 'peso' | 'vol'
-type PapelSemantico   = 'total' | 'parcela' | 'calculado'
-
-interface MetaCampo {
-  label:      string
-  unidade:    UnidadeSemantica
-  papel:      PapelSemantico
-  parcelaDe?: string
-}
-
-const SEMANTICA_CAMPOS: Record<string, MetaCampo> = {
-  quantidade_total_inicial_pedido:      { label: 'Quantidade Inicial',     unidade: 'qtd',  papel: 'total' },
-  quantidade_cancelada_total_pedido:    { label: 'Quantidade Cancelada',   unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
-  quantidade_transferida_total:         { label: 'Quantidade Transferida', unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
-  quantidade_pronta_itens_pedido_total: { label: 'Quantidade Pronta',      unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
-  saldo_itens_do_pedido:               { label: 'Saldo',                  unidade: 'qtd',  papel: 'calculado' },
-  valor_total:                         { label: 'Valor Total',            unidade: 'fin',  papel: 'total' },
-  peso_liquido_total_pedido:           { label: 'Peso Líquido',           unidade: 'peso', papel: 'total' },
-  peso_bruto_total_pedido:             { label: 'Peso Bruto',             unidade: 'peso', papel: 'total' },
-  cubagem_total_pedido:                { label: 'Cubagem',                unidade: 'vol',  papel: 'total' },
-}
-
-const LABEL_UNIDADE: Record<UnidadeSemantica, string> = {
-  qtd:  'quantidade',
-  fin:  'valor financeiro',
-  peso: 'peso',
-  vol:  'volume',
-}
-
-/** Coleta campos e operações do AST */
-function _coletarAST(no: FormulaAST, campos: string[], divisoes: Array<{ num: FormulaAST; den: FormulaAST }>, temSE: { v: boolean }) {
-  switch (no.tipo) {
-    case 'campo':
-      campos.push(no.chave)
-      break
-    case 'binop':
-      if (no.op === '/') divisoes.push({ num: no.esq, den: no.dir })
-      _coletarAST(no.esq, campos, divisoes, temSE)
-      _coletarAST(no.dir, campos, divisoes, temSE)
-      break
-    case 'se':
-      temSE.v = true
-      _coletarAST(no.condicao, campos, divisoes, temSE)
-      _coletarAST(no.verdadeiro, campos, divisoes, temSE)
-      _coletarAST(no.falso, campos, divisoes, temSE)
-      break
-    case 'condicao':
-      _coletarAST(no.esq, campos, divisoes, temSE)
-      _coletarAST(no.dir, campos, divisoes, temSE)
-      break
-  }
-}
-
-/** Coleta pares de operandos de campo em operações + e - */
-function _coletarSomas(no: FormulaAST): Array<{ op: '+' | '-'; esq: string | null; dir: string | null }> {
-  const resultado: Array<{ op: '+' | '-'; esq: string | null; dir: string | null }> = []
-  function visitar(n: FormulaAST) {
-    if (n.tipo === 'binop') {
-      if (n.op === '+' || n.op === '-') {
-        resultado.push({
-          op: n.op,
-          esq: n.esq.tipo === 'campo' ? n.esq.chave : null,
-          dir: n.dir.tipo === 'campo' ? n.dir.chave : null,
-        })
-      }
-      visitar(n.esq)
-      visitar(n.dir)
-    } else if (n.tipo === 'se') {
-      visitar(n.verdadeiro)
-      visitar(n.falso)
-    } else if (n.tipo === 'condicao') {
-      visitar(n.esq)
-      visitar(n.dir)
-    }
-  }
-  visitar(no)
-  return resultado
-}
-
-/**
- * Analisa a semântica da fórmula e retorna um aviso para a GABI, ou null se OK.
- * As regras são genéricas — não hardcoded por campo específico.
- *
- * Regra 1 — Parcela somada ao seu total:
- *   Detecta qualquer `a + b` onde b.parcelaDe === a (ou vice-versa).
- *   Ex: Quantidade Inicial + Quantidade Cancelada → duplica o cancelado.
- *
- * Regra 2 — Unidades incompatíveis:
- *   Detecta operações entre campos de unidades físicas distintas.
- *   Ex: Quantidade + Valor Financeiro → não faz sentido dimensional.
- *
- * Regra 3 — Divisão sem proteção:
- *   Qualquer divisão fora de um SE() pode gerar divisão por zero.
- */
-function analisarSemanticaFormula(expressao: string): { titulo: string; texto: string; sugestao?: string } | null {
-  let ast: FormulaAST
-  try { ast = parsearFormula(expressao) } catch { return null }
-
-  const campos: string[]  = []
-  const divisoes: Array<{ num: FormulaAST; den: FormulaAST }> = []
-  const temSE = { v: false }
-  _coletarAST(ast, campos, divisoes, temSE)
-  const somas = _coletarSomas(ast)
-
-  // ── Regra 1: parcela somada ao seu total ──────────────────────────────────
-  for (const op of somas) {
-    if (op.op !== '+') continue
-    const metaEsq = op.esq ? SEMANTICA_CAMPOS[op.esq] : null
-    const metaDir = op.dir ? SEMANTICA_CAMPOS[op.dir] : null
-    if (!metaEsq || !metaDir) continue
-
-    let labelParcela: string | null = null
-    let labelTotal:   string | null = null
-    let sugestao:     string | undefined
-
-    if (metaEsq.papel === 'parcela' && metaEsq.parcelaDe === op.dir) {
-      labelParcela = metaEsq.label
-      labelTotal   = metaDir.label
-      sugestao     = `${op.dir} - ${op.esq}`
-    } else if (metaDir.papel === 'parcela' && metaDir.parcelaDe === op.esq) {
-      labelParcela = metaDir.label
-      labelTotal   = metaEsq.label
-      sugestao     = `${op.esq} - ${op.dir}`
-    }
-
-    if (labelParcela && labelTotal) {
-      return {
-        titulo: 'Parcela somada ao seu total',
-        texto:  `"${labelParcela}" já está contida em "${labelTotal}" — somá-las dobra o valor. Se quer o que ainda está ativo, use subtração.`,
-        sugestao,
-      }
-    }
-  }
-
-  // ── Regra 4: mesmo campo somado a si mesmo ───────────────────────────────
-  for (const op of somas) {
-    if (op.op === '+' && op.esq && op.dir && op.esq === op.dir) {
-      const label = SEMANTICA_CAMPOS[op.esq]?.label ?? op.esq
-      return {
-        titulo: 'Campo somado com ele mesmo',
-        texto:  `"${label}" está sendo somado com ele próprio, o que equivale a multiplicar por 2. Se é isso que quer, use ${op.esq} * 2. Se não, verifique se o segundo campo está correto.`,
-        sugestao: `${op.esq} * 2`,
-      }
-    }
-  }
-
-  // ── Regra 2: unidades físicas incompatíveis ───────────────────────────────
-  const unidadesCampos = campos
-    .map(c => SEMANTICA_CAMPOS[c]?.unidade)
-    .filter((u): u is UnidadeSemantica => !!u)
-  const unidades = [...new Set(unidadesCampos)]
-
-  if (unidades.length > 1) {
-    const nomes = unidades.map(u => LABEL_UNIDADE[u])
-    return {
-      titulo: 'Unidades incompatíveis',
-      texto:  `A fórmula combina ${nomes.join(' com ')}. Operações entre grandezas diferentes raramente fazem sentido de negócio — verifique se os campos estão corretos.`,
-    }
-  }
-
-  // ── Regra 3: divisão sem SE ───────────────────────────────────────────────
-  if (divisoes.length > 0 && !temSE.v) {
-    const den = divisoes[0].den
-    const nomeDen = den.tipo === 'campo' ? SEMANTICA_CAMPOS[den.chave]?.label ?? den.chave
-                  : den.tipo === 'numero' ? String(den.valor)
-                  : null
-    return {
-      titulo: 'Divisão sem proteção',
-      texto:  `Se ${nomeDen ? `"${nomeDen}"` : 'o denominador'} for zero em algum pedido, a fórmula gerará erro. Proteja com SE(denominador == 0, 0, numerador / denominador).`,
-      sugestao: expressao.replace(/(.+)\/(.+)/, 'SE($2 == 0, 0, $1 / $2)'),
-    }
-  }
-
-  return null
-}
-
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export default function Configuracoes() {
@@ -740,9 +555,14 @@ export default function Configuracoes() {
   const [formulaAviso,  setFormulaAviso]  = useState<string | null>(null)
   const [formulaGabi,   setFormulaGabi]   = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
 
-  const TIPOS_NUMERICOS: TipoColunaUsuario[] = ['numero', 'percentual', 'formula']
+  // FIX #4: constante fora do ciclo de render para não recriar callbacks a cada render
+  const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = useMemo(() => ['numero', 'percentual', 'formula'], [])
 
-  const validarFormulaConfig = useCallback(async (expressao: string, camposDisponiveis?: Array<{ chave: string; label: string; unidade?: string; papel?: string }>) => {
+  // Ref para o nome atual da coluna — evita closure stale no validarFormulaConfig async
+  const nomeColRef = useRef(novaColuna.nome)
+  useEffect(() => { nomeColRef.current = novaColuna.nome }, [novaColuna.nome])
+
+  const validarFormulaConfig = useCallback(async (expressao: string) => {
     if (!expressao.trim()) {
       setFormulaErro(null); setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
       return
@@ -750,65 +570,57 @@ export default function Configuracoes() {
     try {
       parsearFormula(expressao)
 
-      const chave = novaColuna.nome.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
+      // FIX #1: usa ref para pegar nome atual — sem closure stale durante async
+      const chave = nomeColRef.current.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
       if (detectarCircular(chave, expressao, colunasUsuarioApi_)) {
         setFormulaErro('Referência circular: a fórmula cria um ciclo de dependências. Remova a referência que volta para esta coluna.')
         setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
         return
       }
 
-      // Detectar campos não-numéricos referenciados (checagem local, sempre ativa)
+      // Detectar campos não-numéricos (checagem local síncrona)
       const camposTexto: string[] = []
       const identRegex = /\b([a-z][a-z0-9_]*)\b/g
       let m: RegExpExecArray | null
       while ((m = identRegex.exec(expressao)) !== null) {
         const id = m[1]
         const colUsuario = colunasUsuarioApi_.find(c => c.chave === id || c.id === id)
-        if (colUsuario && !TIPOS_NUMERICOS.includes(colUsuario.tipo)) {
+        if (colUsuario && !TIPOS_NUMERICOS_FORMULA.includes(colUsuario.tipo)) {
           camposTexto.push(`"${colUsuario.nome}" (${colUsuario.tipo})`)
         }
       }
-
       if (camposTexto.length > 0) {
         setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null)
         setFormulaGabi({
           titulo: 'Campo não-numérico detectado',
-          texto: `${camposTexto.join(', ')} ${camposTexto.length === 1 ? 'não é um campo numérico' : 'não são campos numéricos'}. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0. Use apenas campos do tipo Numérico, Percentual ou outra Fórmula.`,
+          texto:  `${camposTexto.join(', ')} ${camposTexto.length === 1 ? 'não é um campo numérico' : 'não são campos numéricos'}. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0.`,
         })
         return
       }
 
-      // Avisos semânticos → tenta Gemini primeiro, fallback para análise local
-      setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null)
+      // FIX #5: análise local IMEDIATA — resultado aparece sem esperar rede
+      const gabiLocal = analisarSemanticaFormula(expressao)
+      setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null); setFormulaGabi(gabiLocal)
 
-      const todosCampos = camposDisponiveis ?? []
-      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressao, todosCampos)
-
+      // Melhoria opcional via Gemini (async) — só atualiza se Gemini estiver habilitado
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressao, camposFormulaRef.current)
       if (respostaGemini.gemini) {
-        // Gemini retornou análise real
-        setFormulaGabi({
-          titulo:   respostaGemini.titulo,
-          texto:    respostaGemini.texto,
-          sugestao: respostaGemini.sugestao,
-        })
-      } else {
-        // Gemini desabilitado ou fórmula ok segundo o LLM → usa análise determinística
-        setFormulaGabi(analisarSemanticaFormula(expressao))
+        setFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
       }
+      // Se Gemini desabilitado (gemini: false), resultado local já está correto — não faz nada
     } catch (err) {
       setFormulaErro(err instanceof Error ? `${err.message}` : 'Fórmula inválida')
       setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
     }
-  }, [novaColuna.nome, colunasUsuarioApi_, TIPOS_NUMERICOS])
+  }, [colunasUsuarioApi_, TIPOS_NUMERICOS_FORMULA])
 
   const handleFormulaChange = useCallback((valor: string) => {
     setNovaColuna(prev => ({ ...prev, formula_expressao: valor }))
-    // Limpa resultado anterior — o card mostra intro até o debounce responder
     setFormulaErro(null); setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
     if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current)
     if (valor.trim()) {
       formulaDebounceRef.current = setTimeout(() => {
-        void validarFormulaConfig(valor, camposFormulaRef.current)
+        void validarFormulaConfig(valor)
       }, 600)
     }
   }, [validarFormulaConfig])
@@ -2483,8 +2295,21 @@ export default function Configuracoes() {
                         </div>
                       )
 
-                      // Com conteúdo mas ainda aguardando debounce (estados limpos)
-                      if (!formulaErro && !formulaGabi && !formulaValida) return null
+                      // FIX #2: durante debounce (estados ainda limpos) mostra intro em vez de null
+                      if (!formulaErro && !formulaGabi && !formulaValida) return (
+                        <div className="cfg-gabi-card cfg-gabi-card--info" role="note">
+                          <div className="cfg-gabi-card__header">
+                            <span className="cfg-gabi-card__ico">✦</span>
+                            <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                          </div>
+                          <p className="cfg-gabi-card__texto">
+                            Clique em um campo acima para inseri-lo, ou digite diretamente.
+                            Use <code>+  −  *  /</code> entre campos numéricos.
+                            Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
+                            Campos texto, data ou checkbox valem 0 em aritmética.
+                          </p>
+                        </div>
+                      )
 
                       // Resultado da análise
                       const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'

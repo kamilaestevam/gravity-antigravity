@@ -527,7 +527,7 @@ const SEMANTICA_CAMPOS: Record<string, MetaCampo> = {
   quantidade_transferida_total:         { label: 'Quantidade Transferida', unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
   quantidade_pronta_itens_pedido_total: { label: 'Quantidade Pronta',      unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
   saldo_itens_do_pedido:               { label: 'Saldo',                  unidade: 'qtd',  papel: 'calculado' },
-  valor_total_pedido:                  { label: 'Valor Total',            unidade: 'fin',  papel: 'total' },
+  valor_total:                         { label: 'Valor Total',            unidade: 'fin',  papel: 'total' },
   peso_liquido_total_pedido:           { label: 'Peso Líquido',           unidade: 'peso', papel: 'total' },
   peso_bruto_total_pedido:             { label: 'Peso Bruto',             unidade: 'peso', papel: 'total' },
   cubagem_total_pedido:                { label: 'Cubagem',                unidade: 'vol',  papel: 'total' },
@@ -641,6 +641,18 @@ function analisarSemanticaFormula(expressao: string): { titulo: string; texto: s
         titulo: 'Parcela somada ao seu total',
         texto:  `"${labelParcela}" já está contida em "${labelTotal}" — somá-las dobra o valor. Se quer o que ainda está ativo, use subtração.`,
         sugestao,
+      }
+    }
+  }
+
+  // ── Regra 4: mesmo campo somado a si mesmo ───────────────────────────────
+  for (const op of somas) {
+    if (op.op === '+' && op.esq && op.dir && op.esq === op.dir) {
+      const label = SEMANTICA_CAMPOS[op.esq]?.label ?? op.esq
+      return {
+        titulo: 'Campo somado com ele mesmo',
+        texto:  `"${label}" está sendo somado com ele próprio, o que equivale a multiplicar por 2. Se é isso que quer, use ${op.esq} * 2. Se não, verifique se o segundo campo está correto.`,
+        sugestao: `${op.esq} * 2`,
       }
     }
   }

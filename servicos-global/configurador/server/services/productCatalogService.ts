@@ -79,7 +79,7 @@ export const productCatalogService = {
     price: number
     currency?: string
   }> }) {
-    const { price_tiers, ...productData } = data
+    const { price_tiers, gabi_quota_mensal: _gabiQuota, ...productData } = data as any
 
     return prisma.product.create({
       data: {
@@ -111,7 +111,7 @@ export const productCatalogService = {
       currency?: string
     }> }
   ) {
-    const { price_tiers, ...productData } = data
+    const { price_tiers, gabi_quota_mensal: _gabiQuota, ...productData } = data as any
 
     return prisma.$transaction(async (tx) => {
       if (price_tiers !== undefined) {

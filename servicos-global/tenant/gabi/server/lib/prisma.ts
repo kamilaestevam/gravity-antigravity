@@ -18,6 +18,8 @@ try {
     gabiConversation: emptyResult,
     gabiMessage: emptyResult,
     gabiUsageLog: emptyResult,
+    gabiTokenLog: emptyResult,
+    gabiTokenQuota: emptyResult,
     $connect: async () => {},
     $disconnect: async () => {},
   }

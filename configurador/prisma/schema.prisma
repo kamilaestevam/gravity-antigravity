@@ -395,6 +395,9 @@ model Product {
   extra_hour_price     Decimal? @db.Decimal(15, 2)
   extra_hour_currency  String @default("BRL")
 
+  // GABI On-Demand — quota padrão de tokens por tenant/mês
+  gabi_quota_mensal    Int @default(0)
+
   // Metadata
   backend_module String?  // ex: "simula-custo", "bid-frete"
   target_audience String?

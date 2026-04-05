@@ -13,6 +13,7 @@ const ListaPedidos     = lazy(() => import('./pages/ListaPedidos'))
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const NovoPedido       = lazy(() => import('./pages/NovoPedido'))
 const DashboardPedido  = lazy(() => import('./pages/DashboardPedido'))
+const Historico        = lazy(() => import('./pages/Historico'))
 
 // ── Identidade do produto ─────────────────────────────────────────────────────
 const PRODUTO       = getProdutoMeta('pedido')
@@ -165,6 +166,7 @@ export function App() {
           <Route path="pedidos/dashboard"    element={<DashboardPedido />} />
           <Route path="pedidos/novo"         element={<NovoPedido />} />
           <Route path="pedidos/:id/editar"   element={<NovoPedido />} />
+          <Route path="historico"            element={<Historico />} />
           <Route path="configuracoes"        element={<Configuracoes />} />
           <Route path="*"                    element={<Navigate to="pedidos" replace />} />
         </Routes>

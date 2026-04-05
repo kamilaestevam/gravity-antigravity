@@ -37,9 +37,9 @@ function criarItemMock(id: string, overrides: Record<string, unknown> = {}) {
     tenant_id: 'tenant-abc',
     pedido_id: 'pedido-1',
     part_number: 'PN-001',
-    quantidade_inicial: 100,
-    quantidade_atual: 100,
-    quantidade_transferida: 0,
+    quantidade_inicial_item_pedido: 100,
+    saldo_item_pedido: 100,
+    quantidade_transferida_item: 0,
     valor_unitario: 10,
     valor_item: 1000,
     ...overrides,
@@ -107,51 +107,51 @@ describe('EdicaoEmMassaService', () => {
   // ── somar numero ────────────────────────────────────────────────────────────
 
   it('somar numero — 1000 + 100 = 1100', async () => {
-    const pedidos = [criarPedidoMock('p1', { itens: [criarItemMock('i1', { quantidade_inicial: 1000 })] })]
+    const pedidos = [criarPedidoMock('p1', { itens: [criarItemMock('i1', { quantidade_inicial_item_pedido: 1000 })] })]
     const db = criarDbMock(pedidos)
 
     await service.confirmar(TENANT, USER, db, {
       pedido_ids: ['p1'],
-      campos: [{ campo: 'quantidade_inicial', tipo: 'numero', nivel: 'item', operacao: 'somar', valor: 100 }],
+      campos: [{ campo: 'quantidade_inicial_item_pedido', tipo: 'numero', nivel: 'item', operacao: 'somar', valor: 100 }],
       nivel: 'item',
     })
 
     expect(db._tx.pedidoItem.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { quantidade_inicial: 1100 } })
+      expect.objectContaining({ data: { quantidade_inicial_item_pedido: 1100 } })
     )
   })
 
   // ── subtrair numero ─────────────────────────────────────────────────────────
 
   it('subtrair numero — 1000 - 100 = 900', async () => {
-    const pedidos = [criarPedidoMock('p1', { itens: [criarItemMock('i1', { quantidade_inicial: 1000 })] })]
+    const pedidos = [criarPedidoMock('p1', { itens: [criarItemMock('i1', { quantidade_inicial_item_pedido: 1000 })] })]
     const db = criarDbMock(pedidos)
 
     await service.confirmar(TENANT, USER, db, {
       pedido_ids: ['p1'],
-      campos: [{ campo: 'quantidade_inicial', tipo: 'numero', nivel: 'item', operacao: 'subtrair', valor: 100 }],
+      campos: [{ campo: 'quantidade_inicial_item_pedido', tipo: 'numero', nivel: 'item', operacao: 'subtrair', valor: 100 }],
       nivel: 'item',
     })
 
     expect(db._tx.pedidoItem.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { quantidade_inicial: 900 } })
+      expect.objectContaining({ data: { quantidade_inicial_item_pedido: 900 } })
     )
   })
 
   // ── percentual ──────────────────────────────────────────────────────────────
 
   it('percentual — 1000 + 10% = 1100', async () => {
-    const pedidos = [criarPedidoMock('p1', { itens: [criarItemMock('i1', { quantidade_inicial: 1000 })] })]
+    const pedidos = [criarPedidoMock('p1', { itens: [criarItemMock('i1', { quantidade_inicial_item_pedido: 1000 })] })]
     const db = criarDbMock(pedidos)
 
     await service.confirmar(TENANT, USER, db, {
       pedido_ids: ['p1'],
-      campos: [{ campo: 'quantidade_inicial', tipo: 'numero', nivel: 'item', operacao: 'percentual', valor: 10 }],
+      campos: [{ campo: 'quantidade_inicial_item_pedido', tipo: 'numero', nivel: 'item', operacao: 'percentual', valor: 10 }],
       nivel: 'item',
     })
 
     expect(db._tx.pedidoItem.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { quantidade_inicial: 1100 } })
+      expect.objectContaining({ data: { quantidade_inicial_item_pedido: 1100 } })
     )
   })
 
@@ -205,13 +205,13 @@ describe('EdicaoEmMassaService', () => {
     ).rejects.toThrow('CAMPO_BLOQUEADO')
   })
 
-  it('campo bloqueado — rejeita quantidade_atual no item', async () => {
+  it('campo bloqueado — rejeita saldo_item_pedido no item', async () => {
     const db = criarDbMock([])
 
     await expect(
       service.confirmar(TENANT, USER, db, {
         pedido_ids: ['p1'],
-        campos: [{ campo: 'quantidade_atual', tipo: 'numero', nivel: 'item', operacao: 'substituir', valor: 999 }],
+        campos: [{ campo: 'saldo_item_pedido', tipo: 'numero', nivel: 'item', operacao: 'substituir', valor: 999 }],
         nivel: 'item',
       })
     ).rejects.toThrow('CAMPO_BLOQUEADO')
@@ -259,8 +259,8 @@ describe('EdicaoEmMassaService', () => {
     const pedidos = [
       criarPedidoMock('p1', {
         itens: [
-          criarItemMock('i1', { quantidade_inicial: 100 }),
-          criarItemMock('i2', { quantidade_inicial: 200 }),
+          criarItemMock('i1', { quantidade_inicial_item_pedido: 100 }),
+          criarItemMock('i2', { quantidade_inicial_item_pedido: 200 }),
         ],
       }),
     ]
@@ -268,7 +268,7 @@ describe('EdicaoEmMassaService', () => {
 
     const result = await service.confirmar(TENANT, USER, db, {
       pedido_ids: ['p1'],
-      campos: [{ campo: 'quantidade_inicial', tipo: 'numero', nivel: 'item', operacao: 'somar', valor: 50 }],
+      campos: [{ campo: 'quantidade_inicial_item_pedido', tipo: 'numero', nivel: 'item', operacao: 'somar', valor: 50 }],
       nivel: 'item',
     })
 

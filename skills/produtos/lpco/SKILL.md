@@ -51,7 +51,7 @@ Quando o canal e `PEDIDO`, o sistema preenche automaticamente:
 | Item.ncm | PedidoItem.ncm |
 | Item.descricao_produto | PedidoItem.descricao |
 | Item.fabricante | PedidoItem.fabricante |
-| Item.quantidade_estatistica | PedidoItem.quantidade_inicial |
+| Item.quantidade_estatistica | PedidoItem.quantidade_inicial_item_pedido |
 | Item.peso_liquido | PedidoItem.peso_liquido |
 | Item.vmle | PedidoItem.valor_unitario × quantidade |
 | Item.moeda | Pedido.moeda_negociada |

@@ -122,7 +122,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     for (const pedido of pedidos) {
       for (const item of pedido.itens) {
         if (itensPorPart[item.part_number]) {
-          itensPorPart[item.part_number].quantidade_total += item.quantidade_atual
+          itensPorPart[item.part_number].quantidade_total += item.saldo_item_pedido
           itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
           itensPorPart[item.part_number].pode_fundir = true
         } else {
@@ -133,7 +133,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
             unidade_comercializada_item: item.unidade_comercializada_item,
             moeda_item: item.moeda_item,
             valor_unitario: item.valor_unitario,
-            quantidade_total: item.quantidade_atual,
+            quantidade_total: item.saldo_item_pedido,
             pedidos_origem: [pedido.numero_pedido],
             pode_fundir: false,
           }
@@ -206,9 +206,9 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         if (fundir_itens_mesmo_part_number && partNumbersVistos.has(item.part_number)) {
           const existente = itensMerge.find((i: any) => i.part_number === item.part_number)
           if (existente) {
-            existente.quantidade_inicial += item.quantidade_inicial
-            existente.quantidade_atual += item.quantidade_atual
-            existente.quantidade_pronta += item.quantidade_pronta
+            existente.quantidade_inicial_item_pedido += item.quantidade_inicial_item_pedido
+            existente.saldo_item_pedido += item.saldo_item_pedido
+            existente.quantidade_pronta_total += item.quantidade_pronta_total
             existente.valor_item = (existente.valor_item ?? 0) + (item.valor_item ?? 0)
           }
         } else {

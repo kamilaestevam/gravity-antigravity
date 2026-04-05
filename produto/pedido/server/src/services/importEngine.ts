@@ -18,11 +18,14 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
   numero_pedido: [
     'po number', 'po no', 'purchase order', 'order number', 'order no', 'pedido',
     'numero pedido', 'num pedido', 'po#', 'so number', 'so no', 'sales order',
+    'ref', 'referencia', 'ref pedido', 'num po', 'n pedido', 'n. pedido',
+    'purchase order number', 'po num', 'order ref',
   ],
   tipo_operacao: ['type', 'tipo', 'operation', 'operacao', 'import/export'],
   exportador: [
     'supplier', 'vendor', 'fornecedor', 'exportador', 'seller', 'shipper',
     'exporter', 'fabricante', 'manufacturer',
+    'nome exportador', 'company', 'empresa', 'nome empresa', 'supply company',
   ],
   fabricante: ['manufacturer', 'fabricante', 'maker', 'brand'],
   incoterm: ['incoterm', 'incoterms', 'delivery terms', 'terms', 'trade terms'],
@@ -30,10 +33,12 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
   data_emissao_pedido: [
     'date', 'order date', 'po date', 'data', 'data pedido', 'issue date',
     'data emissao', 'data emissão',
+    'data do pedido', 'data criacao', 'emissao', 'emissão',
   ],
   data_embarque: [
     'ship date', 'shipment date', 'etd', 'eta', 'data embarque',
     'data envio', 'expected ship', 'delivery date',
+    'previsao embarque', 'prev embarque', 'ship', 'embarcamento',
   ],
   part_number: [
     'part number', 'part no', 'part#', 'sku', 'item code', 'product code',
@@ -43,19 +48,23 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
   descricao: [
     'description', 'desc', 'item description', 'product description',
     'descricao', 'descricão', 'nome', 'name', 'product name',
+    'descr', 'item', 'produto', 'product', 'goods description',
   ],
-  quantidade_inicial: [
+  quantidade_inicial_item_pedido: [
     'qty', 'quantity', 'qtd', 'quantidade', 'amount', 'ordered qty',
     'order qty', 'qtde',
+    'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'count',
   ],
   unidade: ['unit', 'uom', 'unidade', 'un', 'measure', 'unit of measure'],
   valor_unitario: [
     'unit price', 'price', 'unit value', 'valor unitario', 'preco unitario',
     'valor unit', 'unit cost', 'preco',
+    'vl unitario', 'vl unit', 'valor un', 'preco un',
   ],
   valor_item: [
     'total', 'total value', 'amount', 'line total', 'valor total', 'total item',
     'valor item', 'line amount',
+    'vl total', 'vl item', 'valor linha', 'line value',
   ],
 }
 
@@ -68,6 +77,7 @@ export type LinhaArquivo = Record<string, string>
 export async function parseArquivo(
   buffer: Buffer,
   nomeArquivo: string,
+  nomePlanilha?: string,
 ): Promise<LinhaArquivo[]> {
   const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
 
@@ -76,7 +86,10 @@ export async function parseArquivo(
     case 'xls': {
       const XLSX = await import('xlsx')
       const workbook = XLSX.read(buffer, { type: 'buffer' })
-      const sheet = workbook.Sheets[workbook.SheetNames[0]]
+      const sheetName = nomePlanilha && workbook.SheetNames.includes(nomePlanilha)
+        ? nomePlanilha
+        : workbook.SheetNames[0]
+      const sheet = workbook.Sheets[sheetName]
       const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' })
       return rows.map(row =>
         Object.fromEntries(
@@ -107,14 +120,24 @@ export async function parseArquivo(
     }
 
     case 'pdf': {
-      // NOTA: parsing real de PDF requer biblioteca adicional (ex: pdf-parse, pdfjs-dist).
-      // Esta implementacao retorna o conteudo bruto como demonstracao.
-      return [{ conteudo_bruto: buffer.toString('latin1').slice(0, 2000) }]
+      const pdfParse = (await import('pdf-parse')).default
+      const result = await pdfParse(buffer)
+      return parsePdfText(result.text)
     }
 
     default:
       throw new Error(`Formato .${ext} nao suportado`)
   }
+}
+
+// ── Listar abas de workbook Excel ─────────────────────────────────────────────
+
+export async function listarPlanilhas(buffer: Buffer, nomeArquivo: string): Promise<string[]> {
+  const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
+  if (ext !== 'xlsx' && ext !== 'xls') return []
+  const XLSX = await import('xlsx')
+  const workbook = XLSX.read(buffer, { type: 'buffer' })
+  return workbook.SheetNames
 }
 
 // ── Parser CSV — auto-detecta separador ──────────────────────────────────────
@@ -205,6 +228,65 @@ function parseXml(conteudo: string): LinhaArquivo[] {
   if (hasItems) registros.push({ ...linhaTemp })
 
   return registros.length > 0 ? registros : []
+}
+
+// ── Parser PDF — extrai texto e tenta interpretar como tabela ────────────────
+//
+// PDFs gerados por Excel/planilhas costumam ter linhas com separacao por espacos
+// ou tabulacoes. A estrategia:
+//  1. Divide o texto em linhas nao-vazias
+//  2. Detecta o separador da primeira linha (tab > multiplos espacos > espaco)
+//  3. A primeira linha e tratada como cabecalho
+//
+// Limitacao: PDFs escaneados (imagem) nao geram texto — retorna linha com aviso.
+
+function parsePdfText(texto: string): LinhaArquivo[] {
+  const linhas = texto
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(l => l.length > 0)
+
+  if (linhas.length < 2) {
+    // PDF sem texto estruturado (provavelmente escaneado)
+    return [{
+      _aviso: 'PDF sem texto estruturado. Use Excel ou CSV para melhores resultados.',
+      _conteudo: texto.slice(0, 500).trim(),
+    }]
+  }
+
+  // Detectar separador: tab primeiro, depois 2+ espacos, depois espaco simples
+  const primeiraLinha = linhas[0]
+  const separador = primeiraLinha.includes('\t')
+    ? '\t'
+    : /  +/.test(primeiraLinha)
+      ? '__MULTI_SPACE__'
+      : ' '
+
+  function splitPdf(linha: string): string[] {
+    if (separador === '__MULTI_SPACE__') {
+      return linha.split(/  +/).map(v => v.trim()).filter((_, i, arr) => i < arr.length)
+    }
+    return linha.split(separador).map(v => v.trim())
+  }
+
+  const cabecalhos = splitPdf(primeiraLinha)
+  if (cabecalhos.length < 2) {
+    // Nao conseguiu identificar colunas — retorna linhas brutas para mapeamento manual
+    return linhas.slice(1).map((l, i) => ({ linha: String(i + 2), conteudo: l }))
+  }
+
+  const resultado: LinhaArquivo[] = []
+  for (let i = 1; i < linhas.length; i++) {
+    const valores = splitPdf(linhas[i])
+    if (valores.every(v => v === '')) continue
+    const obj: LinhaArquivo = {}
+    cabecalhos.forEach((cab, idx) => {
+      obj[cab] = valores[idx] ?? ''
+    })
+    resultado.push(obj)
+  }
+
+  return resultado
 }
 
 // ── Calcular hash SHA256 dos cabecalhos ───────────────────────────────────────

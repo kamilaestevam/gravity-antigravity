@@ -40,6 +40,7 @@ export interface SmartImportPreview {
   memoria_aplicada: boolean
   preview_id: string
   linhas: SmartImportLinha[]
+  limite_excedido: boolean
 }
 
 export interface SmartImportConfirmar {
@@ -61,11 +62,18 @@ export interface SmartImportResultado {
   ids_criados: string[]
 }
 
+// FEAT.4 — Limite de linhas recomendado
+const LIMITE_LINHAS_AVISO = 1000
+
 // Cache simples em memoria para previews (TTL 30min)
 const previewCache = new Map<string, { data: SmartImportLinha[]; ts: number; mapeamento: ColunaMapeadaBackend[] }>()
 const PREVIEW_TTL_MS = 30 * 60 * 1000
 
 // ── Service ───────────────────────────────────────────────────────────────────
+
+export function criarSmartImportService(prismaClient: Record<string, unknown>): SmartImportService {
+  return new SmartImportService(prismaClient)
+}
 
 export class SmartImportService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,19 +86,9 @@ export class SmartImportService {
     this.memoriaService = new MapeamentoMemoriaService(prismaClient)
   }
 
-  async analisar(tenantId: string, buffer: Buffer, nomeArquivo: string): Promise<SmartImportPreview> {
-    // 0. Rejeitar PDFs antes de qualquer parse (UX.11)
-    const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
-    if (ext === 'pdf') {
-      throw new AppError(
-        'Arquivos PDF nao podem ser importados diretamente. Exporte seus dados para Excel (.xlsx) ou CSV e tente novamente.',
-        422,
-        'FORMATO_PDF_NAO_SUPORTADO',
-      )
-    }
-
+  async analisar(tenantId: string, buffer: Buffer, nomeArquivo: string, nomePlanilha?: string): Promise<SmartImportPreview> {
     // 1. Parse do arquivo
-    const linhasBrutas = await parseArquivo(buffer, nomeArquivo)
+    const linhasBrutas = await parseArquivo(buffer, nomeArquivo, nomePlanilha)
     if (linhasBrutas.length === 0) {
       throw new Error('Arquivo vazio ou sem dados validos')
     }
@@ -161,6 +159,11 @@ export class SmartImportService {
       return l
     })
 
+    // FEAT.4 — Alertar se exceder limite recomendado
+    if (linhasComDuplicatas.length > LIMITE_LINHAS_AVISO) {
+      console.warn(`[SmartImport] tenant=${tenantId} arquivo com ${linhasComDuplicatas.length} linhas (limite recomendado: ${LIMITE_LINHAS_AVISO})`)
+    }
+
     // 9. Salvar preview no cache
     const previewId = `${tenantId}-${hashColunas}-${Date.now()}`
     previewCache.set(previewId, {
@@ -184,6 +187,7 @@ export class SmartImportService {
       memoria_aplicada: memoriaAplicada,
       preview_id:      previewId,
       linhas:          linhasComDuplicatas,
+      limite_excedido: linhasComDuplicatas.length > LIMITE_LINHAS_AVISO,
     }
   }
 
@@ -244,6 +248,43 @@ export class SmartImportService {
                 where: { id: existente.id },
                 data:  dadosPedido,
               })
+              atualizados.push(linha.linha_arquivo)
+              continue
+            }
+          }
+
+          // Verificar se já existe pedido com este número (para importação incremental de itens)
+          const numeroPedidoFinal = payload.numeros_editados?.[linha.linha_arquivo] ?? numeroPedido
+
+          if (numeroPedidoFinal && !payload.decisoes_duplicatas[numeroPedidoFinal]) {
+            // Tentar encontrar pedido existente para append incremental de item
+            const pedidoExistente = await (tx as Record<string, any>)['pedido'].findFirst({
+              where: { numero_pedido: numeroPedidoFinal, tenant_id: tenantId, status: { not: 'cancelado' } },
+              select: { id: true },
+            })
+
+            if (pedidoExistente && dados['part_number']) {
+              // Adicionar item ao pedido existente
+              await (tx as Record<string, any>)['pedidoItem'].create({
+                data: {
+                  tenant_id: tenantId,
+                  pedido_id: pedidoExistente.id,
+                  part_number: String(dados['part_number'] ?? ''),
+                  ncm: String(dados['ncm'] ?? ''),
+                  descricao: String(dados['descricao'] ?? ''),
+                  quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  saldo_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  quantidade_pronta_total: 0,
+                  quantidade_transferida_item: 0,
+                  quantidade_cancelada_item_pedido: 0,
+                  casas_decimais_quantidade: 3,
+                  moeda_item: String(dados['moeda_pedido'] ?? 'USD'),
+                  valor_unitario: dados['valor_unitario'] ? Number(dados['valor_unitario']) : null,
+                  casas_decimais_valor_unitario: 4,
+                  valor_item: dados['valor_item'] ? Number(dados['valor_item']) : null,
+                  casas_decimais_total_item: 2,
+                },
+              }).catch(() => null) // Se falhar, segue para criar pedido novo
               atualizados.push(linha.linha_arquivo)
               continue
             }
@@ -388,16 +429,23 @@ export class SmartImportService {
     const alertas: SmartImportAlerta[] = []
 
     if (!dados['numero_pedido']) {
-      alertas.push({ campo: 'numero_pedido', tipo: 'obrigatorio_ausente', mensagem: 'Numero do pedido ausente', nivel: 'aviso' })
+      const partNumber = dados['part_number'] ? String(dados['part_number']) : ''
+      const sugestao = partNumber ? ` Sugestao: usar Part Number "${partNumber}" como referencia` : ''
+      alertas.push({
+        campo: 'numero_pedido',
+        tipo: 'obrigatorio_ausente',
+        mensagem: `Numero do pedido ausente — sera gerado automaticamente.${sugestao}`,
+        nivel: 'aviso',
+      })
     }
 
     if (!dados['part_number']) {
       alertas.push({ campo: 'part_number', tipo: 'obrigatorio_ausente', mensagem: 'Part number ausente', nivel: 'aviso' })
     }
 
-    const qty = Number(dados['quantidade_inicial'])
-    if (dados['quantidade_inicial'] !== undefined && (isNaN(qty) || qty <= 0)) {
-      alertas.push({ campo: 'quantidade_inicial', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
+    const qty = Number(dados['quantidade_inicial_item_pedido'])
+    if (dados['quantidade_inicial_item_pedido'] !== undefined && (isNaN(qty) || qty <= 0)) {
+      alertas.push({ campo: 'quantidade_inicial_item_pedido', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
     }
 
     const val = Number(dados['valor_unitario'])
@@ -405,9 +453,14 @@ export class SmartImportService {
       alertas.push({ campo: 'valor_unitario', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
     }
 
-    const ncm = String(dados['ncm'] ?? '')
-    if (ncm && !/^\d{4}[.\s]?\d{2}[.\s]?\d{2}$/.test(ncm.trim())) {
-      alertas.push({ campo: 'ncm', tipo: 'formato_invalido', mensagem: `NCM "${ncm}" parece ter formato invalido (esperado 8 digitos)`, nivel: 'aviso' })
+    const ncm = String(dados['ncm'] ?? '').replace(/[.\s-]/g, '')
+    if (ncm && !/^\d{8}$/.test(ncm)) {
+      alertas.push({
+        campo: 'ncm',
+        tipo: 'formato_invalido',
+        mensagem: `NCM "${dados['ncm']}" invalido — deve ter 8 digitos numericos (ex: 84713019)`,
+        nivel: 'aviso',
+      })
     }
 
     const dataStr = String(dados['data_embarque'] ?? '')

@@ -60,7 +60,7 @@ function mkPedido(overrides: Record<string, unknown> = {}) {
     incoterm: 'FOB',
     moeda_pedido: 'USD',
     valor_total_pedido: 35000,
-    quantidade_total_pedido: 1000,
+    quantidade_total_inicial_pedido: 1000,
     casas_decimais_total_pedido: 2,
     casas_decimais_quantidade_total_pedido: 2,
     unidade_comercializada_pedido: 'UN',

@@ -1016,7 +1016,7 @@
   border: 1.5px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   color: var(--gtv-text, #e2e8f0);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-family: inherit;
   padding: 0.5rem 0.75rem;
   outline: none;
@@ -1136,6 +1136,7 @@
   border-radius: var(--gtv-radius-sm, 6px);
   color: var(--gtv-text, #f1f5f9);
   font-size: 0.875rem;
+  font-family: inherit;
   font-variant-numeric: tabular-nums;
   outline: none;
   transition: border-color 0.15s;
@@ -1174,6 +1175,7 @@
   border-radius: var(--gtv-radius-sm, 6px);
   color: var(--gtv-text, #f1f5f9);
   font-size: 0.875rem;
+  font-family: inherit;
   font-variant-numeric: tabular-nums;
   outline: none;
   transition: border-color 0.15s;
@@ -1211,7 +1213,8 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--gtv-radius-sm, 6px);
   color: var(--gtv-text, #e2e8f0);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
   font-weight: 700;
   letter-spacing: 0.04em;
   cursor: pointer;

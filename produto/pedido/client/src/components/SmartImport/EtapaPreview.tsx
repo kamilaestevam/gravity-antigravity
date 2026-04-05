@@ -45,7 +45,7 @@ const ROTULOS_CAMPO: Record<string, string> = {
   part_number:         'Part Number',
   ncm:                 'NCM',
   descricao:           'Descrição',
-  quantidade_inicial:  'Quantidade',
+  quantidade_inicial_item_pedido:  'Quantidade',
   unidade:             'Unidade',
   valor_unitario:      'Valor Unit.',
   valor_item:          'Valor Total',
@@ -126,6 +126,20 @@ function CardPedido({
           </span>
         )}
 
+        {/* Badge aviso — sera criado mas tem alertas */}
+        {linha.status === 'aviso' && !temDuplicata && (
+          <span style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)', fontSize: '0.625rem', fontWeight: 700, padding: '0.125rem 0.375rem', borderRadius: '9999px', flexShrink: 0 }}>
+            COM AVISO
+          </span>
+        )}
+
+        {/* Badge erro — nao sera criado */}
+        {linha.status === 'erro' && (
+          <span style={{ color: '#ef4444', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', fontSize: '0.625rem', fontWeight: 700, padding: '0.125rem 0.375rem', borderRadius: '9999px', flexShrink: 0 }}>
+            COM ERRO
+          </span>
+        )}
+
         {/* Número do pedido editável */}
         <div className="smart-import__numero-pedido-wrapper">
           {editandoNumero ? (
@@ -141,6 +155,9 @@ function CardPedido({
               <button type="button" className="smart-import__btn-icone" onClick={confirmarEdicao} aria-label="Confirmar">
                 <Check size={14} weight="bold" />
               </button>
+              <span style={{ fontSize: '0.625rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                Enter ✓ · Esc ✕
+              </span>
             </div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -151,7 +168,7 @@ function CardPedido({
                   className="smart-import__btn-icone"
                   onClick={iniciarEdicao}
                   aria-label="Editar numero do pedido"
-                  title="Editar número do pedido"
+                  title="Editar número (Enter para confirmar, Esc para cancelar)"
                 >
                   <PencilSimple size={13} weight="bold" />
                 </button>
@@ -194,6 +211,39 @@ function CardPedido({
             <option value="criar">Criar mesmo assim</option>
             <option value="pular">Pular</option>
           </select>
+        </div>
+      )}
+
+      {/* Diff preview ao sobrescrever */}
+      {temDuplicata && decisao === 'sobrescrever' && (
+        <div style={{
+          marginTop: '0.375rem',
+          padding: '0.5rem 0.75rem',
+          background: 'rgba(99,102,241,0.06)',
+          border: '1px solid rgba(99,102,241,0.2)',
+          borderRadius: '0.375rem',
+          fontSize: '0.75rem',
+        }}>
+          <p style={{ margin: '0 0 0.375rem', fontWeight: 600, color: 'var(--accent, #6366f1)' }}>
+            Campos que serão atualizados:
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.25rem 0.75rem' }}>
+            {Object.entries(linha.dados)
+              .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '')
+              .slice(0, 8)
+              .map(([campo, valor]) => (
+                <React.Fragment key={campo}>
+                  <span style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{rotulo(campo)}:</span>
+                  <span style={{ color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(valor)}</span>
+                </React.Fragment>
+              ))
+            }
+          </div>
+          {Object.keys(linha.dados).length > 8 && (
+            <p style={{ margin: '0.375rem 0 0', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+              + {Object.keys(linha.dados).length - 8} outros campos
+            </p>
+          )}
         </div>
       )}
 
@@ -273,17 +323,36 @@ export function EtapaPreview({
   onNumeroEditado,
 }: EtapaPreviewProps) {
   const [filtro, setFiltro] = useState<FiltroPreview>('todos')
+  const [filtroVisible, setFiltroVisible] = useState(true)
 
   const linhasFiltradas = useMemo(() => {
     if (filtro === 'todos') return linhas
     return linhas.filter(l => l.status === filtro)
   }, [linhas, filtro])
 
+  function aplicarFiltro(novoFiltro: FiltroPreview) {
+    setFiltroVisible(false)
+    setTimeout(() => {
+      setFiltro(novoFiltro)
+      setFiltroVisible(true)
+    }, 100)
+  }
+
   const contadores = useMemo(() => ({
     ok:    linhas.filter(l => l.status === 'ok').length,
     aviso: linhas.filter(l => l.status === 'aviso').length,
     erro:  linhas.filter(l => l.status === 'erro').length,
   }), [linhas])
+
+  const pedidosUnicosTotal = useMemo(() => {
+    return new Set(linhas.map(l => l.numero_pedido).filter(Boolean)).size
+  }, [linhas])
+
+  const pedidosUnicosSelecionados = useMemo(() => {
+    return new Set(
+      linhas.filter(l => linhasSelecionadas.has(l.linha_arquivo)).map(l => l.numero_pedido).filter(Boolean)
+    ).size
+  }, [linhas, linhasSelecionadas])
 
   const duplicatas  = linhas.filter(l => l.alertas.some(a => a.tipo === 'duplicado_sistema'))
   const atualizados = duplicatas.filter(l => decisoesDuplicatas[l.numero_pedido ?? ''] === 'sobrescrever').length
@@ -313,12 +382,14 @@ export function EtapaPreview({
     <div>
       {/* Contador de resumo */}
       <div className="smart-import__contador" role="status">
-        <span><strong>{criados}</strong> serao criados</span>
-        <span><strong>{atualizados}</strong> serao atualizados</span>
-        <span><strong>{pulados}</strong> serao pulados</span>
-        <span style={{ color: contadores.erro > 0 ? '#ef4444' : undefined }}>
-          <strong>{contadores.erro}</strong> com erro
-        </span>
+        <span><strong>{pedidosUnicosSelecionados}</strong> pedido(s) de <strong>{pedidosUnicosTotal}</strong> únicos</span>
+        <span>·</span>
+        <span><strong>{criados}</strong> linha(s) incluídas</span>
+        <span><strong>{atualizados}</strong> atualiz.</span>
+        <span><strong>{pulados}</strong> pulados</span>
+        {contadores.erro > 0 && (
+          <span style={{ color: '#ef4444' }}><strong>{contadores.erro}</strong> com erro</span>
+        )}
       </div>
 
       {/* Filtros + ações */}
@@ -327,7 +398,7 @@ export function EtapaPreview({
           <button
             key={f}
             className={`smart-import__filtro-btn${filtro === f ? ' smart-import__filtro-btn--ativo' : ''}`}
-            onClick={() => setFiltro(f)}
+            onClick={() => aplicarFiltro(f)}
             aria-pressed={filtro === f}
           >
             {f === 'todos' && `Todos (${linhas.length})`}
@@ -340,6 +411,14 @@ export function EtapaPreview({
           <button className="smart-import__filtro-btn" onClick={selecionarTodasValidas}>
             Selecionar validas
           </button>
+          <button className="smart-import__filtro-btn" onClick={() => {
+            onSelecaoChange(new Set([
+              ...Array.from(linhasSelecionadas),
+              ...linhas.filter(l => l.status === 'aviso').map(l => l.linha_arquivo)
+            ]))
+          }}>
+            + Incluir avisos
+          </button>
           <button className="smart-import__filtro-btn" onClick={selecionarTodas}>
             Selecionar todas
           </button>
@@ -350,7 +429,7 @@ export function EtapaPreview({
       </div>
 
       {/* Cards de pedidos */}
-      <div className="smart-import__cards-lista">
+      <div className="smart-import__cards-lista" style={{ transition: 'opacity 0.15s ease', opacity: filtroVisible ? 1 : 0 }}>
         {linhasFiltradas.map(linha => (
           <CardPedido
             key={linha.linha_arquivo}

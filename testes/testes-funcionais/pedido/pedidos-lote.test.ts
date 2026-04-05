@@ -301,7 +301,7 @@ describe('POST /lote/cancelar/preview', () => {
     prisma.pedido.findMany.mockResolvedValue([
       mkPedido({
         status: 'aberto',
-        itens: [{ quantidade_transferida: 500 }], // tem transferência
+        itens: [{ quantidade_transferida_item: 500 }], // tem transferência
       }),
     ])
     const app = criarApp(prisma)

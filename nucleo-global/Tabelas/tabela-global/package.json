@@ -16,7 +16,8 @@
                          },
     "dependencies": {
         "@nucleo/tooltip-global": "*",
-        "@nucleo/campo-calendario-global": "*"
+        "@nucleo/campo-calendario-global": "*",
+        "@nucleo/kanban-global": "*"
     },
     "devDependencies":  {
                             "@types/react":  "^18.0.0",

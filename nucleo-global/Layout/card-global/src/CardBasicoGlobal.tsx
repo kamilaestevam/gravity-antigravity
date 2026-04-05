@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { ArrowUp, ArrowDown, ArrowRight } from '@phosphor-icons/react'
 import type { CardBasicoProps, PeriodoCodigo, PeriodoTendencia } from './tipos'
 import './card.css'
@@ -40,6 +40,7 @@ export function CardBasicoGlobal({
 
   const [periodoAtivo, setPeriodoAtivo] = useState<PeriodoCodigo>(DEFAULT_PERIODO)
   const [showPicker, setShowPicker] = useState(false)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Resolve a tendência ativa: periodos tem prioridade sobre tendencia estática
   const tendenciaAtiva: { valor: string; direcao: string } | undefined = periodos
@@ -77,8 +78,8 @@ export function CardBasicoGlobal({
           {tendenciaAtiva && (
             <div
               className={`cg-card__trend-wrap${periodos ? ' cg-card__trend-wrap--interactive' : ''}`}
-              onMouseEnter={() => periodos && setShowPicker(true)}
-              onMouseLeave={() => periodos && setShowPicker(false)}
+              onMouseEnter={() => { if (!periodos) return; if (closeTimer.current) clearTimeout(closeTimer.current); setShowPicker(true) }}
+              onMouseLeave={() => { if (!periodos) return; closeTimer.current = setTimeout(() => setShowPicker(false), 120) }}
             >
               {/* Badge de tendência */}
               <span className={`cg-card__trend cg-card__trend--${tendenciaAtiva.direcao}`}>

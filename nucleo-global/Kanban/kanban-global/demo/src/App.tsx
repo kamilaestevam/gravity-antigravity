@@ -24,8 +24,8 @@ import {
   CircleNotch,
   Gear,
 } from '@phosphor-icons/react'
-import { CardKanbanModal } from './CardKanbanModal'
-import type { CardKanbanItem } from './CardKanbanModal'
+import { CardKanbanModal } from '@nucleo/kanban-global'
+import type { CardKanbanItem } from '@nucleo/kanban-global'
 import { ToastDemo, useToast } from './ToastDemo'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────

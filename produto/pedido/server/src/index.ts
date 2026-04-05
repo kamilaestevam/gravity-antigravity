@@ -4,7 +4,12 @@
  * Porta: 8026
  * Skill: antigravity-criar-produto (Passo 7 — middlewares na ordem correta)
  *
- * Rotas:
+ * Rotas CRUD (processos-core):
+ *   /api/v1/pedidos                     — CRUD de Pedido e PedidoItem
+ *   /api/v1/pedidos/config              — Status e colunas de configuração
+ *   /api/v1/pedidos/importar            — Upload + parse + preview de arquivos
+ *
+ * Rotas de features (produto/pedido/server):
  *   /api/v1/pedidos/dashboard/widgets   — persistência de configuração de widgets
  *   /api/v1/analytics/pedido/*          — integração Power BI (OData v4)
  *   /health                             — healthcheck
@@ -26,6 +31,9 @@ import { colunasUsuarioRouter } from './routes/colunasUsuario.js'
 import { anexosRouter } from './routes/anexos.js'
 import { pdfRouter } from './routes/pdf.js'
 import { loteRouter } from './routes/lote.js'
+import { pedidosRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
+import { pedidosConfigRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos-config.js'
+import { importacaoRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/importacao.js'
 import { apiObservability } from '../../../../servicos-global/tenant/middleware/apiObservability.js'
 import { openapiRouter } from './routes/openapi.js'
 import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
@@ -53,8 +61,8 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5179')
 
 app.use(cors({
   origin: (origin, cb) => {
-    // Permite requests sem origin (curl, Power BI service, etc.) e origens na lista
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) return cb(null, true)
+    // Permite requests sem origin (curl, Power BI service, etc.), localhost (dev) e origens na lista
+    if (!origin || origin.startsWith('http://localhost:') || ALLOWED_ORIGINS.includes(origin)) return cb(null, true)
     cb(new Error(`Origin ${origin} not allowed`))
   },
   credentials: true,
@@ -94,18 +102,23 @@ app.use(createProductAuditPlugin({
 }))
 
 // ── 8. Rotas de negócio ───────────────────────────────────────────────────────
-app.use('/api/v1/pedidos/openapi.json', openapiRouter)
+// Ordem: rotas estáticas específicas ANTES das genéricas (evita conflitos com /:id)
+app.use('/api/v1/pedidos/openapi.json',      openapiRouter)
 app.use('/api/v1/pedidos/dashboard/widgets', dashboardWidgetsRouter)
-app.use('/api/v1/pedidos/consolidar', consolidarRouter)
-app.use('/api/v1/pedidos/transferir', transferirRouter)
-app.use('/api/v1/pedidos/edicao-em-massa', edicaoEmMassaRouter)
-app.use('/api/v1/pedidos/smart-import', smartImportRouter)
-app.use('/api/v1/pedidos/colunas-usuario', colunasUsuarioRouter)
-app.use('/api/v1/pedidos/anexos', anexosRouter)
-app.use('/api/v1/pedidos/pdf', pdfRouter)
-app.use('/api/v1/pedidos/lote', loteRouter)
-app.use('/api/v1/pedidos', duplicarExcluirRouter)
-// Rotas com parâmetro dinâmico ficam APÓS as rotas estáticas para evitar conflitos
+app.use('/api/v1/pedidos/consolidar',        consolidarRouter)
+app.use('/api/v1/pedidos/transferir',        transferirRouter)
+app.use('/api/v1/pedidos/edicao-em-massa',   edicaoEmMassaRouter)
+app.use('/api/v1/pedidos/smart-import',      smartImportRouter)
+app.use('/api/v1/pedidos/colunas-usuario',   colunasUsuarioRouter)
+app.use('/api/v1/pedidos/anexos',            anexosRouter)
+app.use('/api/v1/pedidos/pdf',               pdfRouter)
+app.use('/api/v1/pedidos/lote',              loteRouter)
+app.use('/api/v1/pedidos/config',            pedidosConfigRouter)
+app.use('/api/v1/pedidos',                   importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar
+app.use('/api/v1/pedidos',                   duplicarExcluirRouter)
+// CRUD principal — deve vir após os routers de sub-rotas estáticas
+app.use('/api/v1/pedidos',                   pedidosRouter)      // GET /, POST /, GET /:id, PUT /:id, DELETE /:id, etc.
+// Parâmetros dinâmicos após todos os estáticos
 app.use('/api/v1/pedidos/:id/transferencias', transferirHistoricoRouter)
 
 // ── 9. 404 catch-all ─────────────────────────────────────────────────────────
@@ -114,9 +127,11 @@ app.use((_req: Request, res: Response) => {
 })
 
 // ── 10. Error handler global ─────────────────────────────────────────────────
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('[Pedido/Server]', err.message)
-  res.status(500).json({ error: 'Erro interno', code: 'INTERNAL_ERROR' })
+app.use((err: Error & { statusCode?: number; code?: string }, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.statusCode ?? 500
+  const code   = err.code ?? (status === 500 ? 'INTERNAL_ERROR' : 'ERROR')
+  if (status >= 500) console.error('[Pedido/Server]', err.message, err.stack)
+  res.status(status).json({ error: { message: err.message, code } })
 })
 
 // ── Start ─────────────────────────────────────────────────────────────────────

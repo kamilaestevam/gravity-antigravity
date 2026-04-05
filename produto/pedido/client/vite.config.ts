@@ -57,6 +57,8 @@ export default defineConfig({
       // ── Modais ──
       '@nucleo/modal-passo-passo-global':          nucleo('Modais/modal-passo-passo-global/src/index.ts'),
       '@nucleo/query-builder-global':              nucleo('Dashboard/QueryBuilder/QueryBuilder.tsx'),
+      // ── Kanban ──
+      '@nucleo/kanban-global':                     nucleo('Kanban/kanban-global/src/index.ts'),
       // ── Tabelas ──
       '@nucleo/tabela-global':                     nucleo('Tabelas/tabela-global/src/index.ts'),
       '@nucleo/select-colunas-global':             nucleo('Tabelas/select-colunas-global/src/index.ts'),
@@ -68,9 +70,14 @@ export default defineConfig({
       // ── Shell / serviços ──
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@shell':         path.resolve(monorepoRoot, 'servicos-global/shell'),
+      '@tenant/historico': path.resolve(monorepoRoot, 'servicos-global/tenant/historico-global/src/index.ts'),
       '@tenant':        path.resolve(monorepoRoot, 'servicos-global/tenant'),
       '@produto':       path.resolve(monorepoRoot, 'servicos-global/produto'),
     },
+  },
+
+  define: {
+    'process.env': {},
   },
 
   optimizeDeps: {
@@ -85,6 +92,9 @@ export default defineConfig({
       'exceljs',
       'react-grid-layout',
       'react-resizable',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
     ],
   },
 
@@ -97,6 +107,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8026',
         changeOrigin: true,
+      },
+      '/historico-api': {
+        target: 'http://localhost:8012',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/historico-api/, ''),
       },
     },
   },

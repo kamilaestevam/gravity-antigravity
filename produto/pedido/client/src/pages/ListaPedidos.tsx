@@ -80,6 +80,8 @@ import { ModalEdicaoEmMassa } from '../components/ModalEdicaoEmMassa'
 import '../components/ModalEdicaoEmMassa.css'
 import { DrawerPedido } from '../components/DrawerPedido'
 import '../components/DrawerPedido.css'
+import { ModalNovoPedido } from '../components/ModalNovoPedido'
+import { ModalNovoItem } from '../components/ModalNovoItem'
 import { SmartImportModal } from '../components/SmartImport/SmartImportModal'
 import '../components/SmartImport/SmartImportModal.css'
 import type {
@@ -607,33 +609,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     ),
   },
   {
-    key: 'quantidade_total_pedido',
-    label: 'Qtd. Pedida',
-    tipo: 'unidade',
-    filtravel: true,
-    sortavel: true,
-    align: 'right',
-    tooltipTitulo: 'Quantidade Pedida',
-    tooltipDescricao: 'Quantidade original do pedido. Imutável após criação.',
-    grupo: 'Quantidades',
-    largura: 130,
-    casasDecimais: getCasas('quantidade_total_pedido', 0),
-    unidades: UNIDADES_COMEX,
-    getValorEditar: (row: Pedido) => ({
-      unit: row.unidade_comercializada_pedido ?? 'UN',
-      quantity: row.quantidade_total_pedido ?? 0,
-    }),
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.quantidade_total_pedido != null
-          ? `${fmtQuantidade(row.quantidade_total_pedido, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
-          : '—'}
-      </span>
-    ),
-  },
-  {
-    key: 'quantidade_inicial_total',
-    label: 'Qtd Inicial',
+    key: 'quantidade_total_inicial_pedido',
+    label: 'Qtd. Inicial',
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Quantidade Inicial',
@@ -642,14 +619,14 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     largura: 110,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.quantidade_inicial_total != null
-          ? `${fmtQuantidade(row.quantidade_inicial_total, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+        {row.quantidade_total_inicial_pedido != null
+          ? `${fmtQuantidade(row.quantidade_total_inicial_pedido, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
   },
   {
-    key: 'quantidade_pronta_total',
+    key: 'quantidade_pronta_itens_pedido_total',
     label: 'Qtd. Pronta',
     tipo: 'numero',
     align: 'right',
@@ -658,63 +635,38 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     largura: 110,
     render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_pronta_total
-        ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0)
+      const qtd = row.quantidade_pronta_itens_pedido_total
+        ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total ?? 0), 0)
         ?? null
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
     },
   },
   {
-    key: 'quantidade_a_embarcar',
-    label: 'Qtd a Embarcar',
+    key: 'saldo_itens_do_pedido',
+    label: 'Saldo',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Quantidade a Embarcar',
-    tooltipDescricao: 'Pronta − Transferida: quantidade fabricada aguardando embarque',
+    tooltipTitulo: 'Saldo',
+    tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
     grupo: 'Quantidades',
     largura: 130,
     render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_a_embarcar
+      const qtd = row.saldo_itens_do_pedido
         ?? (() => {
-          const pronta = row.quantidade_pronta_total ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta ?? 0), 0) ?? null
-          const transf = row.quantidade_transferida_total ?? null
-          return pronta != null && transf != null ? Math.max(0, pronta - transf) : null
-        })()
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#fbbf24' : undefined }}>
-          {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
-            : '—'}
-        </span>
-      )
-    },
-  },
-  {
-    key: 'quantidade_a_entregar',
-    label: 'Qtd. a Entregar',
-    tipo: 'numero',
-    align: 'right',
-    tooltipTitulo: 'Quantidade a Entregar',
-    tooltipDescricao: 'Quantidade que o exportador confirmou que ira entregar. Pode ser diferente da pedida.',
-    grupo: 'Quantidades',
-    largura: 130,
-    render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_a_entregar
-        ?? (() => {
-          const total = row.quantidade_total_pedido ?? null
+          const total = row.quantidade_total_inicial_pedido ?? null
           const transf = row.quantidade_transferida_total ?? null
           return total != null && transf != null ? Math.max(0, total - transf) : null
         })()
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
             : '—'}
         </span>
       )
@@ -725,41 +677,34 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Qtd. Transferida',
     tipo: 'numero',
     align: 'right',
-    tooltipTitulo: 'Quantidade Transferida (Histórico)',
-    tooltipDescricao: 'Total já transferido para outros pedidos. Histórico de transferências disponível nas Transferências do pedido.',
+    tooltipTitulo: 'Quantidade Transferida',
+    tooltipDescricao: 'Total já transferido para outros pedidos.',
     grupo: 'Quantidades',
     largura: 130,
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_transferida_total != null
-          ? `${fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+          ? `${fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
           : '—'}
       </span>
     ),
   },
   {
-    key: 'saldo_quantidade',
-    label: 'Saldo',
+    key: 'quantidade_cancelada_total_pedido',
+    label: 'Qtd. Cancelada',
     tipo: 'numero',
     align: 'right',
-    editavel: false,
-    tooltipTitulo: 'Saldo de Quantidade',
-    tooltipDescricao: 'Quantidade pedida menos total transferido. Campo calculado — não editável.',
+    tooltipTitulo: 'Quantidade Cancelada',
+    tooltipDescricao: 'Total cancelado permanentemente nos itens do pedido — subtrai do saldo inicial.',
     grupo: 'Quantidades',
-    largura: 110,
-    render: (_val: unknown, row: Pedido) => {
-      const saldo =
-        row.quantidade_inicial_total != null && row.quantidade_transferida_total != null
-          ? row.quantidade_inicial_total - row.quantidade_transferida_total
-          : null
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {saldo != null
-            ? `${fmtQuantidade(saldo, getCasas('quantidade_total_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
-            : '—'}
-        </span>
-      )
-    },
+    largura: 120,
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
+        {row.quantidade_cancelada_total_pedido != null
+          ? `${fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+          : '—'}
+      </span>
+    ),
   },
   {
     key: 'data_emissao_pedido',
@@ -1936,7 +1881,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
 
 export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
   .map(c => c.key as string)
-  .filter(k => k !== 'saldo_quantidade')
 
 // ── Mapper: ColunaUsuario → GTColuna<Pedido> ──────────────────────────────────
 
@@ -2018,7 +1962,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao}</span>,
   },
   {
-    key: 'quantidade_inicial',
+    key: 'quantidade_inicial_item_pedido',
     label: 'Qtd Inicial',
     tipo: 'numero',
     align: 'right',
@@ -2028,31 +1972,31 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Quantidade original do item — valor imutável',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
   {
-    key: 'quantidade_atual',
-    label: 'Saldo Atual',
+    key: 'saldo_item_pedido',
+    label: 'Saldo',
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
     largura: 110,
-    tooltipTitulo: 'Saldo Atual',
-    tooltipDescricao: 'Saldo vivo disponível para alocação em processos logísticos',
+    tooltipTitulo: 'Saldo',
+    tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
         fontVariantNumeric: 'tabular-nums',
-        fontWeight: row.quantidade_atual === 0 ? 400 : 600,
-        color: row.quantidade_atual === 0 ? 'var(--text-muted)' : 'var(--color-success, #34d399)',
+        fontWeight: row.saldo_item_pedido === 0 ? 400 : 600,
+        color: row.saldo_item_pedido === 0 ? 'var(--text-muted)' : 'var(--color-success, #34d399)',
       }}>
-        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.saldo_item_pedido, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
   {
-    key: 'quantidade_pronta',
+    key: 'quantidade_pronta_total',
     label: 'Qtd Pronta',
     tipo: 'numero',
     align: 'right',
@@ -2062,12 +2006,12 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_pronta_total, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
   {
-    key: 'quantidade_transferida',
+    key: 'quantidade_transferida_item',
     label: 'Qtd Transferida',
     tipo: 'numero',
     align: 'right',
@@ -2077,12 +2021,12 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
   {
-    key: 'quantidade_cancelada',
+    key: 'quantidade_cancelada_item_pedido',
     label: 'Qtd Cancelada',
     tipo: 'numero',
     align: 'right',
@@ -2093,9 +2037,9 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
         fontVariantNumeric: 'tabular-nums',
-        color: row.quantidade_cancelada > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
+        color: row.quantidade_cancelada_item_pedido > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
       }}>
-        {fmtQuantidade(row.quantidade_cancelada, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_cancelada_item_pedido, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
@@ -3482,7 +3426,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
 // ── Campos editáveis (todos exceto Saldo, que é derivado) ────────────────────
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => c.key !== 'saldo_quantidade')
+  .filter(c => c.key !== 'saldo_itens_do_pedido')
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
@@ -3490,8 +3434,8 @@ const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
 // Colunas sem mapeamento ficam vazias na linha do item.
 
 const CAMPOS_NUMERICOS_ITEM = new Set([
-  'quantidade_inicial', 'quantidade_atual', 'quantidade_pronta',
-  'quantidade_transferida', 'quantidade_cancelada',
+  'quantidade_inicial_item_pedido', 'saldo_item_pedido', 'quantidade_pronta_total',
+  'quantidade_transferida_item', 'quantidade_cancelada_item_pedido',
   'valor_unitario', 'valor_item',
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
@@ -3660,6 +3604,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   peso_liquido_total_pedido: {
     editavel: true,
     campo: 'peso_liquido_unitario',
+    casasDecimais: getCasas('peso_liquido_unitario', 3),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario != null
@@ -3671,6 +3616,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   peso_bruto_total_pedido: {
     editavel: true,
     campo: 'peso_bruto_unitario',
+    casasDecimais: getCasas('peso_bruto_unitario', 3),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario != null
@@ -3682,6 +3628,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   cubagem_total_pedido: {
     editavel: true,
     campo: 'cubagem_unitaria',
+    casasDecimais: getCasas('cubagem_unitaria', 4),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria != null
@@ -3705,43 +3652,34 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     ),
   },
   // ── Quantidades ───────────────────────────────────────────────────────────
-  quantidade_total_pedido: {
+  saldo_item_pedido: {
     editavel: true,
-    campo: 'quantidade_atual',
+    campo: 'saldo_item_pedido',
     casasDecimais: getCasas('quantidade_item', 0),
     unidades: UNIDADES_COMEX,
     getValorEditar: (row: PedidoItem) => ({
       unit: row.unidade_comercializada_item ?? (row as PedidoItemEnriquecido)._p?.unidade_comercializada_pedido ?? 'UN',
-      quantity: row.quantidade_atual ?? 0,
+      quantity: row.saldo_item_pedido ?? 0,
     }),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
-        {fmtQuantidade(row.quantidade_atual, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.saldo_item_pedido, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
-  quantidade_inicial_total: {
+  quantidade_total_inicial_pedido: {
     editavel: true,
-    campo: 'quantidade_inicial',
+    campo: 'quantidade_inicial_item_pedido',
+    casasDecimais: getCasas('quantidade_item', 0),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_inicial, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
-  quantidade_a_embarcar: {
+  saldo_itens_do_pedido: {
     render: (row: PedidoItem) => {
-      const qtd = Math.max(0, (row.quantidade_pronta ?? 0) - (row.quantidade_transferida ?? 0))
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#fbbf24' : undefined }}>
-          {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}
-        </span>
-      )
-    },
-  },
-  quantidade_a_entregar: {
-    render: (row: PedidoItem) => {
-      const qtd = Math.max(0, (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0))
+      const qtd = Math.max(0, (row.quantidade_inicial_item_pedido ?? 0) - (row.quantidade_transferida_item ?? 0))
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
           {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}
@@ -3751,31 +3689,23 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   quantidade_transferida_total: {
     editavel: true,
-    campo: 'quantidade_transferida',
+    campo: 'quantidade_transferida_item',
+    casasDecimais: getCasas('quantidade_item', 0),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
-  quantidade_pronta_total: {
+  quantidade_pronta_itens_pedido_total: {
     editavel: true,
-    campo: 'quantidade_pronta',
+    campo: 'quantidade_pronta_total',
+    casasDecimais: getCasas('quantidade_item', 0),
     render: (row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta ?? 0, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_pronta_total ?? 0, getCasas('quantidade_item', 0))}
       </span>
     ),
-  },
-  saldo_quantidade: {
-    render: (row: PedidoItem) => {
-      const saldo = (row.quantidade_inicial ?? 0) - (row.quantidade_transferida ?? 0)
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {fmtQuantidade(saldo, getCasas('quantidade_item', 0))}
-        </span>
-      )
-    },
   },
 }
 
@@ -3797,7 +3727,7 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Incoterm',                 key: 'incoterm',                         largura: 12 },
   { header: 'Valor Total',              key: 'valor_total_pedido',               largura: 18 },
   { header: 'Moeda',                    key: 'moeda_pedido',                     largura: 10 },
-  { header: 'Qtd Total',                key: 'quantidade_total_pedido',          largura: 14 },
+  { header: 'Qtd. Inicial',             key: 'quantidade_total_inicial_pedido',  largura: 14 },
   { header: 'Unidade',                  key: 'unidade_comercializada_pedido',    largura: 12 },
   { header: 'Peso Líq. Total (kg)',      key: 'peso_liquido_total_pedido',        largura: 18 },
   { header: 'Peso Bruto Total (kg)',     key: 'peso_bruto_total_pedido',          largura: 18 },
@@ -4076,6 +4006,8 @@ export default function ListaPedidos() {
   // ── Estado dos modais de criação ─────────────────────────────────────────────
   const [drawerAberto, setDrawerAberto]           = useState(false)
   const [pedidoEditandoId, setPedidoEditandoId]   = useState<string | undefined>(undefined)
+  const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
+  const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
   const [smartImportAberto, setSmartImportAberto] = useState(false)
   const [novoDropdownAberto, setNovoDropdownAberto] = useState(false)
   const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
@@ -4250,14 +4182,14 @@ export default function ListaPedidos() {
       return atualizado
     }
     // Campo de quantidade composta: { unit, quantity } → salva quantidade + unidade separados
-    if (campo === 'quantidade_total_pedido' && valor != null && typeof valor === 'object' && 'unit' in valor) {
+    if (campo === 'quantidade_total_inicial_pedido' && valor != null && typeof valor === 'object' && 'unit' in valor) {
       const uv = valor as GTValorUnidade
-      const atualizado = await pedidoVirtualApi.editarCampo(id, 'quantidade_total_pedido', uv.quantity)
+      const atualizado = await pedidoVirtualApi.editarCampo(id, 'quantidade_total_inicial_pedido', uv.quantity)
         .then(p => pedidoVirtualApi.editarCampo(p.id ?? id, 'unidade_comercializada_pedido', uv.unit))
         .catch(() => {
           if (import.meta.env.DEV) {
             const pedidoAtual = pedidos.find(p => p.id === id)
-            return { ...pedidoAtual!, quantidade_total_pedido: uv.quantity, unidade_comercializada_pedido: uv.unit } as Pedido
+            return { ...pedidoAtual!, quantidade_total_inicial_pedido: uv.quantity, unidade_comercializada_pedido: uv.unit } as Pedido
           }
           throw new Error('Erro ao salvar quantidade do pedido')
         })
@@ -4351,8 +4283,8 @@ export default function ListaPedidos() {
       return {
         ...p,
         itens: itensAtualizados,
-        quantidade_inicial_total:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_inicial)    || 0), 0),
-        quantidade_transferida_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida) || 0), 0),
+        quantidade_total_inicial_pedido:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido)    || 0), 0),
+        quantidade_transferida_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida_item) || 0), 0),
       }
     }))
     return enriquecido
@@ -4438,8 +4370,8 @@ export default function ListaPedidos() {
           part_number: i.part_number,
           descricao: i.descricao,
           ncm: i.ncm,
-          quantidade_item: i.quantidade_atual,
-          quantidade_inicial_item: i.quantidade_inicial,
+          quantidade_item: i.saldo_item_pedido,
+          quantidade_inicial_item: i.quantidade_inicial_item_pedido,
           valor_unitario: i.valor_unitario,
           valor_item: i.valor_item,
           moeda_item: i.moeda_item,
@@ -4511,10 +4443,10 @@ export default function ListaPedidos() {
 
   // ── Stats para KPIs ──────────────────────────────────────────────────────────
   const valorTotal    = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
-  const qtdTotal      = pedidos.reduce((acc, p) => acc + (p.quantidade_total_pedido ?? 0), 0)
+  const qtdTotal      = pedidos.reduce((acc, p) => acc + (p.quantidade_total_inicial_pedido ?? 0), 0)
   const todosItens    = pedidos.flatMap(p => p.itens ?? [])
-  const itensProntos  = todosItens.reduce((acc, i) => acc + (i.quantidade_pronta    ?? 0), 0)
-  const qtdAtualTotal = todosItens.reduce((acc, i) => acc + (i.quantidade_atual     ?? 0), 0)
+  const itensProntos  = todosItens.reduce((acc, i) => acc + (i.quantidade_pronta_total    ?? 0), 0)
+  const qtdAtualTotal = todosItens.reduce((acc, i) => acc + (i.saldo_item_pedido     ?? 0), 0)
   const coberturaPend = pedidos
     .filter(p => p.cobertura_cambial === 'sem_cobertura' || !p.cobertura_cambial)
     .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
@@ -4586,34 +4518,6 @@ export default function ListaPedidos() {
           <Warning size={16} weight="duotone" />
           <span>{erroLote}</span>
           <button onClick={() => setErroLote(null)} aria-label="Fechar erro"><X size={14} /></button>
-        </div>
-      )}
-
-      {/* ── Chips de filtros ativos ── */}
-      {Object.keys(filtrosAtivos).length > 0 && (
-        <div className="lp-filtros-chips" role="status" aria-label="Filtros ativos">
-          {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
-            const filtro = filtrosAtivos[col.key]!
-            return (
-              <span key={col.key} className="lp-filtro-chip">
-                <span className="lp-filtro-chip-label">{col.label}:</span>
-                <span className="lp-filtro-chip-valor">{rotulofiltro(col.key, filtro)}</span>
-                <button
-                  className="lp-filtro-chip-remove"
-                  onClick={() => handleLimparFiltro(col.key)}
-                  aria-label={`Remover filtro ${col.label}`}
-                >
-                  <X size={10} weight="bold" />
-                </button>
-              </span>
-            )
-          })}
-          <button
-            className="lp-filtros-limpar-tudo"
-            onClick={handleLimparTodosFiltros}
-          >
-            Limpar tudo
-          </button>
         </div>
       )}
 
@@ -4773,7 +4677,7 @@ export default function ListaPedidos() {
                             { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
                             { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
                             { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
                           ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                             <button key={item.label} type="button" style={{
                               display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
@@ -4837,7 +4741,7 @@ export default function ListaPedidos() {
                             { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
                             { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
                             { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                            { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setPedidoEditandoId(undefined); setDrawerAberto(true); setNovoDropdownAberto(false) } },
+                            { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
                           ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                             <button key={item.label} type="button" style={{
                               display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
@@ -5014,6 +4918,34 @@ export default function ListaPedidos() {
                 </TooltipGlobal>
               </>
 
+              {/* ── Chips de filtros ativos (dentro da toolbar) ── */}
+              {Object.keys(filtrosAtivos).length > 0 && (
+                <div
+                  role="status"
+                  aria-label="Filtros ativos"
+                  style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
+                >
+                  {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
+                    const filtro = filtrosAtivos[col.key]!
+                    return (
+                      <span key={col.key} className="lp-filtro-chip">
+                        <span className="lp-filtro-chip-label">{col.label}:</span>
+                        <span className="lp-filtro-chip-valor">{rotulofiltro(col.key, filtro)}</span>
+                        <button
+                          className="lp-filtro-chip-remove"
+                          onClick={() => handleLimparFiltro(col.key)}
+                          aria-label={`Remover filtro ${col.label}`}
+                        >
+                          <X size={10} weight="bold" />
+                        </button>
+                      </span>
+                    )
+                  })}
+                  <button className="lp-filtros-limpar-tudo" onClick={handleLimparTodosFiltros}>
+                    Limpar tudo
+                  </button>
+                </div>
+              )}
             </>
           }
 
@@ -5044,7 +4976,7 @@ export default function ListaPedidos() {
               variante="primario"
               tamanho="pequeno"
               icone={<Plus size={14} weight="bold" />}
-              onClick={() => { setPedidoEditandoId(undefined); setDrawerAberto(true) }}
+              onClick={() => setModalNovoPedidoAberto(true)}
             >
               Novo Pedido
             </BotaoGlobal>
@@ -5057,7 +4989,27 @@ export default function ListaPedidos() {
         />
       </div>
 
-      {/* ── Drawer Criar/Editar Pedido ── */}
+      {/* ── Modal Criar Novo Pedido (wizard 2 passos) ── */}
+      <ModalNovoPedido
+        aberto={modalNovoPedidoAberto}
+        onFechar={() => setModalNovoPedidoAberto(false)}
+        onSalvo={() => {
+          setModalNovoPedidoAberto(false)
+          carregarInicial()
+        }}
+      />
+
+      {/* ── Modal Novo Item (adicionar item a pedido existente) ── */}
+      <ModalNovoItem
+        aberto={modalNovoItemAberto}
+        onFechar={() => setModalNovoItemAberto(false)}
+        onSalvo={() => {
+          setModalNovoItemAberto(false)
+          carregarInicial()
+        }}
+      />
+
+      {/* ── Drawer Editar Pedido (edição — mantém abas Dados/Itens/Transferências) ── */}
       <DrawerPedido
         aberto={drawerAberto}
         pedidoId={pedidoEditandoId}
@@ -5086,7 +5038,7 @@ export default function ListaPedidos() {
               Transferir Quantidade — {modalTransferir.item.part_number}
             </h3>
             <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.quantidade_atual, getCasas('quantidade_item', 0))} {modalTransferir.item.unidade_comercializada_item}</strong>
+              Saldo disponível: <strong>{fmtQuantidade(modalTransferir.item.saldo_item_pedido, getCasas('quantidade_item', 0))} {modalTransferir.item.unidade_comercializada_item}</strong>
             </p>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.25rem', textTransform: 'uppercase' }}>
@@ -5097,7 +5049,7 @@ export default function ListaPedidos() {
                 style={{ width: '100%', padding: '0.5rem 0.75rem', background: 'var(--bg-base)', border: '1px solid var(--border-subtle)', borderRadius: '0.375rem', color: 'var(--text-primary)', fontSize: '0.875rem' }}
                 value={qtdTransferir}
                 onChange={e => setQtdTransferir(e.target.value)}
-                max={modalTransferir.item.quantidade_atual}
+                max={modalTransferir.item.saldo_item_pedido}
                 min={0.01}
                 step={0.01}
                 placeholder="0.00"
@@ -5111,7 +5063,7 @@ export default function ListaPedidos() {
                 icone={<ArrowRight size={14} />}
                 onClick={async () => {
                   const qtd = parseFloat(qtdTransferir)
-                  if (!qtd || qtd <= 0 || qtd > modalTransferir.item.quantidade_atual) return
+                  if (!qtd || qtd <= 0 || qtd > modalTransferir.item.saldo_item_pedido) return
                   console.info('[Pedido] Transferir:', { item: modalTransferir.item.id, quantidade: qtd })
                   window.alert(`✓ Transferência de ${fmtQuantidade(qtd, getCasas('quantidade_item', 0))} ${modalTransferir.item.unidade_comercializada_item ?? ''} registrada.`)
                   setModalTransferir(null)

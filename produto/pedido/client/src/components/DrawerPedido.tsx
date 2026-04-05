@@ -67,7 +67,7 @@ interface ItemForm {
   part_number: string
   ncm: string
   descricao: string
-  quantidade_inicial: string
+  quantidade_inicial_item_pedido: string
   unidade_comercializada_item: string
   valor_unitario: string
 }
@@ -94,7 +94,7 @@ const ITEM_VAZIO = (): ItemForm => ({
   part_number: '',
   ncm: '',
   descricao: '',
-  quantidade_inicial: '',
+  quantidade_inicial_item_pedido: '',
   unidade_comercializada_item: 'UN',
   valor_unitario: '',
 })
@@ -204,7 +204,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
             part_number: item.part_number,
             ncm: item.ncm,
             descricao: item.descricao,
-            quantidade_inicial: String(item.quantidade_inicial),
+            quantidade_inicial_item_pedido: String(item.quantidade_inicial_item_pedido),
             unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
             valor_unitario: item.valor_unitario != null ? String(item.valor_unitario) : '',
           })))
@@ -263,7 +263,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
         part_number: item.part_number,
         ncm: item.ncm,
         descricao: item.descricao,
-        quantidade_inicial: parseFloat(item.quantidade_inicial) || 0,
+        quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
         unidade_comercializada_item: item.unidade_comercializada_item,
         valor_unitario: item.valor_unitario ? parseFloat(item.valor_unitario) : undefined,
       }))
@@ -587,8 +587,8 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                           type="number"
                           className="drawer-pedido__input"
                           style={{ textAlign: 'right' }}
-                          value={item.quantidade_inicial}
-                          onChange={e => handleItemChange(index, 'quantidade_inicial', e.target.value)}
+                          value={item.quantidade_inicial_item_pedido}
+                          onChange={e => handleItemChange(index, 'quantidade_inicial_item_pedido', e.target.value)}
                           placeholder="0"
                           min="0"
                           step="0.01"

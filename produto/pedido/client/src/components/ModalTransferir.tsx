@@ -181,7 +181,7 @@ function SeletorItemQuantidade({
   onQuantidadeChange,
 }: SeletorItemQuantidadeProps) {
   const itemSelecionado = pedido.itens.find(i => i.id === itemId)
-  const qtyMax = itemSelecionado?.quantidade_atual ?? 0
+  const qtyMax = itemSelecionado?.saldo_item_pedido ?? 0
   const qtyInvalida = quantidadeOrigem > qtyMax || quantidadeOrigem <= 0
 
   return (
@@ -218,7 +218,7 @@ function SeletorItemQuantidade({
                 </label>
               </td>
               <td>{item.descricao}</td>
-              <td>{fmtQuantidade(item.quantidade_atual, item.casas_decimais_quantidade)}</td>
+              <td>{fmtQuantidade(item.saldo_item_pedido, item.casas_decimais_quantidade)}</td>
               <td onClick={e => e.stopPropagation()}>
                 {selecionado ? (
                   <div>
@@ -537,7 +537,7 @@ function PreviewImpacto({ preview }: PreviewImpactoProps) {
         <div className="modal-transferir__preview-linha">
           <span>Quantidade atual</span>
           <span className="modal-transferir__preview-valor">
-            {fmtQuantidade(preview.origem.quantidade_atual)}
+            {fmtQuantidade(preview.origem.saldo_item_pedido)}
           </span>
         </div>
         <div className="modal-transferir__preview-linha">
@@ -657,7 +657,7 @@ export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransfe
   const podeProsseguirPasso1 = cenario !== null
 
   const itemSelecionado = pedido?.itens.find(i => i.id === itemId)
-  const podeProsseguirPasso2 = !!itemId && quantidadeOrigem > 0 && quantidadeOrigem <= (itemSelecionado?.quantidade_atual ?? 0)
+  const podeProsseguirPasso2 = !!itemId && quantidadeOrigem > 0 && quantidadeOrigem <= (itemSelecionado?.saldo_item_pedido ?? 0)
 
   const podeProsseguirPasso3 = (() => {
     if (!cenario) return false

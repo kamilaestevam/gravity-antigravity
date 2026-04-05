@@ -4,20 +4,19 @@
  * Com nivel de confianca visual (verde/amarelo/cinza), exemplo do valor real e visualizacao do documento
  */
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   CheckCircle,
   Warning,
   Question,
   Brain,
   Table,
-  X,
 } from '@phosphor-icons/react'
 import type { ColunaMapeada, SmartImportLinhaRaw } from '../../shared/types'
 
-// ── Campos disponiveis no sistema ─────────────────────────────────────────────
+// ── Campos disponiveis no sistema (fallback hardcoded) ────────────────────────
 
-const CAMPOS_SISTEMA = [
+const CAMPOS_SISTEMA_FALLBACK = [
   { valor: 'numero_pedido',        rotulo: 'Numero do Pedido'    },
   { valor: 'tipo_operacao',        rotulo: 'Tipo de Operacao'    },
   { valor: 'exportador',           rotulo: 'Exportador (Shipper)'},
@@ -29,7 +28,7 @@ const CAMPOS_SISTEMA = [
   { valor: 'part_number',          rotulo: 'Part Number'         },
   { valor: 'ncm',                  rotulo: 'NCM'                 },
   { valor: 'descricao',            rotulo: 'Descricao'           },
-  { valor: 'quantidade_inicial',   rotulo: 'Quantidade'          },
+  { valor: 'quantidade_inicial_item_pedido',   rotulo: 'Quantidade'          },
   { valor: 'unidade',              rotulo: 'Unidade'             },
   { valor: 'valor_unitario',       rotulo: 'Valor Unitario'      },
   { valor: 'valor_item',           rotulo: 'Valor Total Item'    },
@@ -44,6 +43,8 @@ interface EtapaMapeamentoProps {
   dadosBrutos?: SmartImportLinhaRaw[]
   onMapeamentoChange: (novo: ColunaMapeada[]) => void
   onLembrarChange: (valor: boolean) => void
+  onVoltar?: () => void
+  onResetarMapeamento?: () => void
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -61,60 +62,6 @@ function BadgeConfianca({ confianca, nivel }: { confianca: number; nivel: Coluna
   return <span className="smart-import__conf-cinza"><Question size={14} aria-hidden="true" /> {confianca}%</span>
 }
 
-// ── Modal de visualização do documento ───────────────────────────────────────
-
-function ModalDocumento({
-  dadosBrutos,
-  mapeamento,
-  onFechar,
-}: {
-  dadosBrutos: SmartImportLinhaRaw[]
-  mapeamento: ColunaMapeada[]
-  onFechar: () => void
-}) {
-  const colunas = mapeamento.map(m => m.coluna_arquivo)
-
-  return (
-    <div className="smart-import__overlay" onClick={e => { if (e.target === e.currentTarget) onFechar() }} style={{ zIndex: 1100 }}>
-      <div className="smart-import__container" style={{ maxWidth: 900, maxHeight: '80vh' }}>
-        <div className="smart-import__header">
-          <h2 className="smart-import__titulo">
-            <Table size={18} weight="duotone" aria-hidden="true" />
-            Documento importado
-          </h2>
-          <button className="smart-import__fechar" onClick={onFechar} type="button" aria-label="Fechar">
-            <X size={18} />
-          </button>
-        </div>
-        <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(80vh - 80px)', padding: '1rem' }}>
-          <table className="smart-import__tabela" style={{ minWidth: 'max-content' }}>
-            <thead>
-              <tr>
-                <th style={{ color: 'var(--text-muted)', width: 40 }}>#</th>
-                {colunas.map(col => (
-                  <th key={col} style={{ whiteSpace: 'nowrap' }}>{col}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {dadosBrutos.map(row => (
-                <tr key={row.linha}>
-                  <td style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{row.linha}</td>
-                  {colunas.map(col => (
-                    <td key={col} style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.8125rem' }}>
-                      {row.valores[col] ?? '—'}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function EtapaMapeamento({
@@ -124,8 +71,20 @@ export function EtapaMapeamento({
   dadosBrutos,
   onMapeamentoChange,
   onLembrarChange,
+  onVoltar,
+  onResetarMapeamento,
 }: EtapaMapeamentoProps) {
   const [verDocumento, setVerDocumento] = useState(false)
+  const [camposSistema, setCamposSistema] = useState<{ valor: string; rotulo: string }[]>(CAMPOS_SISTEMA_FALLBACK)
+
+  useEffect(() => {
+    fetch('/api/v1/pedidos/smart-import/campos', {
+      headers: { 'x-tenant-id': '', 'x-internal-key': '' },
+    })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (Array.isArray(data) && data.length > 0) setCamposSistema(data) })
+      .catch(() => { /* usa fallback */ })
+  }, [])
 
   function atualizarCampo(index: number, campo_sistema: string | null) {
     const novo = mapeamento.map((col, i) => {
@@ -140,17 +99,49 @@ export function EtapaMapeamento({
     onMapeamentoChange(novo)
   }
 
+  const mapeadas = mapeamento.filter(m => m.campo_sistema !== null).length
+  const total = mapeamento.length
+
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {onVoltar && (
+        <button
+          type="button"
+          className="smart-import__filtro-btn"
+          onClick={onVoltar}
+          style={{ marginBottom: '0.75rem' }}
+        >
+          ← Trocar arquivo
+        </button>
+      )}
+
       <div className="smart-import__mapa-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
-            {mapeamento.length} colunas detectadas no arquivo
+            {mapeadas} de {total} colunas mapeadas
+            {mapeadas < total && (
+              <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+                ({total - mapeadas} ignoradas)
+              </span>
+            )}
           </p>
           {memoriaAplicada && (
-            <span className="smart-import__badge-memoria">
-              <Brain size={11} aria-hidden="true" /> Memoria aplicada
-            </span>
+            <>
+              <span className="smart-import__badge-memoria">
+                <Brain size={11} aria-hidden="true" /> Memoria aplicada
+              </span>
+              {onResetarMapeamento && (
+                <button
+                  type="button"
+                  className="smart-import__filtro-btn"
+                  onClick={onResetarMapeamento}
+                  style={{ fontSize: '0.6875rem' }}
+                  title="Ignorar memória e remapear manualmente"
+                >
+                  Remapear
+                </button>
+              )}
+            </>
           )}
           {dadosBrutos && dadosBrutos.length > 0 && (
             <button
@@ -174,6 +165,10 @@ export function EtapaMapeamento({
           Lembrar este mapeamento
         </label>
       </div>
+
+      <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+        Campos obrigatórios: <strong>Número do Pedido</strong> e <strong>Part Number</strong>
+      </p>
 
       <div style={{ overflowX: 'auto' }}>
         <table className="smart-import__tabela" aria-label="Mapeamento de colunas">
@@ -200,14 +195,24 @@ export function EtapaMapeamento({
                 </td>
                 <td>
                   <select
-                    className="drawer-pedido__select"
+                    style={{
+                      minWidth: '200px',
+                      padding: '0.375rem 0.625rem',
+                      borderRadius: '6px',
+                      border: '1px solid var(--bg-elevated, #334155)',
+                      background: 'var(--bg-surface, #1e293b)',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.8125rem',
+                      fontFamily: 'inherit',
+                      outline: 'none',
+                      cursor: 'pointer',
+                    }}
                     value={col.campo_sistema ?? ''}
                     onChange={e => atualizarCampo(index, e.target.value || null)}
                     aria-label={`Campo sistema para ${col.coluna_arquivo}`}
-                    style={{ minWidth: '200px' }}
                   >
                     <option value="">— Ignorar —</option>
-                    {CAMPOS_SISTEMA.map(c => (
+                    {camposSistema.map(c => (
                       <option key={c.valor} value={c.valor}>{c.rotulo}</option>
                     ))}
                   </select>
@@ -235,11 +240,47 @@ export function EtapaMapeamento({
       </div>
 
       {verDocumento && dadosBrutos && (
-        <ModalDocumento
-          dadosBrutos={dadosBrutos}
-          mapeamento={mapeamento}
-          onFechar={() => setVerDocumento(false)}
-        />
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'var(--bg-base)',
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', borderBottom: '1px solid var(--border-default, rgba(255,255,255,0.08))' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>
+              Documento importado
+            </span>
+            <button type="button" onClick={() => setVerDocumento(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0.25rem' }}>
+              ✕
+            </button>
+          </div>
+          <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1, padding: '1rem' }}>
+            <table className="smart-import__tabela" style={{ minWidth: 'max-content' }}>
+              <thead>
+                <tr>
+                  <th style={{ color: 'var(--text-muted)', width: 40 }}>#</th>
+                  {mapeamento.map(m => m.coluna_arquivo).map(col => <th key={col} style={{ whiteSpace: 'nowrap' }}>{col}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {dadosBrutos.map(row => (
+                  <tr key={row.linha}>
+                    <td style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{row.linha}</td>
+                    {mapeamento.map(m => m.coluna_arquivo).map(col => (
+                      <td key={col} style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.8125rem' }}>
+                        {row.valores[col] ?? '—'}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   )

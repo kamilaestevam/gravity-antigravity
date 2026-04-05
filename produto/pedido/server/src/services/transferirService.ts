@@ -60,7 +60,7 @@ export interface TransferPreview {
   origem: {
     pedido_numero: string
     item_part_number: string
-    quantidade_atual: number
+    saldo_item_pedido: number
     quantidade_apos: number
     encerra: boolean
   }
@@ -102,11 +102,11 @@ export class TransferirService {
     const item = pedido.itens.find((i: any) => i.id === payload.item_id)
     if (!item) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    const quantidadeApos = item.quantidade_atual - payload.quantidade_origem
+    const quantidadeApos = item.saldo_item_pedido - payload.quantidade_origem
     const alertasGlobais: string[] = []
 
-    if (payload.quantidade_origem > item.quantidade_atual) {
-      alertasGlobais.push(`Quantidade solicitada (${payload.quantidade_origem}) excede a disponível (${item.quantidade_atual})`)
+    if (payload.quantidade_origem > item.saldo_item_pedido) {
+      alertasGlobais.push(`Quantidade solicitada (${payload.quantidade_origem}) excede a disponível (${item.saldo_item_pedido})`)
     }
 
     if (quantidadeApos <= 0) {
@@ -143,7 +143,7 @@ export class TransferirService {
       origem: {
         pedido_numero: pedido.numero_pedido,
         item_part_number: item.part_number,
-        quantidade_atual: item.quantidade_atual,
+        saldo_item_pedido: item.saldo_item_pedido,
         quantidade_apos: Math.max(0, quantidadeApos),
         encerra: quantidadeApos <= 0,
       },
@@ -164,7 +164,7 @@ export class TransferirService {
     const itemOrigem = pedidoOrigem.itens.find((i: any) => i.id === payload.item_id)
     if (!itemOrigem) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    await this.validarQuantidade(itemOrigem.quantidade_atual, payload.quantidade_origem)
+    await this.validarQuantidade(itemOrigem.saldo_item_pedido, payload.quantidade_origem)
 
     const pedidosDestinoIds: string[] = []
     const pedidosCriados: string[] = []
@@ -201,9 +201,9 @@ export class TransferirService {
             await tx.pedidoItem.update({
               where: { id: itemExistente.id },
               data: {
-                quantidade_atual: itemExistente.quantidade_atual + destino.quantidade,
-                quantidade_inicial: itemExistente.quantidade_inicial + destino.quantidade,
-                quantidade_transferida: itemExistente.quantidade_transferida + destino.quantidade,
+                saldo_item_pedido: itemExistente.saldo_item_pedido + destino.quantidade,
+                quantidade_inicial_item_pedido: itemExistente.quantidade_inicial_item_pedido + destino.quantidade,
+                quantidade_transferida_item: itemExistente.quantidade_transferida_item + destino.quantidade,
               },
             })
           } else {
@@ -223,12 +223,12 @@ export class TransferirService {
 
       // Reduzir quantidade do item de origem (para todos os cenários exceto substituicao_pura)
       if (payload.cenario !== 'substituicao_pura') {
-        const novaQty = itemOrigem.quantidade_atual - payload.quantidade_origem
+        const novaQty = itemOrigem.saldo_item_pedido - payload.quantidade_origem
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            quantidade_atual: novaQty,
-            quantidade_transferida: itemOrigem.quantidade_transferida + payload.quantidade_origem,
+            saldo_item_pedido: novaQty,
+            quantidade_transferida_item: itemOrigem.quantidade_transferida_item + payload.quantidade_origem,
           },
         })
 
@@ -280,8 +280,8 @@ export class TransferirService {
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            quantidade_atual: itemOrigem.quantidade_atual + historico.quantidade,
-            quantidade_transferida: Math.max(0, itemOrigem.quantidade_transferida - historico.quantidade),
+            saldo_item_pedido: itemOrigem.saldo_item_pedido + historico.quantidade,
+            quantidade_transferida_item: Math.max(0, itemOrigem.quantidade_transferida_item - historico.quantidade),
           },
         })
       }
@@ -298,14 +298,14 @@ export class TransferirService {
               i.part_number === (destino.part_number ?? itemOrigem?.part_number)
             )
             if (itemDestino) {
-              const novaQty = itemDestino.quantidade_atual - destino.quantidade
+              const novaQty = itemDestino.saldo_item_pedido - destino.quantidade
               if (novaQty <= 0) {
                 await tx.pedidoItem.delete({ where: { id: itemDestino.id } })
                 itensExcluidos.push(itemDestino.id)
               } else {
                 await tx.pedidoItem.update({
                   where: { id: itemDestino.id },
-                  data: { quantidade_atual: novaQty, quantidade_transferida: Math.max(0, itemDestino.quantidade_transferida - destino.quantidade) },
+                  data: { saldo_item_pedido: novaQty, quantidade_transferida_item: Math.max(0, itemDestino.quantidade_transferida_item - destino.quantidade) },
                 })
               }
             }
@@ -405,11 +405,11 @@ export class TransferirService {
     return {
       ...itemBase,
       pedido_id: pedidoId,
-      quantidade_atual: destino.quantidade,
-      quantidade_inicial: destino.quantidade,
-      quantidade_transferida: destino.quantidade,
-      quantidade_pronta: 0,
-      quantidade_cancelada: 0,
+      saldo_item_pedido: destino.quantidade,
+      quantidade_inicial_item_pedido: destino.quantidade,
+      quantidade_transferida_item: destino.quantidade,
+      quantidade_pronta_total: 0,
+      quantidade_cancelada_item_pedido: 0,
       ...(destino.part_number ? { part_number: destino.part_number } : {}),
       ...(destino.data_embarque ? { data_prevista_pedido_pronto: destino.data_embarque } : {}),
       ...(destino.porto_destino ? { campo_especial: destino.porto_destino } : {}),
@@ -419,16 +419,16 @@ export class TransferirService {
   private async recalcularAgregados(tenantId: string, pedidoId: string, tx: any): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
       where: { pedido_id: pedidoId, tenant_id: tenantId },
-      select: { quantidade_inicial: true, quantidade_transferida: true },
+      select: { quantidade_inicial_item_pedido: true, quantidade_transferida_item: true },
     })
 
-    const qtdInicialTotal = itens.reduce((acc: number, i: any) => acc + (i.quantidade_inicial ?? 0), 0)
-    const qtdTransferidaTotal = itens.reduce((acc: number, i: any) => acc + (i.quantidade_transferida ?? 0), 0)
+    const qtdInicialTotal = itens.reduce((acc: number, i: any) => acc + (i.quantidade_inicial_item_pedido ?? 0), 0)
+    const qtdTransferidaTotal = itens.reduce((acc: number, i: any) => acc + (i.quantidade_transferida_item ?? 0), 0)
 
     await tx.pedido.update({
       where: { id: pedidoId },
       data: {
-        quantidade_inicial_total: qtdInicialTotal,
+        quantidade_total_inicial_pedido: qtdInicialTotal,
         quantidade_transferida_total: qtdTransferidaTotal,
       },
     })
@@ -448,7 +448,7 @@ export class TransferirService {
 
     // Config: excluir item quando qty = 0 (default: false — só executa se ativo)
     for (const item of itens) {
-      if (item.quantidade_atual <= 0) {
+      if (item.saldo_item_pedido <= 0) {
         await tx.pedidoItem.delete({ where: { id: item.id } })
         itensExcluidos.push(item.id)
       }

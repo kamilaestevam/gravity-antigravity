@@ -1,4 +1,5 @@
 export { Historico } from './Historico.js'
+export type { HistoricoProps } from './Historico.js'
 export { Historico as default } from './Historico.js'
 export { auditLog } from './audit-client.js'
 export type { AuditLogPayload } from './audit-client.js'

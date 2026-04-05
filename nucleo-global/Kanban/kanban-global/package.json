@@ -10,6 +10,11 @@
     "test":      "vitest run",
     "test:watch": "vitest"
   },
+  "dependencies": {
+    "@nucleo/campo-calendario-global": "*",
+    "@nucleo/campo-select-global": "*",
+    "@nucleo/campo-geral-global": "*"
+  },
   "peerDependencies": {
     "@dnd-kit/core": ">=6.0.0",
     "@dnd-kit/sortable": ">=7.0.0",

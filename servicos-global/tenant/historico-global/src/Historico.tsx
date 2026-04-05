@@ -532,19 +532,41 @@ const MOCK_LOGS = gerarMockLogs(320)
 
 // ── Componente principal ──────────────────────────────────────────
 
-export function Historico() {
+export interface HistoricoProps {
+  /** ID do produto — usado para filtrar logs na API (ex: 'pedido', 'lpco') */
+  productId: string
+  /** Base URL do serviço historico-global (ex: 'http://localhost:8030') */
+  apiBaseUrl: string
+  /** Usa dados mock locais em vez de chamar a API. Útil para demos e dev. */
+  useMock?: boolean
+}
+
+export function Historico({ productId, apiBaseUrl, useMock = false }: HistoricoProps) {
   const { t } = useTranslation()
 
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
 
   const loadLogs = useCallback(async () => {
-    // TODO: remover mock antes de ir para produção
     setLoading(true)
-    await new Promise(r => setTimeout(r, 400))
-    setLogs(MOCK_LOGS)
-    setLoading(false)
-  }, [])
+    try {
+      if (useMock) {
+        await new Promise(r => setTimeout(r, 400))
+        setLogs(MOCK_LOGS)
+      } else {
+        const url = `${apiBaseUrl}/api/v1/historico/logs?product_id=${encodeURIComponent(productId)}&limit=200`
+        const res = await fetch(url, { credentials: 'include' })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json() as { logs?: AuditLog[]; data?: AuditLog[] } | AuditLog[]
+        setLogs(Array.isArray(data) ? data : (data.logs ?? data.data ?? []))
+      }
+    } catch (err) {
+      console.error('[Historico] Erro ao carregar logs:', err)
+      setLogs([])
+    } finally {
+      setLoading(false)
+    }
+  }, [productId, apiBaseUrl, useMock])
 
   useEffect(() => { loadLogs() }, [loadLogs])
 

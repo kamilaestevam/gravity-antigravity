@@ -1,0 +1,110 @@
+/**
+ * BotaoCompletoExportar — estilos auto-suficientes.
+ * Usa variáveis globais do design system com fallbacks,
+ * funcionando dentro ou fora de .gtv-container.
+ */
+
+/* ─── Wrapper ─────────────────────────────────────────────────────────────── */
+.gtv-export-wrapper {
+  position: relative;
+}
+
+/* ─── Botão principal ─────────────────────────────────────────────────────── */
+.gtv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--color-border, #334155);
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.gtv-btn:hover:not(:disabled) {
+  border-color: var(--accent, #818cf8);
+  color: var(--accent, #818cf8);
+  background: rgba(129, 140, 248, 0.06);
+}
+
+.gtv-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gtv-btn--ativo {
+  border-color: var(--accent, #818cf8) !important;
+  color: var(--accent, #818cf8) !important;
+  background: rgba(129, 140, 248, 0.1) !important;
+}
+
+/* ─── Menu dropdown ───────────────────────────────────────────────────────── */
+.gtv-export-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 9999;
+  background: var(--bg-base, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 10px;
+  padding: 0.375rem;
+  min-width: 180px;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  animation: bce-popover-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bce-popover-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Itens do menu ───────────────────────────────────────────────────────── */
+.gtv-export-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 7px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s, color 0.12s;
+}
+
+.gtv-export-item:hover {
+  background: rgba(129, 140, 248, 0.08);
+  color: var(--text-primary, #f1f5f9);
+}
+
+/* ─── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .gtv-export-menu {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .gtv-export-item {
+  color: var(--text-secondary, #334155);
+}
+
+body.light-theme .gtv-export-item:hover {
+  background: rgba(79, 70, 229, 0.06);
+  color: var(--text-primary, #1e293b);
+}

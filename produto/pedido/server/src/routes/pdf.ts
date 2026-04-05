@@ -145,13 +145,13 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       moeda_pedido: string
       data_emissao_pedido: string
       valor_total_pedido?: number | null
-      quantidade_total_pedido?: number | null
+      quantidade_total_inicial_pedido?: number | null
       itens: Array<{
         part_number: string
         descricao: string
         ncm: string
-        quantidade_atual: number
-        quantidade_inicial: number
+        saldo_item_pedido: number
+        quantidade_inicial_item_pedido: number
         unidade_comercializada_item?: string | null
         moeda_item: string
         valor_unitario?: number | null
@@ -257,13 +257,13 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
       moeda_pedido: string
       data_emissao_pedido: string
       valor_total_pedido?: number | null
-      quantidade_total_pedido?: number | null
+      quantidade_total_inicial_pedido?: number | null
       itens: Array<{
         part_number: string
         descricao: string
         ncm: string
-        quantidade_atual: number
-        quantidade_inicial: number
+        saldo_item_pedido: number
+        quantidade_inicial_item_pedido: number
         unidade_comercializada_item?: string | null
         moeda_item: string
         valor_unitario?: number | null

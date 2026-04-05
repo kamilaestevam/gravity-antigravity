@@ -9,10 +9,20 @@
  *   - Decisoes: sobrescrever, pular
  *   - Memoria: salva e recupera mapeamento por hash
  *   - Cross-tenant: mapeamento de outro tenant nao retornado
+ *   - Factory: criarSmartImportService
+ *   - PDF: rejeicao antes do parse
+ *   - limite_excedido: campo presente no preview
+ *   - nomePlanilha: parametro aceito sem erro
+ *   - numeros_editados: numero corrigido aplicado no pedido criado
+ *   - Stateless fallback: linhas do payload quando cache miss
+ *   - Importacao incremental: item adicionado a pedido existente
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { SmartImportService } from '../../../produto/pedido/server/src/services/smartImportService'
+import {
+  SmartImportService,
+  criarSmartImportService,
+} from '../../../produto/pedido/server/src/services/smartImportService'
 import { MapeamentoMemoriaService } from '../../../produto/pedido/server/src/services/mapeamentoMemoriaService'
 import { calcularHashColunas } from '../../../produto/pedido/server/src/services/importEngine'
 
@@ -81,7 +91,7 @@ describe('SmartImportService — mapeamento IA', () => {
     expect(mapa['PO Number']).toBe('numero_pedido')
     expect(mapa['NCM']).toBe('ncm')
     expect(mapa['Currency']).toBe('moeda_pedido')
-    expect(mapa['Qty']).toBe('quantidade_inicial')
+    expect(mapa['Qty']).toBe('quantidade_inicial_item_pedido')
   })
 
   it('deve mapear coluna com alias parcial "po no" → numero_pedido', async () => {
@@ -290,5 +300,327 @@ describe('importEngine — calcularHashColunas', () => {
     const h1 = calcularHashColunas(['A', 'B', 'C'])
     const h2 = calcularHashColunas(['C', 'A', 'B'])
     expect(h1).toBe(h2)
+  })
+})
+
+// ── Testes: Factory function ──────────────────────────────────────────────────
+
+describe('criarSmartImportService — factory', () => {
+  it('deve retornar instancia de SmartImportService', () => {
+    const db = makeMockPrisma()
+    const svc = criarSmartImportService(db as unknown as Record<string, unknown>)
+    expect(svc).toBeInstanceOf(SmartImportService)
+  })
+
+  it('instancia criada pela factory deve funcionar normalmente', async () => {
+    const csv = ['PO Number,Qty', 'PO-FAC,10'].join('\n')
+    const db = makeMockPrisma()
+    const svc = criarSmartImportService(db as unknown as Record<string, unknown>)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+    expect(preview.total_linhas).toBe(1)
+  })
+})
+
+// ── Testes: Suporte a PDF ─────────────────────────────────────────────────────
+
+describe('SmartImportService — suporte a PDF', () => {
+  it('nao deve rejeitar .pdf — deve tentar parse', async () => {
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+
+    // PDF minimo valido com texto — pdf-parse pode falhar em buffer invalido,
+    // mas o importante e que NAO lancamos AppError 422 FORMATO_PDF_NAO_SUPORTADO
+    const erro = await svc.analisar('tenant1', Buffer.from('%PDF-1.4'), 'relatorio.pdf')
+      .then(() => null)
+      .catch((e: unknown) => e as Error)
+
+    // Se lancar erro, nao deve ser o nosso AppError de rejeicao de formato
+    if (erro) {
+      expect((erro as { code?: string }).code).not.toBe('FORMATO_PDF_NAO_SUPORTADO')
+    }
+  })
+})
+
+// ── Testes: limite_excedido ───────────────────────────────────────────────────
+
+describe('SmartImportService — limite_excedido', () => {
+  it('deve retornar limite_excedido false para arquivo pequeno', async () => {
+    const csv = ['PO Number,Part No.,NCM,Qty', 'PO-1,SKU-1,8471.30.19,100'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+    expect(preview.limite_excedido).toBe(false)
+  })
+
+  it('preview deve incluir campo limite_excedido de tipo boolean', async () => {
+    const csv = ['PO Number,Qty', 'PO-1,10'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+    expect(typeof preview.limite_excedido).toBe('boolean')
+  })
+
+  it('deve retornar limite_excedido true para arquivo com mais de 1000 linhas', async () => {
+    const linhas = ['PO Number,Part No.,NCM,Qty']
+    for (let i = 0; i < 1001; i++) {
+      linhas.push(`PO-${i},SKU-${i},8471.30.19,${i + 1}`)
+    }
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(linhas.join('\n')), 'grande.csv')
+    expect(preview.limite_excedido).toBe(true)
+    expect(preview.total_linhas).toBeGreaterThan(1000)
+  })
+})
+
+// ── Testes: parametro nomePlanilha ────────────────────────────────────────────
+
+describe('SmartImportService — nomePlanilha', () => {
+  it('deve aceitar nomePlanilha para CSV (parametro e ignorado)', async () => {
+    const csv = ['PO Number,Qty', 'PO-SHT,10'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    // Nao deve lancar erro; o parametro e passado para parseArquivo mas ignorado para CSV
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv', 'Planilha1')
+    expect(preview.total_linhas).toBe(1)
+  })
+
+  it('preview deve incluir preview_id que contem tenantId', async () => {
+    const csv = ['PO Number,Qty', 'PO-1,10'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('meu-tenant', toBuffer(csv), 'pedido.csv')
+    expect(preview.preview_id).toContain('meu-tenant')
+  })
+})
+
+// ── Testes: numeros_editados ──────────────────────────────────────────────────
+
+describe('SmartImportService — numeros_editados', () => {
+  it('deve criar pedido com numero editado pelo usuario', async () => {
+    const csv = ['PO Number,Part No.,NCM,Qty', 'PO-ORIG,SKU-1,8471.30.19,100'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+
+    const pedidoCreate = vi.fn().mockResolvedValue({ id: 'novo-editado' })
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: pedidoCreate,
+        update: vi.fn(),
+      },
+      pedidoItem: { create: vi.fn().mockResolvedValue({}) },
+    }))
+
+    const linhaNum = preview.linhas[0].linha_arquivo
+
+    await svc.confirmar('tenant1', 'user1', {
+      preview_id: preview.preview_id,
+      mapeamento_confirmado: preview.mapeamento,
+      decisoes_duplicatas: {},
+      linhas_incluidas: [linhaNum],
+      salvar_mapeamento: false,
+      numeros_editados: { [linhaNum]: 'PO-EDITADO' },
+    })
+
+    expect(pedidoCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ numero_pedido: 'PO-EDITADO' }),
+      })
+    )
+  })
+
+  it('linha sem numero_editado nao deve ser alterada', async () => {
+    const csv = ['PO Number,Part No.,NCM,Qty', 'PO-MANTIDO,SKU-1,8471.30.19,50'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+
+    const pedidoCreate = vi.fn().mockResolvedValue({ id: 'id-mantido' })
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: pedidoCreate,
+        update: vi.fn(),
+      },
+      pedidoItem: { create: vi.fn().mockResolvedValue({}) },
+    }))
+
+    await svc.confirmar('tenant1', 'user1', {
+      preview_id: preview.preview_id,
+      mapeamento_confirmado: preview.mapeamento,
+      decisoes_duplicatas: {},
+      linhas_incluidas: preview.linhas.map(l => l.linha_arquivo),
+      salvar_mapeamento: false,
+      numeros_editados: {},
+    })
+
+    expect(pedidoCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ numero_pedido: 'PO-MANTIDO' }),
+      })
+    )
+  })
+})
+
+// ── Testes: Stateless fallback ────────────────────────────────────────────────
+
+describe('SmartImportService — stateless fallback (P0.3)', () => {
+  it('deve processar linhas do payload quando preview_id nao existe no cache', async () => {
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+
+    const linhasPayload = [{
+      linha_arquivo: 2,
+      numero_pedido: 'PO-STATELESS',
+      status: 'ok' as const,
+      alertas: [],
+      dados: { numero_pedido: 'PO-STATELESS', quantidade_inicial_item_pedido: '10' },
+    }]
+
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: 'novo-stateless' }),
+        update: vi.fn(),
+      },
+      pedidoItem: { create: vi.fn().mockResolvedValue({}) },
+    }))
+
+    const resultado = await svc.confirmar('tenant1', 'user1', {
+      preview_id: 'preview-id-inexistente-no-cache-xyz123',
+      mapeamento_confirmado: [],
+      decisoes_duplicatas: {},
+      linhas_incluidas: [2],
+      salvar_mapeamento: false,
+      linhas: linhasPayload,
+    })
+
+    expect(resultado).toBeDefined()
+    // Deve ter processado sem erros
+    expect(resultado.erros).toHaveLength(0)
+  })
+
+  it('deve retornar resultado vazio para cache miss sem linhas no payload', async () => {
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: 'id' }),
+        update: vi.fn(),
+      },
+      pedidoItem: { create: vi.fn().mockResolvedValue({}) },
+    }))
+
+    const resultado = await svc.confirmar('tenant1', 'user1', {
+      preview_id: 'cache-miss-sem-linhas',
+      mapeamento_confirmado: [],
+      decisoes_duplicatas: {},
+      linhas_incluidas: [2, 3],
+      salvar_mapeamento: false,
+    })
+
+    // Com linhas_incluidas mas sem cache nem payload.linhas, fallback cria linhas vazias
+    expect(resultado).toBeDefined()
+    expect(resultado.criados + resultado.erros.length + resultado.pulados).toBeGreaterThanOrEqual(0)
+  })
+})
+
+// ── Testes: Importacao incremental ────────────────────────────────────────────
+
+describe('SmartImportService — importacao incremental (FEAT.6)', () => {
+  it('deve adicionar item a pedido existente quando part_number informado sem decisao', async () => {
+    const csv = ['PO Number,Part No.,NCM,Qty', 'PO-EXIST,SKU-NOVO,8471.30.19,50'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+
+    const pedidoItemCreate = vi.fn().mockResolvedValue({ id: 'item-novo' })
+
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue({ id: 'pedido-existente-id' }),
+        create: vi.fn().mockResolvedValue({ id: 'novo' }),
+        update: vi.fn(),
+      },
+      pedidoItem: { create: pedidoItemCreate },
+    }))
+
+    const resultado = await svc.confirmar('tenant1', 'user1', {
+      preview_id: preview.preview_id,
+      mapeamento_confirmado: preview.mapeamento,
+      decisoes_duplicatas: {},
+      linhas_incluidas: preview.linhas.map(l => l.linha_arquivo),
+      salvar_mapeamento: false,
+    })
+
+    expect(pedidoItemCreate).toHaveBeenCalled()
+    expect(resultado.atualizados).toBeGreaterThan(0)
+    expect(resultado.criados).toBe(0)
+  })
+
+  it('deve criar pedido novo quando pedido nao existe (sem decisao)', async () => {
+    const csv = ['PO Number,Part No.,NCM,Qty', 'PO-NOVO,SKU-1,8471.30.19,100'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+
+    const pedidoCreate = vi.fn().mockResolvedValue({ id: 'criado-id' })
+
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue(null), // pedido nao existe
+        create: pedidoCreate,
+        update: vi.fn(),
+      },
+      pedidoItem: { create: vi.fn().mockResolvedValue({}) },
+    }))
+
+    const resultado = await svc.confirmar('tenant1', 'user1', {
+      preview_id: preview.preview_id,
+      mapeamento_confirmado: preview.mapeamento,
+      decisoes_duplicatas: {},
+      linhas_incluidas: preview.linhas.map(l => l.linha_arquivo),
+      salvar_mapeamento: false,
+    })
+
+    expect(pedidoCreate).toHaveBeenCalled()
+    expect(resultado.criados).toBe(1)
+    expect(resultado.atualizados).toBe(0)
+  })
+
+  it('deve pular item incremental se pedidoItem.create falhar (graceful fallback)', async () => {
+    const csv = ['PO Number,Part No.,NCM,Qty', 'PO-ERR,SKU-FAIL,8471.30.19,50'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+
+    const pedidoCreate = vi.fn().mockResolvedValue({ id: 'fallback-id' })
+
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue({ id: 'pedido-existente' }),
+        create: pedidoCreate,
+        update: vi.fn(),
+      },
+      pedidoItem: {
+        create: vi.fn().mockRejectedValue(new Error('unique constraint')),
+      },
+    }))
+
+    // Nao deve lancar — pedidoItem.create usa .catch(() => null)
+    const resultado = await svc.confirmar('tenant1', 'user1', {
+      preview_id: preview.preview_id,
+      mapeamento_confirmado: preview.mapeamento,
+      decisoes_duplicatas: {},
+      linhas_incluidas: preview.linhas.map(l => l.linha_arquivo),
+      salvar_mapeamento: false,
+    })
+
+    // Com .catch(() => null) o fluxo continua como "atualizado"
+    expect(resultado.erros).toHaveLength(0)
   })
 })

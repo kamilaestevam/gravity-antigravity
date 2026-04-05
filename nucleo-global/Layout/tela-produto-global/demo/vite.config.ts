@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 const __dirname   = path.dirname(fileURLToPath(import.meta.url))
 const monoRoot    = path.resolve(__dirname, '../../../..')
 const nucleo      = (sub: string) => path.resolve(monoRoot, `nucleo-global/${sub}`)
+const tenant      = (sub: string) => path.resolve(monoRoot, `servicos-global/tenant/${sub}`)
 
 export default defineConfig({
   plugins: [react()],
@@ -54,6 +55,8 @@ export default defineConfig({
       '@nucleo/tabela-camadas-global':  nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
       // ── Feedback extra ──
       '@nucleo/status-salvar-global':   nucleo('Feedback/status-salvar-global/src/index.ts'),
+      // ── Tenant services ──
+      '@tenant/historico':              tenant('historico-global/src/index.ts'),
       // ── Utils ──
       '@nucleo/utils':                  nucleo('Utilidades/utils/src/index.ts'),
       '@nucleo/export-utils':           nucleo('Utilidades/export-utils/exportUtils.ts'),
@@ -62,6 +65,10 @@ export default defineConfig({
       'jspdf':          path.resolve(__dirname, 'node_modules/jspdf'),
       'jspdf-autotable':path.resolve(__dirname, 'node_modules/jspdf-autotable'),
     },
+  },
+
+  define: {
+    'process.env': {},
   },
 
   optimizeDeps: {

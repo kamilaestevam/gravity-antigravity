@@ -17,7 +17,7 @@
 
 const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'valor_total_pedido',
-  'quantidade_inicial_total',
+  'quantidade_total_inicial_pedido',
   'quantidade_transferida_total',
   'status',
   'id',
@@ -30,7 +30,7 @@ const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
 
 const CAMPOS_BLOQUEADOS_ITEM = new Set([
   'valor_item',
-  'quantidade_atual',
+  'saldo_item_pedido',
   'id',
   'tenant_id',
   'pedido_id',
@@ -41,10 +41,10 @@ const CAMPOS_BLOQUEADOS_ITEM = new Set([
 // ── Campos de quantidade — disparam recálculo de agregados ────────────────────
 
 const CAMPOS_QUANTIDADE_ITEM = new Set([
-  'quantidade_inicial',
-  'quantidade_transferida',
-  'quantidade_pronta',
-  'quantidade_cancelada',
+  'quantidade_inicial_item_pedido',
+  'quantidade_transferida_item',
+  'quantidade_pronta_total',
+  'quantidade_cancelada_item_pedido',
 ])
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
@@ -316,31 +316,31 @@ export class EdicaoEmMassaService {
     const itens = await tx.pedidoItem.findMany({
       where: { tenant_id: tenantId, pedido_id: pedidoId },
       select: {
-        quantidade_inicial: true,
-        quantidade_transferida: true,
+        quantidade_inicial_item_pedido: true,
+        quantidade_transferida_item: true,
         valor_unitario: true,
-        quantidade_atual: true,
+        saldo_item_pedido: true,
       },
     })
 
     const quantidadeInicialTotal = itens.reduce(
-      (acc: number, i: { quantidade_inicial: number }) => acc + (i.quantidade_inicial ?? 0),
+      (acc: number, i: { quantidade_inicial_item_pedido: number }) => acc + (i.quantidade_inicial_item_pedido ?? 0),
       0,
     )
     const quantidadeTransferidaTotal = itens.reduce(
-      (acc: number, i: { quantidade_transferida: number }) => acc + (i.quantidade_transferida ?? 0),
+      (acc: number, i: { quantidade_transferida_item: number }) => acc + (i.quantidade_transferida_item ?? 0),
       0,
     )
     const valorTotal = itens.reduce(
-      (acc: number, i: { valor_unitario: number | null; quantidade_atual: number }) =>
-        acc + ((i.valor_unitario ?? 0) * (i.quantidade_atual ?? 0)),
+      (acc: number, i: { valor_unitario: number | null; saldo_item_pedido: number }) =>
+        acc + ((i.valor_unitario ?? 0) * (i.saldo_item_pedido ?? 0)),
       0,
     )
 
     await tx.pedido.update({
       where: { id: pedidoId },
       data: {
-        quantidade_inicial_total: quantidadeInicialTotal,
+        quantidade_total_inicial_pedido: quantidadeInicialTotal,
         quantidade_transferida_total: quantidadeTransferidaTotal,
         valor_total_pedido: valorTotal,
       },

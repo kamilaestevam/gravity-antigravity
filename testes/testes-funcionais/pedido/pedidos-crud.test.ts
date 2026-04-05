@@ -56,7 +56,7 @@ const PEDIDO_MOCK = {
   incoterm: 'FOB',
   moeda_pedido: 'USD',
   valor_total_pedido: 35000,
-  quantidade_total_pedido: 1000,
+  quantidade_total_inicial_pedido: 1000,
   casas_decimais_total_pedido: 2,
   casas_decimais_quantidade_total_pedido: 2,
   unidade_comercializada_pedido: 'UN',
@@ -73,11 +73,11 @@ const PEDIDO_MOCK = {
       part_number: 'PCB-X200',
       ncm: '8542.31.90',
       descricao: 'Placa controladora',
-      quantidade_inicial: 1000,
-      quantidade_atual: 1000,
-      quantidade_pronta: 0,
-      quantidade_transferida: 0,
-      quantidade_cancelada: 0,
+      quantidade_inicial_item_pedido: 1000,
+      saldo_item_pedido: 1000,
+      quantidade_pronta_total: 0,
+      quantidade_transferida_item: 0,
+      quantidade_cancelada_item_pedido: 0,
     },
   ],
   created_at: new Date(),
@@ -173,7 +173,7 @@ describe('POST /api/v1/pedidos', () => {
             part_number: 'SKU-001',
             ncm: '8542.31.90',
             descricao: 'Componente teste',
-            quantidade_inicial: 500,
+            quantidade_inicial_item_pedido: 500,
           },
         ],
       })
@@ -207,7 +207,7 @@ describe('POST /api/v1/pedidos', () => {
       .set('x-tenant-id', 'tenant-001')
       .send({
         tipo_operacao: 'importacao',
-        itens: [{ part_number: 'X', ncm: 'Y', descricao: 'Z', quantidade_inicial: 1 }],
+        itens: [{ part_number: 'X', ncm: 'Y', descricao: 'Z', quantidade_inicial_item_pedido: 1 }],
       })
 
     expect(res.status).toBe(400)
@@ -223,7 +223,7 @@ describe('POST /api/v1/pedidos', () => {
       .send({
         tipo_operacao: 'invalido',
         numero_pedido: 'PO-BAD',
-        itens: [{ part_number: 'X', ncm: 'Y', descricao: 'Z', quantidade_inicial: 1 }],
+        itens: [{ part_number: 'X', ncm: 'Y', descricao: 'Z', quantidade_inicial_item_pedido: 1 }],
       })
 
     expect(res.status).toBe(400)
@@ -338,7 +338,7 @@ describe('DELETE /api/v1/pedidos/:id/itens/:itemId', () => {
     const prisma = criarPrismaMock()
     prisma.pedidoItem.findFirst.mockResolvedValue({
       ...PEDIDO_MOCK.itens[0],
-      quantidade_transferida: 500,
+      quantidade_transferida_item: 500,
     })
     const app = criarApp(prisma)
 

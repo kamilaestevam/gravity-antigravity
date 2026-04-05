@@ -46,11 +46,11 @@ export interface PedidoItem {
   atributos_catalogo?: string | null
 
   // Quantidades
-  quantidade_inicial: number
-  quantidade_atual: number
-  quantidade_pronta: number
-  quantidade_transferida: number
-  quantidade_cancelada: number
+  quantidade_inicial_item_pedido: number
+  saldo_item_pedido: number
+  quantidade_pronta_total: number
+  quantidade_transferida_item: number
+  quantidade_cancelada_item_pedido: number
   casas_decimais_quantidade: number
 
   // Unidade comercializada
@@ -314,17 +314,16 @@ export interface Pedido {
   moeda_pedido: string
   valor_total_pedido: number | null
   casas_decimais_total_pedido: number
-  quantidade_total_pedido: number | null
+  quantidade_total_inicial_pedido: number | null
   casas_decimais_quantidade_total_pedido: number
   unidade_comercializada_pedido: string | null
   quantidade_volumes_pedido?: number | null
 
   // Agregados de itens (soma calculada pelo backend)
-  quantidade_inicial_total?: number | null
   quantidade_transferida_total?: number | null
-  quantidade_pronta_total?: number | null
-  quantidade_a_embarcar?: number | null
-  quantidade_a_entregar?: number | null
+  quantidade_pronta_itens_pedido_total?: number | null
+  saldo_itens_do_pedido?: number | null
+  quantidade_cancelada_total_pedido?: number | null
 
   // Catálogo
   partnumber_produto_pedido?: string | null
@@ -551,7 +550,7 @@ export interface TransferPreview {
   origem: {
     pedido_numero: string
     item_part_number: string
-    quantidade_atual: number
+    saldo_item_pedido: number
     quantidade_apos: number
     encerra: boolean
   }
@@ -655,7 +654,7 @@ export interface EdicaoMassaResultado {
 /** Campos calculados do Pedido — nunca editáveis em massa */
 export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'valor_total_pedido',
-  'quantidade_inicial_total',
+  'quantidade_total_inicial_pedido',
   'quantidade_transferida_total',
   'status',
   'id',
@@ -669,7 +668,7 @@ export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
 /** Campos calculados do PedidoItem — nunca editáveis em massa */
 export const CAMPOS_BLOQUEADOS_ITEM = new Set([
   'valor_item',
-  'quantidade_atual',
+  'saldo_item_pedido',
   'id',
   'tenant_id',
   'pedido_id',
@@ -873,7 +872,7 @@ export interface ColunaUsuario {
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string
-  /** Expressão da fórmula (ex: "quantidade_pedida - quantidade_transferida"). Presente quando tipo === 'formula'. */
+  /** Expressão da fórmula (ex: "quantidade_inicial_item_pedido - quantidade_transferida_item"). Presente quando tipo === 'formula'. */
   formula_expressao?: string
   /** Chaves de colunas das quais esta fórmula depende. Populado pelo engine ao salvar. */
   formula_dependencias?: string[]

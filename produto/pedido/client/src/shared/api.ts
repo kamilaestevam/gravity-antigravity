@@ -54,6 +54,10 @@ export function setApiContext(ctx: { tenantId: string; userId: string }): void {
   context = ctx
 }
 
+export function getApiContext(): { tenantId: string; userId: string } {
+  return context
+}
+
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const response = await fetch(endpoint, {
     ...options,
@@ -61,7 +65,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       'Content-Type': 'application/json',
       'x-tenant-id': context.tenantId,
       'x-user-id': context.userId,
-      'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
+      'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       ...options?.headers,
     },
   })
@@ -135,7 +139,7 @@ export const pedidoItemApi = {
   atualizarPronta: (pedidoId: string, itemId: string, quantidade: number) =>
     request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}/pronta`, {
       method: 'PATCH',
-      body: JSON.stringify({ quantidade_pronta: quantidade }),
+      body: JSON.stringify({ quantidade_pronta_total: quantidade }),
     }),
 }
 
@@ -224,7 +228,7 @@ export const importacaoApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
+        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
       body: formData,
     })
@@ -301,7 +305,7 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
   for (const pedido of pedidos) {
     for (const item of pedido.itens) {
       if (itensPorPart[item.part_number]) {
-        itensPorPart[item.part_number].quantidade_total += item.quantidade_atual
+        itensPorPart[item.part_number].quantidade_total += item.saldo_item_pedido
         itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
         itensPorPart[item.part_number].pode_fundir = true
       } else {
@@ -312,7 +316,7 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
           unidade_comercializada_item: item.unidade_comercializada_item,
           moeda_item: item.moeda_item,
           valor_unitario: item.valor_unitario,
-          quantidade_total: item.quantidade_atual,
+          quantidade_total: item.saldo_item_pedido,
           pedidos_origem: [pedido.numero_pedido],
           pode_fundir: false,
         }
@@ -350,8 +354,8 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
       if (payload.fundir_itens_mesmo_part_number && partNumbers.has(item.part_number)) {
         const existente = itensMerge.find(i => i.part_number === item.part_number)
         if (existente) {
-          existente.quantidade_inicial += item.quantidade_inicial
-          existente.quantidade_atual += item.quantidade_atual
+          existente.quantidade_inicial_item_pedido += item.quantidade_inicial_item_pedido
+          existente.saldo_item_pedido += item.saldo_item_pedido
         }
       } else {
         partNumbers.add(item.part_number)
@@ -428,12 +432,12 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
   const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === payload.pedido_id)
   const item = pedido?.itens.find(i => i.id === payload.item_id)
 
-  const quantidadeApos = (item?.quantidade_atual ?? 0) - payload.quantidade_origem
+  const quantidadeApos = (item?.saldo_item_pedido ?? 0) - payload.quantidade_origem
   const encerra = quantidadeApos <= 0
 
   const alertas: string[] = []
   if (encerra) alertas.push('Pedido de origem ficará com quantidade zero após a transferência')
-  if (payload.quantidade_origem > (item?.quantidade_atual ?? 0)) {
+  if (payload.quantidade_origem > (item?.saldo_item_pedido ?? 0)) {
     alertas.push('Quantidade solicitada excede quantidade disponível no item')
   }
 
@@ -442,7 +446,7 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
     origem: {
       pedido_numero: pedido?.numero_pedido ?? payload.pedido_id,
       item_part_number: item?.part_number ?? payload.item_id,
-      quantidade_atual: item?.quantidade_atual ?? 0,
+      saldo_item_pedido: item?.saldo_item_pedido ?? 0,
       quantidade_apos: Math.max(0, quantidadeApos),
       encerra,
     },
@@ -647,7 +651,7 @@ export const smartImportApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
+        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
       body: formData,
     }).then(async res => {
@@ -692,7 +696,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     { coluna: 'NCM',          campo: 'ncm',                 conf: 95, exemplo: '8471.30.19'          },
     { coluna: 'Part No.',     campo: 'part_number',         conf: 91, exemplo: 'STE-A4-001'          },
     { coluna: 'Description',  campo: 'descricao',           conf: 85, exemplo: 'Heat exchanger plate'},
-    { coluna: 'Qty',          campo: 'quantidade_inicial',  conf: 78, exemplo: '100'                 },
+    { coluna: 'Qty',          campo: 'quantidade_inicial_item_pedido',  conf: 78, exemplo: '100'                 },
     { coluna: 'Unit',         campo: 'unidade',             conf: 72, exemplo: 'UN'                  },
     { coluna: 'Unit Price',   campo: 'valor_unitario',      conf: 83, exemplo: '330,00'              },
     { coluna: 'Currency',     campo: 'moeda_pedido',        conf: 90, exemplo: 'USD'                 },
@@ -732,7 +736,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         data_embarque: '30/05/2023',
         part_number: 'STE-A4-001',
         descricao: 'Heat exchanger plate',
-        quantidade_inicial: 100,
+        quantidade_inicial_item_pedido: 100,
         unidade: 'UN',
         valor_unitario: 330.00,
         ncm: '8471.30.19',
@@ -751,7 +755,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         moeda_pedido: 'USD',
         part_number: 'DGL-7700',
         descricao: 'Motor controller board',
-        quantidade_inicial: 50,
+        quantidade_inicial_item_pedido: 50,
         unidade: 'UN',
         valor_unitario: 85.00,
         ncm: '8544.42.90',
@@ -770,7 +774,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         moeda_pedido: 'EUR',
         part_number: 'BRL-220V',
         descricao: 'Power supply unit',
-        quantidade_inicial: 200,
+        quantidade_inicial_item_pedido: 200,
         unidade: 'UN',
         valor_unitario: 45.00,
       },
@@ -793,7 +797,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         moeda_pedido: 'USD',
         part_number: 'GZH-CAB-001',
         descricao: 'Cable assembly',
-        quantidade_inicial: 500,
+        quantidade_inicial_item_pedido: 500,
         unidade: 'MT',
         valor_unitario: 3.20,
         ncm: '8471',
@@ -806,13 +810,13 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
       status: 'erro',
       alertas: [
         {
-          campo: 'quantidade_inicial',
+          campo: 'quantidade_inicial_item_pedido',
           tipo: 'valor_negativo',
           mensagem: 'Quantidade deve ser maior que zero',
           nivel: 'erro',
         },
       ],
-      dados: { quantidade_inicial: -5, exportador: 'Unknown Supplier' },
+      dados: { quantidade_inicial_item_pedido: -5, exportador: 'Unknown Supplier' },
     },
   ]
 
@@ -862,10 +866,9 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     moeda_pedido: 'USD',
     valor_total_pedido: 0,
     casas_decimais_total_pedido: 2,
-    quantidade_total_pedido: 0,
     casas_decimais_quantidade_total_pedido: 2,
     unidade_comercializada_pedido: 'UN',
-    quantidade_inicial_total: 0,
+    quantidade_total_inicial_pedido: 0,
     quantidade_transferida_total: 0,
     cobertura_cambial: null,
     condicao_pagamento: null,
@@ -1078,7 +1081,7 @@ export const anexosApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
+        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
       body: form,
     }).then(async res => {
@@ -1098,7 +1101,7 @@ export const anexosApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
-        'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
+        'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
     }).then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)

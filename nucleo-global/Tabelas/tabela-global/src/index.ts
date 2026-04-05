@@ -4,6 +4,7 @@ export type {
   TabelaGlobalColuna,
   TabelaGlobalAcao,
   TabelaExportAcao,
+  TabelaKanbanConfig,
   ColType,
   SortDir
 } from './tabela'

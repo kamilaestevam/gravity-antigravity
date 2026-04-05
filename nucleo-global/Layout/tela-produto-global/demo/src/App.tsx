@@ -16,6 +16,7 @@ import {
   SquaresFour,
   ListBullets,
   Kanban as KanbanIcon,
+  ClockCounterClockwise,
   GearSix,
   UserCircle,
   CheckCircle,
@@ -26,6 +27,7 @@ import {
 const Dashboard     = lazy(() => import('./pages/Dashboard'))
 const Lista         = lazy(() => import('./pages/Lista'))
 const Kanban        = lazy(() => import('./pages/Kanban'))
+const Historico     = lazy(() => import('./pages/Historico'))
 const Configuracoes = lazy(() => import('./pages/Configuracoes'))
 
 // ── Identidade do Demo ────────────────────────────────────────────────────────
@@ -51,8 +53,9 @@ const NAV_ITEMS = [
   { sectionDivider: true, label: 'DEMO' },
   { to: 'dashboard',    label: 'Dashboard',    icon: <SquaresFour size={20} weight="duotone" /> },
   { to: 'lista',        label: 'Lista',        icon: <ListBullets size={20} weight="duotone" /> },
-  { to: 'kanban',       label: 'Kanban',       icon: <KanbanIcon  size={20} weight="duotone" /> },
-  { to: 'configuracoes',label: 'Configurações',icon: <GearSix     size={20} weight="duotone" /> },
+  { to: 'kanban',       label: 'Kanban',       icon: <KanbanIcon              size={20} weight="duotone" /> },
+  { to: 'historico',    label: 'Histórico',    icon: <ClockCounterClockwise  size={20} weight="duotone" /> },
+  { to: 'configuracoes',label: 'Configurações',icon: <GearSix                size={20} weight="duotone" /> },
 ]
 
 // ── Labels de rota ────────────────────────────────────────────────────────────
@@ -61,6 +64,7 @@ const ROUTE_LABELS: Record<string, string> = {
   'dashboard':     'Dashboard',
   'lista':         'Lista',
   'kanban':        'Kanban',
+  'historico':     'Histórico',
   'configuracoes': 'Configurações',
 }
 
@@ -165,6 +169,7 @@ export default function App() {
           <Route path="dashboard"     element={<Dashboard />} />
           <Route path="lista"         element={<Lista />} />
           <Route path="kanban"        element={<Kanban />} />
+          <Route path="historico"     element={<Historico />} />
           <Route path="configuracoes" element={<Configuracoes />} />
           <Route path="*"             element={<Navigate to="dashboard" replace />} />
         </Routes>

@@ -1,243 +1,267 @@
 /**
  * Testes unitarios — Pedido / importEngine.ts
  *
- * Testa parse e normalizacao de arquivos:
- *   - JSON (array e {data: [...]})
+ * Testa parse de arquivos (retorna linhas planas — Record<string, string>[]):
  *   - CSV (virgula, ponto-e-virgula, tab)
- *   - XML (tags <pedido>, <row>, <item>)
- *   - Deteccao automatica de mapeamento de colunas
- *   - Normalizacao: agrupar itens por pedido
+ *   - JSON (array — formato unico suportado)
+ *   - XML (tags simples)
+ *   - TXT tabulado
+ *   - listarPlanilhas (retorna [] para nao-xlsx)
+ *   - calcularHashColunas
  *   - Erros: formato invalido, arquivo vazio
  */
 
 import { describe, it, expect } from 'vitest'
-import { importEngine } from '../../../servicos-global/tenant/processos-core/src/services/importEngine'
+import {
+  parseArquivo,
+  listarPlanilhas,
+  calcularHashColunas,
+} from '../../../produto/pedido/server/src/services/importEngine'
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helper ────────────────────────────────────────────────────────────────────
 
 function toBuffer(content: string): Buffer {
   return Buffer.from(content, 'utf-8')
 }
 
-// ── Testes: JSON ──────────────────────────────────────────────────────────────
-
-describe('importEngine — JSON', () => {
-  it('deve parsear JSON array de pedidos', async () => {
-    const json = JSON.stringify([
-      { numero_pedido: 'PO-001', tipo_operacao: 'importacao', descricao: 'Item A', ncm: '8542.31.90', part_number: 'SKU-1', quantidade: 100 },
-      { numero_pedido: 'PO-001', tipo_operacao: 'importacao', descricao: 'Item B', ncm: '8532.24.10', part_number: 'SKU-2', quantidade: 200 },
-      { numero_pedido: 'PO-002', tipo_operacao: 'exportacao', descricao: 'Item C', ncm: '3926.90.90', part_number: 'SKU-3', quantidade: 50 },
-    ])
-
-    const result = await importEngine.processarArquivo(toBuffer(json), 'pedidos.json')
-
-    expect(result).toHaveLength(2)
-    expect(result[0].numero_pedido).toBe('PO-001')
-    expect(result[0].itens).toHaveLength(2)
-    expect(result[0].itens[0].part_number).toBe('SKU-1')
-    expect(result[0].itens[0].quantidade_inicial).toBe(100)
-    expect(result[1].numero_pedido).toBe('PO-002')
-    expect(result[1].tipo_operacao).toBe('exportacao')
-    expect(result[1].itens).toHaveLength(1)
-  })
-
-  it('deve parsear JSON com formato { data: [...] }', async () => {
-    const json = JSON.stringify({
-      data: [
-        { numero_pedido: 'PO-010', descricao: 'Produto X', part_number: 'PX', ncm: '0000.00.00', quantidade: 500 },
-      ],
-    })
-
-    const result = await importEngine.processarArquivo(toBuffer(json), 'export.json')
-
-    expect(result).toHaveLength(1)
-    expect(result[0].numero_pedido).toBe('PO-010')
-  })
-
-  it('deve rejeitar JSON sem array', async () => {
-    const json = JSON.stringify({ nome: 'invalido' })
-
-    await expect(
-      importEngine.processarArquivo(toBuffer(json), 'ruim.json')
-    ).rejects.toThrow('JSON deve conter um array')
-  })
-})
-
 // ── Testes: CSV ───────────────────────────────────────────────────────────────
 
-describe('importEngine — CSV', () => {
-  it('deve parsear CSV com virgula', async () => {
+describe('parseArquivo — CSV com virgula', () => {
+  it('deve retornar linhas planas com cabecalhos como chaves', async () => {
     const csv = [
-      'numero_pedido,descricao,part_number,ncm,quantidade,valor_unitario',
-      'PO-100,Parafuso M8,PRF-M8,7318.15.00,5000,0.15',
-      'PO-100,Porca M8,PRC-M8,7318.16.00,5000,0.08',
-      'PO-101,Arruela M10,ARR-M10,7318.22.00,2000,0.05',
+      'PO Number,Part No.,NCM,Qty,Unit Price',
+      'PO-100,SKU-A,7318.15.00,5000,0.15',
+      'PO-100,SKU-B,7318.16.00,3000,0.08',
     ].join('\n')
 
-    const result = await importEngine.processarArquivo(toBuffer(csv), 'pedidos.csv')
+    const rows = await parseArquivo(toBuffer(csv), 'pedidos.csv')
 
-    expect(result).toHaveLength(2)
-    expect(result[0].numero_pedido).toBe('PO-100')
-    expect(result[0].itens).toHaveLength(2)
-    expect(result[0].itens[0].valor_unitario).toBe(0.15)
-    expect(result[1].itens).toHaveLength(1)
+    expect(rows).toHaveLength(2)
+    expect(rows[0]['PO Number']).toBe('PO-100')
+    expect(rows[0]['Part No.']).toBe('SKU-A')
+    expect(rows[0]['Qty']).toBe('5000')
+    expect(rows[1]['NCM']).toBe('7318.16.00')
   })
 
-  it('deve parsear CSV com ponto-e-virgula', async () => {
+  it('deve retornar linhas planas com CSV ponto-e-virgula', async () => {
     const csv = [
       'numero_pedido;descricao;part_number;ncm;quantidade',
       'PO-200;Motor 5CV;MOT-5;8501.52.00;10',
     ].join('\n')
 
-    const result = await importEngine.processarArquivo(toBuffer(csv), 'dados.csv')
+    const rows = await parseArquivo(toBuffer(csv), 'dados.csv')
 
-    expect(result).toHaveLength(1)
-    expect(result[0].itens[0].descricao).toBe('Motor 5CV')
+    expect(rows).toHaveLength(1)
+    expect(rows[0]['numero_pedido']).toBe('PO-200')
+    expect(rows[0]['descricao']).toBe('Motor 5CV')
+    expect(rows[0]['quantidade']).toBe('10')
   })
 
-  it('deve rejeitar CSV com apenas header', async () => {
+  it('deve retornar array vazio para CSV com apenas header', async () => {
     const csv = 'numero_pedido,descricao,ncm'
+    const rows = await parseArquivo(toBuffer(csv), 'vazio.csv')
+    expect(rows).toHaveLength(0)
+  })
 
-    await expect(
-      importEngine.processarArquivo(toBuffer(csv), 'vazio.csv')
-    ).rejects.toThrow('pelo menos header + 1 linha')
+  it('deve ignorar linhas em branco', async () => {
+    const csv = [
+      'PO,Qty',
+      'PO-001,10',
+      '',
+      'PO-002,20',
+      '',
+    ].join('\n')
+
+    const rows = await parseArquivo(toBuffer(csv), 'linhas_branco.csv')
+    expect(rows).toHaveLength(2)
+  })
+
+  it('deve preservar valores entre aspas com virgula interna', async () => {
+    const csv = [
+      'PO,Descricao,Qty',
+      'PO-X,"Parafuso, rosca fina",100',
+    ].join('\n')
+
+    const rows = await parseArquivo(toBuffer(csv), 'aspas.csv')
+    expect(rows[0]['Descricao']).toBe('Parafuso, rosca fina')
   })
 })
 
-// ── Testes: XML ───────────────────────────────────────────────────────────────
+// ── Testes: TXT tabulado ──────────────────────────────────────────────────────
 
-describe('importEngine — XML', () => {
-  it('deve parsear XML com tags <pedido>', async () => {
-    const xml = `
-      <pedidos>
-        <pedido>
-          <numero_pedido>PO-300</numero_pedido>
-          <descricao>Valvula Industrial</descricao>
-          <part_number>VLV-01</part_number>
-          <ncm>8481.80.99</ncm>
-          <quantidade>25</quantidade>
-        </pedido>
-      </pedidos>
-    `
-
-    const result = await importEngine.processarArquivo(toBuffer(xml), 'pedidos.xml')
-
-    expect(result).toHaveLength(1)
-    expect(result[0].numero_pedido).toBe('PO-300')
-    expect(result[0].itens[0].quantidade_inicial).toBe(25)
-  })
-
-  it('deve parsear XML com tags <row>', async () => {
-    const xml = `
-      <data>
-        <row>
-          <numero_pedido>PO-400</numero_pedido>
-          <part_number>ABC</part_number>
-          <ncm>1234.56.78</ncm>
-          <descricao>Teste</descricao>
-          <quantidade>100</quantidade>
-        </row>
-      </data>
-    `
-
-    const result = await importEngine.processarArquivo(toBuffer(xml), 'dados.xml')
-
-    expect(result).toHaveLength(1)
-  })
-
-  it('deve rejeitar XML sem tags reconhecidas', async () => {
-    const xml = '<dados><info>teste</info></dados>'
-
-    await expect(
-      importEngine.processarArquivo(toBuffer(xml), 'invalido.xml')
-    ).rejects.toThrow('XML deve conter elementos')
-  })
-})
-
-// ── Testes: TXT ───────────────────────────────────────────────────────────────
-
-describe('importEngine — TXT', () => {
-  it('deve parsear TXT tab-separated', async () => {
+describe('parseArquivo — TXT tab-separated', () => {
+  it('deve parsear TXT com tab como separador', async () => {
     const txt = [
       'numero_pedido\tpart_number\tncm\tdescricao\tquantidade',
       'PO-500\tSKU-TXT\t9999.00.00\tItem TXT\t750',
     ].join('\n')
 
-    const result = await importEngine.processarArquivo(toBuffer(txt), 'dados.txt')
+    const rows = await parseArquivo(toBuffer(txt), 'dados.txt')
 
-    expect(result).toHaveLength(1)
-    expect(result[0].itens[0].quantidade_inicial).toBe(750)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]['numero_pedido']).toBe('PO-500')
+    expect(rows[0]['quantidade']).toBe('750')
+  })
+})
+
+// ── Testes: JSON ──────────────────────────────────────────────────────────────
+
+describe('parseArquivo — JSON', () => {
+  it('deve parsear JSON array de objetos em linhas planas', async () => {
+    const json = JSON.stringify([
+      { PO: 'PO-001', SKU: 'SKU-1', NCM: '8471.30.19', Qty: 100 },
+      { PO: 'PO-002', SKU: 'SKU-2', NCM: '8544.42.90', Qty: 200 },
+    ])
+
+    const rows = await parseArquivo(toBuffer(json), 'pedidos.json')
+
+    expect(rows).toHaveLength(2)
+    expect(rows[0]['PO']).toBe('PO-001')
+    expect(rows[0]['Qty']).toBe('100')
+    expect(rows[1]['NCM']).toBe('8544.42.90')
+  })
+
+  it('deve converter todos os valores para string', async () => {
+    const json = JSON.stringify([
+      { numero: 42, flag: true, valor: 3.14 },
+    ])
+
+    const rows = await parseArquivo(toBuffer(json), 'tipos.json')
+
+    expect(typeof rows[0]['numero']).toBe('string')
+    expect(rows[0]['numero']).toBe('42')
+    expect(rows[0]['flag']).toBe('true')
+    expect(rows[0]['valor']).toBe('3.14')
+  })
+
+  it('deve rejeitar JSON nao-array', async () => {
+    const json = JSON.stringify({ data: [{ PO: 'PO-001' }] })
+
+    await expect(
+      parseArquivo(toBuffer(json), 'objeto.json')
+    ).rejects.toThrow('JSON deve ser um array')
+  })
+
+  it('deve rejeitar JSON string simples', async () => {
+    await expect(
+      parseArquivo(Buffer.from('"apenas string"'), 'str.json')
+    ).rejects.toThrow()
+  })
+})
+
+// ── Testes: XML ───────────────────────────────────────────────────────────────
+
+describe('parseArquivo — XML', () => {
+  it('deve parsear XML plano (campos direto no root) como chaves', async () => {
+    // O parser XML do pedido importEngine suporta estrutura plana:
+    // <root><campo1>val1</campo1><campo2>val2</campo2></root>
+    const xml = `<registro>
+      <numero_pedido>PO-300</numero_pedido>
+      <ncm>8481.80.99</ncm>
+      <quantidade>25</quantidade>
+      <part_number>VLV-01</part_number>
+    </registro>`
+
+    const rows = await parseArquivo(toBuffer(xml), 'pedidos.xml')
+
+    expect(rows.length).toBeGreaterThan(0)
+    expect(rows[0]['numero_pedido']).toBe('PO-300')
+    expect(rows[0]['ncm']).toBe('8481.80.99')
+    expect(rows[0]['quantidade']).toBe('25')
+  })
+
+  it('deve retornar array vazio para XML sem conteudo folha', async () => {
+    // Tag vazia sem campos internos
+    const xml = '<dados></dados>'
+    const rows = await parseArquivo(toBuffer(xml), 'vazio.xml')
+    expect(rows).toHaveLength(0)
   })
 })
 
 // ── Testes: Formato invalido ──────────────────────────────────────────────────
 
-describe('importEngine — formato invalido', () => {
-  it('deve rejeitar formato .docx', async () => {
+describe('parseArquivo — formato invalido', () => {
+  it('deve rejeitar .docx com mensagem de nao suportado', async () => {
     await expect(
-      importEngine.processarArquivo(Buffer.from(''), 'documento.docx')
+      parseArquivo(Buffer.from(''), 'documento.docx')
     ).rejects.toThrow('nao suportado')
   })
 
-  it('deve rejeitar formato .pdf', async () => {
+  it('deve rejeitar .zip', async () => {
     await expect(
-      importEngine.processarArquivo(Buffer.from(''), 'arquivo.pdf')
+      parseArquivo(Buffer.from(''), 'arquivo.zip')
     ).rejects.toThrow('nao suportado')
   })
 
-  it('deve rejeitar Excel (sem biblioteca xlsx instalada)', async () => {
-    await expect(
-      importEngine.processarArquivo(Buffer.from(''), 'planilha.xlsx')
-    ).rejects.toThrow('xlsx')
+  it('deve processar .pdf via pdf-parse (nao rejeita o formato)', async () => {
+    // pdf-parse pode falhar com buffer invalido, mas nunca com erro "nao suportado"
+    const resultadoOuErro = await parseArquivo(Buffer.from('%PDF-1.4 fake'), 'arquivo.pdf')
+      .then(r => ({ ok: true, rows: r }))
+      .catch((e: unknown) => ({ ok: false, msg: (e as Error).message }))
+
+    if (!resultadoOuErro.ok) {
+      // Se falhou, nao deve ser por formato nao suportado
+      expect((resultadoOuErro as { msg: string }).msg).not.toContain('nao suportado')
+    } else {
+      // Se teve sucesso, deve retornar algum array
+      expect(Array.isArray((resultadoOuErro as { rows: unknown[] }).rows)).toBe(true)
+    }
   })
 })
 
-// ── Testes: Normalizacao ──────────────────────────────────────────────────────
+// ── Testes: listarPlanilhas ───────────────────────────────────────────────────
 
-describe('importEngine — normalizacao', () => {
-  it('deve agrupar itens do mesmo pedido', async () => {
-    const json = JSON.stringify([
-      { numero_pedido: 'PO-X', part_number: 'A', ncm: '0000', descricao: 'Item A', quantidade: 10 },
-      { numero_pedido: 'PO-X', part_number: 'B', ncm: '0001', descricao: 'Item B', quantidade: 20 },
-      { numero_pedido: 'PO-X', part_number: 'C', ncm: '0002', descricao: 'Item C', quantidade: 30 },
-    ])
-
-    const result = await importEngine.processarArquivo(toBuffer(json), 'agrupado.json')
-
-    expect(result).toHaveLength(1)
-    expect(result[0].itens).toHaveLength(3)
-    expect(result[0].itens[2].quantidade_inicial).toBe(30)
+describe('listarPlanilhas', () => {
+  it('deve retornar array vazio para arquivo CSV', async () => {
+    const planilhas = await listarPlanilhas(Buffer.from('col1,col2\nv1,v2'), 'dados.csv')
+    expect(planilhas).toEqual([])
   })
 
-  it('deve detectar tipo_operacao = exportacao', async () => {
-    const json = JSON.stringify([
-      { numero_pedido: 'SO-001', tipo_operacao: 'export', part_number: 'EXP', ncm: '0', descricao: 'Export', quantidade: 1 },
-    ])
-
-    const result = await importEngine.processarArquivo(toBuffer(json), 'export.json')
-
-    expect(result[0].tipo_operacao).toBe('exportacao')
+  it('deve retornar array vazio para arquivo JSON', async () => {
+    const planilhas = await listarPlanilhas(Buffer.from('[{}]'), 'dados.json')
+    expect(planilhas).toEqual([])
   })
 
-  it('deve usar importacao como tipo padrao quando nao informado', async () => {
-    const json = JSON.stringify([
-      { numero_pedido: 'PO-DEFAULT', part_number: 'DEF', ncm: '0', descricao: 'Sem tipo', quantidade: 1 },
-    ])
-
-    const result = await importEngine.processarArquivo(toBuffer(json), 'default.json')
-
-    expect(result[0].tipo_operacao).toBe('importacao')
+  it('deve retornar array vazio para arquivo TXT', async () => {
+    const planilhas = await listarPlanilhas(Buffer.from('col\tval'), 'dados.txt')
+    expect(planilhas).toEqual([])
   })
 
-  it('deve pular linhas sem numero_pedido', async () => {
-    const json = JSON.stringify([
-      { numero_pedido: 'PO-OK', part_number: 'A', ncm: '0', descricao: 'Ok', quantidade: 10 },
-      { part_number: 'B', ncm: '0', descricao: 'Sem PO', quantidade: 20 },
-    ])
+  it('deve retornar array vazio para extensao desconhecida', async () => {
+    const planilhas = await listarPlanilhas(Buffer.from(''), 'arquivo.abc')
+    expect(planilhas).toEqual([])
+  })
+})
 
-    const result = await importEngine.processarArquivo(toBuffer(json), 'parcial.json')
+// ── Testes: calcularHashColunas ───────────────────────────────────────────────
 
-    expect(result).toHaveLength(1)
-    expect(result[0].itens).toHaveLength(1)
+describe('calcularHashColunas', () => {
+  it('deve gerar hash deterministico para mesmos cabecalhos', () => {
+    const h1 = calcularHashColunas(['PO Number', 'Supplier', 'NCM'])
+    const h2 = calcularHashColunas(['PO Number', 'Supplier', 'NCM'])
+    expect(h1).toBe(h2)
+  })
+
+  it('deve gerar hash diferente para cabecalhos distintos', () => {
+    const h1 = calcularHashColunas(['PO', 'Qty'])
+    const h2 = calcularHashColunas(['PO', 'NCM'])
+    expect(h1).not.toBe(h2)
+  })
+
+  it('deve ser independente da ordem dos cabecalhos', () => {
+    const h1 = calcularHashColunas(['A', 'B', 'C'])
+    const h2 = calcularHashColunas(['C', 'A', 'B'])
+    expect(h1).toBe(h2)
+  })
+
+  it('deve retornar string hexadecimal de 8 caracteres', () => {
+    const hash = calcularHashColunas(['col1', 'col2'])
+    expect(hash).toMatch(/^[0-9a-f]{8}$/)
+  })
+
+  it('deve tratar cabecalhos case-insensitive para o hash', () => {
+    const h1 = calcularHashColunas(['PO NUMBER', 'NCM'])
+    const h2 = calcularHashColunas(['po number', 'ncm'])
+    expect(h1).toBe(h2)
   })
 })

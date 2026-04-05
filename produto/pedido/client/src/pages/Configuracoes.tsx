@@ -389,8 +389,9 @@ interface NovaColuna {
 
 const COLUNAS_NUMERICAS = [
   // ── Pedido (pai) ──
-  { campo: 'quantidade_total_pedido',          label: 'Quantidade Total',           categoria: 'Pedido', padrao: 0 },
-  { campo: 'quantidade_inicial_total',         label: 'Quantidade Inicial Total',   categoria: 'Pedido', padrao: 0 },
+  { campo: 'quantidade_total_inicial_pedido',   label: 'Quantidade Inicial',         categoria: 'Pedido', padrao: 0 },
+  { campo: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta',      categoria: 'Pedido', padrao: 0 },
+  { campo: 'quantidade_cancelada_total_pedido', label: 'Quantidade Cancelada',      categoria: 'Pedido', padrao: 0 },
   { campo: 'quantidade_transferida_total',     label: 'Quantidade Transferida',     categoria: 'Pedido', padrao: 0 },
   { campo: 'peso_liquido_total_pedido',        label: 'Peso Líquido Total',         categoria: 'Pedido', padrao: 3 },
   { campo: 'peso_bruto_total_pedido',          label: 'Peso Bruto Total',           categoria: 'Pedido', padrao: 3 },
@@ -594,11 +595,11 @@ export default function Configuracoes() {
       const expr = expressao.trim()
       let gabi: { titulo: string; texto: string; sugestao?: string } | null = null
 
-      if (/\+/.test(expr) && /quantidade_pedida/.test(expr) && /quantidade_a_entregar/.test(expr)) {
+      if (/\+/.test(expr) && /quantidade_total_inicial_pedido/.test(expr) && /saldo_itens_do_pedido/.test(expr)) {
         gabi = {
           titulo: 'Você quis dizer o saldo?',
-          texto: 'Somando Qtd. Pedida + Qtd. a Entregar. Se o objetivo é calcular o saldo disponível, a operação correta é subtração.',
-          sugestao: 'quantidade_pedida - quantidade_transferida_total',
+          texto: 'Somando Quantidade Inicial + Saldo. Se o objetivo é calcular o saldo disponível, a operação correta é subtração.',
+          sugestao: 'quantidade_total_inicial_pedido - quantidade_transferida_total',
         }
       } else if (/\//.test(expr) && !/SE\s*\(/.test(expr)) {
         gabi = {
@@ -639,11 +640,11 @@ export default function Configuracoes() {
     {
       grupo: 'Quantidades',
       campos: [
-        { chave: 'quantidade_pedida',          label: 'Qtd. Pedida' },
-        { chave: 'quantidade_a_entregar',       label: 'Qtd. a Entregar' },
-        { chave: 'quantidade_pronta',           label: 'Qtd. Pronta' },
-        { chave: 'quantidade_transferida_total',label: 'Qtd. Transferida' },
-        { chave: 'saldo_quantidade',            label: 'Saldo' },
+        { chave: 'quantidade_total_inicial_pedido',      label: 'Quantidade Inicial' },
+        { chave: 'quantidade_cancelada_total_pedido',    label: 'Quantidade Cancelada' },
+        { chave: 'quantidade_transferida_total',         label: 'Quantidade Transferida' },
+        { chave: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta' },
+        { chave: 'saldo_itens_do_pedido',                label: 'Saldo' },
       ],
     },
     {
@@ -1718,7 +1719,7 @@ export default function Configuracoes() {
                               { grupo: 'Parceiros',   vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
                               { grupo: 'Financeiro',  vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
                               { grupo: 'Datas',       vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
-                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao}}','{{quantidade_inicial}}','{{quantidade_atual}}','{{unidade}}','{{valor_unitario}}','{{valor_item}}','{{/each}}'] },
+                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario}}','{{valor_item}}','{{/each}}'] },
                             ].map(({ grupo, vars }) => (
                               <div key={grupo} className="cfg-tpl-variaveis__grupo">
                                 <span className="cfg-tpl-variaveis__grupo-label">{grupo}</span>
@@ -1747,7 +1748,7 @@ export default function Configuracoes() {
                             ref={templateTextareaRef}
                             className="cfg-textarea cfg-textarea--codigo"
                             rows={10}
-                            placeholder={'<h1>{{numero_pedido}}</h1>\n<p>Exportador: {{exportador}}</p>\n{{#each itens}}\n  <p>{{part_number}} — {{quantidade_inicial}} {{unidade}}</p>\n{{/each}}'}
+                            placeholder={'<h1>{{numero_pedido}}</h1>\n<p>Exportador: {{exportador}}</p>\n{{#each itens}}\n  <p>{{part_number}} — {{quantidade_inicial_item_pedido}} {{unidade}}</p>\n{{/each}}'}
                             value={templateConteudo}
                             onChange={e => setTemplateConteudo(e.target.value)}
                             spellCheck={false}
@@ -2262,7 +2263,7 @@ export default function Configuracoes() {
                         formulaValida && novaColuna.formula_expressao.trim() ? 'cfg-formula-input--ok' : '',
                       ].filter(Boolean).join(' ')}
                       rows={3}
-                      placeholder="Ex: quantidade_pedida - quantidade_transferida_total"
+                      placeholder="Ex: quantidade_total_inicial_pedido - quantidade_transferida_total"
                       style={{ fontFamily: 'monospace', resize: 'vertical', marginTop: 8 }}
                       value={novaColuna.formula_expressao}
                       onChange={e => handleFormulaChange(e.target.value)}

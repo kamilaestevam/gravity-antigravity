@@ -52,11 +52,11 @@ function criarItemMock(id: string, pedidoId: string, overrides: Record<string, u
     part_number: `PN-${id}`,
     ncm: '8471.30.12',
     descricao: 'Produto de teste',
-    quantidade_inicial: 100,
-    quantidade_atual: 100,
-    quantidade_pronta: 0,
-    quantidade_transferida: 0,
-    quantidade_cancelada: 0,
+    quantidade_inicial_item_pedido: 100,
+    saldo_item_pedido: 100,
+    quantidade_pronta_total: 0,
+    quantidade_transferida_item: 0,
+    quantidade_cancelada_item_pedido: 0,
     moeda_item: 'USD',
     valor_unitario: 50,
     valor_item: 5000,
@@ -148,7 +148,7 @@ describe('DuplicarService', () => {
   })
 
   it('deve duplicar pedido copiando todos os campos', async () => {
-    const item = criarItemMock('i1', 'p1', { quantidade_atual: 80, quantidade_transferida: 20 })
+    const item = criarItemMock('i1', 'p1', { saldo_item_pedido: 80, quantidade_transferida_item: 20 })
     const pedido = criarPedidoMock('p1', { itens: [item] })
     const { dbMock, txMock } = criarDbMock([pedido])
 
@@ -167,11 +167,11 @@ describe('DuplicarService', () => {
 
   it('deve clonar itens com saldo zerado', async () => {
     const item = criarItemMock('i1', 'p1', {
-      quantidade_inicial: 100,
-      quantidade_atual: 60,
-      quantidade_transferida: 30,
-      quantidade_cancelada: 10,
-      quantidade_pronta: 5,
+      quantidade_inicial_item_pedido: 100,
+      saldo_item_pedido: 60,
+      quantidade_transferida_item: 30,
+      quantidade_cancelada_item_pedido: 10,
+      quantidade_pronta_total: 5,
     })
     const pedido = criarPedidoMock('p1', { itens: [item] })
     const { dbMock, txMock } = criarDbMock([pedido])
@@ -183,11 +183,11 @@ describe('DuplicarService', () => {
 
     const createCall = txMock.pedido.create.mock.calls[0][0]
     const itemCriado = createCall.data.itens.create[0]
-    // Saldo zerado: quantidade_atual = quantidade_inicial
-    expect(itemCriado.quantidade_atual).toBe(100)
-    expect(itemCriado.quantidade_transferida).toBe(0)
-    expect(itemCriado.quantidade_cancelada).toBe(0)
-    expect(itemCriado.quantidade_pronta).toBe(0)
+    // Saldo zerado: saldo_item_pedido = quantidade_inicial_item_pedido
+    expect(itemCriado.saldo_item_pedido).toBe(100)
+    expect(itemCriado.quantidade_transferida_item).toBe(0)
+    expect(itemCriado.quantidade_cancelada_item_pedido).toBe(0)
+    expect(itemCriado.quantidade_pronta_total).toBe(0)
   })
 
   it('deve respeitar config copiar_datas = false (reseta datas)', async () => {

@@ -428,7 +428,7 @@ export function ModalNovaColuna({
                 ].filter(Boolean).join(' ')}
                 value={formulaExpressao}
                 onChange={e => handleFormulaChange(e.target.value)}
-                placeholder="ex: quantidade_pedida - quantidade_transferida"
+                placeholder="ex: quantidade_inicial_item_pedido - quantidade_transferida_item"
                 rows={3}
                 spellCheck={false}
                 aria-describedby={formulaErro ? 'mnc-formula-erro' : undefined}

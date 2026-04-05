@@ -9,6 +9,18 @@ i18n.use(initReactI18next).init({
   resources: {
     pt: {
       translation: {
+        admin: {
+          history: {
+            titulo:    'Histórico',
+            subtitulo: 'Audit trail de todas as ações da plataforma',
+            tabela: {
+              quando:       'Quando',
+              quem:         'Quem',
+              acao:         'Ação',
+              o_que_foi_feito: 'O que foi feito',
+            },
+          },
+        },
         tabela: {
           ordenar:              'Ordenar',
           crescente:            'Cresc.',

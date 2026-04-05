@@ -203,7 +203,7 @@ describe('POST /api/v1/pedidos/edicao-em-massa/confirmar', () => {
       .post('/api/v1/pedidos/edicao-em-massa/confirmar')
       .send({
         pedido_ids: ['p1'],
-        campos: [{ campo: 'quantidade_atual', tipo: 'numero', nivel: 'item', operacao: 'substituir', valor: 999 }],
+        campos: [{ campo: 'saldo_item_pedido', tipo: 'numero', nivel: 'item', operacao: 'substituir', valor: 999 }],
         nivel: 'item',
       })
 

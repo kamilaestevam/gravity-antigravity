@@ -47,10 +47,10 @@ const criarPedidoSchema = z.object({
   data_emissao_pedido: z.string().datetime().optional(),
   detalhes_operacionais: z.any().optional().nullable(),
   itens: z.array(z.object({
-    part_number: z.string().min(1),
-    ncm: z.string().min(1),
-    descricao: z.string().min(1),
-    quantidade_inicial: z.number().positive(),
+    part_number: z.string().optional().nullable().default(''),
+    ncm: z.string().optional().nullable().default(''),
+    descricao: z.string().optional().nullable().default(''),
+    quantidade_inicial: z.number().min(0).optional().default(0),
     unidade_comercializada_item: z.string().optional().nullable(),
     moeda_item: z.string().default('USD'),
     valor_unitario: z.number().optional().nullable(),
@@ -58,7 +58,7 @@ const criarPedidoSchema = z.object({
     casas_decimais_quantidade: z.number().int().default(2),
     casas_decimais_total_item: z.number().int().default(2),
     sequencia_item: z.number().int().optional().nullable(),
-  })).min(1),
+  })).optional().default([]),
 })
 
 const atualizarPedidoSchema = criarPedidoSchema.partial().omit({ itens: true })
@@ -138,7 +138,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
   try {
     const { status, tipo_operacao, busca, cursor, page, limit, sort, dir } = req.query
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const where: Record<string, unknown> = { tenant_id, company_id }
     if (status) where.status = status
@@ -227,7 +227,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
 pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const pedido = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
@@ -253,8 +253,8 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
       return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
     }
 
-    const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const tenant_id  = req.headers['x-tenant-id']  as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
     const { itens, ...pedidoData } = result.data
 
     const pedido = await req.prisma.$transaction(async (tx) => {
@@ -262,11 +262,12 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
       // Calcular totais automaticamente
       const valorTotal = itens.reduce((acc, item) => {
-        const valorItem = item.valor_item ?? (item.valor_unitario ?? 0) * item.quantidade_inicial
+        const qty = item.quantidade_inicial ?? 0
+        const valorItem = item.valor_item ?? (item.valor_unitario ?? 0) * qty
         return acc + valorItem
       }, 0)
 
-      const qtdTotal = itens.reduce((acc, item) => acc + item.quantidade_inicial, 0)
+      const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial ?? 0), 0)
 
       const novoPedido = await tx.pedido.create({
         data: {
@@ -283,11 +284,11 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               tenant_id,
               company_id,
               sequencia_item: item.sequencia_item ?? (index + 1) * 10,
-              part_number: item.part_number,
-              ncm: item.ncm,
-              descricao: item.descricao,
-              quantidade_inicial: item.quantidade_inicial,
-              quantidade_atual: item.quantidade_inicial,
+              part_number: item.part_number ?? '',
+              ncm: item.ncm ?? '',
+              descricao: item.descricao ?? '',
+              quantidade_inicial: item.quantidade_inicial ?? 0,
+              quantidade_atual: item.quantidade_inicial ?? 0,
               quantidade_pronta: 0,
               quantidade_transferida: 0,
               quantidade_cancelada: 0,
@@ -295,7 +296,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
               valor_unitario: item.valor_unitario,
-              valor_item: item.valor_item ?? (item.valor_unitario ?? 0) * item.quantidade_inicial,
+              valor_item: item.valor_item ?? (item.valor_unitario ?? 0) * (item.quantidade_inicial ?? 0),
               casas_decimais_total_item: item.casas_decimais_total_item,
             })),
           },
@@ -322,7 +323,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const pedido = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
@@ -353,7 +354,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
 pedidosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const pedido = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
@@ -384,7 +385,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const pedido = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
@@ -459,7 +460,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const pedido = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
@@ -513,7 +514,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const original = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
@@ -589,7 +590,7 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const pedido = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
@@ -634,7 +635,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const item = await req.prisma.pedidoItem.findFirst({
       where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id, company_id },
@@ -660,7 +661,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
 pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const item = await req.prisma.pedidoItem.findFirst({
       where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id, company_id },
@@ -691,7 +692,7 @@ pedidosRouter.patch('/:id/itens/:itemId/cancelar', async (req: Request, res: Res
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const saldo = await saldoEngine.cancelar(req.prisma, {
       pedido_item_id: req.params.itemId,
@@ -716,7 +717,7 @@ pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Respo
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = req.headers['x-company-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const saldo = await saldoEngine.atualizarPronta(req.prisma, {
       pedido_item_id: req.params.itemId,

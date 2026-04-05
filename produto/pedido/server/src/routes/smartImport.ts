@@ -19,7 +19,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import multer from 'multer'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
-import { SmartImportService } from '../services/smartImportService.js'
+import { SmartImportService, criarSmartImportService } from '../services/smartImportService.js'
 import { MapeamentoMemoriaService } from '../services/mapeamentoMemoriaService.js'
 
 export const smartImportRouter = Router()
@@ -87,6 +87,38 @@ const ConfirmarSchema = z.object({
   linhas:                z.array(LinhaSchema).optional(),
 })
 
+// ── GET /template — Download de planilha modelo ───────────────────────────────
+
+smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    import('xlsx').then(XLSX => {
+      const cabecalhos = [
+        'PO Number', 'Supplier', 'Manufacturer', 'Incoterms', 'Currency',
+        'Order Date', 'Ship Date', 'Part Number', 'NCM', 'Description',
+        'Qty', 'Unit', 'Unit Price', 'Total Value',
+      ]
+      const exemplos = [
+        'PO-2026/001', 'Supplier Name Ltd.', 'Manufacturer Co.', 'FOB', 'USD',
+        '2026-01-15', '2026-03-01', 'PART-001', '8471.30.19', 'Product description',
+        '100', 'UN', '10.50', '1050.00',
+      ]
+      const ws = XLSX.utils.aoa_to_sheet([cabecalhos, exemplos])
+      ws['!cols'] = cabecalhos.map(() => ({ wch: 20 }))
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Pedidos')
+      const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+      res.set({
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': 'attachment; filename="template-importacao-pedidos.xlsx"',
+        'Content-Length': String(buf.length),
+      })
+      res.send(buf)
+    }).catch(next)
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ── POST /analisar ─────────────────────────────────────────────────────────────
 
 smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Request, res: Response, next: NextFunction) => {
@@ -106,9 +138,32 @@ smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Reques
     const buffer      = req.file.buffer
     const nomeArquivo = req.file.originalname
 
+    // Validar magic bytes para PDF — rejeitar HTMLs com extensao .pdf
+    const ext = nomeArquivo.split('.').pop()?.toLowerCase()
+    if (ext === 'pdf') {
+      const magic = buffer.slice(0, 5).toString('ascii')
+      if (!magic.startsWith('%PDF')) {
+        throw new AppError(
+          'Este arquivo nao e um PDF valido. Arquivos salvos como pagina web (.html) nao sao aceitos. Use Excel ou CSV.',
+          400,
+          'PDF_INVALIDO',
+        )
+      }
+    }
+
+    // FEAT.8 — Detectar multiplas planilhas
+    const { listarPlanilhas } = await import('../services/importEngine.js')
+    const planilhas = await listarPlanilhas(buffer, nomeArquivo)
+    const nomePlanilha = (req.query.sheet as string) || undefined
+
+    // Se tem multiplas planilhas e nenhuma foi especificada, retornar lista
+    if (planilhas.length > 1 && !nomePlanilha) {
+      return res.json({ multiplas_planilhas: true, planilhas, preview: null })
+    }
+
     const db      = (req as Request & { prisma: Record<string, unknown> }).prisma
-    const service = new SmartImportService(db)
-    const preview = await service.analisar(tenantId, buffer, nomeArquivo)
+    const service = criarSmartImportService(db)
+    const preview = await service.analisar(tenantId, buffer, nomeArquivo, nomePlanilha)
 
     res.json(preview)
   } catch (err) {
@@ -143,7 +198,7 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
   const db     = (req as Request & { prisma: Record<string, unknown> }).prisma
 
   try {
-    const service   = new SmartImportService(db)
+    const service   = criarSmartImportService(db)
     const resultado = await service.confirmar(tenantId, userId, parse.data)
     res.json(resultado)
   } catch (err) {
@@ -176,8 +231,8 @@ smartImportRouter.get('/mapeamento/:hash', async (req: Request, res: Response, n
 
 // ── GET /campos ────────────────────────────────────────────────────────────────
 
-smartImportRouter.get('/campos', (_req: Request, res: Response) => {
-  res.json([
+smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextFunction) => {
+  const camposPadrao = [
     { valor: 'numero_pedido',        rotulo: 'Numero do Pedido'     },
     { valor: 'tipo_operacao',        rotulo: 'Tipo de Operacao'     },
     { valor: 'exportador',           rotulo: 'Exportador (Shipper)' },
@@ -189,11 +244,32 @@ smartImportRouter.get('/campos', (_req: Request, res: Response) => {
     { valor: 'part_number',          rotulo: 'Part Number'          },
     { valor: 'ncm',                  rotulo: 'NCM'                  },
     { valor: 'descricao',            rotulo: 'Descricao'            },
-    { valor: 'quantidade_inicial',   rotulo: 'Quantidade'           },
+    { valor: 'quantidade_inicial_item_pedido',   rotulo: 'Quantidade'           },
     { valor: 'unidade',              rotulo: 'Unidade'              },
     { valor: 'valor_unitario',       rotulo: 'Valor Unitario'       },
     { valor: 'valor_item',           rotulo: 'Valor Total Item'     },
-  ])
+  ]
+
+  const tenantId = (req as Request & { tenantId: string }).tenantId
+  const db = (req as Request & { prisma: Record<string, unknown> }).prisma
+
+  try {
+    // P1.7 — Incluir colunas customizadas do tenant
+    const colunasCustom = await (db as Record<string, any>)['colunaUsuarioPedido'].findMany({
+      where: { tenant_id: tenantId, ativo: true },
+      select: { chave: true, nome: true },
+      orderBy: { ordem: 'asc' },
+    }).catch(() => [] as { chave: string; nome: string }[])
+
+    const camposCustom = (colunasCustom as { chave: string; nome: string }[]).map(c => ({
+      valor: `custom_${c.chave}`,
+      rotulo: `${c.nome} (personalizado)`,
+    }))
+
+    res.json([...camposPadrao, ...camposCustom])
+  } catch (err) {
+    next(err)
+  }
 })
 
 // ── POST /mapeamento/salvar ────────────────────────────────────────────────────
@@ -216,6 +292,37 @@ smartImportRouter.post('/mapeamento/salvar', async (req: Request, res: Response,
     const service = new MapeamentoMemoriaService(db)
     await service.salvar(tenantId, parse.data.hash_colunas, parse.data.mapeamento)
     res.json({ ok: true })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── POST /reverter — Rollback de importacao (FEAT.3) ─────────────────────────
+
+const ReverterSchema = z.object({
+  ids_criados: z.array(z.string().min(1)).min(1).max(500),
+})
+
+smartImportRouter.post('/reverter', async (req: Request, res: Response, next: NextFunction) => {
+  const parse = ReverterSchema.safeParse(req.body)
+  if (!parse.success) {
+    return res.status(400).json({
+      error: { code: 'VALIDATION_ERROR', message: 'Dados invalidos', details: parse.error.flatten() },
+    })
+  }
+  const tenantId = (req as Request & { tenantId: string }).tenantId
+  const db = (req as Request & { prisma: Record<string, unknown> }).prisma
+  try {
+    // Cancelar pedidos (soft delete via status) garantindo tenant isolation
+    const resultado = await (db as Record<string, any>)['pedido'].updateMany({
+      where: {
+        id: { in: parse.data.ids_criados },
+        tenant_id: tenantId,
+        status: 'draft', // Só reverter rascunhos — pedidos abertos nao podem ser revertidos
+      },
+      data: { status: 'cancelado' },
+    })
+    res.json({ revertidos: resultado.count, ids: parse.data.ids_criados })
   } catch (err) {
     next(err)
   }

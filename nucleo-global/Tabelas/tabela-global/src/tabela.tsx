@@ -3,7 +3,9 @@ import { BotaoCompletoExportar } from '@nucleo/tabela-virtual-global'
 import { useTranslation } from 'react-i18next'
 import ReactDOM from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, CaretDown, Columns } from '@phosphor-icons/react'
+import { Funnel, ArrowUp, ArrowDown, MagnifyingGlass, X, DownloadSimple, CheckSquare, Square, CaretDown, Columns, List, SquaresFour } from '@phosphor-icons/react'
+import { KanbanGlobal } from '@nucleo/kanban-global'
+import type { KanbanColunaDef } from '@nucleo/kanban-global'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { useTablePersistence } from './hooks/useTablePersistence'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
@@ -72,6 +74,27 @@ export interface TabelaExportAcao<T> {
   tooltipDescricao?: string
 }
 
+export interface TabelaKanbanConfig<T> {
+  /** Definições de colunas (status lanes) do kanban */
+  colunas: KanbanColunaDef[]
+  /** Renderiza o conteúdo do card. O item deve ter `id: string` e `colunaKey: string`. */
+  renderCard: (item: T, isDragging: boolean) => React.ReactNode
+  /** Callback quando item muda de coluna */
+  onMoverItem?: (itemId: string, novaColunaKey: string, posicao: number) => void | Promise<void>
+  /** Callback quando itens são reordenados dentro de uma coluna */
+  onReorderItem?: (colunaKey: string, itemIds: string[]) => void | Promise<void>
+  /** Callback ao clicar num card */
+  onCardClick?: (item: T) => void
+  /** Extrai rótulo textual para ordenação alfabética */
+  getItemLabel?: (item: T) => string
+  /** Extrai data para ordenação cronológica */
+  getItemDate?: (item: T) => string | Date | undefined
+  /** Texto para estado vazio */
+  emptyLabel?: string
+  /** Estado de carregamento */
+  carregando?: boolean
+}
+
 export interface TabelaGlobalProps<T extends Record<string, any>> {
   dados: T[]
   colunas: TabelaGlobalColuna<T>[]
@@ -98,6 +121,8 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
   id?: string
   /** Itens por página */
   itensPorPagina?: number
+  /** Configuração da view Kanban. Se fornecida, exibe o seletor Lista/Kanban no toolbar. */
+  kanban?: TabelaKanbanConfig<T>
 }
 
 type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
@@ -394,8 +419,10 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro,
     renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca,
     filhos, colunasFilhas, acoesFilhas, expandidosPadrao = [], itensPorPagina = 10,
-    id: tableId
+    id: tableId, kanban
   } = props
+
+  const [viewMode, setViewMode] = useState<'lista' | 'kanban'>('lista')
 
   // ─── Visibilidade de Colunas (Persistência) ───
   const colunasConfig = useMemo(() => colunas.map(c => ({
@@ -608,6 +635,17 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
   const toggleSel = (id: string) => setSelecionados(prev => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s })
   const toggleTodos = (checked: boolean) => setSelecionados(checked ? new Set(paginado.map(e => String(e[idKey as string]))) : new Set())
 
+  // Auto-wire card click para abrir o modal de visualização/edição já configurado em `acoes`
+  const handleKanbanCardClick = useCallback((item: T) => {
+    if (kanban?.onCardClick) {
+      kanban.onCardClick(item)
+      return
+    }
+    const acaoVis = acoes?.find(a => a.abrirVisualizar)
+    if (acaoVis) { setModalVisualizar({ item, acao: acaoVis }); return }
+    const acaoEdit = acoes?.find(a => a.abrirEditar)
+    if (acaoEdit) { setModalEditar({ item, acao: acaoEdit }) }
+  }, [kanban, acoes])
 
   return (
     <>
@@ -641,6 +679,32 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
             <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#c7d2fe', padding: '0.25rem 0.75rem', background: 'rgba(199,210,254,0.15)', borderRadius: '9999px' }}>
               {selecionados.size === 1 ? t('tabela.selecionado_singular', { count: selecionados.size }) : t('tabela.selecionado_plural', { count: selecionados.size })}
             </span>
+          )}
+          {kanban && (
+            <div style={{ display: 'flex', borderRadius: '9999px', border: '1px solid rgba(129,140,248,0.18)', overflow: 'hidden' }}>
+              {(['lista', 'kanban'] as const).map(mode => {
+                const ativo = viewMode === mode
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setViewMode(mode)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.3rem',
+                      padding: '0.375rem 0.75rem',
+                      background: ativo ? 'rgba(129,140,248,0.15)' : 'transparent',
+                      border: 'none',
+                      color: ativo ? '#818cf8' : '#64748b',
+                      fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                      fontFamily: 'inherit', transition: 'all 0.15s',
+                    }}
+                  >
+                    {mode === 'lista' ? <List size={13} weight="bold" /> : <SquaresFour size={13} weight="bold" />}
+                    {mode === 'lista' ? t('tabela.view_lista', { defaultValue: 'Lista' }) : t('tabela.view_kanban', { defaultValue: 'Kanban' })}
+                  </button>
+                )
+              })}
+            </div>
           )}
           {tableId && (
             <div style={{ position: 'relative' }}>
@@ -695,6 +759,22 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
         </div>
       )}
 
+      {viewMode === 'kanban' && kanban ? (
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          <KanbanGlobal
+            colunas={kanban.colunas}
+            itens={resultado as any}
+            renderCard={kanban.renderCard as any}
+            onMoverItem={kanban.onMoverItem}
+            onReorderItem={kanban.onReorderItem}
+            onCardClick={handleKanbanCardClick as any}
+            getItemLabel={kanban.getItemLabel as any}
+            getItemDate={kanban.getItemDate as any}
+            emptyLabel={kanban.emptyLabel}
+            isLoading={kanban.carregando}
+          />
+        </div>
+      ) : (
       <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1, minHeight: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
           <thead>
@@ -912,8 +992,9 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
           </tbody>
         </table>
       </div>
+      )}
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid var(--ws-accent-border)', background: 'rgba(129,140,248,0.02)' }}>
+      {(viewMode === 'lista' || !kanban) && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', padding: '0.75rem 1.25rem', borderTop: '1px solid var(--ws-accent-border)', background: 'rgba(129,140,248,0.02)' }}>
         <span style={{ fontSize: '0.8125rem', color: '#64748b' }}>
           {resultado.length === 0 ? t('tabela.nenhum_registro') : `${(pagSafe - 1) * porPagina + 1}–${Math.min(pagSafe * porPagina, resultado.length)} ${t('tabela.de')} ${resultado.length}`}
         </span>
@@ -931,7 +1012,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
             {[10, 20, 50].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>
-      </div>
+      </div>}
     </div>
 
     {confirmacaoExclusao && (

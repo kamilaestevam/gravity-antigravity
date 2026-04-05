@@ -16,6 +16,7 @@ import React, {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
@@ -346,6 +347,8 @@ interface GTEditPopoverProps {
     moedas?: string[]
     unidades?: string[]
     casasDecimais?: number
+    gabiCampo?: string
+    gabiEndpoint?: string
   }
   valorEditando: unknown
   salvando: boolean
@@ -504,13 +507,20 @@ const GTEditPopover = memo(function GTEditPopover({
         onMouseDown={e => e.stopPropagation()}
       >
 
-        {/* Header: nome do campo + fechar */}
+        {/* Header: nome do campo + ✦ GABI (se configurado) + fechar */}
         <div className="gtv-edit-popover-header">
           <span className="gtv-edit-popover-label">
             <svg width="11" height="11" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
               <path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM51.31,160l96-96,32,32-96,96ZM48,179.31,76.69,208H48Zm160-96L176,115.31,140.69,80,163.31,57.37,208,102Z"/>
             </svg>
             {colLabel}
+            {overlayInfo.gabiCampo && (
+              <GabiFieldIcon
+                campo={overlayInfo.gabiCampo}
+                label={colLabel}
+                gabiEndpoint={overlayInfo.gabiEndpoint}
+              />
+            )}
           </span>
           <button
             type="button"
@@ -923,7 +933,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   const colunasVisiveis = useMemo<string[]>(() => {
     if (preferencias?.colunas_visiveis) return preferencias.colunas_visiveis
-    return colunas.map(c => c.key)
+    return colunas.filter(c => !c.oculta).map(c => c.key)
   }, [preferencias, colunas])
 
   const colunasFiltradas = useMemo(
@@ -1047,6 +1057,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     opcoes?: { valor: string; label: string }[]
     moedas?: string[]
     unidades?: string[]
+    gabiCampo?: string
+    gabiEndpoint?: string
   } | null>(null)
 
   // ── Expand/collapse ───────────────────────────────────────────────────────────
@@ -1447,7 +1459,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             e.stopPropagation()
             const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
             const colU = col as GTColuna<unknown>
-            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais })
+            setOverlayInfo({ rect, id, campo: col.key, isFilho, colLabel: col.label, colTipo: col.tipo, opcoes: colU.opcoes, moedas: colU.moedas, unidades: colU.unidades, casasDecimais: colU.casasDecimais, gabiCampo: colU.gabiCampo, gabiEndpoint: colU.gabiEndpoint })
             const valorParaEdicao = colU.getValorEditar ? colU.getValorEditar(item) : valor
             iniciarEdicao(id, col.key, valorParaEdicao)
           }
@@ -1672,7 +1684,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   e.stopPropagation()
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
                   const colU2 = col as GTColuna<unknown>
-                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais })
+                  setOverlayInfo({ rect, id, campo, isFilho: true, colLabel: col.label, colTipo: col.tipo, opcoes: colU2.opcoes, moedas: colU2.moedas, unidades: mapa?.unidades ?? colU2.unidades, casasDecimais: mapa?.casasDecimais ?? colU2.casasDecimais, gabiCampo: colU2.gabiCampo, gabiEndpoint: colU2.gabiEndpoint })
                   const valorFilhoParaEdicao = mapa?.getValorEditar ? mapa.getValorEditar(item) : (colU2.getValorEditar ? colU2.getValorEditar(item as unknown) : valor)
                   iniciarEdicaoFilho(id, campo, valorFilhoParaEdicao)
                 } : undefined}

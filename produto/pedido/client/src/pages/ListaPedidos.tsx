@@ -611,6 +611,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     largura: 90,
     align: 'center',
     autoFitDisabled: true,
+    gabiCampo: 'incoterm',
+    gabiEndpoint: '/api/v1/pedidos/gabi/field-help',
     render: (_val: unknown, row: Pedido) => <span>{row.incoterm ?? '—'}</span>,
   },
   {
@@ -836,6 +838,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador',
     grupo: 'Financeiro',
     largura: 150,
+    gabiCampo: 'condicao_pagamento',
+    gabiEndpoint: '/api/v1/pedidos/gabi/field-help',
     render: (_val: unknown, row: Pedido) => <span>{row.condicao_pagamento ?? '—'}</span>,
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────

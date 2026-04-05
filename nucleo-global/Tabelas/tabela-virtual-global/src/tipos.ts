@@ -77,6 +77,13 @@ export interface GTColuna<T = unknown> {
    * Quando omitido, usa item[col.key] diretamente.
    */
   getValorEditar?: (item: T) => unknown
+  /**
+   * Chave do campo para o ícone ✦ GABI no popover de edição inline.
+   * Quando definido, exibe o ícone ao lado do label do campo no popover.
+   */
+  gabiCampo?: string
+  /** Endpoint GABI para este campo (default: /api/v1/pedidos/gabi/field-help) */
+  gabiEndpoint?: string
 }
 
 // ─── Ação de linha ─────────────────────────────────────────────────────────────

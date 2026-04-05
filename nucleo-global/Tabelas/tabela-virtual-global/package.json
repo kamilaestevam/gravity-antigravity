@@ -9,7 +9,8 @@
     "@tanstack/react-virtual": "^3.13.0",
     "@nucleo/campo-calendario-global": "*",
     "@nucleo/tooltip-global": "*",
-    "@nucleo/select-colunas-global": "*"
+    "@nucleo/select-colunas-global": "*",
+    "@nucleo/gabi-field-icon-global": "*"
   },
   "peerDependencies": {
     "react": "^18.0.0",

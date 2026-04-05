@@ -96,7 +96,7 @@ const statusTransicaoSchema = z.object({
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
   const ano = String(new Date().getFullYear()).slice(-2)
-  return `${prefixo}_id_${seq}/${ano}`
+  return `${prefixo}_id_${seq}-${ano}`
 }
 
 /**

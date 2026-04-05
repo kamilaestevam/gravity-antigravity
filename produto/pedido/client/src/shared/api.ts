@@ -86,6 +86,11 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 
 // ── Pedidos ───────────────────────────────────────────────────────────────────
 
+/** Codifica IDs legados que contêm '/' (ex: pedi_id_1234/26) para uso em URLs */
+function pid(id: string): string {
+  return encodeURIComponent(id)
+}
+
 export const pedidoApi = {
   listar: (params?: Record<string, string>) => {
     const query = params ? '?' + new URLSearchParams(params).toString() : ''
@@ -93,7 +98,7 @@ export const pedidoApi = {
   },
 
   buscarPorId: (id: string) =>
-    request<Pedido>(`/api/v1/pedidos/${id}`),
+    request<Pedido>(`/api/v1/pedidos/${pid(id)}`),
 
   criar: (data: Partial<Pedido>) =>
     request<Pedido>('/api/v1/pedidos', {
@@ -102,50 +107,50 @@ export const pedidoApi = {
     }),
 
   atualizar: (id: string, data: Partial<Pedido>) =>
-    request<Pedido>(`/api/v1/pedidos/${id}`, {
+    request<Pedido>(`/api/v1/pedidos/${pid(id)}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   deletar: (id: string) =>
-    request<void>(`/api/v1/pedidos/${id}`, { method: 'DELETE' }),
+    request<void>(`/api/v1/pedidos/${pid(id)}`, { method: 'DELETE' }),
 
   alterarStatus: (id: string, status: string) =>
-    request<Pedido>(`/api/v1/pedidos/${id}/status`, {
+    request<Pedido>(`/api/v1/pedidos/${pid(id)}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     }),
 
   duplicar: (id: string) =>
-    request<Pedido>(`/api/v1/pedidos/${id}/duplicar`, { method: 'POST' }),
+    request<Pedido>(`/api/v1/pedidos/${pid(id)}/duplicar`, { method: 'POST' }),
 }
 
 // ── Itens do Pedido ───────────────────────────────────────────────────────────
 
 export const pedidoItemApi = {
   adicionar: (pedidoId: string, data: Partial<PedidoItem>) =>
-    request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens`, {
+    request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens`, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
   atualizar: (pedidoId: string, itemId: string, data: Partial<PedidoItem>) =>
-    request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}`, {
+    request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   remover: (pedidoId: string, itemId: string) =>
-    request<void>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}`, { method: 'DELETE' }),
+    request<void>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}`, { method: 'DELETE' }),
 
   cancelarQuantidade: (pedidoId: string, itemId: string, quantidade: number) =>
-    request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}/cancelar`, {
+    request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}/cancelar`, {
       method: 'PATCH',
       body: JSON.stringify({ quantidade }),
     }),
 
   atualizarPronta: (pedidoId: string, itemId: string, quantidade: number) =>
-    request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}/pronta`, {
+    request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}/pronta`, {
       method: 'PATCH',
       body: JSON.stringify({ quantidade_pronta_pedido: quantidade }),
     }),
@@ -1183,7 +1188,7 @@ export const pdfApi = {
 
 export const gerarDocumentoApi = {
   gerar: (payload: GerarDocumentoPayload) =>
-    request<GerarPdfResultado>('/api/v1/pedidos/documentos/gerar', {
+    request<GerarPdfResultado>('/api/v1/pedidos/pdf/documentos/gerar', {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {

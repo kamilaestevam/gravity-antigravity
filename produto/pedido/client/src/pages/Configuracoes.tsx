@@ -609,7 +609,30 @@ export default function Configuracoes() {
       }
       // Se Gemini desabilitado (gemini: false), resultado local já está correto — não faz nada
     } catch (err) {
-      setFormulaErro(err instanceof Error ? `${err.message}` : 'Fórmula inválida')
+      const msg = err instanceof Error ? err.message : 'Fórmula inválida'
+
+      // Detecta padrão "dois campos sem operador": campo1 campo2
+      // O parser lança "Token inesperado após fim da fórmula: 'X'"
+      if (msg.includes('Token inesperado após fim da fórmula:')) {
+        const match = msg.match(/Token inesperado após fim da fórmula: '([^']+)'/)
+        const tokenExtra = match?.[1]
+        if (tokenExtra) {
+          const idx = expressao.lastIndexOf(tokenExtra)
+          const antes = idx > 0 ? expressao.slice(0, idx).trim() : null
+          if (antes) {
+            setFormulaErro(null)
+            setFormulaValida(false); setFormulaAviso(null)
+            setFormulaGabi({
+              titulo:   'Falta um operador',
+              texto:    `Parece que faltou um operador entre "${antes}" e "${tokenExtra}". Escolha o que faz mais sentido para o negócio e insira entre os dois campos.`,
+              sugestao: `${antes} + ${tokenExtra}`,
+            })
+            return
+          }
+        }
+      }
+
+      setFormulaErro(msg)
       setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
     }
   }, [colunasUsuarioApi_, TIPOS_NUMERICOS_FORMULA])

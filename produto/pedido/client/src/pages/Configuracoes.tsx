@@ -869,7 +869,8 @@ export default function Configuracoes() {
   function inserirCampoFormula(chave: string) {
     const el = formulaTextareaRef.current
     if (!el) {
-      setNovaColuna(prev => ({ ...prev, formula_expressao: prev.formula_expressao + chave }))
+      const novo = novaColuna.formula_expressao + chave
+      handleFormulaChange(novo)
       return
     }
     const start = el.selectionStart ?? el.value.length
@@ -878,7 +879,7 @@ export default function Configuracoes() {
     const depois = el.value.slice(end)
     const sep    = antes.length > 0 && !/[\s(+\-*/]$/.test(antes) ? ' ' : ''
     const novo   = antes + sep + chave + depois
-    setNovaColuna(prev => ({ ...prev, formula_expressao: novo }))
+    handleFormulaChange(novo)  // garante que debounce e estado GABI sejam atualizados
     // Reposicionar cursor após o campo inserido
     requestAnimationFrame(() => {
       el.focus()

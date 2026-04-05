@@ -1771,7 +1771,7 @@ export default function Configuracoes() {
                               { grupo: 'Parceiros',   vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
                               { grupo: 'Financeiro',  vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
                               { grupo: 'Datas',       vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
-                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario}}','{{valor_item}}','{{/each}}'] },
+                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario_item}}','{{valor_item}}','{{/each}}'] },
                             ].map(({ grupo, vars }) => (
                               <div key={grupo} className="cfg-tpl-variaveis__grupo">
                                 <span className="cfg-tpl-variaveis__grupo-label">{grupo}</span>
@@ -2255,7 +2255,7 @@ export default function Configuracoes() {
                     placeholder="Ex: Código ERP, Margem %, Prioridade"
                     value={novaColuna.nome}
                     onChange={e => setNovaColuna(prev => ({ ...prev, nome: e.target.value }))}
-                    maxLength={60}
+                    maxLength={50}
                   />
                 </div>
 
@@ -2342,21 +2342,8 @@ export default function Configuracoes() {
                         </div>
                       )
 
-                      // FIX #2: durante debounce (estados ainda limpos) mostra intro em vez de null
-                      if (!formulaErro && !formulaGabi && !formulaValida) return (
-                        <div className="cfg-gabi-card cfg-gabi-card--info" role="note">
-                          <div className="cfg-gabi-card__header">
-                            <span className="cfg-gabi-card__ico">✦</span>
-                            <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
-                          </div>
-                          <p className="cfg-gabi-card__texto">
-                            Clique em um campo acima para inseri-lo, ou digite diretamente.
-                            Use <code>+  −  *  /</code> entre campos numéricos.
-                            Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
-                            Campos texto, data ou checkbox valem 0 em aritmética.
-                          </p>
-                        </div>
-                      )
+                      // Durante debounce (estados limpos, campo não vazio) — sem card
+                      if (!formulaErro && !formulaGabi && !formulaValida) return null
 
                       // Resultado da análise
                       const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
@@ -2498,6 +2485,7 @@ export default function Configuracoes() {
                     placeholder="Deixe em branco para não definir"
                     value={novaColuna.valor_padrao}
                     onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
+                    maxLength={1000}
                   />
                 </div>
 

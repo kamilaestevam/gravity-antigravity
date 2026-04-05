@@ -30,6 +30,20 @@ export const pedidosRouter = Router()
 
 // ── Schemas Zod ───────────────────────────────────────────────────────────────
 
+const criarItemSchema = z.object({
+  part_number: z.string().optional().nullable().default(''),
+  ncm: z.string().optional().nullable().default(''),
+  descricao_item: z.string().optional().nullable().default(''),
+  quantidade_inicial_pedido: z.number().min(0).optional().default(0),
+  unidade_comercializada_item: z.string().optional().nullable(),
+  moeda_item: z.string().default('USD'),
+  valor_por_unidade_item: z.number().optional().nullable(),
+  valor_total_item: z.number().optional().nullable(),
+  casas_decimais_quantidade_item: z.number().int().default(2),
+  casas_decimais_total_item: z.number().int().default(2),
+  sequencia_item: z.number().int().optional().nullable(),
+})
+
 const criarPedidoSchema = z.object({
   tipo_operacao: z.enum(['importacao', 'exportacao']),
   numero_pedido: z.string().min(1).max(100),
@@ -52,19 +66,7 @@ const criarPedidoSchema = z.object({
   condicao_pagamento: z.string().optional().nullable(),
   data_emissao_pedido: z.string().datetime().optional(),
   detalhes_operacionais: z.any().optional().nullable(),
-  itens: z.array(z.object({
-    part_number: z.string().optional().nullable().default(''),
-    ncm: z.string().optional().nullable().default(''),
-    descricao_item: z.string().optional().nullable().default(''),
-    quantidade_inicial_pedido: z.number().min(0).optional().default(0),
-    unidade_comercializada_item: z.string().optional().nullable(),
-    moeda_item: z.string().default('USD'),
-    valor_por_unidade_item: z.number().optional().nullable(),
-    valor_total_item: z.number().optional().nullable(),
-    casas_decimais_quantidade_item: z.number().int().default(2),
-    casas_decimais_total_item: z.number().int().default(2),
-    sequencia_item: z.number().int().optional().nullable(),
-  })).optional().default([]),
+  itens: z.array(criarItemSchema).optional().default([]),
 })
 
 const atualizarPedidoSchema = criarPedidoSchema.partial().omit({ itens: true })
@@ -618,7 +620,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
 
 pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const itemSchema = criarPedidoSchema.shape.itens.element
+    const itemSchema = criarItemSchema
     const result = itemSchema.safeParse(req.body)
     if (!result.success) {
       return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })

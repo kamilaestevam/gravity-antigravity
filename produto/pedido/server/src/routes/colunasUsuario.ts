@@ -22,6 +22,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
 import { ColunasUsuarioService } from '../services/colunasUsuarioService.js'
+import { analisarFormulaComGemini } from '../services/geminiFormulaAdvisor.js'
 
 export const colunasUsuarioRouter = Router()
 
@@ -245,6 +246,42 @@ colunasUsuarioRouter.put('/:id', async (req: Request, res: Response, next: NextF
 
     const coluna = await service.atualizar(tenantId, req.params.id, parse.data, db)
     res.json(coluna)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── POST /gabi-analise — análise semântica via Gemini (GEMINI_GABI_ENABLED) ───
+//
+// Quando GEMINI_GABI_ENABLED=false (padrão), retorna { gemini: false } e o
+// frontend usa a análise determinística local como fallback transparente.
+
+const GabiAnaliseSchema = z.object({
+  expressao: z.string().min(1).max(2000),
+  campos: z.array(z.object({
+    chave:    z.string(),
+    label:    z.string(),
+    unidade:  z.string().optional(),
+    papel:    z.string().optional(),
+    tipo:     z.string().optional(),
+  })),
+})
+
+colunasUsuarioRouter.post('/gabi-analise', async (req: Request, res: Response, next: NextFunction) => {
+  const parse = GabiAnaliseSchema.safeParse(req.body)
+  if (!parse.success) {
+    return res.status(400).json({ message: 'Dados inválidos', details: parse.error.flatten() })
+  }
+
+  try {
+    const resultado = await analisarFormulaComGemini(parse.data.expressao, parse.data.campos)
+
+    if (resultado === null) {
+      // Gemini desabilitado ou fórmula ok — frontend usa fallback
+      return res.json({ gemini: false })
+    }
+
+    return res.json({ gemini: true, ...resultado })
   } catch (err) {
     next(err)
   }

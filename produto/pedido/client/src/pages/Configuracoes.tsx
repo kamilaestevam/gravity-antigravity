@@ -719,7 +719,10 @@ export default function Configuracoes() {
       }, 100)
     }
   }, [acaoParam, categoria])
-  const formulaDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const formulaDebounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Ref que mantém os campos disponíveis atualizados para o validarFormulaConfig (evita TDZ com CAMPOS_FORMULA)
+  const camposFormulaRef = useRef<Array<{ chave: string; label: string; unidade?: string; papel?: string }>>([])
+
   const [formulaErro,       setFormulaErro]       = useState<string | null>(null)
   const [formulaValida,     setFormulaValida]     = useState(false)
   const [formulaAviso,      setFormulaAviso]      = useState<string | null>(null)
@@ -730,7 +733,7 @@ export default function Configuracoes() {
 
   const TIPOS_NUMERICOS: TipoColunaUsuario[] = ['numero', 'percentual', 'formula']
 
-  const validarFormulaConfig = useCallback((expressao: string) => {
+  const validarFormulaConfig = useCallback(async (expressao: string, camposDisponiveis?: Array<{ chave: string; label: string; unidade?: string; papel?: string }>) => {
     if (!expressao.trim()) {
       setFormulaErro(null); setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
       return
@@ -745,7 +748,7 @@ export default function Configuracoes() {
         return
       }
 
-      // Detectar campos não-numéricos referenciados
+      // Detectar campos não-numéricos referenciados (checagem local, sempre ativa)
       const camposTexto: string[] = []
       const identRegex = /\b([a-z][a-z0-9_]*)\b/g
       let m: RegExpExecArray | null
@@ -758,9 +761,7 @@ export default function Configuracoes() {
       }
 
       if (camposTexto.length > 0) {
-        setFormulaErro(null)
-        setFormulaValida(true)
-        setFormulaAviso(null)
+        setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null)
         setFormulaGabi({
           titulo: 'Campo não-numérico detectado',
           texto: `${camposTexto.join(', ')} ${camposTexto.length === 1 ? 'não é um campo numérico' : 'não são campos numéricos'}. Em operações aritméticas, campos texto, data ou checkbox serão tratados como 0. Use apenas campos do tipo Numérico, Percentual ou outra Fórmula.`,
@@ -768,9 +769,23 @@ export default function Configuracoes() {
         return
       }
 
-      // Avisos semânticos → Gabi (análise genérica por AST + metadados)
-      const gabi = analisarSemanticaFormula(expressao)
-      setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null); setFormulaGabi(gabi)
+      // Avisos semânticos → tenta Gemini primeiro, fallback para análise local
+      setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null)
+
+      const todosCampos = camposDisponiveis ?? []
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressao, todosCampos)
+
+      if (respostaGemini.gemini) {
+        // Gemini retornou análise real
+        setFormulaGabi({
+          titulo:   respostaGemini.titulo,
+          texto:    respostaGemini.texto,
+          sugestao: respostaGemini.sugestao,
+        })
+      } else {
+        // Gemini desabilitado ou fórmula ok segundo o LLM → usa análise determinística
+        setFormulaGabi(analisarSemanticaFormula(expressao))
+      }
     } catch (err) {
       setFormulaErro(err instanceof Error ? `${err.message}` : 'Fórmula inválida')
       setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
@@ -792,7 +807,7 @@ export default function Configuracoes() {
     formulaDebounceRef.current = setTimeout(() => {
       setFormulaAnalisando(false)
       setFormulaGabi(null) // limpa só aqui para validarFormulaConfig preencher o novo
-      validarFormulaConfig(valor)
+      void validarFormulaConfig(valor, camposFormulaRef.current)
     }, 600)
   }, [validarFormulaConfig])
 
@@ -828,6 +843,16 @@ export default function Configuracoes() {
         .map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
     }] : []),
   ]
+
+  // Mantém o ref atualizado com os campos atuais (usado pelo validarFormulaConfig async)
+  camposFormulaRef.current = CAMPOS_FORMULA.flatMap(g =>
+    g.campos.map(c => ({
+      chave:   c.chave,
+      label:   c.label,
+      unidade: SEMANTICA_CAMPOS[c.chave]?.unidade as string | undefined,
+      papel:   SEMANTICA_CAMPOS[c.chave]?.papel   as string | undefined,
+    }))
+  )
 
   function inserirCampoFormula(chave: string) {
     const el = formulaTextareaRef.current

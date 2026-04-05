@@ -139,7 +139,7 @@ export const pedidoItemApi = {
   atualizarPronta: (pedidoId: string, itemId: string, quantidade: number) =>
     request<PedidoItem>(`/api/v1/pedidos/${pedidoId}/itens/${itemId}/pronta`, {
       method: 'PATCH',
-      body: JSON.stringify({ quantidade_pronta_total: quantidade }),
+      body: JSON.stringify({ quantidade_pronta: quantidade }),
     }),
 }
 
@@ -169,10 +169,10 @@ export const pedidoVirtualApi = {
   },
 
   /** Edição inline de um campo com optimistic lock (lança em 409) */
-  editarCampo: (id: string, campo: string, valor: unknown, version?: number) =>
+  editarCampo: (id: string, campo: string, valor: unknown, updated_at?: string) =>
     request<Pedido>(`/api/v1/pedidos/${id}/campo`, {
       method: 'PATCH',
-      body: JSON.stringify({ campo, valor, version }),
+      body: JSON.stringify({ campo, valor, updated_at: updated_at ?? new Date().toISOString() }),
     }).catch(err => {
       if (import.meta.env.DEV) {
         const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === id)
@@ -1455,4 +1455,27 @@ export const colunasUsuarioApi = {
       }
       throw err
     }),
+
+  /**
+   * Análise semântica via Gemini.
+   * Retorna { gemini: false } quando GEMINI_GABI_ENABLED=false no servidor —
+   * o chamador deve usar o fallback determinístico local.
+   */
+  gabiAnalisar: async (
+    expressao: string,
+    campos: Array<{ chave: string; label: string; unidade?: string; papel?: string; tipo?: string }>,
+  ): Promise<{ gemini: false } | { gemini: true; titulo: string; texto: string; sugestao?: string }> => {
+    try {
+      const res = await request<{ gemini: boolean; titulo?: string; texto?: string; sugestao?: string }>(
+        '/api/v1/pedidos/colunas-usuario/gabi-analise',
+        { method: 'POST', body: JSON.stringify({ expressao, campos }) },
+      )
+      if (res.gemini && res.titulo && res.texto) {
+        return { gemini: true, titulo: res.titulo, texto: res.texto, sugestao: res.sugestao }
+      }
+      return { gemini: false }
+    } catch {
+      return { gemini: false } // falha de rede → fallback silencioso
+    }
+  },
 }

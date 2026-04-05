@@ -598,6 +598,30 @@ export default function Configuracoes() {
         return
       }
 
+      // Detectar campos desconhecidos (identificadores que não existem nos campos disponíveis)
+      const palavrasReservadas = new Set(['SE', 'SOMA_ITENS'])
+      const chavesValidas = new Set(camposFormulaRef.current.map(c => c.chave))
+      const identRegex2 = /\b([a-z][a-z0-9_]*)\b/g
+      const camposDesconhecidos: string[] = []
+      let m2: RegExpExecArray | null
+      while ((m2 = identRegex2.exec(expressao)) !== null) {
+        const id = m2[1]
+        if (!palavrasReservadas.has(id.toUpperCase()) && !chavesValidas.has(id)) {
+          // também ignorar se já está na lista de colunas do usuário (checado antes)
+          const ehColunaUsuario = colunasUsuarioApi_.some(c => c.chave === id || c.id === id)
+          if (!ehColunaUsuario && !camposDesconhecidos.includes(id)) camposDesconhecidos.push(id)
+        }
+      }
+      if (camposDesconhecidos.length > 0) {
+        setFormulaErro(null); setFormulaValida(false); setFormulaAviso(null)
+        const lista = camposDesconhecidos.map(c => `"${c}"`).join(', ')
+        setFormulaGabi({
+          titulo: 'Campo não reconhecido',
+          texto:  `${lista} ${camposDesconhecidos.length === 1 ? 'não é um campo disponível' : 'não são campos disponíveis'}. Use os chips acima para inserir campos válidos ou verifique se há um erro de digitação.`,
+        })
+        return
+      }
+
       // FIX #5: análise local IMEDIATA — resultado aparece sem esperar rede
       const gabiLocal = analisarSemanticaFormula(expressao)
       setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null); setFormulaGabi(gabiLocal)

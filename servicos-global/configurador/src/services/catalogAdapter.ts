@@ -145,7 +145,10 @@ function uiToApiCreate(p: {
     extra_hour_currency: p.precoHoraAdicional?.moeda ?? 'BRL',
     backend_module: p.moduloBackend ?? undefined,
     target_audience: p.publicoAlvo ?? undefined,
-    gabi_quota_mensal: p.gabiQuotaMensal ?? 0,
+    // Só envia gabi_quota_mensal após migração do banco (coluna inexistente = erro 500)
+    ...(p.gabiQuotaMensal !== undefined && p.gabiQuotaMensal > 0
+      ? { gabi_quota_mensal: p.gabiQuotaMensal }
+      : {}),
     price_tiers: p.faixasPreco?.map(f => ({
       range_from: f.de,
       range_to: f.ate ?? undefined,

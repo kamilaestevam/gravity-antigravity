@@ -203,7 +203,10 @@ const styles = {
     flexDirection: 'column' as const,
     gap: 'var(--space-3)',
     height: '100%',
+    width: '100%',
+    minWidth: 0,
     overflow: 'hidden',
+    boxSizing: 'border-box' as const,
   },
   header: {
     display: 'flex',
@@ -295,6 +298,7 @@ const styles = {
   body: {
     flex: 1,
     minHeight: 0,
+    minWidth: 0,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column' as const,

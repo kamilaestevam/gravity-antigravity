@@ -156,8 +156,8 @@ function KpiValue({ data, fieldKey, fieldType = 'number' }: {
 }
 
 const kpiStyles = {
-  wrap:  { display: 'flex', alignItems: 'center', height: '100%', padding: '0.25rem 0' },
-  value: { fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 },
+  wrap:  { display: 'flex', alignItems: 'center', height: '100%', padding: '0.25rem 0', minWidth: 0, overflow: 'hidden' },
+  value: { fontSize: 'clamp(1rem, 4cqw, 1.75rem)', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, minWidth: 0, maxWidth: '100%', display: 'block' },
   empty: { fontSize: '1.5rem', color: 'var(--text-muted)' },
 } as const
 

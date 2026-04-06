@@ -21,8 +21,6 @@ import {
   Eye,
   PencilSimple,
   Trash,
-  CurrencyDollar,
-  Scales,
   Warning,
   ArrowRight,
   DownloadSimple,
@@ -56,6 +54,7 @@ import type {
   GTValorUnidade,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
+import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
 import {
@@ -537,7 +536,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Nome do Importador',
     tooltipDescricao: 'Comprador/importador estrangeiro na operação de exportação',
     grupo: 'Partes',
@@ -782,7 +780,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     tooltipTitulo: 'Status do Pedido',
     tooltipDescricao: 'Ciclo de vida: Draft, Aberto, Em Transferência, Consolidado, Cancelado',
-    oculta: true,
     grupo: 'Identificação',
     largura: 130,
     autoFitDisabled: true,
@@ -807,7 +804,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Moeda do Pedido',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     tooltipTitulo: 'Moeda do Pedido',
     tooltipDescricao: 'Moeda de referência do valor total do pedido (ex: USD, EUR)',
     grupo: 'Financeiro',
@@ -821,7 +817,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Unidade do Pedido',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     tooltipTitulo: 'Unidade Comercializada do Pedido',
     tooltipDescricao: 'Unidade de medida principal do pedido (ex: KG, UN, CX)',
     grupo: 'Quantidades',
@@ -835,7 +830,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Ref. Fabricante',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
     grupo: 'Identificação',
@@ -847,7 +841,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Cobertura Cambial',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     tooltipTitulo: 'Cobertura Cambial',
     tooltipDescricao: 'Modalidade de cobertura cambial do pedido (ex: Antecipado, à Vista, a Prazo)',
     grupo: 'Financeiro',
@@ -859,7 +852,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Cond. Pagamento',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     tooltipTitulo: 'Condição de Pagamento',
     tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador',
     grupo: 'Financeiro',
@@ -876,7 +868,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     align: 'right',
-    oculta: true,
     tooltipTitulo: 'Peso Líquido Total do Pedido',
     tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
     grupo: 'Dados Físicos',
@@ -902,7 +893,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     align: 'right',
-    oculta: true,
     tooltipTitulo: 'Peso Bruto Total do Pedido',
     tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
     grupo: 'Dados Físicos',
@@ -928,7 +918,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     align: 'right',
-    oculta: true,
     tooltipTitulo: 'Cubagem Total do Pedido',
     tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
     grupo: 'Dados Físicos',
@@ -954,7 +943,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Prevista — Pedido Pronto',
     tooltipDescricao: 'Data prevista para o pedido estar pronto para embarque (confirmada pelo exportador)',
     grupo: 'Datas',
@@ -967,7 +955,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Confirmada — Pedido Pronto',
     tooltipDescricao: 'Data confirmada para o pedido estar pronto, após validação do exportador',
     grupo: 'Datas',
@@ -980,7 +967,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Meta — Pedido Pronto',
     tooltipDescricao: 'Data meta definida pelo importador para o pedido estar pronto',
     grupo: 'Datas',
@@ -993,7 +979,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Prevista — Inspeção do Pedido',
     tooltipDescricao: 'Data prevista para realização da inspeção pré-embarque (PSI/ISF)',
     grupo: 'Datas',
@@ -1006,7 +991,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Confirmada — Inspeção do Pedido',
     tooltipDescricao: 'Data confirmada para realização da inspeção pré-embarque',
     grupo: 'Datas',
@@ -1019,7 +1003,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Meta — Inspeção do Pedido',
     tooltipDescricao: 'Data meta definida pelo importador para a inspeção do pedido',
     grupo: 'Datas',
@@ -1032,7 +1015,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Prevista — Coleta do Pedido',
     tooltipDescricao: 'Data prevista para a coleta/retirada da mercadoria no exportador',
     grupo: 'Datas',
@@ -1045,7 +1027,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Confirmada — Coleta do Pedido',
     tooltipDescricao: 'Data confirmada para coleta/retirada da mercadoria',
     grupo: 'Datas',
@@ -1058,7 +1039,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data Meta — Coleta do Pedido',
     tooltipDescricao: 'Data meta definida pelo importador para a coleta do pedido',
     grupo: 'Datas',
@@ -1071,7 +1051,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data de Consolidação do Pedido',
     tooltipDescricao: 'Data em que o pedido foi consolidado em um processo logístico',
     grupo: 'Datas',
@@ -1084,7 +1063,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     tooltipTitulo: 'Data de Transferência de Saldo',
     tooltipDescricao: 'Data em que o saldo do pedido foi transferido para um processo',
     grupo: 'Datas',
@@ -1096,7 +1074,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'id_exportador',
     label: 'ID Exportador',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 130,
     tooltipTitulo: 'ID do Exportador',
@@ -1108,7 +1085,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'País Exportador',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 140,
     tooltipTitulo: 'País do Exportador',
@@ -1120,7 +1096,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Estado/Prov. Exportador',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'Estado ou Província do Exportador',
@@ -1132,7 +1107,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Cidade Exportador',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Cidade do Exportador',
@@ -1143,7 +1117,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'endereco_exportador',
     label: 'Endereço Exportador',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 200,
     tooltipTitulo: 'Endereço do Exportador',
@@ -1154,7 +1127,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'zip_code_exportador',
     label: 'ZIP Exportador',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Zip Code do Exportador',
@@ -1166,7 +1138,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Exportador/Fabricante?',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'Exportador ou Fabricante?',
@@ -1178,7 +1149,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Relação Exp./Fab.',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Relação entre Exportador e Fabricante',
@@ -1190,7 +1160,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'nome_contato_exportador',
     label: 'Contato Exportador',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 160,
     tooltipTitulo: 'Nome do Contato do Exportador',
@@ -1201,7 +1170,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'email_contato_exportador',
     label: 'E-mail Contato Exp.',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 180,
     tooltipTitulo: 'E-mail do Contato do Exportador',
@@ -1212,7 +1180,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'whatsapp_contato_exportador',
     label: 'WhatsApp Contato Exp.',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'WhatsApp do Contato do Exportador',
@@ -1223,7 +1190,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'cargo_contato_exportador',
     label: 'Cargo Contato Exp.',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Cargo do Contato do Exportador',
@@ -1234,7 +1200,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'departamento_contato_exportador',
     label: 'Depto. Contato Exp.',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 160,
     tooltipTitulo: 'Departamento do Contato do Exportador',
@@ -1246,7 +1211,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'id_fabricante',
     label: 'ID Fabricante',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'ID do Fabricante',
@@ -1258,7 +1222,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'País Fabricante',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 140,
     tooltipTitulo: 'País do Fabricante',
@@ -1270,7 +1233,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Estado/Prov. Fabricante',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 170,
     tooltipTitulo: 'Estado ou Província do Fabricante',
@@ -1282,7 +1244,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Cidade Fabricante',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 150,
     tooltipTitulo: 'Cidade do Fabricante',
@@ -1293,7 +1254,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'endereco_fabricante',
     label: 'Endereço Fabricante',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 200,
     tooltipTitulo: 'Endereço do Fabricante',
@@ -1304,7 +1264,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'zip_code_fabricante',
     label: 'ZIP Fabricante',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Zip Code do Fabricante',
@@ -1316,7 +1275,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'cnpj_raiz_empresa_responsavel',
     label: 'CNPJ Raiz Empresa',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 160,
     tooltipTitulo: 'CNPJ Raiz Empresa Responsável',
@@ -1328,7 +1286,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Cód. OPE',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 110,
     tooltipTitulo: 'Código do Operador Estrangeiro (OPE)',
@@ -1340,7 +1297,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Situação OPE',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Situação do Operador Estrangeiro',
@@ -1351,7 +1307,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'versao_ope',
     label: 'Versão OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 100,
     tooltipTitulo: 'Versão do Operador Estrangeiro',
@@ -1362,7 +1317,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'nome_ope',
     label: 'Nome OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 180,
     tooltipTitulo: 'Nome do Operador Estrangeiro',
@@ -1374,7 +1328,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'País OPE',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Partes',
     largura: 110,
     tooltipTitulo: 'País do Operador Estrangeiro',
@@ -1385,7 +1338,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'estado_ope',
     label: 'Estado OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 110,
     tooltipTitulo: 'Estado do Operador Estrangeiro',
@@ -1396,7 +1348,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'cidade_ope',
     label: 'Cidade OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'Cidade do Operador Estrangeiro',
@@ -1407,7 +1358,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'endereco_ope',
     label: 'Endereço OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 200,
     tooltipTitulo: 'Endereço do Operador Estrangeiro',
@@ -1418,7 +1368,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'zip_code_ope',
     label: 'ZIP OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 100,
     tooltipTitulo: 'Zip Code do Operador Estrangeiro',
@@ -1429,7 +1378,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'tin_ope',
     label: 'TIN OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 120,
     tooltipTitulo: 'TIN do Operador Estrangeiro',
@@ -1440,7 +1388,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'email_ope',
     label: 'E-mail OPE',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Partes',
     largura: 180,
     tooltipTitulo: 'E-mail do Operador Estrangeiro',
@@ -1452,7 +1399,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'anexo_pedido',
     label: 'Anexo P.O.',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Identificação',
     largura: 100,
     tooltipTitulo: 'Anexo do Pedido',
@@ -1463,7 +1409,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'anexo_proforma',
     label: 'Anexo Proforma',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Identificação',
     largura: 120,
     tooltipTitulo: 'Anexo da Proforma Invoice',
@@ -1474,7 +1419,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     key: 'anexo_invoice',
     label: 'Anexo Invoice',
     tipo: 'texto',
-    oculta: true,
     grupo: 'Identificação',
     largura: 110,
     tooltipTitulo: 'Anexo da Invoice',
@@ -1488,7 +1432,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     align: 'right',
-    oculta: true,
     grupo: 'Quantidades',
     largura: 120,
     tooltipTitulo: 'Quantidade de Volumes Total do Pedido',
@@ -1504,7 +1447,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Part Number',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Identificação',
     largura: 130,
     tooltipTitulo: 'Part Number do Produto',
@@ -1516,7 +1458,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Ref. Catálogo',
     tipo: 'texto',
     filtravel: true,
-    oculta: true,
     grupo: 'Identificação',
     largura: 130,
     tooltipTitulo: 'Referência Interna do Produto — Catálogo',
@@ -1530,7 +1471,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 160,
     tooltipTitulo: 'Data Prevista de Recebimento — Draft do Pedido',
@@ -1543,7 +1483,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 170,
     tooltipTitulo: 'Data Confirmada de Recebimento — Draft do Pedido',
@@ -1556,7 +1495,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 160,
     tooltipTitulo: 'Data Meta de Recebimento — Draft do Pedido',
@@ -1569,7 +1507,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 170,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft do Pedido',
@@ -1582,7 +1519,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 175,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft do Pedido',
@@ -1595,7 +1531,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 170,
     tooltipTitulo: 'Data Meta de Aprovação — Draft do Pedido',
@@ -1608,7 +1543,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 150,
     tooltipTitulo: 'Data do Documento Pedido',
@@ -1622,7 +1556,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Prevista de Recebimento — Draft da Proforma Invoice',
@@ -1635,7 +1568,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 190,
     tooltipTitulo: 'Data Confirmada de Recebimento — Draft da Proforma Invoice',
@@ -1648,7 +1580,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Meta de Recebimento — Draft da Proforma Invoice',
@@ -1661,7 +1592,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 195,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft da Proforma Invoice',
@@ -1674,7 +1604,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft da Proforma Invoice',
@@ -1687,7 +1616,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 195,
     tooltipTitulo: 'Data Meta de Aprovação — Draft da Proforma Invoice',
@@ -1700,7 +1628,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Prevista de Envio — Original da Proforma Invoice',
@@ -1713,7 +1640,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 210,
     tooltipTitulo: 'Data Confirmada de Envio — Original da Proforma Invoice',
@@ -1726,7 +1652,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Meta de Envio — Original da Proforma Invoice',
@@ -1739,7 +1664,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Prevista de Recebimento — Original da Proforma Invoice',
@@ -1752,7 +1676,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 210,
     tooltipTitulo: 'Data Confirmada de Recebimento — Original da Proforma Invoice',
@@ -1765,7 +1688,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Meta de Recebimento — Original da Proforma Invoice',
@@ -1778,7 +1700,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 155,
     tooltipTitulo: 'Data da Proforma Invoice',
@@ -1792,7 +1713,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Prevista de Recebimento — Draft da Invoice',
@@ -1805,7 +1725,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 190,
     tooltipTitulo: 'Data Confirmada de Recebimento — Draft da Invoice',
@@ -1818,7 +1737,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 180,
     tooltipTitulo: 'Data Meta de Recebimento — Draft da Invoice',
@@ -1831,7 +1749,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 190,
     tooltipTitulo: 'Data Prevista de Aprovação — Draft da Invoice',
@@ -1844,7 +1761,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 195,
     tooltipTitulo: 'Data Confirmada de Aprovação — Draft da Invoice',
@@ -1857,7 +1773,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 185,
     tooltipTitulo: 'Data Meta de Aprovação — Draft da Invoice',
@@ -1870,7 +1785,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Prevista de Envio — Original da Invoice',
@@ -1883,7 +1797,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Confirmada de Envio — Original da Invoice',
@@ -1896,7 +1809,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Meta de Envio — Original da Invoice',
@@ -1909,7 +1821,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Prevista de Recebimento — Original da Invoice',
@@ -1922,7 +1833,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 205,
     tooltipTitulo: 'Data Confirmada de Recebimento — Original da Invoice',
@@ -1935,7 +1845,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 200,
     tooltipTitulo: 'Data Meta de Recebimento — Original da Invoice',
@@ -1948,7 +1857,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    oculta: true,
     grupo: 'Datas',
     largura: 120,
     tooltipTitulo: 'Data da Invoice',
@@ -4033,6 +3941,7 @@ interface BarraAcoesPedidoProps {
   setModalEdicaoMassaAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalGerarPdfAberto: React.Dispatch<React.SetStateAction<boolean>>
   setModalDuplicarAberto: React.Dispatch<React.SetStateAction<boolean>>
+  onDuplicarItens: () => Promise<void>
   onExcluirLote: () => Promise<void>
   onNavigateToConfiguracoes: () => void
   handleLimparFiltro: (campo: string) => void
@@ -4058,6 +3967,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   setModalEdicaoMassaAberto,
   setModalGerarPdfAberto,
   setModalDuplicarAberto,
+  onDuplicarItens,
   onExcluirLote,
   onNavigateToConfiguracoes,
   handleLimparFiltro,
@@ -4278,15 +4188,24 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Duplicar */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Duplicar'}
-          descricao="Cria cópias dos pedidos selecionados"
+          titulo={
+            pedidosSelecionados.length > 0
+              ? `Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}`
+              : itensSelecionados.length > 0
+                ? `Duplicar · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''}`
+                : 'Duplicar'
+          }
+          descricao={pedidosSelecionados.length > 0 ? 'Cria cópias dos pedidos selecionados' : 'Cria cópias dos itens selecionados'}
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<CopySimple size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0}
-            onClick={() => setModalDuplicarAberto(true)}
+            disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
+            onClick={() => {
+              if (pedidosSelecionados.length > 0) setModalDuplicarAberto(true)
+              else if (itensSelecionados.length > 0) void onDuplicarItens()
+            }}
           />
         </TooltipGlobal>
 
@@ -4557,15 +4476,13 @@ export default function ListaPedidos() {
       setTemMais(res.hasMore)
       setCursor(res.nextCursor ?? undefined)
     } catch {
-      // Em dev sem backend, usar mock vazio para não bloquear UI
-      setPedidos([])
-      setTotal(0)
-      setTemMais(false)
+      // Mantém lista existente e notifica — nunca zera silenciosamente
+      addNotification({ type: 'error', message: 'Erro ao carregar pedidos. Verifique a conexão e tente novamente.' })
     } finally {
       setCarregando(false)
       carregandoRef.current = false
     }
-  }, [abaAtiva, sortCampo, sortDir, busca])
+  }, [abaAtiva, sortCampo, sortDir, busca, addNotification])
 
   const acoesPai = useMemo(() => ([
     {
@@ -4577,13 +4494,35 @@ export default function ListaPedidos() {
         setDrawerAberto(true)
       },
     },
-  ]), [])
+    {
+      id: 'excluir',
+      tooltip: 'Excluir pedido',
+      icone: <Trash size={14} weight="duotone" />,
+      variant: 'danger' as const,
+      onClick: async (pedido: Pedido) => {
+        if (!confirm(`Excluir pedido "${pedido.numero_pedido || pedido.id}"? Esta ação não pode ser desfeita.`)) return
+        try {
+          const preview = await pedidoExcluirApi.preview([pedido.id])
+          if (preview.bloqueados.length > 0) {
+            addNotification({ type: 'error', message: preview.bloqueados[0]?.motivo ?? 'Pedido não pode ser excluído.' })
+            return
+          }
+          await pedidoExcluirApi.confirmar([pedido.id])
+          addNotification({ type: 'success', message: 'Pedido excluído.' })
+          await carregarInicial()
+        } catch {
+          addNotification({ type: 'error', message: 'Erro ao excluir pedido.' })
+        }
+      },
+    },
+  ]), [addNotification, carregarInicial])
 
   const acoesFilhoEstavel = useCallback((item: PedidoItem) => ([
     {
       label: 'Transferir',
       icone: <ArrowsLeftRight size={13} weight="duotone" />,
       onClick: () => {
+        setPedidosSelecionados([])
         setItensSelecionados([item])
         setModalTransferirAberto(true)
       },
@@ -4591,9 +4530,15 @@ export default function ListaPedidos() {
     {
       label: 'Duplicar',
       icone: <CopySimple size={13} weight="duotone" />,
-      onClick: () => {
-        setItensSelecionados([item])
-        setModalDuplicarAberto(true)
+      onClick: async () => {
+        if (!confirm(`Duplicar item "${item.part_number || item.descricao_item || item.id}"?`)) return
+        try {
+          await pedidoDuplicarApi.duplicarItens({ pedido_id: item.pedido_id, item_ids: [item.id] })
+          addNotification({ type: 'success', message: 'Item duplicado com sucesso.' })
+          await carregarInicial()
+        } catch {
+          addNotification({ type: 'error', message: 'Erro ao duplicar item. Tente novamente.' })
+        }
       },
     },
     {
@@ -4658,6 +4603,21 @@ export default function ListaPedidos() {
     }
   }, [pedidosSelecionados, carregarInicial])
 
+  const handleDuplicarItens = useCallback(async () => {
+    if (itensSelecionados.length === 0) return
+    const pedidoId = itensSelecionados[0].pedido_id
+    const nomes = itensSelecionados.map(i => i.part_number || i.descricao_item || i.id).join(', ')
+    if (!confirm(`Duplicar ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''}: ${nomes}?`)) return
+    try {
+      await pedidoDuplicarApi.duplicarItens({ pedido_id: pedidoId, item_ids: itensSelecionados.map(i => i.id) })
+      addNotification({ type: 'success', message: `${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 'ns' : ''} duplicado${itensSelecionados.length !== 1 ? 's' : ''} com sucesso.` })
+      setItensSelecionados([])
+      await carregarInicial()
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao duplicar itens. Tente novamente.' })
+    }
+  }, [itensSelecionados, addNotification, carregarInicial])
+
   const handleNavConfiguracoes = useCallback(() => {
     navigate('/configuracoes?tab=colunas&acao=nova')
     setNovoDropdownAberto(false)
@@ -4683,6 +4643,7 @@ export default function ListaPedidos() {
       setModalEdicaoMassaAberto={setModalEdicaoMassaAberto}
       setModalGerarPdfAberto={setModalGerarPdfAberto}
       setModalDuplicarAberto={setModalDuplicarAberto}
+      onDuplicarItens={handleDuplicarItens}
       onExcluirLote={handleExcluirLote}
       onNavigateToConfiguracoes={handleNavConfiguracoes}
       handleLimparFiltro={handleLimparFiltro}
@@ -4694,7 +4655,7 @@ export default function ListaPedidos() {
     setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
     setModalGerarPdfAberto, setModalDuplicarAberto,
-    handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
+    handleDuplicarItens, handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
   ])
 
   // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────
@@ -4820,8 +4781,9 @@ export default function ListaPedidos() {
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
+    const pedidoAtual = pedidos.find(p => p.id === id)
+    const updatedAt = pedidoAtual?.updated_at
     if (campo === 'status') {
-      const pedidoAtual = pedidos.find(p => p.id === id)
       const atualizado = { ...pedidoAtual!, status: String(valor) } as Pedido
       await pedidoLoteApi.mudarStatusConfirmar([id], String(valor)).catch(err => {
         if (!import.meta.env.DEV) throw err
@@ -4833,11 +4795,10 @@ export default function ListaPedidos() {
     // Campo de moeda composta: { currency, amount } → salva amount + moeda separados
     if (campo === 'valor_total_pedido' && valor != null && typeof valor === 'object' && 'currency' in valor) {
       const mv = valor as GTValorMoeda
-      const atualizado = await pedidoVirtualApi.editarCampo(id, 'valor_total_pedido', mv.amount)
-        .then(p => pedidoVirtualApi.editarCampo(p.id ?? id, 'moeda_pedido', mv.currency))
+      const atualizado = await pedidoVirtualApi.editarCampo(id, 'valor_total_pedido', mv.amount, updatedAt)
+        .then(p => pedidoVirtualApi.editarCampo(p.id ?? id, 'moeda_pedido', mv.currency, p.updated_at))
         .catch(() => {
           if (import.meta.env.DEV) {
-            const pedidoAtual = pedidos.find(p => p.id === id)
             return { ...pedidoAtual!, valor_total_pedido: mv.amount, moeda_pedido: mv.currency } as Pedido
           }
           throw new Error('Erro ao salvar valor total do pedido')
@@ -4858,9 +4819,8 @@ export default function ListaPedidos() {
     if (campo in CAMPOS_UNIDADE_PEDIDO && valor != null && typeof valor === 'object' && 'unit' in valor) {
       const uv = valor as GTValorUnidade
       const campUnidade = CAMPOS_UNIDADE_PEDIDO[campo]
-      const pedidoAtual = pedidos.find(p => p.id === id)
-      const atualizado = await pedidoVirtualApi.editarCampo(id, campo, uv.quantity)
-        .then(p => campUnidade ? pedidoVirtualApi.editarCampo(p.id ?? id, campUnidade, uv.unit) : p)
+      const atualizado = await pedidoVirtualApi.editarCampo(id, campo, uv.quantity, updatedAt)
+        .then(p => campUnidade ? pedidoVirtualApi.editarCampo(p.id ?? id, campUnidade, uv.unit, p.updated_at) : p)
         .catch(() => {
           if (import.meta.env.DEV) {
             return {
@@ -4874,7 +4834,7 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
     }
-    const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
+    const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor, updatedAt)
     setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
     return atualizado
   }, [pedidos])
@@ -5119,15 +5079,12 @@ export default function ListaPedidos() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ], [pedidos, pedidosFiltrados, pedidosSelecionados, colunasUsuario])
 
-  // ── Stats para KPIs ──────────────────────────────────────────────────────────
-  const valorTotal    = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
-  const qtdTotal      = pedidos.reduce((acc, p) => acc + (p.quantidade_total_inicial_pedido ?? 0), 0)
-  const todosItens    = pedidos.flatMap(p => p.itens ?? [])
-  const itensProntos  = todosItens.reduce((acc, i) => acc + (i.quantidade_pronta_total    ?? 0), 0)
-  const qtdAtualTotal = todosItens.reduce((acc, i) => acc + (i.saldo_item_pedido     ?? 0), 0)
-  const coberturaPend = pedidos
-    .filter(p => p.cobertura_cambial === 'sem_cobertura' || !p.cobertura_cambial)
-    .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
+  // ── Stats para KPIs — calculadas via registry centralizado ──────────────────
+  const todosItens = useMemo(() => pedidos.flatMap(p => p.itens ?? []), [pedidos])
+  const cardStats  = useMemo(
+    () => computeCardStats(pedidos, todosItens, total, new Date().toISOString().slice(0, 10)),
+    [pedidos, todosItens, total],
+  )
 
   return (
     <div className="ws-fade-up lp-page">
@@ -5143,56 +5100,20 @@ export default function ListaPedidos() {
       <div className="lp-stats-row">
         <div className="lp-cards">
           {cardsVisiveis.map(pref => {
-            if (pref.id === 'total_pedidos') return (
-              <CardBasicoGlobal key="total_pedidos"
-                titulo={t('pedido.total_pedidos')}
-                icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
-                valor={total}
-                subtexto={`${todosItens.length} ${t('pedido.itens_total')}`}
-                tooltip={<>
-                  <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidos.filter(p => p.status === 'aberto').length}</strong></p>
-                  <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidos.filter(p => p.status === 'transferencia').length}</strong></p>
-                  <p className="cg-tooltip__row"><span>{t('pedido.concluidos')}</span><strong>{pedidos.filter(p => p.status === 'consolidado').length}</strong></p>
-                </>}
+            const entry = CARD_REGISTRY[pref.id]
+            if (!entry) return null
+            const value = entry.getValue(cardStats)
+            return (
+              <CardBasicoGlobal
+                key={pref.id}
+                titulo={t(`pedido.${pref.id}`)}
+                icone={entry.icone}
+                valor={entry.format(value)}
+                variante={entry.variante}
+                subtexto={entry.subtexto(cardStats)}
+                tooltip={entry.tooltip(pedidos, cardStats)}
               />
             )
-            if (pref.id === 'valor_total') return (
-              <CardBasicoGlobal key="valor_total"
-                titulo={t('pedido.valor_total')}
-                icone={<CurrencyDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
-                valor={fmtMoeda(valorTotal)}
-                variante="sucesso"
-                subtexto={t('pedido.soma_pedidos')}
-                tooltip={<>
-                  <p className="cg-tooltip__row"><span>{t('pedido.moeda')}</span><strong>USD</strong></p>
-                  <p className="cg-tooltip__row"><span>{t('pedido.media_por_pedido')}</span><strong>{fmtMoeda(pedidos.length ? valorTotal / pedidos.length : 0)}</strong></p>
-                </>}
-              />
-            )
-            if (pref.id === 'qtd_total') return (
-              <CardBasicoGlobal key="qtd_total"
-                titulo={t('pedido.qtd_total')}
-                icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-                valor={fmtQuantidade(qtdTotal)}
-                variante="aviso"
-                subtexto={`${fmtQuantidade(qtdAtualTotal)} ${t('pedido.saldo_atual')}`}
-                tooltip={<>
-                  <p className="cg-tooltip__row"><span>{t('pedido.pronto')}</span><strong>{fmtQuantidade(itensProntos)}</strong></p>
-                  <p className="cg-tooltip__row"><span>{t('pedido.saldo_vivo')}</span><strong>{fmtQuantidade(qtdAtualTotal)}</strong></p>
-                </>}
-              />
-            )
-            if (pref.id === 'cobertura_pendente') return (
-              <CardBasicoGlobal key="cobertura_pendente"
-                titulo={t('pedido.cobertura_pendente')}
-                icone={<Warning weight="duotone" size={16} style={{ color: '#f87171' }} />}
-                valor={fmtMoeda(coberturaPend)}
-                variante="erro"
-                subtexto={t('pedido.sem_cobertura')}
-                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidos.filter(p => !p.cobertura_cambial || p.cobertura_cambial === 'sem_cobertura').length}</strong></p>}
-              />
-            )
-            return null
           })}
         </div>
       </div>
@@ -5312,8 +5233,15 @@ export default function ListaPedidos() {
       <ModalNovoItem
         aberto={modalNovoItemAberto}
         onFechar={() => setModalNovoItemAberto(false)}
-        onSalvo={() => {
+        onSalvo={(novoItem) => {
           setModalNovoItemAberto(false)
+          // Optimistic: append ao pedido pai imediatamente, visível mesmo se refetch falhar
+          setPedidos(prev => prev.map(p =>
+            p.id === novoItem.pedido_id
+              ? { ...p, itens: [...(p.itens ?? []), novoItem] }
+              : p
+          ))
+          // Sync server — se falhar, estado otimista fica preservado + notificação visível
           carregarInicial()
         }}
       />
@@ -5392,6 +5320,7 @@ export default function ListaPedidos() {
           pedidos={pedidosSelecionados.length > 0
             ? pedidosSelecionados
             : pedidos.filter(p => itensSelecionados.some(i => i.pedido_id === p.id))}
+          itemIdInicial={pedidosSelecionados.length === 0 && itensSelecionados.length === 1 ? itensSelecionados[0].id : undefined}
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {
             setModalTransferirAberto(false)

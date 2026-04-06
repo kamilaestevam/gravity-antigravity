@@ -63,10 +63,11 @@
 }
 
 .lp-cards {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
   flex: 1;
+  min-width: 0;
 }
 
 .lp-acoes {

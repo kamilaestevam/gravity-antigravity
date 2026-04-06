@@ -44,6 +44,8 @@ import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { TabelaVirtualGlobal } from '@nucleo/tabela-virtual-global'
+import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
+import { ModalGlobal } from '@nucleo/modal-global'
 import type {
   GTColuna,
   GTMapaColunasFilho,
@@ -92,6 +94,7 @@ import type {
   PedidoStatusConfig,
   PedidoPreferenciasColunas,
   ColunaUsuario,
+  ExcluirPreview,
 } from '../shared/types'
 import {
   STATUS_PEDIDO_LABELS,
@@ -679,6 +682,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_total_inicial_pedido',
     label: 'Qtd. Inicial do Pedido',
+
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Inicial do Pedido',
@@ -701,6 +705,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_pronta_itens_pedido_total',
     label: 'Qtd. Pronta do Pedido',
+
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Pronta do Pedido',
@@ -715,12 +720,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => {
       const qtd = row.quantidade_pronta_itens_pedido_total
         ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total ?? 0), 0)
-        ?? null
+        ?? 0
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
-            : '—'}
+          {`${fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`.trim()}
         </span>
       )
     },
@@ -728,6 +731,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'saldo_itens_do_pedido',
     label: 'Saldo do Pedido',
+
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Saldo do Pedido — Campo calculado',
@@ -736,16 +740,15 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
     render: (_val: unknown, row: Pedido) => {
-      const total = row.quantidade_total_inicial_pedido ?? null
+      if ('pedido_id' in (row as unknown as Record<string, unknown>)) {
+        return <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>—</span>
+      }
+      const total = row.quantidade_total_inicial_pedido ?? 0
       const qtd = row.saldo_itens_do_pedido
-        ?? (total != null
-          ? Math.max(0, total - (row.quantidade_transferida_total ?? 0) - (row.quantidade_cancelada_total_pedido ?? 0))
-          : null)
+        ?? Math.max(0, total - (row.quantidade_transferida_total ?? 0) - (row.quantidade_cancelada_total_pedido ?? 0))
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
-          {qtd != null
-            ? [fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
-            : '—'}
+          {[fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')}
         </span>
       )
     },
@@ -753,6 +756,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_transferida_total',
     label: 'Qtd. Transferida do Pedido',
+
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Transferida do Pedido — Campo calculado',
@@ -761,8 +765,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
     render: (_val: unknown, row: Pedido) => {
-      const transferida = row.quantidade_transferida_total ?? null
-      const inicial = row.quantidade_total_inicial_pedido ?? null
+      if ('pedido_id' in (row as unknown as Record<string, unknown>)) {
+        return <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>—</span>
+      }
+      const transferida = row.quantidade_transferida_total ?? 0
+      const inicial = row.quantidade_total_inicial_pedido ?? 0
 
       // Verificar se config permite transferência acima do inicial (bloquearTransferenciaAcimaInicial === false)
       let destacarVermelho = false
@@ -771,7 +778,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         if (rawRegras) {
           const regras = JSON.parse(rawRegras) as { transferir?: { bloquearTransferenciaAcimaInicial?: boolean } }
           const bloquear = regras?.transferir?.bloquearTransferenciaAcimaInicial ?? true
-          if (!bloquear && transferida != null && inicial != null && transferida > inicial) {
+          if (!bloquear && transferida > inicial) {
             destacarVermelho = true
           }
         }
@@ -780,9 +787,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const corTransferida = destacarVermelho ? 'var(--color-error, #ef4444)' : '#60a5fa'
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: corTransferida }}>
-          {transferida != null
-            ? [fmtQuantidade(transferida, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
-            : '—'}
+          {[fmtQuantidade(transferida, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')}
         </span>
       )
     },
@@ -790,6 +795,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_cancelada_total_pedido',
     label: 'Qtd. Cancelada do Pedido',
+
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Cancelada do Pedido — Campo calculado',
@@ -797,13 +803,16 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
-        {row.quantidade_cancelada_total_pedido != null
-          ? [fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
-          : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      if ('pedido_id' in (row as unknown as Record<string, unknown>)) {
+        return <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>—</span>
+      }
+      return (
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
+          {[fmtQuantidade(row.quantidade_cancelada_total_pedido ?? 0, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')}
+        </span>
+      )
+    },
   },
   {
     key: 'data_emissao_pedido',
@@ -3610,13 +3619,16 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   saldo_itens_do_pedido: {
     render: (row: PedidoItem) => {
+      if (row.quantidade_inicial_item_pedido == null) {
+        return <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>—</span>
+      }
       const qtd = Math.max(0,
         (row.quantidade_inicial_item_pedido ?? 0)
         - (row.quantidade_transferida_item ?? 0)
         - (row.quantidade_cancelada_item_pedido ?? 0)
       )
       return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
           {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}
         </span>
       )
@@ -3631,8 +3643,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       quantity: row.quantidade_transferida_item ?? 0,
     }),
     render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
+        {row.quantidade_transferida_item != null
+          ? fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))
+          : '—'}
       </span>
     ),
   },
@@ -3780,6 +3794,7 @@ interface BarraAcoesPedidoProps {
   setModalDuplicarAberto: React.Dispatch<React.SetStateAction<boolean>>
   onDuplicarItens: () => void
   onExcluirLote: () => Promise<void>
+  onEditarPedido: (pedido: Pedido) => void
   onNavigateToConfiguracoes: () => void
   handleLimparFiltro: (campo: string) => void
   handleLimparTodosFiltros: () => void
@@ -3806,6 +3821,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   setModalDuplicarAberto,
   onDuplicarItens,
   onExcluirLote,
+  onEditarPedido,
   onNavigateToConfiguracoes,
   handleLimparFiltro,
   handleLimparTodosFiltros,
@@ -3995,17 +4011,33 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           />
         </TooltipGlobal>
 
-        {/* Editar em Massa */}
+        {/* Editar / Editar em Massa */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Editar em Massa'}
-          descricao="Edita campos comuns nos pedidos selecionados"
+          titulo={
+            pedidosSelecionados.length === 1
+              ? 'Editar pedido'
+              : pedidosSelecionados.length > 1
+                ? `Editar em Massa · ${pedidosSelecionados.length} pedidos`
+                : 'Editar em Massa'
+          }
+          descricao={
+            pedidosSelecionados.length === 1
+              ? 'Abre o formulário completo de edição do pedido'
+              : 'Edita campos comuns nos pedidos selecionados'
+          }
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<PencilLine size={14} weight="duotone" />}
             disabled={pedidosSelecionados.length === 0}
-            onClick={() => { setModalEdicaoMassaAberto(true) }}
+            onClick={() => {
+              if (pedidosSelecionados.length === 1) {
+                onEditarPedido(pedidosSelecionados[0])
+              } else {
+                setModalEdicaoMassaAberto(true)
+              }
+            }}
           />
         </TooltipGlobal>
 
@@ -4142,6 +4174,9 @@ export default function ListaPedidos() {
   const [modalDuplicarItensAberto, setModalDuplicarItensAberto] = useState(false)
   const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
+  const [previewExcluir, setPreviewExcluir]                 = useState<ExcluirPreview | null>(null)
+  const [confirmarExcluirAberto, setConfirmarExcluirAberto] = useState(false)
+  const [itemParaDuplicarLinha, setItemParaDuplicarLinha]   = useState<PedidoItem | null>(null)
 
   // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────
   const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
@@ -4370,40 +4405,6 @@ export default function ListaPedidos() {
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
-  const acoesPai = useMemo(() => ([
-    {
-      id: 'editar',
-      tooltip: 'Editar pedido',
-      icone: <PencilLine size={14} weight="duotone" />,
-      onClick: (pedido: Pedido) => {
-        setPedidoEditandoId(pedido.id)
-        setDrawerAberto(true)
-      },
-    },
-    {
-      id: 'excluir',
-      tooltip: 'Excluir pedido',
-      icone: <Trash size={14} weight="duotone" />,
-      variant: 'danger' as const,
-      onClick: async (pedido: Pedido) => {
-        if (!confirm(`Excluir pedido "${pedido.numero_pedido || pedido.id}"? Esta ação não pode ser desfeita.`)) return
-        try {
-          const preview = await pedidoExcluirApi.preview([pedido.id])
-          if (preview.bloqueados.length > 0) {
-            addNotification({ type: 'error', message: preview.bloqueados[0]?.motivo ?? 'Pedido não pode ser excluído.' })
-            return
-          }
-          await pedidoExcluirApi.confirmar([pedido.id])
-          addNotification({ type: 'success', message: 'Pedido excluído.' })
-          refreshSilenciosoRef.current = true
-          await carregarInicial()
-        } catch {
-          addNotification({ type: 'error', message: 'Erro ao excluir pedido.' })
-        }
-      },
-    },
-  ]), [addNotification, carregarInicial])
-
   const acoesFilhoEstavel = useCallback((item: PedidoItem) => ([
     {
       label: 'Transferir',
@@ -4417,17 +4418,7 @@ export default function ListaPedidos() {
     {
       label: 'Duplicar',
       icone: <CopySimple size={13} weight="duotone" />,
-      onClick: async () => {
-        if (!confirm(`Duplicar item "${item.part_number || item.descricao_item || item.id}"?`)) return
-        try {
-          await pedidoDuplicarApi.duplicarItens({ pedido_id: item.pedido_id, item_ids: [item.id] })
-          addNotification({ type: 'success', message: 'Item duplicado com sucesso.' })
-          refreshSilenciosoRef.current = true
-          await carregarInicial()
-        } catch {
-          addNotification({ type: 'error', message: 'Erro ao duplicar item. Tente novamente.' })
-        }
-      },
+      onClick: () => { setItemParaDuplicarLinha(item) },
     },
     {
       label: 'Excluir',
@@ -4465,33 +4456,49 @@ export default function ListaPedidos() {
     setExcluindoLote(true)
     try {
       const preview = await pedidoExcluirApi.preview(ids)
-      const totalPermitidos = preview.permitidos.length
-      const totalBloqueados = preview.bloqueados.length
-      const resumo: string[] = []
-      if (totalPermitidos > 0) {
-        resumo.push(`✓ ${totalPermitidos} pedido${totalPermitidos !== 1 ? 's' : ''} serão excluídos permanentemente.`)
-      }
-      if (totalBloqueados > 0) {
-        resumo.push(`✗ ${totalBloqueados} pedido${totalBloqueados !== 1 ? 's' : ''} bloqueado${totalBloqueados !== 1 ? 's' : ''} (status não permitido):`)
-        preview.bloqueados.forEach(b => resumo.push(`  - ${b.numero_pedido}: ${b.motivo}`))
-      }
-      if (totalPermitidos === 0) {
+      if (preview.permitidos.length === 0) {
         setErroLote('Nenhum pedido pode ser excluído com os status atuais.')
         return
       }
-      const mensagem = `${resumo.join('\n')}\n\nEsta ação não pode ser desfeita. Deseja prosseguir?`
-      if (window.confirm(mensagem)) {
-        await pedidoExcluirApi.confirmar(preview.permitidos.map(p => p.id))
-        setPedidosSelecionados([])
-        refreshSilenciosoRef.current = true
-        await carregarInicial()
-      }
+      setPreviewExcluir(preview)
+      setConfirmarExcluirAberto(true)
     } catch (err) {
       setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
     } finally {
       setExcluindoLote(false)
     }
-  }, [pedidosSelecionados, carregarInicial])
+  }, [pedidosSelecionados])
+
+  const handleExcluirConfirmado = useCallback(async () => {
+    if (!previewExcluir) return
+    setConfirmarExcluirAberto(false)
+    setExcluindoLote(true)
+    try {
+      await pedidoExcluirApi.confirmar(previewExcluir.permitidos.map(p => p.id))
+      setPedidosSelecionados([])
+      setPreviewExcluir(null)
+      refreshSilenciosoRef.current = true
+      await carregarInicial()
+    } catch (err) {
+      setErroLote(err instanceof Error ? err.message : 'Erro ao excluir')
+    } finally {
+      setExcluindoLote(false)
+    }
+  }, [previewExcluir, carregarInicial])
+
+  const handleDuplicarItemConfirmado = useCallback(async () => {
+    const item = itemParaDuplicarLinha
+    if (!item) return
+    setItemParaDuplicarLinha(null)
+    try {
+      await pedidoDuplicarApi.duplicarItens({ pedido_id: item.pedido_id, item_ids: [item.id] })
+      addNotification({ type: 'success', message: 'Item duplicado com sucesso.' })
+      refreshSilenciosoRef.current = true
+      await carregarInicial()
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao duplicar item. Tente novamente.' })
+    }
+  }, [itemParaDuplicarLinha, carregarInicial, addNotification])
 
   const handleDuplicarItens = useCallback(() => {
     if (itensSelecionados.length === 0) return
@@ -4525,6 +4532,10 @@ export default function ListaPedidos() {
       setModalDuplicarAberto={setModalDuplicarAberto}
       onDuplicarItens={handleDuplicarItens}
       onExcluirLote={handleExcluirLote}
+      onEditarPedido={(pedido) => {
+        setPedidoEditandoId(pedido.id)
+        setDrawerAberto(true)
+      }}
       onNavigateToConfiguracoes={handleNavConfiguracoes}
       handleLimparFiltro={handleLimparFiltro}
       handleLimparTodosFiltros={handleLimparTodosFiltros}
@@ -4536,6 +4547,7 @@ export default function ListaPedidos() {
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,
     setModalGerarPdfAberto, setModalDuplicarAberto,
     handleDuplicarItens, handleExcluirLote, handleNavConfiguracoes, handleLimparFiltro, handleLimparTodosFiltros,
+    setPedidoEditandoId, setDrawerAberto,
   ])
 
   // ── Valores únicos por campo (para filtro enum e sugestões texto) ────────────
@@ -5089,7 +5101,6 @@ export default function ListaPedidos() {
           abaAtiva={abaAtiva}
           onMudarAba={handleMudarAba}
 
-          acoes={acoesPai}
           acoesExportacao={acoesExportacao}
           onSelecaoMudar={setPedidosSelecionados}
           onFiltroColuna={onFiltroColuna}
@@ -5268,6 +5279,7 @@ export default function ListaPedidos() {
             setModalEdicaoMassaAberto(false)
             setPedidosSelecionados([])
             refreshSilenciosoRef.current = true
+            carregandoRef.current = false  // garante que o guard não bloqueie o reload
             carregarInicial()
           }}
         />
@@ -5299,6 +5311,49 @@ export default function ListaPedidos() {
             carregarInicial()
           }}
         />
+      )}
+
+      {/* ── Modal Confirmar Exclusão Lote ── */}
+      <SelecaoExcluirGlobal
+        aberto={confirmarExcluirAberto}
+        titulo={`Excluir ${previewExcluir?.permitidos.length ?? 0} pedido${(previewExcluir?.permitidos.length ?? 0) !== 1 ? 's' : ''}`}
+        descricao={
+          previewExcluir && (
+            <span>
+              {previewExcluir.bloqueados.length > 0 && (
+                <span style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                  {`${previewExcluir.bloqueados.length} pedido${previewExcluir.bloqueados.length !== 1 ? 's' : ''} bloqueado${previewExcluir.bloqueados.length !== 1 ? 's' : ''} (status não permitido) não serão afetados.`}
+                </span>
+              )}
+              {'Esta ação não pode ser desfeita.'}
+            </span>
+          )
+        }
+        nomeItem={
+          previewExcluir
+            ? previewExcluir.permitidos.map(p => p.numero_pedido || p.id).join(', ')
+            : undefined
+        }
+        aoConfirmar={handleExcluirConfirmado}
+        aoCancelar={() => { setConfirmarExcluirAberto(false); setPreviewExcluir(null) }}
+      />
+
+      {/* ── Modal Confirmar Duplicar Item (linha) ── */}
+      {itemParaDuplicarLinha && (
+        <ModalGlobal
+          aberto={true}
+          aoFechar={() => setItemParaDuplicarLinha(null)}
+          titulo="Duplicar item"
+          tamanho="sm"
+          botoes={[
+            { rotulo: 'Cancelar', variante: 'secondary', ao_clicar: () => setItemParaDuplicarLinha(null) },
+            { rotulo: 'Duplicar', variante: 'primary', ao_clicar: handleDuplicarItemConfirmado },
+          ]}
+        >
+          <p style={{ margin: 0, color: 'var(--text-secondary, #94a3b8)', fontSize: '0.875rem' }}>
+            Duplicar item <strong style={{ color: 'var(--text-primary, #f1f5f9)' }}>{itemParaDuplicarLinha.part_number || itemParaDuplicarLinha.descricao_item || itemParaDuplicarLinha.id}</strong> dentro deste pedido?
+          </p>
+        </ModalGlobal>
       )}
 
       {/* ── Modal Duplicar Pedidos ── */}

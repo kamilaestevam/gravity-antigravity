@@ -239,9 +239,10 @@ export class DuplicarService {
               pedido_id: _pid,
               created_at: _ica,
               updated_at: _iua,
-              quantidade_pronta: _qp,
-              quantidade_transferida: _qt,
-              quantidade_cancelada: _qc,
+              quantidade_saldo_pedido: _qsp,
+              quantidade_pronta_pedido: _qpp,
+              quantidade_transferida_pedido: _qtp,
+              quantidade_cancelada_pedido: _qcp,
               ...itemBase
             } = item
             return {
@@ -249,10 +250,10 @@ export class DuplicarService {
               id: gerarId('pite'),
               tenant_id: tenantId,
               company_id: companyId,
-              quantidade_atual: item.quantidade_inicial,
-              quantidade_pronta: 0,
-              quantidade_transferida: 0,
-              quantidade_cancelada: 0,
+              quantidade_saldo_pedido: item.quantidade_inicial_pedido,
+              quantidade_pronta_pedido: 0,
+              quantidade_transferida_pedido: 0,
+              quantidade_cancelada_pedido: 0,
             }
           })
 
@@ -339,9 +340,10 @@ export class DuplicarService {
           pedido_id: _pid,
           created_at: _ca,
           updated_at: _ua,
-          quantidade_pronta: _qp,
-          quantidade_transferida: _qt,
-          quantidade_cancelada: _qc,
+          quantidade_saldo_pedido: _qsp,
+          quantidade_pronta_pedido: _qpp,
+          quantidade_transferida_pedido: _qtp,
+          quantidade_cancelada_pedido: _qcp,
           ...itemBase
         } = item
 
@@ -352,10 +354,10 @@ export class DuplicarService {
             tenant_id: tenantId,
             company_id: companyId,
             pedido_id: payload.pedido_id,
-            quantidade_atual: item.quantidade_inicial,
-            quantidade_pronta: 0,
-            quantidade_transferida: 0,
-            quantidade_cancelada: 0,
+            quantidade_saldo_pedido: item.quantidade_inicial_pedido,
+            quantidade_pronta_pedido: 0,
+            quantidade_transferida_pedido: 0,
+            quantidade_cancelada_pedido: 0,
           },
         })
 

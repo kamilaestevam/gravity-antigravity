@@ -562,7 +562,7 @@
 .gtv-cabecalho {
   display: flex;
   align-items: stretch;
-  background: rgba(129, 140, 248, 0.04);
+  background: var(--gtv-bg);
   border-bottom: 1px solid var(--gtv-border);
   position: sticky;
   top: 0;

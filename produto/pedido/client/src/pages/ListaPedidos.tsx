@@ -510,6 +510,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Número do Pedido',
     tooltipDescricao: 'Identificador único do documento comercial (PO/SO)',
     grupo: 'Identificação',
+    render: (_val: unknown, row: Pedido) =>
+      row.numero_pedido
+        ? String(row.numero_pedido)
+        : <span style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.75rem' }}>(sem número)</span>,
   },
   {
     key: 'tipo_operacao',

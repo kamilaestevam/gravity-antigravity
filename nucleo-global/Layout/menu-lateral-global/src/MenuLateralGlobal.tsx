@@ -166,6 +166,7 @@ export function MenuLateralGlobal({
       <NavLink
         key={item.to || item.label}
         to={item.to || '#'}
+        end
         className={({ isActive }: { isActive: boolean }) => `mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`}
       >
         <div className="mlg-nav-icon">{item.icon}</div>

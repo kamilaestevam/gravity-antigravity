@@ -742,7 +742,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
           ? Math.max(0, total - (row.quantidade_transferida_total ?? 0) - (row.quantidade_cancelada_total_pedido ?? 0))
           : null)
       return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
           {qtd != null
             ? [fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
             : '—'}
@@ -777,7 +777,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         }
       } catch { /* localStorage indisponível ou JSON inválido — ignorar */ }
 
-      const corTransferida = destacarVermelho ? 'var(--color-error, #ef4444)' : transferida != null && transferida > 0 ? '#60a5fa' : undefined
+      const corTransferida = destacarVermelho ? 'var(--color-error, #ef4444)' : '#60a5fa'
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: corTransferida }}>
           {transferida != null
@@ -798,7 +798,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? '#60a5fa' : undefined }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
         {row.quantidade_cancelada_total_pedido != null
           ? [fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
           : '—'}
@@ -4168,6 +4168,63 @@ export default function ListaPedidos() {
     return () => window.removeEventListener('focus', sync)
   }, [])
 
+  // ── Refs para evitar duplo carregamento ──────────────────────────────────────
+  const carregandoRef = useRef(false)
+  const refreshSilenciosoRef = useRef(false) // true = recarregar sem mostrar skeleton
+  const ehEventoExternoRef   = useRef(false) // true = gatilho veio do Kanban (não re-dispatchar)
+
+  // ── Props estáveis para TabelaVirtualGlobal ──────────────────────────────────
+  // REGRA: qualquer função/array passado como prop que entra em dep de useMemo/useEffect
+  // dentro da tabela DEVE ser estável. useMemo/useCallback evitam recriação a cada render.
+
+  // ── Primeira carga ───────────────────────────────────────────────────────────
+  const carregarInicial = useCallback(async (
+    novaAba: string = abaAtiva,
+    novaOrdem: string = sortCampo,
+    novaDir: 'asc' | 'desc' = sortDir,
+    novaBusca: string = busca,
+  ) => {
+    if (carregandoRef.current) return
+    carregandoRef.current = true
+    const silencioso = refreshSilenciosoRef.current
+    refreshSilenciosoRef.current = false
+    if (!silencioso) setCarregando(true)
+    setCursor(undefined)
+    try {
+      const res = await pedidoVirtualApi.listar({
+        sort: novaOrdem,
+        dir: novaDir,
+        limit: 100,
+        status: novaAba !== 'todos' ? novaAba : undefined,
+        busca: novaBusca || undefined,
+      })
+      setPedidos(res.data)
+      setTotal(res.total)
+      setTemMais(res.hasMore)
+      setCursor(res.nextCursor ?? undefined)
+    } catch {
+      if (import.meta.env.DEV) {
+        // DEV sem backend → carrega dados mock para permitir testes visuais e Playwright
+        const { MOCK_PEDIDOS_RESPONSE } = await import('../shared/mockData')
+        setPedidos(MOCK_PEDIDOS_RESPONSE.data)
+        setTotal(MOCK_PEDIDOS_RESPONSE.data.length)
+        setTemMais(false)
+        setCursor(undefined)
+      } else {
+        addNotification({ type: 'error', message: 'Erro ao carregar pedidos. Verifique a conexão e tente novamente.' })
+      }
+    } finally {
+      setCarregando(false)
+      carregandoRef.current = false
+      // Notifica o Kanban após mutações locais (silencioso = disparado por ação do usuário)
+      // mas não quando o próprio evento externo disparou este reload (anti-loop)
+      if (silencioso && !ehEventoExternoRef.current) {
+        window.dispatchEvent(new CustomEvent('pedido:atualizado', { detail: { origem: 'lista' } }))
+      }
+      ehEventoExternoRef.current = false
+    }
+  }, [abaAtiva, sortCampo, sortDir, busca, addNotification])
+
   // Sincroniza com o Kanban: recarrega quando ele muta dados (ex: drag-drop de status)
   useEffect(() => {
     const handleAtualizado = (e: Event) => {
@@ -4312,63 +4369,6 @@ export default function ListaPedidos() {
   const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
-
-  // ── Refs para evitar duplo carregamento ──────────────────────────────────────
-  const carregandoRef = useRef(false)
-  const refreshSilenciosoRef = useRef(false) // true = recarregar sem mostrar skeleton
-  const ehEventoExternoRef   = useRef(false) // true = gatilho veio do Kanban (não re-dispatchar)
-
-  // ── Props estáveis para TabelaVirtualGlobal ──────────────────────────────────
-  // REGRA: qualquer função/array passado como prop que entra em dep de useMemo/useEffect
-  // dentro da tabela DEVE ser estável. useMemo/useCallback evitam recriação a cada render.
-
-  // ── Primeira carga ───────────────────────────────────────────────────────────
-  const carregarInicial = useCallback(async (
-    novaAba: string = abaAtiva,
-    novaOrdem: string = sortCampo,
-    novaDir: 'asc' | 'desc' = sortDir,
-    novaBusca: string = busca,
-  ) => {
-    if (carregandoRef.current) return
-    carregandoRef.current = true
-    const silencioso = refreshSilenciosoRef.current
-    refreshSilenciosoRef.current = false
-    if (!silencioso) setCarregando(true)
-    setCursor(undefined)
-    try {
-      const res = await pedidoVirtualApi.listar({
-        sort: novaOrdem,
-        dir: novaDir,
-        limit: 100,
-        status: novaAba !== 'todos' ? novaAba : undefined,
-        busca: novaBusca || undefined,
-      })
-      setPedidos(res.data)
-      setTotal(res.total)
-      setTemMais(res.hasMore)
-      setCursor(res.nextCursor ?? undefined)
-    } catch {
-      if (import.meta.env.DEV) {
-        // DEV sem backend → carrega dados mock para permitir testes visuais e Playwright
-        const { MOCK_PEDIDOS_RESPONSE } = await import('../shared/mockData')
-        setPedidos(MOCK_PEDIDOS_RESPONSE.data)
-        setTotal(MOCK_PEDIDOS_RESPONSE.data.length)
-        setTemMais(false)
-        setCursor(undefined)
-      } else {
-        addNotification({ type: 'error', message: 'Erro ao carregar pedidos. Verifique a conexão e tente novamente.' })
-      }
-    } finally {
-      setCarregando(false)
-      carregandoRef.current = false
-      // Notifica o Kanban após mutações locais (silencioso = disparado por ação do usuário)
-      // mas não quando o próprio evento externo disparou este reload (anti-loop)
-      if (silencioso && !ehEventoExternoRef.current) {
-        window.dispatchEvent(new CustomEvent('pedido:atualizado', { detail: { origem: 'lista' } }))
-      }
-      ehEventoExternoRef.current = false
-    }
-  }, [abaAtiva, sortCampo, sortDir, busca, addNotification])
 
   const acoesPai = useMemo(() => ([
     {

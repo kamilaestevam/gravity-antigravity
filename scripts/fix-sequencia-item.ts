@@ -10,9 +10,11 @@
  * Uso: npx ts-node scripts/fix-sequencia-item.ts
  */
 
-import { PrismaClient } from '../servicos-global/tenant/generated/index.js'
+import { PrismaClient } from '../produto/pedido/node_modules/.prisma/client/index.js'
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  datasources: { db: { url: process.env.DATABASE_URL } },
+})
 
 async function main() {
   console.log('[fix-sequencia-item] Iniciando renumeração...')

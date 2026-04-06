@@ -732,12 +732,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
     render: (_val: unknown, row: Pedido) => {
+      const total = row.quantidade_total_inicial_pedido ?? null
       const qtd = row.saldo_itens_do_pedido
-        ?? (() => {
-          const total = row.quantidade_total_inicial_pedido ?? null
-          const transf = row.quantidade_transferida_total ?? null
-          return total != null && transf != null ? Math.max(0, total - transf) : null
-        })()
+        ?? (total != null
+          ? Math.max(0, total - (row.quantidade_transferida_total ?? 0) - (row.quantidade_cancelada_total_pedido ?? 0))
+          : null)
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
           {qtd != null
@@ -3596,7 +3595,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   saldo_itens_do_pedido: {
     render: (row: PedidoItem) => {
-      const qtd = Math.max(0, (row.quantidade_inicial_item_pedido ?? 0) - (row.quantidade_transferida_item ?? 0))
+      const qtd = Math.max(0,
+        (row.quantidade_inicial_item_pedido ?? 0)
+        - (row.quantidade_transferida_item ?? 0)
+        - (row.quantidade_cancelada_item_pedido ?? 0)
+      )
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
           {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}

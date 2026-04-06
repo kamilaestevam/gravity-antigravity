@@ -645,6 +645,10 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
       throw new AppError(400, 'Itens so podem ser adicionados em pedidos Draft ou Aberto')
     }
 
+    const itemCount = await req.prisma.pedidoItem.count({
+      where: { pedido_id: req.params.id, tenant_id, company_id },
+    })
+
     const item = await req.prisma.pedidoItem.create({
       data: {
         id: gerarId('pite'),
@@ -652,6 +656,7 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
         company_id,
         pedido_id: req.params.id,
         ...result.data,
+        sequencia_item: result.data.sequencia_item ?? (itemCount + 1),
         quantidade_saldo_pedido: result.data.quantidade_inicial_pedido,
         quantidade_pronta_pedido: 0,
         quantidade_transferida_pedido: 0,

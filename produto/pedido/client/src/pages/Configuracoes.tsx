@@ -24,6 +24,7 @@ import {
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
+  Paperclip,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -349,6 +350,11 @@ interface RegrasConfig {
     statusInicial: 'rascunho' | 'aberto' | 'em_andamento'
     duplicarItens: boolean
   }
+  duplicarItem: {
+    numeracaoAutomatica: boolean
+    copiarDatas: boolean
+    copiarDados: boolean
+  }
   excluir: {
     statusPermitidos: string[]
     semItensPermitido: boolean
@@ -358,6 +364,7 @@ interface RegrasConfig {
     encerrarOrigemZero: boolean
     excluirItemOrigemZero: boolean
     excluirPedidoOrigemZero: boolean
+    bloquearTransferenciaAcimaInicial: boolean
   }
   consolidar: {
     avisosDivergentes: boolean
@@ -415,6 +422,7 @@ const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNo
   { id: 'checkbox',       label: 'Checkbox',      icone: <CheckSquare    size={16} weight="duotone" /> },
   { id: 'tipo_documento', label: 'Tipo Documento',icone: <Tag            size={16} weight="duotone" /> },
   { id: 'formula',        label: 'Fórmula',        icone: <MathOperations size={16} weight="duotone" /> },
+  { id: 'anexo',          label: 'Anexo',           icone: <Paperclip      size={16} weight="duotone" /> },
 ]
 
 const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string }[] = [
@@ -949,8 +957,13 @@ export default function Configuracoes() {
       statusInicial: 'rascunho',
       duplicarItens: true,
     },
+    duplicarItem: {
+      numeracaoAutomatica: true,
+      copiarDatas: true,
+      copiarDados: true,
+    },
     excluir: {
-      statusPermitidos: ['rascunho', 'aberto'],
+      statusPermitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
       semItensPermitido: true,
       confirmarComPreview: true,
     },
@@ -958,6 +971,7 @@ export default function Configuracoes() {
       encerrarOrigemZero: true,
       excluirItemOrigemZero: true,
       excluirPedidoOrigemZero: true,
+      bloquearTransferenciaAcimaInicial: true,
     },
     consolidar: {
       avisosDivergentes: true,
@@ -982,14 +996,6 @@ export default function Configuracoes() {
       setRegrasAlterados(false)
     } catch { /* silenciar erros de quota */ }
   }
-
-  const TODOS_STATUS = [
-    { id: 'rascunho',     label: 'Rascunho'      },
-    { id: 'aberto',       label: 'Aberto'        },
-    { id: 'em_andamento', label: 'Em Andamento'  },
-    { id: 'aprovado',     label: 'Aprovado'      },
-    { id: 'encerrado',    label: 'Encerrado'     },
-  ]
 
   function toggleStatusExcluir(statusId: string) {
     setRegrasConfig(prev => {
@@ -1045,22 +1051,24 @@ export default function Configuracoes() {
   // ── Status state ──
   const STATUS_INICIAIS: StatusPedido[] = [
     { id: 'rascunho',     label: 'Rascunho',     cor: '#94a3b8', sistema: false },
-    { id: 'aberto',       label: 'Aberto',       cor: '#60a5fa', sistema: false },
-    { id: 'em_andamento', label: 'Em Andamento', cor: '#818cf8', sistema: false },
-    { id: 'aprovado',     label: 'Aprovado',     cor: '#34d399', sistema: false },
-    { id: 'transferencia',label: 'Transferido',  cor: '#38bdf8', sistema: true  },
+    { id: 'aberto',       label: 'Aberto',       cor: '#f472b6', sistema: false },
+    { id: 'em_andamento', label: 'Em Andamento', cor: '#fb923c', sistema: false },
+    { id: 'aprovado',     label: 'Aprovado',     cor: '#facc15', sistema: false },
+    { id: 'transferencia',label: 'Transferido',  cor: '#2dd4bf', sistema: true  },
     { id: 'consolidado',  label: 'Consolidado',  cor: '#a78bfa', sistema: true  },
     { id: 'cancelado',    label: 'Cancelado',    cor: '#f87171', sistema: false },
   ]
 
   const [statusList, setStatusList] = useState<StatusPedido[]>(() => {
     try {
+      const versao = localStorage.getItem('pedido:status_cores_version')
       const raw = localStorage.getItem('pedido:status_config')
       if (raw) {
         const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
         const from = STATUS_INICIAIS.map(s => ({
           ...s,
-          cor: parsed[s.id]?.cor ?? s.cor,
+          // Se versão desatualizada, usa cor do STATUS_INICIAIS (novo padrão); senão, usa a salva
+          cor: versao === 'v2' ? (parsed[s.id]?.cor ?? s.cor) : s.cor,
           label: parsed[s.id]?.label ?? s.label,
         }))
         // Adicionar status customizados salvos que não estão nos iniciais
@@ -1145,6 +1153,13 @@ export default function Configuracoes() {
       persistirStatusConfig(nova)
       return nova
     })
+    setRegrasConfig(prev => ({
+      ...prev,
+      excluir: {
+        ...prev.excluir,
+        statusPermitidos: prev.excluir.statusPermitidos.filter(s => s !== id),
+      },
+    }))
   }
 
   function adicionarStatus() {
@@ -1169,6 +1184,7 @@ export default function Configuracoes() {
     try {
       const mapa = Object.fromEntries(lista.map(s => [s.id, { label: s.label, cor: s.cor }]))
       localStorage.setItem('pedido:status_config', JSON.stringify(mapa))
+      localStorage.setItem('pedido:status_cores_version', 'v2')
     } catch { /* silenciar erros de quota */ }
   }
 
@@ -1771,7 +1787,7 @@ export default function Configuracoes() {
                               { grupo: 'Parceiros',   vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
                               { grupo: 'Financeiro',  vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
                               { grupo: 'Datas',       vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
-                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_por_unidade_item}}','{{valor_total_item}}','{{/each}}'] },
+                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{quantidade_saldo_pedido}}','{{unidade}}','{{valor_por_unidade_item}}','{{valor_total_item}}','{{/each}}'] },
                             ].map(({ grupo, vars }) => (
                               <div key={grupo} className="cfg-tpl-variaveis__grupo">
                                 <span className="cfg-tpl-variaveis__grupo-label">{grupo}</span>
@@ -1918,6 +1934,37 @@ export default function Configuracoes() {
               </div>
             </section>
 
+            {/* Duplicar item */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Duplicar item</h2>
+                  <p className="cfg-secao__desc">Comportamento ao duplicar um item existente</p>
+                </div>
+              </div>
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="dup-item-numero"
+                  label="Numeração automática ao duplicar"
+                  checked={regrasConfig.duplicarItem.numeracaoAutomatica}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, numeracaoAutomatica: v } }))}
+                />
+                <ToggleRow
+                  id="dup-item-datas"
+                  label="Copiar datas do item original"
+                  checked={regrasConfig.duplicarItem.copiarDatas}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, copiarDatas: v } }))}
+                />
+                <ToggleRow
+                  id="dup-item-dados"
+                  label="Copiar dados do item original"
+                  desc="Copia todos os campos preenchidos do item original para o novo"
+                  checked={regrasConfig.duplicarItem.copiarDados}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, copiarDados: v } }))}
+                />
+              </div>
+            </section>
+
             {/* Excluir */}
             <section className="cfg-secao">
               <div className="cfg-secao__header">
@@ -1929,7 +1976,7 @@ export default function Configuracoes() {
               <div className="cfg-campo-grupo">
                 <p className="cfg-campo-grupo__label">Status que permitem exclusão</p>
                 <div className="cfg-check-lista">
-                  {TODOS_STATUS.map(s => (
+                  {statusList.map(s => (
                     <label key={s.id} className="cfg-check-item">
                       <input
                         type="checkbox"
@@ -1985,6 +2032,13 @@ export default function Configuracoes() {
                   label="Excluir pedido de origem quando todos os itens chegam a zero"
                   checked={regrasConfig.transferir.excluirPedidoOrigemZero}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, excluirPedidoOrigemZero: v } }))}
+                />
+                <ToggleRow
+                  id="tra-bloquear-acima-inicial"
+                  label="Não permitir transferir quantidade maior que a quantidade inicial"
+                  desc="Quando ativo, bloqueia a transferência se o total transferido ultrapassar a quantidade inicial do pedido. Quando inativo, a coluna 'QTD. Transferida do Pedido' é destacada em vermelho para pedidos que ultrapassaram o limite."
+                  checked={regrasConfig.transferir.bloquearTransferenciaAcimaInicial}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, bloquearTransferenciaAcimaInicial: v } }))}
                 />
               </div>
             </section>
@@ -2475,32 +2529,36 @@ export default function Configuracoes() {
                   </select>
                 </div>
 
-                {/* Obrigatório */}
-                <div className="cfg-form-group">
-                  <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={novaColuna.obrigatorio}
-                      onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
-                      className="cfg-toggle__input"
-                    />
-                    <span>Obrigatório</span>
-                  </label>
-                </div>
+                {/* Obrigatório — não exibido para tipo 'anexo' */}
+                {novaColuna.tipo !== 'anexo' && (
+                  <div className="cfg-form-group">
+                    <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={novaColuna.obrigatorio}
+                        onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
+                        className="cfg-toggle__input"
+                      />
+                      <span>Obrigatório</span>
+                    </label>
+                  </div>
+                )}
 
-                {/* Valor padrão */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
-                  <input
-                    id="nova-coluna-padrao"
-                    type="text"
-                    className="cfg-form-input"
-                    placeholder="Deixe em branco para não definir"
-                    value={novaColuna.valor_padrao}
-                    onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
-                    maxLength={1000}
-                  />
-                </div>
+                {/* Valor padrão — não exibido para tipo 'anexo' */}
+                {novaColuna.tipo !== 'anexo' && (
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
+                    <input
+                      id="nova-coluna-padrao"
+                      type="text"
+                      className="cfg-form-input"
+                      placeholder="Deixe em branco para não definir"
+                      value={novaColuna.valor_padrao}
+                      onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
+                      maxLength={1000}
+                    />
+                  </div>
+                )}
 
                 {/* Descrição */}
                 <div className="cfg-form-group">

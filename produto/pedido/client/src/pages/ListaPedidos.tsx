@@ -760,13 +760,31 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       unit: row.unidade_comercializada_pedido ?? 'UN',
       quantity: row.quantidade_transferida_total ?? 0,
     }),
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.quantidade_transferida_total != null
-          ? `${fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
-          : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const transferida = row.quantidade_transferida_total ?? null
+      const inicial = row.quantidade_total_inicial_pedido ?? null
+
+      // Verificar se config permite transferência acima do inicial (bloquearTransferenciaAcimaInicial === false)
+      let destacarVermelho = false
+      try {
+        const rawRegras = localStorage.getItem('pedido:regras_config')
+        if (rawRegras) {
+          const regras = JSON.parse(rawRegras) as { transferir?: { bloquearTransferenciaAcimaInicial?: boolean } }
+          const bloquear = regras?.transferir?.bloquearTransferenciaAcimaInicial ?? true
+          if (!bloquear && transferida != null && inicial != null && transferida > inicial) {
+            destacarVermelho = true
+          }
+        }
+      } catch { /* localStorage indisponível ou JSON inválido — ignorar */ }
+
+      return (
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: destacarVermelho ? 'var(--color-error, #ef4444)' : undefined }}>
+          {transferida != null
+            ? `${fmtQuantidade(transferida, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'quantidade_cancelada_total_pedido',

@@ -27,6 +27,7 @@ import {
   ArrowsLeftRight,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { ModalGlobal } from '@nucleo/modal-global'
 import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
 import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
 import { pedidoApi, pedidoTransferirApi } from '../shared/api'
@@ -126,6 +127,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
   const [carregandoTransfer, setCarregandoTransfer]   = useState(false)
   const [erroTransfer, setErroTransfer]               = useState<string | null>(null)
   const transferCarregado                              = useRef(false)
+  const [confirmarFecharSemSalvar, setConfirmarFecharSemSalvar] = useState(false)
 
   const formRef = useRef({ form, itens })
   formRef.current = { form, itens }
@@ -234,8 +236,14 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
   const tentarFechar = useCallback(() => {
     const { form: f, itens: it } = formRef.current
     if (formFoiAlterado(f, it)) {
-      if (!window.confirm('Existem dados preenchidos que serao perdidos. Deseja fechar mesmo assim?')) return
+      setConfirmarFecharSemSalvar(true)
+      return
     }
+    onFechar()
+  }, [onFechar])
+
+  const handleFecharConfirmado = useCallback(() => {
+    setConfirmarFecharSemSalvar(false)
     onFechar()
   }, [onFechar])
 
@@ -771,6 +779,20 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
           </div>
         )}
       </div>
+      <ModalGlobal
+        aberto={confirmarFecharSemSalvar}
+        aoFechar={() => setConfirmarFecharSemSalvar(false)}
+        titulo="Fechar sem salvar?"
+        tamanho="sm"
+        botoes={[
+          { rotulo: 'Continuar editando', variante: 'secondary', ao_clicar: () => setConfirmarFecharSemSalvar(false) },
+          { rotulo: 'Fechar assim mesmo', variante: 'danger', ao_clicar: handleFecharConfirmado },
+        ]}
+      >
+        <p style={{ margin: 0, color: 'var(--text-secondary, #94a3b8)', fontSize: '0.875rem' }}>
+          Existem dados preenchidos que serão perdidos. Deseja fechar mesmo assim?
+        </p>
+      </ModalGlobal>
     </div>
   )
 }

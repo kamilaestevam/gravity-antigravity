@@ -31,6 +31,7 @@ import {
   Spinner,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import type { ColunaUsuario } from '../../shared/types'
 import { colunasUsuarioApi } from '../../shared/api'
 import { COLUNAS_PAI_CHAVES } from '../../pages/ListaPedidos'
@@ -148,6 +149,7 @@ export function GerenciadorColunas() {
   const [erro, setErro]               = useState<string | null>(null)
   const [modalAberto, setModalAberto] = useState(false)
   const [colunaEdicao, setColunaEdicao] = useState<ColunaUsuario | undefined>(undefined)
+  const [confirmarExcluirColunaId, setConfirmarExcluirColunaId] = useState<string | null>(null)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
@@ -195,18 +197,21 @@ export function GerenciadorColunas() {
     setModalAberto(true)
   }, [])
 
-  const handleExcluir = useCallback(async (id: string) => {
-    const coluna = colunas.find(c => c.id === id)
-    if (!coluna) return
-    if (!window.confirm(`Excluir a coluna "${coluna.nome}"? Os valores existentes serão preservados.`)) return
+  const handleExcluir = useCallback((id: string) => {
+    setConfirmarExcluirColunaId(id)
+  }, [])
 
+  const handleExcluirConfirmado = useCallback(async () => {
+    const id = confirmarExcluirColunaId
+    if (!id) return
+    setConfirmarExcluirColunaId(null)
     try {
       await colunasUsuarioApi.excluir(id)
       setColunas(prev => prev.filter(c => c.id !== id))
     } catch {
       setErro('Erro ao excluir coluna. Tente novamente.')
     }
-  }, [colunas])
+  }, [confirmarExcluirColunaId])
 
   const handleNova = useCallback(() => {
     setColunaEdicao(undefined)
@@ -278,6 +283,15 @@ export function GerenciadorColunas() {
           </SortableContext>
         </DndContext>
       )}
+
+      <SelecaoExcluirGlobal
+        aberto={confirmarExcluirColunaId !== null}
+        titulo="Excluir coluna"
+        descricao="Os valores existentes serão preservados."
+        nomeItem={colunas.find(c => c.id === confirmarExcluirColunaId)?.nome}
+        aoConfirmar={handleExcluirConfirmado}
+        aoCancelar={() => setConfirmarExcluirColunaId(null)}
+      />
 
       {modalAberto && (
         <ModalNovaColuna

@@ -36,6 +36,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, type PdfTemplate } from '../shared/api'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
@@ -864,6 +865,7 @@ export default function Configuracoes() {
   const [templateConteudo, setTemplateConteudo] = useState('')
   const [templateCriandoNovo, setTemplateCriandoNovo] = useState(false)
   const [templateLoading, setTemplateLoading] = useState(false)
+  const [confirmarExcluirTemplateId, setConfirmarExcluirTemplateId] = useState<string | null>(null)
   const templateTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   const inserirVariavel = useCallback((variavel: string) => {
@@ -936,8 +938,14 @@ export default function Configuracoes() {
     cancelarEdicaoTemplate()
   }
 
-  async function excluirTemplate(id: string) {
-    if (!confirm('Excluir este template? Esta ação não pode ser desfeita.')) return
+  function excluirTemplate(id: string) {
+    setConfirmarExcluirTemplateId(id)
+  }
+
+  async function excluirTemplateConfirmado() {
+    const id = confirmarExcluirTemplateId
+    if (!id) return
+    setConfirmarExcluirTemplateId(null)
     try {
       await pdfApi.deletarTemplate(id)
     } catch {
@@ -2628,6 +2636,15 @@ export default function Configuracoes() {
         )}
 
       </main>
+
+      <SelecaoExcluirGlobal
+        aberto={confirmarExcluirTemplateId !== null}
+        titulo="Excluir template"
+        descricao="Esta ação não pode ser desfeita."
+        nomeItem={templates.find(t => t.id === confirmarExcluirTemplateId)?.nome}
+        aoConfirmar={excluirTemplateConfirmado}
+        aoCancelar={() => setConfirmarExcluirTemplateId(null)}
+      />
     </div>
   )
 }

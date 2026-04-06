@@ -6,6 +6,7 @@
 import React from 'react'
 import { CheckCircle, XCircle } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import type { SmartImportResultado } from '../../shared/types'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -74,13 +75,14 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
   const [revertendo, setRevertendo] = React.useState(false)
   const [revertido, setRevertido]   = React.useState(false)
   const [erroReversao, setErroReversao] = React.useState<string | null>(null)
+  const [confirmarReversaoAberto, setConfirmarReversaoAberto] = React.useState(false)
 
-  async function handleReverter() {
-    const totalAfetados = resultado.criados + resultado.atualizados
-    const descricao = resultado.atualizados > 0
-      ? `${resultado.criados} criado(s) e ${resultado.atualizados} atualizado(s)`
-      : `${resultado.criados} criado(s)`
-    if (!window.confirm(`Confirmar reversão? Os pedidos ${descricao} serão marcados como Cancelado. Total: ${totalAfetados} pedido(s).`)) return
+  function handleReverter() {
+    setConfirmarReversaoAberto(true)
+  }
+
+  async function handleReversaoConfirmada() {
+    setConfirmarReversaoAberto(false)
     setRevertendo(true)
     setErroReversao(null)
     try {
@@ -241,6 +243,14 @@ export function EtapaConfirmacao({ resultado, onVerPedidos, onFechar }: EtapaCon
           ✓ Importação revertida — pedidos marcados como Cancelado
         </div>
       )}
+
+      <SelecaoExcluirGlobal
+        aberto={confirmarReversaoAberto}
+        titulo="Reverter importação"
+        descricao={`${resultado.criados + resultado.atualizados} pedido(s) serão marcados como Cancelado. Esta ação não pode ser desfeita.`}
+        aoConfirmar={handleReversaoConfirmada}
+        aoCancelar={() => setConfirmarReversaoAberto(false)}
+      />
     </div>
   )
 }

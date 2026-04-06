@@ -30,6 +30,7 @@ import {
 } from '@phosphor-icons/react'
 import type { Anexo } from '../shared/types'
 import { anexosApi } from '../shared/api'
+import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import './PainelAnexos.css'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -71,6 +72,7 @@ export function PainelAnexos({ vinculo, vinculo_id, somenteLeitura = false }: Pa
   const [uploadProgress, setUploadProgress] = useState(0)
   const [previewAnexo, setPreviewAnexo] = useState<Anexo | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [confirmarExcluirAnexo, setConfirmarExcluirAnexo] = useState<Anexo | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const carregarAnexos = useCallback(async () => {
@@ -164,15 +166,21 @@ export function PainelAnexos({ vinculo, vinculo_id, somenteLeitura = false }: Pa
     }
   }, [previewUrl])
 
-  const handleExcluir = useCallback(async (anexo: Anexo) => {
-    if (!confirm(`Excluir "${anexo.nome_arquivo}"?`)) return
+  const handleExcluir = useCallback((anexo: Anexo) => {
+    setConfirmarExcluirAnexo(anexo)
+  }, [])
+
+  const handleExcluirConfirmado = useCallback(async () => {
+    const anexo = confirmarExcluirAnexo
+    if (!anexo) return
+    setConfirmarExcluirAnexo(null)
     try {
       await anexosApi.excluir(anexo.id)
       setAnexos(prev => prev.filter(a => a.id !== anexo.id))
     } catch {
       setErro('Erro ao excluir anexo')
     }
-  }, [])
+  }, [confirmarExcluirAnexo])
 
   const isPrevisualizavel = (anexo: Anexo) => {
     const ext = anexo.nome_arquivo.split('.').pop()?.toLowerCase() ?? ''
@@ -342,6 +350,14 @@ export function PainelAnexos({ vinculo, vinculo_id, somenteLeitura = false }: Pa
           </div>
         </div>
       )}
+      <SelecaoExcluirGlobal
+        aberto={confirmarExcluirAnexo !== null}
+        titulo="Excluir anexo"
+        descricao="Esta ação não pode ser desfeita."
+        nomeItem={confirmarExcluirAnexo?.nome_arquivo}
+        aoConfirmar={handleExcluirConfirmado}
+        aoCancelar={() => setConfirmarExcluirAnexo(null)}
+      />
     </div>
   )
 }

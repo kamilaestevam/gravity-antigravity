@@ -556,7 +556,7 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
         await new Promise(r => setTimeout(r, 400))
         setLogs(MOCK_LOGS)
       } else {
-        const url = `${apiBaseUrl}/api/v1/historico/logs?product_id=${encodeURIComponent(productId)}&limit=200`
+        const url = `${apiBaseUrl}/api/v1/historico/logs?product_id=${encodeURIComponent(productId)}&limit=50`
         const headers: Record<string, string> = {}
         if (tenantId) headers['x-tenant-id'] = tenantId
         const res = await fetch(url, { credentials: 'include', headers })
@@ -570,7 +570,7 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
     } finally {
       setLoading(false)
     }
-  }, [productId, apiBaseUrl, useMock])
+  }, [productId, apiBaseUrl, useMock, tenantId])
 
   useEffect(() => { loadLogs() }, [loadLogs])
 
@@ -625,6 +625,62 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
       ),
     },
     {
+      key: 'before',
+      label: 'De',
+      tipo: 'texto',
+      tooltipTitulo: 'De',
+      tooltipDescricao: 'Estado do registro antes da ação.',
+      render: (v, item) => {
+        const before = v as Record<string, unknown> | undefined
+        const after  = item.after as Record<string, unknown> | undefined
+        if (!before || typeof before !== 'object') return <span style={{ color: '#475569', display: 'block', textAlign: 'center' }}>—</span>
+        const campos = after && typeof after === 'object'
+          ? Object.keys(before).filter(k => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
+          : Object.keys(before)
+        if (campos.length === 0) return <span style={{ color: '#475569', display: 'block', textAlign: 'center' }}>—</span>
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+            {campos.slice(0, 3).map(k => (
+              <div key={k} style={{ display: 'flex', alignItems: 'baseline', gap: '4px', justifyContent: 'center' }}>
+                <span style={{ fontSize: '0.7rem', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>{k}</span>
+                <span style={{ fontSize: '0.7rem', color: '#f87171', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.18)', borderRadius: '4px', padding: '0 5px', fontWeight: 600, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {String(before[k] ?? '—')}
+                </span>
+              </div>
+            ))}
+          </div>
+        )
+      },
+    },
+    {
+      key: 'after',
+      label: 'Para',
+      tipo: 'texto',
+      tooltipTitulo: 'Para',
+      tooltipDescricao: 'Estado do registro após a ação.',
+      render: (v, item) => {
+        const after  = v as Record<string, unknown> | undefined
+        const before = item.before as Record<string, unknown> | undefined
+        if (!after || typeof after !== 'object') return <span style={{ color: '#475569', display: 'block', textAlign: 'center' }}>—</span>
+        const campos = before && typeof before === 'object'
+          ? Object.keys(after).filter(k => JSON.stringify(after[k]) !== JSON.stringify(before[k]))
+          : Object.keys(after)
+        if (campos.length === 0) return <span style={{ color: '#475569', display: 'block', textAlign: 'center' }}>—</span>
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px' }}>
+            {campos.slice(0, 3).map(k => (
+              <div key={k} style={{ display: 'flex', alignItems: 'baseline', gap: '4px', justifyContent: 'center' }}>
+                <span style={{ fontSize: '0.7rem', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>{k}</span>
+                <span style={{ fontSize: '0.7rem', color: '#34d399', background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.18)', borderRadius: '4px', padding: '0 5px', fontWeight: 600, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {String(after[k] ?? '—')}
+                </span>
+              </div>
+            ))}
+          </div>
+        )
+      },
+    },
+    {
       key: 'module',
       label: 'Módulo',
       tipo: 'texto',
@@ -652,16 +708,6 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
       },
     },
     {
-      key: 'action_detail',
-      label: t('admin.history.tabela.o_que_foi_feito'),
-      tipo: 'texto',
-      tooltipTitulo: 'O que foi feito',
-      tooltipDescricao: 'Descrição detalhada da ação executada e o recurso afetado.',
-      render: (v) => (
-        <span style={{ color: '#e2e8f0', fontSize: '0.8125rem' }}>{String(v)}</span>
-      ),
-    },
-    {
       key: 'status',
       label: 'Status',
       tipo: 'texto',
@@ -687,7 +733,7 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
   // ── Render ─────────────────────────────────────────────────────
 
   return (
-    <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minHeight: 0 }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button
           onClick={() => loadLogs()}

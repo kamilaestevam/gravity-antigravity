@@ -2093,7 +2093,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       : undefined
                   }
                 >
-                  {col.label}
+                  <span className="gtv-th-label">{col.label}</span>
                   {col.sortavel && (
                     <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>
                       {sortAtivo ? (

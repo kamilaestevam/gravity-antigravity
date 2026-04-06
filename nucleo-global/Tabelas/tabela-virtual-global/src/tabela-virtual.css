@@ -512,6 +512,15 @@
   align-items: center;
   gap: 0.375rem;
   flex: 1;
+  min-width: 0; /* largura definida exclusivamente pelo getColWidth — nunca sobrescrever aqui */
+}
+
+/* Label do cabeçalho: trunca com ellipsis, ícones de sort/filter ficam fora e nunca clipados */
+.gtv-th-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
   min-width: 0;
 }
 

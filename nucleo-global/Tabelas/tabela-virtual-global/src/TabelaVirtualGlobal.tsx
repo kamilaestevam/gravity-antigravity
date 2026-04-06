@@ -1333,7 +1333,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     estimateSize: (i) =>
       linhasVirtuais[i]?.tipo === 'filho' ? childRowHeight : rowHeight,
     overscan,
-    paddingStart: CABECALHO_HEIGHT,
+    paddingStart: 0,
   })
 
   // ── Find: reset ativo ao mudar matches ───────────────────────────────────────
@@ -2274,7 +2274,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       : undefined
                   }
                 >
-                  <span className="gtv-th-label">{col.label}</span>
+                  <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
                   {col.sortavel && (
                     <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>
                       {sortAtivo ? (

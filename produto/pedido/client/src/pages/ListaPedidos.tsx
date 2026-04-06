@@ -62,12 +62,12 @@ import type { ColunasExport } from '../shared/exportUtils'
 import {
   pedidoApi,
   pedidoVirtualApi,
+  pedidoInitApi,
   pedidoConfigApi,
   pedidoLoteApi,
   pedidoItemApi,
   pedidoDuplicarApi,
   pedidoExcluirApi,
-  colunasUsuarioApi,
 } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { ModalConsolidar } from '../components/ModalConsolidar'
@@ -484,6 +484,26 @@ function lerAbasDoLocalStorage(): GTAbaTipo[] | null {
       ...entries.map(([id, cfg]) => ({ valor: id, label: cfg.label, cor: cfg.cor })),
     ]
   } catch { return null }
+}
+
+// ── Cache localStorage com TTL (para dados de config que mudam raramente) ────
+
+const PEDIDO_CONFIG_CACHE_TTL = 10 * 60_000 // 10 minutos
+
+function lsGetComTTL<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const entry = JSON.parse(raw) as { data: T; expiry: number }
+    if (Date.now() > entry.expiry) { localStorage.removeItem(key); return null }
+    return entry.data
+  } catch { return null }
+}
+
+function lsSetComTTL(key: string, data: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify({ data, expiry: Date.now() + PEDIDO_CONFIG_CACHE_TTL }))
+  } catch { /* ignora erros de quota */ }
 }
 
 // ── Casas decimais configuráveis pelo usuário ────────────────────────────────
@@ -4250,16 +4270,7 @@ export default function ListaPedidos() {
       setTemMais(res.hasMore)
       setCursor(res.nextCursor ?? undefined)
     } catch {
-      if (import.meta.env.DEV) {
-        // DEV sem backend → carrega dados mock para permitir testes visuais e Playwright
-        const { MOCK_PEDIDOS_RESPONSE } = await import('../shared/mockData')
-        setPedidos(MOCK_PEDIDOS_RESPONSE.data)
-        setTotal(MOCK_PEDIDOS_RESPONSE.data.length)
-        setTemMais(false)
-        setCursor(undefined)
-      } else {
-        addNotification({ type: 'error', message: 'Erro ao carregar pedidos. Verifique a conexão e tente novamente.' })
-      }
+      addNotification({ type: 'error', message: 'Erro ao carregar pedidos. Verifique a conexão e tente novamente.' })
     } finally {
       setCarregando(false)
       carregandoRef.current = false
@@ -4313,27 +4324,69 @@ export default function ListaPedidos() {
 
     const STATUS_OPTS = statusOpts
 
+    // Detectar numeros_pedido duplicados na lista carregada
+    const contagemNumeros = new Map<string, number>()
+    pedidos.forEach(p => {
+      if (p.numero_pedido) contagemNumeros.set(p.numero_pedido, (contagemNumeros.get(p.numero_pedido) ?? 0) + 1)
+    })
+    const numerosRepetidos = new Set<string>()
+    contagemNumeros.forEach((count, num) => { if (count > 1) numerosRepetidos.add(num) })
+
+    // Ler preferência do alerta no localStorage
+    const alertaAtivo = (() => {
+      try {
+        const raw = localStorage.getItem('pedido:regras_config')
+        if (raw) return (JSON.parse(raw) as { alertas?: { numeroDuplicado?: boolean } })?.alertas?.numeroDuplicado ?? true
+      } catch { /* ignore */ }
+      return true
+    })()
+
     const colunasBase = COLUNAS_PAI.map(col => {
-      if (col.key !== 'status') return col
-      return {
-        ...col,
-        editavel: true,
-        opcoes: STATUS_OPTS,
-        render: (_val: unknown, row: Pedido) => {
-          const cor = getStatusCor(row.status)
-          return (
-            <StatusBadgeGlobal
-              valor={getStatusLabel(row.status)}
-              genero="masculino"
-              style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
-            />
-          )
-        },
+      if (col.key === 'status') {
+        return {
+          ...col,
+          editavel: true,
+          opcoes: STATUS_OPTS,
+          render: (_val: unknown, row: Pedido) => {
+            const cor = getStatusCor(row.status)
+            return (
+              <StatusBadgeGlobal
+                valor={getStatusLabel(row.status)}
+                genero="masculino"
+                style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
+              />
+            )
+          },
+        }
       }
+      if (col.key === 'numero_pedido') {
+        return {
+          ...col,
+          render: (_val: unknown, row: Pedido) => {
+            const num = row.numero_pedido
+            if (!num) return <span style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.75rem' }}>(sem número)</span>
+            const isDuplicado = alertaAtivo && numerosRepetidos.has(num)
+            return (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                {String(num)}
+                {isDuplicado && (
+                  <Warning
+                    size={12}
+                    weight="fill"
+                    style={{ color: '#fbbf24', flexShrink: 0 }}
+                    title="Número de pedido duplicado"
+                  />
+                )}
+              </span>
+            )
+          },
+        }
+      }
+      return col
     })
 
     return [...colunasBase, ...custom]
-  }, [colunasUsuario, statusOpts])
+  }, [colunasUsuario, statusOpts, pedidos])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
@@ -4581,53 +4634,69 @@ export default function ListaPedidos() {
     return result
   }, [pedidos])
 
-  // ── Carregar status e preferências ──────────────────────────────────────────
+  // ── Carga inicial — /init agrega pedidos + status + prefs + colunas em 1 request ──
   useEffect(() => {
-    // Inicializar abas do localStorage imediatamente (enquanto API carrega)
+    // 1. Servir cache do localStorage imediatamente (zero latência, sem flicker)
     const abasLocal = lerAbasDoLocalStorage()
     if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
 
-    pedidoConfigApi.listarStatus()
+    const prefsCache = lsGetComTTL<PedidoPreferenciasColunas>('pedido:prefs_cache')
+    if (prefsCache && (prefsCache.colunas_visiveis?.length ?? 0) > 0) {
+      setPreferencias({ colunas_visiveis: prefsCache.colunas_visiveis, larguras: prefsCache.colunas_largura })
+    }
+
+    const colunasCache = lsGetComTTL<ColunaUsuario[]>('pedido:colunas_cache')
+    if (colunasCache) setColunasUsuario(colunasCache)
+
+    // 2. /init: 1 round-trip — todas as queries rodam em paralelo no servidor
+    if (carregandoRef.current) return
+    carregandoRef.current = true
+    setCarregando(true)
+    setCursor(undefined)
+
+    pedidoInitApi.carregar({ sort: sortCampo, dir: sortDir, limit: 100 })
       .then(res => {
-        if (res.data.length > 0) {
+        // Pedidos — primeira página
+        setPedidos(res.pedidos.data)
+        setTotal(res.pedidos.total)
+        setTemMais(res.pedidos.hasMore)
+        setCursor(res.pedidos.nextCursor ?? undefined)
+
+        // Status → abas
+        if (res.status.data.length > 0) {
           const abasApi: GTAbaTipo[] = [
             { valor: 'todos', label: 'Todos' },
-            ...res.data
+            ...res.status.data
               .sort((a, b) => a.ordem - b.ordem)
-              .map((s: PedidoStatusConfig) => ({
-                valor: s.nome,
-                label: s.rotulo,
-                cor: s.cor,
-              })),
+              .map((s: PedidoStatusConfig) => ({ valor: s.nome, label: s.rotulo, cor: s.cor })),
           ]
-          // Mescla com extras do localStorage (status criados pelo usuário)
           const idsApi = new Set(abasApi.map(a => a.valor))
           const extras = (abasLocal ?? []).filter(a => a.valor !== 'todos' && !idsApi.has(a.valor))
           setAbas([...abasApi, ...extras])
         }
+
+        // Preferências de colunas
+        const prefs = res.preferencias
+        if (prefs && (prefs.colunas_visiveis?.length ?? 0) > 0) {
+          setPreferencias({ colunas_visiveis: prefs.colunas_visiveis, larguras: prefs.colunas_largura })
+        }
+
+        // Colunas customizadas do usuário
+        setColunasUsuario(res.colunas)
+
+        // Gravar cache (TTL 10 min) — próxima abertura renderiza instantâneo do cache
+        lsSetComTTL('pedido:prefs_cache', prefs)
+        lsSetComTTL('pedido:colunas_cache', res.colunas)
       })
       .catch(() => {
-        // Fallback: usar dados do localStorage ou ABAS_PADRAO
-        if (!abasLocal || abasLocal.length <= 1) return
-        setAbas(abasLocal)
+        addNotification({ type: 'error', message: 'Erro ao carregar pedidos. Verifique a conexão e tente novamente.' })
+        if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
       })
-
-    pedidoConfigApi.getPreferenciasUsuario()
-      .then(prefs => {
-        if (prefs?.colunas_visiveis?.length > 0) {
-          setPreferencias({
-            colunas_visiveis: prefs.colunas_visiveis,
-            larguras: prefs.colunas_largura,
-          })
-        }
+      .finally(() => {
+        setCarregando(false)
+        carregandoRef.current = false
       })
-      .catch(() => { /* sem preferências salvas */ })
-
-    // Carregar colunas customizadas do usuário (escopo pedido ou ambos)
-    colunasUsuarioApi.listar()
-      .then(lista => setColunasUsuario(lista))
-      .catch(() => { /* fallback: sem colunas customizadas */ })
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {
@@ -4640,8 +4709,6 @@ export default function ListaPedidos() {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [novoDropdownAberto])
-
-  useEffect(() => { carregarInicial() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Carregar mais (cursor) ───────────────────────────────────────────────────
   const handleCarregarMais = useCallback(async () => {

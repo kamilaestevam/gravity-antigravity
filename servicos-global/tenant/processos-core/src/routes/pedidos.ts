@@ -82,6 +82,10 @@ const atualizarItemSchema = z.object({
   // Alias do frontend para a quantidade inicial do item
   // Mapeado para Prisma field 'quantidade_inicial_pedido' no handler
   quantidade_inicial_item_pedido: z.number().min(0).optional(),
+  // Dados físicos unitários
+  peso_liquido_unitario: z.number().optional().nullable(),
+  peso_bruto_unitario:   z.number().optional().nullable(),
+  cubagem_unitaria:      z.number().optional().nullable(),
 })
 
 const cancelarQuantidadeSchema = z.object({
@@ -109,7 +113,7 @@ function gerarId(prefixo: string): string {
  * Os nomes dos campos já correspondem ao schema (nomes longos via @map no fragment.prisma).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapItem(item: any): any {
+export function mapItem(item: any): any {
   return {
     ...item,
     // Campos Decimal do Prisma serializados como string no JSON → converter para number
@@ -125,32 +129,43 @@ function mapItem(item: any): any {
     quantidade_pronta_total:          Number(item.quantidade_pronta_pedido ?? 0),
     quantidade_transferida_item:      Number(item.quantidade_transferida_pedido ?? 0),
     quantidade_cancelada_item_pedido: Number(item.quantidade_cancelada_pedido ?? 0),
+    // Dados físicos unitários (Decimal → number)
+    peso_liquido_unitario: item.peso_liquido_unitario != null ? Number(item.peso_liquido_unitario) : null,
+    peso_bruto_unitario:   item.peso_bruto_unitario   != null ? Number(item.peso_bruto_unitario)   : null,
+    cubagem_unitaria:      item.cubagem_unitaria       != null ? Number(item.cubagem_unitaria)       : null,
   }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function mapPedido(pedido: any): any {
+export function mapPedido(pedido: any): any {
   if (!pedido) return pedido
+  const itens = Array.isArray(pedido.itens) ? pedido.itens.map(mapItem) : pedido.itens
   return {
     ...pedido,
-    itens: Array.isArray(pedido.itens) ? pedido.itens.map(mapItem) : pedido.itens,
+    itens,
+    // Alias: Prisma usa quantidade_total_pedido; frontend espera quantidade_total_inicial_pedido
+    quantidade_total_inicial_pedido: pedido.quantidade_total_pedido ?? null,
+    // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
+    quantidade_pronta_itens_pedido_total: Array.isArray(itens)
+      ? itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_total ?? 0), 0)
+      : (pedido.quantidade_pronta_itens_pedido_total ?? null),
   }
 }
 
 // ── Cursor pagination helpers ─────────────────────────────────────────────────
 
 // Campos suportados como sort key no cursor pagination
-const CURSOR_SORT_FIELDS = ['data_emissao_pedido', 'numero_pedido', 'valor_total_pedido', 'created_at', 'updated_at'] as const
-type CursorSortField = typeof CURSOR_SORT_FIELDS[number]
+export const CURSOR_SORT_FIELDS = ['data_emissao_pedido', 'numero_pedido', 'valor_total_pedido', 'created_at', 'updated_at'] as const
+export type CursorSortField = typeof CURSOR_SORT_FIELDS[number]
 
-interface CursorPayload {
+export interface CursorPayload {
   sort_field: CursorSortField
   sort_value: unknown
   sort_dir: 'asc' | 'desc'
   id: string
 }
 
-function encodeCursor(payload: CursorPayload): string {
+export function encodeCursor(payload: CursorPayload): string {
   return Buffer.from(JSON.stringify(payload)).toString('base64url')
 }
 
@@ -184,7 +199,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
     const tenant_id = req.headers['x-tenant-id'] as string
     const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
-    const where: Record<string, unknown> = { tenant_id, company_id }
+    const where: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
     if (status) {
       const statusList = (status as string).split(',').map(s => s.trim()).filter(Boolean)
       where.status = statusList.length > 1 ? { in: statusList } : statusList[0]
@@ -466,7 +481,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
 
 // ── PATCH /:id/campo — Editar campo inline (cell editing) ────────────────────
 
-// Campos permitidos para edição inline
+// Campos editados diretamente no banco via PATCH /:id/campo
 const CAMPOS_EDITAVEIS = new Set([
   'numero_pedido',
   'numero_proforma',
@@ -482,6 +497,19 @@ const CAMPOS_EDITAVEIS = new Set([
   'exportacao_importador_id',
   'data_emissao_pedido',
   'campos_custom',
+  'unidade_comercializada_pedido',
+])
+
+// Campos cujo valor é sempre recalculado a partir dos itens (valor enviado pelo cliente é ignorado)
+// valor_total_pedido e quantidade_total_inicial_pedido → persistidos no Prisma após recálculo
+// quantidade_pronta_itens_pedido_total, peso_*_total_pedido, cubagem_total_pedido → virtuais, não persistidos
+const CAMPOS_RECALCULAVEIS = new Set([
+  'valor_total_pedido',
+  'quantidade_total_inicial_pedido',
+  'quantidade_pronta_itens_pedido_total',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
 ])
 
 const editarCampoSchema = z.object({
@@ -499,8 +527,8 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
     const { campo, valor, updated_at } = result.data
 
-    if (!CAMPOS_EDITAVEIS.has(campo)) {
-      throw new AppError(400, `Campo "${campo}" nao pode ser editado inline. Campos permitidos: ${[...CAMPOS_EDITAVEIS].join(', ')}`)
+    if (!CAMPOS_EDITAVEIS.has(campo) && !CAMPOS_RECALCULAVEIS.has(campo)) {
+      throw new AppError(400, `Campo "${campo}" nao pode ser editado inline. Campos permitidos: ${[...CAMPOS_EDITAVEIS, ...CAMPOS_RECALCULAVEIS].join(', ')}`)
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
@@ -527,7 +555,52 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       })
     }
 
-    // Para campos_custom: merge com existente
+    // ── Campos recalculados a partir dos itens (valor do cliente ignorado) ──────
+    if (CAMPOS_RECALCULAVEIS.has(campo)) {
+      const itens = await req.prisma.pedidoItem.findMany({
+        where: { pedido_id: req.params.id, tenant_id, company_id },
+      })
+
+      const dadosRecalc: Record<string, unknown> = {}
+
+      if (campo === 'valor_total_pedido') {
+        const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_item ?? 0), 0)
+        const casas = pedido.casas_decimais_total_pedido ?? 2
+        dadosRecalc.valor_total_pedido = parseFloat(soma.toFixed(casas))
+      } else if (campo === 'quantidade_total_inicial_pedido') {
+        const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_pedido ?? 0), 0)
+        const casas = pedido.casas_decimais_quantidade_total_pedido ?? 2
+        dadosRecalc.quantidade_total_pedido = parseFloat(soma.toFixed(casas))
+      } else if (campo === 'peso_liquido_total_pedido') {
+        const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario ?? 0) * Number(i.quantidade_inicial_pedido ?? 0), 0)
+        const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
+        dadosRecalc.peso_liquido_total_pedido = parseFloat(soma.toFixed(casas))
+      } else if (campo === 'peso_bruto_total_pedido') {
+        const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario ?? 0) * Number(i.quantidade_inicial_pedido ?? 0), 0)
+        const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
+        dadosRecalc.peso_bruto_total_pedido = parseFloat(soma.toFixed(casas))
+      } else if (campo === 'cubagem_total_pedido') {
+        const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria ?? 0) * Number(i.quantidade_inicial_pedido ?? 0), 0)
+        const casas = (pedido as any).casas_decimais_cubagem_pedido ?? 4
+        dadosRecalc.cubagem_total_pedido = parseFloat(soma.toFixed(casas))
+      }
+      // quantidade_pronta_itens_pedido_total → virtual, sem coluna Prisma, computado em mapPedido
+
+      if (Object.keys(dadosRecalc).length > 0) {
+        await req.prisma.pedido.update({
+          where: { id: req.params.id },
+          data: dadosRecalc,
+        })
+      }
+
+      const updatedRecalc = await req.prisma.pedido.findFirst({
+        where: { id: req.params.id, tenant_id, company_id },
+        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+      })
+      return res.json(mapPedido(updatedRecalc))
+    }
+
+    // ── Campos editados diretamente no banco ────────────────────────────────────
     let dadosUpdate: Record<string, unknown>
     if (campo === 'campos_custom') {
       if (typeof valor !== 'object' || valor === null || Array.isArray(valor)) {

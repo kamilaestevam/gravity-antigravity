@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../../node_modules/.prisma/client"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -40,6 +40,9 @@ model Pedido {
   data_emissao_pedido                    DateTime            @default(now())
   detalhes_operacionais                  Json?
   campos_custom                          Json?
+  pedidos_origem                         String[]
+  data_consolidacao_pedido               DateTime?
+  deleted_at                             DateTime?
   created_at                             DateTime            @default(now())
   updated_at                             DateTime            @updatedAt
   itens                                  PedidoItem[]
@@ -52,6 +55,7 @@ model Pedido {
   @@index([tenant_id, status_id])
   @@index([tenant_id, tipo_operacao])
   @@index([tenant_id, data_emissao_pedido])
+  @@index([tenant_id, deleted_at])
   @@map("pedidos_comerciais")
 }
 

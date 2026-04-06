@@ -18,6 +18,12 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 
+function gerarId(prefixo: string): string {
+  const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
+  const ano = String(new Date().getFullYear()).slice(-2)
+  return `${prefixo}_id_${seq}-${ano}`
+}
+
 export const consolidarRouter = Router()
 
 // ── Classe de erro local (padrão project) ────────────────────────────────────
@@ -206,21 +212,21 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         if (fundir_itens_mesmo_part_number && partNumbersVistos.has(item.part_number)) {
           const existente = itensMerge.find((i: any) => i.part_number === item.part_number)
           if (existente) {
-            existente.quantidade_inicial_item_pedido += item.quantidade_inicial_item_pedido
-            existente.saldo_item_pedido += item.saldo_item_pedido
-            existente.quantidade_pronta_total += item.quantidade_pronta_total
-            existente.valor_total_item = (existente.valor_total_item ?? 0) + (item.valor_total_item ?? 0)
+            existente.quantidade_inicial_pedido = (Number(existente.quantidade_inicial_pedido) || 0) + (Number(item.quantidade_inicial_pedido) || 0)
+            existente.quantidade_atual_pedido = (Number(existente.quantidade_atual_pedido) || 0) + (Number(item.quantidade_atual_pedido) || 0)
+            existente.quantidade_pronta_pedido = (Number(existente.quantidade_pronta_pedido) || 0) + (Number(item.quantidade_pronta_pedido) || 0)
+            existente.valor_total_item = (Number(existente.valor_total_item) || 0) + (Number(item.valor_total_item) || 0)
           }
         } else {
           partNumbersVistos.add(item.part_number)
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id: _id, pedido_id: _pedido_id, created_at: _ca, updated_at: _ua, ...itemData } = item
-          itensMerge.push({ ...itemData })
+          itensMerge.push({ ...itemData, id: gerarId('pite') })
         }
       }
     }
 
-    const valorTotal = pedidos.reduce((acc: number, p: any) => acc + (p.valor_total_pedido ?? 0), 0)
+    const valorTotal = pedidos.reduce((acc: number, p: any) => acc + (Number(p.valor_total_pedido) || 0), 0)
 
     // Campos base do pedido consolidado (primeiro prevalece como default)
     const camposBase = {
@@ -228,8 +234,6 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       status:                          'consolidado',
       importacao_exportador_id:        primeiro.importacao_exportador_id,
       exportacao_importador_id:        primeiro.exportacao_importador_id,
-      exportador_nome:                 primeiro.exportador_nome,
-      fabricante_nome:                 primeiro.fabricante_nome,
       incoterm:                        primeiro.incoterm,
       moeda_pedido:                    primeiro.moeda_pedido,
       casas_decimais_total_pedido:     primeiro.casas_decimais_total_pedido,
@@ -245,12 +249,14 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       // 1. Criar o pedido consolidado
       const novo = await tx.pedido.create({
         data: {
+          id: gerarId('pedi'),
+          company_id: primeiro.company_id,
           ...camposBase,
           ...campos_escolhidos,
           numero_pedido,
           valor_total_pedido: valorTotal,
           pedidos_origem: ids,
-          data_consolidacao_pedido: new Date().toISOString(),
+          data_consolidacao_pedido: new Date(),
           itens: {
             create: itensMerge,
           },

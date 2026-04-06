@@ -53,7 +53,6 @@ model Pedido {
 
   // Lista Fatiável de Itens (A ORDEM 1:N SALVA!)
   itens          PedidoItem[]
-  transferencias TransferHistorico[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -75,7 +74,7 @@ model PedidoItem {
   pedido_id  String // (Fio Invisível/Máquina) Aponta silenciosamente para o 'id' do Pedido Pai
 
   // Identidade do Produto (Padrão Ouro de Comércio Exterior)
-  sequencia_item              Int? // Sequencial da Linha no Documento/Processo (Ex: 10, 20)
+  sequencia_item              Int? // Sequencial da Linha no Documento/Processo (Ex: 1, 2, 3)
   part_number                 String // Chave do cadastro interno (SKU Interno Estável)
   ncm                         String // Classificação Fiscal
   descricao                   String

@@ -110,11 +110,20 @@ function gerarId(prefixo: string): string {
 function mapItem(item: any): any {
   return {
     ...item,
-    quantidade_inicial_item_pedido:   item.quantidade_inicial_pedido,
-    saldo_item_pedido:                item.quantidade_atual_pedido,
-    quantidade_pronta_total:          item.quantidade_pronta_pedido,
-    quantidade_transferida_item:      item.quantidade_transferida_pedido,
-    quantidade_cancelada_item_pedido: item.quantidade_cancelada_pedido,
+    // Campos Decimal do Prisma são serializados como string no JSON — converter para number
+    quantidade_inicial_pedido:        Number(item.quantidade_inicial_pedido ?? 0),
+    quantidade_atual_pedido:          Number(item.quantidade_atual_pedido ?? 0),
+    quantidade_pronta_pedido:         Number(item.quantidade_pronta_pedido ?? 0),
+    quantidade_transferida_pedido:    Number(item.quantidade_transferida_pedido ?? 0),
+    quantidade_cancelada_pedido:      Number(item.quantidade_cancelada_pedido ?? 0),
+    valor_total_item:                 item.valor_total_item != null ? Number(item.valor_total_item) : null,
+    valor_por_unidade_item:           item.valor_por_unidade_item != null ? Number(item.valor_por_unidade_item) : null,
+    // Aliases esperados pelo frontend
+    quantidade_inicial_item_pedido:   Number(item.quantidade_inicial_pedido ?? 0),
+    saldo_item_pedido:                Number(item.quantidade_atual_pedido ?? 0),
+    quantidade_pronta_total:          Number(item.quantidade_pronta_pedido ?? 0),
+    quantidade_transferida_item:      Number(item.quantidade_transferida_pedido ?? 0),
+    quantidade_cancelada_item_pedido: Number(item.quantidade_cancelada_pedido ?? 0),
   }
 }
 
@@ -320,7 +329,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               id: gerarId('pite'),
               tenant_id,
               company_id,
-              sequencia_item: item.sequencia_item ?? (index + 1) * 10,
+              sequencia_item: item.sequencia_item ?? (index + 1),
               part_number: item.part_number ?? '',
               ncm: item.ncm ?? '',
               descricao_item: item.descricao_item ?? '',

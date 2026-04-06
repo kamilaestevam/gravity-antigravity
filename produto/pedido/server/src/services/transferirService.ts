@@ -95,14 +95,14 @@ export class TransferirService {
   async preview(tenantId: string, payload: TransferPayload, db: any): Promise<TransferPreview> {
     const pedido = await db.pedido.findFirst({
       where: { id: payload.pedido_id, tenant_id: tenantId },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
     if (!pedido) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
 
     const item = pedido.itens.find((i: any) => i.id === payload.item_id)
     if (!item) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    const saldoAtual = Number(item.quantidade_atual_pedido)
+    const saldoAtual = Number(item.quantidade_saldo_pedido)
     const quantidadeApos = saldoAtual - payload.quantidade_origem
     const alertasGlobais: string[] = []
 
@@ -158,14 +158,14 @@ export class TransferirService {
   async confirmar(tenantId: string, userId: string, payload: TransferPayload, db: any): Promise<TransferResultado> {
     const pedidoOrigem = await db.pedido.findFirst({
       where: { id: payload.pedido_id, tenant_id: tenantId },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
     if (!pedidoOrigem) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
 
     const itemOrigem = pedidoOrigem.itens.find((i: any) => i.id === payload.item_id)
     if (!itemOrigem) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    await this.validarQuantidade(Number(itemOrigem.quantidade_atual_pedido), payload.quantidade_origem)
+    await this.validarQuantidade(Number(itemOrigem.quantidade_saldo_pedido), payload.quantidade_origem)
 
     const pedidosDestinoIds: string[] = []
     const pedidosCriados: string[] = []
@@ -187,7 +187,7 @@ export class TransferirService {
         } else if (destino.tipo === 'existente' && destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
             where: { id: destino.pedido_id, tenant_id: tenantId },
-            include: { itens: true },
+            include: { itens: { orderBy: { sequencia_item: 'asc' } } },
           })
           if (!pedidoDestino) {
             throw new AppError(`Pedido destino ${destino.pedido_id} não encontrado`, 404, 'NOT_FOUND')
@@ -202,7 +202,7 @@ export class TransferirService {
             await tx.pedidoItem.update({
               where: { id: itemExistente.id },
               data: {
-                quantidade_atual_pedido: Number(itemExistente.quantidade_atual_pedido) + destino.quantidade,
+                quantidade_saldo_pedido: Number(itemExistente.quantidade_saldo_pedido) + destino.quantidade,
                 quantidade_inicial_pedido: Number(itemExistente.quantidade_inicial_pedido) + destino.quantidade,
                 // quantidade_transferida_pedido NÃO se altera: o destino recebe, não transfere para fora
               },
@@ -224,11 +224,11 @@ export class TransferirService {
 
       // Reduzir quantidade do item de origem (para todos os cenários exceto substituicao_pura)
       if (payload.cenario !== 'substituicao_pura') {
-        const novaQty = Number(itemOrigem.quantidade_atual_pedido) - payload.quantidade_origem
+        const novaQty = Number(itemOrigem.quantidade_saldo_pedido) - payload.quantidade_origem
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            quantidade_atual_pedido: novaQty,
+            quantidade_saldo_pedido: novaQty,
             quantidade_transferida_pedido: Number(itemOrigem.quantidade_transferida_pedido) + payload.quantidade_origem,
           },
         })
@@ -292,7 +292,7 @@ export class TransferirService {
         if (destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
             where: { id: destino.pedido_id, tenant_id: tenantId },
-            include: { itens: true },
+            include: { itens: { orderBy: { sequencia_item: 'asc' } } },
           })
           if (pedidoDestino) {
             const itemDestino = pedidoDestino.itens.find((i: any) =>
@@ -412,7 +412,7 @@ export class TransferirService {
       descricao_item: itemOrigem.descricao_item ?? '',
       unidade_comercializada_item: itemOrigem.unidade_comercializada_item ?? null,
       quantidade_inicial_pedido: destino.quantidade,
-      quantidade_atual_pedido: destino.quantidade,
+      quantidade_saldo_pedido: destino.quantidade,
       casas_decimais_quantidade_item: itemOrigem.casas_decimais_quantidade_item ?? 2,
       moeda_item: itemOrigem.moeda_item ?? 'USD',
       valor_por_unidade_item: itemOrigem.valor_por_unidade_item != null ? Number(itemOrigem.valor_por_unidade_item) : null,
@@ -425,10 +425,10 @@ export class TransferirService {
   private async recalcularAgregados(tenantId: string, pedidoId: string, tx: any): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
       where: { pedido_id: pedidoId, tenant_id: tenantId },
-      select: { quantidade_atual_pedido: true },
+      select: { quantidade_saldo_pedido: true },
     })
 
-    const qtdAtualTotal = itens.reduce((acc: number, i: any) => acc + Number(i.quantidade_atual_pedido ?? 0), 0)
+    const qtdAtualTotal = itens.reduce((acc: number, i: any) => acc + Number(i.quantidade_saldo_pedido ?? 0), 0)
 
     await tx.pedido.update({
       where: { id: pedidoId },
@@ -450,7 +450,7 @@ export class TransferirService {
 
     // Config: excluir item quando qty = 0 (default: false — só executa se ativo)
     for (const item of itens) {
-      if (Number(item.quantidade_atual_pedido) <= 0) {
+      if (Number(item.quantidade_saldo_pedido) <= 0) {
         await tx.pedidoItem.delete({ where: { id: item.id } })
         itensExcluidos.push(item.id)
       }

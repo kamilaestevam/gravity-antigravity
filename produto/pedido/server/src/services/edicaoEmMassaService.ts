@@ -19,7 +19,6 @@ const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'valor_total_pedido',
   'quantidade_total_inicial_pedido',
   'quantidade_transferida_total',
-  'status',
   'id',
   'tenant_id',
   'product_id',
@@ -116,7 +115,7 @@ export class EdicaoEmMassaService {
 
     const pedidos = await db.pedido.findMany({
       where: { tenant_id: tenantId, id: { in: payload.pedido_ids } },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     const itensAfetados = pedidos.reduce(
@@ -178,7 +177,7 @@ export class EdicaoEmMassaService {
 
     const pedidos = await db.pedido.findMany({
       where: { tenant_id: tenantId, id: { in: payload.pedido_ids } },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     if (pedidos.length === 0) {

@@ -112,7 +112,7 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
     if (pedidoFinder) {
       pedido = await (pedidoFinder as { findFirst: (args: unknown) => Promise<unknown> }).findFirst({
         where: { id: pedido_id, tenant_id: tenantId },
-        include: { itens: true },
+        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
       })
     }
 
@@ -240,7 +240,7 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
     if (pedidoFinder) {
       pedido = await (pedidoFinder as { findFirst: (args: unknown) => Promise<unknown> }).findFirst({
         where: { id: pedido_id, tenant_id: tenantId },
-        include: { itens: true },
+        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
       })
     }
 

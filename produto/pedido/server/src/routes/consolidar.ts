@@ -83,7 +83,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     // Buscar pedidos com itens — tenant_id injetado automaticamente pelo middleware
     const pedidos = await db.pedido.findMany({
       where: { id: { in: ids } },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     if (pedidos.length < 2) {
@@ -176,7 +176,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
     // Buscar pedidos originais
     const pedidos = await db.pedido.findMany({
       where: { id: { in: ids } },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     if (pedidos.length < 2) {
@@ -255,7 +255,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
             create: itensMerge,
           },
         },
-        include: { itens: true },
+        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
       })
 
       // 2. Soft delete dos pedidos originais — marcados como deleted_at

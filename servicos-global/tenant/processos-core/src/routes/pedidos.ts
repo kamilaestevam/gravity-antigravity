@@ -79,6 +79,9 @@ const atualizarItemSchema = z.object({
   moeda_item: z.string().optional(),
   valor_por_unidade_item: z.number().optional().nullable(),
   valor_total_item: z.number().optional().nullable(),
+  // Alias do frontend para a quantidade inicial do item
+  // Mapeado para Prisma field 'quantidade_inicial_pedido' no handler
+  quantidade_inicial_item_pedido: z.number().min(0).optional(),
 })
 
 const cancelarQuantidadeSchema = z.object({
@@ -111,7 +114,7 @@ function mapItem(item: any): any {
     ...item,
     // Campos Decimal do Prisma serializados como string no JSON → converter para number
     quantidade_inicial_pedido:        Number(item.quantidade_inicial_pedido ?? 0),
-    quantidade_atual_pedido:          Number(item.quantidade_atual_pedido ?? 0),
+    quantidade_saldo_pedido:          Number(item.quantidade_saldo_pedido ?? 0),
     quantidade_pronta_pedido:         Number(item.quantidade_pronta_pedido ?? 0),
     quantidade_transferida_pedido:    Number(item.quantidade_transferida_pedido ?? 0),
     quantidade_cancelada_pedido:      Number(item.quantidade_cancelada_pedido ?? 0),
@@ -119,7 +122,6 @@ function mapItem(item: any): any {
     valor_por_unidade_item:           item.valor_por_unidade_item != null ? Number(item.valor_por_unidade_item) : null,
     // Aliases adicionais esperados pelo frontend (types.ts PedidoItem)
     quantidade_inicial_item_pedido:   Number(item.quantidade_inicial_pedido ?? 0),
-    saldo_item_pedido:                Number(item.quantidade_atual_pedido ?? 0),
     quantidade_pronta_total:          Number(item.quantidade_pronta_pedido ?? 0),
     quantidade_transferida_item:      Number(item.quantidade_transferida_pedido ?? 0),
     quantidade_cancelada_item_pedido: Number(item.quantidade_cancelada_pedido ?? 0),
@@ -220,7 +222,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
 
       const data = await req.prisma.pedido.findMany({
         where,
-        include: { itens: true },
+        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
         orderBy: [
           { [sortField]: sortDir },
           { id: sortDir },
@@ -253,7 +255,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
     const [data, total] = await Promise.all([
       req.prisma.pedido.findMany({
         where,
-        include: { itens: true },
+        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
         orderBy: { data_emissao_pedido: 'desc' },
         skip,
         take: limitNum,
@@ -333,7 +335,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               ncm: item.ncm ?? '',
               descricao_item: item.descricao_item ?? '',
               quantidade_inicial_pedido: item.quantidade_inicial_pedido ?? 0,
-              quantidade_atual_pedido: item.quantidade_inicial_pedido ?? 0,
+              quantidade_saldo_pedido: item.quantidade_inicial_pedido ?? 0,
               casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
@@ -343,7 +345,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
             })),
           },
         },
-        include: { itens: true },
+        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
       })
 
       return novoPedido
@@ -382,7 +384,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
     const updated = await req.prisma.pedido.update({
       where: { id: req.params.id },
       data: result.data,
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     res.json(mapPedido(updated))
@@ -453,7 +455,7 @@ pedidosRouter.patch('/:id/status', async (req: Request, res: Response, next: Nex
     const updated = await req.prisma.pedido.update({
       where: { id: req.params.id },
       data: { status: result.data.status },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     res.json(mapPedido(updated))
@@ -542,7 +544,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
     const updated = await req.prisma.pedido.update({
       where: { id: req.params.id },
       data: dadosUpdate,
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     res.json(mapPedido(updated))
@@ -560,7 +562,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
 
     const original = await req.prisma.pedido.findFirst({
       where: { id: req.params.id, tenant_id, company_id },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     if (!original) {
@@ -599,7 +601,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
             ncm: item.ncm,
             descricao_item: item.descricao_item,
             quantidade_inicial_pedido: item.quantidade_inicial_pedido,
-            quantidade_atual_pedido: item.quantidade_inicial_pedido,
+            quantidade_saldo_pedido: item.quantidade_inicial_pedido,
             casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
             unidade_comercializada_item: item.unidade_comercializada_item,
             moeda_item: item.moeda_item,
@@ -609,7 +611,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
           })),
         },
       },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     res.status(201).json(mapPedido(duplicado))
@@ -650,7 +652,7 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
         company_id,
         pedido_id: req.params.id,
         ...result.data,
-        quantidade_atual_pedido: result.data.quantidade_inicial_pedido,
+        quantidade_saldo_pedido: result.data.quantidade_inicial_pedido,
         quantidade_pronta_pedido: 0,
         quantidade_transferida_pedido: 0,
         quantidade_cancelada_pedido: 0,
@@ -684,9 +686,22 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       throw new AppError(404, 'Item do pedido nao encontrado')
     }
 
+    // Traduzir aliases do frontend para campos Prisma
+    const { quantidade_inicial_item_pedido, ...camposDiretos } = result.data
+    const prismaData: Record<string, unknown> = { ...camposDiretos }
+
+    if (quantidade_inicial_item_pedido !== undefined) {
+      prismaData.quantidade_inicial_pedido = quantidade_inicial_item_pedido
+      // Recalcular saldo: inicial - transferida - cancelada (nunca negativo)
+      const novoAtual = quantidade_inicial_item_pedido
+        - Number(item.quantidade_transferida_pedido)
+        - Number(item.quantidade_cancelada_pedido)
+      prismaData.quantidade_saldo_pedido = Math.max(0, novoAtual)
+    }
+
     const updated = await req.prisma.pedidoItem.update({
       where: { id: req.params.itemId },
-      data: result.data,
+      data: prismaData,
     })
 
     res.json(mapItem(updated))

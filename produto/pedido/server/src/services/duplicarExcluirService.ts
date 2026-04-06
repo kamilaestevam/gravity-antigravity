@@ -164,7 +164,7 @@ export class DuplicarService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
       where: { id: { in: payload.ids }, tenant_id: tenantId },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     if (pedidos.length !== payload.ids.length) {
@@ -442,7 +442,7 @@ export class ExcluirService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
       where: { id: { in: ids }, tenant_id: tenantId },
-      include: { itens: true },
+      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
     if (pedidos.length !== ids.length) {

@@ -1,0 +1,144 @@
+/* ── KanbanPedidos.css ────────────────────────────────────────────────────── */
+
+.kbp-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding: 1.5rem;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+
+.kbp-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.kbp-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 360px;
+}
+
+.kbp-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #64748b);
+  pointer-events: none;
+}
+
+.kbp-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--dark-border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  color: var(--text-main, #e2e8f0);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.kbp-search:focus {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.kbp-search::placeholder {
+  color: var(--text-muted, #64748b);
+}
+
+.kbp-total {
+  font-size: 0.8rem;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+
+.kbp-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--dark-border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+  user-select: none;
+}
+
+.kbp-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.kbp-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.kbp-card-numero {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--text-main, #e2e8f0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kbp-card-tipo {
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.kbp-card-parceiro {
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kbp-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.kbp-card-info,
+.kbp-card-valor {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.69rem;
+  color: var(--text-muted, #64748b);
+}
+
+.kbp-card-valor {
+  color: rgba(99, 102, 241, 0.85);
+  font-weight: 600;
+}
+
+.kbp-card-incoterm {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.67rem;
+  color: var(--text-muted, #64748b);
+  opacity: 0.7;
+}

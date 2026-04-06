@@ -24,7 +24,7 @@ import {
   Warning,
   ChartPieSlice,
 } from '@phosphor-icons/react'
-import { ModalPassoPassoGlobal } from '../../Modais/modal-passo-passo-global/src/ModalPassoPassoGlobal.js'
+import { ModalPassoPassoGlobal } from '@nucleo/modal-passo-passo-global'
 import type { CatalogField, ChartType, WidgetQuerySpec, FieldQuerySpec, FieldUnitType } from '../tipos.js'
 import { unitBadgeLabel, wouldExceedUnitLimit } from '../utils/axisUtils.js'
 

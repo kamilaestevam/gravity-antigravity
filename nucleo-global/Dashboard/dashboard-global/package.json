@@ -1,0 +1,29 @@
+{
+  "name": "@nucleo/dashboard-global",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@nucleo/card-global": "*",
+    "@nucleo/modal-passo-passo-global": "*",
+    "@phosphor-icons/react": "*",
+    "react-grid-layout": "*",
+    "react-resizable": "*",
+    "recharts": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/react-grid-layout": "*",
+    "typescript": "^5.4.0"
+  }
+}

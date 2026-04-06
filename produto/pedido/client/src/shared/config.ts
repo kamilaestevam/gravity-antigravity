@@ -52,7 +52,7 @@ export const PRODUCT_CONFIG = {
     { id: 'section-pedidos',   label: 'Pedidos',    sectionDivider: true },
     { id: 'pedidos/dashboard', label: 'Dashboard',  icon: 'chart-pie-slice',         source: 'product' },
     { id: 'pedidos',           label: 'Lista',       icon: 'list-bullets',            source: 'product' },
-    { id: 'pedidos/kanban',    label: 'Kanban',       icon: 'kanban',                  source: 'product', disabled: true, badge: 'Em Breve', badgeVariant: 'muted' },
+    { id: 'pedidos/kanban',    label: 'Kanban',       icon: 'kanban',                  source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────
     { id: 'historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  },

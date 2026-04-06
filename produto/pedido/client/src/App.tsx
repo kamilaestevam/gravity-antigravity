@@ -11,6 +11,7 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const ListaPedidos     = lazy(() => import('./pages/ListaPedidos'))
+const KanbanPedidos    = lazy(() => import('./pages/KanbanPedidos'))
 const Configuracoes    = lazy(() => import('./pages/Configuracoes'))
 const NovoPedido       = lazy(() => import('./pages/NovoPedido'))
 const DashboardPedido  = lazy(() => import('./pages/DashboardPedido'))
@@ -173,6 +174,7 @@ export function App() {
           <Route path="/"       element={<Navigate to="pedidos" replace />} />
           <Route path="pedidos"              element={<ListaPedidos />} />
           <Route path="pedidos/dashboard"    element={<DashboardPedido />} />
+          <Route path="pedidos/kanban"       element={<KanbanPedidos />} />
           <Route path="pedidos/novo"         element={<NovoPedido />} />
           <Route path="pedidos/:id/editar"   element={<NovoPedido />} />
           <Route path="historico"            element={<Historico />} />

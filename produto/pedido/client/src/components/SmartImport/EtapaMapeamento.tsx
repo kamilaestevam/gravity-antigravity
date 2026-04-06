@@ -23,7 +23,7 @@ const CAMPOS_SISTEMA_FALLBACK = [
   { valor: 'fabricante',           rotulo: 'Fabricante'          },
   { valor: 'incoterm',             rotulo: 'Incoterm'            },
   { valor: 'moeda_pedido',         rotulo: 'Moeda'               },
-  { valor: 'data_emissao_pedido',  rotulo: 'Data de Emissao'     },
+  { valor: 'data_emissao_pedido',  rotulo: 'Data Emissão do Pedido' },
   { valor: 'data_embarque',        rotulo: 'Data de Embarque'    },
   { valor: 'part_number',          rotulo: 'Part Number'         },
   { valor: 'ncm',                  rotulo: 'NCM'                 },

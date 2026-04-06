@@ -677,7 +677,7 @@
 }
 
 .gtv-th--sorted {
-  color: var(--gtv-accent);
+  color: inherit;
 }
 
 .gtv-sort-icon {

@@ -98,6 +98,7 @@ import type {
 } from '../shared/types'
 import {
   STATUS_PEDIDO_LABELS,
+  MOEDAS_ISO,
   fmtQuantidade,
   fmtMoeda,
   fmtData,
@@ -816,14 +817,13 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_emissao_pedido',
-    label: 'Data P.O',
+    label: 'Data Emissão do Pedido',
     tipo: 'periodo',
     filtravel: true,
-    sortavel: true,
-    tooltipTitulo: 'Data do Pedido',
+    tooltipTitulo: 'Data Emissão do Pedido',
     tooltipDescricao: 'Data de registro ou emissão da Purchase Order',
     grupo: 'Datas',
-    render: (_val: unknown, row: Pedido) => <span>{fmtData(row.data_emissao_pedido)}</span>,
+    render: (_val: unknown, row: Pedido) => <span>{row.data_emissao_pedido ? fmtData(row.data_emissao_pedido) : '—'}</span>,
   },
   // ── Dados comerciais ────────────────────────────────────────────────────────
   {
@@ -835,6 +835,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Moeda de referência do valor total do pedido (ex: USD, EUR)',
     grupo: 'Financeiro',
     align: 'center',
+    opcoes: MOEDAS_ISO.map(m => ({ valor: m, label: m })),
     render: (_val: unknown, row: Pedido) => <span>{row.moeda_pedido ?? '—'}</span>,
   },
   {
@@ -2108,6 +2109,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'Financeiro',
     tooltipTitulo: 'Moeda do Item',
     tooltipDescricao: 'Moeda utilizada para o valor unitário e total do item',
+    opcoes: MOEDAS_ISO.map(m => ({ valor: m, label: m })),
     render: (_val: unknown, row: PedidoItem) => <span>{row.moeda_item ?? '—'}</span>,
   },
   {
@@ -3518,7 +3520,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   data_emissao_pedido: {
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return <span>{fmtData(p?.data_emissao_pedido ?? null)}</span>
+      return <span>{p?.data_emissao_pedido ? fmtData(p.data_emissao_pedido) : '—'}</span>
     },
   },
   // ── Pesos e cubagem do item ───────────────────────────────────────────────
@@ -3702,7 +3704,7 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Cubagem Total (m³)',        key: 'cubagem_total_pedido',             largura: 16 },
   { header: 'Cobertura Cambial',        key: 'cobertura_cambial',               largura: 18 },
   { header: 'Cond. Pagamento',          key: 'condicao_pagamento',              largura: 18 },
-  { header: 'Data P.O',                 key: 'data_emissao_pedido',              largura: 14 },
+  { header: 'Data Emissão do Pedido',    key: 'data_emissao_pedido',              largura: 20 },
   { header: 'Prev. Pronto',             key: 'data_prevista_pedido_pronto',      largura: 14 },
   { header: 'Conf. Pronto',             key: 'data_confirmada_pedido_pronto',    largura: 14 },
   { header: 'Meta Pronto',              key: 'data_meta_pedido_pronto',          largura: 14 },
@@ -5304,6 +5306,7 @@ export default function ListaPedidos() {
             setModalConsolidarAberto(false)
             setPedidosSelecionados([])
             refreshSilenciosoRef.current = true
+            carregandoRef.current = false  // garante que o guard não bloqueie o reload
             await carregarInicial()
           }}
         />

@@ -132,6 +132,13 @@ export const pedidoItemApi = {
     request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens`, {
       method: 'POST',
       body: JSON.stringify(data),
+    }).then(item => {
+      // Em dev: sincroniza mock para que listar() fallback reflita o item real
+      if (import.meta.env.DEV) {
+        const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === pedidoId)
+        if (pedido) pedido.itens = [...(pedido.itens ?? []), item]
+      }
+      return item
     }),
 
   atualizar: (pedidoId: string, itemId: string, data: Partial<PedidoItem>) =>
@@ -183,7 +190,7 @@ export const pedidoVirtualApi = {
 
   /** Edição inline de um campo com optimistic lock (lança em 409) */
   editarCampo: (id: string, campo: string, valor: unknown, updated_at?: string) =>
-    request<Pedido>(`/api/v1/pedidos/${id}/campo`, {
+    request<Pedido>(`/api/v1/pedidos/${pid(id)}/campo`, {
       method: 'PATCH',
       body: JSON.stringify({ campo, valor, updated_at: updated_at ?? new Date().toISOString() }),
     }).catch(err => {
@@ -309,7 +316,7 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
   if (verificarCampo('incoterm', 'Incoterm')) camposIguais.push('incoterm')
   if (verificarCampo('moeda_pedido', 'Moeda')) camposIguais.push('moeda_pedido')
   if (verificarCampo('exportador_nome', 'Exportador')) camposIguais.push('exportador_nome')
-  if (verificarCampo('data_emissao_pedido', 'Data de Emissão')) camposIguais.push('data_emissao_pedido')
+  if (verificarCampo('data_emissao_pedido', 'Data Emissão do Pedido')) camposIguais.push('data_emissao_pedido')
   if (verificarCampo('cobertura_cambial', 'Cobertura Cambial')) camposIguais.push('cobertura_cambial')
   if (verificarCampo('condicao_pagamento', 'Condição de Pagamento')) camposIguais.push('condicao_pagamento')
 
@@ -318,7 +325,7 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
   for (const pedido of pedidos) {
     for (const item of pedido.itens) {
       if (itensPorPart[item.part_number]) {
-        itensPorPart[item.part_number].quantidade_total += item.saldo_item_pedido
+        itensPorPart[item.part_number].quantidade_total += item.quantidade_saldo_pedido
         itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
         itensPorPart[item.part_number].pode_fundir = true
       } else {
@@ -329,7 +336,7 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
           unidade_comercializada_item: item.unidade_comercializada_item,
           moeda_item: item.moeda_item,
           valor_por_unidade_item: item.valor_por_unidade_item,
-          quantidade_total: item.saldo_item_pedido,
+          quantidade_total: item.quantidade_saldo_pedido,
           pedidos_origem: [pedido.numero_pedido],
           pode_fundir: false,
         }
@@ -368,7 +375,7 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
         const existente = itensMerge.find(i => i.part_number === item.part_number)
         if (existente) {
           existente.quantidade_inicial_item_pedido += item.quantidade_inicial_item_pedido
-          existente.saldo_item_pedido += item.saldo_item_pedido
+          existente.quantidade_saldo_pedido += item.quantidade_saldo_pedido
         }
       } else {
         partNumbers.add(item.part_number)
@@ -445,12 +452,12 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
   const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === payload.pedido_id)
   const item = pedido?.itens.find(i => i.id === payload.item_id)
 
-  const quantidadeApos = (item?.saldo_item_pedido ?? 0) - payload.quantidade_origem
+  const quantidadeApos = (item?.quantidade_saldo_pedido ?? 0) - payload.quantidade_origem
   const encerra = quantidadeApos <= 0
 
   const alertas: string[] = []
   if (encerra) alertas.push('Pedido de origem ficará com quantidade zero após a transferência')
-  if (payload.quantidade_origem > (item?.saldo_item_pedido ?? 0)) {
+  if (payload.quantidade_origem > (item?.quantidade_saldo_pedido ?? 0)) {
     alertas.push('Quantidade solicitada excede quantidade disponível no item')
   }
 
@@ -459,7 +466,7 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
     origem: {
       pedido_numero: pedido?.numero_pedido ?? payload.pedido_id,
       item_part_number: item?.part_number ?? payload.item_id,
-      saldo_item_pedido: item?.saldo_item_pedido ?? 0,
+      quantidade_saldo_pedido: item?.quantidade_saldo_pedido ?? 0,
       quantidade_apos: Math.max(0, quantidadeApos),
       encerra,
     },
@@ -517,7 +524,10 @@ export const pedidoEdicaoMassaApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
-      if (import.meta.env.DEV) return mockEdicaoMassaPreview(payload)
+      if (import.meta.env.DEV) {
+        console.warn('[EdicaoMassa] preview caiu no mock:', err?.message)
+        return mockEdicaoMassaPreview(payload)
+      }
       throw err
     }),
 
@@ -527,7 +537,10 @@ export const pedidoEdicaoMassaApi = {
       method: 'POST',
       body: JSON.stringify(payload),
     }).catch(err => {
-      if (import.meta.env.DEV) return mockEdicaoMassaConfirmar(payload)
+      if (import.meta.env.DEV) {
+        console.warn('[EdicaoMassa] confirmar caiu no mock:', err?.message)
+        return mockEdicaoMassaConfirmar(payload)
+      }
       throw err
     }),
 }
@@ -560,9 +573,11 @@ function calcularNovoValorMock(atual: string | number | null, c: CampoEdicaoMass
 
 /** Mock DEV — preview de edição em massa */
 function mockEdicaoMassaPreview(payload: EdicaoMassaPayload): EdicaoMassaPreview {
-  const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => payload.pedido_ids.includes(p.id))
+  const pedidosMock = MOCK_PEDIDOS_RESPONSE.data.filter(p => payload.pedido_ids.includes(p.id))
+  // Fallback: quando IDs reais não batem com mock, usa count do payload
+  const pedidos = pedidosMock.length > 0 ? pedidosMock : MOCK_PEDIDOS_RESPONSE.data.slice(0, payload.pedido_ids.length)
   return {
-    pedidos_afetados: pedidos.length,
+    pedidos_afetados: payload.pedido_ids.length,
     itens_afetados: pedidos.reduce((s, p) => s + (p.itens?.length ?? 0), 0),
     campos: payload.campos.map(c => {
       const valores = pedidos.map(p => String((p as Record<string, unknown>)[c.campo] ?? ''))
@@ -979,14 +994,21 @@ function mockDuplicarConfirmar(payload: DuplicarPayload): DuplicarResultado {
 }
 
 function mockDuplicarItens(payload: DuplicarItemPayload): DuplicarResultado {
-  return {
-    criados: payload.item_ids.map(id => ({
-      original_id: id,
-      novo_id: `pite_dup_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      numero_pedido: payload.pedido_id,
-    })),
-    erros: [],
+  const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === payload.pedido_id)
+  const criados: DuplicarResultado['criados'] = []
+
+  if (pedido?.itens) {
+    for (const itemId of payload.item_ids) {
+      const original = (pedido.itens as Record<string, unknown>[]).find((i) => (i as { id: string }).id === itemId)
+      if (original) {
+        const novoId = `pite_dup_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        (pedido.itens as Record<string, unknown>[]).push({ ...original, id: novoId })
+        criados.push({ original_id: itemId, novo_id: novoId, numero_pedido: pedido.numero_pedido })
+      }
+    }
   }
+
+  return { criados, erros: [] }
 }
 
 // ── Excluir Pedidos ───────────────────────────────────────────────────────────
@@ -1057,6 +1079,43 @@ function mockExcluirConfirmar(ids: string[]): ExcluirResultado {
 
 function mockExcluirItens(_pedido_id: string, item_ids: string[]): ExcluirResultado {
   return { excluidos: 0, itens_excluidos: item_ids.length, pedidos_excluidos_por_sem_item: 0 }
+}
+
+// ── Regras de Configuração ────────────────────────────────────────────────────
+
+export interface RegrasConfigBackend {
+  duplicar_numero_auto: boolean
+  duplicar_copiar_datas: boolean
+  duplicar_status_inicial: string
+  excluir_status_permitidos: string[]
+  excluir_pedido_sem_item_permitido: boolean
+  excluir_confirmar_com_preview: boolean
+}
+
+const REGRAS_CONFIG_DEFAULT: RegrasConfigBackend = {
+  duplicar_numero_auto: false,
+  duplicar_copiar_datas: false,
+  duplicar_status_inicial: 'copiar',
+  excluir_status_permitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
+  excluir_pedido_sem_item_permitido: true,
+  excluir_confirmar_com_preview: true,
+}
+
+export const configRegrasApi = {
+  obter: (): Promise<RegrasConfigBackend> =>
+    request<RegrasConfigBackend>('/api/v1/pedidos/config/regras').catch(err => {
+      if (import.meta.env.DEV) return REGRAS_CONFIG_DEFAULT
+      throw err
+    }),
+
+  salvar: (dados: Partial<RegrasConfigBackend>): Promise<RegrasConfigBackend> =>
+    request<RegrasConfigBackend>('/api/v1/pedidos/config/regras', {
+      method: 'PUT',
+      body: JSON.stringify(dados),
+    }).catch(err => {
+      if (import.meta.env.DEV) return { ...REGRAS_CONFIG_DEFAULT, ...dados }
+      throw err
+    }),
 }
 
 // ── Anexos ────────────────────────────────────────────────────────────────────

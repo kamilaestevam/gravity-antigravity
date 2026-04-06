@@ -250,7 +250,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: 
                           incoterm: 'Incoterm',
                           moeda_pedido: 'Moeda',
                           exportador_nome: 'Exportador',
-                          data_emissao_pedido: 'Data de Emissão',
+                          data_emissao_pedido: 'Data Emissão do Pedido',
                           cobertura_cambial: 'Cobertura Cambial',
                           condicao_pagamento: 'Condição de Pagamento',
                         }

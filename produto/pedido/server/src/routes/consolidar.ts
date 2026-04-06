@@ -52,7 +52,7 @@ const CAMPOS_COMPARAR: Array<{ campo: string; rotulo: string }> = [
   { campo: 'incoterm',           rotulo: 'Incoterm'               },
   { campo: 'moeda_pedido',       rotulo: 'Moeda'                  },
   { campo: 'exportador_nome',    rotulo: 'Exportador'             },
-  { campo: 'data_emissao_pedido',rotulo: 'Data de Emissão'        },
+  { campo: 'data_emissao_pedido',rotulo: 'Data Emissão do Pedido' },
   { campo: 'cobertura_cambial',  rotulo: 'Cobertura Cambial'      },
   { campo: 'condicao_pagamento', rotulo: 'Condição de Pagamento'  },
 ]

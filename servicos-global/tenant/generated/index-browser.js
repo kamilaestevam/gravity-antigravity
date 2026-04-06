@@ -657,7 +657,34 @@ exports.Prisma.GabiUsageLogScalarFieldEnum = {
   conversation_snapshot: 'conversation_snapshot',
   actor_type: 'actor_type',
   triggered_by: 'triggered_by',
+  model_used: 'model_used',
+  tokens_input: 'tokens_input',
+  tokens_output: 'tokens_output',
+  cost_usd: 'cost_usd',
   created_at: 'created_at'
+};
+
+exports.Prisma.GabiTokenLogScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  campo: 'campo',
+  tokens_input: 'tokens_input',
+  tokens_output: 'tokens_output',
+  tokens_total: 'tokens_total',
+  mes_ref: 'mes_ref',
+  created_at: 'created_at'
+};
+
+exports.Prisma.GabiTokenQuotaScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  quota_mensal: 'quota_mensal',
+  mes_ref: 'mes_ref',
+  tokens_usados: 'tokens_usados',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.UserPreferencesScalarFieldEnum = {
@@ -715,17 +742,17 @@ exports.Prisma.PedidoItemScalarFieldEnum = {
   sequencia_item: 'sequencia_item',
   part_number: 'part_number',
   ncm: 'ncm',
-  descricao: 'descricao',
+  descricao_item: 'descricao_item',
   unidade_comercializada_item: 'unidade_comercializada_item',
-  quantidade_inicial: 'quantidade_inicial',
-  quantidade_atual: 'quantidade_atual',
-  quantidade_pronta: 'quantidade_pronta',
-  quantidade_transferida: 'quantidade_transferida',
-  quantidade_cancelada: 'quantidade_cancelada',
-  casas_decimais_quantidade: 'casas_decimais_quantidade',
+  quantidade_inicial_pedido: 'quantidade_inicial_pedido',
+  quantidade_atual_pedido: 'quantidade_atual_pedido',
+  quantidade_pronta_pedido: 'quantidade_pronta_pedido',
+  quantidade_transferida_pedido: 'quantidade_transferida_pedido',
+  quantidade_cancelada_pedido: 'quantidade_cancelada_pedido',
+  casas_decimais_quantidade_item: 'casas_decimais_quantidade_item',
   moeda_item: 'moeda_item',
-  valor_item: 'valor_item',
-  valor_unitario: 'valor_unitario',
+  valor_total_item: 'valor_total_item',
+  valor_por_unidade_item: 'valor_por_unidade_item',
   casas_decimais_total_item: 'casas_decimais_total_item',
   campos_custom: 'campos_custom',
   created_at: 'created_at',
@@ -1103,6 +1130,8 @@ exports.Prisma.ModelName = {
   GabiConversation: 'GabiConversation',
   GabiMessage: 'GabiMessage',
   GabiUsageLog: 'GabiUsageLog',
+  GabiTokenLog: 'GabiTokenLog',
+  GabiTokenQuota: 'GabiTokenQuota',
   UserPreferences: 'UserPreferences',
   Pedido: 'Pedido',
   PedidoItem: 'PedidoItem',

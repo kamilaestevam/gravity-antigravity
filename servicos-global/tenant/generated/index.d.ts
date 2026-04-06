@@ -190,6 +190,16 @@ export type GabiMessage = $Result.DefaultSelection<Prisma.$GabiMessagePayload>
  */
 export type GabiUsageLog = $Result.DefaultSelection<Prisma.$GabiUsageLogPayload>
 /**
+ * Model GabiTokenLog
+ * 
+ */
+export type GabiTokenLog = $Result.DefaultSelection<Prisma.$GabiTokenLogPayload>
+/**
+ * Model GabiTokenQuota
+ * 
+ */
+export type GabiTokenQuota = $Result.DefaultSelection<Prisma.$GabiTokenQuotaPayload>
+/**
  * Model UserPreferences
  * 
  */
@@ -885,6 +895,26 @@ export class PrismaClient<
   get gabiUsageLog(): Prisma.GabiUsageLogDelegate<ExtArgs>;
 
   /**
+   * `prisma.gabiTokenLog`: Exposes CRUD operations for the **GabiTokenLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiTokenLogs
+    * const gabiTokenLogs = await prisma.gabiTokenLog.findMany()
+    * ```
+    */
+  get gabiTokenLog(): Prisma.GabiTokenLogDelegate<ExtArgs>;
+
+  /**
+   * `prisma.gabiTokenQuota`: Exposes CRUD operations for the **GabiTokenQuota** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GabiTokenQuotas
+    * const gabiTokenQuotas = await prisma.gabiTokenQuota.findMany()
+    * ```
+    */
+  get gabiTokenQuota(): Prisma.GabiTokenQuotaDelegate<ExtArgs>;
+
+  /**
    * `prisma.userPreferences`: Exposes CRUD operations for the **UserPreferences** model.
     * Example usage:
     * ```ts
@@ -1479,6 +1509,8 @@ export namespace Prisma {
     GabiConversation: 'GabiConversation',
     GabiMessage: 'GabiMessage',
     GabiUsageLog: 'GabiUsageLog',
+    GabiTokenLog: 'GabiTokenLog',
+    GabiTokenQuota: 'GabiTokenQuota',
     UserPreferences: 'UserPreferences',
     Pedido: 'Pedido',
     PedidoItem: 'PedidoItem',
@@ -1506,7 +1538,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "mapeamentoImport"
+      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "gabiTokenLog" | "gabiTokenQuota" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "mapeamentoImport"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3957,6 +3989,146 @@ export namespace Prisma {
           count: {
             args: Prisma.GabiUsageLogCountArgs<ExtArgs>
             result: $Utils.Optional<GabiUsageLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiTokenLog: {
+        payload: Prisma.$GabiTokenLogPayload<ExtArgs>
+        fields: Prisma.GabiTokenLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiTokenLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiTokenLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiTokenLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiTokenLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>
+          }
+          findMany: {
+            args: Prisma.GabiTokenLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>[]
+          }
+          create: {
+            args: Prisma.GabiTokenLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>
+          }
+          createMany: {
+            args: Prisma.GabiTokenLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiTokenLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiTokenLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>
+          }
+          update: {
+            args: Prisma.GabiTokenLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiTokenLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiTokenLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiTokenLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenLogPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiTokenLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiTokenLog>
+          }
+          groupBy: {
+            args: Prisma.GabiTokenLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiTokenLogCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      GabiTokenQuota: {
+        payload: Prisma.$GabiTokenQuotaPayload<ExtArgs>
+        fields: Prisma.GabiTokenQuotaFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GabiTokenQuotaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GabiTokenQuotaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>
+          }
+          findFirst: {
+            args: Prisma.GabiTokenQuotaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GabiTokenQuotaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>
+          }
+          findMany: {
+            args: Prisma.GabiTokenQuotaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>[]
+          }
+          create: {
+            args: Prisma.GabiTokenQuotaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>
+          }
+          createMany: {
+            args: Prisma.GabiTokenQuotaCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GabiTokenQuotaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>[]
+          }
+          delete: {
+            args: Prisma.GabiTokenQuotaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>
+          }
+          update: {
+            args: Prisma.GabiTokenQuotaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>
+          }
+          deleteMany: {
+            args: Prisma.GabiTokenQuotaDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GabiTokenQuotaUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GabiTokenQuotaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GabiTokenQuotaPayload>
+          }
+          aggregate: {
+            args: Prisma.GabiTokenQuotaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGabiTokenQuota>
+          }
+          groupBy: {
+            args: Prisma.GabiTokenQuotaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenQuotaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GabiTokenQuotaCountArgs<ExtArgs>
+            result: $Utils.Optional<GabiTokenQuotaCountAggregateOutputType> | number
           }
         }
       }
@@ -39977,8 +40149,22 @@ export namespace Prisma {
 
   export type AggregateGabiUsageLog = {
     _count: GabiUsageLogCountAggregateOutputType | null
+    _avg: GabiUsageLogAvgAggregateOutputType | null
+    _sum: GabiUsageLogSumAggregateOutputType | null
     _min: GabiUsageLogMinAggregateOutputType | null
     _max: GabiUsageLogMaxAggregateOutputType | null
+  }
+
+  export type GabiUsageLogAvgAggregateOutputType = {
+    tokens_input: number | null
+    tokens_output: number | null
+    cost_usd: number | null
+  }
+
+  export type GabiUsageLogSumAggregateOutputType = {
+    tokens_input: number | null
+    tokens_output: number | null
+    cost_usd: number | null
   }
 
   export type GabiUsageLogMinAggregateOutputType = {
@@ -39990,6 +40176,10 @@ export namespace Prisma {
     conversation_snapshot: string | null
     actor_type: string | null
     triggered_by: string | null
+    model_used: string | null
+    tokens_input: number | null
+    tokens_output: number | null
+    cost_usd: number | null
     created_at: Date | null
   }
 
@@ -40002,6 +40192,10 @@ export namespace Prisma {
     conversation_snapshot: string | null
     actor_type: string | null
     triggered_by: string | null
+    model_used: string | null
+    tokens_input: number | null
+    tokens_output: number | null
+    cost_usd: number | null
     created_at: Date | null
   }
 
@@ -40014,10 +40208,26 @@ export namespace Prisma {
     conversation_snapshot: number
     actor_type: number
     triggered_by: number
+    model_used: number
+    tokens_input: number
+    tokens_output: number
+    cost_usd: number
     created_at: number
     _all: number
   }
 
+
+  export type GabiUsageLogAvgAggregateInputType = {
+    tokens_input?: true
+    tokens_output?: true
+    cost_usd?: true
+  }
+
+  export type GabiUsageLogSumAggregateInputType = {
+    tokens_input?: true
+    tokens_output?: true
+    cost_usd?: true
+  }
 
   export type GabiUsageLogMinAggregateInputType = {
     id?: true
@@ -40028,6 +40238,10 @@ export namespace Prisma {
     conversation_snapshot?: true
     actor_type?: true
     triggered_by?: true
+    model_used?: true
+    tokens_input?: true
+    tokens_output?: true
+    cost_usd?: true
     created_at?: true
   }
 
@@ -40040,6 +40254,10 @@ export namespace Prisma {
     conversation_snapshot?: true
     actor_type?: true
     triggered_by?: true
+    model_used?: true
+    tokens_input?: true
+    tokens_output?: true
+    cost_usd?: true
     created_at?: true
   }
 
@@ -40052,6 +40270,10 @@ export namespace Prisma {
     conversation_snapshot?: true
     actor_type?: true
     triggered_by?: true
+    model_used?: true
+    tokens_input?: true
+    tokens_output?: true
+    cost_usd?: true
     created_at?: true
     _all?: true
   }
@@ -40094,6 +40316,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: GabiUsageLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiUsageLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: GabiUsageLogMinAggregateInputType
@@ -40124,6 +40358,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: GabiUsageLogCountAggregateInputType | true
+    _avg?: GabiUsageLogAvgAggregateInputType
+    _sum?: GabiUsageLogSumAggregateInputType
     _min?: GabiUsageLogMinAggregateInputType
     _max?: GabiUsageLogMaxAggregateInputType
   }
@@ -40137,8 +40373,14 @@ export namespace Prisma {
     conversation_snapshot: string
     actor_type: string
     triggered_by: string
+    model_used: string | null
+    tokens_input: number
+    tokens_output: number
+    cost_usd: number
     created_at: Date
     _count: GabiUsageLogCountAggregateOutputType | null
+    _avg: GabiUsageLogAvgAggregateOutputType | null
+    _sum: GabiUsageLogSumAggregateOutputType | null
     _min: GabiUsageLogMinAggregateOutputType | null
     _max: GabiUsageLogMaxAggregateOutputType | null
   }
@@ -40166,6 +40408,10 @@ export namespace Prisma {
     conversation_snapshot?: boolean
     actor_type?: boolean
     triggered_by?: boolean
+    model_used?: boolean
+    tokens_input?: boolean
+    tokens_output?: boolean
+    cost_usd?: boolean
     created_at?: boolean
   }, ExtArgs["result"]["gabiUsageLog"]>
 
@@ -40178,6 +40424,10 @@ export namespace Prisma {
     conversation_snapshot?: boolean
     actor_type?: boolean
     triggered_by?: boolean
+    model_used?: boolean
+    tokens_input?: boolean
+    tokens_output?: boolean
+    cost_usd?: boolean
     created_at?: boolean
   }, ExtArgs["result"]["gabiUsageLog"]>
 
@@ -40190,6 +40440,10 @@ export namespace Prisma {
     conversation_snapshot?: boolean
     actor_type?: boolean
     triggered_by?: boolean
+    model_used?: boolean
+    tokens_input?: boolean
+    tokens_output?: boolean
+    cost_usd?: boolean
     created_at?: boolean
   }
 
@@ -40206,6 +40460,10 @@ export namespace Prisma {
       conversation_snapshot: string
       actor_type: string
       triggered_by: string
+      model_used: string | null
+      tokens_input: number
+      tokens_output: number
+      cost_usd: number
       created_at: Date
     }, ExtArgs["result"]["gabiUsageLog"]>
     composites: {}
@@ -40608,6 +40866,10 @@ export namespace Prisma {
     readonly conversation_snapshot: FieldRef<"GabiUsageLog", 'String'>
     readonly actor_type: FieldRef<"GabiUsageLog", 'String'>
     readonly triggered_by: FieldRef<"GabiUsageLog", 'String'>
+    readonly model_used: FieldRef<"GabiUsageLog", 'String'>
+    readonly tokens_input: FieldRef<"GabiUsageLog", 'Int'>
+    readonly tokens_output: FieldRef<"GabiUsageLog", 'Int'>
+    readonly cost_usd: FieldRef<"GabiUsageLog", 'Float'>
     readonly created_at: FieldRef<"GabiUsageLog", 'DateTime'>
   }
     
@@ -40894,6 +41156,1926 @@ export namespace Prisma {
      * Select specific fields to fetch from the GabiUsageLog
      */
     select?: GabiUsageLogSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiTokenLog
+   */
+
+  export type AggregateGabiTokenLog = {
+    _count: GabiTokenLogCountAggregateOutputType | null
+    _avg: GabiTokenLogAvgAggregateOutputType | null
+    _sum: GabiTokenLogSumAggregateOutputType | null
+    _min: GabiTokenLogMinAggregateOutputType | null
+    _max: GabiTokenLogMaxAggregateOutputType | null
+  }
+
+  export type GabiTokenLogAvgAggregateOutputType = {
+    tokens_input: number | null
+    tokens_output: number | null
+    tokens_total: number | null
+  }
+
+  export type GabiTokenLogSumAggregateOutputType = {
+    tokens_input: number | null
+    tokens_output: number | null
+    tokens_total: number | null
+  }
+
+  export type GabiTokenLogMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    campo: string | null
+    tokens_input: number | null
+    tokens_output: number | null
+    tokens_total: number | null
+    mes_ref: string | null
+    created_at: Date | null
+  }
+
+  export type GabiTokenLogMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    campo: string | null
+    tokens_input: number | null
+    tokens_output: number | null
+    tokens_total: number | null
+    mes_ref: string | null
+    created_at: Date | null
+  }
+
+  export type GabiTokenLogCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    campo: number
+    tokens_input: number
+    tokens_output: number
+    tokens_total: number
+    mes_ref: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type GabiTokenLogAvgAggregateInputType = {
+    tokens_input?: true
+    tokens_output?: true
+    tokens_total?: true
+  }
+
+  export type GabiTokenLogSumAggregateInputType = {
+    tokens_input?: true
+    tokens_output?: true
+    tokens_total?: true
+  }
+
+  export type GabiTokenLogMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    campo?: true
+    tokens_input?: true
+    tokens_output?: true
+    tokens_total?: true
+    mes_ref?: true
+    created_at?: true
+  }
+
+  export type GabiTokenLogMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    campo?: true
+    tokens_input?: true
+    tokens_output?: true
+    tokens_total?: true
+    mes_ref?: true
+    created_at?: true
+  }
+
+  export type GabiTokenLogCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    campo?: true
+    tokens_input?: true
+    tokens_output?: true
+    tokens_total?: true
+    mes_ref?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type GabiTokenLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiTokenLog to aggregate.
+     */
+    where?: GabiTokenLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenLogs to fetch.
+     */
+    orderBy?: GabiTokenLogOrderByWithRelationInput | GabiTokenLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiTokenLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiTokenLogs
+    **/
+    _count?: true | GabiTokenLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiTokenLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiTokenLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiTokenLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiTokenLogMaxAggregateInputType
+  }
+
+  export type GetGabiTokenLogAggregateType<T extends GabiTokenLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiTokenLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiTokenLog[P]>
+      : GetScalarType<T[P], AggregateGabiTokenLog[P]>
+  }
+
+
+
+
+  export type GabiTokenLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiTokenLogWhereInput
+    orderBy?: GabiTokenLogOrderByWithAggregationInput | GabiTokenLogOrderByWithAggregationInput[]
+    by: GabiTokenLogScalarFieldEnum[] | GabiTokenLogScalarFieldEnum
+    having?: GabiTokenLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiTokenLogCountAggregateInputType | true
+    _avg?: GabiTokenLogAvgAggregateInputType
+    _sum?: GabiTokenLogSumAggregateInputType
+    _min?: GabiTokenLogMinAggregateInputType
+    _max?: GabiTokenLogMaxAggregateInputType
+  }
+
+  export type GabiTokenLogGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string
+    user_id: string
+    campo: string
+    tokens_input: number
+    tokens_output: number
+    tokens_total: number
+    mes_ref: string
+    created_at: Date
+    _count: GabiTokenLogCountAggregateOutputType | null
+    _avg: GabiTokenLogAvgAggregateOutputType | null
+    _sum: GabiTokenLogSumAggregateOutputType | null
+    _min: GabiTokenLogMinAggregateOutputType | null
+    _max: GabiTokenLogMaxAggregateOutputType | null
+  }
+
+  type GetGabiTokenLogGroupByPayload<T extends GabiTokenLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiTokenLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiTokenLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiTokenLogGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiTokenLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiTokenLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    campo?: boolean
+    tokens_input?: boolean
+    tokens_output?: boolean
+    tokens_total?: boolean
+    mes_ref?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["gabiTokenLog"]>
+
+  export type GabiTokenLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    campo?: boolean
+    tokens_input?: boolean
+    tokens_output?: boolean
+    tokens_total?: boolean
+    mes_ref?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["gabiTokenLog"]>
+
+  export type GabiTokenLogSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    campo?: boolean
+    tokens_input?: boolean
+    tokens_output?: boolean
+    tokens_total?: boolean
+    mes_ref?: boolean
+    created_at?: boolean
+  }
+
+
+  export type $GabiTokenLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiTokenLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string
+      user_id: string
+      campo: string
+      tokens_input: number
+      tokens_output: number
+      tokens_total: number
+      mes_ref: string
+      created_at: Date
+    }, ExtArgs["result"]["gabiTokenLog"]>
+    composites: {}
+  }
+
+  type GabiTokenLogGetPayload<S extends boolean | null | undefined | GabiTokenLogDefaultArgs> = $Result.GetResult<Prisma.$GabiTokenLogPayload, S>
+
+  type GabiTokenLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiTokenLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiTokenLogCountAggregateInputType | true
+    }
+
+  export interface GabiTokenLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiTokenLog'], meta: { name: 'GabiTokenLog' } }
+    /**
+     * Find zero or one GabiTokenLog that matches the filter.
+     * @param {GabiTokenLogFindUniqueArgs} args - Arguments to find a GabiTokenLog
+     * @example
+     * // Get one GabiTokenLog
+     * const gabiTokenLog = await prisma.gabiTokenLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiTokenLogFindUniqueArgs>(args: SelectSubset<T, GabiTokenLogFindUniqueArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiTokenLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiTokenLogFindUniqueOrThrowArgs} args - Arguments to find a GabiTokenLog
+     * @example
+     * // Get one GabiTokenLog
+     * const gabiTokenLog = await prisma.gabiTokenLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiTokenLogFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiTokenLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiTokenLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenLogFindFirstArgs} args - Arguments to find a GabiTokenLog
+     * @example
+     * // Get one GabiTokenLog
+     * const gabiTokenLog = await prisma.gabiTokenLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiTokenLogFindFirstArgs>(args?: SelectSubset<T, GabiTokenLogFindFirstArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiTokenLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenLogFindFirstOrThrowArgs} args - Arguments to find a GabiTokenLog
+     * @example
+     * // Get one GabiTokenLog
+     * const gabiTokenLog = await prisma.gabiTokenLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiTokenLogFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiTokenLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiTokenLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiTokenLogs
+     * const gabiTokenLogs = await prisma.gabiTokenLog.findMany()
+     * 
+     * // Get first 10 GabiTokenLogs
+     * const gabiTokenLogs = await prisma.gabiTokenLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gabiTokenLogWithIdOnly = await prisma.gabiTokenLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GabiTokenLogFindManyArgs>(args?: SelectSubset<T, GabiTokenLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiTokenLog.
+     * @param {GabiTokenLogCreateArgs} args - Arguments to create a GabiTokenLog.
+     * @example
+     * // Create one GabiTokenLog
+     * const GabiTokenLog = await prisma.gabiTokenLog.create({
+     *   data: {
+     *     // ... data to create a GabiTokenLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiTokenLogCreateArgs>(args: SelectSubset<T, GabiTokenLogCreateArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiTokenLogs.
+     * @param {GabiTokenLogCreateManyArgs} args - Arguments to create many GabiTokenLogs.
+     * @example
+     * // Create many GabiTokenLogs
+     * const gabiTokenLog = await prisma.gabiTokenLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiTokenLogCreateManyArgs>(args?: SelectSubset<T, GabiTokenLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiTokenLogs and returns the data saved in the database.
+     * @param {GabiTokenLogCreateManyAndReturnArgs} args - Arguments to create many GabiTokenLogs.
+     * @example
+     * // Create many GabiTokenLogs
+     * const gabiTokenLog = await prisma.gabiTokenLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiTokenLogs and only return the `id`
+     * const gabiTokenLogWithIdOnly = await prisma.gabiTokenLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiTokenLogCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiTokenLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiTokenLog.
+     * @param {GabiTokenLogDeleteArgs} args - Arguments to delete one GabiTokenLog.
+     * @example
+     * // Delete one GabiTokenLog
+     * const GabiTokenLog = await prisma.gabiTokenLog.delete({
+     *   where: {
+     *     // ... filter to delete one GabiTokenLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiTokenLogDeleteArgs>(args: SelectSubset<T, GabiTokenLogDeleteArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiTokenLog.
+     * @param {GabiTokenLogUpdateArgs} args - Arguments to update one GabiTokenLog.
+     * @example
+     * // Update one GabiTokenLog
+     * const gabiTokenLog = await prisma.gabiTokenLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiTokenLogUpdateArgs>(args: SelectSubset<T, GabiTokenLogUpdateArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiTokenLogs.
+     * @param {GabiTokenLogDeleteManyArgs} args - Arguments to filter GabiTokenLogs to delete.
+     * @example
+     * // Delete a few GabiTokenLogs
+     * const { count } = await prisma.gabiTokenLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiTokenLogDeleteManyArgs>(args?: SelectSubset<T, GabiTokenLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiTokenLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiTokenLogs
+     * const gabiTokenLog = await prisma.gabiTokenLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiTokenLogUpdateManyArgs>(args: SelectSubset<T, GabiTokenLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiTokenLog.
+     * @param {GabiTokenLogUpsertArgs} args - Arguments to update or create a GabiTokenLog.
+     * @example
+     * // Update or create a GabiTokenLog
+     * const gabiTokenLog = await prisma.gabiTokenLog.upsert({
+     *   create: {
+     *     // ... data to create a GabiTokenLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiTokenLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiTokenLogUpsertArgs>(args: SelectSubset<T, GabiTokenLogUpsertArgs<ExtArgs>>): Prisma__GabiTokenLogClient<$Result.GetResult<Prisma.$GabiTokenLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiTokenLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenLogCountArgs} args - Arguments to filter GabiTokenLogs to count.
+     * @example
+     * // Count the number of GabiTokenLogs
+     * const count = await prisma.gabiTokenLog.count({
+     *   where: {
+     *     // ... the filter for the GabiTokenLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiTokenLogCountArgs>(
+      args?: Subset<T, GabiTokenLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiTokenLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiTokenLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiTokenLogAggregateArgs>(args: Subset<T, GabiTokenLogAggregateArgs>): Prisma.PrismaPromise<GetGabiTokenLogAggregateType<T>>
+
+    /**
+     * Group by GabiTokenLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiTokenLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiTokenLogGroupByArgs['orderBy'] }
+        : { orderBy?: GabiTokenLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiTokenLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiTokenLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiTokenLog model
+   */
+  readonly fields: GabiTokenLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiTokenLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiTokenLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiTokenLog model
+   */ 
+  interface GabiTokenLogFieldRefs {
+    readonly id: FieldRef<"GabiTokenLog", 'String'>
+    readonly tenant_id: FieldRef<"GabiTokenLog", 'String'>
+    readonly product_id: FieldRef<"GabiTokenLog", 'String'>
+    readonly user_id: FieldRef<"GabiTokenLog", 'String'>
+    readonly campo: FieldRef<"GabiTokenLog", 'String'>
+    readonly tokens_input: FieldRef<"GabiTokenLog", 'Int'>
+    readonly tokens_output: FieldRef<"GabiTokenLog", 'Int'>
+    readonly tokens_total: FieldRef<"GabiTokenLog", 'Int'>
+    readonly mes_ref: FieldRef<"GabiTokenLog", 'String'>
+    readonly created_at: FieldRef<"GabiTokenLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiTokenLog findUnique
+   */
+  export type GabiTokenLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenLog to fetch.
+     */
+    where: GabiTokenLogWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenLog findUniqueOrThrow
+   */
+  export type GabiTokenLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenLog to fetch.
+     */
+    where: GabiTokenLogWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenLog findFirst
+   */
+  export type GabiTokenLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenLog to fetch.
+     */
+    where?: GabiTokenLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenLogs to fetch.
+     */
+    orderBy?: GabiTokenLogOrderByWithRelationInput | GabiTokenLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiTokenLogs.
+     */
+    cursor?: GabiTokenLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiTokenLogs.
+     */
+    distinct?: GabiTokenLogScalarFieldEnum | GabiTokenLogScalarFieldEnum[]
+  }
+
+  /**
+   * GabiTokenLog findFirstOrThrow
+   */
+  export type GabiTokenLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenLog to fetch.
+     */
+    where?: GabiTokenLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenLogs to fetch.
+     */
+    orderBy?: GabiTokenLogOrderByWithRelationInput | GabiTokenLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiTokenLogs.
+     */
+    cursor?: GabiTokenLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiTokenLogs.
+     */
+    distinct?: GabiTokenLogScalarFieldEnum | GabiTokenLogScalarFieldEnum[]
+  }
+
+  /**
+   * GabiTokenLog findMany
+   */
+  export type GabiTokenLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenLogs to fetch.
+     */
+    where?: GabiTokenLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenLogs to fetch.
+     */
+    orderBy?: GabiTokenLogOrderByWithRelationInput | GabiTokenLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiTokenLogs.
+     */
+    cursor?: GabiTokenLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenLogs.
+     */
+    skip?: number
+    distinct?: GabiTokenLogScalarFieldEnum | GabiTokenLogScalarFieldEnum[]
+  }
+
+  /**
+   * GabiTokenLog create
+   */
+  export type GabiTokenLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiTokenLog.
+     */
+    data: XOR<GabiTokenLogCreateInput, GabiTokenLogUncheckedCreateInput>
+  }
+
+  /**
+   * GabiTokenLog createMany
+   */
+  export type GabiTokenLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiTokenLogs.
+     */
+    data: GabiTokenLogCreateManyInput | GabiTokenLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiTokenLog createManyAndReturn
+   */
+  export type GabiTokenLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiTokenLogs.
+     */
+    data: GabiTokenLogCreateManyInput | GabiTokenLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiTokenLog update
+   */
+  export type GabiTokenLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiTokenLog.
+     */
+    data: XOR<GabiTokenLogUpdateInput, GabiTokenLogUncheckedUpdateInput>
+    /**
+     * Choose, which GabiTokenLog to update.
+     */
+    where: GabiTokenLogWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenLog updateMany
+   */
+  export type GabiTokenLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiTokenLogs.
+     */
+    data: XOR<GabiTokenLogUpdateManyMutationInput, GabiTokenLogUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiTokenLogs to update
+     */
+    where?: GabiTokenLogWhereInput
+  }
+
+  /**
+   * GabiTokenLog upsert
+   */
+  export type GabiTokenLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiTokenLog to update in case it exists.
+     */
+    where: GabiTokenLogWhereUniqueInput
+    /**
+     * In case the GabiTokenLog found by the `where` argument doesn't exist, create a new GabiTokenLog with this data.
+     */
+    create: XOR<GabiTokenLogCreateInput, GabiTokenLogUncheckedCreateInput>
+    /**
+     * In case the GabiTokenLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiTokenLogUpdateInput, GabiTokenLogUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiTokenLog delete
+   */
+  export type GabiTokenLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+    /**
+     * Filter which GabiTokenLog to delete.
+     */
+    where: GabiTokenLogWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenLog deleteMany
+   */
+  export type GabiTokenLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiTokenLogs to delete
+     */
+    where?: GabiTokenLogWhereInput
+  }
+
+  /**
+   * GabiTokenLog without action
+   */
+  export type GabiTokenLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenLog
+     */
+    select?: GabiTokenLogSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GabiTokenQuota
+   */
+
+  export type AggregateGabiTokenQuota = {
+    _count: GabiTokenQuotaCountAggregateOutputType | null
+    _avg: GabiTokenQuotaAvgAggregateOutputType | null
+    _sum: GabiTokenQuotaSumAggregateOutputType | null
+    _min: GabiTokenQuotaMinAggregateOutputType | null
+    _max: GabiTokenQuotaMaxAggregateOutputType | null
+  }
+
+  export type GabiTokenQuotaAvgAggregateOutputType = {
+    quota_mensal: number | null
+    tokens_usados: number | null
+  }
+
+  export type GabiTokenQuotaSumAggregateOutputType = {
+    quota_mensal: number | null
+    tokens_usados: number | null
+  }
+
+  export type GabiTokenQuotaMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    quota_mensal: number | null
+    mes_ref: string | null
+    tokens_usados: number | null
+    updated_at: Date | null
+  }
+
+  export type GabiTokenQuotaMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    quota_mensal: number | null
+    mes_ref: string | null
+    tokens_usados: number | null
+    updated_at: Date | null
+  }
+
+  export type GabiTokenQuotaCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    quota_mensal: number
+    mes_ref: number
+    tokens_usados: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type GabiTokenQuotaAvgAggregateInputType = {
+    quota_mensal?: true
+    tokens_usados?: true
+  }
+
+  export type GabiTokenQuotaSumAggregateInputType = {
+    quota_mensal?: true
+    tokens_usados?: true
+  }
+
+  export type GabiTokenQuotaMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    quota_mensal?: true
+    mes_ref?: true
+    tokens_usados?: true
+    updated_at?: true
+  }
+
+  export type GabiTokenQuotaMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    quota_mensal?: true
+    mes_ref?: true
+    tokens_usados?: true
+    updated_at?: true
+  }
+
+  export type GabiTokenQuotaCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    quota_mensal?: true
+    mes_ref?: true
+    tokens_usados?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type GabiTokenQuotaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiTokenQuota to aggregate.
+     */
+    where?: GabiTokenQuotaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenQuotas to fetch.
+     */
+    orderBy?: GabiTokenQuotaOrderByWithRelationInput | GabiTokenQuotaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GabiTokenQuotaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenQuotas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenQuotas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GabiTokenQuotas
+    **/
+    _count?: true | GabiTokenQuotaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GabiTokenQuotaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GabiTokenQuotaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GabiTokenQuotaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GabiTokenQuotaMaxAggregateInputType
+  }
+
+  export type GetGabiTokenQuotaAggregateType<T extends GabiTokenQuotaAggregateArgs> = {
+        [P in keyof T & keyof AggregateGabiTokenQuota]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGabiTokenQuota[P]>
+      : GetScalarType<T[P], AggregateGabiTokenQuota[P]>
+  }
+
+
+
+
+  export type GabiTokenQuotaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GabiTokenQuotaWhereInput
+    orderBy?: GabiTokenQuotaOrderByWithAggregationInput | GabiTokenQuotaOrderByWithAggregationInput[]
+    by: GabiTokenQuotaScalarFieldEnum[] | GabiTokenQuotaScalarFieldEnum
+    having?: GabiTokenQuotaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GabiTokenQuotaCountAggregateInputType | true
+    _avg?: GabiTokenQuotaAvgAggregateInputType
+    _sum?: GabiTokenQuotaSumAggregateInputType
+    _min?: GabiTokenQuotaMinAggregateInputType
+    _max?: GabiTokenQuotaMaxAggregateInputType
+  }
+
+  export type GabiTokenQuotaGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string
+    quota_mensal: number
+    mes_ref: string
+    tokens_usados: number
+    updated_at: Date
+    _count: GabiTokenQuotaCountAggregateOutputType | null
+    _avg: GabiTokenQuotaAvgAggregateOutputType | null
+    _sum: GabiTokenQuotaSumAggregateOutputType | null
+    _min: GabiTokenQuotaMinAggregateOutputType | null
+    _max: GabiTokenQuotaMaxAggregateOutputType | null
+  }
+
+  type GetGabiTokenQuotaGroupByPayload<T extends GabiTokenQuotaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GabiTokenQuotaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GabiTokenQuotaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GabiTokenQuotaGroupByOutputType[P]>
+            : GetScalarType<T[P], GabiTokenQuotaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GabiTokenQuotaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    quota_mensal?: boolean
+    mes_ref?: boolean
+    tokens_usados?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["gabiTokenQuota"]>
+
+  export type GabiTokenQuotaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    quota_mensal?: boolean
+    mes_ref?: boolean
+    tokens_usados?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["gabiTokenQuota"]>
+
+  export type GabiTokenQuotaSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    quota_mensal?: boolean
+    mes_ref?: boolean
+    tokens_usados?: boolean
+    updated_at?: boolean
+  }
+
+
+  export type $GabiTokenQuotaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GabiTokenQuota"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string
+      quota_mensal: number
+      mes_ref: string
+      tokens_usados: number
+      updated_at: Date
+    }, ExtArgs["result"]["gabiTokenQuota"]>
+    composites: {}
+  }
+
+  type GabiTokenQuotaGetPayload<S extends boolean | null | undefined | GabiTokenQuotaDefaultArgs> = $Result.GetResult<Prisma.$GabiTokenQuotaPayload, S>
+
+  type GabiTokenQuotaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<GabiTokenQuotaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: GabiTokenQuotaCountAggregateInputType | true
+    }
+
+  export interface GabiTokenQuotaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GabiTokenQuota'], meta: { name: 'GabiTokenQuota' } }
+    /**
+     * Find zero or one GabiTokenQuota that matches the filter.
+     * @param {GabiTokenQuotaFindUniqueArgs} args - Arguments to find a GabiTokenQuota
+     * @example
+     * // Get one GabiTokenQuota
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GabiTokenQuotaFindUniqueArgs>(args: SelectSubset<T, GabiTokenQuotaFindUniqueArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one GabiTokenQuota that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {GabiTokenQuotaFindUniqueOrThrowArgs} args - Arguments to find a GabiTokenQuota
+     * @example
+     * // Get one GabiTokenQuota
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GabiTokenQuotaFindUniqueOrThrowArgs>(args: SelectSubset<T, GabiTokenQuotaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first GabiTokenQuota that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenQuotaFindFirstArgs} args - Arguments to find a GabiTokenQuota
+     * @example
+     * // Get one GabiTokenQuota
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GabiTokenQuotaFindFirstArgs>(args?: SelectSubset<T, GabiTokenQuotaFindFirstArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first GabiTokenQuota that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenQuotaFindFirstOrThrowArgs} args - Arguments to find a GabiTokenQuota
+     * @example
+     * // Get one GabiTokenQuota
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GabiTokenQuotaFindFirstOrThrowArgs>(args?: SelectSubset<T, GabiTokenQuotaFindFirstOrThrowArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more GabiTokenQuotas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenQuotaFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GabiTokenQuotas
+     * const gabiTokenQuotas = await prisma.gabiTokenQuota.findMany()
+     * 
+     * // Get first 10 GabiTokenQuotas
+     * const gabiTokenQuotas = await prisma.gabiTokenQuota.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const gabiTokenQuotaWithIdOnly = await prisma.gabiTokenQuota.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GabiTokenQuotaFindManyArgs>(args?: SelectSubset<T, GabiTokenQuotaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a GabiTokenQuota.
+     * @param {GabiTokenQuotaCreateArgs} args - Arguments to create a GabiTokenQuota.
+     * @example
+     * // Create one GabiTokenQuota
+     * const GabiTokenQuota = await prisma.gabiTokenQuota.create({
+     *   data: {
+     *     // ... data to create a GabiTokenQuota
+     *   }
+     * })
+     * 
+     */
+    create<T extends GabiTokenQuotaCreateArgs>(args: SelectSubset<T, GabiTokenQuotaCreateArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many GabiTokenQuotas.
+     * @param {GabiTokenQuotaCreateManyArgs} args - Arguments to create many GabiTokenQuotas.
+     * @example
+     * // Create many GabiTokenQuotas
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GabiTokenQuotaCreateManyArgs>(args?: SelectSubset<T, GabiTokenQuotaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GabiTokenQuotas and returns the data saved in the database.
+     * @param {GabiTokenQuotaCreateManyAndReturnArgs} args - Arguments to create many GabiTokenQuotas.
+     * @example
+     * // Create many GabiTokenQuotas
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GabiTokenQuotas and only return the `id`
+     * const gabiTokenQuotaWithIdOnly = await prisma.gabiTokenQuota.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GabiTokenQuotaCreateManyAndReturnArgs>(args?: SelectSubset<T, GabiTokenQuotaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a GabiTokenQuota.
+     * @param {GabiTokenQuotaDeleteArgs} args - Arguments to delete one GabiTokenQuota.
+     * @example
+     * // Delete one GabiTokenQuota
+     * const GabiTokenQuota = await prisma.gabiTokenQuota.delete({
+     *   where: {
+     *     // ... filter to delete one GabiTokenQuota
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GabiTokenQuotaDeleteArgs>(args: SelectSubset<T, GabiTokenQuotaDeleteArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one GabiTokenQuota.
+     * @param {GabiTokenQuotaUpdateArgs} args - Arguments to update one GabiTokenQuota.
+     * @example
+     * // Update one GabiTokenQuota
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GabiTokenQuotaUpdateArgs>(args: SelectSubset<T, GabiTokenQuotaUpdateArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more GabiTokenQuotas.
+     * @param {GabiTokenQuotaDeleteManyArgs} args - Arguments to filter GabiTokenQuotas to delete.
+     * @example
+     * // Delete a few GabiTokenQuotas
+     * const { count } = await prisma.gabiTokenQuota.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GabiTokenQuotaDeleteManyArgs>(args?: SelectSubset<T, GabiTokenQuotaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GabiTokenQuotas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenQuotaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GabiTokenQuotas
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GabiTokenQuotaUpdateManyArgs>(args: SelectSubset<T, GabiTokenQuotaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GabiTokenQuota.
+     * @param {GabiTokenQuotaUpsertArgs} args - Arguments to update or create a GabiTokenQuota.
+     * @example
+     * // Update or create a GabiTokenQuota
+     * const gabiTokenQuota = await prisma.gabiTokenQuota.upsert({
+     *   create: {
+     *     // ... data to create a GabiTokenQuota
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GabiTokenQuota we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GabiTokenQuotaUpsertArgs>(args: SelectSubset<T, GabiTokenQuotaUpsertArgs<ExtArgs>>): Prisma__GabiTokenQuotaClient<$Result.GetResult<Prisma.$GabiTokenQuotaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of GabiTokenQuotas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenQuotaCountArgs} args - Arguments to filter GabiTokenQuotas to count.
+     * @example
+     * // Count the number of GabiTokenQuotas
+     * const count = await prisma.gabiTokenQuota.count({
+     *   where: {
+     *     // ... the filter for the GabiTokenQuotas we want to count
+     *   }
+     * })
+    **/
+    count<T extends GabiTokenQuotaCountArgs>(
+      args?: Subset<T, GabiTokenQuotaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GabiTokenQuotaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GabiTokenQuota.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenQuotaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GabiTokenQuotaAggregateArgs>(args: Subset<T, GabiTokenQuotaAggregateArgs>): Prisma.PrismaPromise<GetGabiTokenQuotaAggregateType<T>>
+
+    /**
+     * Group by GabiTokenQuota.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GabiTokenQuotaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GabiTokenQuotaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GabiTokenQuotaGroupByArgs['orderBy'] }
+        : { orderBy?: GabiTokenQuotaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GabiTokenQuotaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGabiTokenQuotaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GabiTokenQuota model
+   */
+  readonly fields: GabiTokenQuotaFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GabiTokenQuota.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GabiTokenQuotaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GabiTokenQuota model
+   */ 
+  interface GabiTokenQuotaFieldRefs {
+    readonly id: FieldRef<"GabiTokenQuota", 'String'>
+    readonly tenant_id: FieldRef<"GabiTokenQuota", 'String'>
+    readonly product_id: FieldRef<"GabiTokenQuota", 'String'>
+    readonly quota_mensal: FieldRef<"GabiTokenQuota", 'Int'>
+    readonly mes_ref: FieldRef<"GabiTokenQuota", 'String'>
+    readonly tokens_usados: FieldRef<"GabiTokenQuota", 'Int'>
+    readonly updated_at: FieldRef<"GabiTokenQuota", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GabiTokenQuota findUnique
+   */
+  export type GabiTokenQuotaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenQuota to fetch.
+     */
+    where: GabiTokenQuotaWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenQuota findUniqueOrThrow
+   */
+  export type GabiTokenQuotaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenQuota to fetch.
+     */
+    where: GabiTokenQuotaWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenQuota findFirst
+   */
+  export type GabiTokenQuotaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenQuota to fetch.
+     */
+    where?: GabiTokenQuotaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenQuotas to fetch.
+     */
+    orderBy?: GabiTokenQuotaOrderByWithRelationInput | GabiTokenQuotaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiTokenQuotas.
+     */
+    cursor?: GabiTokenQuotaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenQuotas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenQuotas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiTokenQuotas.
+     */
+    distinct?: GabiTokenQuotaScalarFieldEnum | GabiTokenQuotaScalarFieldEnum[]
+  }
+
+  /**
+   * GabiTokenQuota findFirstOrThrow
+   */
+  export type GabiTokenQuotaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenQuota to fetch.
+     */
+    where?: GabiTokenQuotaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenQuotas to fetch.
+     */
+    orderBy?: GabiTokenQuotaOrderByWithRelationInput | GabiTokenQuotaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GabiTokenQuotas.
+     */
+    cursor?: GabiTokenQuotaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenQuotas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenQuotas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GabiTokenQuotas.
+     */
+    distinct?: GabiTokenQuotaScalarFieldEnum | GabiTokenQuotaScalarFieldEnum[]
+  }
+
+  /**
+   * GabiTokenQuota findMany
+   */
+  export type GabiTokenQuotaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * Filter, which GabiTokenQuotas to fetch.
+     */
+    where?: GabiTokenQuotaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GabiTokenQuotas to fetch.
+     */
+    orderBy?: GabiTokenQuotaOrderByWithRelationInput | GabiTokenQuotaOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GabiTokenQuotas.
+     */
+    cursor?: GabiTokenQuotaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GabiTokenQuotas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GabiTokenQuotas.
+     */
+    skip?: number
+    distinct?: GabiTokenQuotaScalarFieldEnum | GabiTokenQuotaScalarFieldEnum[]
+  }
+
+  /**
+   * GabiTokenQuota create
+   */
+  export type GabiTokenQuotaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * The data needed to create a GabiTokenQuota.
+     */
+    data: XOR<GabiTokenQuotaCreateInput, GabiTokenQuotaUncheckedCreateInput>
+  }
+
+  /**
+   * GabiTokenQuota createMany
+   */
+  export type GabiTokenQuotaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GabiTokenQuotas.
+     */
+    data: GabiTokenQuotaCreateManyInput | GabiTokenQuotaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiTokenQuota createManyAndReturn
+   */
+  export type GabiTokenQuotaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many GabiTokenQuotas.
+     */
+    data: GabiTokenQuotaCreateManyInput | GabiTokenQuotaCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GabiTokenQuota update
+   */
+  export type GabiTokenQuotaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * The data needed to update a GabiTokenQuota.
+     */
+    data: XOR<GabiTokenQuotaUpdateInput, GabiTokenQuotaUncheckedUpdateInput>
+    /**
+     * Choose, which GabiTokenQuota to update.
+     */
+    where: GabiTokenQuotaWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenQuota updateMany
+   */
+  export type GabiTokenQuotaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GabiTokenQuotas.
+     */
+    data: XOR<GabiTokenQuotaUpdateManyMutationInput, GabiTokenQuotaUncheckedUpdateManyInput>
+    /**
+     * Filter which GabiTokenQuotas to update
+     */
+    where?: GabiTokenQuotaWhereInput
+  }
+
+  /**
+   * GabiTokenQuota upsert
+   */
+  export type GabiTokenQuotaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * The filter to search for the GabiTokenQuota to update in case it exists.
+     */
+    where: GabiTokenQuotaWhereUniqueInput
+    /**
+     * In case the GabiTokenQuota found by the `where` argument doesn't exist, create a new GabiTokenQuota with this data.
+     */
+    create: XOR<GabiTokenQuotaCreateInput, GabiTokenQuotaUncheckedCreateInput>
+    /**
+     * In case the GabiTokenQuota was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GabiTokenQuotaUpdateInput, GabiTokenQuotaUncheckedUpdateInput>
+  }
+
+  /**
+   * GabiTokenQuota delete
+   */
+  export type GabiTokenQuotaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
+    /**
+     * Filter which GabiTokenQuota to delete.
+     */
+    where: GabiTokenQuotaWhereUniqueInput
+  }
+
+  /**
+   * GabiTokenQuota deleteMany
+   */
+  export type GabiTokenQuotaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GabiTokenQuotas to delete
+     */
+    where?: GabiTokenQuotaWhereInput
+  }
+
+  /**
+   * GabiTokenQuota without action
+   */
+  export type GabiTokenQuotaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GabiTokenQuota
+     */
+    select?: GabiTokenQuotaSelect<ExtArgs> | null
   }
 
 
@@ -43155,27 +45337,27 @@ export namespace Prisma {
 
   export type PedidoItemAvgAggregateOutputType = {
     sequencia_item: number | null
-    quantidade_inicial: Decimal | null
-    quantidade_atual: Decimal | null
-    quantidade_pronta: Decimal | null
-    quantidade_transferida: Decimal | null
-    quantidade_cancelada: Decimal | null
-    casas_decimais_quantidade: number | null
-    valor_item: Decimal | null
-    valor_unitario: Decimal | null
+    quantidade_inicial_pedido: Decimal | null
+    quantidade_atual_pedido: Decimal | null
+    quantidade_pronta_pedido: Decimal | null
+    quantidade_transferida_pedido: Decimal | null
+    quantidade_cancelada_pedido: Decimal | null
+    casas_decimais_quantidade_item: number | null
+    valor_total_item: Decimal | null
+    valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
   }
 
   export type PedidoItemSumAggregateOutputType = {
     sequencia_item: number | null
-    quantidade_inicial: Decimal | null
-    quantidade_atual: Decimal | null
-    quantidade_pronta: Decimal | null
-    quantidade_transferida: Decimal | null
-    quantidade_cancelada: Decimal | null
-    casas_decimais_quantidade: number | null
-    valor_item: Decimal | null
-    valor_unitario: Decimal | null
+    quantidade_inicial_pedido: Decimal | null
+    quantidade_atual_pedido: Decimal | null
+    quantidade_pronta_pedido: Decimal | null
+    quantidade_transferida_pedido: Decimal | null
+    quantidade_cancelada_pedido: Decimal | null
+    casas_decimais_quantidade_item: number | null
+    valor_total_item: Decimal | null
+    valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
   }
 
@@ -43187,17 +45369,17 @@ export namespace Prisma {
     sequencia_item: number | null
     part_number: string | null
     ncm: string | null
-    descricao: string | null
+    descricao_item: string | null
     unidade_comercializada_item: string | null
-    quantidade_inicial: Decimal | null
-    quantidade_atual: Decimal | null
-    quantidade_pronta: Decimal | null
-    quantidade_transferida: Decimal | null
-    quantidade_cancelada: Decimal | null
-    casas_decimais_quantidade: number | null
+    quantidade_inicial_pedido: Decimal | null
+    quantidade_atual_pedido: Decimal | null
+    quantidade_pronta_pedido: Decimal | null
+    quantidade_transferida_pedido: Decimal | null
+    quantidade_cancelada_pedido: Decimal | null
+    casas_decimais_quantidade_item: number | null
     moeda_item: string | null
-    valor_item: Decimal | null
-    valor_unitario: Decimal | null
+    valor_total_item: Decimal | null
+    valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
     created_at: Date | null
     updated_at: Date | null
@@ -43211,17 +45393,17 @@ export namespace Prisma {
     sequencia_item: number | null
     part_number: string | null
     ncm: string | null
-    descricao: string | null
+    descricao_item: string | null
     unidade_comercializada_item: string | null
-    quantidade_inicial: Decimal | null
-    quantidade_atual: Decimal | null
-    quantidade_pronta: Decimal | null
-    quantidade_transferida: Decimal | null
-    quantidade_cancelada: Decimal | null
-    casas_decimais_quantidade: number | null
+    quantidade_inicial_pedido: Decimal | null
+    quantidade_atual_pedido: Decimal | null
+    quantidade_pronta_pedido: Decimal | null
+    quantidade_transferida_pedido: Decimal | null
+    quantidade_cancelada_pedido: Decimal | null
+    casas_decimais_quantidade_item: number | null
     moeda_item: string | null
-    valor_item: Decimal | null
-    valor_unitario: Decimal | null
+    valor_total_item: Decimal | null
+    valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
     created_at: Date | null
     updated_at: Date | null
@@ -43235,17 +45417,17 @@ export namespace Prisma {
     sequencia_item: number
     part_number: number
     ncm: number
-    descricao: number
+    descricao_item: number
     unidade_comercializada_item: number
-    quantidade_inicial: number
-    quantidade_atual: number
-    quantidade_pronta: number
-    quantidade_transferida: number
-    quantidade_cancelada: number
-    casas_decimais_quantidade: number
+    quantidade_inicial_pedido: number
+    quantidade_atual_pedido: number
+    quantidade_pronta_pedido: number
+    quantidade_transferida_pedido: number
+    quantidade_cancelada_pedido: number
+    casas_decimais_quantidade_item: number
     moeda_item: number
-    valor_item: number
-    valor_unitario: number
+    valor_total_item: number
+    valor_por_unidade_item: number
     casas_decimais_total_item: number
     campos_custom: number
     created_at: number
@@ -43256,27 +45438,27 @@ export namespace Prisma {
 
   export type PedidoItemAvgAggregateInputType = {
     sequencia_item?: true
-    quantidade_inicial?: true
-    quantidade_atual?: true
-    quantidade_pronta?: true
-    quantidade_transferida?: true
-    quantidade_cancelada?: true
-    casas_decimais_quantidade?: true
-    valor_item?: true
-    valor_unitario?: true
+    quantidade_inicial_pedido?: true
+    quantidade_atual_pedido?: true
+    quantidade_pronta_pedido?: true
+    quantidade_transferida_pedido?: true
+    quantidade_cancelada_pedido?: true
+    casas_decimais_quantidade_item?: true
+    valor_total_item?: true
+    valor_por_unidade_item?: true
     casas_decimais_total_item?: true
   }
 
   export type PedidoItemSumAggregateInputType = {
     sequencia_item?: true
-    quantidade_inicial?: true
-    quantidade_atual?: true
-    quantidade_pronta?: true
-    quantidade_transferida?: true
-    quantidade_cancelada?: true
-    casas_decimais_quantidade?: true
-    valor_item?: true
-    valor_unitario?: true
+    quantidade_inicial_pedido?: true
+    quantidade_atual_pedido?: true
+    quantidade_pronta_pedido?: true
+    quantidade_transferida_pedido?: true
+    quantidade_cancelada_pedido?: true
+    casas_decimais_quantidade_item?: true
+    valor_total_item?: true
+    valor_por_unidade_item?: true
     casas_decimais_total_item?: true
   }
 
@@ -43288,17 +45470,17 @@ export namespace Prisma {
     sequencia_item?: true
     part_number?: true
     ncm?: true
-    descricao?: true
+    descricao_item?: true
     unidade_comercializada_item?: true
-    quantidade_inicial?: true
-    quantidade_atual?: true
-    quantidade_pronta?: true
-    quantidade_transferida?: true
-    quantidade_cancelada?: true
-    casas_decimais_quantidade?: true
+    quantidade_inicial_pedido?: true
+    quantidade_atual_pedido?: true
+    quantidade_pronta_pedido?: true
+    quantidade_transferida_pedido?: true
+    quantidade_cancelada_pedido?: true
+    casas_decimais_quantidade_item?: true
     moeda_item?: true
-    valor_item?: true
-    valor_unitario?: true
+    valor_total_item?: true
+    valor_por_unidade_item?: true
     casas_decimais_total_item?: true
     created_at?: true
     updated_at?: true
@@ -43312,17 +45494,17 @@ export namespace Prisma {
     sequencia_item?: true
     part_number?: true
     ncm?: true
-    descricao?: true
+    descricao_item?: true
     unidade_comercializada_item?: true
-    quantidade_inicial?: true
-    quantidade_atual?: true
-    quantidade_pronta?: true
-    quantidade_transferida?: true
-    quantidade_cancelada?: true
-    casas_decimais_quantidade?: true
+    quantidade_inicial_pedido?: true
+    quantidade_atual_pedido?: true
+    quantidade_pronta_pedido?: true
+    quantidade_transferida_pedido?: true
+    quantidade_cancelada_pedido?: true
+    casas_decimais_quantidade_item?: true
     moeda_item?: true
-    valor_item?: true
-    valor_unitario?: true
+    valor_total_item?: true
+    valor_por_unidade_item?: true
     casas_decimais_total_item?: true
     created_at?: true
     updated_at?: true
@@ -43336,17 +45518,17 @@ export namespace Prisma {
     sequencia_item?: true
     part_number?: true
     ncm?: true
-    descricao?: true
+    descricao_item?: true
     unidade_comercializada_item?: true
-    quantidade_inicial?: true
-    quantidade_atual?: true
-    quantidade_pronta?: true
-    quantidade_transferida?: true
-    quantidade_cancelada?: true
-    casas_decimais_quantidade?: true
+    quantidade_inicial_pedido?: true
+    quantidade_atual_pedido?: true
+    quantidade_pronta_pedido?: true
+    quantidade_transferida_pedido?: true
+    quantidade_cancelada_pedido?: true
+    casas_decimais_quantidade_item?: true
     moeda_item?: true
-    valor_item?: true
-    valor_unitario?: true
+    valor_total_item?: true
+    valor_por_unidade_item?: true
     casas_decimais_total_item?: true
     campos_custom?: true
     created_at?: true
@@ -43448,17 +45630,17 @@ export namespace Prisma {
     sequencia_item: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item: string | null
-    quantidade_inicial: Decimal
-    quantidade_atual: Decimal
-    quantidade_pronta: Decimal
-    quantidade_transferida: Decimal
-    quantidade_cancelada: Decimal
-    casas_decimais_quantidade: number
+    quantidade_inicial_pedido: Decimal
+    quantidade_atual_pedido: Decimal
+    quantidade_pronta_pedido: Decimal
+    quantidade_transferida_pedido: Decimal
+    quantidade_cancelada_pedido: Decimal
+    casas_decimais_quantidade_item: number
     moeda_item: string
-    valor_item: Decimal | null
-    valor_unitario: Decimal | null
+    valor_total_item: Decimal | null
+    valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number
     campos_custom: JsonValue | null
     created_at: Date
@@ -43492,17 +45674,17 @@ export namespace Prisma {
     sequencia_item?: boolean
     part_number?: boolean
     ncm?: boolean
-    descricao?: boolean
+    descricao_item?: boolean
     unidade_comercializada_item?: boolean
-    quantidade_inicial?: boolean
-    quantidade_atual?: boolean
-    quantidade_pronta?: boolean
-    quantidade_transferida?: boolean
-    quantidade_cancelada?: boolean
-    casas_decimais_quantidade?: boolean
+    quantidade_inicial_pedido?: boolean
+    quantidade_atual_pedido?: boolean
+    quantidade_pronta_pedido?: boolean
+    quantidade_transferida_pedido?: boolean
+    quantidade_cancelada_pedido?: boolean
+    casas_decimais_quantidade_item?: boolean
     moeda_item?: boolean
-    valor_item?: boolean
-    valor_unitario?: boolean
+    valor_total_item?: boolean
+    valor_por_unidade_item?: boolean
     casas_decimais_total_item?: boolean
     campos_custom?: boolean
     created_at?: boolean
@@ -43520,17 +45702,17 @@ export namespace Prisma {
     sequencia_item?: boolean
     part_number?: boolean
     ncm?: boolean
-    descricao?: boolean
+    descricao_item?: boolean
     unidade_comercializada_item?: boolean
-    quantidade_inicial?: boolean
-    quantidade_atual?: boolean
-    quantidade_pronta?: boolean
-    quantidade_transferida?: boolean
-    quantidade_cancelada?: boolean
-    casas_decimais_quantidade?: boolean
+    quantidade_inicial_pedido?: boolean
+    quantidade_atual_pedido?: boolean
+    quantidade_pronta_pedido?: boolean
+    quantidade_transferida_pedido?: boolean
+    quantidade_cancelada_pedido?: boolean
+    casas_decimais_quantidade_item?: boolean
     moeda_item?: boolean
-    valor_item?: boolean
-    valor_unitario?: boolean
+    valor_total_item?: boolean
+    valor_por_unidade_item?: boolean
     casas_decimais_total_item?: boolean
     campos_custom?: boolean
     created_at?: boolean
@@ -43546,17 +45728,17 @@ export namespace Prisma {
     sequencia_item?: boolean
     part_number?: boolean
     ncm?: boolean
-    descricao?: boolean
+    descricao_item?: boolean
     unidade_comercializada_item?: boolean
-    quantidade_inicial?: boolean
-    quantidade_atual?: boolean
-    quantidade_pronta?: boolean
-    quantidade_transferida?: boolean
-    quantidade_cancelada?: boolean
-    casas_decimais_quantidade?: boolean
+    quantidade_inicial_pedido?: boolean
+    quantidade_atual_pedido?: boolean
+    quantidade_pronta_pedido?: boolean
+    quantidade_transferida_pedido?: boolean
+    quantidade_cancelada_pedido?: boolean
+    casas_decimais_quantidade_item?: boolean
     moeda_item?: boolean
-    valor_item?: boolean
-    valor_unitario?: boolean
+    valor_total_item?: boolean
+    valor_por_unidade_item?: boolean
     casas_decimais_total_item?: boolean
     campos_custom?: boolean
     created_at?: boolean
@@ -43586,17 +45768,17 @@ export namespace Prisma {
       sequencia_item: number | null
       part_number: string
       ncm: string
-      descricao: string
+      descricao_item: string
       unidade_comercializada_item: string | null
-      quantidade_inicial: Prisma.Decimal
-      quantidade_atual: Prisma.Decimal
-      quantidade_pronta: Prisma.Decimal
-      quantidade_transferida: Prisma.Decimal
-      quantidade_cancelada: Prisma.Decimal
-      casas_decimais_quantidade: number
+      quantidade_inicial_pedido: Prisma.Decimal
+      quantidade_atual_pedido: Prisma.Decimal
+      quantidade_pronta_pedido: Prisma.Decimal
+      quantidade_transferida_pedido: Prisma.Decimal
+      quantidade_cancelada_pedido: Prisma.Decimal
+      casas_decimais_quantidade_item: number
       moeda_item: string
-      valor_item: Prisma.Decimal | null
-      valor_unitario: Prisma.Decimal | null
+      valor_total_item: Prisma.Decimal | null
+      valor_por_unidade_item: Prisma.Decimal | null
       casas_decimais_total_item: number
       campos_custom: Prisma.JsonValue | null
       created_at: Date
@@ -44003,17 +46185,17 @@ export namespace Prisma {
     readonly sequencia_item: FieldRef<"PedidoItem", 'Int'>
     readonly part_number: FieldRef<"PedidoItem", 'String'>
     readonly ncm: FieldRef<"PedidoItem", 'String'>
-    readonly descricao: FieldRef<"PedidoItem", 'String'>
+    readonly descricao_item: FieldRef<"PedidoItem", 'String'>
     readonly unidade_comercializada_item: FieldRef<"PedidoItem", 'String'>
-    readonly quantidade_inicial: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_atual: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_pronta: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_transferida: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_cancelada: FieldRef<"PedidoItem", 'Decimal'>
-    readonly casas_decimais_quantidade: FieldRef<"PedidoItem", 'Int'>
+    readonly quantidade_inicial_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_atual_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_pronta_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_transferida_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_cancelada_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly casas_decimais_quantidade_item: FieldRef<"PedidoItem", 'Int'>
     readonly moeda_item: FieldRef<"PedidoItem", 'String'>
-    readonly valor_item: FieldRef<"PedidoItem", 'Decimal'>
-    readonly valor_unitario: FieldRef<"PedidoItem", 'Decimal'>
+    readonly valor_total_item: FieldRef<"PedidoItem", 'Decimal'>
+    readonly valor_por_unidade_item: FieldRef<"PedidoItem", 'Decimal'>
     readonly casas_decimais_total_item: FieldRef<"PedidoItem", 'Int'>
     readonly campos_custom: FieldRef<"PedidoItem", 'Json'>
     readonly created_at: FieldRef<"PedidoItem", 'DateTime'>
@@ -55377,10 +57559,43 @@ export namespace Prisma {
     conversation_snapshot: 'conversation_snapshot',
     actor_type: 'actor_type',
     triggered_by: 'triggered_by',
+    model_used: 'model_used',
+    tokens_input: 'tokens_input',
+    tokens_output: 'tokens_output',
+    cost_usd: 'cost_usd',
     created_at: 'created_at'
   };
 
   export type GabiUsageLogScalarFieldEnum = (typeof GabiUsageLogScalarFieldEnum)[keyof typeof GabiUsageLogScalarFieldEnum]
+
+
+  export const GabiTokenLogScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    campo: 'campo',
+    tokens_input: 'tokens_input',
+    tokens_output: 'tokens_output',
+    tokens_total: 'tokens_total',
+    mes_ref: 'mes_ref',
+    created_at: 'created_at'
+  };
+
+  export type GabiTokenLogScalarFieldEnum = (typeof GabiTokenLogScalarFieldEnum)[keyof typeof GabiTokenLogScalarFieldEnum]
+
+
+  export const GabiTokenQuotaScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    quota_mensal: 'quota_mensal',
+    mes_ref: 'mes_ref',
+    tokens_usados: 'tokens_usados',
+    updated_at: 'updated_at'
+  };
+
+  export type GabiTokenQuotaScalarFieldEnum = (typeof GabiTokenQuotaScalarFieldEnum)[keyof typeof GabiTokenQuotaScalarFieldEnum]
 
 
   export const UserPreferencesScalarFieldEnum: {
@@ -55444,17 +57659,17 @@ export namespace Prisma {
     sequencia_item: 'sequencia_item',
     part_number: 'part_number',
     ncm: 'ncm',
-    descricao: 'descricao',
+    descricao_item: 'descricao_item',
     unidade_comercializada_item: 'unidade_comercializada_item',
-    quantidade_inicial: 'quantidade_inicial',
-    quantidade_atual: 'quantidade_atual',
-    quantidade_pronta: 'quantidade_pronta',
-    quantidade_transferida: 'quantidade_transferida',
-    quantidade_cancelada: 'quantidade_cancelada',
-    casas_decimais_quantidade: 'casas_decimais_quantidade',
+    quantidade_inicial_pedido: 'quantidade_inicial_pedido',
+    quantidade_atual_pedido: 'quantidade_atual_pedido',
+    quantidade_pronta_pedido: 'quantidade_pronta_pedido',
+    quantidade_transferida_pedido: 'quantidade_transferida_pedido',
+    quantidade_cancelada_pedido: 'quantidade_cancelada_pedido',
+    casas_decimais_quantidade_item: 'casas_decimais_quantidade_item',
     moeda_item: 'moeda_item',
-    valor_item: 'valor_item',
-    valor_unitario: 'valor_unitario',
+    valor_total_item: 'valor_total_item',
+    valor_por_unidade_item: 'valor_por_unidade_item',
     casas_decimais_total_item: 'casas_decimais_total_item',
     campos_custom: 'campos_custom',
     created_at: 'created_at',
@@ -59171,6 +61386,10 @@ export namespace Prisma {
     conversation_snapshot?: StringFilter<"GabiUsageLog"> | string
     actor_type?: StringFilter<"GabiUsageLog"> | string
     triggered_by?: StringFilter<"GabiUsageLog"> | string
+    model_used?: StringNullableFilter<"GabiUsageLog"> | string | null
+    tokens_input?: IntFilter<"GabiUsageLog"> | number
+    tokens_output?: IntFilter<"GabiUsageLog"> | number
+    cost_usd?: FloatFilter<"GabiUsageLog"> | number
     created_at?: DateTimeFilter<"GabiUsageLog"> | Date | string
   }
 
@@ -59183,6 +61402,10 @@ export namespace Prisma {
     conversation_snapshot?: SortOrder
     actor_type?: SortOrder
     triggered_by?: SortOrder
+    model_used?: SortOrderInput | SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    cost_usd?: SortOrder
     created_at?: SortOrder
   }
 
@@ -59198,6 +61421,10 @@ export namespace Prisma {
     conversation_snapshot?: StringFilter<"GabiUsageLog"> | string
     actor_type?: StringFilter<"GabiUsageLog"> | string
     triggered_by?: StringFilter<"GabiUsageLog"> | string
+    model_used?: StringNullableFilter<"GabiUsageLog"> | string | null
+    tokens_input?: IntFilter<"GabiUsageLog"> | number
+    tokens_output?: IntFilter<"GabiUsageLog"> | number
+    cost_usd?: FloatFilter<"GabiUsageLog"> | number
     created_at?: DateTimeFilter<"GabiUsageLog"> | Date | string
   }, "id">
 
@@ -59210,10 +61437,16 @@ export namespace Prisma {
     conversation_snapshot?: SortOrder
     actor_type?: SortOrder
     triggered_by?: SortOrder
+    model_used?: SortOrderInput | SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    cost_usd?: SortOrder
     created_at?: SortOrder
     _count?: GabiUsageLogCountOrderByAggregateInput
+    _avg?: GabiUsageLogAvgOrderByAggregateInput
     _max?: GabiUsageLogMaxOrderByAggregateInput
     _min?: GabiUsageLogMinOrderByAggregateInput
+    _sum?: GabiUsageLogSumOrderByAggregateInput
   }
 
   export type GabiUsageLogScalarWhereWithAggregatesInput = {
@@ -59228,7 +61461,155 @@ export namespace Prisma {
     conversation_snapshot?: StringWithAggregatesFilter<"GabiUsageLog"> | string
     actor_type?: StringWithAggregatesFilter<"GabiUsageLog"> | string
     triggered_by?: StringWithAggregatesFilter<"GabiUsageLog"> | string
+    model_used?: StringNullableWithAggregatesFilter<"GabiUsageLog"> | string | null
+    tokens_input?: IntWithAggregatesFilter<"GabiUsageLog"> | number
+    tokens_output?: IntWithAggregatesFilter<"GabiUsageLog"> | number
+    cost_usd?: FloatWithAggregatesFilter<"GabiUsageLog"> | number
     created_at?: DateTimeWithAggregatesFilter<"GabiUsageLog"> | Date | string
+  }
+
+  export type GabiTokenLogWhereInput = {
+    AND?: GabiTokenLogWhereInput | GabiTokenLogWhereInput[]
+    OR?: GabiTokenLogWhereInput[]
+    NOT?: GabiTokenLogWhereInput | GabiTokenLogWhereInput[]
+    id?: StringFilter<"GabiTokenLog"> | string
+    tenant_id?: StringFilter<"GabiTokenLog"> | string
+    product_id?: StringFilter<"GabiTokenLog"> | string
+    user_id?: StringFilter<"GabiTokenLog"> | string
+    campo?: StringFilter<"GabiTokenLog"> | string
+    tokens_input?: IntFilter<"GabiTokenLog"> | number
+    tokens_output?: IntFilter<"GabiTokenLog"> | number
+    tokens_total?: IntFilter<"GabiTokenLog"> | number
+    mes_ref?: StringFilter<"GabiTokenLog"> | string
+    created_at?: DateTimeFilter<"GabiTokenLog"> | Date | string
+  }
+
+  export type GabiTokenLogOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    campo?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    tokens_total?: SortOrder
+    mes_ref?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type GabiTokenLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GabiTokenLogWhereInput | GabiTokenLogWhereInput[]
+    OR?: GabiTokenLogWhereInput[]
+    NOT?: GabiTokenLogWhereInput | GabiTokenLogWhereInput[]
+    tenant_id?: StringFilter<"GabiTokenLog"> | string
+    product_id?: StringFilter<"GabiTokenLog"> | string
+    user_id?: StringFilter<"GabiTokenLog"> | string
+    campo?: StringFilter<"GabiTokenLog"> | string
+    tokens_input?: IntFilter<"GabiTokenLog"> | number
+    tokens_output?: IntFilter<"GabiTokenLog"> | number
+    tokens_total?: IntFilter<"GabiTokenLog"> | number
+    mes_ref?: StringFilter<"GabiTokenLog"> | string
+    created_at?: DateTimeFilter<"GabiTokenLog"> | Date | string
+  }, "id">
+
+  export type GabiTokenLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    campo?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    tokens_total?: SortOrder
+    mes_ref?: SortOrder
+    created_at?: SortOrder
+    _count?: GabiTokenLogCountOrderByAggregateInput
+    _avg?: GabiTokenLogAvgOrderByAggregateInput
+    _max?: GabiTokenLogMaxOrderByAggregateInput
+    _min?: GabiTokenLogMinOrderByAggregateInput
+    _sum?: GabiTokenLogSumOrderByAggregateInput
+  }
+
+  export type GabiTokenLogScalarWhereWithAggregatesInput = {
+    AND?: GabiTokenLogScalarWhereWithAggregatesInput | GabiTokenLogScalarWhereWithAggregatesInput[]
+    OR?: GabiTokenLogScalarWhereWithAggregatesInput[]
+    NOT?: GabiTokenLogScalarWhereWithAggregatesInput | GabiTokenLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GabiTokenLog"> | string
+    tenant_id?: StringWithAggregatesFilter<"GabiTokenLog"> | string
+    product_id?: StringWithAggregatesFilter<"GabiTokenLog"> | string
+    user_id?: StringWithAggregatesFilter<"GabiTokenLog"> | string
+    campo?: StringWithAggregatesFilter<"GabiTokenLog"> | string
+    tokens_input?: IntWithAggregatesFilter<"GabiTokenLog"> | number
+    tokens_output?: IntWithAggregatesFilter<"GabiTokenLog"> | number
+    tokens_total?: IntWithAggregatesFilter<"GabiTokenLog"> | number
+    mes_ref?: StringWithAggregatesFilter<"GabiTokenLog"> | string
+    created_at?: DateTimeWithAggregatesFilter<"GabiTokenLog"> | Date | string
+  }
+
+  export type GabiTokenQuotaWhereInput = {
+    AND?: GabiTokenQuotaWhereInput | GabiTokenQuotaWhereInput[]
+    OR?: GabiTokenQuotaWhereInput[]
+    NOT?: GabiTokenQuotaWhereInput | GabiTokenQuotaWhereInput[]
+    id?: StringFilter<"GabiTokenQuota"> | string
+    tenant_id?: StringFilter<"GabiTokenQuota"> | string
+    product_id?: StringFilter<"GabiTokenQuota"> | string
+    quota_mensal?: IntFilter<"GabiTokenQuota"> | number
+    mes_ref?: StringFilter<"GabiTokenQuota"> | string
+    tokens_usados?: IntFilter<"GabiTokenQuota"> | number
+    updated_at?: DateTimeFilter<"GabiTokenQuota"> | Date | string
+  }
+
+  export type GabiTokenQuotaOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    quota_mensal?: SortOrder
+    mes_ref?: SortOrder
+    tokens_usados?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type GabiTokenQuotaWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenant_id_product_id_mes_ref?: GabiTokenQuotaTenant_idProduct_idMes_refCompoundUniqueInput
+    AND?: GabiTokenQuotaWhereInput | GabiTokenQuotaWhereInput[]
+    OR?: GabiTokenQuotaWhereInput[]
+    NOT?: GabiTokenQuotaWhereInput | GabiTokenQuotaWhereInput[]
+    tenant_id?: StringFilter<"GabiTokenQuota"> | string
+    product_id?: StringFilter<"GabiTokenQuota"> | string
+    quota_mensal?: IntFilter<"GabiTokenQuota"> | number
+    mes_ref?: StringFilter<"GabiTokenQuota"> | string
+    tokens_usados?: IntFilter<"GabiTokenQuota"> | number
+    updated_at?: DateTimeFilter<"GabiTokenQuota"> | Date | string
+  }, "id" | "tenant_id_product_id_mes_ref">
+
+  export type GabiTokenQuotaOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    quota_mensal?: SortOrder
+    mes_ref?: SortOrder
+    tokens_usados?: SortOrder
+    updated_at?: SortOrder
+    _count?: GabiTokenQuotaCountOrderByAggregateInput
+    _avg?: GabiTokenQuotaAvgOrderByAggregateInput
+    _max?: GabiTokenQuotaMaxOrderByAggregateInput
+    _min?: GabiTokenQuotaMinOrderByAggregateInput
+    _sum?: GabiTokenQuotaSumOrderByAggregateInput
+  }
+
+  export type GabiTokenQuotaScalarWhereWithAggregatesInput = {
+    AND?: GabiTokenQuotaScalarWhereWithAggregatesInput | GabiTokenQuotaScalarWhereWithAggregatesInput[]
+    OR?: GabiTokenQuotaScalarWhereWithAggregatesInput[]
+    NOT?: GabiTokenQuotaScalarWhereWithAggregatesInput | GabiTokenQuotaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GabiTokenQuota"> | string
+    tenant_id?: StringWithAggregatesFilter<"GabiTokenQuota"> | string
+    product_id?: StringWithAggregatesFilter<"GabiTokenQuota"> | string
+    quota_mensal?: IntWithAggregatesFilter<"GabiTokenQuota"> | number
+    mes_ref?: StringWithAggregatesFilter<"GabiTokenQuota"> | string
+    tokens_usados?: IntWithAggregatesFilter<"GabiTokenQuota"> | number
+    updated_at?: DateTimeWithAggregatesFilter<"GabiTokenQuota"> | Date | string
   }
 
   export type UserPreferencesWhereInput = {
@@ -59506,17 +61887,17 @@ export namespace Prisma {
     sequencia_item?: IntNullableFilter<"PedidoItem"> | number | null
     part_number?: StringFilter<"PedidoItem"> | string
     ncm?: StringFilter<"PedidoItem"> | string
-    descricao?: StringFilter<"PedidoItem"> | string
+    descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
-    quantidade_inicial?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFilter<"PedidoItem"> | number
+    quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFilter<"PedidoItem"> | number
     moeda_item?: StringFilter<"PedidoItem"> | string
-    valor_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableFilter<"PedidoItem">
     created_at?: DateTimeFilter<"PedidoItem"> | Date | string
@@ -59533,17 +61914,17 @@ export namespace Prisma {
     sequencia_item?: SortOrderInput | SortOrder
     part_number?: SortOrder
     ncm?: SortOrder
-    descricao?: SortOrder
+    descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrderInput | SortOrder
-    quantidade_inicial?: SortOrder
-    quantidade_atual?: SortOrder
-    quantidade_pronta?: SortOrder
-    quantidade_transferida?: SortOrder
-    quantidade_cancelada?: SortOrder
-    casas_decimais_quantidade?: SortOrder
+    quantidade_inicial_pedido?: SortOrder
+    quantidade_atual_pedido?: SortOrder
+    quantidade_pronta_pedido?: SortOrder
+    quantidade_transferida_pedido?: SortOrder
+    quantidade_cancelada_pedido?: SortOrder
+    casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_item?: SortOrderInput | SortOrder
-    valor_unitario?: SortOrderInput | SortOrder
+    valor_total_item?: SortOrderInput | SortOrder
+    valor_por_unidade_item?: SortOrderInput | SortOrder
     casas_decimais_total_item?: SortOrder
     campos_custom?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -59563,17 +61944,17 @@ export namespace Prisma {
     sequencia_item?: IntNullableFilter<"PedidoItem"> | number | null
     part_number?: StringFilter<"PedidoItem"> | string
     ncm?: StringFilter<"PedidoItem"> | string
-    descricao?: StringFilter<"PedidoItem"> | string
+    descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
-    quantidade_inicial?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFilter<"PedidoItem"> | number
+    quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFilter<"PedidoItem"> | number
     moeda_item?: StringFilter<"PedidoItem"> | string
-    valor_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableFilter<"PedidoItem">
     created_at?: DateTimeFilter<"PedidoItem"> | Date | string
@@ -59590,17 +61971,17 @@ export namespace Prisma {
     sequencia_item?: SortOrderInput | SortOrder
     part_number?: SortOrder
     ncm?: SortOrder
-    descricao?: SortOrder
+    descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrderInput | SortOrder
-    quantidade_inicial?: SortOrder
-    quantidade_atual?: SortOrder
-    quantidade_pronta?: SortOrder
-    quantidade_transferida?: SortOrder
-    quantidade_cancelada?: SortOrder
-    casas_decimais_quantidade?: SortOrder
+    quantidade_inicial_pedido?: SortOrder
+    quantidade_atual_pedido?: SortOrder
+    quantidade_pronta_pedido?: SortOrder
+    quantidade_transferida_pedido?: SortOrder
+    quantidade_cancelada_pedido?: SortOrder
+    casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_item?: SortOrderInput | SortOrder
-    valor_unitario?: SortOrderInput | SortOrder
+    valor_total_item?: SortOrderInput | SortOrder
+    valor_por_unidade_item?: SortOrderInput | SortOrder
     casas_decimais_total_item?: SortOrder
     campos_custom?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -59623,17 +62004,17 @@ export namespace Prisma {
     sequencia_item?: IntNullableWithAggregatesFilter<"PedidoItem"> | number | null
     part_number?: StringWithAggregatesFilter<"PedidoItem"> | string
     ncm?: StringWithAggregatesFilter<"PedidoItem"> | string
-    descricao?: StringWithAggregatesFilter<"PedidoItem"> | string
+    descricao_item?: StringWithAggregatesFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
-    quantidade_inicial?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntWithAggregatesFilter<"PedidoItem"> | number
+    quantidade_inicial_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntWithAggregatesFilter<"PedidoItem"> | number
     moeda_item?: StringWithAggregatesFilter<"PedidoItem"> | string
-    valor_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntWithAggregatesFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableWithAggregatesFilter<"PedidoItem">
     created_at?: DateTimeWithAggregatesFilter<"PedidoItem"> | Date | string
@@ -64649,6 +67030,10 @@ export namespace Prisma {
     conversation_snapshot: string
     actor_type?: string
     triggered_by: string
+    model_used?: string | null
+    tokens_input?: number
+    tokens_output?: number
+    cost_usd?: number
     created_at?: Date | string
   }
 
@@ -64661,6 +67046,10 @@ export namespace Prisma {
     conversation_snapshot: string
     actor_type?: string
     triggered_by: string
+    model_used?: string | null
+    tokens_input?: number
+    tokens_output?: number
+    cost_usd?: number
     created_at?: Date | string
   }
 
@@ -64673,6 +67062,10 @@ export namespace Prisma {
     conversation_snapshot?: StringFieldUpdateOperationsInput | string
     actor_type?: StringFieldUpdateOperationsInput | string
     triggered_by?: StringFieldUpdateOperationsInput | string
+    model_used?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    cost_usd?: FloatFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -64685,6 +67078,10 @@ export namespace Prisma {
     conversation_snapshot?: StringFieldUpdateOperationsInput | string
     actor_type?: StringFieldUpdateOperationsInput | string
     triggered_by?: StringFieldUpdateOperationsInput | string
+    model_used?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    cost_usd?: FloatFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -64697,6 +67094,10 @@ export namespace Prisma {
     conversation_snapshot: string
     actor_type?: string
     triggered_by: string
+    model_used?: string | null
+    tokens_input?: number
+    tokens_output?: number
+    cost_usd?: number
     created_at?: Date | string
   }
 
@@ -64709,6 +67110,10 @@ export namespace Prisma {
     conversation_snapshot?: StringFieldUpdateOperationsInput | string
     actor_type?: StringFieldUpdateOperationsInput | string
     triggered_by?: StringFieldUpdateOperationsInput | string
+    model_used?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    cost_usd?: FloatFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -64721,7 +67126,172 @@ export namespace Prisma {
     conversation_snapshot?: StringFieldUpdateOperationsInput | string
     actor_type?: StringFieldUpdateOperationsInput | string
     triggered_by?: StringFieldUpdateOperationsInput | string
+    model_used?: NullableStringFieldUpdateOperationsInput | string | null
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    cost_usd?: FloatFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenLogCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id: string
+    user_id: string
+    campo: string
+    tokens_input: number
+    tokens_output: number
+    tokens_total: number
+    mes_ref: string
+    created_at?: Date | string
+  }
+
+  export type GabiTokenLogUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id: string
+    user_id: string
+    campo: string
+    tokens_input: number
+    tokens_output: number
+    tokens_total: number
+    mes_ref: string
+    created_at?: Date | string
+  }
+
+  export type GabiTokenLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    campo?: StringFieldUpdateOperationsInput | string
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    tokens_total?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    campo?: StringFieldUpdateOperationsInput | string
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    tokens_total?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenLogCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id: string
+    user_id: string
+    campo: string
+    tokens_input: number
+    tokens_output: number
+    tokens_total: number
+    mes_ref: string
+    created_at?: Date | string
+  }
+
+  export type GabiTokenLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    campo?: StringFieldUpdateOperationsInput | string
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    tokens_total?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    campo?: StringFieldUpdateOperationsInput | string
+    tokens_input?: IntFieldUpdateOperationsInput | number
+    tokens_output?: IntFieldUpdateOperationsInput | number
+    tokens_total?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenQuotaCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id: string
+    quota_mensal: number
+    mes_ref: string
+    tokens_usados?: number
+    updated_at?: Date | string
+  }
+
+  export type GabiTokenQuotaUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id: string
+    quota_mensal: number
+    mes_ref: string
+    tokens_usados?: number
+    updated_at?: Date | string
+  }
+
+  export type GabiTokenQuotaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    quota_mensal?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    tokens_usados?: IntFieldUpdateOperationsInput | number
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenQuotaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    quota_mensal?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    tokens_usados?: IntFieldUpdateOperationsInput | number
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenQuotaCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id: string
+    quota_mensal: number
+    mes_ref: string
+    tokens_usados?: number
+    updated_at?: Date | string
+  }
+
+  export type GabiTokenQuotaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    quota_mensal?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    tokens_usados?: IntFieldUpdateOperationsInput | number
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GabiTokenQuotaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: StringFieldUpdateOperationsInput | string
+    quota_mensal?: IntFieldUpdateOperationsInput | number
+    mes_ref?: StringFieldUpdateOperationsInput | string
+    tokens_usados?: IntFieldUpdateOperationsInput | number
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserPreferencesCreateInput = {
@@ -65064,17 +67634,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -65091,17 +67661,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -65116,17 +67686,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -65143,17 +67713,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -65169,17 +67739,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -65193,17 +67763,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -65218,17 +67788,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -69290,7 +71860,17 @@ export namespace Prisma {
     conversation_snapshot?: SortOrder
     actor_type?: SortOrder
     triggered_by?: SortOrder
+    model_used?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    cost_usd?: SortOrder
     created_at?: SortOrder
+  }
+
+  export type GabiUsageLogAvgOrderByAggregateInput = {
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    cost_usd?: SortOrder
   }
 
   export type GabiUsageLogMaxOrderByAggregateInput = {
@@ -69302,6 +71882,10 @@ export namespace Prisma {
     conversation_snapshot?: SortOrder
     actor_type?: SortOrder
     triggered_by?: SortOrder
+    model_used?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    cost_usd?: SortOrder
     created_at?: SortOrder
   }
 
@@ -69314,7 +71898,114 @@ export namespace Prisma {
     conversation_snapshot?: SortOrder
     actor_type?: SortOrder
     triggered_by?: SortOrder
+    model_used?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    cost_usd?: SortOrder
     created_at?: SortOrder
+  }
+
+  export type GabiUsageLogSumOrderByAggregateInput = {
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    cost_usd?: SortOrder
+  }
+
+  export type GabiTokenLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    campo?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    tokens_total?: SortOrder
+    mes_ref?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type GabiTokenLogAvgOrderByAggregateInput = {
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    tokens_total?: SortOrder
+  }
+
+  export type GabiTokenLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    campo?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    tokens_total?: SortOrder
+    mes_ref?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type GabiTokenLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    campo?: SortOrder
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    tokens_total?: SortOrder
+    mes_ref?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type GabiTokenLogSumOrderByAggregateInput = {
+    tokens_input?: SortOrder
+    tokens_output?: SortOrder
+    tokens_total?: SortOrder
+  }
+
+  export type GabiTokenQuotaTenant_idProduct_idMes_refCompoundUniqueInput = {
+    tenant_id: string
+    product_id: string
+    mes_ref: string
+  }
+
+  export type GabiTokenQuotaCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    quota_mensal?: SortOrder
+    mes_ref?: SortOrder
+    tokens_usados?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type GabiTokenQuotaAvgOrderByAggregateInput = {
+    quota_mensal?: SortOrder
+    tokens_usados?: SortOrder
+  }
+
+  export type GabiTokenQuotaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    quota_mensal?: SortOrder
+    mes_ref?: SortOrder
+    tokens_usados?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type GabiTokenQuotaMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    quota_mensal?: SortOrder
+    mes_ref?: SortOrder
+    tokens_usados?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type GabiTokenQuotaSumOrderByAggregateInput = {
+    quota_mensal?: SortOrder
+    tokens_usados?: SortOrder
   }
 
   export type UserPreferencesCountOrderByAggregateInput = {
@@ -69532,17 +72223,17 @@ export namespace Prisma {
     sequencia_item?: SortOrder
     part_number?: SortOrder
     ncm?: SortOrder
-    descricao?: SortOrder
+    descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
-    quantidade_inicial?: SortOrder
-    quantidade_atual?: SortOrder
-    quantidade_pronta?: SortOrder
-    quantidade_transferida?: SortOrder
-    quantidade_cancelada?: SortOrder
-    casas_decimais_quantidade?: SortOrder
+    quantidade_inicial_pedido?: SortOrder
+    quantidade_atual_pedido?: SortOrder
+    quantidade_pronta_pedido?: SortOrder
+    quantidade_transferida_pedido?: SortOrder
+    quantidade_cancelada_pedido?: SortOrder
+    casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_item?: SortOrder
-    valor_unitario?: SortOrder
+    valor_total_item?: SortOrder
+    valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
     campos_custom?: SortOrder
     created_at?: SortOrder
@@ -69551,14 +72242,14 @@ export namespace Prisma {
 
   export type PedidoItemAvgOrderByAggregateInput = {
     sequencia_item?: SortOrder
-    quantidade_inicial?: SortOrder
-    quantidade_atual?: SortOrder
-    quantidade_pronta?: SortOrder
-    quantidade_transferida?: SortOrder
-    quantidade_cancelada?: SortOrder
-    casas_decimais_quantidade?: SortOrder
-    valor_item?: SortOrder
-    valor_unitario?: SortOrder
+    quantidade_inicial_pedido?: SortOrder
+    quantidade_atual_pedido?: SortOrder
+    quantidade_pronta_pedido?: SortOrder
+    quantidade_transferida_pedido?: SortOrder
+    quantidade_cancelada_pedido?: SortOrder
+    casas_decimais_quantidade_item?: SortOrder
+    valor_total_item?: SortOrder
+    valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
   }
 
@@ -69570,17 +72261,17 @@ export namespace Prisma {
     sequencia_item?: SortOrder
     part_number?: SortOrder
     ncm?: SortOrder
-    descricao?: SortOrder
+    descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
-    quantidade_inicial?: SortOrder
-    quantidade_atual?: SortOrder
-    quantidade_pronta?: SortOrder
-    quantidade_transferida?: SortOrder
-    quantidade_cancelada?: SortOrder
-    casas_decimais_quantidade?: SortOrder
+    quantidade_inicial_pedido?: SortOrder
+    quantidade_atual_pedido?: SortOrder
+    quantidade_pronta_pedido?: SortOrder
+    quantidade_transferida_pedido?: SortOrder
+    quantidade_cancelada_pedido?: SortOrder
+    casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_item?: SortOrder
-    valor_unitario?: SortOrder
+    valor_total_item?: SortOrder
+    valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -69594,17 +72285,17 @@ export namespace Prisma {
     sequencia_item?: SortOrder
     part_number?: SortOrder
     ncm?: SortOrder
-    descricao?: SortOrder
+    descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
-    quantidade_inicial?: SortOrder
-    quantidade_atual?: SortOrder
-    quantidade_pronta?: SortOrder
-    quantidade_transferida?: SortOrder
-    quantidade_cancelada?: SortOrder
-    casas_decimais_quantidade?: SortOrder
+    quantidade_inicial_pedido?: SortOrder
+    quantidade_atual_pedido?: SortOrder
+    quantidade_pronta_pedido?: SortOrder
+    quantidade_transferida_pedido?: SortOrder
+    quantidade_cancelada_pedido?: SortOrder
+    casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_item?: SortOrder
-    valor_unitario?: SortOrder
+    valor_total_item?: SortOrder
+    valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -69612,14 +72303,14 @@ export namespace Prisma {
 
   export type PedidoItemSumOrderByAggregateInput = {
     sequencia_item?: SortOrder
-    quantidade_inicial?: SortOrder
-    quantidade_atual?: SortOrder
-    quantidade_pronta?: SortOrder
-    quantidade_transferida?: SortOrder
-    quantidade_cancelada?: SortOrder
-    casas_decimais_quantidade?: SortOrder
-    valor_item?: SortOrder
-    valor_unitario?: SortOrder
+    quantidade_inicial_pedido?: SortOrder
+    quantidade_atual_pedido?: SortOrder
+    quantidade_pronta_pedido?: SortOrder
+    quantidade_transferida_pedido?: SortOrder
+    quantidade_cancelada_pedido?: SortOrder
+    casas_decimais_quantidade_item?: SortOrder
+    valor_total_item?: SortOrder
+    valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
   }
 
@@ -73943,17 +76634,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -73968,17 +76659,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -74023,17 +76714,17 @@ export namespace Prisma {
     sequencia_item?: IntNullableFilter<"PedidoItem"> | number | null
     part_number?: StringFilter<"PedidoItem"> | string
     ncm?: StringFilter<"PedidoItem"> | string
-    descricao?: StringFilter<"PedidoItem"> | string
+    descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
-    quantidade_inicial?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFilter<"PedidoItem"> | number
+    quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFilter<"PedidoItem"> | number
     moeda_item?: StringFilter<"PedidoItem"> | string
-    valor_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableFilter<"PedidoItem">
     created_at?: DateTimeFilter<"PedidoItem"> | Date | string
@@ -75222,17 +77913,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -75248,17 +77939,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -75533,17 +78224,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -75559,17 +78250,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -76643,17 +79334,17 @@ export namespace Prisma {
     sequencia_item?: number | null
     part_number: string
     ncm: string
-    descricao: string
+    descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial: Decimal | DecimalJsLike | number | string
-    quantidade_atual: Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: number
+    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_item?: Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
@@ -76667,17 +79358,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -76692,17 +79383,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -76717,17 +79408,17 @@ export namespace Prisma {
     sequencia_item?: NullableIntFieldUpdateOperationsInput | number | null
     part_number?: StringFieldUpdateOperationsInput | string
     ncm?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
+    descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    casas_decimais_quantidade?: IntFieldUpdateOperationsInput | number
+    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -77183,6 +79874,14 @@ export namespace Prisma {
      * @deprecated Use GabiUsageLogDefaultArgs instead
      */
     export type GabiUsageLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiUsageLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiTokenLogDefaultArgs instead
+     */
+    export type GabiTokenLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiTokenLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use GabiTokenQuotaDefaultArgs instead
+     */
+    export type GabiTokenQuotaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GabiTokenQuotaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use UserPreferencesDefaultArgs instead
      */

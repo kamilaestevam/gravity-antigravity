@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-05T11:21:44.041Z
+// Gerado em: 2026-04-06T15:25:04.360Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core
 // Todos os fragments encontrados.
 // ============================================================================
@@ -1038,6 +1038,8 @@ model GabiMessage {
 
 // ---------------------------------------------------------------------------
 // GabiUsageLog (SnapshotAuditoria) — auditoria obrigatória de toda execução
+// Campos model_used/tokens_input/tokens_output/cost_usd adicionados para
+// compatibilidade com usage.ts
 // ---------------------------------------------------------------------------
 
 model GabiUsageLog {
@@ -1047,15 +1049,61 @@ model GabiUsageLog {
   user_id               String?
 
   action_taken          String
-  conversation_snapshot String  @db.Text // JSON com contexto da conversa obrigatório
-  actor_type            String  @default("gabi") // sempre 'gabi'
-  triggered_by          String  // ID do usuário original
+  conversation_snapshot String  @db.Text
+  actor_type            String  @default("gabi")
+  triggered_by          String
+
+  // Campos de custo (usados por usage.ts)
+  model_used            String?
+  tokens_input          Int     @default(0)
+  tokens_output         Int     @default(0)
+  cost_usd              Float   @default(0)
 
   created_at            DateTime @default(now())
-  
+
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+}
+
+// ---------------------------------------------------------------------------
+// GabiTokenLog — registro de cada chamada field-help (on-demand)
+// ---------------------------------------------------------------------------
+
+model GabiTokenLog {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  product_id     String
+  user_id        String
+  campo          String
+  tokens_input   Int
+  tokens_output  Int
+  tokens_total   Int
+  mes_ref        String   // "2026-04" — para agrupamento mensal
+  created_at     DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, mes_ref])
+}
+
+// ---------------------------------------------------------------------------
+// GabiTokenQuota — quota mensal por tenant (verificada em tempo real)
+// ---------------------------------------------------------------------------
+
+model GabiTokenQuota {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  product_id     String
+  quota_mensal   Int      // padrão do produto, sobrescrito por negociação
+  mes_ref        String   // "2026-04"
+  tokens_usados  Int      @default(0)
+  updated_at     DateTime @updatedAt
+
+  @@unique([tenant_id, product_id, mes_ref])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, mes_ref])
 }
 
 
@@ -1155,7 +1203,7 @@ model Pedido {
   campos_custom         Json? // custom columns storage (JSONB + GIN index in SQL)
 
   // Lista Fatiável de Itens (A ORDEM 1:N SALVA!)
-  itens PedidoItem[]
+  itens          PedidoItem[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1177,25 +1225,26 @@ model PedidoItem {
   pedido_id  String // (Fio Invisível/Máquina) Aponta silenciosamente para o 'id' do Pedido Pai
 
   // Identidade do Produto (Padrão Ouro de Comércio Exterior)
-  sequencia_item              Int? // Sequencial da Linha no Documento/Processo (Ex: 10, 20)
-  part_number                 String // Chave do cadastro interno (SKU Interno Estável)
-  ncm                         String // Classificação Fiscal
-  descricao                   String
+  sequencia_item              Int?    // Sequencial da Linha no Documento/Processo (Ex: 1, 2, 3)
+  part_number                 String  // Chave do cadastro interno (SKU Interno Estável)
+  ncm                         String  // Classificação Fiscal
+  descricao_item              String  @map("descricao")
   unidade_comercializada_item String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
   // Controle de Quantidades
-  quantidade_inicial        Decimal @db.Decimal(18,6)
-  quantidade_atual          Decimal @db.Decimal(18,6)
-  quantidade_pronta         Decimal @default(0) @db.Decimal(18,6)
-  quantidade_transferida    Decimal @default(0) @db.Decimal(18,6)
-  quantidade_cancelada      Decimal @default(0) @db.Decimal(18,6)
-  casas_decimais_quantidade Int   @default(2)
+  // Nomes do modelo Prisma usam sufixos descritivos; colunas DB preservadas via @map
+  quantidade_inicial_pedido        Decimal @db.Decimal(18,6)                     @map("quantidade_inicial")
+  quantidade_atual_pedido          Decimal @db.Decimal(18,6)                     @map("quantidade_atual")
+  quantidade_pronta_pedido         Decimal @default(0) @db.Decimal(18,6)         @map("quantidade_pronta")
+  quantidade_transferida_pedido    Decimal @default(0) @db.Decimal(18,6)         @map("quantidade_transferida")
+  quantidade_cancelada_pedido      Decimal @default(0) @db.Decimal(18,6)         @map("quantidade_cancelada")
+  casas_decimais_quantidade_item   Int     @default(2)                           @map("casas_decimais_quantidade")
 
   // Valores da Linha
-  moeda_item                String @default("USD")
-  valor_item                Decimal? @db.Decimal(18,6) // O somatório individual desta linha (unitariOxquantidade)
-  valor_unitario            Decimal? @db.Decimal(18,6)
-  casas_decimais_total_item Int    @default(2)
+  moeda_item                String   @default("USD")
+  valor_total_item          Decimal? @db.Decimal(18,6) @map("valor_item") // somatório desta linha (unitário × quantidade)
+  valor_por_unidade_item    Decimal? @db.Decimal(18,6) @map("valor_unitario")
+  casas_decimais_total_item Int      @default(2)
 
   campos_custom Json? // custom columns storage
 

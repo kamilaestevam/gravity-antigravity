@@ -102,15 +102,14 @@ function gerarId(prefixo: string): string {
 }
 
 /**
- * mapItem — Renomeia campos do Prisma para os aliases esperados pelo frontend.
- * Prisma usa nomes curtos (quantidade_inicial_pedido, quantidade_atual_pedido, …),
- * o frontend (types.ts / mockData) usa aliases descritivos.
+ * mapItem — Converte campos Decimal do Prisma para number e cria aliases esperados pelo frontend.
+ * Os nomes dos campos já correspondem ao schema (nomes longos via @map no fragment.prisma).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapItem(item: any): any {
   return {
     ...item,
-    // Campos Decimal do Prisma são serializados como string no JSON — converter para number
+    // Campos Decimal do Prisma serializados como string no JSON → converter para number
     quantidade_inicial_pedido:        Number(item.quantidade_inicial_pedido ?? 0),
     quantidade_atual_pedido:          Number(item.quantidade_atual_pedido ?? 0),
     quantidade_pronta_pedido:         Number(item.quantidade_pronta_pedido ?? 0),
@@ -118,7 +117,7 @@ function mapItem(item: any): any {
     quantidade_cancelada_pedido:      Number(item.quantidade_cancelada_pedido ?? 0),
     valor_total_item:                 item.valor_total_item != null ? Number(item.valor_total_item) : null,
     valor_por_unidade_item:           item.valor_por_unidade_item != null ? Number(item.valor_por_unidade_item) : null,
-    // Aliases esperados pelo frontend
+    // Aliases adicionais esperados pelo frontend (types.ts PedidoItem)
     quantidade_inicial_item_pedido:   Number(item.quantidade_inicial_pedido ?? 0),
     saldo_item_pedido:                Number(item.quantidade_atual_pedido ?? 0),
     quantidade_pronta_total:          Number(item.quantidade_pronta_pedido ?? 0),
@@ -335,9 +334,6 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               descricao_item: item.descricao_item ?? '',
               quantidade_inicial_pedido: item.quantidade_inicial_pedido ?? 0,
               quantidade_atual_pedido: item.quantidade_inicial_pedido ?? 0,
-              quantidade_pronta_pedido: 0,
-              quantidade_transferida_pedido: 0,
-              quantidade_cancelada_pedido: 0,
               casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
@@ -604,9 +600,6 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
             descricao_item: item.descricao_item,
             quantidade_inicial_pedido: item.quantidade_inicial_pedido,
             quantidade_atual_pedido: item.quantidade_inicial_pedido,
-            quantidade_pronta_pedido: 0,
-            quantidade_transferida_pedido: 0,
-            quantidade_cancelada_pedido: 0,
             casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
             unidade_comercializada_item: item.unidade_comercializada_item,
             moeda_item: item.moeda_item,
@@ -767,7 +760,7 @@ pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Respo
 
     const saldo = await saldoEngine.atualizarPronta(req.prisma, {
       pedido_item_id: req.params.itemId,
-      quantidade_pronta_pedido: result.data.quantidade_pronta_pedido,
+      quantidade_pronta: result.data.quantidade_pronta_pedido,
       tenant_id,
       company_id,
     })

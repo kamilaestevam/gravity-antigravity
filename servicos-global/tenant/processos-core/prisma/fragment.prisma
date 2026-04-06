@@ -74,25 +74,26 @@ model PedidoItem {
   pedido_id  String // (Fio Invisível/Máquina) Aponta silenciosamente para o 'id' do Pedido Pai
 
   // Identidade do Produto (Padrão Ouro de Comércio Exterior)
-  sequencia_item              Int? // Sequencial da Linha no Documento/Processo (Ex: 1, 2, 3)
-  part_number                 String // Chave do cadastro interno (SKU Interno Estável)
-  ncm                         String // Classificação Fiscal
-  descricao                   String
+  sequencia_item              Int?    // Sequencial da Linha no Documento/Processo (Ex: 1, 2, 3)
+  part_number                 String  // Chave do cadastro interno (SKU Interno Estável)
+  ncm                         String  // Classificação Fiscal
+  descricao_item              String  @map("descricao")
   unidade_comercializada_item String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
   // Controle de Quantidades
-  quantidade_inicial        Decimal @db.Decimal(18,6)
-  quantidade_atual          Decimal @db.Decimal(18,6)
-  quantidade_pronta         Decimal @default(0) @db.Decimal(18,6)
-  quantidade_transferida    Decimal @default(0) @db.Decimal(18,6)
-  quantidade_cancelada      Decimal @default(0) @db.Decimal(18,6)
-  casas_decimais_quantidade Int   @default(2)
+  // Nomes do modelo Prisma usam sufixos descritivos; colunas DB preservadas via @map
+  quantidade_inicial_pedido        Decimal @db.Decimal(18,6)                     @map("quantidade_inicial")
+  quantidade_atual_pedido          Decimal @db.Decimal(18,6)                     @map("quantidade_atual")
+  quantidade_pronta_pedido         Decimal @default(0) @db.Decimal(18,6)         @map("quantidade_pronta")
+  quantidade_transferida_pedido    Decimal @default(0) @db.Decimal(18,6)         @map("quantidade_transferida")
+  quantidade_cancelada_pedido      Decimal @default(0) @db.Decimal(18,6)         @map("quantidade_cancelada")
+  casas_decimais_quantidade_item   Int     @default(2)                           @map("casas_decimais_quantidade")
 
   // Valores da Linha
-  moeda_item                String @default("USD")
-  valor_item                Decimal? @db.Decimal(18,6) // O somatório individual desta linha (unitariOxquantidade)
-  valor_unitario            Decimal? @db.Decimal(18,6)
-  casas_decimais_total_item Int    @default(2)
+  moeda_item                String   @default("USD")
+  valor_total_item          Decimal? @db.Decimal(18,6) @map("valor_item") // somatório desta linha (unitário × quantidade)
+  valor_por_unidade_item    Decimal? @db.Decimal(18,6) @map("valor_unitario")
+  casas_decimais_total_item Int      @default(2)
 
   campos_custom Json? // custom columns storage
 

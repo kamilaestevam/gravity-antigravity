@@ -756,10 +756,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
-    getValorEditar: (row: Pedido) => ({
-      unit: row.unidade_comercializada_pedido ?? 'UN',
-      quantity: row.quantidade_transferida_total ?? 0,
-    }),
     render: (_val: unknown, row: Pedido) => {
       const transferida = row.quantidade_transferida_total ?? null
       const inicial = row.quantidade_total_inicial_pedido ?? null
@@ -796,10 +792,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
-    getValorEditar: (row: Pedido) => ({
-      unit: row.unidade_comercializada_pedido ?? 'UN',
-      quantity: row.quantidade_cancelada_total_pedido ?? 0,
-    }),
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
         {row.quantidade_cancelada_total_pedido != null
@@ -3334,7 +3326,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
 // ── Campos editáveis (todos exceto Saldo, que é derivado) ────────────────────
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => c.key !== 'saldo_itens_do_pedido')
+  .filter(c => !['saldo_itens_do_pedido', 'quantidade_transferida_total', 'quantidade_cancelada_total_pedido'].includes(c.key))
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
@@ -4672,8 +4664,6 @@ export default function ListaPedidos() {
     const CAMPOS_UNIDADE_PEDIDO: Record<string, string | null> = {
       quantidade_total_inicial_pedido:      'unidade_comercializada_pedido',
       quantidade_pronta_itens_pedido_total: 'unidade_comercializada_pedido',
-      quantidade_transferida_total:         'unidade_comercializada_pedido',
-      quantidade_cancelada_total_pedido:    'unidade_comercializada_pedido',
       peso_liquido_total_pedido:            null,
       peso_bruto_total_pedido:              null,
       cubagem_total_pedido:                 null,

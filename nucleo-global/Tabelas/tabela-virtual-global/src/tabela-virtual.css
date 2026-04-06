@@ -859,6 +859,33 @@
   flex: 0 0 auto;
   white-space: nowrap;
   padding-right: 0.75rem;
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--gtv-bg);
+}
+
+/* Acoes sticky — backgrounds espelham os estados da linha */
+.gtv-linha:hover .gtv-celula--acoes {
+  background: var(--gtv-bg-hover);
+}
+.gtv-linha--filho .gtv-celula--acoes {
+  background: var(--gtv-bg-filho);
+}
+.gtv-linha--filho:hover .gtv-celula--acoes {
+  background: rgba(10, 18, 36, 0.65);
+}
+.gtv-linha--selecionada .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.06);
+}
+.gtv-linha--selecionada:hover .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.09);
+}
+.gtv-linha--expandida .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.04);
+}
+.gtv-linha--expandida:hover .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.06);
 }
 
 .gtv-celula--center { justify-content: center; text-align: center; }
@@ -1792,6 +1819,19 @@ body.light-theme .gtv-linha--filho .gtv-celula--frozen {
 }
 
 body.light-theme .gtv-linha--selecionada .gtv-celula--frozen {
+  background: rgba(79, 70, 229, 0.06);
+}
+
+body.light-theme .gtv-celula--acoes {
+  background: var(--gtv-bg);
+}
+body.light-theme .gtv-linha:hover .gtv-celula--acoes {
+  background: var(--gtv-bg-hover);
+}
+body.light-theme .gtv-linha--filho .gtv-celula--acoes {
+  background: var(--gtv-bg-filho);
+}
+body.light-theme .gtv-linha--selecionada .gtv-celula--acoes {
   background: rgba(79, 70, 229, 0.06);
 }
 

@@ -330,6 +330,16 @@ export class DuplicarService {
       throw new AppError('Um ou mais itens não encontrados', 404, 'NOT_FOUND')
     }
 
+    // Buscar maior sequencia_item atual para continuar de onde parou
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const todosItens = await (db as any).pedidoItem.findMany({
+      where: { pedido_id: payload.pedido_id, tenant_id: tenantId },
+      select: { sequencia_item: true },
+    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const maxSequencia = todosItens.reduce((max: number, i: any) => Math.max(max, i.sequencia_item ?? 0), 0)
+    let proximaSequencia = maxSequencia + 1
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const criados: DuplicarResultado['criados'] = await (db as any).$transaction(async (tx: any) => {
       const resultado = []
@@ -340,6 +350,7 @@ export class DuplicarService {
           pedido_id: _pid,
           created_at: _ca,
           updated_at: _ua,
+          sequencia_item: _seq,
           quantidade_saldo_pedido: _qsp,
           quantidade_pronta_pedido: _qpp,
           quantidade_transferida_pedido: _qtp,
@@ -354,6 +365,7 @@ export class DuplicarService {
             tenant_id: tenantId,
             company_id: companyId,
             pedido_id: payload.pedido_id,
+            sequencia_item: proximaSequencia++,
             quantidade_saldo_pedido: item.quantidade_inicial_pedido,
             quantidade_pronta_pedido: 0,
             quantidade_transferida_pedido: 0,

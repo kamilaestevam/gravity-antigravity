@@ -75,6 +75,12 @@ const CONFIG_EXCLUIR_DEFAULT: ConfigExcluir = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function gerarId(prefixo: string): string {
+  const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
+  const ano = String(new Date().getFullYear()).slice(-2)
+  return `${prefixo}_id_${seq}-${ano}`
+}
+
 function gerarNumeroPedido(sequencial: number): string {
   const ano = new Date().getFullYear().toString().slice(-2)
   return `pedi_id_${String(sequencial).padStart(7, '0')}/${ano}`
@@ -211,24 +217,8 @@ export class DuplicarService {
 
           // Definir datas
           const datas = config.duplicar_copiar_datas
-            ? {
-                data_emissao_pedido: pedido.data_emissao_pedido,
-                data_prevista_pedido_pronto: pedido.data_prevista_pedido_pronto,
-                data_confirmada_pedido_pronto: pedido.data_confirmada_pedido_pronto,
-                data_meta_pedido_pronto: pedido.data_meta_pedido_pronto,
-                data_prevista_inspecao_pedido: pedido.data_prevista_inspecao_pedido,
-                data_confirmada_inspecao_pedido: pedido.data_confirmada_inspecao_pedido,
-                data_meta_inspecao_pedido: pedido.data_meta_inspecao_pedido,
-              }
-            : {
-                data_emissao_pedido: new Date().toISOString(),
-                data_prevista_pedido_pronto: null,
-                data_confirmada_pedido_pronto: null,
-                data_meta_pedido_pronto: null,
-                data_prevista_inspecao_pedido: null,
-                data_confirmada_inspecao_pedido: null,
-                data_meta_inspecao_pedido: null,
-              }
+            ? { data_emissao_pedido: pedido.data_emissao_pedido }
+            : { data_emissao_pedido: new Date().toISOString() }
 
           // Extrair campos a copiar (sem id, timestamps, pedidos_origem, histórico de transferências)
           const {
@@ -242,30 +232,27 @@ export class DuplicarService {
             ...camposBase
           } = pedido
 
-          // Clonar itens com saldo zerado
+          // Clonar itens com contadores de execução zerados
           const itensClonados = pedido.itens.map((item: Record<string, unknown>) => {
             const {
               id: _iid,
               pedido_id: _pid,
               created_at: _ica,
               updated_at: _iua,
-              quantidade_transferida_item: _qt,
-              quantidade_cancelada_item_pedido: _qc,
-              quantidade_pronta_total: _qp,
-              data_transferencia_item: _dti,
-              data_consolidacao_item: _dci,
+              quantidade_pronta_pedido: _qpp,
+              quantidade_transferida_pedido: _qtp,
+              quantidade_cancelada_pedido: _qcp,
               ...itemBase
             } = item
             return {
               ...itemBase,
+              id: gerarId('pite'),
               tenant_id: tenantId,
               company_id: companyId,
-              saldo_item_pedido: item.quantidade_inicial_item_pedido,
-              quantidade_transferida_item: 0,
-              quantidade_cancelada_item_pedido: 0,
-              quantidade_pronta_total: 0,
-              data_transferencia_item: null,
-              data_consolidacao_item: null,
+              quantidade_atual_pedido: item.quantidade_inicial_pedido,
+              quantidade_pronta_pedido: 0,
+              quantidade_transferida_pedido: 0,
+              quantidade_cancelada_pedido: 0,
             }
           })
 
@@ -273,11 +260,11 @@ export class DuplicarService {
             data: {
               ...camposBase,
               ...datas,
+              id: gerarId('pedi'),
               tenant_id: tenantId,
               company_id: companyId,
               numero_pedido: numeroPedido,
               status,
-              pedidos_origem: [],
               itens: { create: itensClonados },
             },
           })
@@ -352,26 +339,23 @@ export class DuplicarService {
           pedido_id: _pid,
           created_at: _ca,
           updated_at: _ua,
-          quantidade_transferida_item: _qt,
-          quantidade_cancelada_item_pedido: _qc,
-          quantidade_pronta_total: _qp,
-          data_transferencia_item: _dti,
-          data_consolidacao_item: _dci,
+          quantidade_pronta_pedido: _qpp,
+          quantidade_transferida_pedido: _qtp,
+          quantidade_cancelada_pedido: _qcp,
           ...itemBase
         } = item
 
         const novoItem = await tx.pedidoItem.create({
           data: {
             ...itemBase,
+            id: gerarId('pite'),
             tenant_id: tenantId,
             company_id: companyId,
             pedido_id: payload.pedido_id,
-            saldo_item_pedido: item.quantidade_inicial_item_pedido,
-            quantidade_transferida_item: 0,
-            quantidade_cancelada_item_pedido: 0,
-            quantidade_pronta_total: 0,
-            data_transferencia_item: null,
-            data_consolidacao_item: null,
+            quantidade_atual_pedido: item.quantidade_inicial_pedido,
+            quantidade_pronta_pedido: 0,
+            quantidade_transferida_pedido: 0,
+            quantidade_cancelada_pedido: 0,
           },
         })
 

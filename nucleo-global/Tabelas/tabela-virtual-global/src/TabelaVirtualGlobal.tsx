@@ -1333,7 +1333,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     estimateSize: (i) =>
       linhasVirtuais[i]?.tipo === 'filho' ? childRowHeight : rowHeight,
     overscan,
-    paddingStart: 0,
+    paddingStart: CABECALHO_HEIGHT,
   })
 
   // ── Find: reset ativo ao mudar matches ───────────────────────────────────────
@@ -2359,7 +2359,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     ref={virtualizer.measureElement}
                     style={{
                       position: 'absolute',
-                      top: virtualItem.start,
+                      top: virtualItem.start - CABECALHO_HEIGHT,
                       left: 0,
                       width: larguraTotalColunas,
                     }}

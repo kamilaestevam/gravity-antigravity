@@ -414,12 +414,15 @@ const GTEditPopover = memo(function GTEditPopover({
   const casas = overlayInfo.casasDecimais ?? 0
 
   // Estados de display pt-BR para os inputs numéricos (inicializados uma vez na abertura do popover)
-  const [displayMoedaAmt, setDisplayMoedaAmt] = useState(() =>
-    mv.amount > 0 ? mv.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''
-  )
-  const [displayQty, setDisplayQty] = useState(() =>
-    uv.quantity > 0 ? uv.quantity.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : ''
-  )
+  // Number() garante conversão correta mesmo quando Prisma Decimal serializa como string no JSON
+  const [displayMoedaAmt, setDisplayMoedaAmt] = useState(() => {
+    const amt = Number(mv.amount)
+    return amt > 0 ? amt.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''
+  })
+  const [displayQty, setDisplayQty] = useState(() => {
+    const qty = Number(uv.quantity)
+    return qty > 0 ? qty.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : ''
+  })
   const numericInitial = isNumero ? (typeof valorEditando === 'number' ? valorEditando : parseBRNum(String(valorEditando ?? ''))) : 0
   const [displayNumero, setDisplayNumero] = useState(() =>
     isNumero && numericInitial > 0 ? numericInitial.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : (isNumero ? '' : String(valorEditando ?? ''))
@@ -892,6 +895,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   // ── Busca ────────────────────────────────────────────────────────────────────
   const [termoBusca, setTermoBusca] = useState('')
+  const [findAtivo, setFindAtivo] = useState(0)
 
   const handleBusca = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1243,6 +1247,42 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [dados, expandidos, filhosCache, itemId, filhoId],
   )
 
+  // ── Find-in-page ─────────────────────────────────────────────────────────────
+  type GTFindMatch =
+    | { tipo: 'header'; colKey: string }
+    | { tipo: 'celula'; linhaIndex: number; colKey: string }
+
+  const findMatches = useMemo<GTFindMatch[]>(() => {
+    if (!termoBusca.trim()) return []
+    const termo = termoBusca.trim().toLowerCase()
+    const result: GTFindMatch[] = []
+    for (const col of colunasFiltradas) {
+      if (col.label.toLowerCase().includes(termo)) {
+        result.push({ tipo: 'header', colKey: col.key as string })
+      }
+    }
+    for (let i = 0; i < linhasVirtuais.length; i++) {
+      const linha = linhasVirtuais[i]
+      const item = linha.item as Record<string, unknown>
+      for (const col of colunasFiltradas) {
+        const k = col.key as string
+        const v = item[k]
+        if (v != null && String(v).toLowerCase().includes(termo)) {
+          result.push({ tipo: 'celula', linhaIndex: i, colKey: k })
+        }
+      }
+    }
+    return result
+  }, [termoBusca, linhasVirtuais, colunasFiltradas])
+
+  const findProximo = useCallback(() => {
+    setFindAtivo(i => (i + 1) % Math.max(findMatches.length, 1))
+  }, [findMatches.length])
+
+  const findAnterior = useCallback(() => {
+    setFindAtivo(i => (i - 1 + Math.max(findMatches.length, 1)) % Math.max(findMatches.length, 1))
+  }, [findMatches.length])
+
   // ── TanStack Virtual ──────────────────────────────────────────────────────────
   const parentRef = useRef<HTMLDivElement>(null)
 
@@ -1254,6 +1294,18 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     overscan,
     paddingStart: CABECALHO_HEIGHT,
   })
+
+  // ── Find: reset ativo ao mudar matches ───────────────────────────────────────
+  useEffect(() => { setFindAtivo(0) }, [findMatches])
+
+  // ── Find: scroll até match ativo ─────────────────────────────────────────────
+  useEffect(() => {
+    if (findMatches.length === 0) return
+    const m = findMatches[findAtivo]
+    if (m.tipo === 'celula') {
+      virtualizer.scrollToIndex(m.linhaIndex, { align: 'center' })
+    }
+  }, [findAtivo, findMatches, virtualizer])
 
   // ── Load more via intersection ────────────────────────────────────────────────
   const sentinelaRef = useRef<HTMLDivElement>(null)
@@ -1375,6 +1427,18 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     }
   }, [resizingCol, onSalvarPreferencias, preferencias, colunasVisiveis])
 
+  // ─── Helpers find-in-page ────────────────────────────────────────────────────
+
+  function isCelulaMatch(linhaIndex: number, colKey: string): boolean {
+    return findMatches.some(m => m.tipo === 'celula' && m.linhaIndex === linhaIndex && m.colKey === colKey)
+  }
+
+  function isCelulaMatchAtivo(linhaIndex: number, colKey: string): boolean {
+    if (findMatches.length === 0) return false
+    const m = findMatches[findAtivo]
+    return m != null && m.tipo === 'celula' && m.linhaIndex === linhaIndex && m.colKey === colKey
+  }
+
   // ─── Renderização de célula ──────────────────────────────────────────────────
 
   function renderCelula<I>(
@@ -1383,6 +1447,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     col: GTColuna<I>,
     isFilho: boolean,
     isPrimeiraCelula = false,
+    linhaIndex = -1,
   ) {
     const valor = (item as Record<string, unknown>)[col.key]
 
@@ -1402,9 +1467,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
     const classeAlinhamento = ' gtv-celula--center'
 
-    const classeIndent   = ''
-    const classeEditavel = podeEditar ? ' gtv-celula--editavel' : ''
-    const classeFrozen   = col.frozen ? ' gtv-celula--frozen' : ''
+    const classeIndent      = ''
+    const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
+    const classeFrozen      = col.frozen ? ' gtv-celula--frozen' : ''
+    const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
+    const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
     const styleCelula: React.CSSProperties = {
       flex: `0 0 ${getColWidth(col as GTColuna<unknown>)}px`,
@@ -1442,7 +1509,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     return (
       <div
         key={col.key}
-        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFrozen}`}
+        className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFrozen}${classeFindMatch}${classeFindAtivo}`}
         style={styleCelula}
         tabIndex={podeEditar && !estaEditando ? 0 : undefined}
         onClick={e => {
@@ -1516,7 +1583,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   // ─── Renderização de linha ───────────────────────────────────────────────────
 
-  function renderLinhaPai(linha: GTLinhaVirtual<T, C> & { tipo: 'pai' }) {
+  function renderLinhaPai(linha: GTLinhaVirtual<T, C> & { tipo: 'pai' }, linhaVirtualIndex: number) {
     const { item, id } = linha
     const expandido = expandidos.has(id)
     const carregando_ = carregandoFilhos.has(id)
@@ -1574,7 +1641,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
         {/* Células de dados */}
         {colunasFiltradas.map(col =>
-          renderCelula<T>(item, id, col as GTColuna<T>, false)
+          renderCelula<T>(item, id, col as GTColuna<T>, false, false, linhaVirtualIndex)
         )}
 
         {/* Ações de linha */}
@@ -1608,7 +1675,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     )
   }
 
-  function renderLinhaFilha(linha: GTLinhaVirtual<T, C> & { tipo: 'filho' }) {
+  function renderLinhaFilha(linha: GTLinhaVirtual<T, C> & { tipo: 'filho' }, linhaVirtualIndex: number) {
     const { item, id } = linha
 
     // ── Modo mapeado: filho usa as mesmas colunas do pai ──────────────────────
@@ -1652,8 +1719,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
             const classeAlinhamento = ' gtv-celula--center'
-            const classeEditavel = podeEditar ? ' gtv-celula--editavel' : ''
-            const classeFrozen   = col.frozen ? ' gtv-celula--frozen' : ''
+            const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
+            const classeFrozen      = col.frozen ? ' gtv-celula--frozen' : ''
+            const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
+            const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
             const styleCelula: React.CSSProperties = {
               flex: `0 0 ${getColWidth(col as GTColuna<unknown>)}px`,
@@ -1665,7 +1734,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             return (
               <div
                 key={col.key as string}
-                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFrozen}`}
+                className={`gtv-celula${classeAlinhamento}${classeEditavel}${classeFrozen}${classeFindMatch}${classeFindAtivo}`}
                 style={styleCelula}
                 onClick={podeEditar && !estaEditando ? (e) => {
                   e.stopPropagation()
@@ -1811,7 +1880,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
         {/* Células filhas */}
         {colsFilhas.map((col, idx) =>
-          renderCelula<C>(item, id, col, true, idx === 0)
+          renderCelula<C>(item, id, col, true, idx === 0, linhaVirtualIndex)
         )}
 
         {/* Ações de linha filha */}
@@ -1907,22 +1976,50 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       {/* Toolbar */}
       <div className="gtv-toolbar">
         <div className="gtv-toolbar-esquerda">
-          {/* Busca */}
+          {/* Busca / Find-in-page */}
           {onBuscar && (
-            <div className="gtv-busca-wrapper">
-              <span className="gtv-busca-icone"><IconeBusca /></span>
-              <input
-                type="text"
-                className="gtv-busca-input"
-                placeholder={placeholderBusca}
-                value={termoBusca}
-                onChange={handleBusca}
-                aria-label="Buscar"
-              />
+            <div className="gtv-find-bar">
+              <div className="gtv-busca-wrapper">
+                <span className="gtv-busca-icone"><IconeBusca /></span>
+                <input
+                  type="text"
+                  className="gtv-busca-input"
+                  placeholder={placeholderBusca}
+                  value={termoBusca}
+                  onChange={handleBusca}
+                  aria-label="Localizar"
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && findMatches.length > 0) {
+                      e.preventDefault()
+                      if (e.shiftKey) findAnterior()
+                      else findProximo()
+                    }
+                  }}
+                />
+                {termoBusca && (
+                  <button className="gtv-busca-clear" onClick={limparBusca} aria-label="Limpar busca">
+                    <IconeX />
+                  </button>
+                )}
+              </div>
               {termoBusca && (
-                <button className="gtv-busca-clear" onClick={limparBusca} aria-label="Limpar busca">
-                  <IconeX />
-                </button>
+                findMatches.length > 0 ? (
+                  <div className="gtv-find-nav" role="status" aria-live="polite">
+                    <span className="gtv-find-count">{findAtivo + 1} de {findMatches.length}</span>
+                    {findMatches.length > 1 && (
+                      <>
+                        <button className="gtv-find-btn" onClick={findAnterior} aria-label="Match anterior">
+                          <IconeArrowUp />
+                        </button>
+                        <button className="gtv-find-btn" onClick={findProximo} aria-label="Próximo match">
+                          <IconeArrowDown />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <span className="gtv-find-sem-resultado" aria-live="polite">Sem resultados</span>
+                )
               )}
             </div>
           )}
@@ -2072,12 +2169,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               const isDropTarget = dragOverKey === col.key && dragColKey !== null
               const classeDropBefore = isDropTarget && dropSide === 'before' ? ' gtv-th--drop-before' : ''
               const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
+              const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
+              const classeThFindAtivo = (findMatches.length > 0 && findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
 
               return (
                 <div
                   key={col.key}
                   role="columnheader"
-                  className={`gtv-th${classeSort}${classeAlign}${classeFrozen}${classeDropBefore}${classeDropAfter}`}
+                  className={`gtv-th${classeSort}${classeAlign}${classeFrozen}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
                   style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
                   draggable={isDraggable}
                   onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}
@@ -2185,8 +2284,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     role="row"
                   >
                     {linha.tipo === 'pai'
-                      ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' })
-                      : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' })}
+                      ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, virtualItem.index)
+                      : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, virtualItem.index)}
                   </div>
                 )
               })}

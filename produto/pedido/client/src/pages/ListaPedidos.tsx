@@ -3665,6 +3665,16 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       </span>
     ),
   },
+  quantidade_cancelada_total_pedido: {
+    // Não editável: gerenciado exclusivamente pelo sistema de cancelamentos
+    casasDecimais: getCasas('quantidade_item', 0),
+    unidades: UNIDADES_COMEX,
+    render: (row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
+        {fmtQuantidade(row.quantidade_cancelada_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+      </span>
+    ),
+  },
 }
 
 // ── Colunas para exportação ───────────────────────────────────────────────────

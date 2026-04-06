@@ -249,6 +249,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
 
   // ── Busca, filtros e ordenação ─────────────────────────────────────────────
   onBuscar?: (termo: string) => void
+  /**
+   * Quando `true`, o campo de busca opera em modo find-in-page:
+   * varre os dados carregados (sem chamar `onBuscar` durante digitação).
+   * Padrão: `false` (comportamento legado — chama `onBuscar` a cada keystroke).
+   */
+  modoLocalizar?: boolean
   placeholderBusca?: string
   onFiltrar?: (filtros: GTFiltrosAtivos) => void
   onOrdenar?: (campo: string, dir: 'asc' | 'desc') => void

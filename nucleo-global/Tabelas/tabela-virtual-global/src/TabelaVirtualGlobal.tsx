@@ -1044,8 +1044,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         let headerPx: number
         let maxConteudoPx: number
         if (ctx) {
+          // 40px padding (20px×2) + 16px sort icon + 14px filter btn + 8px folga
+          const iconSpace = 40 + (col.sortavel ? 16 : 0) + (col.filtravel ? 14 : 0) + 8
           ctx.font = "600 13px 'Plus Jakarta Sans', system-ui, sans-serif"
-          headerPx = ctx.measureText(col.label).width + 40
+          headerPx = ctx.measureText(col.label).width + iconSpace
           ctx.font = "400 14px 'Plus Jakarta Sans', system-ui, sans-serif"
           maxConteudoPx = amostra.reduce((max, item) => {
             const w = ctx.measureText(autoFitText(item[col.key])).width + 24
@@ -1276,45 +1278,41 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   )
 
   // ── Find-in-page ─────────────────────────────────────────────────────────────
-  // Células: usadas para navegação prev/next + scroll + destaque amarelo forte
-  type GTFindCelula = { linhaIndex: number; colKey: string }
+  type GTFindMatch =
+    | { tipo: 'header'; colKey: string }
+    | { tipo: 'celula'; linhaIndex: number; colKey: string }
 
-  const findCellMatches = useMemo<GTFindCelula[]>(() => {
+  const findMatches = useMemo<GTFindMatch[]>(() => {
     if (!termoBusca.trim()) return []
     const termo = termoBusca.trim().toLowerCase()
-    const result: GTFindCelula[] = []
+    const result: GTFindMatch[] = []
+    // Headers primeiro (sempre visíveis no topo)
+    for (const col of colunasFiltradas) {
+      if (col.label.toLowerCase().includes(termo)) {
+        result.push({ tipo: 'header', colKey: col.key as string })
+      }
+    }
+    // Células na ordem das linhas
     for (let i = 0; i < linhasVirtuais.length; i++) {
-      const linha = linhasVirtuais[i]
-      const item = linha.item as Record<string, unknown>
+      const item = linhasVirtuais[i].item as Record<string, unknown>
       for (const col of colunasFiltradas) {
         const k = col.key as string
         const v = item[k]
         if (v != null && String(v).toLowerCase().includes(termo)) {
-          result.push({ linhaIndex: i, colKey: k })
+          result.push({ tipo: 'celula', linhaIndex: i, colKey: k })
         }
       }
     }
     return result
   }, [termoBusca, linhasVirtuais, colunasFiltradas])
 
-  // Headers: sempre destacados (amarelo tênue), independentes da navegação
-  const findHeaderKeys = useMemo<Set<string>>(() => {
-    if (!termoBusca.trim()) return new Set()
-    const termo = termoBusca.trim().toLowerCase()
-    const s = new Set<string>()
-    for (const col of colunasFiltradas) {
-      if (col.label.toLowerCase().includes(termo)) s.add(col.key as string)
-    }
-    return s
-  }, [termoBusca, colunasFiltradas])
-
   const findProximo = useCallback(() => {
-    setFindAtivo(i => (i + 1) % Math.max(findCellMatches.length, 1))
-  }, [findCellMatches.length])
+    setFindAtivo(i => (i + 1) % Math.max(findMatches.length, 1))
+  }, [findMatches.length])
 
   const findAnterior = useCallback(() => {
-    setFindAtivo(i => (i - 1 + Math.max(findCellMatches.length, 1)) % Math.max(findCellMatches.length, 1))
-  }, [findCellMatches.length])
+    setFindAtivo(i => (i - 1 + Math.max(findMatches.length, 1)) % Math.max(findMatches.length, 1))
+  }, [findMatches.length])
 
   // ── TanStack Virtual ──────────────────────────────────────────────────────────
   const parentRef = useRef<HTMLDivElement>(null)
@@ -1329,7 +1327,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   })
 
   // ── Find: reset ativo ao mudar matches ───────────────────────────────────────
-  useEffect(() => { setFindAtivo(0) }, [findCellMatches])
+  useEffect(() => { setFindAtivo(0) }, [findMatches])
 
   // ── Find: scroll vertical + horizontal até match ativo ───────────────────────
   const virtualizerRef      = useRef(virtualizer)
@@ -1345,14 +1343,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   })
 
   useEffect(() => {
-    if (findCellMatches.length === 0) return
-    const m = findCellMatches[findAtivo]
+    if (findMatches.length === 0) return
+    const m = findMatches[findAtivo]
     if (m == null) return
 
-    // Scroll vertical
-    virtualizerRef.current.scrollToIndex(m.linhaIndex, { align: 'center' })
+    // Scroll vertical — apenas para células
+    if (m.tipo === 'celula') {
+      virtualizerRef.current.scrollToIndex(m.linhaIndex, { align: 'center' })
+    }
 
-    // Scroll horizontal — rAF para rodar após o scroll vertical completar
+    // Scroll horizontal — para células E headers
     const rafId = requestAnimationFrame(() => {
       const el = parentRef.current
       if (!el) return
@@ -1360,13 +1360,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const getW      = getColWidthFindRef.current
       const frozenOff = frozenOffsetFindRef.current
 
-      // Acumular posição absoluta da coluna alvo (após checkbox + expand)
       let pos = frozenOff
       for (const col of cols) {
         const w = getW(col as GTColuna<unknown>)
         if ((col.key as string) === m.colKey) {
           if (!col.frozen) {
-            // Centralizar a coluna dentro da área não-frozen visível
             const containerW = el.clientWidth
             const visibleW   = containerW - frozenOff
             const target     = pos - frozenOff - (visibleW - w) / 2
@@ -1379,7 +1377,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     })
 
     return () => cancelAnimationFrame(rafId)
-  }, [findAtivo, findCellMatches])
+  }, [findAtivo, findMatches])
 
   // ── Load more via intersection ────────────────────────────────────────────────
   const sentinelaRef = useRef<HTMLDivElement>(null)
@@ -1504,13 +1502,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // ─── Helpers find-in-page ────────────────────────────────────────────────────
 
   function isCelulaMatch(linhaIndex: number, colKey: string): boolean {
-    return findCellMatches.some(m => m.linhaIndex === linhaIndex && m.colKey === colKey)
+    return findMatches.some(m => m.tipo === 'celula' && m.linhaIndex === linhaIndex && m.colKey === colKey)
   }
 
   function isCelulaMatchAtivo(linhaIndex: number, colKey: string): boolean {
-    if (findCellMatches.length === 0) return false
-    const m = findCellMatches[findAtivo]
-    return m != null && m.linhaIndex === linhaIndex && m.colKey === colKey
+    if (findMatches.length === 0) return false
+    const m = findMatches[findAtivo]
+    return m != null && m.tipo === 'celula' && m.linhaIndex === linhaIndex && m.colKey === colKey
   }
 
   // ─── Renderização de célula ──────────────────────────────────────────────────
@@ -2063,7 +2061,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   onChange={handleBusca}
                   aria-label="Localizar"
                   onKeyDown={e => {
-                    if (e.key === 'Enter' && findCellMatches.length > 0) {
+                    if (e.key === 'Enter' && findMatches.length > 0) {
                       e.preventDefault()
                       if (e.shiftKey) findAnterior()
                       else findProximo()
@@ -2077,10 +2075,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 )}
               </div>
               {termoBusca && (
-                findCellMatches.length > 0 ? (
+                findMatches.length > 0 ? (
                   <div className="gtv-find-nav" role="status" aria-live="polite">
-                    <span className="gtv-find-count">{findAtivo + 1} de {findCellMatches.length}</span>
-                    {findCellMatches.length > 1 && (
+                    <span className="gtv-find-count">{findAtivo + 1} de {findMatches.length}</span>
+                    {findMatches.length > 1 && (
                       <>
                         <button className="gtv-find-btn" onClick={findAnterior} aria-label="Match anterior">
                           <IconeArrowUp />
@@ -2243,8 +2241,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               const isDropTarget = dragOverKey === col.key && dragColKey !== null
               const classeDropBefore = isDropTarget && dropSide === 'before' ? ' gtv-th--drop-before' : ''
               const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
-              const classeThFindMatch = findHeaderKeys.has(col.key as string) ? ' gtv-th--find-match' : ''
-              const classeThFindAtivo = ''  // headers nunca são "ativos" na navegação — sempre tênue
+              const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
+              const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
 
               return (
                 <div

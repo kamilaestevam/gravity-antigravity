@@ -196,6 +196,80 @@
   color: #fff;
 }
 
+/* ─── Find-in-page ────────────────────────────────────────────────────────── */
+.gtv-find-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-find-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.gtv-find-count {
+  font-size: 0.75rem;
+  color: var(--gtv-muted);
+  white-space: nowrap;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+.gtv-find-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--gtv-border-solid);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+  flex-shrink: 0;
+}
+
+.gtv-find-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  color: var(--gtv-accent);
+  border-color: var(--gtv-accent);
+}
+
+.gtv-find-sem-resultado {
+  font-size: 0.75rem;
+  color: #f87171;
+  white-space: nowrap;
+}
+
+/* Célula pai / filho com match */
+.gtv-celula--find-match {
+  background: rgba(250, 204, 21, 0.14) !important;
+}
+
+.gtv-celula--find-match-ativo {
+  background: rgba(250, 204, 21, 0.42) !important;
+  outline: 2px solid rgba(250, 204, 21, 0.75);
+  outline-offset: -2px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header com match */
+.gtv-th--find-match {
+  background: rgba(250, 204, 21, 0.14) !important;
+}
+
+.gtv-th--find-match-ativo {
+  background: rgba(250, 204, 21, 0.42) !important;
+  outline: 2px solid rgba(250, 204, 21, 0.75);
+  outline-offset: -2px;
+}
+
 /* ─── Botão genérico ──────────────────────────────────────────────────────── */
 .gtv-btn {
   display: inline-flex;

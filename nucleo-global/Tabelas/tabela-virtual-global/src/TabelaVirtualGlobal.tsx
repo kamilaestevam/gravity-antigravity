@@ -431,6 +431,14 @@ const GTEditPopover = memo(function GTEditPopover({
     isNumero ? fmtBR(numericInitial, casas) || '' : String(valorEditando ?? '')
   )
 
+  // useLayoutEffect garante valor formatado antes do primeiro paint — cobre casos onde o
+  // useState lazy-init roda antes de valorEditando estar pronto (ex: HMR, Strict Mode duplo-mount)
+  useLayoutEffect(() => {
+    if (isMoeda)   setDisplayMoedaAmt(fmtBR(Number(mv.amount), 2))
+    if (isUnidade) setDisplayQty(fmtBR(Number(uv.quantity), casas))
+    if (isNumero)  setDisplayNumero(fmtBR(numericInitial, casas) || String(valorEditando ?? ''))
+  }, []) // intentional empty deps — runs once on mount, same scope as lazy-init
+
   // Handler de paste compartilhado — detecta multi-linha e aciona smart paste
   const handleSmartPasteDetect = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const texto = e.clipboardData.getData('text')
@@ -698,7 +706,7 @@ const GTEditPopover = memo(function GTEditPopover({
               onBlur={e => {
                 if (isNumero) {
                   const parsed = parseBRNum(displayNumero)
-                  setDisplayNumero(parsed > 0 ? parsed.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : '')
+                  setDisplayNumero(fmtBR(parsed, casas))
                 }
                 if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
               }}
@@ -1046,8 +1054,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         if (ctx) {
           // 40px padding (20px×2) + 16px sort icon + 14px filter btn + 8px folga
           const iconSpace = 40 + (col.sortavel ? 16 : 0) + (col.filtravel ? 14 : 0) + 8
+          // letter-spacing: 0.07em no .gtv-th (13px) não é medido pelo canvas — compensar manualmente
+          const letterSpacingPx = col.label.length * (13 * 0.07)
           ctx.font = "600 13px 'Plus Jakarta Sans', system-ui, sans-serif"
-          headerPx = ctx.measureText(col.label).width + iconSpace
+          headerPx = ctx.measureText(col.label).width + letterSpacingPx + iconSpace
           ctx.font = "400 14px 'Plus Jakarta Sans', system-ui, sans-serif"
           maxConteudoPx = amostra.reduce((max, item) => {
             const w = ctx.measureText(autoFitText(item[col.key])).width + 24

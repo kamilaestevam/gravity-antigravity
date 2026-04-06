@@ -744,7 +744,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       return (
         <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
           {qtd != null
-            ? `${fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? [fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
             : '—'}
         </span>
       )
@@ -777,10 +777,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         }
       } catch { /* localStorage indisponível ou JSON inválido — ignorar */ }
 
+      const corTransferida = destacarVermelho ? 'var(--color-error, #ef4444)' : transferida != null && transferida > 0 ? '#60a5fa' : undefined
       return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: destacarVermelho ? 'var(--color-error, #ef4444)' : undefined }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: corTransferida }}>
           {transferida != null
-            ? `${fmtQuantidade(transferida, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+            ? [fmtQuantidade(transferida, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
             : '—'}
         </span>
       )
@@ -797,9 +798,9 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: UNIDADES_COMEX,
     casasDecimais: getCasas('quantidade_total_inicial_pedido', 0),
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? '#60a5fa' : undefined }}>
         {row.quantidade_cancelada_total_pedido != null
-          ? `${fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0))} ${row.unidade_comercializada_pedido ?? ''}`
+          ? [fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0)), row.unidade_comercializada_pedido].filter(Boolean).join(' ')
           : '—'}
       </span>
     ),
@@ -4167,6 +4168,20 @@ export default function ListaPedidos() {
     return () => window.removeEventListener('focus', sync)
   }, [])
 
+  // Sincroniza com o Kanban: recarrega quando ele muta dados (ex: drag-drop de status)
+  useEffect(() => {
+    const handleAtualizado = (e: Event) => {
+      const { origem } = (e as CustomEvent<{ origem: string }>).detail
+      if (origem !== 'lista') {
+        ehEventoExternoRef.current   = true
+        refreshSilenciosoRef.current = true
+        carregarInicial()
+      }
+    }
+    window.addEventListener('pedido:atualizado', handleAtualizado)
+    return () => window.removeEventListener('pedido:atualizado', handleAtualizado)
+  }, [carregarInicial])
+
   // ── Colunas do Usuário ────────────────────────────────────────────────────────
   const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
 
@@ -4301,6 +4316,7 @@ export default function ListaPedidos() {
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
   const refreshSilenciosoRef = useRef(false) // true = recarregar sem mostrar skeleton
+  const ehEventoExternoRef   = useRef(false) // true = gatilho veio do Kanban (não re-dispatchar)
 
   // ── Props estáveis para TabelaVirtualGlobal ──────────────────────────────────
   // REGRA: qualquer função/array passado como prop que entra em dep de useMemo/useEffect
@@ -4345,6 +4361,12 @@ export default function ListaPedidos() {
     } finally {
       setCarregando(false)
       carregandoRef.current = false
+      // Notifica o Kanban após mutações locais (silencioso = disparado por ação do usuário)
+      // mas não quando o próprio evento externo disparou este reload (anti-loop)
+      if (silencioso && !ehEventoExternoRef.current) {
+        window.dispatchEvent(new CustomEvent('pedido:atualizado', { detail: { origem: 'lista' } }))
+      }
+      ehEventoExternoRef.current = false
     }
   }, [abaAtiva, sortCampo, sortDir, busca, addNotification])
 

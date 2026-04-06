@@ -92,8 +92,7 @@ duplicarExcluirRouter.post('/duplicar/confirmar', async (req: Request, res: Resp
   const db = (req as any).prisma
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tenantId = (req as any).tenantId as string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const companyId = (req as any).companyId as string ?? ''
+  const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const userId = (req as any).userId as string ?? ''
 
@@ -119,8 +118,7 @@ duplicarExcluirRouter.post('/duplicar/itens', async (req: Request, res: Response
   const db = (req as any).prisma
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tenantId = (req as any).tenantId as string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const companyId = (req as any).companyId as string ?? ''
+  const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
 
   try {
     const resultado = await duplicarService.duplicarItens(db, tenantId, companyId, parse.data)

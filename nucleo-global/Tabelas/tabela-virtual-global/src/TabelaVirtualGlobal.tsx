@@ -290,6 +290,15 @@ function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: numbe
   return String(val ?? '')
 }
 
+// Formata número para exibição pt-BR sem depender de toLocaleString (locale pode variar por ambiente)
+// Usa regex manual: separador de milhar = ponto, decimal = vírgula
+function fmtBR(valor: number, casas: number): string {
+  if (!Number.isFinite(valor) || valor <= 0) return ''
+  const partes = valor.toFixed(Math.max(0, casas)).split('.')
+  partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  return casas > 0 && partes[1] ? `${partes[0]},${partes[1]}` : partes[0]
+}
+
 // Converte string pt-BR (1.500,50) para float (1500.5)
 function parseBRNum(s: string): number {
   const t = s.trim()
@@ -414,18 +423,12 @@ const GTEditPopover = memo(function GTEditPopover({
   const casas = overlayInfo.casasDecimais ?? 0
 
   // Estados de display pt-BR para os inputs numéricos (inicializados uma vez na abertura do popover)
-  // Number() garante conversão correta mesmo quando Prisma Decimal serializa como string no JSON
-  const [displayMoedaAmt, setDisplayMoedaAmt] = useState(() => {
-    const amt = Number(mv.amount)
-    return amt > 0 ? amt.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''
-  })
-  const [displayQty, setDisplayQty] = useState(() => {
-    const qty = Number(uv.quantity)
-    return qty > 0 ? qty.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : ''
-  })
+  // fmtBR() formata via regex — não depende de toLocaleString nem de locale do browser
+  const [displayMoedaAmt, setDisplayMoedaAmt] = useState(() => fmtBR(Number(mv.amount), 2))
+  const [displayQty, setDisplayQty]           = useState(() => fmtBR(Number(uv.quantity), casas))
   const numericInitial = isNumero ? (typeof valorEditando === 'number' ? valorEditando : parseBRNum(String(valorEditando ?? ''))) : 0
   const [displayNumero, setDisplayNumero] = useState(() =>
-    isNumero && numericInitial > 0 ? numericInitial.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : (isNumero ? '' : String(valorEditando ?? ''))
+    isNumero ? fmtBR(numericInitial, casas) || '' : String(valorEditando ?? '')
   )
 
   // Handler de paste compartilhado — detecta multi-linha e aciona smart paste
@@ -593,7 +596,7 @@ const GTEditPopover = memo(function GTEditPopover({
                 }}
                 onBlur={e => {
                   const parsed = parseBRNum(displayMoedaAmt)
-                  setDisplayMoedaAmt(parsed > 0 ? parsed.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
+                  setDisplayMoedaAmt(fmtBR(parsed, 2))
                   if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
                   if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
                 }}
@@ -622,7 +625,7 @@ const GTEditPopover = memo(function GTEditPopover({
                 }}
                 onBlur={e => {
                   const parsed = parseBRNum(displayQty)
-                  setDisplayQty(parsed > 0 ? parsed.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas }) : '')
+                  setDisplayQty(fmtBR(parsed, casas))
                   if (dropdownAbrindoRef.current) { dropdownAbrindoRef.current = false; return }
                   if (!popoverRef.current?.contains(e.relatedTarget as Node)) onConfirmar()
                 }}
@@ -1007,16 +1010,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   } | null>(null)
   const rafRef = useRef<number | null>(null)
 
-  // ── Auto-fit: calcula largura com base nos caracteres do conteúdo ─────────────
-  // Fórmula: min(max(header, maxConteúdo) + 4, 50) * 8px
-  // Calculado UMA única vez quando os dados chegam (ref — sem re-render).
-  // Itera sobre as primeiras 500 linhas para limitar custo computacional.
-  const autoFitWidthsRef = useRef<Record<string, number>>({})
-  const autoFitDoneRef = useRef(false)
+  // ── Auto-fit: mede largura real via canvas.measureText ───────────────────────
+  // Roda em useEffect após document.fonts.load garantir que Plus Jakarta Sans está carregada.
+  // Header medido com fonte bold 13px; células com regular 14px.
+  // Gateado por autoFitWidths vazio (não por ref) — resiste a HMR e remount.
+  const [autoFitWidths, setAutoFitWidths] = useState<Record<string, number>>({})
 
-  if (!autoFitDoneRef.current && dados.length > 0) {
+  useEffect(() => {
+    if (dados.length === 0 || Object.keys(autoFitWidths).length > 0) return
     const amostra = (dados as Record<string, unknown>[]).slice(0, 500)
-    const resultado: Record<string, number> = {}
+    const colSnapshot = colunas as GTColuna<unknown>[]
     const autoFitText = (v: unknown): string => {
       if (v == null) return ''
       if (typeof v === 'string') return v
@@ -1029,26 +1032,50 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       }
       return String(v)
     }
-    for (const col of colunas as GTColuna<unknown>[]) {
-      if (col.autoFitDisabled) continue
-      const maxConteudo = Math.max(...amostra.map(item => autoFitText(item[col.key]).length))
-      resultado[col.key] = Math.min(Math.max(col.label.length, maxConteudo) + 4, 150) * 8
-    }
-    autoFitWidthsRef.current = resultado
-    autoFitDoneRef.current = true
-  }
+    Promise.all([
+      document.fonts.load("600 13px 'Plus Jakarta Sans'"),
+      document.fonts.load("400 14px 'Plus Jakarta Sans'"),
+    ]).then(() => {
+      const resultado: Record<string, number> = {}
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      for (const col of colSnapshot) {
+        if (col.autoFitDisabled) continue
+        let headerPx: number
+        let maxConteudoPx: number
+        if (ctx) {
+          ctx.font = "600 13px 'Plus Jakarta Sans', system-ui, sans-serif"
+          headerPx = ctx.measureText(col.label).width + 40
+          ctx.font = "400 14px 'Plus Jakarta Sans', system-ui, sans-serif"
+          maxConteudoPx = amostra.reduce((max, item) => {
+            const w = ctx.measureText(autoFitText(item[col.key])).width + 24
+            return w > max ? w : max
+          }, 0)
+        } else {
+          // Fallback SSR
+          headerPx = (col.label.length + 4) * 8
+          maxConteudoPx = amostra.reduce((max, item) => {
+            const len = autoFitText(item[col.key]).length * 8
+            return len > max ? len : max
+          }, 0)
+        }
+        resultado[col.key] = Math.min(Math.max(headerPx, maxConteudoPx), 1200)
+      }
+      setAutoFitWidths(resultado)
+    })
+  }, [dados, colunas, autoFitWidths])
 
   const getColWidth = useCallback(
     (col: GTColuna<unknown>): number => {
       const saved = larguraColunas[col.key]
       if (saved != null) return saved
-      const autoFit = autoFitWidthsRef.current[col.key]
+      const autoFit = autoFitWidths[col.key]
       if (autoFit != null) return autoFit
       if (typeof col.largura === 'number') return col.largura
       if (typeof col.largura === 'string') return parseInt(col.largura, 10) || 150
       return 150
     },
-    [larguraColunas]
+    [larguraColunas, autoFitWidths]
   )
 
   // ── Overlay de edição ─────────────────────────────────────────────────────────
@@ -1304,16 +1331,54 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // ── Find: reset ativo ao mudar matches ───────────────────────────────────────
   useEffect(() => { setFindAtivo(0) }, [findCellMatches])
 
-  // ── Find: scroll até match ativo ─────────────────────────────────────────────
-  const virtualizerRef = useRef(virtualizer)
-  useLayoutEffect(() => { virtualizerRef.current = virtualizer })
+  // ── Find: scroll vertical + horizontal até match ativo ───────────────────────
+  const virtualizerRef      = useRef(virtualizer)
+  const colunasFindRef      = useRef(colunasFiltradas)
+  const getColWidthFindRef  = useRef(getColWidth)
+  const frozenOffsetFindRef = useRef(offsetFrozenDados)
+
+  useLayoutEffect(() => {
+    virtualizerRef.current      = virtualizer
+    colunasFindRef.current      = colunasFiltradas
+    getColWidthFindRef.current  = getColWidth
+    frozenOffsetFindRef.current = offsetFrozenDados
+  })
 
   useEffect(() => {
     if (findCellMatches.length === 0) return
     const m = findCellMatches[findAtivo]
-    if (m != null) {
-      virtualizerRef.current.scrollToIndex(m.linhaIndex, { align: 'center' })
-    }
+    if (m == null) return
+
+    // Scroll vertical
+    virtualizerRef.current.scrollToIndex(m.linhaIndex, { align: 'center' })
+
+    // Scroll horizontal — rAF para rodar após o scroll vertical completar
+    const rafId = requestAnimationFrame(() => {
+      const el = parentRef.current
+      if (!el) return
+      const cols      = colunasFindRef.current
+      const getW      = getColWidthFindRef.current
+      const frozenOff = frozenOffsetFindRef.current
+
+      // Acumular posição absoluta da coluna alvo (após checkbox + expand)
+      let pos = frozenOff
+      for (const col of cols) {
+        const w = getW(col as GTColuna<unknown>)
+        if ((col.key as string) === m.colKey) {
+          if (!col.frozen) {
+            // Centralizar a coluna dentro da área não-frozen visível
+            const containerW = el.clientWidth
+            const visibleW   = containerW - frozenOff
+            const target     = pos - frozenOff - (visibleW - w) / 2
+            el.scrollLeft    = Math.max(0, target)
+          }
+          break
+        }
+        pos += w
+      }
+    })
+
+    return () => cancelAnimationFrame(rafId)
   }, [findAtivo, findCellMatches])
 
   // ── Load more via intersection ────────────────────────────────────────────────

@@ -605,11 +605,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Valor FOB total na moeda do pedido',
     grupo: 'Financeiro',
     getValorEditar: (row: Pedido) => ({
-      currency: (row as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+      currency: row.moeda_pedido ?? 'USD',
       amount: row.valor_total_pedido ?? 0,
     }),
     render: (_val: unknown, row: Pedido) => {
-      const moeda = (row as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD'
+      const moeda = row.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_pedido)
       return (
         <span className="gtv-celula-moeda">
@@ -3293,11 +3293,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'valor_total_item',
     casasDecimais: 2,
     getValorEditar: (row: PedidoItem) => ({
-      currency: (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
+      currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
       amount: row.valor_total_item ?? 0,
     }),
     render: (row: PedidoItem) => {
-      const moeda = (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
+      const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_item)
       return (
         <span className="gtv-celula-moeda">
@@ -4250,6 +4250,13 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? final : p))
       return final
     }
+    // tipo: 'unidade' retorna GTValorUnidade { unit, quantity } → salva apenas a quantity
+    if (valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)) {
+      const uv = valor as { unit: string; quantity: number }
+      const atualizado = await pedidoVirtualApi.editarCampo(id, campo, uv.quantity)
+      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
+      return atualizado
+    }
     if (campo === 'status') {
       const pedidoAtual = pedidos.find(p => p.id === id)
       const atualizado = { ...pedidoAtual!, status: String(valor) } as Pedido
@@ -4304,19 +4311,25 @@ export default function ListaPedidos() {
     // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount no item e moeda no pedido pai
     if (campo === 'valor_total_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      await pedidoVirtualApi.editarCampo(pedido.id, 'moeda_pedido', mv.currency)
       const itemAtualMv = pedido.itens?.find(i => i.id === id)
-      const atualizadoMv = await pedidoItemApi.atualizar(pedido.id, id, { valor_total_item: mv.amount } as Partial<PedidoItem>)
+      const atualizadoMv = await pedidoItemApi.atualizar(pedido.id, id, {
+        valor_total_item: mv.amount,
+        moeda_item: mv.currency,
+      } as Partial<PedidoItem>)
         .catch(() => {
-          if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_item: mv.amount } as PedidoItem
+          if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_item: mv.amount, moeda_item: mv.currency } as PedidoItem
           throw new Error('Erro ao editar valor_total_item')
         })
-      const pedidoAtualMv = { ...pedido, moeda_pedido: mv.currency } as Pedido & { moeda_pedido: string }
+      const pAtual = itemAtualMv ? (itemAtualMv as PedidoItemEnriquecido)._p : undefined
+      const enriquecidoMv: PedidoItemEnriquecido = {
+        ...atualizadoMv,
+        _p: { ...pAtual, moeda_pedido: pAtual?.moeda_pedido ?? 'USD' } as PedidoItemEnriquecido['_p'],
+      }
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
-        return { ...pedidoAtualMv, itens: p.itens?.map(i => i.id === id ? atualizadoMv : i) }
+        return { ...p, itens: p.itens?.map(i => i.id === id ? enriquecidoMv : i) }
       }))
-      return atualizadoMv
+      return enriquecidoMv
     }
 
     let payload: Partial<PedidoItem>
@@ -4391,7 +4404,7 @@ export default function ListaPedidos() {
         cobertura_cambial: pedido.cobertura_cambial ?? null,
         data_emissao_pedido: pedido.data_emissao_pedido ?? null,
         status: pedido.status,
-        moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+        moeda_pedido: pedido.moeda_pedido ?? 'USD',
       },
     }))
   }, [])
@@ -4659,12 +4672,12 @@ export default function ListaPedidos() {
 
           onBuscar={handleBuscar}
           modoLocalizar={true}
-          onFindPróximaPágina={
+          onFindProximaPagina={
             paginaAtual < Math.ceil(total / ITENS_POR_PAGINA)
               ? () => handleMudarPagina(paginaAtual + 1)
               : undefined
           }
-          onFindPáginaAnterior={
+          onFindPaginaAnterior={
             paginaAtual > 1
               ? () => handleMudarPagina(paginaAtual - 1)
               : undefined

@@ -297,13 +297,15 @@ function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: numbe
 // Formata número para exibição pt-BR sem depender de toLocaleString (locale pode variar por ambiente)
 // Usa regex manual: separador de milhar = ponto, decimal = vírgula
 function fmtBR(valor: number, casas: number): string {
-  if (!Number.isFinite(valor) || valor <= 0) return ''
+  if (!Number.isFinite(valor)) return ''
   const partes = valor.toFixed(Math.max(0, casas)).split('.')
   partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.')
   return casas > 0 && partes[1] ? `${partes[0]},${partes[1]}` : partes[0]
 }
 
-// Converte string pt-BR (1.500,50) para float (1500.5)
+// Converte string pt-BR (1.500,50) para float (1500.5).
+// Limitação: "1.5" sem vírgula e com 1-2 dígitos após o ponto é interpretado
+// como decimal US — coluna deve usar tipo 'numero' para garantir entrada via fmtBR.
 function parseBRNum(s: string): number {
   const t = s.trim()
   if (!t) return 0
@@ -505,8 +507,8 @@ const GTEditPopover = memo(function GTEditPopover({
 
   return (
     <>
-      {/* Backdrop — clique fora confirma */}
-      <div className="gtv-edit-popover-backdrop" onMouseDown={() => onConfirmar()} />
+      {/* Backdrop — clique fora cancela */}
+      <div className="gtv-edit-popover-backdrop" onMouseDown={() => onCancelar()} />
 
       {/* Seta — fora do popover para não ser cortada pelo overflow:hidden */}
       <div
@@ -889,8 +891,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   renderConectorFilho,
   onBuscar,
   modoLocalizar = false,
-  onFindPróximaPágina,
-  onFindPáginaAnterior,
+  onFindProximaPagina,
+  onFindPaginaAnterior,
   placeholderBusca = 'Buscar...',
   onFiltrar,
   onOrdenar,
@@ -933,6 +935,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // ── Busca ────────────────────────────────────────────────────────────────────
   const [termoBusca, setTermoBusca] = useState('')
   const [findAtivo, setFindAtivo] = useState(0)
+  // Acumula matches das páginas já navegadas (para counter cross-page)
+  const [findOffset, setFindOffset] = useState(0)
 
   const handleBusca = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1037,7 +1041,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [colunas, preferencias, onSalvarPreferencias])
 
   const restaurarPadraoColunas = useCallback(() => {
-    const padrao = colunas.map(c => c.key)
+    const padrao = colunas.filter(c => !c.oculta).map(c => c.key)
     onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
   }, [colunas, preferencias, onSalvarPreferencias])
 
@@ -1084,7 +1088,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     toggleTodos,
     limpar: limparSelecao,
     todosSelecionados,
-    parcialmnteSelecionados,
+    parcialmenteSelecionados,
     selecionadosArray,
   } = useGTSelecao()
 
@@ -1266,7 +1270,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       for (const col of colunasFiltradas) {
         const k = col.key as string
         const v = item[k]
-        if (v != null && String(v).toLowerCase().includes(termo)) {
+        const vStr = v == null ? '' : (typeof v === 'object' ? formatarOverlayValor(v, col.tipo) : String(v))
+        if (vStr.toLowerCase().includes(termo)) {
           result.push({ tipo: 'celula', linhaIndex: i, colKey: k })
         }
       }
@@ -1275,36 +1280,46 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [termoBusca, linhasPagina, colunasFiltradas])
 
   // Sinaliza que ao carregar a próxima página o foco deve ir para o ÚLTIMO match
-  const irParaÚltimoMatchRef = useRef(false)
+  const irParaUltimoMatchRef = useRef(false)
+  // Offset pendente — aplicado apenas quando novos dados chegam (evita flash no counter)
+  const findOffsetPendenteRef = useRef(0)
 
   const findProximo = useCallback(() => {
-    if (findAtivo === findMatches.length - 1 && onFindPróximaPágina) {
-      onFindPróximaPágina()
-      // findAtivo será resetado para 0 via useEffect quando novos dados chegarem
+    if (findAtivo === findMatches.length - 1 && onFindProximaPagina) {
+      // Guarda o offset acumulado; será aplicado no useEffect quando a nova página carregar
+      findOffsetPendenteRef.current = findOffset + findMatches.length
+      onFindProximaPagina()
     } else {
       setFindAtivo(i => (i + 1) % Math.max(findMatches.length, 1))
     }
-  }, [findAtivo, findMatches.length, onFindPróximaPágina])
+  }, [findAtivo, findMatches.length, findOffset, onFindProximaPagina])
 
   const findAnterior = useCallback(() => {
-    if (findAtivo === 0 && onFindPáginaAnterior) {
-      irParaÚltimoMatchRef.current = true
-      onFindPáginaAnterior()
-      // useEffect detectará irParaÚltimoMatchRef e posicionará no último match
+    if (findAtivo === 0 && onFindPaginaAnterior) {
+      irParaUltimoMatchRef.current = true
+      onFindPaginaAnterior()
+      // useEffect detectará irParaUltimoMatchRef e posicionará no último match
     } else {
       setFindAtivo(i => (i - 1 + Math.max(findMatches.length, 1)) % Math.max(findMatches.length, 1))
     }
-  }, [findAtivo, findMatches.length, onFindPáginaAnterior])
+  }, [findAtivo, findMatches.length, onFindPaginaAnterior])
 
   // ── Find: reset ativo ao mudar matches ───────────────────────────────────────
   useEffect(() => {
-    if (irParaÚltimoMatchRef.current && findMatches.length > 0) {
+    if (irParaUltimoMatchRef.current && findMatches.length > 0) {
+      // Voltando para página anterior: desconta os matches da nova página do offset
+      setFindOffset(prev => prev - findMatches.length)
       setFindAtivo(findMatches.length - 1)
-      irParaÚltimoMatchRef.current = false
+      irParaUltimoMatchRef.current = false
     } else {
       setFindAtivo(0)
     }
   }, [findMatches])
+
+  // ── Find: reset offset ao mudar o termo de busca ─────────────────────────────
+  useEffect(() => {
+    setFindOffset(0)
+  }, [termoBusca])
 
   // ── Find: scroll para trazer o match ativo para a viewport (vertical + horizontal)
   useEffect(() => {
@@ -1355,9 +1370,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [dados, selecionados, itemId],
   )
 
+  // Ref síncrona para evitar stale closure sem incluir onSelecaoMudar nas deps
+  const onSelecaoMudarRef = useRef(onSelecaoMudar)
+  useLayoutEffect(() => {
+    onSelecaoMudarRef.current = onSelecaoMudar
+  }, [onSelecaoMudar])
+
   useEffect(() => {
-    onSelecaoMudar?.(itensSelecionados)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    onSelecaoMudarRef.current?.(itensSelecionados)
   }, [itensSelecionados])
 
   // ── Fechar menus ao clicar fora ───────────────────────────────────────────────
@@ -1380,15 +1400,21 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   ) => {
     const editarFn = isFilho ? onEditarFilho : onEditar
     if (!editarFn) return
-    const linhasPai = linhasPagina.filter((l): l is GTLinhaVirtual<T, C> & { tipo: 'pai' } => l.tipo === 'pai')
-    const idxAtual  = linhasPai.findIndex(l => l.id === startId)
+    const linhasAlvo = isFilho
+      ? linhasPagina.filter((l): l is GTLinhaVirtual<T, C> & { tipo: 'filho' } => l.tipo === 'filho')
+      : linhasPagina.filter((l): l is GTLinhaVirtual<T, C> & { tipo: 'pai' } => l.tipo === 'pai')
+    const idxAtual  = linhasAlvo.findIndex(l => l.id === startId)
     if (idxAtual < 0) return
     const promises: Promise<void>[] = []
     for (let i = 0; i < valores.length; i++) {
-      const linha = linhasPai[idxAtual + i]
+      const linha = linhasAlvo[idxAtual + i]
       if (!linha) break
       const valorParsado = parsearLinhaSmartPaste(valores[i], colTipo, valorAtual)
-      promises.push(editarFn(linha.id, campo, valorParsado).then(() => {}).catch(() => {}))
+      promises.push(
+        editarFn(linha.id, campo, valorParsado)
+          .then(() => {})
+          .catch(err => { onErroAoSalvar?.(err instanceof Error ? err.message : 'Erro ao salvar em lote') })
+      )
     }
     await Promise.all(promises)
     onSalvoComSucesso?.()
@@ -1441,7 +1467,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const estaEditando =
       editandoCelula?.id === id && editandoCelula?.campo === col.key
 
-    const classeAlinhamento = ' gtv-celula--center'
+    const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
 
     const classeIndent      = ''
     const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
@@ -1503,6 +1529,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
           if (e.key === 'c') {
             e.preventDefault()
+            if (!navigator.clipboard) return
             try {
               await navigator.clipboard.writeText(formatarOverlayValor(valorAtual, col.tipo, (col as GTColuna<unknown>).casasDecimais))
             } catch {}
@@ -1510,6 +1537,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
           if (e.key === 'v') {
             e.preventDefault()
+            if (!navigator.clipboard) return
             try {
               const texto = await navigator.clipboard.readText()
               const linhas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean)
@@ -1518,13 +1546,19 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 const editarFn = isFilho ? onEditarFilho : onEditar
                 if (editarFn) {
                   const valorParsado = parsearLinhaSmartPaste(linhas[0], col.tipo, valorAtual)
-                  await editarFn(id, col.key, valorParsado).catch(() => {})
-                  onSalvoComSucesso?.()
+                  try {
+                    await editarFn(id, col.key, valorParsado)
+                    onSalvoComSucesso?.()
+                  } catch (err) {
+                    onErroAoSalvar?.(err instanceof Error ? err.message : 'Erro ao salvar')
+                  }
                 }
               } else {
                 await aplicarSmartPaste(id, col.key, col.tipo, linhas, valorAtual, isFilho)
               }
-            } catch {}
+            } catch {
+              // clipboard indisponível (contexto não seguro ou permissão negada)
+            }
           }
         } : undefined}
       >
@@ -1561,7 +1595,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const expandido = expandidos.has(id)
     const carregando_ = carregandoFilhos.has(id)
     const selecionado = selecionados.has(id)
-    const temFilhos = onCarregarFilhos != null || (filhosCache.get(id)?.length ?? 0) > 0
+    // Se o cache ainda não foi populado para este id, assume que pode ter filhos (loader definido).
+    // Após o primeiro carregamento, mostra o botão apenas se há filhos de fato.
+    const temFilhos = filhosCache.has(id)
+      ? (filhosCache.get(id)?.length ?? 0) > 0
+      : onCarregarFilhos != null
 
     const classeLinha = [
       'gtv-linha',
@@ -1690,7 +1728,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
-            const classeAlinhamento = ' gtv-celula--center'
+            const classeAlinhamento = col.align === 'left' ? ' gtv-celula--left' : col.align === 'right' ? ' gtv-celula--right' : ' gtv-celula--center'
             const classeEditavel    = podeEditar ? ' gtv-celula--editavel' : ''
             const classeFrozen      = col.frozen ? ' gtv-celula--frozen' : ''
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
@@ -1917,7 +1955,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   // ─── Render principal ────────────────────────────────────────────────────────
 
   const todosSel = todosSelecionados(todosIds)
-  const parcialSel = parcialmnteSelecionados(todosIds)
+  const parcialSel = parcialmenteSelecionados(todosIds)
 
   return (
     <div
@@ -1934,7 +1972,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       <div className="gtv-toolbar">
         <div className="gtv-toolbar-esquerda">
           {/* Busca / Find-in-page */}
-          {onBuscar && (
+          {(onBuscar || modoLocalizar) && (
             <div className="gtv-find-bar">
               <div className="gtv-busca-wrapper">
                 <span className="gtv-busca-icone"><IconeBusca /></span>
@@ -1962,8 +2000,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               {termoBusca && (
                 findMatches.length > 0 ? (
                   <div className="gtv-find-nav" role="status" aria-live="polite">
-                    <span className="gtv-find-count">{findAtivo + 1} de {findMatches.length}</span>
-                    {(findMatches.length > 1 || onFindPróximaPágina || onFindPáginaAnterior) && (
+                    <span className="gtv-find-count">
+                      {findOffset + findAtivo + 1} de {findOffset + findMatches.length}{onFindProximaPagina ? '+' : ''}
+                    </span>
+                    {(findMatches.length > 1 || onFindProximaPagina || onFindPaginaAnterior) && (
                       <>
                         <button className="gtv-find-btn" onClick={findAnterior} aria-label="Match anterior">
                           <IconeArrowUp />
@@ -2167,11 +2207,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               </div>
 
               {/* Linhas da página atual */}
-              {linhasPagina.map((linha, idx) =>
-                linha.tipo === 'pai'
-                  ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, idx)
-                  : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, idx)
-              )}
+              {linhasPagina.map((linha, idx) => (
+                <React.Fragment key={`${linha.tipo}-${linha.id}`}>
+                  {linha.tipo === 'pai'
+                    ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, idx)
+                    : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, idx)}
+                </React.Fragment>
+              ))}
             </div>
           )}
         </div>
@@ -2186,14 +2228,17 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           <div className="gtv-paginacao-controles">
             <button className="gtv-pag-btn" disabled={paginaEfetiva === 1} onClick={() => mudarPagina(1)} aria-label="Primeira página">«</button>
             <button className="gtv-pag-btn" disabled={paginaEfetiva === 1} onClick={() => mudarPagina(paginaEfetiva - 1)} aria-label="Página anterior">‹</button>
-            {Array.from({ length: totalPaginas }, (_, i) => i + 1)
-              .filter(p => p === 1 || p === totalPaginas || Math.abs(p - paginaEfetiva) <= 2)
-              .reduce<(number | '...')[]>((acc, p, i, arr) => {
-                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('...')
-                acc.push(p)
-                return acc
-              }, [])
-              .map((p, i) => p === '...'
+            {(() => {
+              // Computa páginas visíveis sem criar array de tamanho totalPaginas
+              const show = new Set([1, totalPaginas])
+              for (let p = Math.max(1, paginaEfetiva - 2); p <= Math.min(totalPaginas, paginaEfetiva + 2); p++) show.add(p)
+              const sorted = Array.from(show).sort((a, b) => a - b)
+              const items: (number | '...')[] = []
+              sorted.forEach((p, i) => {
+                if (i > 0 && p - sorted[i - 1] > 1) items.push('...')
+                items.push(p)
+              })
+              return items.map((p, i) => p === '...'
                 ? <span key={`e${i}`} className="gtv-pag-reticencias" aria-hidden="true">…</span>
                 : <button
                     key={p}
@@ -2202,7 +2247,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     aria-current={p === paginaEfetiva ? 'page' : undefined}
                   >{p}</button>
               )
-            }
+            })()}
             <button className="gtv-pag-btn" disabled={paginaEfetiva === totalPaginas} onClick={() => mudarPagina(paginaEfetiva + 1)} aria-label="Próxima página">›</button>
             <button className="gtv-pag-btn" disabled={paginaEfetiva === totalPaginas} onClick={() => mudarPagina(totalPaginas)} aria-label="Última página">»</button>
           </div>

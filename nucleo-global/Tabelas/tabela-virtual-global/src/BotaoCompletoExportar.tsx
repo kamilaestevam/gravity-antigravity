@@ -69,9 +69,9 @@ export function BotaoCompletoExportar({ acoes }: BotaoCompletoExportarProps) {
 
       {aberto && (
         <div ref={menuRef} className="gtv-export-menu">
-          {acoes.map((acao, i) => (
+          {acoes.map((acao) => (
             <button
-              key={i}
+              key={acao.label}
               className="gtv-export-item"
               onClick={() => {
                 acao.onClick()

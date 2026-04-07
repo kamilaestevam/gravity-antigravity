@@ -7,7 +7,7 @@
  *   - toggleItem: adiciona / remove
  *   - toggleTodos: seleciona todos / deseleciona todos
  *   - todosSelecionados: retorna true/false corretamente
- *   - parcialmnteSelecionados: retorna true/false corretamente
+ *   - parcialmenteSelecionados: retorna true/false corretamente
  *   - limpar: zera seleção
  *   - selecionadosArray: retorna array atualizado
  *   - Performance: O(1) lookup via Set
@@ -176,13 +176,13 @@ describe('useGTSelecao — todosSelecionados', () => {
   })
 })
 
-describe('useGTSelecao — parcialmnteSelecionados', () => {
+describe('useGTSelecao — parcialmenteSelecionados', () => {
   it('deve retornar true quando alguns (nao todos) estao selecionados', () => {
     const { result } = renderHook(() => useGTSelecao())
 
     act(() => { result.current.toggleItem('id-1') })
 
-    expect(result.current.parcialmnteSelecionados(['id-1', 'id-2', 'id-3'])).toBe(true)
+    expect(result.current.parcialmenteSelecionados(['id-1', 'id-2', 'id-3'])).toBe(true)
   })
 
   it('deve retornar false quando todos estao selecionados', () => {
@@ -190,17 +190,17 @@ describe('useGTSelecao — parcialmnteSelecionados', () => {
 
     act(() => { result.current.toggleTodos(['id-1', 'id-2']) })
 
-    expect(result.current.parcialmnteSelecionados(['id-1', 'id-2'])).toBe(false)
+    expect(result.current.parcialmenteSelecionados(['id-1', 'id-2'])).toBe(false)
   })
 
   it('deve retornar false quando nenhum esta selecionado', () => {
     const { result } = renderHook(() => useGTSelecao())
-    expect(result.current.parcialmnteSelecionados(['id-1', 'id-2'])).toBe(false)
+    expect(result.current.parcialmenteSelecionados(['id-1', 'id-2'])).toBe(false)
   })
 
   it('deve retornar false para lista vazia', () => {
     const { result } = renderHook(() => useGTSelecao())
-    expect(result.current.parcialmnteSelecionados([])).toBe(false)
+    expect(result.current.parcialmenteSelecionados([])).toBe(false)
   })
 })
 

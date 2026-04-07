@@ -4,7 +4,7 @@
  * e o cache de filhos carregados sob demanda.
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 
 export interface UseGTExpandirRetorno<T, C> {
   expandidos: Set<string>
@@ -24,10 +24,16 @@ export function useGTExpandir<T, C>(
   const [filhosCache, setFilhosCache] = useState<Map<string, C[]>>(new Map())
   const [carregandoFilhos, setCarregandoFilhos] = useState<Set<string>>(new Set())
 
+  // Refs síncronas para evitar stale closure no toggle sem incluir state nas deps
+  const expandidosRef = useRef(expandidos)
+  expandidosRef.current = expandidos
+  const filhosCacheRef = useRef(filhosCache)
+  filhosCacheRef.current = filhosCache
+
   const toggle = useCallback(
     async (id: string, item: T) => {
       // Se já expandido, apenas colapsa
-      if (expandidos.has(id)) {
+      if (expandidosRef.current.has(id)) {
         setExpandidos(prev => {
           const next = new Set(prev)
           next.delete(id)
@@ -43,7 +49,7 @@ export function useGTExpandir<T, C>(
       }
 
       // Se já está no cache, expande sem recarregar
-      if (filhosCache.has(id)) {
+      if (filhosCacheRef.current.has(id)) {
         setExpandidos(prev => new Set(prev).add(id))
         return
       }
@@ -66,7 +72,7 @@ export function useGTExpandir<T, C>(
         })
       }
     },
-    [expandidos, filhosCache, onCarregarFilhos],
+    [onCarregarFilhos],
   )
 
   const colapsar = useCallback((id: string) => {

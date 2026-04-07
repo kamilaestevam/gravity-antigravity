@@ -29,7 +29,6 @@ export function useGTInlineEdit<T>(
 ): UseGTInlineEditRetorno<T> {
   const [editandoCelula, setEditandoCelula] = useState<CelulaEditando | null>(null)
   const [valorEditando, setValorEditando] = useState<unknown>(null)
-  const [valorOriginal, setValorOriginal] = useState<unknown>(null)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   // Evita double-confirm quando Enter + blur disparam confirmarEdicao em sequência
@@ -41,7 +40,6 @@ export function useGTInlineEdit<T>(
   const iniciarEdicao = useCallback((id: string, campo: string, valorAtual: unknown) => {
     setEditandoCelula({ id, campo })
     setValorEditando(valorAtual)
-    setValorOriginal(valorAtual)
     valorEditandoRef.current = valorAtual
     valorOriginalRef.current = valorAtual
     setErro(null)
@@ -53,13 +51,17 @@ export function useGTInlineEdit<T>(
   }, [])
 
   const confirmarEdicao = useCallback(async () => {
-    if (!editandoCelula || !onEditar || confirmandoRef.current) {
-      if (!editandoCelula) setEditandoCelula(null)
+    if (!editandoCelula || confirmandoRef.current) return
+
+    // Sem handler de save → fecha a célula como noop
+    if (!onEditar) {
+      setEditandoCelula(null)
+      setValorEditando(null)
       return
     }
 
-    // Não salva se o valor não mudou
-    if (valorEditandoRef.current === valorOriginalRef.current) {
+    // Não salva se o valor não mudou — usa JSON para comparar objetos compostos (moeda, unidade)
+    if (JSON.stringify(valorEditandoRef.current) === JSON.stringify(valorOriginalRef.current)) {
       setEditandoCelula(null)
       return
     }
@@ -75,7 +77,6 @@ export function useGTInlineEdit<T>(
       onSucesso?.()
       setEditandoCelula(null)
       setValorEditando(null)
-      setValorOriginal(null)
       valorEditandoRef.current = null
       valorOriginalRef.current = null
     } catch (err: unknown) {
@@ -100,7 +101,6 @@ export function useGTInlineEdit<T>(
   const cancelarEdicao = useCallback(() => {
     setEditandoCelula(null)
     setValorEditando(null)
-    setValorOriginal(null)
     setErro(null)
   }, [])
 

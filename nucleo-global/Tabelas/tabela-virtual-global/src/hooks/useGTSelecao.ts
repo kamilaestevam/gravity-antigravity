@@ -10,7 +10,7 @@ export interface UseGTSelecaoRetorno {
   /** true se todos os ids fornecidos estão selecionados */
   todosSelecionados: (ids: string[]) => boolean
   /** true se alguns (mas não todos) ids estão selecionados */
-  parcialmnteSelecionados: (ids: string[]) => boolean
+  parcialmenteSelecionados: (ids: string[]) => boolean
   toggleItem: (id: string) => void
   toggleTodos: (ids: string[]) => void
   limpar: () => void
@@ -60,7 +60,7 @@ export function useGTSelecao(): UseGTSelecaoRetorno {
     [selecionados],
   )
 
-  const parcialmnteSelecionados = useCallback(
+  const parcialmenteSelecionados = useCallback(
     (ids: string[]) => {
       const algum = ids.some(id => selecionados.has(id))
       const todos = ids.every(id => selecionados.has(id))
@@ -72,7 +72,7 @@ export function useGTSelecao(): UseGTSelecaoRetorno {
   return {
     selecionados,
     todosSelecionados,
-    parcialmnteSelecionados,
+    parcialmenteSelecionados,
     toggleItem,
     toggleTodos,
     limpar,

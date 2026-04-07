@@ -264,14 +264,14 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * próxima página disponível. Quando ausente, o comportamento é wrap-around
    * dentro da página atual (comportamento original).
    */
-  onFindPróximaPágina?: () => void
+  onFindProximaPagina?: () => void
   /**
    * Chamado quando findAnterior atinge o primeiro match e há página anterior
    * disponível. Quando ausente, o comportamento é wrap-around dentro da página
    * atual (comportamento original). Ao navegar para a página anterior, o foco
    * vai automaticamente para o último match da nova página.
    */
-  onFindPáginaAnterior?: () => void
+  onFindPaginaAnterior?: () => void
   placeholderBusca?: string
   onFiltrar?: (filtros: GTFiltrosAtivos) => void
   onOrdenar?: (campo: string, dir: 'asc' | 'desc') => void

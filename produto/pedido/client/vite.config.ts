@@ -45,6 +45,7 @@ export default defineConfig({
       '@nucleo/usuario-global':                    nucleo('Layout/usuario-global/src/index.ts'),
       '@nucleo/view-toggle-global':                nucleo('Layout/view-toggle-global/src/index.ts'),
       // ── Modais ──
+      '@nucleo/modal-tabela-moeda':                nucleo('Modais/modal-tabela-moeda/src/index.ts'),
       '@nucleo/modal-global':                      nucleo('Modais/modal-global/src/index.ts'),
       '@nucleo/modal-formulario-global':           nucleo('Modais/modal-formulario-global/src/index.ts'),
       '@nucleo/modal-formulario-abas-global':      nucleo('Modais/modal-formulario-abas-global/src/index.ts'),
@@ -53,10 +54,10 @@ export default defineConfig({
       '@nucleo/modal-campo-select-global':         nucleo('Modais/modal-select-global/src/index.ts'),
       '@nucleo/modal-workspace-inicial-global':    nucleo('Modais/modal-workspace-inicial-global/src/index.ts'),
       // ── Dashboard ──
-      '@nucleo/dashboard':                         nucleo('Dashboard/index.ts'),
+      '@nucleo/dashboard':                         nucleo('Dashboard/dashboard-global/src/index.ts'),
       // ── Modais ──
       '@nucleo/modal-passo-passo-global':          nucleo('Modais/modal-passo-passo-global/src/index.ts'),
-      '@nucleo/query-builder-global':              nucleo('Dashboard/QueryBuilder/QueryBuilder.tsx'),
+      '@nucleo/query-builder-global':              nucleo('Dashboard/dashboard-global/src/QueryBuilder/QueryBuilder.tsx'),
       // ── Kanban ──
       '@nucleo/kanban-global':                     nucleo('Kanban/kanban-global/src/index.ts'),
       // ── Tabelas ──

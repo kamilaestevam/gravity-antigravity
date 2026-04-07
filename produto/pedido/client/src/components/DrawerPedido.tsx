@@ -29,6 +29,7 @@ import {
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { ModalGlobal } from '@nucleo/modal-global'
 import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
+import { ModalTabelaMoeda } from '@nucleo/modal-tabela-moeda'
 import type { TipoOperacao, PedidoItem, Pedido, TransferHistorico } from '../shared/types'
 import { pedidoApi, pedidoTransferirApi } from '../shared/api'
 import './DrawerPedido.css'
@@ -128,6 +129,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
   const [erroTransfer, setErroTransfer]               = useState<string | null>(null)
   const transferCarregado                              = useRef(false)
   const [confirmarFecharSemSalvar, setConfirmarFecharSemSalvar] = useState(false)
+  const [modalMoedaAberta, setModalMoedaAberta] = useState(false)
 
   const formRef = useRef({ form, itens })
   formRef.current = { form, itens }
@@ -433,17 +435,21 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab }
                       </select>
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-moeda">Moeda</label>
-                      <select
-                        id="dp-moeda"
+                      <label className="drawer-pedido__label">Moeda</label>
+                      <button
+                        type="button"
                         className="drawer-pedido__select"
-                        value={form.moeda_pedido}
-                        onChange={e => handleChange('moeda_pedido', e.target.value)}
+                        style={{ textAlign: 'left', cursor: 'pointer' }}
+                        onClick={() => setModalMoedaAberta(true)}
                       >
-                        {['USD','EUR','GBP','BRL','CNY','JPY'].map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
+                        {form.moeda_pedido || 'Selecionar moeda'}
+                      </button>
+                      <ModalTabelaMoeda
+                        aberto={modalMoedaAberta}
+                        aoFechar={() => setModalMoedaAberta(false)}
+                        aoSelecionar={(sigla) => handleChange('moeda_pedido', sigla)}
+                        moedaSelecionada={form.moeda_pedido}
+                      />
                     </div>
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-cobertura" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>

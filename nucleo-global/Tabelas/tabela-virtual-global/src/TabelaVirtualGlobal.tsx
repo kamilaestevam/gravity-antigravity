@@ -17,12 +17,12 @@ import React, {
 import { createPortal } from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
-import { useVirtualizer } from '@tanstack/react-virtual'
 import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+import { MOEDAS_SISCOMEX } from '@nucleo/modal-tabela-moeda'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -180,14 +180,14 @@ const GTAbas = memo(function GTAbas({
 
 // ─── Subcomponente: Skeleton de carregamento ──────────────────────────────────
 
-const GTSkeleton = memo(function GTSkeleton({ rowHeight }: { rowHeight: number }) {
+const GTSkeleton = memo(function GTSkeleton() {
   return (
     <div className="gtv-tabela-scroll" aria-busy="true" aria-label="Carregando...">
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
           className="gtv-skeleton-linha"
-          style={{ height: rowHeight }}
+          style={{ height: 44 }}
         >
           <div className="gtv-skeleton gtv-skeleton--sm" />
           <div className="gtv-skeleton gtv-skeleton--xl" />
@@ -274,8 +274,7 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Moedas e unidades padrão quando a coluna não especifica lista própria
-const MOEDAS_PADRAO: GTUnidadeOpcao[] = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU']
+// Unidades padrão quando a coluna não especifica lista própria
 const UNIDADES_PADRAO: GTUnidadeOpcao[] = ['UN', 'KG', 'G', 'TON', 'L', 'ML', 'M', 'M²', 'M³', 'CX', 'PC', 'PAR', 'DZ', 'CT', 'FD']
 
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
@@ -396,15 +395,14 @@ const GTEditPopover = memo(function GTEditPopover({
   const dropdownAbrindoRef = useRef(false)
   const [moedaAberta, setMoedaAberta] = useState(false)
   const [unidadeAberta, setUnidadeAberta] = useState(false)
-  const [moedaListPos, setMoedaListPos]       = useState<{ top: number; left: number } | null>(null)
+  const [moedaListPos, setMoedaListPos]       = useState<{ top: number; left: number; width: number } | null>(null)
   const [unidadeListPos, setUnidadeListPos]   = useState<{ top: number; left: number } | null>(null)
   const [moedaBusca, setMoedaBusca]     = useState('')
   const [unidadeBusca, setUnidadeBusca] = useState('')
 
-  // Abre o dropdown calculando posição fixed a partir do trigger
   function abrirMoeda() {
     const r = moedaTriggerRef.current?.getBoundingClientRect()
-    if (r) setMoedaListPos({ top: r.bottom + 4, left: r.left })
+    if (r) setMoedaListPos({ top: r.bottom + 4, left: r.left, width: Math.max(280, r.width) })
     setMoedaBusca('')
     setMoedaAberta(true)
   }
@@ -422,7 +420,10 @@ const GTEditPopover = memo(function GTEditPopover({
   const uv: GTValorUnidade = (isUnidade && valorEditando != null && typeof valorEditando === 'object' && 'unit' in (valorEditando as object))
     ? (valorEditando as GTValorUnidade)
     : { unit: 'UN', quantity: 0 }
-  const listaMoedas   = overlayInfo.moedas   ?? MOEDAS_PADRAO
+  // Se a coluna restringe moedas, filtra MOEDAS_SISCOMEX; senão usa todas
+  const listaMoedasSiscomex = overlayInfo.moedas
+    ? MOEDAS_SISCOMEX.filter(m => overlayInfo.moedas!.some(mo => getUnidadeSigla(mo) === m.sigla))
+    : MOEDAS_SISCOMEX
   const listaUnidades = overlayInfo.unidades ?? UNIDADES_PADRAO
   const casas = overlayInfo.casasDecimais ?? 0
 
@@ -572,7 +573,7 @@ const GTEditPopover = memo(function GTEditPopover({
             </div>
           ) : isMoeda ? (
             <div className="gtv-edit-moeda">
-              {/* Trigger — dropdown via portal para não ser cortado pelo overflow:hidden */}
+              {/* Trigger — dropdown inline com busca e lista Siscomex completa */}
               <div className="gtv-edit-custom-select">
                 <button
                   ref={moedaTriggerRef}
@@ -760,7 +761,7 @@ const GTEditPopover = memo(function GTEditPopover({
         </div>
       </div>
 
-      {/* Dropdown de moeda — portal fora do popover para não ser cortado pelo overflow:hidden */}
+      {/* Dropdown de moeda — portal com busca por sigla, descrição ou código */}
       {moedaAberta && moedaListPos && createPortal(
         <>
           <div
@@ -768,8 +769,8 @@ const GTEditPopover = memo(function GTEditPopover({
             onMouseDown={() => setMoedaAberta(false)}
           />
           <div
-            className="gtv-edit-custom-select-list"
-            style={{ position: 'fixed', top: moedaListPos.top, left: moedaListPos.left, zIndex: 10001 }}
+            className="gtv-edit-custom-select-list gtv-edit-moeda-list"
+            style={{ position: 'fixed', top: moedaListPos.top, left: moedaListPos.left, zIndex: 10001, width: moedaListPos.width }}
             onMouseDown={e => e.preventDefault()}
           >
             <div className="gtv-edit-custom-select-busca">
@@ -778,30 +779,29 @@ const GTEditPopover = memo(function GTEditPopover({
               </svg>
               <input
                 className="gtv-edit-custom-select-busca-input"
-                placeholder="Buscar..."
+                placeholder="Buscar sigla, descrição ou código..."
                 autoFocus
                 value={moedaBusca}
                 onChange={e => setMoedaBusca(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Escape') setMoedaAberta(false) }}
               />
             </div>
-            {listaMoedas
+            {listaMoedasSiscomex
               .filter(m => {
                 const q = moedaBusca.toLowerCase()
-                return getUnidadeSigla(m).toLowerCase().includes(q) || getUnidadeRotulo(m).toLowerCase().includes(q)
+                return !q || m.sigla.toLowerCase().includes(q) || m.descricao.toLowerCase().includes(q) || String(m.codigo).includes(q)
               })
-              .map(m => {
-                const sigla  = getUnidadeSigla(m)
-                const rotulo = getUnidadeRotulo(m)
-                return (
-                  <button
-                    key={sigla}
-                    type="button"
-                    className={`gtv-edit-custom-select-item${mv.currency === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                    onClick={() => { onAtualizar({ ...mv, currency: sigla }); setMoedaAberta(false) }}
-                  >{rotulo}</button>
-                )
-              })
+              .map(m => (
+                <button
+                  key={m.sigla}
+                  type="button"
+                  className={`gtv-edit-custom-select-item gtv-edit-moeda-item${mv.currency === m.sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                  onClick={() => { onAtualizar({ ...mv, currency: m.sigla }); setMoedaAberta(false) }}
+                >
+                  <span className="gtv-edit-moeda-sigla">{m.sigla}</span>
+                  <span className="gtv-edit-moeda-desc">{m.descricao}</span>
+                </button>
+              ))
             }
           </div>
         </>,
@@ -870,9 +870,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onCarregarFilhos,
   filhoId: filhoIdProp,
   acoesFilhas,
-  temMais,
-  carregandoMais,
-  onCarregarMais,
+  itensPorPagina = 50,
+  totalItens,
+  paginaAtual,
+  onMudarPagina,
   abas,
   abaAtiva,
   onMudarAba,
@@ -887,6 +888,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   renderConectorFilho,
   onBuscar,
   modoLocalizar = false,
+  onFindPróximaPágina,
+  onFindPáginaAnterior,
   placeholderBusca = 'Buscar...',
   onFiltrar,
   onOrdenar,
@@ -907,9 +910,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   emptyTitle,
   emptyDescription,
   emptyAction,
-  rowHeight = 44,
-  childRowHeight = 36,
-  overscan = 5,
   ariaLabel = 'Tabela de dados',
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
@@ -972,6 +972,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [onOrdenar],
   )
 
+  // ── Scroll container ref (para frozen columns via transform) ────────────────
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const handler = () => el.style.setProperty('--gtv-scroll-left', `${el.scrollLeft}px`)
+    el.addEventListener('scroll', handler, { passive: true })
+    return () => el.removeEventListener('scroll', handler)
+  }, [])
+
   // ── Visibilidade de colunas ───────────────────────────────────────────────────
   const [colunasAbertas, setColunasAbertas] = useState(false)
   const colunasBtnRef = useRef<HTMLButtonElement>(null)
@@ -1030,12 +1040,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
   }, [colunas, preferencias, onSalvarPreferencias])
 
-  // ── Largura de coluna — usa col.largura definido estaticamente ───────────────
-  function getColWidth(col: GTColuna<unknown>): number {
-    if (typeof col.largura === 'number') return col.largura
-    if (typeof col.largura === 'string') return parseInt(col.largura, 10) || 150
-    return 150
-  }
 
   // ── Overlay de edição ─────────────────────────────────────────────────────────
   const [overlayInfo, setOverlayInfo] = useState<{
@@ -1046,8 +1050,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     colLabel: string
     colTipo?: string
     opcoes?: { valor: string; label: string }[]
-    moedas?: string[]
-    unidades?: string[]
+    moedas?: GTUnidadeOpcao[]
+    unidades?: GTUnidadeOpcao[]
+    casasDecimais?: number
     gabiCampo?: string
     gabiEndpoint?: string
   } | null>(null)
@@ -1057,37 +1062,19 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onCarregarFilhos,
   )
 
-  // ── Largura total e offsets para scroll horizontal ────────────────────────────
-  const CABECALHO_HEIGHT = 40
-
   /** Mostra checkbox de seleção quando há acoesLote OU onSelecaoMudar */
   const temSelecao = (acoesLote != null && acoesLote.length > 0) || onSelecaoMudar != null
 
-  const larguraTotalColunas = useMemo(() => {
-    const colsW = colunasFiltradas.reduce(
-      (acc, col) => acc + getColWidth(col as GTColuna<unknown>),
-      0
-    )
-    const checkW = temSelecao ? 40 : 0
-    const expandW = onCarregarFilhos != null ? 40 : 0
-    const acoesW  = acoes && acoes.length > 0 ? acoes.length * 32 + 16 : 0
-    return colsW + checkW + expandW + acoesW
-  }, [colunasFiltradas, temSelecao, onCarregarFilhos, acoes])
+  /** Template de colunas para o grid compartilhado */
+  const gridTemplateCols = useMemo(() => {
+    const cols: string[] = []
+    if (temSelecao) cols.push('40px')
+    if (onCarregarFilhos) cols.push('40px')
+    cols.push(...colunasFiltradas.map(() => 'max-content'))
+    if (acoes && acoes.length > 0) cols.push('max-content')
+    return cols.join(' ')
+  }, [temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
 
-  /** left offset das colunas de dados frozen (após checkbox + expand) */
-  const offsetFrozenDados = useMemo(() => {
-    const checkW = temSelecao ? 40 : 0
-    const expandW = onCarregarFilhos != null ? 40 : 0
-    return checkW + expandW
-  }, [temSelecao, onCarregarFilhos])
-
-  /** largura total das colunas frozen de dados (para spacer nas linhas filhas) */
-  const frozenDataWidth = useMemo(
-    () => colunasFiltradas
-      .filter(c => c.frozen)
-      .reduce((sum, c) => sum + getColWidth(c as GTColuna<unknown>), 0),
-    [colunasFiltradas, getColWidth],
-  )
 
   // ── Seleção ───────────────────────────────────────────────────────────────────
   const {
@@ -1099,8 +1086,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     parcialmnteSelecionados,
     selecionadosArray,
   } = useGTSelecao()
-
-  const todosIds = useMemo(() => dados.map(itemId), [dados, itemId])
 
   // ── Seleção de filhos ─────────────────────────────────────────────────────────
   const [filhosSelecionados, setFilhosSelecionados] = useState<Set<string>>(new Set())
@@ -1227,11 +1212,37 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onErroAoSalvar,
   )
 
-  // ── Flat rows para o virtualizador ────────────────────────────────────────────
-  const linhasVirtuais = useMemo(
-    () => buildFlatRows<T, C>(dados, expandidos, filhosCache, itemId, filhoId),
-    [dados, expandidos, filhosCache, itemId, filhoId],
+  // ── Paginação ─────────────────────────────────────────────────────────────────
+  const modoExterno = totalItens !== undefined
+  const [paginaInterna, setPaginaInterna] = useState(1)
+  const paginaEfetiva = modoExterno ? (paginaAtual ?? 1) : paginaInterna
+
+  // Pagina os itens pai. No modo externo, dados já é a página atual.
+  const dadosPagina = useMemo(
+    () => modoExterno
+      ? dados
+      : dados.slice((paginaEfetiva - 1) * itensPorPagina, paginaEfetiva * itensPorPagina),
+    [dados, modoExterno, paginaEfetiva, itensPorPagina],
   )
+
+  const todosIds = useMemo(() => dadosPagina.map(itemId), [dadosPagina, itemId])
+
+  // Flat rows incluindo filhos expandidos — apenas para a página atual
+  const linhasPagina = useMemo(
+    () => buildFlatRows<T, C>(dadosPagina, expandidos, filhosCache, itemId, filhoId),
+    [dadosPagina, expandidos, filhosCache, itemId, filhoId],
+  )
+
+  const totalEfetivo = modoExterno ? totalItens : dados.length
+  const totalPaginas = Math.ceil(totalEfetivo / itensPorPagina)
+
+  const mudarPagina = useCallback((pagina: number) => {
+    if (modoExterno) {
+      onMudarPagina?.(pagina)
+    } else {
+      setPaginaInterna(pagina)
+    }
+  }, [modoExterno, onMudarPagina])
 
   // ── Find-in-page ─────────────────────────────────────────────────────────────
   type GTFindMatch =
@@ -1248,9 +1259,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         result.push({ tipo: 'header', colKey: col.key as string })
       }
     }
-    // Células na ordem das linhas
-    for (let i = 0; i < linhasVirtuais.length; i++) {
-      const item = linhasVirtuais[i].item as Record<string, unknown>
+    // Células na ordem das linhas da página atual
+    for (let i = 0; i < linhasPagina.length; i++) {
+      const item = linhasPagina[i].item as Record<string, unknown>
       for (const col of colunasFiltradas) {
         const k = col.key as string
         const v = item[k]
@@ -1260,102 +1271,39 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       }
     }
     return result
-  }, [termoBusca, linhasVirtuais, colunasFiltradas])
+  }, [termoBusca, linhasPagina, colunasFiltradas])
+
+  // Sinaliza que ao carregar a próxima página o foco deve ir para o ÚLTIMO match
+  const irParaÚltimoMatchRef = useRef(false)
 
   const findProximo = useCallback(() => {
-    setFindAtivo(i => (i + 1) % Math.max(findMatches.length, 1))
-  }, [findMatches.length])
+    if (findAtivo === findMatches.length - 1 && onFindPróximaPágina) {
+      onFindPróximaPágina()
+      // findAtivo será resetado para 0 via useEffect quando novos dados chegarem
+    } else {
+      setFindAtivo(i => (i + 1) % Math.max(findMatches.length, 1))
+    }
+  }, [findAtivo, findMatches.length, onFindPróximaPágina])
 
   const findAnterior = useCallback(() => {
-    setFindAtivo(i => (i - 1 + Math.max(findMatches.length, 1)) % Math.max(findMatches.length, 1))
-  }, [findMatches.length])
-
-  // ── TanStack Virtual ──────────────────────────────────────────────────────────
-  const parentRef = useRef<HTMLDivElement>(null)
-
-  const virtualizer = useVirtualizer({
-    count: linhasVirtuais.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: (i) =>
-      linhasVirtuais[i]?.tipo === 'filho' ? childRowHeight : rowHeight,
-    overscan,
-    paddingStart: CABECALHO_HEIGHT,
-  })
+    if (findAtivo === 0 && onFindPáginaAnterior) {
+      irParaÚltimoMatchRef.current = true
+      onFindPáginaAnterior()
+      // useEffect detectará irParaÚltimoMatchRef e posicionará no último match
+    } else {
+      setFindAtivo(i => (i - 1 + Math.max(findMatches.length, 1)) % Math.max(findMatches.length, 1))
+    }
+  }, [findAtivo, findMatches.length, onFindPáginaAnterior])
 
   // ── Find: reset ativo ao mudar matches ───────────────────────────────────────
-  useEffect(() => { setFindAtivo(0) }, [findMatches])
-
-  // ── Find: scroll vertical + horizontal até match ativo ───────────────────────
-  const virtualizerRef      = useRef(virtualizer)
-  const colunasFindRef      = useRef(colunasFiltradas)
-  const getColWidthFindRef  = useRef(getColWidth)
-  const frozenOffsetFindRef = useRef(offsetFrozenDados)
-
-  useLayoutEffect(() => {
-    virtualizerRef.current      = virtualizer
-    colunasFindRef.current      = colunasFiltradas
-    getColWidthFindRef.current  = getColWidth
-    frozenOffsetFindRef.current = offsetFrozenDados
-  })
-
   useEffect(() => {
-    if (findMatches.length === 0) return
-    const m = findMatches[findAtivo]
-    if (m == null) return
-
-    // Scroll vertical — apenas para células
-    if (m.tipo === 'celula') {
-      virtualizerRef.current.scrollToIndex(m.linhaIndex, { align: 'center' })
+    if (irParaÚltimoMatchRef.current && findMatches.length > 0) {
+      setFindAtivo(findMatches.length - 1)
+      irParaÚltimoMatchRef.current = false
+    } else {
+      setFindAtivo(0)
     }
-
-    // Scroll horizontal — para células E headers
-    const rafId = requestAnimationFrame(() => {
-      const el = parentRef.current
-      if (!el) return
-      const cols      = colunasFindRef.current
-      const getW      = getColWidthFindRef.current
-      const frozenOff = frozenOffsetFindRef.current
-
-      let pos = frozenOff
-      for (const col of cols) {
-        const w = getW(col as GTColuna<unknown>)
-        if ((col.key as string) === m.colKey) {
-          if (!col.frozen) {
-            const containerW = el.clientWidth
-            const visibleW   = containerW - frozenOff
-            const target     = pos - frozenOff - (visibleW - w) / 2
-            el.scrollLeft    = Math.max(0, target)
-          }
-          break
-        }
-        pos += w
-      }
-    })
-
-    return () => cancelAnimationFrame(rafId)
-  }, [findAtivo, findMatches])
-
-  // ── Load more via intersection ────────────────────────────────────────────────
-  const sentinelaRef = useRef<HTMLDivElement>(null)
-  const onCarregarMaisRef = useRef(onCarregarMais)
-  useEffect(() => { onCarregarMaisRef.current = onCarregarMais }, [onCarregarMais])
-
-  useEffect(() => {
-    if (!temMais || !onCarregarMais || carregandoMais) return
-
-    const el = sentinelaRef.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) onCarregarMaisRef.current?.()
-      },
-      { root: parentRef.current, threshold: 0.1 },
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [temMais, carregandoMais])
+  }, [findMatches])
 
   // ── Itens selecionados (objetos) ──────────────────────────────────────────────
   const itensSelecionados = useMemo(
@@ -1388,7 +1336,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   ) => {
     const editarFn = isFilho ? onEditarFilho : onEditar
     if (!editarFn) return
-    const linhasPai = linhasVirtuais.filter((l): l is GTLinhaVirtual<T, C> & { tipo: 'pai' } => l.tipo === 'pai')
+    const linhasPai = linhasPagina.filter((l): l is GTLinhaVirtual<T, C> & { tipo: 'pai' } => l.tipo === 'pai')
     const idxAtual  = linhasPai.findIndex(l => l.id === startId)
     if (idxAtual < 0) return
     const promises: Promise<void>[] = []
@@ -1396,11 +1344,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const linha = linhasPai[idxAtual + i]
       if (!linha) break
       const valorParsado = parsearLinhaSmartPaste(valores[i], colTipo, valorAtual)
-      promises.push(editarFn(linha.id, campo, valorParsado).catch(() => {}))
+      promises.push(editarFn(linha.id, campo, valorParsado).then(() => {}).catch(() => {}))
     }
     await Promise.all(promises)
     onSalvoComSucesso?.()
-  }, [onEditar, onEditarFilho, linhasVirtuais, onSalvoComSucesso])
+  }, [onEditar, onEditarFilho, linhasPagina, onSalvoComSucesso])
 
   // ── Smart paste vindo do popover ──────────────────────────────────────────────
   const handleSmartPaste = useCallback(async (valores: string[]) => {
@@ -1457,10 +1405,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
-    const styleCelula: React.CSSProperties = {
-      flex: `0 0 ${getColWidth(col as GTColuna<unknown>)}px`,
-      ...(col.frozen ? { left: offsetFrozenDados } : undefined),
-    }
+    const styleCelula: React.CSSProperties = {}
 
     // Overlay está ativo para esta célula específica
     const overlayAtivo = overlayInfo?.id === id && overlayInfo?.campo === col.key
@@ -1585,7 +1530,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       <div className={classeLinha}>
         {/* Checkbox */}
         {temSelecao && (
-          <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
+          <div className="gtv-celula gtv-celula--check gtv-col-fixa gtv-celula--frozen">
             <input
               type="checkbox"
               className="gtv-checkbox"
@@ -1600,8 +1545,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {/* Botão expand */}
         {onCarregarFilhos && (
           <div
-            className="gtv-celula gtv-celula--expand gtv-celula--frozen"
-            style={{ left: temSelecao ? 40 : 0 }}
+            className="gtv-celula gtv-celula--expand gtv-col-fixa gtv-celula--frozen"
           >
             {carregando_ ? (
               <span className="gtv-spinner" aria-label="Carregando filhos..." />
@@ -1630,7 +1574,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
         {/* Ações de linha */}
         {acoes && acoes.length > 0 && (
-          <div className="gtv-celula gtv-celula--acoes">
+          <div className="gtv-celula gtv-celula--acoes gtv-col-fixa">
             <div className="gtv-acoes-grupo">
               {acoes.map(acao => {
                 if (acao.visivel && !acao.visivel(item)) return null
@@ -1671,7 +1615,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       return (
         <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}`}>
           {temSelecao && (
-            <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
+            <div className="gtv-celula gtv-celula--check gtv-col-fixa gtv-celula--frozen">
               {selecionavelFilhos && (
                 <input
                   type="checkbox"
@@ -1686,8 +1630,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           )}
           {onCarregarFilhos && (
             <div
-              className="gtv-celula gtv-celula--expand gtv-celula--frozen"
-              style={{ left: temSelecao ? 40 : 0 }}
+              className="gtv-celula gtv-celula--expand gtv-col-fixa gtv-celula--frozen"
             >
               <span className="gtv-conector" aria-hidden="true">
                 {renderConectorFilho ? renderConectorFilho(item) : '└'}
@@ -1698,7 +1641,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {colunasFiltradas.map((col, idx) => {
             const mapa = mapaColunasFilho[col.key as string]
             const campo = mapa?.campo ?? (col.key as string)
-            const podeEditar = (!!mapa?.editavel || camposEditaveisFilhos.includes(col.key as string)) && !!onEditarFilho
+            const editavelMapa = typeof mapa?.editavel === 'function' ? mapa.editavel(item) : !!mapa?.editavel
+            const podeEditar = (editavelMapa || camposEditaveisFilhos.includes(col.key as string)) && !!onEditarFilho
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
@@ -1708,10 +1652,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
-            const styleCelula: React.CSSProperties = {
-              flex: `0 0 ${getColWidth(col as GTColuna<unknown>)}px`,
-              ...(col.frozen ? { left: offsetFrozenDados } : undefined),
-            }
+            const styleCelula: React.CSSProperties = {}
 
             const valor = (item as Record<string, unknown>)[campo]
 
@@ -1748,14 +1689,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     onClick={e => e.stopPropagation()}
                   />
                 ) : (
-                  mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : null)
+                  mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : '—')
                 )}
               </div>
             )
           })}
 
           {acoesFilhas && acoesFilhas.length > 0 && (
-            <div className="gtv-celula gtv-celula--acoes">
+            <div className="gtv-celula gtv-celula--acoes gtv-col-fixa">
               <div className="gtv-acoes-grupo">
                 {acoesFilhas.map(acao => {
                   if (acao.visivel && !acao.visivel(item)) return null
@@ -1778,7 +1719,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
           {acoesDoFilho.length > 0 && (
             <div
-              className="gtv-celula gtv-celula--acoes gtv-celula--acoes-filho"
+              className="gtv-celula gtv-celula--acoes gtv-celula--acoes-filho gtv-col-fixa"
               onMouseDown={e => e.stopPropagation()}
             >
               <div style={{ position: 'relative' }}>
@@ -1829,7 +1770,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}`}>
         {/* Espaço para alinhar com checkbox pai */}
         {temSelecao && (
-          <div className="gtv-celula gtv-celula--check gtv-celula--frozen" style={{ left: 0 }}>
+          <div className="gtv-celula gtv-celula--check gtv-col-fixa gtv-celula--frozen">
             {selecionavelFilhos && (
               <input
                 type="checkbox"
@@ -1846,21 +1787,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {/* Conector hierárquico */}
         {onCarregarFilhos && (
           <div
-            className="gtv-celula gtv-celula--expand gtv-celula--frozen"
-            style={{ left: temSelecao ? 40 : 0 }}
+            className="gtv-celula gtv-celula--expand gtv-col-fixa gtv-celula--frozen"
           >
             <span className="gtv-conector" aria-hidden="true">└</span>
           </div>
         )}
 
-        {/* Spacer sticky: alinha células filhas com colunas não-frozen do pai */}
-        {frozenDataWidth > 0 && (
-          <div
-            className="gtv-celula gtv-celula--frozen"
-            style={{ flex: `0 0 ${frozenDataWidth}px`, left: offsetFrozenDados }}
-            aria-hidden="true"
-          />
-        )}
 
         {/* Células filhas */}
         {colsFilhas.map((col, idx) =>
@@ -1869,7 +1801,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
         {/* Ações de linha filha */}
         {acoesFilhas && acoesFilhas.length > 0 && (
-          <div className="gtv-celula gtv-celula--acoes">
+          <div className="gtv-celula gtv-celula--acoes gtv-col-fixa">
             <div className="gtv-acoes-grupo">
               {acoesFilhas.map(acao => {
                 if (acao.visivel && !acao.visivel(item)) return null
@@ -1897,7 +1829,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
         {acoesDoFilhoOrig.length > 0 && (
           <div
-            className="gtv-celula gtv-celula--acoes gtv-celula--acoes-filho"
+            className="gtv-celula gtv-celula--acoes gtv-celula--acoes-filho gtv-col-fixa"
             onMouseDown={e => e.stopPropagation()}
           >
             <div style={{ position: 'relative' }}>
@@ -1939,9 +1871,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }
 
   // ─── Render principal ────────────────────────────────────────────────────────
-
-  const totalSize = virtualizer.getTotalSize()
-  const virtualItems = virtualizer.getVirtualItems()
 
   const todosSel = todosSelecionados(todosIds)
   const parcialSel = parcialmnteSelecionados(todosIds)
@@ -1990,7 +1919,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 findMatches.length > 0 ? (
                   <div className="gtv-find-nav" role="status" aria-live="polite">
                     <span className="gtv-find-count">{findAtivo + 1} de {findMatches.length}</span>
-                    {findMatches.length > 1 && (
+                    {(findMatches.length > 1 || onFindPróximaPágina || onFindPáginaAnterior) && (
                       <>
                         <button className="gtv-find-btn" onClick={findAnterior} aria-label="Match anterior">
                           <IconeArrowUp />
@@ -2098,122 +2027,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
       {/* Skeleton de carregamento */}
       {carregando ? (
-        <GTSkeleton rowHeight={rowHeight} />
+        <GTSkeleton />
       ) : (
         <div
-          ref={parentRef}
+          ref={scrollContainerRef}
           className="gtv-tabela-scroll"
           role="rowgroup"
           aria-label="Linhas da tabela"
         >
-          {/* Cabeçalho sticky — dentro do scroll para alinhar horizontalmente */}
-          <div className="gtv-cabecalho" role="row" style={{ minWidth: larguraTotalColunas }}>
-            {/* Checkbox cabeçalho */}
-            {temSelecao && (
-              <div className="gtv-th gtv-th--check gtv-th--frozen" role="columnheader" aria-label="Selecionar todos" style={{ left: 0 }}>
-                <input
-                  type="checkbox"
-                  className="gtv-checkbox"
-                  checked={todosSel}
-                  ref={el => {
-                    if (el) el.indeterminate = parcialSel
-                  }}
-                  aria-label="Selecionar todos"
-                  onChange={() => toggleTodos(todosIds)}
-                />
-              </div>
-            )}
-
-            {/* Expand col */}
-            {onCarregarFilhos && (
-              <div
-                className="gtv-th gtv-th--expand gtv-th--frozen"
-                role="columnheader"
-                style={{ left: temSelecao ? 40 : 0 }}
-              />
-            )}
-
-            {/* Colunas de dados */}
-            {colunasFiltradas.map(col => {
-              const sortAtivo   = sortLocal?.campo === col.key
-              const classeSort  = col.sortavel
-                ? ` gtv-th--sort${sortAtivo ? ' gtv-th--sorted' : ''}`
-                : ''
-              const classeAlign = ' gtv-th--center'
-              const classeFrozen = col.frozen ? ' gtv-th--frozen' : ''
-              const colWidth = getColWidth(col as GTColuna<unknown>)
-
-              const styleTh: React.CSSProperties = {
-                flex: `0 0 ${colWidth}px`,
-                ...(col.frozen ? { left: offsetFrozenDados } : undefined),
-              }
-
-              const isDraggable = !!onSalvarPreferencias && !col.frozen && !col.naoOcultavel
-              const isDragging  = dragColKey === col.key
-              const isDropTarget = dragOverKey === col.key && dragColKey !== null
-              const classeDropBefore = isDropTarget && dropSide === 'before' ? ' gtv-th--drop-before' : ''
-              const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
-              const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
-              const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
-
-              return (
-                <div
-                  key={col.key}
-                  role="columnheader"
-                  className={`gtv-th${classeSort}${classeAlign}${classeFrozen}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
-                  style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
-                  draggable={isDraggable}
-                  onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}
-                  onDragOver={isDraggable || dragColKey !== null ? e => handleColDragOver(e, col.key) : undefined}
-                  onDrop={dragColKey !== null ? e => handleColDrop(e, col.key) : undefined}
-                  onDragEnd={handleColDragEnd}
-                  onClick={() => col.sortavel && handleSort(col.key)}
-                  aria-sort={
-                    sortAtivo
-                      ? sortLocal?.dir === 'asc'
-                        ? 'ascending'
-                        : 'descending'
-                      : undefined
-                  }
-                >
-                  <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
-                  {col.sortavel && (
-                    <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>
-                      {sortAtivo ? (
-                        sortLocal?.dir === 'asc' ? <IconeArrowUp /> : <IconeArrowDown />
-                      ) : (
-                        <em>↕</em>
-                      )}
-                    </span>
-                  )}
-                  {col.filtravel && onFiltroColuna && (
-                    <button
-                      type="button"
-                      className={`gtv-filtro-btn${filtrosAtivosKeys?.has(col.key) ? ' gtv-filtro-btn--ativo' : ''}`}
-                      aria-label={`Filtrar por ${col.label}`}
-                      title={`Filtrar por ${col.label}`}
-                      onClick={e => {
-                        e.stopPropagation()
-                        onFiltroColuna(col.key, e.currentTarget)
-                      }}
-                    >
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
-                        <path d="M0 1.5A.5.5 0 0 1 .5 1h9a.5.5 0 0 1 .354.854L6 5.707V9a.5.5 0 0 1-.724.447l-2-1A.5.5 0 0 1 3 8V5.707L.146 1.854A.5.5 0 0 1 0 1.5z"/>
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              )
-            })}
-
-            {/* Ações col */}
-            {acoes && acoes.length > 0 && (
-              <div className="gtv-th gtv-th--acoes" role="columnheader" />
-            )}
-          </div>
-
           {dados.length === 0 ? (
-            /* Estado vazio */
             <GTVazio
               emptyIcon={emptyIcon}
               emptyTitle={emptyTitle}
@@ -2221,64 +2043,124 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               emptyAction={emptyAction}
             />
           ) : (
+            /* Grade compartilhada: header + linhas como filhos diretos */
             <div
-              className="gtv-tabela-inner"
-              style={{ height: totalSize, minWidth: larguraTotalColunas }}
+              className="gtv-grade"
+              style={{ gridTemplateColumns: gridTemplateCols }}
             >
-              {virtualItems.map(virtualItem => {
-                const linha = linhasVirtuais[virtualItem.index]
-                if (!linha) return null
-
-                return (
-                  <div
-                    key={virtualItem.key}
-                    data-index={virtualItem.index}
-                    ref={virtualizer.measureElement}
-                    style={{
-                      position: 'absolute',
-                      top: virtualItem.start - CABECALHO_HEIGHT,
-                      left: 0,
-                      width: larguraTotalColunas,
-                    }}
-                    role="row"
-                  >
-                    {linha.tipo === 'pai'
-                      ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, virtualItem.index)
-                      : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, virtualItem.index)}
+              {/* Cabeçalho — display:contents faz os th serem filhos diretos do grid */}
+              <div className="gtv-cabecalho" role="row">
+                {temSelecao && (
+                  <div className="gtv-th gtv-th--check gtv-col-fixa gtv-th--frozen" role="columnheader" aria-label="Selecionar todos">
+                    <input
+                      type="checkbox"
+                      className="gtv-checkbox"
+                      checked={todosSel}
+                      ref={el => { if (el) el.indeterminate = parcialSel }}
+                      aria-label="Selecionar todos"
+                      onChange={() => toggleTodos(todosIds)}
+                    />
                   </div>
-                )
-              })}
+                )}
+                {onCarregarFilhos && (
+                  <div
+                    className="gtv-th gtv-th--expand gtv-col-fixa gtv-th--frozen"
+                    role="columnheader"
+                  />
+                )}
+                {colunasFiltradas.map(col => {
+                  const sortAtivo   = sortLocal?.campo === col.key
+                  const classeSort  = col.sortavel ? ` gtv-th--sort${sortAtivo ? ' gtv-th--sorted' : ''}` : ''
+                  const classeFrozen = col.frozen ? ' gtv-th--frozen' : ''
+                  const styleTh: React.CSSProperties = {}
+                  const isDraggable = !!onSalvarPreferencias && !col.frozen && !col.naoOcultavel
+                  const isDragging  = dragColKey === col.key
+                  const isDropTarget = dragOverKey === col.key && dragColKey !== null
+                  const classeDropBefore = isDropTarget && dropSide === 'before' ? ' gtv-th--drop-before' : ''
+                  const classeDropAfter  = isDropTarget && dropSide === 'after'  ? ' gtv-th--drop-after'  : ''
+                  const classeThFindMatch = findMatches.some(m => m.tipo === 'header' && m.colKey === (col.key as string)) ? ' gtv-th--find-match' : ''
+                  const classeThFindAtivo = (findMatches[findAtivo]?.tipo === 'header' && findMatches[findAtivo]?.colKey === (col.key as string)) ? ' gtv-th--find-match-ativo' : ''
+                  return (
+                    <div
+                      key={col.key}
+                      role="columnheader"
+                      className={`gtv-th gtv-th--center${classeSort}${classeFrozen}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
+                      style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
+                      draggable={isDraggable}
+                      onDragStart={isDraggable ? () => handleColDragStart(col.key) : undefined}
+                      onDragOver={isDraggable || dragColKey !== null ? e => handleColDragOver(e, col.key) : undefined}
+                      onDrop={dragColKey !== null ? e => handleColDrop(e, col.key) : undefined}
+                      onDragEnd={handleColDragEnd}
+                      onClick={() => col.sortavel && handleSort(col.key)}
+                      aria-sort={sortAtivo ? (sortLocal?.dir === 'asc' ? 'ascending' : 'descending') : undefined}
+                    >
+                      <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                      {col.sortavel && (
+                        <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>
+                          {sortAtivo ? (sortLocal?.dir === 'asc' ? <IconeArrowUp /> : <IconeArrowDown />) : <em>↕</em>}
+                        </span>
+                      )}
+                      {col.filtravel && onFiltroColuna && (
+                        <button
+                          type="button"
+                          className={`gtv-filtro-btn${filtrosAtivosKeys?.has(col.key) ? ' gtv-filtro-btn--ativo' : ''}`}
+                          aria-label={`Filtrar por ${col.label}`}
+                          title={`Filtrar por ${col.label}`}
+                          onClick={e => { e.stopPropagation(); onFiltroColuna(col.key, e.currentTarget) }}
+                        >
+                          <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                            <path d="M0 1.5A.5.5 0 0 1 .5 1h9a.5.5 0 0 1 .354.854L6 5.707V9a.5.5 0 0 1-.724.447l-2-1A.5.5 0 0 1 3 8V5.707L.146 1.854A.5.5 0 0 1 0 1.5z"/>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  )
+                })}
+                {acoes && acoes.length > 0 && (
+                  <div className="gtv-th gtv-th--acoes gtv-col-fixa" role="columnheader" />
+                )}
+              </div>
 
-              {/* Sentinela para infinite scroll */}
-              {temMais && (
-                <div
-                  ref={sentinelaRef}
-                  style={{ height: 1, position: 'absolute', bottom: 0, width: '100%' }}
-                  aria-hidden="true"
-                />
+              {/* Linhas da página atual */}
+              {linhasPagina.map((linha, idx) =>
+                linha.tipo === 'pai'
+                  ? renderLinhaPai(linha as GTLinhaVirtual<T, C> & { tipo: 'pai' }, idx)
+                  : renderLinhaFilha(linha as GTLinhaVirtual<T, C> & { tipo: 'filho' }, idx)
               )}
             </div>
           )}
         </div>
       )}
 
-      {/* Rodapé: carregar mais — fora do scroll para não deslocar */}
-      {!carregando && temMais && onCarregarMais && (
-        <div className="gtv-rodape">
-          <button
-            className="gtv-carregar-mais-btn"
-            disabled={carregandoMais}
-            onClick={onCarregarMais}
-          >
-            {carregandoMais ? (
-              <>
-                <span className="gtv-spinner" />
-                Carregando...
-              </>
-            ) : (
-              'Carregar mais'
-            )}
-          </button>
+      {/* Rodapé de paginação */}
+      {!carregando && totalPaginas > 1 && (
+        <div className="gtv-paginacao" role="navigation" aria-label="Paginação">
+          <span className="gtv-paginacao-info">
+            {totalEfetivo} {totalEfetivo === 1 ? 'item' : 'itens'} · página {paginaEfetiva} de {totalPaginas}
+          </span>
+          <div className="gtv-paginacao-controles">
+            <button className="gtv-pag-btn" disabled={paginaEfetiva === 1} onClick={() => mudarPagina(1)} aria-label="Primeira página">«</button>
+            <button className="gtv-pag-btn" disabled={paginaEfetiva === 1} onClick={() => mudarPagina(paginaEfetiva - 1)} aria-label="Página anterior">‹</button>
+            {Array.from({ length: totalPaginas }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPaginas || Math.abs(p - paginaEfetiva) <= 2)
+              .reduce<(number | '...')[]>((acc, p, i, arr) => {
+                if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('...')
+                acc.push(p)
+                return acc
+              }, [])
+              .map((p, i) => p === '...'
+                ? <span key={`e${i}`} className="gtv-pag-reticencias" aria-hidden="true">…</span>
+                : <button
+                    key={p}
+                    className={`gtv-pag-btn${p === paginaEfetiva ? ' gtv-pag-btn--ativo' : ''}`}
+                    onClick={() => mudarPagina(p as number)}
+                    aria-current={p === paginaEfetiva ? 'page' : undefined}
+                  >{p}</button>
+              )
+            }
+            <button className="gtv-pag-btn" disabled={paginaEfetiva === totalPaginas} onClick={() => mudarPagina(paginaEfetiva + 1)} aria-label="Próxima página">›</button>
+            <button className="gtv-pag-btn" disabled={paginaEfetiva === totalPaginas} onClick={() => mudarPagina(totalPaginas)} aria-label="Última página">»</button>
+          </div>
         </div>
       )}
 

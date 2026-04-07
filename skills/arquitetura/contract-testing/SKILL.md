@@ -178,6 +178,33 @@ O Coordenador mantém o registro de todos os contratos:
 
 ---
 
+## Payload Sanitization — Frontend antes do fetch
+
+`JSON.stringify` silencia `undefined` sem erro. Se `valor` for `undefined`, a chave desaparece do body e o Zod do backend rejeita com 400 — sem stack trace útil no frontend.
+
+**Regra obrigatória em toda função de edição inline:**
+
+```typescript
+// api.ts — padrão canônico (produto/pedido/client/src/shared/api.ts:198)
+body: JSON.stringify({ campo, valor: valor === undefined ? null : valor })
+```
+
+**Regra para `getValorEditar` em colunas:**
+
+```typescript
+// errado — campo pode ser undefined na linha ainda não enriquecida
+getValorEditar: (row) => row.campo_x
+
+// certo — sempre com fallback explícito
+getValorEditar: (row) => row.campo_x ?? ''
+getValorEditar: (row) => row.campo_x ?? 0
+getValorEditar: (row) => ({ currency: row.moeda ?? 'USD', amount: row.valor ?? 0 })
+```
+
+**Por que acontece:** linhas virtualizadas renderizam antes do enriquecimento (`_p`, joins, etc.) estar completo. O campo existe no tipo mas é `undefined` em runtime naquele instante.
+
+---
+
 ## Checklist — Contract Testing
 
 - [ ] Todo endpoint tem schema Zod exportado como contrato?
@@ -187,3 +214,5 @@ O Coordenador mantém o registro de todos os contratos:
 - [ ] Contract test no provider (serviço) implementado?
 - [ ] CI bloqueia merge se contrato quebrar?
 - [ ] Breaking changes versionam a API?
+- [ ] Funções de edição inline usam `valor === undefined ? null : valor` antes do fetch?
+- [ ] Todo `getValorEditar` tem fallback explícito (`?? ''`, `?? 0`, `?? 'padrão'`)?

@@ -22,4 +22,5 @@ export type {
   GTAcaoLinha,
   GTValorMoeda,
   GTValorUnidade,
+  GTUnidadeOpcao,
 } from './tipos.js'

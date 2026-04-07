@@ -14,6 +14,11 @@ export type GTAlign = 'left' | 'center' | 'right'
 
 export type GTTipo = 'texto' | 'numero' | 'periodo' | 'badge' | 'custom' | 'moeda' | 'unidade'
 
+// ─── Opção de unidade de medida ────────────────────────────────────────────────
+
+/** String simples (legado) ou objeto com sigla + rótulo para exibição completa */
+export type GTUnidadeOpcao = string | { sigla: string; rotulo: string }
+
 // ─── Valores compostos ─────────────────────────────────────────────────────────
 
 export interface GTValorMoeda {
@@ -33,6 +38,8 @@ export interface GTColuna<T = unknown> {
   key: string
   /** Rótulo exibido no cabeçalho */
   label: string
+  /** Cor CSS do texto do rótulo no cabeçalho (ex: '#60a5fa') */
+  labelColor?: string
   /** Tipo do dado — define o modo de filtro */
   tipo?: GTTipo
   align?: GTAlign
@@ -57,19 +64,12 @@ export interface GTColuna<T = unknown> {
    * Quando definido, o popover exibe uma lista selecionável em vez de um input de texto.
    */
   opcoes?: { valor: string; label: string }[]
-  largura?: string | number
-  /**
-   * Desativa o auto-fit de largura para esta coluna.
-   * Use em colunas com render customizado (badges, ícones, moeda formatada)
-   * onde o valor bruto não representa o tamanho visual real.
-   */
-  autoFitDisabled?: boolean
   /** Grupo de agrupamento exibido no gerenciador de colunas */
   grupo?: string
   /** Códigos ISO 4217 disponíveis no seletor (ativo quando tipo='moeda') */
-  moedas?: string[]
+  moedas?: GTUnidadeOpcao[]
   /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
-  unidades?: string[]
+  unidades?: GTUnidadeOpcao[]
   /** Casas decimais usadas no input de quantidade (ativo quando tipo='unidade') */
   casasDecimais?: number
   /**
@@ -163,8 +163,6 @@ export interface GTAbaTipo {
 export interface GTPreferencias {
   /** Keys das colunas visíveis, na ordem exibida */
   colunas_visiveis: string[]
-  /** Mapa de larguras customizadas por key */
-  larguras?: Record<string, number>
 }
 
 // ─── Linha virtual interna ─────────────────────────────────────────────────────
@@ -178,8 +176,8 @@ export type GTLinhaVirtual<T, C> =
 export interface GTMapaColunasFilho<C = unknown> {
   /** Renderiza o conteúdo da célula na linha filho */
   render: (item: C) => ReactNode
-  /** Se true: a célula é editável inline no filho */
-  editavel?: boolean
+  /** Se true ou função que retorna true: a célula é editável inline no filho */
+  editavel?: boolean | ((item: C) => boolean)
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */
@@ -187,7 +185,7 @@ export interface GTMapaColunasFilho<C = unknown> {
   /** Casas decimais usadas no input de quantidade (ativo quando tipo='unidade') */
   casasDecimais?: number
   /** Unidades disponíveis no seletor (ativo quando tipo='unidade') */
-  unidades?: string[]
+  unidades?: GTUnidadeOpcao[]
 }
 
 // ─── Props principais ──────────────────────────────────────────────────────────
@@ -204,7 +202,7 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   colunasFilhas?: GTColuna<C>[]
   /**
    * Mapeia keys de colunas PAI → renderização nas linhas filho.
-   * Quando fornecido, linhas filho usam as mesmas colunas (larguras/ordem/visibilidade) do pai.
+   * Quando fornecido, linhas filho usam as mesmas colunas (ordem/visibilidade) do pai.
    * Colunas sem mapeamento ficam vazias na linha filho.
    */
   mapaColunasFilho?: Record<string, GTMapaColunasFilho<C>>
@@ -215,13 +213,19 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   /** Ações de linha para filhos */
   acoesFilhas?: GTAcao<C>[]
 
-  // ── Paginação (cursor ou botão) ────────────────────────────────────────────
-  /** Indica que há mais dados para carregar */
-  temMais?: boolean
-  /** Enquanto true, exibe spinner no rodapé */
-  carregandoMais?: boolean
-  /** Chamado quando o usuário solicita mais dados */
-  onCarregarMais?: () => void
+  // ── Paginação ──────────────────────────────────────────────────────────────
+  /** Itens por página no modo interno (padrão: 50). Ignorado no modo externo. */
+  itensPorPagina?: number
+  /**
+   * Modo externo: total de itens no servidor.
+   * Quando fornecido, o componente assume que `dados` já é a página atual
+   * e delega o controle de página para `onMudarPagina`.
+   */
+  totalItens?: number
+  /** Modo externo: página atual (1-based). */
+  paginaAtual?: number
+  /** Modo externo: chamado quando o usuário troca de página. */
+  onMudarPagina?: (pagina: number) => void
 
   // ── Abas de status ─────────────────────────────────────────────────────────
   abas?: GTAbaTipo[]
@@ -255,6 +259,19 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * Padrão: `false` (comportamento legado — chama `onBuscar` a cada keystroke).
    */
   modoLocalizar?: boolean
+  /**
+   * Chamado quando findProximo atinge o último match da última linha e há
+   * próxima página disponível. Quando ausente, o comportamento é wrap-around
+   * dentro da página atual (comportamento original).
+   */
+  onFindPróximaPágina?: () => void
+  /**
+   * Chamado quando findAnterior atinge o primeiro match e há página anterior
+   * disponível. Quando ausente, o comportamento é wrap-around dentro da página
+   * atual (comportamento original). Ao navegar para a página anterior, o foco
+   * vai automaticamente para o último match da nova página.
+   */
+  onFindPáginaAnterior?: () => void
   placeholderBusca?: string
   onFiltrar?: (filtros: GTFiltrosAtivos) => void
   onOrdenar?: (campo: string, dir: 'asc' | 'desc') => void
@@ -298,14 +315,6 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   emptyTitle?: string
   emptyDescription?: string
   emptyAction?: ReactNode
-
-  // ── Performance ────────────────────────────────────────────────────────────
-  /** Altura de cada linha pai em px (padrão: 44) */
-  rowHeight?: number
-  /** Altura de cada linha filha em px (padrão: 36) */
-  childRowHeight?: number
-  /** Linhas extras renderizadas fora da viewport (padrão: 5) */
-  overscan?: number
 
   // ── Acessibilidade ─────────────────────────────────────────────────────────
   ariaLabel?: string

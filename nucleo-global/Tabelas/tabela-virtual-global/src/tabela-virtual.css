@@ -558,20 +558,25 @@
   color: var(--gtv-text);
 }
 
-/* ─── Cabeçalho da tabela (sticky) ───────────────────────────────────────── */
-.gtv-cabecalho {
-  display: flex;
+/* ─── Grade compartilhada (header + linhas como filhos diretos) ───────────── */
+.gtv-grade {
+  display: grid;
+  /* gridTemplateColumns definido inline no componente */
+  min-width: 100%;
   align-items: stretch;
-  background: var(--gtv-bg);
-  border-bottom: 1px solid var(--gtv-border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  flex-shrink: 0;
+}
+
+/* ─── Cabeçalho da tabela — display:contents torna os th filhos diretos do grid */
+.gtv-cabecalho {
+  display: contents;
 }
 
 .gtv-th {
-  position: relative; /* base para o resize handle absoluto */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--gtv-bg);
+  border-bottom: 1px solid var(--gtv-border);
   padding: 0.75rem 1.25rem;
   text-align: center;
   justify-content: center;
@@ -585,8 +590,6 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  flex: 1;
-  min-width: 0; /* largura definida exclusivamente pelo getColWidth — nunca sobrescrever aqui */
 }
 
 /* Label do cabeçalho: trunca com ellipsis, ícones de sort/filter ficam fora e nunca clipados */
@@ -598,30 +601,26 @@
   min-width: 0;
 }
 
+.gtv-col-fixa { flex: 0 0 auto; }
+
+.gtv-th,
+.gtv-celula { min-width: max-content; }
+
 .gtv-th--check {
-  flex: 0 0 40px;
   padding-left: 1.25rem;
   padding-right: 0;
   justify-content: flex-start;
 }
 
-.gtv-th--expand {
-  flex: 0 0 40px;
-}
-
-.gtv-th--acoes {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
 
 .gtv-th--center { justify-content: center; }
 .gtv-th--right  { justify-content: flex-end; }
 
 /* ─── Colunas congeladas (frozen) ─────────────────────────────────────────── */
 .gtv-th--frozen {
-  position: sticky;
   z-index: 11;
   background: var(--gtv-bg);
+  transform: translateX(var(--gtv-scroll-left, 0px));
 }
 
 .gtv-th--frozen::after {
@@ -636,9 +635,10 @@
 }
 
 .gtv-celula--frozen {
-  position: sticky;
+  position: relative;
   z-index: 2;
   background: var(--gtv-bg);
+  transform: translateX(var(--gtv-scroll-left, 0px));
 }
 
 .gtv-celula--frozen::after {
@@ -762,24 +762,17 @@
   background: transparent;
 }
 
-/* Container interno com altura total das linhas virtuais */
-.gtv-tabela-inner {
-  width: 100%;
-  position: relative;
-}
 
-/* ─── Linha virtual ───────────────────────────────────────────────────────── */
-/* Posicionamento absoluto fica no wrapper do virtualizer (div pai).          */
-/* .gtv-linha deve ficar no fluxo normal para measureElement medir altura.   */
+/* ─── Linha ───────────────────────────────────────────────────────────────── */
+/* Cada linha ocupa todas as colunas do grid pai e usa subgrid internamente   */
+/* para que suas células se alinhem com o cabeçalho.                          */
 .gtv-linha {
-  display: flex;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  width: 100%;
   border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
-  /* Sem contain: a virtualização já garante que só linhas visíveis existem no DOM.
-     contain: content/layout/paint quebram position: sticky no Chromium porque
-     criam um novo formatting context ou paint layer que substitui o scroll ancestor. */
   backface-visibility: hidden;
 }
 
@@ -831,8 +824,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex: 1;
-  min-width: 0;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -843,20 +835,17 @@
 }
 
 .gtv-celula--check {
-  flex: 0 0 40px;
   padding-left: 1.25rem;
   padding-right: 0;
 }
 
 .gtv-celula--expand {
-  flex: 0 0 40px;
   padding: 0;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .gtv-celula--acoes {
-  flex: 0 0 auto;
   white-space: nowrap;
   padding-right: 0.75rem;
   position: sticky;
@@ -938,32 +927,6 @@
   width: 100%;
 }
 
-/* ─── Resize handle no cabeçalho ──────────────────────────────────────────── */
-.gtv-th-resize-handle {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  cursor: col-resize;
-  user-select: none;
-  z-index: 1;
-  /* Linha visual sutil ao hover */
-  transition: background 0.12s;
-}
-
-.gtv-th-resize-handle:hover,
-.gtv-th-resize-handle:active {
-  background: var(--gtv-accent);
-  opacity: 0.5;
-}
-
-/* Cursor global durante resize (evita flickering ao mover rápido) */
-.gtv-container--resizing,
-.gtv-container--resizing * {
-  cursor: col-resize !important;
-  user-select: none !important;
-}
 
 /* ─── Popover de edição flutuante ─────────────────────────────────────────── */
 
@@ -1426,6 +1389,63 @@
   color: var(--gtv-muted, #94a3b8);
 }
 
+/* ── Dropdown de moeda — layout rico (sigla + descrição) ─────────────────── */
+
+.gtv-edit-moeda-list {
+  max-height: 280px;
+}
+
+.gtv-edit-moeda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  white-space: normal;
+}
+
+.gtv-edit-moeda-sigla {
+  flex-shrink: 0;
+  min-width: 2.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.04em;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--gtv-accent, #818cf8);
+  text-align: center;
+}
+
+.gtv-edit-moeda-item--ativo .gtv-edit-moeda-sigla {
+  background: rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+}
+
+.gtv-edit-moeda-desc {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: var(--gtv-muted, #94a3b8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge de moeda exibido dentro de células da tabela */
+.gtv-celula-moeda {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.gtv-celula-moeda-badge {
+  flex-shrink: 0;
+}
+
+.gtv-edit-moeda-item:hover .gtv-edit-moeda-desc,
+.gtv-edit-moeda-item--ativo .gtv-edit-moeda-desc {
+  color: var(--gtv-text, #e2e8f0);
+}
+
 /* Spinner no botão confirmar */
 .gtv-spinner {
   display: inline-block;
@@ -1641,42 +1661,6 @@
   outline: none;
 }
 
-/* ─── Carregar mais ───────────────────────────────────────────────────────── */
-.gtv-rodape {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.875rem 1.25rem;
-  border-top: 1px solid var(--gtv-border);
-  flex-shrink: 0;
-}
-
-.gtv-carregar-mais-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4375rem 1.25rem;
-  border-radius: 9999px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  border: 1px solid var(--gtv-border-solid);
-  background: transparent;
-  color: var(--gtv-muted);
-  transition: all 0.15s;
-}
-
-.gtv-carregar-mais-btn:hover:not(:disabled) {
-  border-color: var(--gtv-accent);
-  color: var(--gtv-accent);
-  background: rgba(129, 140, 248, 0.06);
-}
-
-.gtv-carregar-mais-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 
 /* ─── Estado vazio ────────────────────────────────────────────────────────── */
 .gtv-vazio {
@@ -1986,4 +1970,70 @@ body.light-theme .gtv-linha--filho-selecionada {
   background: #14b8a6;
   border-radius: 2px;
   pointer-events: none;
+}
+
+/* ─── Paginação ───────────────────────────────────────────────────────────── */
+.gtv-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  border-top: 1px solid var(--gtv-border);
+  background: var(--gtv-bg);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.gtv-paginacao-info {
+  font-size: 0.75rem;
+  color: var(--gtv-muted);
+  white-space: nowrap;
+}
+
+.gtv-paginacao-controles {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.gtv-pag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.375rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--gtv-border-solid);
+  background: transparent;
+  color: var(--gtv-muted);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.gtv-pag-btn:hover:not(:disabled) {
+  border-color: var(--gtv-accent);
+  color: var(--gtv-accent);
+  background: rgba(129, 140, 248, 0.06);
+}
+
+.gtv-pag-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.gtv-pag-btn--ativo {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.35);
+  color: var(--gtv-accent);
+  font-weight: 700;
+}
+
+.gtv-pag-reticencias {
+  color: var(--gtv-muted);
+  padding: 0 0.25rem;
+  font-size: 0.8125rem;
 }

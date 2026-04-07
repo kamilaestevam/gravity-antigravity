@@ -22,6 +22,7 @@ import {
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { ModalTabelaMoeda } from '@nucleo/modal-tabela-moeda'
 import type { TipoOperacao, PedidoItem } from '../shared/types'
 import { pedidoApi } from '../shared/api'
 
@@ -121,6 +122,7 @@ export default function NovoPedido() {
   const [form, setForm] = useState<PedidoForm>(FORM_VAZIO)
   const [itens, setItens] = useState<ItemForm[]>([ITEM_VAZIO()])
   const [salvando, setSalvando] = useState(false)
+  const [modalMoedaAberta, setModalMoedaAberta] = useState(false)
 
   function handleChange(campo: keyof PedidoForm, valor: string) {
     setForm((prev) => ({ ...prev, [campo]: valor }))
@@ -311,18 +313,19 @@ export default function NovoPedido() {
           </div>
           <div>
             <label style={labelStyle}>Moeda</label>
-            <select
-              style={inputStyle}
-              value={form.moeda_pedido}
-              onChange={(e) => handleChange('moeda_pedido', e.target.value)}
+            <button
+              type="button"
+              style={{ ...inputStyle, textAlign: 'left', cursor: 'pointer' }}
+              onClick={() => setModalMoedaAberta(true)}
             >
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
-              <option value="BRL">BRL</option>
-              <option value="CNY">CNY</option>
-              <option value="JPY">JPY</option>
-            </select>
+              {form.moeda_pedido || 'Selecionar moeda'}
+            </button>
+            <ModalTabelaMoeda
+              aberto={modalMoedaAberta}
+              aoFechar={() => setModalMoedaAberta(false)}
+              aoSelecionar={(sigla) => handleChange('moeda_pedido', sigla)}
+              moedaSelecionada={form.moeda_pedido}
+            />
           </div>
           <div>
             <label style={labelStyle}>Cobertura Cambial</label>

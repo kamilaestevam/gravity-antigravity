@@ -23,6 +23,7 @@ import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { MOEDAS_SISCOMEX } from '@nucleo/modal-tabela-moeda'
+import { UNIDADES_SISCOMEX } from '@nucleo/modal-tabela-unidades'
 import './tabela-virtual.css'
 import type {
   GTVirtualTableProps,
@@ -274,8 +275,8 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 
 // ──────────────────────────────────────────────────────────────────────────────
 
-// Unidades padrão quando a coluna não especifica lista própria
-const UNIDADES_PADRAO: GTUnidadeOpcao[] = ['UN', 'KG', 'G', 'TON', 'L', 'ML', 'M', 'M²', 'M³', 'CX', 'PC', 'PAR', 'DZ', 'CT', 'FD']
+// Unidades padrão — lista oficial Siscomex (modal-tabela-unidades)
+const UNIDADES_PADRAO: GTUnidadeOpcao[] = UNIDADES_SISCOMEX.map(u => ({ sigla: u.sigla, rotulo: u.rotulo }))
 
 const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
 const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
@@ -1305,6 +1306,49 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     }
   }, [findMatches])
 
+  // ── Find: scroll para trazer o match ativo para a viewport (vertical + horizontal)
+  useEffect(() => {
+    if (!modoLocalizar || findMatches.length === 0) return
+    const match = findMatches[findAtivo]
+    if (!match) return
+
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    if (match.tipo === 'celula') {
+      // Célula ativa: scroll vertical + horizontal com compensação de header sticky
+      const cellEl = container.querySelector<HTMLElement>('.gtv-celula--find-match-ativo')
+      if (cellEl) {
+        const cr  = container.getBoundingClientRect()
+        const cel = cellEl.getBoundingClientRect()
+        const headerHeight = (container.querySelector<HTMLElement>('.gtv-th')?.offsetHeight ?? 44)
+
+        let newTop  = container.scrollTop
+        let newLeft = container.scrollLeft
+
+        // Vertical: ajusta se a célula está atrás do header (topo) ou abaixo da viewport
+        if (cel.top - cr.top < headerHeight) {
+          newTop = container.scrollTop - (headerHeight - (cel.top - cr.top)) - 4
+        } else if (cel.bottom - cr.top > container.clientHeight) {
+          newTop = container.scrollTop + (cel.bottom - cr.top - container.clientHeight) + 4
+        }
+
+        // Horizontal: ajusta se a célula está fora das bordas laterais
+        if (cel.left < cr.left) {
+          newLeft = container.scrollLeft + (cel.left - cr.left) - 4
+        } else if (cel.right > cr.right) {
+          newLeft = container.scrollLeft + (cel.right - cr.right) + 4
+        }
+
+        container.scrollTo({ top: newTop, left: newLeft, behavior: 'smooth' })
+      }
+    } else {
+      // Header match: scroll horizontal apenas (header é sticky, sempre visível verticalmente)
+      const headerEl = container.querySelector<HTMLElement>(`[data-find-col-key="${match.colKey}"]`)
+      headerEl?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+    }
+  }, [findAtivo, findMatches, modoLocalizar])
+
   // ── Itens selecionados (objetos) ──────────────────────────────────────────────
   const itensSelecionados = useMemo(
     () => dados.filter(item => selecionados.has(itemId(item))),
@@ -2084,6 +2128,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     <div
                       key={col.key}
                       role="columnheader"
+                      data-find-col-key={col.key}
                       className={`gtv-th gtv-th--center${classeSort}${classeFrozen}${classeDropBefore}${classeDropAfter}${classeThFindMatch}${classeThFindAtivo}`}
                       style={{ ...styleTh, opacity: isDragging ? 0.45 : undefined, cursor: isDraggable ? 'grab' : undefined }}
                       draggable={isDraggable}

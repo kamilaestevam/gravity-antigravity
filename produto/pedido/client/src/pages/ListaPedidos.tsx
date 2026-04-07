@@ -622,18 +622,24 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'quantidade_total_inicial_pedido',
     label: 'Qtd. Inicial do Pedido',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Inicial do Pedido',
     tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.quantidade_total_inicial_pedido != null
-          ? fmtQuantidade(row.quantidade_total_inicial_pedido, getCasas('quantidade_total_inicial_pedido', 0))
-          : '—'}
-      </span>
-    ),
+    getValorEditar: (row: Pedido) => ({
+      unit: 'UN',
+      quantity: Number(row.quantidade_total_inicial_pedido ?? 0),
+    }),
+    render: (_val: unknown, row: Pedido) => {
+      const num = Number(row.quantidade_total_inicial_pedido)
+      return (
+        <span className="gtv-celula-moeda">
+          {row.quantidade_total_inicial_pedido != null && !isNaN(num) ? fmtQuantidade(num, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+          <span className="gtv-celula-unidade-badge">UN</span>
+        </span>
+      )
+    },
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -2670,11 +2676,16 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Unitário do Produto — DUIMP',
     tooltipDescricao: 'Valor unitário do produto na moeda declarada na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_unitario_duimp != null ? row.valor_unitario_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const moeda = row.moeda_produto_duimp ?? 'USD'
+      const num = Number(row.valor_unitario_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {row.valor_unitario_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_total_condicao_venda_duimp',
@@ -2684,11 +2695,16 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Total na Condição de Venda — DUIMP',
     tooltipDescricao: 'Valor total do item na condição de venda declarada na DUIMP',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_total_condicao_venda_duimp != null ? row.valor_total_condicao_venda_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const moeda = row.moeda_produto_duimp ?? 'USD'
+      const num = Number(row.valor_total_condicao_venda_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {row.valor_total_condicao_venda_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_condicao_venda_brl_duimp',
@@ -2698,11 +2714,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor na Condição de Venda (R$) — DUIMP',
     tooltipDescricao: 'Valor do item na condição de venda convertido em reais',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_condicao_venda_brl_duimp != null ? row.valor_condicao_venda_brl_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_condicao_venda_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_condicao_venda_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_frete_internacional_brl_duimp',
@@ -2712,11 +2732,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor do Frete Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do frete internacional em reais para fins de valoração aduaneira',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_frete_internacional_brl_duimp != null ? row.valor_frete_internacional_brl_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_frete_internacional_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_frete_internacional_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_seguro_internacional_brl_duimp',
@@ -2726,11 +2750,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor do Seguro Internacional (R$) — DUIMP',
     tooltipDescricao: 'Valor do seguro internacional em reais para fins de valoração aduaneira',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_seguro_internacional_brl_duimp != null ? row.valor_seguro_internacional_brl_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_seguro_internacional_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_seguro_internacional_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_local_embarque_brl_duimp',
@@ -2740,11 +2768,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor no Local de Embarque (R$) — DUIMP',
     tooltipDescricao: 'Valor da mercadoria no local de embarque em reais',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_local_embarque_brl_duimp != null ? row.valor_local_embarque_brl_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_local_embarque_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_local_embarque_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_aduaneiro_brl_duimp',
@@ -2754,11 +2786,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Aduaneiro (R$) — DUIMP',
     tooltipDescricao: 'Valor aduaneiro calculado em reais, base para tributos de importação',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_aduaneiro_brl_duimp != null ? row.valor_aduaneiro_brl_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_aduaneiro_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_aduaneiro_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   // ── DUIMP — Cobertura cambial ────────────────────────────────────────────────
   {
@@ -2827,11 +2863,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor Devido do II (R$) — DUIMP',
     tooltipDescricao: 'Valor total do Imposto de Importação devido',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_devido_ii_duimp != null ? row.valor_devido_ii_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_devido_ii_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_devido_ii_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_recolher_ii_duimp',
@@ -2841,11 +2881,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do II (R$) — DUIMP',
     tooltipDescricao: 'Valor efetivo do Imposto de Importação a recolher (deduzidas suspensões)',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_recolher_ii_duimp != null ? row.valor_recolher_ii_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_ii_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_ii_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   // ── DUIMP — IPI ─────────────────────────────────────────────────────────────
   {
@@ -2884,11 +2928,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do IPI (R$) — DUIMP',
     tooltipDescricao: 'Valor do IPI a recolher',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_recolher_ipi_duimp != null ? row.valor_recolher_ipi_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_ipi_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_ipi_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   // ── DUIMP — PIS ─────────────────────────────────────────────────────────────
   {
@@ -2927,11 +2975,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do PIS (R$) — DUIMP',
     tooltipDescricao: 'Valor do PIS/PASEP a recolher',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_recolher_pis_duimp != null ? row.valor_recolher_pis_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_pis_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_pis_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   // ── DUIMP — COFINS ──────────────────────────────────────────────────────────
   {
@@ -2970,11 +3022,15 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Valor a Recolher do COFINS (R$) — DUIMP',
     tooltipDescricao: 'Valor do COFINS a recolher',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.valor_recolher_cofins_duimp != null ? row.valor_recolher_cofins_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_cofins_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_cofins_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
   },
   // ── DUIMP — Tratamento administrativo ───────────────────────────────────────
   {

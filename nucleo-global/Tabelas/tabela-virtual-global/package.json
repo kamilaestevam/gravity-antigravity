@@ -8,6 +8,7 @@
   "dependencies": {
     "@nucleo/campo-calendario-global": "*",
     "@nucleo/modal-tabela-moeda": "*",
+    "@nucleo/modal-tabela-unidades": "*",
     "@nucleo/tooltip-global": "*",
     "@nucleo/select-colunas-global": "*",
     "@nucleo/gabi-field-icon-global": "*"

@@ -249,13 +249,35 @@
 /* Célula pai / filho com match */
 .gtv-celula--find-match {
   background: rgba(250, 204, 21, 0.14) !important;
+  position: relative;
+  /* isolation cria stacking context sem elevar z-index da célula,
+     evitando que ::before vaze acima do header sticky */
+  isolation: isolate;
+}
+
+/* Borda de match visível ACIMA de conteúdo interno (badges, ícones) */
+.gtv-celula--find-match::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .gtv-celula--find-match-ativo {
   background: rgba(250, 204, 21, 0.42) !important;
-  outline: 2px solid rgba(250, 204, 21, 0.75);
-  outline-offset: -2px;
   position: relative;
+  isolation: isolate;
+}
+
+/* Borda de match ativo visível ACIMA de conteúdo interno (badges, ícones) */
+.gtv-celula--find-match-ativo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(250, 204, 21, 0.9);
+  pointer-events: none;
   z-index: 1;
 }
 
@@ -1439,6 +1461,11 @@
 }
 .gtv-celula-moeda-badge {
   flex-shrink: 0;
+}
+.gtv-celula-unidade-badge {
+  flex-shrink: 0;
+  font-size: 0.75em;
+  order: 1;
 }
 
 .gtv-edit-moeda-item:hover .gtv-edit-moeda-desc,

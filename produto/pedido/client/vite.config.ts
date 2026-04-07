@@ -46,6 +46,7 @@ export default defineConfig({
       '@nucleo/view-toggle-global':                nucleo('Layout/view-toggle-global/src/index.ts'),
       // ── Modais ──
       '@nucleo/modal-tabela-moeda':                nucleo('Modais/modal-tabela-moeda/src/index.ts'),
+      '@nucleo/modal-tabela-unidades':             nucleo('Modais/modal-tabela-unidades/src/index.ts'),
       '@nucleo/modal-global':                      nucleo('Modais/modal-global/src/index.ts'),
       '@nucleo/modal-formulario-global':           nucleo('Modais/modal-formulario-global/src/index.ts'),
       '@nucleo/modal-formulario-abas-global':      nucleo('Modais/modal-formulario-abas-global/src/index.ts'),

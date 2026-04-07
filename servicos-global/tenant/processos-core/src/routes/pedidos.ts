@@ -140,9 +140,14 @@ export function mapItem(item: any): any {
 export function mapPedido(pedido: any): any {
   if (!pedido) return pedido
   const itens = Array.isArray(pedido.itens) ? pedido.itens.map(mapItem) : pedido.itens
+  const det = (pedido.detalhes_operacionais as Record<string, unknown> | null) ?? {}
   return {
     ...pedido,
     itens,
+    // Campos armazenados em detalhes_operacionais → surfaçados como top-level
+    exportador_nome: (det.exportador_nome as string | null | undefined) ?? null,
+    importador_nome: (det.importador_nome as string | null | undefined) ?? null,
+    fabricante_nome: (det.fabricante_nome as string | null | undefined) ?? null,
     // Alias: Prisma usa quantidade_total_pedido; frontend espera quantidade_total_inicial_pedido
     quantidade_total_inicial_pedido: pedido.quantidade_total_pedido ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
@@ -489,6 +494,10 @@ const CAMPOS_EDITAVEIS = new Set([
   'referencia_importador',
   'referencia_exportador',
   'referencia_fabricante',
+  // exportador_nome e importador_nome: validação condicional por tipo_operacao feita no handler
+  'exportador_nome',
+  'importador_nome',
+  'fabricante_nome',
   'incoterm',
   'moeda_pedido',
   'cobertura_cambial',
@@ -498,14 +507,14 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_emissao_pedido',
   'campos_custom',
   'unidade_comercializada_pedido',
+  // Aliases do frontend — mapeados para campos Prisma no handler
+  'quantidade_total_inicial_pedido',
+  // Editável diretamente — divergência sinalizada pelo sistema de alertas
+  'valor_total_pedido',
 ])
 
-// Campos cujo valor é sempre recalculado a partir dos itens (valor enviado pelo cliente é ignorado)
-// valor_total_pedido e quantidade_total_inicial_pedido → persistidos no Prisma após recálculo
-// quantidade_pronta_itens_pedido_total, peso_*_total_pedido, cubagem_total_pedido → virtuais, não persistidos
+// Campos virtuais calculados a partir dos itens (não persistidos — ignorar valor do cliente)
 const CAMPOS_RECALCULAVEIS = new Set([
-  'valor_total_pedido',
-  'quantidade_total_inicial_pedido',
   'quantidade_pronta_itens_pedido_total',
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
@@ -515,7 +524,6 @@ const CAMPOS_RECALCULAVEIS = new Set([
 const editarCampoSchema = z.object({
   campo: z.string().min(1),
   valor: z.unknown(),
-  updated_at: z.string().datetime(),
 })
 
 pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: NextFunction) => {
@@ -525,7 +533,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
     }
 
-    const { campo, valor, updated_at } = result.data
+    const { campo, valor } = result.data
 
     if (!CAMPOS_EDITAVEIS.has(campo) && !CAMPOS_RECALCULAVEIS.has(campo)) {
       throw new AppError(400, `Campo "${campo}" nao pode ser editado inline. Campos permitidos: ${[...CAMPOS_EDITAVEIS, ...CAMPOS_RECALCULAVEIS].join(', ')}`)
@@ -542,17 +550,12 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       throw new AppError(404, 'Pedido nao encontrado')
     }
 
-    // Verificar conflito otimista de atualização
-    const updatedAtBanco = pedido.updated_at.toISOString()
-    const updatedAtCliente = new Date(updated_at).toISOString()
-    if (updatedAtBanco !== updatedAtCliente) {
-      return res.status(409).json({
-        error: {
-          message: 'Conflito: pedido foi modificado por outro usuario',
-          valor_atual: (pedido as Record<string, unknown>)[campo],
-          updated_at_atual: updatedAtBanco,
-        },
-      })
+    // Validação por tipo_operacao para campos de parceiros
+    if (campo === 'exportador_nome' && pedido.tipo_operacao === 'exportacao') {
+      throw new AppError(400, 'exportador_nome nao pode ser editado em pedidos de exportacao — vem do Configurador')
+    }
+    if (campo === 'importador_nome' && pedido.tipo_operacao === 'importacao') {
+      throw new AppError(400, 'importador_nome nao pode ser editado em pedidos de importacao — vem do Configurador')
     }
 
     // ── Campos recalculados a partir dos itens (valor do cliente ignorado) ──────
@@ -563,15 +566,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
       const dadosRecalc: Record<string, unknown> = {}
 
-      if (campo === 'valor_total_pedido') {
-        const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_item ?? 0), 0)
-        const casas = pedido.casas_decimais_total_pedido ?? 2
-        dadosRecalc.valor_total_pedido = parseFloat(soma.toFixed(casas))
-      } else if (campo === 'quantidade_total_inicial_pedido') {
-        const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_pedido ?? 0), 0)
-        const casas = pedido.casas_decimais_quantidade_total_pedido ?? 2
-        dadosRecalc.quantidade_total_pedido = parseFloat(soma.toFixed(casas))
-      } else if (campo === 'peso_liquido_total_pedido') {
+      if (campo === 'peso_liquido_total_pedido') {
         const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario ?? 0) * Number(i.quantidade_inicial_pedido ?? 0), 0)
         const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
         dadosRecalc.peso_liquido_total_pedido = parseFloat(soma.toFixed(casas))
@@ -610,6 +605,17 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
         ? pedido.campos_custom as Record<string, unknown>
         : {}
       dadosUpdate = { campos_custom: { ...customAtual, ...(valor as Record<string, unknown>) } }
+    } else if (campo === 'exportador_nome' || campo === 'importador_nome' || campo === 'fabricante_nome') {
+      // Armazenados em detalhes_operacionais — merge para não perder outros campos
+      const detAtual = (typeof pedido.detalhes_operacionais === 'object' && pedido.detalhes_operacionais !== null)
+        ? pedido.detalhes_operacionais as Record<string, unknown>
+        : {}
+      dadosUpdate = { detalhes_operacionais: { ...detAtual, [campo]: valor } }
+    } else if (campo === 'quantidade_total_inicial_pedido') {
+      // Alias do frontend → campo Prisma real
+      dadosUpdate = { quantidade_total_pedido: typeof valor === 'number' ? valor : Number(valor) || 0 }
+    } else if (campo === 'valor_total_pedido') {
+      dadosUpdate = { valor_total_pedido: typeof valor === 'number' ? valor : Number(valor) || 0 }
     } else {
       dadosUpdate = { [campo]: valor }
     }

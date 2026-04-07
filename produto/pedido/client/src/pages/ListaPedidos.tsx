@@ -65,7 +65,9 @@ import {
   pedidoDuplicarApi,
   pedidoExcluirApi,
   colunasUsuarioApi,
+  configRegrasApi,
 } from '../shared/api'
+import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
 import { ModalConsolidar } from '../components/ModalConsolidar'
 import '../components/ModalConsolidar.css'
@@ -475,6 +477,9 @@ function getCasas(campo: string, padrao: number): number {
   return config[campo] ?? padrao
 }
 
+// ── Ref de alertas: carregado uma vez no mount, acessível pelos renders estáticos ──
+const _regrasAlertasRef: { current: RegrasConfigBackend | null } = { current: null }
+
 // ── Colunas pai (Pedido) ──────────────────────────────────────────────────────
 
 const COLUNAS_PAI: GTColuna<Pedido>[] = [
@@ -611,8 +616,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_pedido)
+      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_item?: number }).valor_total_item) || 0), 0)
+      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
+      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_valor_total_divergente ?? true)
       return (
-        <span className="gtv-celula-moeda">
+        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
           <span className="gtv-celula-moeda-badge">{moeda}</span>
           {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
@@ -633,8 +642,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     }),
     render: (_val: unknown, row: Pedido) => {
       const num = Number(row.quantidade_total_inicial_pedido)
+      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
+      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_quantidade_total_divergente ?? true)
       return (
-        <span className="gtv-celula-moeda">
+        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
           {row.quantidade_total_inicial_pedido != null && !isNaN(num) ? fmtQuantidade(num, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
           <span className="gtv-celula-unidade-badge">UN</span>
         </span>
@@ -4234,6 +4247,11 @@ export default function ListaPedidos() {
   }, [novoDropdownAberto])
 
   useEffect(() => { carregarInicial() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Carrega config de alertas uma vez (usada pelos renders estáticos via _regrasAlertasRef)
+  useEffect(() => {
+    configRegrasApi.obter().then(cfg => { _regrasAlertasRef.current = cfg }).catch(() => { /* silencioso */ })
+  }, [])
 
   // ── Mudar página ─────────────────────────────────────────────────────────────
   const handleMudarPagina = useCallback((pagina: number) => {

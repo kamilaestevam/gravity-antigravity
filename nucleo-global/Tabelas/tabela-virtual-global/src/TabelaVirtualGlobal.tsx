@@ -34,6 +34,7 @@ import type {
   GTPreferencias,
   GTValorMoeda,
   GTValorUnidade,
+  GTUnidadeOpcao,
 } from './tipos.js'
 import { BotaoCompletoExportar } from './BotaoCompletoExportar.js'
 
@@ -274,8 +275,11 @@ function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
 // ──────────────────────────────────────────────────────────────────────────────
 
 // Moedas e unidades padrão quando a coluna não especifica lista própria
-const MOEDAS_PADRAO = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU']
-const UNIDADES_PADRAO = ['UN', 'KG', 'G', 'TON', 'L', 'ML', 'M', 'M²', 'M³', 'CX', 'PC', 'PAR', 'DZ', 'CT', 'FD']
+const MOEDAS_PADRAO: GTUnidadeOpcao[] = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU']
+const UNIDADES_PADRAO: GTUnidadeOpcao[] = ['UN', 'KG', 'G', 'TON', 'L', 'ML', 'M', 'M²', 'M³', 'CX', 'PC', 'PAR', 'DZ', 'CT', 'FD']
+
+const getUnidadeSigla  = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.sigla
+const getUnidadeRotulo = (u: GTUnidadeOpcao) => typeof u === 'string' ? u : u.rotulo
 
 function formatarOverlayValor(val: unknown, tipo?: string, casasDecimais?: number): string {
   if (tipo === 'moeda' && val != null && typeof val === 'object') {
@@ -353,8 +357,8 @@ interface GTEditPopoverProps {
     colLabel: string
     colTipo?: string
     opcoes?: { valor: string; label: string }[]
-    moedas?: string[]
-    unidades?: string[]
+    moedas?: GTUnidadeOpcao[]
+    unidades?: GTUnidadeOpcao[]
     casasDecimais?: number
     gabiCampo?: string
     gabiEndpoint?: string
@@ -774,21 +778,31 @@ const GTEditPopover = memo(function GTEditPopover({
               </svg>
               <input
                 className="gtv-edit-custom-select-busca-input"
-                placeholder="Localizar..."
+                placeholder="Buscar..."
                 autoFocus
                 value={moedaBusca}
                 onChange={e => setMoedaBusca(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Escape') setMoedaAberta(false) }}
               />
             </div>
-            {listaMoedas.filter(m => m.toLowerCase().includes(moedaBusca.toLowerCase())).map(m => (
-              <button
-                key={m}
-                type="button"
-                className={`gtv-edit-custom-select-item${mv.currency === m ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                onClick={() => { onAtualizar({ ...mv, currency: m }); setMoedaAberta(false) }}
-              >{m}</button>
-            ))}
+            {listaMoedas
+              .filter(m => {
+                const q = moedaBusca.toLowerCase()
+                return getUnidadeSigla(m).toLowerCase().includes(q) || getUnidadeRotulo(m).toLowerCase().includes(q)
+              })
+              .map(m => {
+                const sigla  = getUnidadeSigla(m)
+                const rotulo = getUnidadeRotulo(m)
+                return (
+                  <button
+                    key={sigla}
+                    type="button"
+                    className={`gtv-edit-custom-select-item${mv.currency === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                    onClick={() => { onAtualizar({ ...mv, currency: sigla }); setMoedaAberta(false) }}
+                  >{rotulo}</button>
+                )
+              })
+            }
           </div>
         </>,
         document.body
@@ -812,21 +826,31 @@ const GTEditPopover = memo(function GTEditPopover({
               </svg>
               <input
                 className="gtv-edit-custom-select-busca-input"
-                placeholder="Localizar..."
+                placeholder="Buscar..."
                 autoFocus
                 value={unidadeBusca}
                 onChange={e => setUnidadeBusca(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Escape') setUnidadeAberta(false) }}
               />
             </div>
-            {listaUnidades.filter(u => u.toLowerCase().includes(unidadeBusca.toLowerCase())).map(u => (
-              <button
-                key={u}
-                type="button"
-                className={`gtv-edit-custom-select-item${uv.unit === u ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                onClick={() => { onAtualizar({ ...uv, unit: u }); setUnidadeAberta(false) }}
-              >{u}</button>
-            ))}
+            {listaUnidades
+              .filter(u => {
+                const q = unidadeBusca.toLowerCase()
+                return getUnidadeSigla(u).toLowerCase().includes(q) || getUnidadeRotulo(u).toLowerCase().includes(q)
+              })
+              .map(u => {
+                const sigla  = getUnidadeSigla(u)
+                const rotulo = getUnidadeRotulo(u)
+                return (
+                  <button
+                    key={sigla}
+                    type="button"
+                    className={`gtv-edit-custom-select-item${uv.unit === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
+                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false) }}
+                  >{rotulo}</button>
+                )
+              })
+            }
           </div>
         </>,
         document.body
@@ -928,6 +952,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     sortCampo && sortDir ? { campo: sortCampo, dir: sortDir } : null,
   )
 
+  // Sincroniza sortLocal quando os props mudam (ex: sort via popover de filtro)
+  useEffect(() => {
+    setSortLocal(sortCampo && sortDir ? { campo: sortCampo, dir: sortDir } : null)
+  }, [sortCampo, sortDir])
+
   const handleSort = useCallback(
     (campo: string) => {
       setSortLocal(prev => {
@@ -1001,94 +1030,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
   }, [colunas, preferencias, onSalvarPreferencias])
 
-  // ── Larguras de colunas (resize) ──────────────────────────────────────────────
-  const [larguraColunas, setLarguraColunas] = useState<Record<string, number>>(
-    () => preferencias?.larguras ?? {}
-  )
-  const largurasPref = preferencias?.larguras
-  useEffect(() => {
-    setLarguraColunas(largurasPref ?? {})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [largurasPref])
-
-  const [resizingCol, setResizingCol] = useState<{
-    key: string
-    startX: number
-    startWidth: number
-  } | null>(null)
-  const rafRef = useRef<number | null>(null)
-
-  // ── Auto-fit: mede largura real via canvas.measureText ───────────────────────
-  // Roda em useEffect após document.fonts.load garantir que Plus Jakarta Sans está carregada.
-  // Header medido com fonte bold 13px; células com regular 14px.
-  // Gateado por autoFitWidths vazio (não por ref) — resiste a HMR e remount.
-  const [autoFitWidths, setAutoFitWidths] = useState<Record<string, number>>({})
-
-  useEffect(() => {
-    if (dados.length === 0 || Object.keys(autoFitWidths).length > 0) return
-    const amostra = (dados as Record<string, unknown>[]).slice(0, 500)
-    const colSnapshot = colunas as GTColuna<unknown>[]
-    const autoFitText = (v: unknown): string => {
-      if (v == null) return ''
-      if (typeof v === 'string') return v
-      if (typeof v === 'number') return String(v)
-      if (typeof v === 'object') {
-        const obj = v as Record<string, unknown>
-        // GTValorMoeda / GTValorUnidade — extract the numeric value
-        if ('valor' in obj) return String(obj.valor ?? '')
-        return ''
-      }
-      return String(v)
-    }
-    Promise.all([
-      document.fonts.load("600 13px 'Plus Jakarta Sans'"),
-      document.fonts.load("400 14px 'Plus Jakarta Sans'"),
-    ]).then(() => {
-      const resultado: Record<string, number> = {}
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      for (const col of colSnapshot) {
-        if (col.autoFitDisabled) continue
-        let headerPx: number
-        let maxConteudoPx: number
-        if (ctx) {
-          // 40px padding (20px×2) + 16px sort icon + 14px filter btn + 8px folga
-          const iconSpace = 40 + (col.sortavel ? 16 : 0) + (col.filtravel ? 14 : 0) + 8
-          // letter-spacing: 0.07em no .gtv-th (13px) não é medido pelo canvas — compensar manualmente
-          const letterSpacingPx = col.label.length * (13 * 0.07)
-          ctx.font = "600 13px 'Plus Jakarta Sans', system-ui, sans-serif"
-          headerPx = ctx.measureText(col.label).width + letterSpacingPx + iconSpace
-          ctx.font = "400 14px 'Plus Jakarta Sans', system-ui, sans-serif"
-          maxConteudoPx = amostra.reduce((max, item) => {
-            const w = ctx.measureText(autoFitText(item[col.key])).width + 24
-            return w > max ? w : max
-          }, 0)
-        } else {
-          // Fallback SSR
-          headerPx = (col.label.length + 4) * 8
-          maxConteudoPx = amostra.reduce((max, item) => {
-            const len = autoFitText(item[col.key]).length * 8
-            return len > max ? len : max
-          }, 0)
-        }
-        resultado[col.key] = Math.min(Math.max(headerPx, maxConteudoPx), 1200)
-      }
-      setAutoFitWidths(resultado)
-    })
-  }, [dados, colunas, autoFitWidths])
-
-  const getColWidth = useCallback(
-    (col: GTColuna<unknown>): number => {
-      const saved = larguraColunas[col.key]
-      if (saved != null) return saved
-      const autoFit = autoFitWidths[col.key]
-      if (autoFit != null) return autoFit
-      if (typeof col.largura === 'number') return col.largura
-      if (typeof col.largura === 'string') return parseInt(col.largura, 10) || 150
-      return 150
-    },
-    [larguraColunas, autoFitWidths]
-  )
+  // ── Largura de coluna — usa col.largura definido estaticamente ───────────────
+  function getColWidth(col: GTColuna<unknown>): number {
+    if (typeof col.largura === 'number') return col.largura
+    if (typeof col.largura === 'string') return parseInt(col.largura, 10) || 150
+    return 150
+  }
 
   // ── Overlay de edição ─────────────────────────────────────────────────────────
   const [overlayInfo, setOverlayInfo] = useState<{
@@ -1125,7 +1072,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const expandW = onCarregarFilhos != null ? 40 : 0
     const acoesW  = acoes && acoes.length > 0 ? acoes.length * 32 + 16 : 0
     return colsW + checkW + expandW + acoesW
-  }, [colunasFiltradas, temSelecao, onCarregarFilhos, acoes, getColWidth])
+  }, [colunasFiltradas, temSelecao, onCarregarFilhos, acoes])
 
   /** left offset das colunas de dados frozen (após checkbox + expand) */
   const offsetFrozenDados = useMemo(() => {
@@ -1236,7 +1183,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSalvarPreferencias?.({
       ...(preferencias ?? {}),
       colunas_visiveis: ordem,
-      larguras: preferencias?.larguras,
     })
     setDragColKey(null); setDragOverKey(null)
   }, [dragColKey, colunasVisiveis, dropSide, onSalvarPreferencias, preferencias])
@@ -1464,50 +1410,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     else cancelarEdicaoPai()
     await aplicarSmartPaste(overlayInfo.id, overlayInfo.campo, overlayInfo.colTipo, valores, valorAtual, overlayInfo.isFilho)
   }, [overlayInfo, valorEditandoPai, valorEditandoFilho, cancelarEdicaoPai, cancelarEdicaoFilho, aplicarSmartPaste])
-
-  // ── Resize handle — mousemove/mouseup no document ─────────────────────────────
-  useEffect(() => {
-    if (!resizingCol) return
-
-    function onMouseMove(e: MouseEvent) {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
-      rafRef.current = requestAnimationFrame(() => {
-        const delta = e.clientX - resizingCol!.startX
-        const novaLargura = Math.max(60, resizingCol!.startWidth + delta)
-        setLarguraColunas(prev => ({ ...prev, [resizingCol!.key]: novaLargura }))
-      })
-    }
-
-    function onMouseUp(e: MouseEvent) {
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current)
-        rafRef.current = null
-      }
-      const delta = e.clientX - resizingCol.startX
-      const novaLargura = Math.max(60, resizingCol.startWidth + delta)
-      setLarguraColunas(prev => {
-        const novas = { ...prev, [resizingCol!.key]: novaLargura }
-        onSalvarPreferencias?.({
-          ...(preferencias ?? {}),
-          colunas_visiveis: colunasVisiveis,
-          larguras: novas,
-        })
-        return novas
-      })
-      setResizingCol(null)
-    }
-
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-    return () => {
-      document.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('mouseup', onMouseUp)
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current)
-        rafRef.current = null
-      }
-    }
-  }, [resizingCol, onSalvarPreferencias, preferencias, colunasVisiveis])
 
   // ─── Helpers find-in-page ────────────────────────────────────────────────────
 
@@ -2046,7 +1948,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
 
   return (
     <div
-      className={`gtv-container${resizingCol ? ' gtv-container--resizing' : ''}`}
+      className="gtv-container"
       role="region"
       aria-label={ariaLabel}
     >
@@ -2300,31 +2202,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       </svg>
                     </button>
                   )}
-                  {/* Resize handle */}
-                  <div
-                    className="gtv-th-resize-handle"
-                    onMouseDown={e => {
-                      e.stopPropagation()
-                      e.preventDefault()
-                      setResizingCol({ key: col.key, startX: e.clientX, startWidth: colWidth })
-                    }}
-                    onDoubleClick={e => {
-                      e.stopPropagation()
-                      // Reset para largura padrão
-                      setLarguraColunas(prev => {
-                        const novo = { ...prev }
-                        delete novo[col.key]
-                        return novo
-                      })
-                      if (onSalvarPreferencias && preferencias) {
-                        const novas = { ...larguraColunas }
-                        delete novas[col.key]
-                        onSalvarPreferencias({ ...preferencias, colunas_visiveis: colunasVisiveis, larguras: novas })
-                      }
-                    }}
-                    title="Arrastar para redimensionar · Duplo clique para resetar"
-                    aria-hidden="true"
-                  />
                 </div>
               )
             })}

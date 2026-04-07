@@ -15,7 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
-import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight } from '@phosphor-icons/react'
+import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type {
@@ -26,7 +26,7 @@ import type {
   OperacaoCampo,
   TipoCampoEdicao,
 } from '../shared/types'
-import { CAMPOS_BLOQUEADOS_PEDIDO, CAMPOS_BLOQUEADOS_ITEM, MOEDAS_ISO } from '../shared/types'
+import { CAMPOS_BLOQUEADOS_PEDIDO, CAMPOS_BLOQUEADOS_ITEM } from '../shared/types'
 import { pedidoEdicaoMassaApi } from '../shared/api'
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -45,26 +45,22 @@ interface DefinicaoCampo {
   tipo: TipoCampoEdicao
   nivel: 'pedido' | 'item'
   grupo?: string
-  opcoes?: { valor: string; rotulo: string }[]
+  // Se definido, o campo só aparece quando a condição for verdadeira para os pedidos selecionados
+  visivel?: (pedidos: Pedido[]) => boolean
 }
 
 const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   // Identificação
-  { campo: 'numero_pedido',  rotulo: 'Número do Pedido', tipo: 'texto',  nivel: 'pedido', grupo: 'Identificação' },
-  { campo: 'status',         rotulo: 'Status',           tipo: 'select', nivel: 'pedido', grupo: 'Identificação', opcoes: [
-    { valor: 'draft',         rotulo: 'Rascunho' },
-    { valor: 'aberto',        rotulo: 'Aberto' },
-    { valor: 'transferencia', rotulo: 'Em Andamento' },
-    { valor: 'consolidado',   rotulo: 'Consolidado' },
-    { valor: 'cancelado',     rotulo: 'Cancelado' },
-  ]},
-  { campo: 'tipo_operacao',  rotulo: 'Tipo de Operação', tipo: 'select', nivel: 'pedido', grupo: 'Identificação', opcoes: [
-    { valor: 'importacao', rotulo: 'Importação' },
-    { valor: 'exportacao', rotulo: 'Exportação' },
-  ]},
+  { campo: 'numero_pedido',                           rotulo: 'Número do Pedido',                       tipo: 'texto',  nivel: 'pedido', grupo: 'Identificação' },
+  { campo: 'tipo_operacao',                           rotulo: 'Tipo de Operação',                       tipo: 'select', nivel: 'pedido', grupo: 'Identificação' },
 
   // Exportador
-  { campo: 'exportador_nome',                         rotulo: 'Exportador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
+  // exportador_nome: editável somente em importacao (fornecedor estrangeiro)
+  { campo: 'exportador_nome',                         rotulo: 'Exportador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador',
+    visivel: (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'importacao') },
+  // importador_nome: editável somente em exportacao (cliente estrangeiro)
+  { campo: 'importador_nome',                         rotulo: 'Importador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Importador',
+    visivel: (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'exportacao') },
   { campo: 'id_exportador',                           rotulo: 'Exportador — ID',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'endereco_exportador',                     rotulo: 'Exportador — Endereço',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'pais_exportador',                         rotulo: 'Exportador — País',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
@@ -104,8 +100,6 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
 
   // Dados comerciais
   { campo: 'incoterm',                                rotulo: 'Incoterm',                               tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
-  { campo: 'moeda_pedido',                            rotulo: 'Moeda',                                  tipo: 'select', nivel: 'pedido', grupo: 'Comercial', opcoes: MOEDAS_ISO.map(m => ({ valor: m, rotulo: m })) },
-  { campo: 'unidade_comercializada_pedido',           rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'quantidade_volumes_pedido',               rotulo: 'Qtd. Volumes',                           tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'cobertura_cambial',                       rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'condicao_pagamento',                      rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
@@ -129,7 +123,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'porto_destino',                           rotulo: 'Porto Destino',                          tipo: 'texto',  nivel: 'pedido', grupo: 'Logística' },
 
   // Datas principais
-  { campo: 'data_emissao_pedido',                     rotulo: 'Data Emissão do Pedido',                 tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
+  { campo: 'data_emissao_pedido',                     rotulo: 'Data de Emissão',                        tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_embarque',                           rotulo: 'Data de Embarque',                       tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_prevista_pedido_pronto',             rotulo: 'Data Prevista — Pedido Pronto',          tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
   { campo: 'data_confirmada_pedido_pronto',           rotulo: 'Data Confirmada — Pedido Pronto',        tipo: 'data',   nivel: 'pedido', grupo: 'Datas' },
@@ -205,14 +199,7 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'quantidade_cancelada_item_pedido',        rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'casas_decimais_quantidade_item',           rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
-  // Unidade comercializada
-  { campo: 'unidade_comercializada_item',             rotulo: 'Unidade Comercializada',                 tipo: 'texto',  nivel: 'item', grupo: 'Unidades' },
-  { campo: 'unidade_estatistica',                     rotulo: 'Unidade Estatística',                    tipo: 'texto',  nivel: 'item', grupo: 'Unidades' },
-  { campo: 'quantidade_unidade_estatistica',          rotulo: 'Qtd. Unidade Estatística',               tipo: 'numero', nivel: 'item', grupo: 'Unidades' },
-
   // Financeiro
-  { campo: 'moeda_item',                              rotulo: 'Moeda (Item)',                           tipo: 'select', nivel: 'item', grupo: 'Financeiro', opcoes: MOEDAS_ISO.map(m => ({ valor: m, rotulo: m })) },
-  { campo: 'valor_por_unidade_item',                  rotulo: 'Valor por Unidade do Item',              tipo: 'numero', nivel: 'item', grupo: 'Financeiro' },
 
   // Pesos e cubagem
   { campo: 'peso_liquido_unitario',                   rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
@@ -245,6 +232,10 @@ const OPERACOES_POR_TIPO: Record<TipoCampoEdicao, { valor: OperacaoCampo; rotulo
     { valor: 'recuar_dias',  rotulo: 'Recuar dias' },
   ],
 }
+
+// Campos que exigem processamento individual por pedido (merge JSON no backend)
+// Deve espelhar CAMPOS_DETALHES_OPERACIONAIS em edicaoEmMassaService.ts
+const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set(['exportador_nome', 'importador_nome', 'fabricante_nome'])
 
 const OPERACAO_LABELS: Record<OperacaoCampo, string> = {
   substituir:   'Substituir por',
@@ -296,23 +287,12 @@ function inputPlaceholder(campo: CampoEmEdicao, pedidos: Pedido[]): string {
   return ''
 }
 
-function camposParaNivel(nivel: NivelEdicao): DefinicaoCampo[] {
-  if (nivel === 'pedido')   return CAMPOS_PEDIDO_EDITAVEIS
-  if (nivel === 'item')     return CAMPOS_ITEM_EDITAVEIS
-  return [...CAMPOS_PEDIDO_EDITAVEIS, ...CAMPOS_ITEM_EDITAVEIS]
-}
-
-function resolverRotuloCampo(campo: string, disponiveis: DefinicaoCampo[]): string {
-  return disponiveis.find(d => d.campo === campo)?.rotulo ?? campo
-}
-
-function resolverRotuloValor(campo: string, valor: string | number, disponiveis: DefinicaoCampo[]): string {
-  const def = disponiveis.find(d => d.campo === campo)
-  if (def?.opcoes) {
-    const opcao = def.opcoes.find(o => o.valor === String(valor))
-    if (opcao) return opcao.rotulo
-  }
-  return String(valor)
+function camposParaNivel(nivel: NivelEdicao, pedidos: Pedido[] = []): DefinicaoCampo[] {
+  const filtrar = (lista: DefinicaoCampo[]) =>
+    lista.filter(d => !d.visivel || d.visivel(pedidos))
+  if (nivel === 'pedido')   return filtrar(CAMPOS_PEDIDO_EDITAVEIS)
+  if (nivel === 'item')     return filtrar(CAMPOS_ITEM_EDITAVEIS)
+  return filtrar([...CAMPOS_PEDIDO_EDITAVEIS, ...CAMPOS_ITEM_EDITAVEIS])
 }
 
 function estasBloqueado(campo: string, nivel: 'pedido' | 'item'): boolean {
@@ -532,6 +512,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
                         onMouseEnter={() => setIndiceFocado(idx)}
                       >
                         <span className="modal-edicao-massa__combobox-item-rotulo">{item.rotulo}</span>
+                        <span className="modal-edicao-massa__combobox-item-campo">{item.campo}</span>
                       </li>
                     )
                   })}
@@ -666,7 +647,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
 
   // Inicializar com primeiro campo disponível
   useEffect(() => {
-    const disponiveis = camposParaNivel(nivel)
+    const disponiveis = camposParaNivel(nivel, pedidos)
     if (disponiveis.length > 0) {
       setCampos([criarCampoVazio(disponiveis[0])])
     }
@@ -728,7 +709,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
   // ── Handlers de campos ───────────────────────────────────────────────────────
 
   const handleAdicionarCampo = useCallback(() => {
-    const disponiveis = camposParaNivel(nivel)
+    const disponiveis = camposParaNivel(nivel, pedidos)
     if (disponiveis.length > 0) {
       setCampos(prev => [...prev, criarCampoVazio(disponiveis[0])])
     }
@@ -739,7 +720,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
   }, [])
 
   const handleMudarCampoDef = useCallback((uid: string, novoCampo: string) => {
-    const disponiveis = camposParaNivel(nivel)
+    const disponiveis = camposParaNivel(nivel, pedidos)
     const def = disponiveis.find(d => d.campo === novoCampo)
     if (!def) return
     setCampos(prev => prev.map(c => {
@@ -791,14 +772,9 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
     }
 
     try {
-      const resultado = await pedidoEdicaoMassaApi.confirmar(payload)
-      const todosDisponiveis = camposParaNivel(nivel)
-      const camposNomes = camposValidos.map(c => resolverRotuloCampo(c.campo, todosDisponiveis)).join(', ')
-      const qtd = resultado.pedidos_atualizados ?? pedidos.length
-      addNotification({ type: 'success', message: `${camposNomes} atualizado(s) em ${qtd} PO(s).`, duration: 4000 })
-      if (resultado.erros?.length > 0) {
-        addNotification({ type: 'error', message: `${resultado.erros.length} PO(s) com erro: ${resultado.erros[0].motivo}`, duration: 6000 })
-      }
+      await pedidoEdicaoMassaApi.confirmar(payload)
+      const camposNomes = camposValidos.map(c => c.campo).join(', ')
+      addNotification({ type: 'success', message: `${camposNomes} atualizado(s) em ${pedidos.length} PO(s).`, duration: 4000 })
       onConcluido()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao aplicar edição em massa'
@@ -812,7 +788,18 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
   // ── Render helpers ────────────────────────────────────────────────────────────
 
   const camposValidos = campos.filter(c => c.valor.trim() !== '')
-  const disponiveis = camposParaNivel(nivel)
+  const disponiveis = camposParaNivel(nivel, pedidos)
+
+  // Detecta caminho lento: espelha a lógica do backend (todosCamposPedidoSaoRapidos).
+  // Lento = qualquer campo com operação diferente de substituir, campo em
+  // detalhes_operacionais, ou qualquer campo de nível item.
+  const isCaminhoLento = camposValidos.some(c =>
+    c.nivel === 'item' ||
+    c.operacao !== 'substituir' ||
+    CAMPOS_DETALHES_OPERACIONAIS_LENTO.has(c.campo),
+  )
+  const estimadoSegundos = Math.max(5, Math.round(pedidos.length * 0.5))
+  const mostrarAvisoPerformance = isCaminhoLento && pedidos.length > 5
 
   const renderPasso1 = () => (
     <>
@@ -868,30 +855,16 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
 
                 {/* Input de valor */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {campo.tipo === 'select' && campo.operacao === 'substituir' ? (
-                    <select
-                      className="modal-edicao-massa__select"
-                      value={campo.valor}
-                      onChange={e => handleMudarValor(campo.uid, e.target.value)}
-                      aria-label={`Valor para ${campo.campo}`}
-                    >
-                      <option value="">Selecionar...</option>
-                      {disponiveis.find(d => d.campo === campo.campo)?.opcoes?.map(op => (
-                        <option key={op.valor} value={op.valor}>{op.rotulo}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      className="modal-edicao-massa__input"
-                      type={campo.tipo === 'data' && campo.operacao === 'substituir' ? 'date'
-                        : campo.tipo === 'numero' || campo.operacao !== 'substituir' ? 'number'
-                        : 'text'}
-                      value={campo.valor}
-                      onChange={e => handleMudarValor(campo.uid, e.target.value)}
-                      placeholder={placeholder || 'Novo valor...'}
-                      aria-label={`Valor para ${campo.campo}`}
-                    />
-                  )}
+                  <input
+                    className="modal-edicao-massa__input"
+                    type={campo.tipo === 'data' && campo.operacao === 'substituir' ? 'date'
+                      : campo.tipo === 'numero' || campo.operacao !== 'substituir' ? 'number'
+                      : 'text'}
+                    value={campo.valor}
+                    onChange={e => handleMudarValor(campo.uid, e.target.value)}
+                    placeholder={placeholder || 'Novo valor...'}
+                    aria-label={`Valor para ${campo.campo}`}
+                  />
                   {temMultiplos && (
                     <span className="modal-edicao-massa__badge-multiplos">
                       <Warning size={11} weight="fill" aria-hidden="true" />
@@ -961,11 +934,11 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
               <div className="modal-edicao-massa__preview-campos">
                 {preview.campos.map((c, i) => (
                   <div key={i} className="modal-edicao-massa__preview-campo">
-                    <span className="modal-edicao-massa__preview-campo-nome">{resolverRotuloCampo(c.campo, disponiveis)}</span>
+                    <span className="modal-edicao-massa__preview-campo-nome">{c.campo}</span>
                     <span className="modal-edicao-massa__preview-campo-op">
                       {OPERACAO_LABELS[c.operacao]}
                     </span>
-                    <span className="modal-edicao-massa__preview-campo-valor">{resolverRotuloValor(c.campo, c.valor, disponiveis)}</span>
+                    <span className="modal-edicao-massa__preview-campo-valor">{String(c.valor)}</span>
                     {c.multiplos_valores && (
                       <span className="modal-edicao-massa__badge-multiplos">
                         <Warning size={11} weight="fill" aria-hidden="true" />
@@ -1030,7 +1003,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
             <span className="modal-edicao-massa__confirmacao-item-op">
               {OPERACAO_LABELS[c.operacao]}
             </span>
-            <span className="modal-edicao-massa__confirmacao-item-valor">{resolverRotuloValor(c.campo, c.valor, disponiveis)}</span>
+            <span className="modal-edicao-massa__confirmacao-item-valor">{c.valor}</span>
             <span className="modal-edicao-massa__confirmacao-item-nivel">
               {c.nivel}
             </span>
@@ -1048,6 +1021,17 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
             {alerta}
           </div>
         ))
+      )}
+
+      {mostrarAvisoPerformance && (
+        <div className="modal-edicao-massa__alerta" role="note">
+          <Clock size={14} weight="fill" aria-hidden="true" style={{ flexShrink: 0 }} />
+          <span>
+            <strong>Operação demorada:</strong> {pedidos.length} pedidos com campos que precisam ser
+            processados individualmente. Estimativa: ~{estimadoSegundos} segundos.{' '}
+            <strong>Não feche a janela durante o processamento.</strong>
+          </span>
+        </div>
       )}
 
       {erroSalvar && (

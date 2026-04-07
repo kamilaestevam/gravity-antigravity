@@ -37,6 +37,14 @@ const CAMPOS_BLOQUEADOS_ITEM = new Set([
   'updated_at',
 ])
 
+// ── Campos armazenados em detalhes_operacionais — requerem merge em JSON ────────
+
+const CAMPOS_DETALHES_OPERACIONAIS = new Set([
+  'exportador_nome',
+  'importador_nome',
+  'fabricante_nome',
+])
+
 // ── Campos de quantidade — disparam recálculo de agregados ────────────────────
 
 const CAMPOS_QUANTIDADE_ITEM = new Set([
@@ -45,6 +53,22 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
   'quantidade_pronta_total',
   'quantidade_cancelada_item_pedido',
 ])
+
+// ── Tradução de aliases do frontend para campos reais do Prisma ───────────────
+// O mapItem() em pedidos.ts cria esses aliases na leitura. O service precisa
+// reverter antes de escrever/ler via Prisma, que só conhece os nomes do schema.
+
+const ALIAS_PARA_PRISMA: Record<string, string> = {
+  quantidade_inicial_item_pedido:  'quantidade_inicial_pedido',
+  quantidade_transferida_item:     'quantidade_transferida_pedido',
+  quantidade_pronta_total:         'quantidade_pronta_pedido',
+  quantidade_cancelada_item_pedido:'quantidade_cancelada_pedido',
+  saldo_item_pedido:               'quantidade_atual_pedido',
+}
+
+function traduzirCampoItem(campo: string): string {
+  return ALIAS_PARA_PRISMA[campo] ?? campo
+}
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
@@ -85,6 +109,23 @@ interface EdicaoMassaResultado {
   itens_atualizados: number
   campos_alterados: string[]
   erros: { pedido_id: string; motivo: string }[]
+}
+
+// ── Helpers de erro ───────────────────────────────────────────────────────────
+
+/**
+ * Converte erros do Prisma em mensagens legíveis para o usuário.
+ * P2002 = violação de unique constraint.
+ */
+function resolverMensagemErro(err: unknown): string {
+  if (typeof err === 'object' && err !== null && 'code' in err) {
+    const prismaErr = err as { code: string; meta?: { target?: string[] } }
+    if (prismaErr.code === 'P2002') {
+      const campos = prismaErr.meta?.target?.join(', ') ?? 'campo'
+      return `Valor duplicado: o campo "${campos}" já existe para outro pedido`
+    }
+  }
+  return err instanceof Error ? err.message : 'Erro desconhecido'
 }
 
 // ── Classe de erro — exportada para que o router use a mesma instância ────────
@@ -128,13 +169,16 @@ export class EdicaoEmMassaService {
 
       if (c.nivel === 'pedido') {
         pedidos.forEach((p: Record<string, unknown>) => {
-          valores.push(String(p[c.campo] ?? ''))
+          const valor = CAMPOS_DETALHES_OPERACIONAIS.has(c.campo)
+            ? ((p.detalhes_operacionais as Record<string, unknown> | null)?.[c.campo] ?? '')
+            : (p[c.campo] ?? '')
+          valores.push(String(valor))
         })
       } else {
         pedidos.forEach((p: Record<string, unknown>) => {
           const itens = (p.itens as Record<string, unknown>[]) ?? []
           itens.forEach(item => {
-            valores.push(String(item[c.campo] ?? ''))
+            valores.push(String(item[traduzirCampoItem(c.campo)] ?? ''))
           })
         })
       }
@@ -191,7 +235,39 @@ export class EdicaoEmMassaService {
     let itensAtualizados = 0
 
     const precisaRecalcularAgregados = camposItem.some(c => CAMPOS_QUANTIDADE_ITEM.has(c.campo))
+    const pedidoIds = (pedidos as Record<string, unknown>[]).map(p => p.id as string)
 
+    // ── CAMINHO RÁPIDO (updateMany) ───────────────────────────────────────────
+    // Condição: todos os campos de pedido são "substituir" em campos diretos do
+    // schema (não estão em detalhes_operacionais) e não há campos de item.
+    // Uma única query SQL atualiza todos os pedidos independente do volume.
+    const todosCamposPedidoSaoRapidos =
+      camposPedido.length > 0 &&
+      camposItem.length === 0 &&
+      camposPedido.every(c => c.operacao === 'substituir' && !CAMPOS_DETALHES_OPERACIONAIS.has(c.campo))
+
+    if (todosCamposPedidoSaoRapidos) {
+      const dadosUpdateMany: Record<string, unknown> = {}
+      for (const c of camposPedido) {
+        dadosUpdateMany[c.campo] = c.valor
+      }
+      await db.pedido.updateMany({
+        where: { id: { in: pedidoIds } },
+        data: dadosUpdateMany,
+      })
+      pedidosAtualizados = pedidos.length
+      return {
+        pedidos_atualizados: pedidosAtualizados,
+        itens_atualizados: 0,
+        campos_alterados: payload.campos.map(c => c.campo),
+        erros: [],
+      }
+    }
+
+    // ── CAMINHO LENTO (loop por pedido) ───────────────────────────────────────
+    // Campos com operação matemática (somar/subtrair/percentual), campos em
+    // detalhes_operacionais (merge JSON), ou campos de item.
+    // Timeout de 60s para suportar grandes volumes no Railway.
     await db.$transaction(async (tx: Record<string, unknown>) => {
       for (const pedido of pedidos as Record<string, unknown>[]) {
         const pedidoId = pedido.id as string
@@ -200,9 +276,27 @@ export class EdicaoEmMassaService {
           // Aplicar campos de nível pedido
           if (camposPedido.length > 0) {
             const dadosPedido: Record<string, unknown> = {}
+            let detalhesUpdate: Record<string, unknown> | null = null
+
             for (const c of camposPedido) {
-              dadosPedido[c.campo] = this.aplicarOperacao(pedido[c.campo], c.operacao, c.valor)
+              if (CAMPOS_DETALHES_OPERACIONAIS.has(c.campo)) {
+                // Campos armazenados em detalhes_operacionais — merge em JSON
+                if (detalhesUpdate === null) {
+                  const detAtual = (typeof pedido.detalhes_operacionais === 'object' && pedido.detalhes_operacionais !== null)
+                    ? pedido.detalhes_operacionais as Record<string, unknown>
+                    : {}
+                  detalhesUpdate = { ...detAtual }
+                }
+                detalhesUpdate[c.campo] = c.valor
+              } else {
+                dadosPedido[c.campo] = this.aplicarOperacao(pedido[c.campo], c.operacao, c.valor)
+              }
             }
+
+            if (detalhesUpdate !== null) {
+              dadosPedido.detalhes_operacionais = detalhesUpdate
+            }
+
             await (tx as Record<string, Record<string, unknown>>).pedido.update({
               where: { id: pedidoId },
               data: dadosPedido,
@@ -215,13 +309,16 @@ export class EdicaoEmMassaService {
             for (const item of itens) {
               const dadosItem: Record<string, unknown> = {}
               for (const c of camposItem) {
-                dadosItem[c.campo] = this.aplicarOperacao(item[c.campo], c.operacao, c.valor)
+                // Traduz alias do frontend (ex: 'quantidade_inicial_item_pedido')
+                // para o nome real do campo no Prisma/banco (ex: 'quantidade_inicial_pedido')
+                const campoPrisma = traduzirCampoItem(c.campo)
+                dadosItem[campoPrisma] = this.aplicarOperacao(item[campoPrisma], c.operacao, c.valor)
               }
-              await (tx as Record<string, Record<string, unknown>>).pedidoItem.update({
-                where: { id: item.id as string },
+              const resultado = await (tx as Record<string, Record<string, unknown>>).pedidoItem.update({
+                where: { id: item.id as string, tenant_id: tenantId },
                 data: dadosItem,
               })
-              itensAtualizados++
+              if (resultado) itensAtualizados++
             }
           }
 
@@ -230,11 +327,11 @@ export class EdicaoEmMassaService {
             await this.recalcularAgregados(tenantId, pedidoId, tx)
           }
 
-          pedidosAtualizados++
+          if (camposPedido.length > 0 || camposItem.length > 0) pedidosAtualizados++
         } catch (err: unknown) {
           erros.push({
             pedido_id: pedidoId,
-            motivo: err instanceof Error ? err.message : 'Erro desconhecido',
+            motivo: resolverMensagemErro(err),
           })
         }
       }
@@ -259,7 +356,7 @@ export class EdicaoEmMassaService {
         // Tabela de histórico pode não existir ainda — não bloquear a operação
         console.warn('[EdicaoEmMassa] Tabela pedidoHistorico não disponível, pulando audit trail')
       }
-    })
+    }, { timeout: 60000, maxWait: 10000 })
 
     return {
       pedidos_atualizados: pedidosAtualizados,
@@ -315,32 +412,33 @@ export class EdicaoEmMassaService {
     const itens = await tx.pedidoItem.findMany({
       where: { tenant_id: tenantId, pedido_id: pedidoId },
       select: {
-        quantidade_inicial_item_pedido: true,
-        quantidade_transferida_item: true,
+        quantidade_inicial_pedido: true,
+        quantidade_transferida_pedido: true,
         valor_por_unidade_item: true,
-        saldo_item_pedido: true,
+        quantidade_atual_pedido: true,
       },
     })
 
     const quantidadeInicialTotal = itens.reduce(
-      (acc: number, i: { quantidade_inicial_item_pedido: number }) => acc + (i.quantidade_inicial_item_pedido ?? 0),
+      (acc: number, i: { quantidade_inicial_pedido: number }) => acc + Number(i.quantidade_inicial_pedido ?? 0),
       0,
     )
     const quantidadeTransferidaTotal = itens.reduce(
-      (acc: number, i: { quantidade_transferida_item: number }) => acc + (i.quantidade_transferida_item ?? 0),
+      (acc: number, i: { quantidade_transferida_pedido: number }) => acc + Number(i.quantidade_transferida_pedido ?? 0),
       0,
     )
     const valorTotal = itens.reduce(
-      (acc: number, i: { valor_por_unidade_item: number | null; saldo_item_pedido: number }) =>
-        acc + ((i.valor_por_unidade_item ?? 0) * (i.saldo_item_pedido ?? 0)),
+      (acc: number, i: { valor_por_unidade_item: number | null; quantidade_atual_pedido: number }) =>
+        acc + ((i.valor_por_unidade_item ?? 0) * Number(i.quantidade_atual_pedido ?? 0)),
       0,
     )
 
+    // Pedido só tem quantidade_total_pedido e valor_total_pedido como agregados.
+    // quantidade_transferida_pedido existe apenas em PedidoItem, não no Pedido.
     await tx.pedido.update({
       where: { id: pedidoId },
       data: {
-        quantidade_total_inicial_pedido: quantidadeInicialTotal,
-        quantidade_transferida_total: quantidadeTransferidaTotal,
+        quantidade_total_pedido: quantidadeInicialTotal,
         valor_total_pedido: valorTotal,
       },
     })

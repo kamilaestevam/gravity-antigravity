@@ -133,7 +133,7 @@
   display: grid;
   grid-template-columns: 1fr 160px 1fr auto;
   gap: 8px;
-  align-items: center;
+  align-items: start;
 }
 
 .modal-edicao-massa__campo-label {
@@ -165,6 +165,178 @@
 .modal-edicao-massa__input::placeholder {
   color: var(--color-text-muted, #64748b);
 }
+
+/* ── Combobox de seleção de campo ──────────────────────────────────────────── */
+
+.modal-edicao-massa__combobox {
+  position: relative;
+  width: 100%;
+}
+
+.modal-edicao-massa__combobox-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  background-color: var(--color-surface-2, #0f172a);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+}
+
+.modal-edicao-massa__combobox-trigger:hover {
+  border-color: #475569;
+}
+
+.modal-edicao-massa__combobox[aria-expanded="true"] .modal-edicao-massa__combobox-trigger {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.modal-edicao-massa__combobox-valor {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-edicao-massa__combobox-badge {
+  font-size: 11px;
+  padding: 1px 5px;
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__combobox-caret {
+  flex-shrink: 0;
+  color: var(--color-text-muted, #64748b);
+  transition: transform 0.15s;
+}
+
+.modal-edicao-massa__combobox-caret--aberto {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.modal-edicao-massa__combobox-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--color-surface, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  max-height: 320px;
+  overflow: hidden;
+}
+
+/* Busca */
+.modal-edicao-massa__combobox-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__combobox-busca-icone {
+  color: var(--color-text-muted, #64748b);
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__combobox-busca-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--color-text-primary, #f1f5f9);
+  font-size: 13px;
+  padding: 0;
+}
+
+.modal-edicao-massa__combobox-busca-input::placeholder {
+  color: var(--color-text-muted, #64748b);
+}
+
+/* Lista */
+.modal-edicao-massa__combobox-lista {
+  flex: 1;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+/* Grupo */
+.modal-edicao-massa__combobox-grupo {
+  padding: 6px 10px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted, #64748b);
+}
+
+/* Item */
+.modal-edicao-massa__combobox-item {
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--color-text-secondary, #94a3b8);
+  cursor: pointer;
+  transition: background-color 0.1s, color 0.1s;
+  list-style: none;
+}
+
+.modal-edicao-massa__combobox-item:hover,
+.modal-edicao-massa__combobox-item--focado {
+  background-color: var(--color-surface-hover, #334155);
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-edicao-massa__combobox-item--selecionado {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  font-weight: 500;
+}
+
+.modal-edicao-massa__combobox-item-rotulo {
+  display: block;
+}
+
+/* Estado vazio */
+.modal-edicao-massa__combobox-vazio {
+  padding: 16px 10px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted, #64748b);
+}
+
+/* Contador */
+.modal-edicao-massa__combobox-contador {
+  padding: 6px 10px;
+  font-size: 11px;
+  color: var(--color-text-muted, #64748b);
+  border-top: 1px solid var(--color-border, #334155);
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* ── Fim do Combobox ─────────────────────────────────────────────────────────── */
 
 /* Botão remover campo */
 .modal-edicao-massa__remover-campo {
@@ -464,4 +636,129 @@
   width: 24px;
   height: 1px;
   background-color: var(--color-border, #334155);
+}
+
+/* De-Para por pedido — seção "Detalhe por pedido" */
+.modal-edicao-massa__depara {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-edicao-massa__depara-titulo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 2px;
+}
+
+.modal-edicao-massa__depara-campo {
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.modal-edicao-massa__depara-campo-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.4);
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary, #94a3b8);
+  font-size: 13px;
+  text-align: left;
+}
+
+.modal-edicao-massa__depara-campo-header:hover {
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.modal-edicao-massa__depara-campo-caret {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted, #64748b);
+}
+
+.modal-edicao-massa__depara-campo-nome {
+  font-weight: 500;
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.modal-edicao-massa__depara-campo-stat {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--color-text-muted, #64748b);
+}
+
+.modal-edicao-massa__depara-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border, #334155);
+}
+
+.modal-edicao-massa__depara-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+}
+
+.modal-edicao-massa__depara-linha:last-child {
+  border-bottom: none;
+}
+
+.modal-edicao-massa__depara-linha--igual {
+  opacity: 0.5;
+}
+
+.modal-edicao-massa__depara-linha-numero {
+  font-weight: 500;
+  color: var(--color-text-secondary, #94a3b8);
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__depara-linha-de {
+  color: var(--color-text-muted, #64748b);
+  font-family: ui-monospace, monospace;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-edicao-massa__depara-linha-seta {
+  color: var(--color-text-muted, #64748b);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__depara-linha-para {
+  color: #60a5fa;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+  flex-shrink: 0;
+}
+
+.modal-edicao-massa__depara-linha-para--igual {
+  color: var(--color-text-muted, #64748b);
+  font-weight: 400;
+}
+
+.modal-edicao-massa__depara-linha-badge {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--color-text-muted, #64748b);
+  padding: 1px 6px;
+  background: rgba(51, 65, 85, 0.4);
+  border-radius: 3px;
+  flex-shrink: 0;
 }

@@ -98,6 +98,11 @@ export type RateLimitMetric = $Result.DefaultSelection<Prisma.$RateLimitMetricPa
  * 
  */
 export type ServiceHealth = $Result.DefaultSelection<Prisma.$ServiceHealthPayload>
+/**
+ * Model TaxaCambio
+ * 
+ */
+export type TaxaCambio = $Result.DefaultSelection<Prisma.$TaxaCambioPayload>
 
 /**
  * Enums
@@ -511,6 +516,16 @@ export class PrismaClient<
     * ```
     */
   get serviceHealth(): Prisma.ServiceHealthDelegate<ExtArgs>;
+
+  /**
+   * `prisma.taxaCambio`: Exposes CRUD operations for the **TaxaCambio** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TaxaCambios
+    * const taxaCambios = await prisma.taxaCambio.findMany()
+    * ```
+    */
+  get taxaCambio(): Prisma.TaxaCambioDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -968,7 +983,8 @@ export namespace Prisma {
     SupplierTenantAccess: 'SupplierTenantAccess',
     SecurityEvent: 'SecurityEvent',
     RateLimitMetric: 'RateLimitMetric',
-    ServiceHealth: 'ServiceHealth'
+    ServiceHealth: 'ServiceHealth',
+    TaxaCambio: 'TaxaCambio'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -984,7 +1000,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "companyProduct" | "product" | "priceTier" | "specialNegotiation" | "stripeEvent" | "supplierTenantAccess" | "securityEvent" | "rateLimitMetric" | "serviceHealth"
+      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "companyProduct" | "product" | "priceTier" | "specialNegotiation" | "stripeEvent" | "supplierTenantAccess" | "securityEvent" | "rateLimitMetric" | "serviceHealth" | "taxaCambio"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2175,6 +2191,76 @@ export namespace Prisma {
           count: {
             args: Prisma.ServiceHealthCountArgs<ExtArgs>
             result: $Utils.Optional<ServiceHealthCountAggregateOutputType> | number
+          }
+        }
+      }
+      TaxaCambio: {
+        payload: Prisma.$TaxaCambioPayload<ExtArgs>
+        fields: Prisma.TaxaCambioFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TaxaCambioFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TaxaCambioFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>
+          }
+          findFirst: {
+            args: Prisma.TaxaCambioFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TaxaCambioFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>
+          }
+          findMany: {
+            args: Prisma.TaxaCambioFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>[]
+          }
+          create: {
+            args: Prisma.TaxaCambioCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>
+          }
+          createMany: {
+            args: Prisma.TaxaCambioCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TaxaCambioCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>[]
+          }
+          delete: {
+            args: Prisma.TaxaCambioDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>
+          }
+          update: {
+            args: Prisma.TaxaCambioUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>
+          }
+          deleteMany: {
+            args: Prisma.TaxaCambioDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TaxaCambioUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TaxaCambioUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TaxaCambioPayload>
+          }
+          aggregate: {
+            args: Prisma.TaxaCambioAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTaxaCambio>
+          }
+          groupBy: {
+            args: Prisma.TaxaCambioGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TaxaCambioGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TaxaCambioCountArgs<ExtArgs>
+            result: $Utils.Optional<TaxaCambioCountAggregateOutputType> | number
           }
         }
       }
@@ -11542,6 +11628,7 @@ export namespace Prisma {
     extra_user_price: Decimal | null
     helpdesk_hours: number | null
     extra_hour_price: Decimal | null
+    gabi_quota_mensal: number | null
   }
 
   export type ProductSumAggregateOutputType = {
@@ -11553,6 +11640,7 @@ export namespace Prisma {
     extra_user_price: Decimal | null
     helpdesk_hours: number | null
     extra_hour_price: Decimal | null
+    gabi_quota_mensal: number | null
   }
 
   export type ProductMinAggregateOutputType = {
@@ -11579,6 +11667,7 @@ export namespace Prisma {
     helpdesk_hours: number | null
     extra_hour_price: Decimal | null
     extra_hour_currency: string | null
+    gabi_quota_mensal: number | null
     backend_module: string | null
     target_audience: string | null
     created_at: Date | null
@@ -11609,6 +11698,7 @@ export namespace Prisma {
     helpdesk_hours: number | null
     extra_hour_price: Decimal | null
     extra_hour_currency: string | null
+    gabi_quota_mensal: number | null
     backend_module: string | null
     target_audience: string | null
     created_at: Date | null
@@ -11639,6 +11729,7 @@ export namespace Prisma {
     helpdesk_hours: number
     extra_hour_price: number
     extra_hour_currency: number
+    gabi_quota_mensal: number
     backend_module: number
     target_audience: number
     created_at: number
@@ -11656,6 +11747,7 @@ export namespace Prisma {
     extra_user_price?: true
     helpdesk_hours?: true
     extra_hour_price?: true
+    gabi_quota_mensal?: true
   }
 
   export type ProductSumAggregateInputType = {
@@ -11667,6 +11759,7 @@ export namespace Prisma {
     extra_user_price?: true
     helpdesk_hours?: true
     extra_hour_price?: true
+    gabi_quota_mensal?: true
   }
 
   export type ProductMinAggregateInputType = {
@@ -11693,6 +11786,7 @@ export namespace Prisma {
     helpdesk_hours?: true
     extra_hour_price?: true
     extra_hour_currency?: true
+    gabi_quota_mensal?: true
     backend_module?: true
     target_audience?: true
     created_at?: true
@@ -11723,6 +11817,7 @@ export namespace Prisma {
     helpdesk_hours?: true
     extra_hour_price?: true
     extra_hour_currency?: true
+    gabi_quota_mensal?: true
     backend_module?: true
     target_audience?: true
     created_at?: true
@@ -11753,6 +11848,7 @@ export namespace Prisma {
     helpdesk_hours?: true
     extra_hour_price?: true
     extra_hour_currency?: true
+    gabi_quota_mensal?: true
     backend_module?: true
     target_audience?: true
     created_at?: true
@@ -11870,6 +11966,7 @@ export namespace Prisma {
     helpdesk_hours: number
     extra_hour_price: Decimal | null
     extra_hour_currency: string
+    gabi_quota_mensal: number
     backend_module: string | null
     target_audience: string | null
     created_at: Date
@@ -11919,6 +12016,7 @@ export namespace Prisma {
     helpdesk_hours?: boolean
     extra_hour_price?: boolean
     extra_hour_currency?: boolean
+    gabi_quota_mensal?: boolean
     backend_module?: boolean
     target_audience?: boolean
     created_at?: boolean
@@ -11952,6 +12050,7 @@ export namespace Prisma {
     helpdesk_hours?: boolean
     extra_hour_price?: boolean
     extra_hour_currency?: boolean
+    gabi_quota_mensal?: boolean
     backend_module?: boolean
     target_audience?: boolean
     created_at?: boolean
@@ -11982,6 +12081,7 @@ export namespace Prisma {
     helpdesk_hours?: boolean
     extra_hour_price?: boolean
     extra_hour_currency?: boolean
+    gabi_quota_mensal?: boolean
     backend_module?: boolean
     target_audience?: boolean
     created_at?: boolean
@@ -12025,6 +12125,7 @@ export namespace Prisma {
       helpdesk_hours: number
       extra_hour_price: Prisma.Decimal | null
       extra_hour_currency: string
+      gabi_quota_mensal: number
       backend_module: string | null
       target_audience: string | null
       created_at: Date
@@ -12447,6 +12548,7 @@ export namespace Prisma {
     readonly helpdesk_hours: FieldRef<"Product", 'Int'>
     readonly extra_hour_price: FieldRef<"Product", 'Decimal'>
     readonly extra_hour_currency: FieldRef<"Product", 'String'>
+    readonly gabi_quota_mensal: FieldRef<"Product", 'Int'>
     readonly backend_module: FieldRef<"Product", 'String'>
     readonly target_audience: FieldRef<"Product", 'String'>
     readonly created_at: FieldRef<"Product", 'DateTime'>
@@ -19494,6 +19596,970 @@ export namespace Prisma {
 
 
   /**
+   * Model TaxaCambio
+   */
+
+  export type AggregateTaxaCambio = {
+    _count: TaxaCambioCountAggregateOutputType | null
+    _avg: TaxaCambioAvgAggregateOutputType | null
+    _sum: TaxaCambioSumAggregateOutputType | null
+    _min: TaxaCambioMinAggregateOutputType | null
+    _max: TaxaCambioMaxAggregateOutputType | null
+  }
+
+  export type TaxaCambioAvgAggregateOutputType = {
+    compra: Decimal | null
+    venda: Decimal | null
+  }
+
+  export type TaxaCambioSumAggregateOutputType = {
+    compra: Decimal | null
+    venda: Decimal | null
+  }
+
+  export type TaxaCambioMinAggregateOutputType = {
+    id: string | null
+    moeda: string | null
+    compra: Decimal | null
+    venda: Decimal | null
+    data_cotacao: Date | null
+    hora_cotacao: string | null
+    boletim: string | null
+    fonte: string | null
+    criado_em: Date | null
+  }
+
+  export type TaxaCambioMaxAggregateOutputType = {
+    id: string | null
+    moeda: string | null
+    compra: Decimal | null
+    venda: Decimal | null
+    data_cotacao: Date | null
+    hora_cotacao: string | null
+    boletim: string | null
+    fonte: string | null
+    criado_em: Date | null
+  }
+
+  export type TaxaCambioCountAggregateOutputType = {
+    id: number
+    moeda: number
+    compra: number
+    venda: number
+    data_cotacao: number
+    hora_cotacao: number
+    boletim: number
+    fonte: number
+    criado_em: number
+    _all: number
+  }
+
+
+  export type TaxaCambioAvgAggregateInputType = {
+    compra?: true
+    venda?: true
+  }
+
+  export type TaxaCambioSumAggregateInputType = {
+    compra?: true
+    venda?: true
+  }
+
+  export type TaxaCambioMinAggregateInputType = {
+    id?: true
+    moeda?: true
+    compra?: true
+    venda?: true
+    data_cotacao?: true
+    hora_cotacao?: true
+    boletim?: true
+    fonte?: true
+    criado_em?: true
+  }
+
+  export type TaxaCambioMaxAggregateInputType = {
+    id?: true
+    moeda?: true
+    compra?: true
+    venda?: true
+    data_cotacao?: true
+    hora_cotacao?: true
+    boletim?: true
+    fonte?: true
+    criado_em?: true
+  }
+
+  export type TaxaCambioCountAggregateInputType = {
+    id?: true
+    moeda?: true
+    compra?: true
+    venda?: true
+    data_cotacao?: true
+    hora_cotacao?: true
+    boletim?: true
+    fonte?: true
+    criado_em?: true
+    _all?: true
+  }
+
+  export type TaxaCambioAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TaxaCambio to aggregate.
+     */
+    where?: TaxaCambioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaCambios to fetch.
+     */
+    orderBy?: TaxaCambioOrderByWithRelationInput | TaxaCambioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TaxaCambioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaCambios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaCambios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TaxaCambios
+    **/
+    _count?: true | TaxaCambioCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TaxaCambioAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TaxaCambioSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TaxaCambioMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TaxaCambioMaxAggregateInputType
+  }
+
+  export type GetTaxaCambioAggregateType<T extends TaxaCambioAggregateArgs> = {
+        [P in keyof T & keyof AggregateTaxaCambio]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTaxaCambio[P]>
+      : GetScalarType<T[P], AggregateTaxaCambio[P]>
+  }
+
+
+
+
+  export type TaxaCambioGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TaxaCambioWhereInput
+    orderBy?: TaxaCambioOrderByWithAggregationInput | TaxaCambioOrderByWithAggregationInput[]
+    by: TaxaCambioScalarFieldEnum[] | TaxaCambioScalarFieldEnum
+    having?: TaxaCambioScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TaxaCambioCountAggregateInputType | true
+    _avg?: TaxaCambioAvgAggregateInputType
+    _sum?: TaxaCambioSumAggregateInputType
+    _min?: TaxaCambioMinAggregateInputType
+    _max?: TaxaCambioMaxAggregateInputType
+  }
+
+  export type TaxaCambioGroupByOutputType = {
+    id: string
+    moeda: string
+    compra: Decimal
+    venda: Decimal
+    data_cotacao: Date
+    hora_cotacao: string | null
+    boletim: string
+    fonte: string
+    criado_em: Date
+    _count: TaxaCambioCountAggregateOutputType | null
+    _avg: TaxaCambioAvgAggregateOutputType | null
+    _sum: TaxaCambioSumAggregateOutputType | null
+    _min: TaxaCambioMinAggregateOutputType | null
+    _max: TaxaCambioMaxAggregateOutputType | null
+  }
+
+  type GetTaxaCambioGroupByPayload<T extends TaxaCambioGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TaxaCambioGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TaxaCambioGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TaxaCambioGroupByOutputType[P]>
+            : GetScalarType<T[P], TaxaCambioGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TaxaCambioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    moeda?: boolean
+    compra?: boolean
+    venda?: boolean
+    data_cotacao?: boolean
+    hora_cotacao?: boolean
+    boletim?: boolean
+    fonte?: boolean
+    criado_em?: boolean
+  }, ExtArgs["result"]["taxaCambio"]>
+
+  export type TaxaCambioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    moeda?: boolean
+    compra?: boolean
+    venda?: boolean
+    data_cotacao?: boolean
+    hora_cotacao?: boolean
+    boletim?: boolean
+    fonte?: boolean
+    criado_em?: boolean
+  }, ExtArgs["result"]["taxaCambio"]>
+
+  export type TaxaCambioSelectScalar = {
+    id?: boolean
+    moeda?: boolean
+    compra?: boolean
+    venda?: boolean
+    data_cotacao?: boolean
+    hora_cotacao?: boolean
+    boletim?: boolean
+    fonte?: boolean
+    criado_em?: boolean
+  }
+
+
+  export type $TaxaCambioPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TaxaCambio"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      moeda: string
+      compra: Prisma.Decimal
+      venda: Prisma.Decimal
+      data_cotacao: Date
+      hora_cotacao: string | null
+      boletim: string
+      fonte: string
+      criado_em: Date
+    }, ExtArgs["result"]["taxaCambio"]>
+    composites: {}
+  }
+
+  type TaxaCambioGetPayload<S extends boolean | null | undefined | TaxaCambioDefaultArgs> = $Result.GetResult<Prisma.$TaxaCambioPayload, S>
+
+  type TaxaCambioCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<TaxaCambioFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: TaxaCambioCountAggregateInputType | true
+    }
+
+  export interface TaxaCambioDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TaxaCambio'], meta: { name: 'TaxaCambio' } }
+    /**
+     * Find zero or one TaxaCambio that matches the filter.
+     * @param {TaxaCambioFindUniqueArgs} args - Arguments to find a TaxaCambio
+     * @example
+     * // Get one TaxaCambio
+     * const taxaCambio = await prisma.taxaCambio.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TaxaCambioFindUniqueArgs>(args: SelectSubset<T, TaxaCambioFindUniqueArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one TaxaCambio that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {TaxaCambioFindUniqueOrThrowArgs} args - Arguments to find a TaxaCambio
+     * @example
+     * // Get one TaxaCambio
+     * const taxaCambio = await prisma.taxaCambio.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TaxaCambioFindUniqueOrThrowArgs>(args: SelectSubset<T, TaxaCambioFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first TaxaCambio that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaCambioFindFirstArgs} args - Arguments to find a TaxaCambio
+     * @example
+     * // Get one TaxaCambio
+     * const taxaCambio = await prisma.taxaCambio.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TaxaCambioFindFirstArgs>(args?: SelectSubset<T, TaxaCambioFindFirstArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first TaxaCambio that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaCambioFindFirstOrThrowArgs} args - Arguments to find a TaxaCambio
+     * @example
+     * // Get one TaxaCambio
+     * const taxaCambio = await prisma.taxaCambio.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TaxaCambioFindFirstOrThrowArgs>(args?: SelectSubset<T, TaxaCambioFindFirstOrThrowArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more TaxaCambios that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaCambioFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TaxaCambios
+     * const taxaCambios = await prisma.taxaCambio.findMany()
+     * 
+     * // Get first 10 TaxaCambios
+     * const taxaCambios = await prisma.taxaCambio.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const taxaCambioWithIdOnly = await prisma.taxaCambio.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TaxaCambioFindManyArgs>(args?: SelectSubset<T, TaxaCambioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a TaxaCambio.
+     * @param {TaxaCambioCreateArgs} args - Arguments to create a TaxaCambio.
+     * @example
+     * // Create one TaxaCambio
+     * const TaxaCambio = await prisma.taxaCambio.create({
+     *   data: {
+     *     // ... data to create a TaxaCambio
+     *   }
+     * })
+     * 
+     */
+    create<T extends TaxaCambioCreateArgs>(args: SelectSubset<T, TaxaCambioCreateArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many TaxaCambios.
+     * @param {TaxaCambioCreateManyArgs} args - Arguments to create many TaxaCambios.
+     * @example
+     * // Create many TaxaCambios
+     * const taxaCambio = await prisma.taxaCambio.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TaxaCambioCreateManyArgs>(args?: SelectSubset<T, TaxaCambioCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TaxaCambios and returns the data saved in the database.
+     * @param {TaxaCambioCreateManyAndReturnArgs} args - Arguments to create many TaxaCambios.
+     * @example
+     * // Create many TaxaCambios
+     * const taxaCambio = await prisma.taxaCambio.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TaxaCambios and only return the `id`
+     * const taxaCambioWithIdOnly = await prisma.taxaCambio.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TaxaCambioCreateManyAndReturnArgs>(args?: SelectSubset<T, TaxaCambioCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a TaxaCambio.
+     * @param {TaxaCambioDeleteArgs} args - Arguments to delete one TaxaCambio.
+     * @example
+     * // Delete one TaxaCambio
+     * const TaxaCambio = await prisma.taxaCambio.delete({
+     *   where: {
+     *     // ... filter to delete one TaxaCambio
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TaxaCambioDeleteArgs>(args: SelectSubset<T, TaxaCambioDeleteArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one TaxaCambio.
+     * @param {TaxaCambioUpdateArgs} args - Arguments to update one TaxaCambio.
+     * @example
+     * // Update one TaxaCambio
+     * const taxaCambio = await prisma.taxaCambio.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TaxaCambioUpdateArgs>(args: SelectSubset<T, TaxaCambioUpdateArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more TaxaCambios.
+     * @param {TaxaCambioDeleteManyArgs} args - Arguments to filter TaxaCambios to delete.
+     * @example
+     * // Delete a few TaxaCambios
+     * const { count } = await prisma.taxaCambio.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TaxaCambioDeleteManyArgs>(args?: SelectSubset<T, TaxaCambioDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TaxaCambios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaCambioUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TaxaCambios
+     * const taxaCambio = await prisma.taxaCambio.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TaxaCambioUpdateManyArgs>(args: SelectSubset<T, TaxaCambioUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one TaxaCambio.
+     * @param {TaxaCambioUpsertArgs} args - Arguments to update or create a TaxaCambio.
+     * @example
+     * // Update or create a TaxaCambio
+     * const taxaCambio = await prisma.taxaCambio.upsert({
+     *   create: {
+     *     // ... data to create a TaxaCambio
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TaxaCambio we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TaxaCambioUpsertArgs>(args: SelectSubset<T, TaxaCambioUpsertArgs<ExtArgs>>): Prisma__TaxaCambioClient<$Result.GetResult<Prisma.$TaxaCambioPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of TaxaCambios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaCambioCountArgs} args - Arguments to filter TaxaCambios to count.
+     * @example
+     * // Count the number of TaxaCambios
+     * const count = await prisma.taxaCambio.count({
+     *   where: {
+     *     // ... the filter for the TaxaCambios we want to count
+     *   }
+     * })
+    **/
+    count<T extends TaxaCambioCountArgs>(
+      args?: Subset<T, TaxaCambioCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TaxaCambioCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TaxaCambio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaCambioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TaxaCambioAggregateArgs>(args: Subset<T, TaxaCambioAggregateArgs>): Prisma.PrismaPromise<GetTaxaCambioAggregateType<T>>
+
+    /**
+     * Group by TaxaCambio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TaxaCambioGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TaxaCambioGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TaxaCambioGroupByArgs['orderBy'] }
+        : { orderBy?: TaxaCambioGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TaxaCambioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTaxaCambioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TaxaCambio model
+   */
+  readonly fields: TaxaCambioFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TaxaCambio.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TaxaCambioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TaxaCambio model
+   */ 
+  interface TaxaCambioFieldRefs {
+    readonly id: FieldRef<"TaxaCambio", 'String'>
+    readonly moeda: FieldRef<"TaxaCambio", 'String'>
+    readonly compra: FieldRef<"TaxaCambio", 'Decimal'>
+    readonly venda: FieldRef<"TaxaCambio", 'Decimal'>
+    readonly data_cotacao: FieldRef<"TaxaCambio", 'DateTime'>
+    readonly hora_cotacao: FieldRef<"TaxaCambio", 'String'>
+    readonly boletim: FieldRef<"TaxaCambio", 'String'>
+    readonly fonte: FieldRef<"TaxaCambio", 'String'>
+    readonly criado_em: FieldRef<"TaxaCambio", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TaxaCambio findUnique
+   */
+  export type TaxaCambioFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaCambio to fetch.
+     */
+    where: TaxaCambioWhereUniqueInput
+  }
+
+  /**
+   * TaxaCambio findUniqueOrThrow
+   */
+  export type TaxaCambioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaCambio to fetch.
+     */
+    where: TaxaCambioWhereUniqueInput
+  }
+
+  /**
+   * TaxaCambio findFirst
+   */
+  export type TaxaCambioFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaCambio to fetch.
+     */
+    where?: TaxaCambioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaCambios to fetch.
+     */
+    orderBy?: TaxaCambioOrderByWithRelationInput | TaxaCambioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TaxaCambios.
+     */
+    cursor?: TaxaCambioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaCambios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaCambios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TaxaCambios.
+     */
+    distinct?: TaxaCambioScalarFieldEnum | TaxaCambioScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaCambio findFirstOrThrow
+   */
+  export type TaxaCambioFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaCambio to fetch.
+     */
+    where?: TaxaCambioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaCambios to fetch.
+     */
+    orderBy?: TaxaCambioOrderByWithRelationInput | TaxaCambioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TaxaCambios.
+     */
+    cursor?: TaxaCambioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaCambios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaCambios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TaxaCambios.
+     */
+    distinct?: TaxaCambioScalarFieldEnum | TaxaCambioScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaCambio findMany
+   */
+  export type TaxaCambioFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * Filter, which TaxaCambios to fetch.
+     */
+    where?: TaxaCambioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TaxaCambios to fetch.
+     */
+    orderBy?: TaxaCambioOrderByWithRelationInput | TaxaCambioOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TaxaCambios.
+     */
+    cursor?: TaxaCambioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TaxaCambios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TaxaCambios.
+     */
+    skip?: number
+    distinct?: TaxaCambioScalarFieldEnum | TaxaCambioScalarFieldEnum[]
+  }
+
+  /**
+   * TaxaCambio create
+   */
+  export type TaxaCambioCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * The data needed to create a TaxaCambio.
+     */
+    data: XOR<TaxaCambioCreateInput, TaxaCambioUncheckedCreateInput>
+  }
+
+  /**
+   * TaxaCambio createMany
+   */
+  export type TaxaCambioCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TaxaCambios.
+     */
+    data: TaxaCambioCreateManyInput | TaxaCambioCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TaxaCambio createManyAndReturn
+   */
+  export type TaxaCambioCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many TaxaCambios.
+     */
+    data: TaxaCambioCreateManyInput | TaxaCambioCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TaxaCambio update
+   */
+  export type TaxaCambioUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * The data needed to update a TaxaCambio.
+     */
+    data: XOR<TaxaCambioUpdateInput, TaxaCambioUncheckedUpdateInput>
+    /**
+     * Choose, which TaxaCambio to update.
+     */
+    where: TaxaCambioWhereUniqueInput
+  }
+
+  /**
+   * TaxaCambio updateMany
+   */
+  export type TaxaCambioUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TaxaCambios.
+     */
+    data: XOR<TaxaCambioUpdateManyMutationInput, TaxaCambioUncheckedUpdateManyInput>
+    /**
+     * Filter which TaxaCambios to update
+     */
+    where?: TaxaCambioWhereInput
+  }
+
+  /**
+   * TaxaCambio upsert
+   */
+  export type TaxaCambioUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * The filter to search for the TaxaCambio to update in case it exists.
+     */
+    where: TaxaCambioWhereUniqueInput
+    /**
+     * In case the TaxaCambio found by the `where` argument doesn't exist, create a new TaxaCambio with this data.
+     */
+    create: XOR<TaxaCambioCreateInput, TaxaCambioUncheckedCreateInput>
+    /**
+     * In case the TaxaCambio was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TaxaCambioUpdateInput, TaxaCambioUncheckedUpdateInput>
+  }
+
+  /**
+   * TaxaCambio delete
+   */
+  export type TaxaCambioDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+    /**
+     * Filter which TaxaCambio to delete.
+     */
+    where: TaxaCambioWhereUniqueInput
+  }
+
+  /**
+   * TaxaCambio deleteMany
+   */
+  export type TaxaCambioDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TaxaCambios to delete
+     */
+    where?: TaxaCambioWhereInput
+  }
+
+  /**
+   * TaxaCambio without action
+   */
+  export type TaxaCambioDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TaxaCambio
+     */
+    select?: TaxaCambioSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -19663,6 +20729,7 @@ export namespace Prisma {
     helpdesk_hours: 'helpdesk_hours',
     extra_hour_price: 'extra_hour_price',
     extra_hour_currency: 'extra_hour_currency',
+    gabi_quota_mensal: 'gabi_quota_mensal',
     backend_module: 'backend_module',
     target_audience: 'target_audience',
     created_at: 'created_at',
@@ -19773,6 +20840,21 @@ export namespace Prisma {
   };
 
   export type ServiceHealthScalarFieldEnum = (typeof ServiceHealthScalarFieldEnum)[keyof typeof ServiceHealthScalarFieldEnum]
+
+
+  export const TaxaCambioScalarFieldEnum: {
+    id: 'id',
+    moeda: 'moeda',
+    compra: 'compra',
+    venda: 'venda',
+    data_cotacao: 'data_cotacao',
+    hora_cotacao: 'hora_cotacao',
+    boletim: 'boletim',
+    fonte: 'fonte',
+    criado_em: 'criado_em'
+  };
+
+  export type TaxaCambioScalarFieldEnum = (typeof TaxaCambioScalarFieldEnum)[keyof typeof TaxaCambioScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -20753,6 +21835,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFilter<"Product"> | number
     extra_hour_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFilter<"Product"> | string
+    gabi_quota_mensal?: IntFilter<"Product"> | number
     backend_module?: StringNullableFilter<"Product"> | string | null
     target_audience?: StringNullableFilter<"Product"> | string | null
     created_at?: DateTimeFilter<"Product"> | Date | string
@@ -20785,6 +21868,7 @@ export namespace Prisma {
     helpdesk_hours?: SortOrder
     extra_hour_price?: SortOrderInput | SortOrder
     extra_hour_currency?: SortOrder
+    gabi_quota_mensal?: SortOrder
     backend_module?: SortOrderInput | SortOrder
     target_audience?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -20820,6 +21904,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFilter<"Product"> | number
     extra_hour_price?: DecimalNullableFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFilter<"Product"> | string
+    gabi_quota_mensal?: IntFilter<"Product"> | number
     backend_module?: StringNullableFilter<"Product"> | string | null
     target_audience?: StringNullableFilter<"Product"> | string | null
     created_at?: DateTimeFilter<"Product"> | Date | string
@@ -20852,6 +21937,7 @@ export namespace Prisma {
     helpdesk_hours?: SortOrder
     extra_hour_price?: SortOrderInput | SortOrder
     extra_hour_currency?: SortOrder
+    gabi_quota_mensal?: SortOrder
     backend_module?: SortOrderInput | SortOrder
     target_audience?: SortOrderInput | SortOrder
     created_at?: SortOrder
@@ -20890,6 +21976,7 @@ export namespace Prisma {
     helpdesk_hours?: IntWithAggregatesFilter<"Product"> | number
     extra_hour_price?: DecimalNullableWithAggregatesFilter<"Product"> | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringWithAggregatesFilter<"Product"> | string
+    gabi_quota_mensal?: IntWithAggregatesFilter<"Product"> | number
     backend_module?: StringNullableWithAggregatesFilter<"Product"> | string | null
     target_audience?: StringNullableWithAggregatesFilter<"Product"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Product"> | Date | string
@@ -21401,6 +22488,81 @@ export namespace Prisma {
     checked_at?: DateTimeWithAggregatesFilter<"ServiceHealth"> | Date | string
     created_at?: DateTimeWithAggregatesFilter<"ServiceHealth"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"ServiceHealth"> | Date | string
+  }
+
+  export type TaxaCambioWhereInput = {
+    AND?: TaxaCambioWhereInput | TaxaCambioWhereInput[]
+    OR?: TaxaCambioWhereInput[]
+    NOT?: TaxaCambioWhereInput | TaxaCambioWhereInput[]
+    id?: StringFilter<"TaxaCambio"> | string
+    moeda?: StringFilter<"TaxaCambio"> | string
+    compra?: DecimalFilter<"TaxaCambio"> | Decimal | DecimalJsLike | number | string
+    venda?: DecimalFilter<"TaxaCambio"> | Decimal | DecimalJsLike | number | string
+    data_cotacao?: DateTimeFilter<"TaxaCambio"> | Date | string
+    hora_cotacao?: StringNullableFilter<"TaxaCambio"> | string | null
+    boletim?: StringFilter<"TaxaCambio"> | string
+    fonte?: StringFilter<"TaxaCambio"> | string
+    criado_em?: DateTimeFilter<"TaxaCambio"> | Date | string
+  }
+
+  export type TaxaCambioOrderByWithRelationInput = {
+    id?: SortOrder
+    moeda?: SortOrder
+    compra?: SortOrder
+    venda?: SortOrder
+    data_cotacao?: SortOrder
+    hora_cotacao?: SortOrderInput | SortOrder
+    boletim?: SortOrder
+    fonte?: SortOrder
+    criado_em?: SortOrder
+  }
+
+  export type TaxaCambioWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    moeda_data_cotacao_boletim?: TaxaCambioMoedaData_cotacaoBoletimCompoundUniqueInput
+    AND?: TaxaCambioWhereInput | TaxaCambioWhereInput[]
+    OR?: TaxaCambioWhereInput[]
+    NOT?: TaxaCambioWhereInput | TaxaCambioWhereInput[]
+    moeda?: StringFilter<"TaxaCambio"> | string
+    compra?: DecimalFilter<"TaxaCambio"> | Decimal | DecimalJsLike | number | string
+    venda?: DecimalFilter<"TaxaCambio"> | Decimal | DecimalJsLike | number | string
+    data_cotacao?: DateTimeFilter<"TaxaCambio"> | Date | string
+    hora_cotacao?: StringNullableFilter<"TaxaCambio"> | string | null
+    boletim?: StringFilter<"TaxaCambio"> | string
+    fonte?: StringFilter<"TaxaCambio"> | string
+    criado_em?: DateTimeFilter<"TaxaCambio"> | Date | string
+  }, "id" | "moeda_data_cotacao_boletim">
+
+  export type TaxaCambioOrderByWithAggregationInput = {
+    id?: SortOrder
+    moeda?: SortOrder
+    compra?: SortOrder
+    venda?: SortOrder
+    data_cotacao?: SortOrder
+    hora_cotacao?: SortOrderInput | SortOrder
+    boletim?: SortOrder
+    fonte?: SortOrder
+    criado_em?: SortOrder
+    _count?: TaxaCambioCountOrderByAggregateInput
+    _avg?: TaxaCambioAvgOrderByAggregateInput
+    _max?: TaxaCambioMaxOrderByAggregateInput
+    _min?: TaxaCambioMinOrderByAggregateInput
+    _sum?: TaxaCambioSumOrderByAggregateInput
+  }
+
+  export type TaxaCambioScalarWhereWithAggregatesInput = {
+    AND?: TaxaCambioScalarWhereWithAggregatesInput | TaxaCambioScalarWhereWithAggregatesInput[]
+    OR?: TaxaCambioScalarWhereWithAggregatesInput[]
+    NOT?: TaxaCambioScalarWhereWithAggregatesInput | TaxaCambioScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TaxaCambio"> | string
+    moeda?: StringWithAggregatesFilter<"TaxaCambio"> | string
+    compra?: DecimalWithAggregatesFilter<"TaxaCambio"> | Decimal | DecimalJsLike | number | string
+    venda?: DecimalWithAggregatesFilter<"TaxaCambio"> | Decimal | DecimalJsLike | number | string
+    data_cotacao?: DateTimeWithAggregatesFilter<"TaxaCambio"> | Date | string
+    hora_cotacao?: StringNullableWithAggregatesFilter<"TaxaCambio"> | string | null
+    boletim?: StringWithAggregatesFilter<"TaxaCambio"> | string
+    fonte?: StringWithAggregatesFilter<"TaxaCambio"> | string
+    criado_em?: DateTimeWithAggregatesFilter<"TaxaCambio"> | Date | string
   }
 
   export type TenantCreateInput = {
@@ -22192,6 +23354,7 @@ export namespace Prisma {
     helpdesk_hours?: number
     extra_hour_price?: Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: string
+    gabi_quota_mensal?: number
     backend_module?: string | null
     target_audience?: string | null
     created_at?: Date | string
@@ -22224,6 +23387,7 @@ export namespace Prisma {
     helpdesk_hours?: number
     extra_hour_price?: Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: string
+    gabi_quota_mensal?: number
     backend_module?: string | null
     target_audience?: string | null
     created_at?: Date | string
@@ -22256,6 +23420,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22288,6 +23453,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22320,6 +23486,7 @@ export namespace Prisma {
     helpdesk_hours?: number
     extra_hour_price?: Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: string
+    gabi_quota_mensal?: number
     backend_module?: string | null
     target_audience?: string | null
     created_at?: Date | string
@@ -22350,6 +23517,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22380,6 +23548,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22956,6 +24125,90 @@ export namespace Prisma {
     checked_at?: DateTimeFieldUpdateOperationsInput | Date | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaCambioCreateInput = {
+    id?: string
+    moeda: string
+    compra: Decimal | DecimalJsLike | number | string
+    venda: Decimal | DecimalJsLike | number | string
+    data_cotacao: Date | string
+    hora_cotacao?: string | null
+    boletim?: string
+    fonte?: string
+    criado_em?: Date | string
+  }
+
+  export type TaxaCambioUncheckedCreateInput = {
+    id?: string
+    moeda: string
+    compra: Decimal | DecimalJsLike | number | string
+    venda: Decimal | DecimalJsLike | number | string
+    data_cotacao: Date | string
+    hora_cotacao?: string | null
+    boletim?: string
+    fonte?: string
+    criado_em?: Date | string
+  }
+
+  export type TaxaCambioUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    moeda?: StringFieldUpdateOperationsInput | string
+    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim?: StringFieldUpdateOperationsInput | string
+    fonte?: StringFieldUpdateOperationsInput | string
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaCambioUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    moeda?: StringFieldUpdateOperationsInput | string
+    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim?: StringFieldUpdateOperationsInput | string
+    fonte?: StringFieldUpdateOperationsInput | string
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaCambioCreateManyInput = {
+    id?: string
+    moeda: string
+    compra: Decimal | DecimalJsLike | number | string
+    venda: Decimal | DecimalJsLike | number | string
+    data_cotacao: Date | string
+    hora_cotacao?: string | null
+    boletim?: string
+    fonte?: string
+    criado_em?: Date | string
+  }
+
+  export type TaxaCambioUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    moeda?: StringFieldUpdateOperationsInput | string
+    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim?: StringFieldUpdateOperationsInput | string
+    fonte?: StringFieldUpdateOperationsInput | string
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TaxaCambioUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    moeda?: StringFieldUpdateOperationsInput | string
+    compra?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    venda?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_cotacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    hora_cotacao?: NullableStringFieldUpdateOperationsInput | string | null
+    boletim?: StringFieldUpdateOperationsInput | string
+    fonte?: StringFieldUpdateOperationsInput | string
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -23766,6 +25019,7 @@ export namespace Prisma {
     helpdesk_hours?: SortOrder
     extra_hour_price?: SortOrder
     extra_hour_currency?: SortOrder
+    gabi_quota_mensal?: SortOrder
     backend_module?: SortOrder
     target_audience?: SortOrder
     created_at?: SortOrder
@@ -23781,6 +25035,7 @@ export namespace Prisma {
     extra_user_price?: SortOrder
     helpdesk_hours?: SortOrder
     extra_hour_price?: SortOrder
+    gabi_quota_mensal?: SortOrder
   }
 
   export type ProductMaxOrderByAggregateInput = {
@@ -23807,6 +25062,7 @@ export namespace Prisma {
     helpdesk_hours?: SortOrder
     extra_hour_price?: SortOrder
     extra_hour_currency?: SortOrder
+    gabi_quota_mensal?: SortOrder
     backend_module?: SortOrder
     target_audience?: SortOrder
     created_at?: SortOrder
@@ -23837,6 +25093,7 @@ export namespace Prisma {
     helpdesk_hours?: SortOrder
     extra_hour_price?: SortOrder
     extra_hour_currency?: SortOrder
+    gabi_quota_mensal?: SortOrder
     backend_module?: SortOrder
     target_audience?: SortOrder
     created_at?: SortOrder
@@ -23852,6 +25109,7 @@ export namespace Prisma {
     extra_user_price?: SortOrder
     helpdesk_hours?: SortOrder
     extra_hour_price?: SortOrder
+    gabi_quota_mensal?: SortOrder
   }
 
   export type EnumProductStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -24275,6 +25533,58 @@ export namespace Prisma {
 
   export type ServiceHealthSumOrderByAggregateInput = {
     latency_ms?: SortOrder
+  }
+
+  export type TaxaCambioMoedaData_cotacaoBoletimCompoundUniqueInput = {
+    moeda: string
+    data_cotacao: Date | string
+    boletim: string
+  }
+
+  export type TaxaCambioCountOrderByAggregateInput = {
+    id?: SortOrder
+    moeda?: SortOrder
+    compra?: SortOrder
+    venda?: SortOrder
+    data_cotacao?: SortOrder
+    hora_cotacao?: SortOrder
+    boletim?: SortOrder
+    fonte?: SortOrder
+    criado_em?: SortOrder
+  }
+
+  export type TaxaCambioAvgOrderByAggregateInput = {
+    compra?: SortOrder
+    venda?: SortOrder
+  }
+
+  export type TaxaCambioMaxOrderByAggregateInput = {
+    id?: SortOrder
+    moeda?: SortOrder
+    compra?: SortOrder
+    venda?: SortOrder
+    data_cotacao?: SortOrder
+    hora_cotacao?: SortOrder
+    boletim?: SortOrder
+    fonte?: SortOrder
+    criado_em?: SortOrder
+  }
+
+  export type TaxaCambioMinOrderByAggregateInput = {
+    id?: SortOrder
+    moeda?: SortOrder
+    compra?: SortOrder
+    venda?: SortOrder
+    data_cotacao?: SortOrder
+    hora_cotacao?: SortOrder
+    boletim?: SortOrder
+    fonte?: SortOrder
+    criado_em?: SortOrder
+  }
+
+  export type TaxaCambioSumOrderByAggregateInput = {
+    compra?: SortOrder
+    venda?: SortOrder
   }
 
   export type UserCreateNestedManyWithoutTenantInput = {
@@ -27043,6 +28353,7 @@ export namespace Prisma {
     helpdesk_hours?: number
     extra_hour_price?: Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: string
+    gabi_quota_mensal?: number
     backend_module?: string | null
     target_audience?: string | null
     created_at?: Date | string
@@ -27074,6 +28385,7 @@ export namespace Prisma {
     helpdesk_hours?: number
     extra_hour_price?: Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: string
+    gabi_quota_mensal?: number
     backend_module?: string | null
     target_audience?: string | null
     created_at?: Date | string
@@ -27121,6 +28433,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27152,6 +28465,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27183,6 +28497,7 @@ export namespace Prisma {
     helpdesk_hours?: number
     extra_hour_price?: Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: string
+    gabi_quota_mensal?: number
     backend_module?: string | null
     target_audience?: string | null
     created_at?: Date | string
@@ -27214,6 +28529,7 @@ export namespace Prisma {
     helpdesk_hours?: number
     extra_hour_price?: Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: string
+    gabi_quota_mensal?: number
     backend_module?: string | null
     target_audience?: string | null
     created_at?: Date | string
@@ -27261,6 +28577,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27292,6 +28609,7 @@ export namespace Prisma {
     helpdesk_hours?: IntFieldUpdateOperationsInput | number
     extra_hour_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_hour_currency?: StringFieldUpdateOperationsInput | string
+    gabi_quota_mensal?: IntFieldUpdateOperationsInput | number
     backend_module?: NullableStringFieldUpdateOperationsInput | string | null
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27888,6 +29206,10 @@ export namespace Prisma {
      * @deprecated Use ServiceHealthDefaultArgs instead
      */
     export type ServiceHealthArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ServiceHealthDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use TaxaCambioDefaultArgs instead
+     */
+    export type TaxaCambioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TaxaCambioDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

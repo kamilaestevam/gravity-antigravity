@@ -251,6 +251,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   helpdesk_hours: 'helpdesk_hours',
   extra_hour_price: 'extra_hour_price',
   extra_hour_currency: 'extra_hour_currency',
+  gabi_quota_mensal: 'gabi_quota_mensal',
   backend_module: 'backend_module',
   target_audience: 'target_audience',
   created_at: 'created_at',
@@ -337,6 +338,18 @@ exports.Prisma.ServiceHealthScalarFieldEnum = {
   checked_at: 'checked_at',
   created_at: 'created_at',
   updated_at: 'updated_at'
+};
+
+exports.Prisma.TaxaCambioScalarFieldEnum = {
+  id: 'id',
+  moeda: 'moeda',
+  compra: 'compra',
+  venda: 'venda',
+  data_cotacao: 'data_cotacao',
+  hora_cotacao: 'hora_cotacao',
+  boletim: 'boletim',
+  fonte: 'fonte',
+  criado_em: 'criado_em'
 };
 
 exports.Prisma.SortOrder = {
@@ -444,7 +457,8 @@ exports.Prisma.ModelName = {
   SupplierTenantAccess: 'SupplierTenantAccess',
   SecurityEvent: 'SecurityEvent',
   RateLimitMetric: 'RateLimitMetric',
-  ServiceHealth: 'ServiceHealth'
+  ServiceHealth: 'ServiceHealth',
+  TaxaCambio: 'TaxaCambio'
 };
 
 /**

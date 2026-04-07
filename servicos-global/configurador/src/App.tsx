@@ -48,6 +48,7 @@ const Assinaturas = lazy(() => import('./pages/workspace/Assinaturas'), 'Assinat
 const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeiro')
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
+const TaxaCambioPage = lazy(() => import('./pages/workspace/TaxaCambio'), 'TaxaCambio')
 
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
 const Core = lazy(() => import('./pages/Core'), 'Core')
@@ -269,6 +270,7 @@ export default function App() {
           <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><Financeiro /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
+          <Route path="taxa-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxaCambioPage /></React.Suspense>} />
         </Route>
 
         {/* 404 — rota nao encontrada */}

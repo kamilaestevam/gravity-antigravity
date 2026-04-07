@@ -24,7 +24,7 @@ import {
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
-  Paperclip,
+  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -38,7 +38,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, type PdfTemplate } from '../shared/api'
+import { pdfApi, colunasUsuarioApi, configRegrasApi, type PdfTemplate } from '../shared/api'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type { FormulaAST } from '../shared/formulaEngine'
 import { analisarSemanticaFormula, SEMANTICA_CAMPOS } from '../shared/gabiSemantica'
@@ -302,7 +302,9 @@ const CATEGORIAS = [
   { id: 'numeracao',         label: 'Numeração',         icone: <Hash           size={15} weight="duotone" />, ativo: true  },
   { id: 'templates-pdf',     label: 'Templates PDF',     icone: <FloppyDisk     size={15} weight="duotone" />, ativo: true  },
   { id: 'regras',            label: 'Regras',            icone: <Sliders        size={15} weight="duotone" />, ativo: true  },
-  { id: 'categorias-anexos', label: 'Categ. Anexos',     icone: <Folder         size={15} weight="duotone" />, ativo: true  },
+  { id: 'alertas',           label: 'Alertas',           icone: <Warning        size={15} weight="duotone" />, ativo: true  },
+  { id: 'categorias-anexos', label: 'Categ. Anexos',     icone: <Folder               size={15} weight="duotone" />, ativo: true  },
+  { id: 'taxa-cambio',      label: 'Taxa de Câmbio',    icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true  },
 ] as const
 
 type CategoriaId = (typeof CATEGORIAS)[number]['id']
@@ -372,6 +374,15 @@ interface RegrasConfig {
     fundirPartNumber: boolean
     usuarioEscolheDivergentes: boolean
     numeroPedidoResultante: 'mais_antigo' | 'automatico' | 'mais_recente'
+  }
+  alertas: {
+    numeroDuplicado: boolean
+    valorTotalDivergente: boolean
+    quantidadeTotalDivergente: boolean
+    quantidadeProntaDivergente: boolean
+    pesoLiquidoDivergente: boolean
+    pesoBrutoDivergente: boolean
+    cubagemDivergente: boolean
   }
 }
 
@@ -987,7 +998,59 @@ export default function Configuracoes() {
       usuarioEscolheDivergentes: true,
       numeroPedidoResultante: 'automatico',
     },
+    alertas: {
+      numeroDuplicado: true,
+      valorTotalDivergente: true,
+      quantidadeTotalDivergente: true,
+      quantidadeProntaDivergente: true,
+      pesoLiquidoDivergente: true,
+      pesoBrutoDivergente: true,
+      cubagemDivergente: true,
+    },
   })
+
+  // Carrega regras do backend na montagem
+  useEffect(() => {
+    configRegrasApi.obter().then(backend => {
+      setRegrasConfig(prev => ({
+        ...prev,
+        duplicar: {
+          ...prev.duplicar,
+          numeracaoAutomatica: backend.duplicar_numero_auto,
+          copiarDatas: backend.duplicar_copiar_datas,
+          statusInicial: (backend.duplicar_status_inicial === 'rascunho' || backend.duplicar_status_inicial === 'aberto' || backend.duplicar_status_inicial === 'em_andamento')
+            ? backend.duplicar_status_inicial
+            : prev.duplicar.statusInicial,
+        },
+        excluir: {
+          ...prev.excluir,
+          statusPermitidos: backend.excluir_status_permitidos,
+          semItensPermitido: backend.excluir_pedido_sem_item_permitido,
+          confirmarComPreview: backend.excluir_confirmar_com_preview,
+        },
+        alertas: {
+          ...prev.alertas,
+          numeroDuplicado: backend.alerta_numero_duplicado,
+          valorTotalDivergente: backend.alerta_valor_total_divergente ?? true,
+          quantidadeTotalDivergente: backend.alerta_quantidade_total_divergente ?? true,
+          quantidadeProntaDivergente: backend.alerta_quantidade_pronta_divergente ?? true,
+          pesoLiquidoDivergente: backend.alerta_peso_liquido_divergente ?? true,
+          pesoBrutoDivergente: backend.alerta_peso_bruto_divergente ?? true,
+          cubagemDivergente: backend.alerta_cubagem_divergente ?? true,
+        },
+      }))
+      regrasInicialRef.current = null // reset para próxima renderização detectar mudanças
+    }).catch(() => {
+      // fallback: tenta localStorage
+      try {
+        const raw = localStorage.getItem('pedido:regras_config')
+        if (raw) {
+          const salvo = JSON.parse(raw) as RegrasConfig
+          setRegrasConfig(salvo)
+        }
+      } catch { /* ignore */ }
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Detecta mudanças nas regras (pula a primeira renderização)
   useEffect(() => {
@@ -998,11 +1061,26 @@ export default function Configuracoes() {
     setRegrasAlterados(true)
   }, [regrasConfig]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function salvarRegras() {
+  async function salvarRegras() {
     try {
+      await configRegrasApi.salvar({
+        duplicar_numero_auto: regrasConfig.duplicar.numeracaoAutomatica,
+        duplicar_copiar_datas: regrasConfig.duplicar.copiarDatas,
+        duplicar_status_inicial: regrasConfig.duplicar.statusInicial,
+        excluir_status_permitidos: regrasConfig.excluir.statusPermitidos,
+        excluir_pedido_sem_item_permitido: regrasConfig.excluir.semItensPermitido,
+        excluir_confirmar_com_preview: regrasConfig.excluir.confirmarComPreview,
+        alerta_numero_duplicado: regrasConfig.alertas.numeroDuplicado,
+        alerta_valor_total_divergente: regrasConfig.alertas.valorTotalDivergente,
+        alerta_quantidade_total_divergente: regrasConfig.alertas.quantidadeTotalDivergente,
+        alerta_quantidade_pronta_divergente: regrasConfig.alertas.quantidadeProntaDivergente,
+        alerta_peso_liquido_divergente: regrasConfig.alertas.pesoLiquidoDivergente,
+        alerta_peso_bruto_divergente: regrasConfig.alertas.pesoBrutoDivergente,
+        alerta_cubagem_divergente: regrasConfig.alertas.cubagemDivergente,
+      })
       localStorage.setItem('pedido:regras_config', JSON.stringify(regrasConfig))
       setRegrasAlterados(false)
-    } catch { /* silenciar erros de quota */ }
+    } catch { /* silenciar erros */ }
   }
 
   function toggleStatusExcluir(statusId: string) {
@@ -1114,6 +1192,77 @@ export default function Configuracoes() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // ── Taxa de Câmbio ────────────────────────────────────────────────────────
+
+  interface RegistroTaxa {
+    id: string; moeda: string; compra: number; venda: number
+    data_cotacao: string; hora_cotacao: string | null; boletim: string; fonte: string
+  }
+
+  const [taxasHoje, setTaxasHoje] = useState<RegistroTaxa[]>([])
+  const [historicoTaxas, setHistoricoTaxas] = useState<RegistroTaxa[]>([])
+  const [moedaHistoricoTaxa, setMoedaHistoricoTaxa] = useState('USD')
+  const [sincronizandoTaxa, setSincronizandoTaxa] = useState(false)
+  const [carregandoTaxa, setCarregandoTaxa] = useState(false)
+  const [ultimaSyncTaxa, setUltimaSyncTaxa] = useState<string | null>(null)
+  const [erroSyncTaxa, setErroSyncTaxa] = useState<string | null>(null)
+
+  const buscarTaxasAtuais = useCallback(async () => {
+    setCarregandoTaxa(true)
+    try {
+      const res = await fetch('/api/v1/taxa-cambio')
+      if (res.ok) {
+        const json = await res.json()
+        // Aplanar por_moeda → array flat ordenado por moeda + boletim
+        const flat: RegistroTaxa[] = []
+        for (const registros of Object.values(json.por_moeda ?? {})) {
+          flat.push(...(registros as RegistroTaxa[]))
+        }
+        flat.sort((a, b) => {
+          const oi = MOEDAS_ORDEM.indexOf(a.moeda)
+          const oj = MOEDAS_ORDEM.indexOf(b.moeda)
+          const orderDiff = (oi === -1 ? 99 : oi) - (oj === -1 ? 99 : oj)
+          return orderDiff !== 0 ? orderDiff : a.boletim.localeCompare(b.boletim)
+        })
+        setTaxasHoje(flat)
+      }
+    } catch { /* silent */ } finally { setCarregandoTaxa(false) }
+  }, [])
+
+  const buscarHistoricoTaxa = useCallback(async (moeda: string) => {
+    try {
+      const res = await fetch(`/api/v1/taxa-cambio/historico?moeda=${moeda}&dias=30`)
+      if (res.ok) { const json = await res.json(); setHistoricoTaxas(json.historico ?? []) }
+    } catch { setHistoricoTaxas([]) }
+  }, [])
+
+  useEffect(() => {
+    if (categoria === 'taxa-cambio') buscarTaxasAtuais()
+  }, [categoria, buscarTaxasAtuais])
+
+  useEffect(() => {
+    if (categoria === 'taxa-cambio') buscarHistoricoTaxa(moedaHistoricoTaxa)
+  }, [categoria, moedaHistoricoTaxa, buscarHistoricoTaxa])
+
+  const sincronizarTaxas = async () => {
+    setSincronizandoTaxa(true); setErroSyncTaxa(null)
+    try {
+      const res = await fetch('/api/v1/taxa-cambio/sync', { method: 'POST' })
+      const json = await res.json()
+      if (json.total_ok === 0) { setErroSyncTaxa('Não foi possível sincronizar. O serviço pode estar offline.') }
+      else { setUltimaSyncTaxa(new Date().toLocaleTimeString('pt-BR')); await buscarTaxasAtuais(); await buscarHistoricoTaxa(moedaHistoricoTaxa) }
+    } catch { setErroSyncTaxa('Erro de comunicação.') } finally { setSincronizandoTaxa(false) }
+  }
+
+  const MOEDAS_ORDEM = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD']
+  const MOEDAS_INFO: Record<string, string> = { USD: 'Dólar Americano', EUR: 'Euro', GBP: 'Libra Esterlina', CNY: 'Yuan Chinês', JPY: 'Iene Japonês', CHF: 'Franco Suíço', CAD: 'Dólar Canadense' }
+  const BOLETIM_COR: Record<string, string> = { '1º Boletim': '#60a5fa', '2º Boletim': '#a78bfa', '3º Boletim': '#34d399', 'Fechamento': '#fbbf24' }
+
+  function fmtTaxa(v: number | null | undefined) { return v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 }) }
+  function fmtData(iso: string | null | undefined) { return iso ? new Date(iso).toLocaleDateString('pt-BR') : '—' }
+
+  // ── Status (sortable) ──────────────────────────────────────────────────────
 
   const statusSensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 5 },
@@ -2118,6 +2267,82 @@ export default function Configuracoes() {
           </div>
         )}
 
+        {/* ════════════════════════ ALERTAS ════════════════════════ */}
+        {categoria === 'alertas' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Alertas</h2>
+                  <p className="cfg-secao__desc">Avisos visuais exibidos diretamente na tabela de pedidos</p>
+                </div>
+              </div>
+              <div className="cfg-toggles-lista">
+                <ToggleRow
+                  id="alerta-numero-duplicado"
+                  label="Mesmo número de pedido"
+                  desc="Exibe ícone de aviso na célula quando dois ou mais pedidos têm o mesmo número"
+                  checked={regrasConfig.alertas.numeroDuplicado}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, numeroDuplicado: v } }))}
+                />
+                <ToggleRow
+                  id="alerta-valor-total-divergente"
+                  label="Valor total divergente dos itens"
+                  desc="Exibe ícone de aviso quando valor_total_pedido difere da soma dos valores dos itens"
+                  checked={regrasConfig.alertas.valorTotalDivergente}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, valorTotalDivergente: v } }))}
+                />
+                <ToggleRow
+                  id="alerta-quantidade-total-divergente"
+                  label="Quantidade total divergente dos itens"
+                  desc="Exibe ícone de aviso quando a quantidade total do pedido difere da soma das quantidades dos itens"
+                  checked={regrasConfig.alertas.quantidadeTotalDivergente}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, quantidadeTotalDivergente: v } }))}
+                />
+                <ToggleRow
+                  id="alerta-quantidade-pronta-divergente"
+                  label="Quantidade pronta divergente dos itens"
+                  desc="Exibe ícone de aviso quando a quantidade pronta do pedido difere da soma das quantidades prontas dos itens"
+                  checked={regrasConfig.alertas.quantidadeProntaDivergente}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, quantidadeProntaDivergente: v } }))}
+                />
+                <ToggleRow
+                  id="alerta-peso-liquido-divergente"
+                  label="Peso líquido total divergente dos itens"
+                  desc="Exibe ícone de aviso quando o peso líquido total difere da soma dos pesos líquidos unitários × quantidade dos itens"
+                  checked={regrasConfig.alertas.pesoLiquidoDivergente}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, pesoLiquidoDivergente: v } }))}
+                />
+                <ToggleRow
+                  id="alerta-peso-bruto-divergente"
+                  label="Peso bruto total divergente dos itens"
+                  desc="Exibe ícone de aviso quando o peso bruto total difere da soma dos pesos brutos unitários × quantidade dos itens"
+                  checked={regrasConfig.alertas.pesoBrutoDivergente}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, pesoBrutoDivergente: v } }))}
+                />
+                <ToggleRow
+                  id="alerta-cubagem-divergente"
+                  label="Cubagem total divergente dos itens"
+                  desc="Exibe ícone de aviso quando a cubagem total difere da soma das cubagens unitárias × quantidade dos itens"
+                  checked={regrasConfig.alertas.cubagemDivergente}
+                  onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, cubagemDivergente: v } }))}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1.5rem' }}>
+                <button
+                  type="button"
+                  className="cfg-btn-primario"
+                  disabled={!regrasAlterados}
+                  onClick={salvarRegras}
+                >
+                  <FloppyDisk size={14} weight="bold" />
+                  {regrasAlterados ? 'Salvar alterações' : 'Salvo'}
+                </button>
+              </div>
+            </section>
+          </div>
+        )}
+
         {/* ════════════════════════ CATEGORIAS ANEXOS ════════════════════════ */}
         {categoria === 'categorias-anexos' && (
           <div className="cfg-cards-wrapper">
@@ -2631,6 +2856,154 @@ export default function Configuracoes() {
                   </div>
                 </div>
               )}
+            </section>
+          </div>
+        )}
+
+        {categoria === 'taxa-cambio' && (
+          <div className="cfg-cards-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Taxa de Câmbio — PTAX</h2>
+                  <p className="cfg-secao__desc">Cotações oficiais do Banco Central do Brasil · usadas para conversão entre moedas nos pedidos</p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {ultimaSyncTaxa && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.78rem', color: 'var(--ws-muted)' }}>
+                      <Clock size={13} /> {ultimaSyncTaxa}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    className="cfg-add-row-btn"
+                    onClick={sincronizarTaxas}
+                    disabled={sincronizandoTaxa}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    <ArrowsClockwise size={13} weight={sincronizandoTaxa ? 'regular' : 'duotone'} />
+                    {sincronizandoTaxa ? 'Sincronizando…' : 'Sincronizar PTAX'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Banner informativo — 4 boletins diários */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '0.6rem',
+                background: 'var(--ws-surface-2, rgba(255,255,255,0.04))',
+                border: '1px solid var(--ws-border, rgba(255,255,255,0.08))',
+                borderRadius: '6px', padding: '0.55rem 0.8rem', marginBottom: '0.75rem',
+                fontSize: '0.78rem', color: 'var(--ws-muted)',
+              }}>
+                <Clock size={13} weight="duotone" style={{ flexShrink: 0, color: 'var(--ws-accent)' }} />
+                <span>
+                  Atualização automática em dias úteis:&nbsp;
+                  {(['1º Boletim · 10h03', '2º Boletim · 11h03', '3º Boletim · 12h03', 'Fechamento · 13h03'] as const).map((label, i) => {
+                    const cor = ['#60a5fa', '#a78bfa', '#34d399', '#fbbf24'][i]
+                    return (
+                      <span key={label} style={{ marginRight: '1.4rem', marginLeft: i === 0 ? '0.5rem' : 0, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', background: cor, flexShrink: 0 }} />
+                        {label}
+                      </span>
+                    )
+                  })}
+                </span>
+              </div>
+
+              {erroSyncTaxa && (
+                <p style={{ color: 'var(--color-danger, #f87171)', fontSize: '0.82rem', margin: '0.5rem 0' }}>{erroSyncTaxa}</p>
+              )}
+
+              {/* Tabela cotações de hoje — todos os boletins */}
+              {carregandoTaxa ? (
+                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>Carregando…</p>
+              ) : taxasHoje.length === 0 ? (
+                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>Nenhuma cotação armazenada. Clique em Sincronizar PTAX.</p>
+              ) : (() => {
+                const TAXA_COLS = '15px 4.5rem 10rem 9.5rem 8.5rem 8.5rem 8rem 6rem'
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: TAXA_COLS, alignItems: 'center', rowGap: '2px', columnGap: '0' }}>
+                    {/* Header — célula vazia para a coluna do ícone */}
+                    <span />
+                    {['Moeda', 'Nome', 'Boletim', 'Compra (R$)', 'Venda (R$)', 'Data', 'Hora'].map(h => (
+                      <span key={h} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{h}</span>
+                    ))}
+                    {/* Rows */}
+                    {taxasHoje.map(t => (
+                      <React.Fragment key={t.id}>
+                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem 0' }}>
+                          <CurrencyCircleDollar size={15} weight="duotone" style={{ color: 'var(--ws-accent)' }} />
+                        </span>
+                        <span style={{ fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{t.moeda}</span>
+                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{MOEDAS_INFO[t.moeda] ?? t.moeda}</span>
+                        <span style={{ padding: '0.5rem', textAlign: 'center' }}>
+                          <span style={{
+                            display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.73rem', fontWeight: 600,
+                            background: (BOLETIM_COR[t.boletim] ?? '#94a3b8') + '22',
+                            color: BOLETIM_COR[t.boletim] ?? '#94a3b8',
+                            border: `1px solid ${(BOLETIM_COR[t.boletim] ?? '#94a3b8')}44`,
+                          }}>{t.boletim}</span>
+                        </span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(t.compra)}</span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(t.venda)}</span>
+                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{fmtData(t.data_cotacao)}</span>
+                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', fontVariantNumeric: 'tabular-nums', textAlign: 'center' }}>{t.hora_cotacao ?? '—'}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )
+              })()}
+            </section>
+
+            {/* Histórico */}
+            <section className="cfg-secao" style={{ marginTop: '1.5rem' }}>
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Histórico — últimos 30 dias</h2>
+                </div>
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  {(['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD'] as const).map(m => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setMoedaHistoricoTaxa(m)}
+                      className={moedaHistoricoTaxa === m ? 'cfg-add-row-btn' : 'cfg-remove-btn'}
+                      style={{ padding: '0.25rem 0.5rem', fontSize: '0.78rem', minWidth: 'auto' }}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {historicoTaxas.length === 0 ? (
+                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>Nenhum histórico de {moedaHistoricoTaxa} armazenado.</p>
+              ) : (() => {
+                const HIST_COLS = '8rem 9.5rem 8.5rem 8.5rem 6rem'
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: HIST_COLS, alignItems: 'center', rowGap: '2px', columnGap: '0' }}>
+                    {['Data', 'Boletim', 'Compra (R$)', 'Venda (R$)', 'Hora'].map(h => (
+                      <span key={h} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{h}</span>
+                    ))}
+                    {historicoTaxas.map(h => (
+                      <React.Fragment key={h.id}>
+                        <span style={{ fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtData(h.data_cotacao)}</span>
+                        <span style={{ padding: '0.5rem', textAlign: 'center' }}>
+                          <span style={{
+                            display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.73rem', fontWeight: 600,
+                            background: (BOLETIM_COR[h.boletim] ?? '#94a3b8') + '22',
+                            color: BOLETIM_COR[h.boletim] ?? '#94a3b8',
+                            border: `1px solid ${(BOLETIM_COR[h.boletim] ?? '#94a3b8')}44`,
+                          }}>{h.boletim}</span>
+                        </span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(h.compra)}</span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(h.venda)}</span>
+                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', fontVariantNumeric: 'tabular-nums', textAlign: 'center' }}>{h.hora_cotacao ?? '—'}</span>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )
+              })()}
             </section>
           </div>
         )}

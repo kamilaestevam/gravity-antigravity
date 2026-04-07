@@ -15,6 +15,7 @@ import {
   CreditCard,
   Receipt,
   PlugsConnected,
+  CurrencyCircleDollar,
   Sun,
   Moon,
   MagnifyingGlass,
@@ -49,6 +50,7 @@ export function WorkspaceLayout() {
     { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
     { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
     { to: '/workspace/api-cockpit',  label: t('workspace.layout.api_cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
+    { to: '/workspace/taxa-cambio',  label: 'Taxa de Câmbio',                       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
   ]
 
   const navigate = useNavigate()

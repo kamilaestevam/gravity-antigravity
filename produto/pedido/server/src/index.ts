@@ -22,6 +22,7 @@ import { requireInternalKey } from './middleware/requireInternalKey.js'
 import { tenantIsolationMiddleware } from './middleware/tenantIsolation.js'
 import { analyticsRouter } from './routes/analytics.js'
 import { dashboardWidgetsRouter } from './routes/dashboardWidgets.js'
+import { dashboardDataRouter } from './routes/dashboardData.js'
 import { consolidarRouter } from './routes/consolidar.js'
 import { transferirRouter, transferirHistoricoRouter } from './routes/transferir.js'
 import { edicaoEmMassaRouter } from './routes/edicaoEmMassa.js'
@@ -32,6 +33,8 @@ import { gabiProxyRouter } from './routes/gabiProxy.js'
 import { anexosRouter } from './routes/anexos.js'
 import { pdfRouter } from './routes/pdf.js'
 import { loteRouter } from './routes/lote.js'
+import { initRouter } from './routes/init.js'
+import { taxaCambioRouter } from './routes/taxaCambio.js'
 import { pedidosRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
 import { pedidosConfigRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos-config.js'
 import { importacaoRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/importacao.js'
@@ -84,6 +87,9 @@ app.use(requireInternalKey)
 // ── 5. Analytics — Power BI integration (auth própria dentro do router) ──────
 app.use('/api/v1/analytics/pedido', analyticsRouter)
 
+// ── 5.1. Taxa de câmbio — proxy público para o Configurador ──────────────────
+app.use('/api/v1/taxa-cambio', taxaCambioRouter)
+
 // ── 6. Tenant isolation (para rotas internas após este ponto) ─────────────────
 app.use(tenantIsolationMiddleware)
 
@@ -95,17 +101,20 @@ app.use(createProductAuditPlugin({
   product_id: 'pedido',
   module: 'pedido',
   getActorFromReq: (req) => {
-    const tenant_id = req.headers['x-tenant-id'] as string | undefined
-    const actor_id  = req.headers['x-user-id']   as string | undefined
+    const tenant_id  = req.headers['x-tenant-id']  as string | undefined
+    const actor_id   = req.headers['x-user-id']    as string | undefined
+    const actor_name = req.headers['x-user-name']  as string | undefined
     if (!tenant_id || !actor_id) return null
-    return { tenant_id, actor_id, actor_name: actor_id, actor_type: 'USER' }
+    return { tenant_id, actor_id, actor_name: actor_name || actor_id, actor_type: 'USER' }
   },
 }))
 
 // ── 8. Rotas de negócio ───────────────────────────────────────────────────────
 // Ordem: rotas estáticas específicas ANTES das genéricas (evita conflitos com /:id)
 app.use('/api/v1/pedidos/openapi.json',      openapiRouter)
+app.use('/api/v1/pedidos/init',              initRouter)           // GET /init — agrega pedidos+status+prefs+colunas em 1 request
 app.use('/api/v1/pedidos/dashboard/widgets', dashboardWidgetsRouter)
+app.use('/api/v1/pedidos/dashboard',         dashboardDataRouter)
 app.use('/api/v1/pedidos/consolidar',        consolidarRouter)
 app.use('/api/v1/pedidos/transferir',        transferirRouter)
 app.use('/api/v1/pedidos/edicao-em-massa',   edicaoEmMassaRouter)

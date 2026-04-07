@@ -14,6 +14,7 @@ function safeCompare(a: string, b: string): boolean {
 const PUBLIC_PATHS = [
   '/health',
   '/api/v1/analytics/pedido',  // Power BI acessa via token separado (ver analyticsAuth)
+  '/api/v1/taxa-cambio',       // Dados públicos do BCB — sem auth necessária
 ]
 
 export function requireInternalKey(req: Request, res: Response, next: NextFunction) {

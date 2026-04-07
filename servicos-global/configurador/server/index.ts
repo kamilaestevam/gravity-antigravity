@@ -32,6 +32,7 @@ import { adminProductsRouter } from './routes/adminProducts.js'
 import { publicCatalogRouter } from './routes/publicCatalog.js'
 import { hubRouter } from './routes/hubInit.js'
 import { meRouter } from './routes/me.js'
+import { taxaCambioRouter } from './routes/taxaCambio.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -136,6 +137,10 @@ import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
 app.use('/api/cockpit', apiCockpitRouter)                  // workspace: observabilidade por tenant
 app.use('/api/admin/cockpit', apiCockpitAdminRouter)       // admin: observabilidade global
 
+// ─── Taxa de câmbio PTAX — sem auth (dados públicos do BCB) ─────────────────
+
+app.use('/api/v1/taxa-cambio', taxaCambioRouter)
+
 // ─── Catálogo público (sem auth — usado pelo Store/Marketplace) ─────────────
 
 app.use('/api/v1/catalog', publicCatalogRouter)
@@ -175,6 +180,10 @@ if (process.env.NODE_ENV !== 'test') {
         await startIntegrityCheckWorker()
         await startPartitionWorker()
         await startGabiQuotaResetWorker()
+
+        // Taxa de câmbio — sync automático 4x/dia (10h / 11h / 12h / 13h BRT)
+        const { startTaxaCambioSyncWorker } = await import('./queue/taxaCambioSyncWorker.js')
+        startTaxaCambioSyncWorker()
       } catch (err) {
         console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)
       }

@@ -395,6 +395,9 @@ model Product {
   extra_hour_price    Decimal? @db.Decimal(15, 2)
   extra_hour_currency String   @default("BRL")
 
+  // GABI On-Demand — quota padrão de tokens por tenant/mês
+  gabi_quota_mensal Int @default(0)
+
   // Metadata
   backend_module  String? // ex: "simula-custo", "bid-frete"
   target_audience String?
@@ -571,6 +574,32 @@ model ServiceHealth {
 
   @@index([status])
   @@index([checked_at])
+}
+
+// ---------------------------------------------------------------------------
+// TAXA CAMBIO
+// Cotações PTAX oficiais do BCB armazenadas para consulta centralizada.
+// Tabela global — sem tenant_id (rates são públicas, iguais para todos).
+// Alimentada via POST /api/v1/taxa-cambio/sync (busca do bid-cambio/BCB).
+// ---------------------------------------------------------------------------
+
+model TaxaCambio {
+  id           String   @id @default(cuid())
+  moeda        String // USD, EUR, GBP, CHF, CNY, JPY
+  compra       Decimal  @db.Decimal(15, 6)
+  venda        Decimal  @db.Decimal(15, 6)
+  data_cotacao DateTime // data da cotação (dia, meia-noite UTC)
+  hora_cotacao String? // ex: "13:02"
+  boletim      String   @default("Fechamento") // "1º Boletim" | "2º Boletim" | "3º Boletim" | "Fechamento"
+  fonte        String   @default("BCB/PTAX")
+  criado_em    DateTime @default(now())
+
+  // Garante 1 registro por moeda × dia × boletim (upsert idempotente)
+  @@unique([moeda, data_cotacao, boletim])
+  @@index([moeda])
+  @@index([moeda, data_cotacao])
+  @@index([data_cotacao])
+  @@index([criado_em])
 }
 
 // ---------------------------------------------------------------------------

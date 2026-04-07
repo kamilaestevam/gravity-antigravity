@@ -3077,7 +3077,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
 // ── Campos editáveis (todos exceto Saldo, que é derivado) ────────────────────
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => c.key !== 'saldo_itens_do_pedido')
+  .filter(c => c.key !== 'saldo_itens_do_pedido' && c.key !== 'quantidade_total_inicial_pedido')
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
@@ -3322,9 +3322,16 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'quantidade_inicial_item_pedido',
     casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
+      quantity: Number(row.quantidade_inicial_item_pedido ?? 0),
+    }),
     render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span className="gtv-celula-moeda">
         {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
+        <span className="gtv-celula-unidade-badge">
+          {(row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'}
+        </span>
       </span>
     ),
   },
@@ -3793,6 +3800,8 @@ export default function ListaPedidos() {
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
   const [carregando, setCarregando]         = useState(true)
+  // Total global de matches no find-in-page (calculado via pré-scan de todos os registros)
+  const [findTotalExterno, setFindTotalExterno] = useState<number | null>(null)
   const [paginaAtual, setPaginaAtual]       = useState(1)
   const [total, setTotal]                   = useState(0)
   const ITENS_POR_PAGINA = 50
@@ -4222,6 +4231,7 @@ export default function ListaPedidos() {
   // ── Mudar aba ────────────────────────────────────────────────────────────────
   const handleMudarAba = useCallback((aba: string) => {
     setAbaAtiva(aba)
+    setFindTotalExterno(null)
     carregarInicial(aba, sortCampo, sortDir, busca)
   }, [carregarInicial, sortCampo, sortDir, busca])
 
@@ -4237,6 +4247,34 @@ export default function ListaPedidos() {
     setBusca(termo)
     carregarInicial(abaAtiva, sortCampo, sortDir, termo)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir])
+
+  // ── Find-in-page: pré-scan de todos os registros para total global de matches ─
+  // Debounce de 350ms para não disparar a cada keystroke.
+  // Limite de 500 registros para evitar chamadas pesadas em volumes grandes.
+  const findPreScanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleFindTermoChange = useCallback((
+    termo: string,
+    contarEmDados: (dados: Pedido[]) => number,
+  ) => {
+    if (findPreScanTimerRef.current) clearTimeout(findPreScanTimerRef.current)
+    if (!termo) { setFindTotalExterno(null); return }
+    findPreScanTimerRef.current = setTimeout(async () => {
+      try {
+        const limit = Math.min(Math.max(total, 1), 500)
+        const res = await pedidoVirtualApi.listar({
+          sort: sortCampo,
+          dir: sortDir,
+          limit,
+          page: 1,
+          status: abaAtiva !== 'todos' ? abaAtiva : undefined,
+          busca: busca || undefined,
+        })
+        setFindTotalExterno(contarEmDados(res.data))
+      } catch {
+        setFindTotalExterno(null)
+      }
+    }, 350)
+  }, [sortCampo, sortDir, total, abaAtiva, busca])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
@@ -4350,8 +4388,16 @@ export default function ListaPedidos() {
 
     let payload: Partial<PedidoItem>
     {
-      const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo) ? Number(valor) || 0 : valor
+      // GTValorUnidade { unit, quantity } → extrai quantity para campos numéricos + salva unidade
+      const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
+      const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo)
+        ? (isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0)
+        : valor
       payload = { [campo]: valorFinal } as Partial<PedidoItem>
+      if (isUnidade) {
+        // Salva a unidade comercializada junto com a quantidade
+        ;(payload as Record<string, unknown>).unidade_comercializada_item = (valor as { unit: string }).unit
+      }
     }
 
     const itemAtual = pedido.itens?.find(i => i.id === id)
@@ -4698,6 +4744,8 @@ export default function ListaPedidos() {
               ? () => handleMudarPagina(paginaAtual - 1)
               : undefined
           }
+          onFindTermoChange={handleFindTermoChange}
+          findTotalExterno={findTotalExterno}
           placeholderBusca="Buscar pedido, exportador, referência..."
           onOrdenar={handleOrdenar}
           sortCampo={sortCampo}

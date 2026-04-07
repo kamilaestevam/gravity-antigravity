@@ -50,6 +50,18 @@ export default defineConfig({
       'react-dom':                    path.resolve(rootNodeModules, 'react-dom'),
       'react':                        path.resolve(rootNodeModules, 'react'),
       '@tanstack/react-virtual':      path.resolve(pedidoNodeModules, '@tanstack/react-virtual'),
+      // @nucleo/* — stubs de UI (evitam resolver deps transitivas de ícones/modais)
+      '@nucleo/tooltip-global':           path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/gabi-field-icon-global':   path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/select-colunas-global':    path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/campo-calendario-global':  path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/modal-tabela-moeda':       path.resolve(__dirname, '__stub-modal-moeda__.ts'),
+      '@nucleo/modal-tabela-unidades':    path.resolve(__dirname, '__stub-modal-unidades__.ts'),
+      '@nucleo/modal-global':             path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/botao-global':             path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/campo-geral-global':       path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/campo-select-global':      path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
+      '@nucleo/cabecalho-global':         path.resolve(__dirname, '__nucleo-ui-stub__.ts'),
     },
   },
 })

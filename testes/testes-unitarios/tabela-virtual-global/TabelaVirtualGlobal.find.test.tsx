@@ -15,6 +15,9 @@
  *   - irParaUltimoMatch: ao trocar dados após onFindPaginaAnterior, foco vai para último match
  *   - Sem resultados exibe mensagem
  *   - Limpar busca remove counter e highlights
+ *   - onFindTermoChange: chamado com termo + função contarEmDados ao digitar
+ *   - contarEmDados: conta headers + células em array externo
+ *   - findTotalExterno: exibe total fornecido pelo pai no counter
  */
 
 import React from 'react'
@@ -22,22 +25,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-// ── Mocks dos @nucleo/* que o componente importa mas que não afetam find-in-page
-vi.mock('@nucleo/tooltip-global', () => ({
-  TooltipGlobal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}))
-vi.mock('@nucleo/gabi-field-icon-global', () => ({
-  GabiFieldIcon: () => null,
-}))
-vi.mock('@nucleo/select-colunas-global', () => ({
-  SelectColunasGlobal: () => null,
-}))
-vi.mock('@nucleo/campo-calendario-global', () => ({
-  CalendarioCampoGlobal: () => null,
-}))
-vi.mock('@nucleo/modal-tabela-moeda', () => ({
-  MOEDAS_SISCOMEX: [],
-}))
+// ── @nucleo/* tratados por aliases no vitest.config (stubs dedicados por pacote).
+// vi.mock explícitos são desnecessários e causam conflito quando múltiplos
+// pacotes apontam para o mesmo stub físico (Vitest de-duplica por path).
+// Os stubs __nucleo-ui-stub__.ts / __stub-modal-moeda__.ts / __stub-modal-unidades__.ts
+// já exportam o necessário para cada módulo.
 
 import { TabelaVirtualGlobal } from '../../../nucleo-global/Tabelas/tabela-virtual-global/src/TabelaVirtualGlobal'
 import type { GTColuna, GTVirtualTableProps } from '../../../nucleo-global/Tabelas/tabela-virtual-global/src/tipos'
@@ -318,5 +310,89 @@ describe('find-in-page — limpar busca', () => {
 
     expect(screen.queryByRole('status')).toBeNull()
     expect(document.querySelectorAll('.gtv-celula--find-match').length).toBe(0)
+  })
+})
+
+// ─── 9. onFindTermoChange — pré-scan do total global ─────────────────────────
+
+describe('find-in-page — onFindTermoChange', () => {
+  it('chama onFindTermoChange com o termo e uma função contarEmDados ao digitar', async () => {
+    const onFindTermoChange = vi.fn()
+    renderTabela({ dados: makeDados(3), onFindTermoChange })
+
+    const input = screen.getByRole('textbox', { name: /localizar/i })
+    await userEvent.type(input, 'PO')
+
+    expect(onFindTermoChange).toHaveBeenCalled()
+    const [termo, contarFn] = onFindTermoChange.mock.calls.at(-1)!
+    expect(termo).toBe('PO')
+    expect(typeof contarFn).toBe('function')
+  })
+
+  it('contarEmDados retorna contagem correta sobre array de dados fornecido', async () => {
+    let capturedContar: ((dados: Pedido[]) => number) | null = null
+    const onFindTermoChange = vi.fn((_, fn) => { capturedContar = fn })
+    renderTabela({ dados: makeDados(3), onFindTermoChange })
+
+    const input = screen.getByRole('textbox', { name: /localizar/i })
+    await userEvent.type(input, 'PO')
+
+    // contarEmDados deve contar headers + células
+    const todosDados = makeDados(10) // simula 10 linhas de outra página
+    const total = capturedContar!(todosDados)
+    // 'PO' aparece em:
+    //   1 header  ("Nome do Exportador" contém "po" em "ex-po-rtador")
+    //   10 células numero_pedido ("PO-2026-001"…"PO-2026-010")
+    //   10 células exportador ("Exportador 1"…"Exportador 10" contém "po")
+    expect(total).toBe(21)
+  })
+
+  it('chama onFindTermoChange com termo vazio ao limpar a busca', async () => {
+    const onFindTermoChange = vi.fn()
+    renderTabela({ dados: makeDados(3), onFindTermoChange })
+
+    const input = screen.getByRole('textbox', { name: /localizar/i })
+    await userEvent.type(input, 'PO')
+
+    onFindTermoChange.mockClear()
+    const btnLimpar = screen.getByRole('button', { name: /limpar busca/i })
+    fireEvent.click(btnLimpar)
+
+    expect(onFindTermoChange).toHaveBeenCalledWith('', expect.any(Function))
+  })
+})
+
+// ─── 10. findTotalExterno — exibe total fornecido pelo pai ────────────────────
+
+describe('find-in-page — findTotalExterno', () => {
+  it('exibe findTotalExterno no counter quando fornecido', async () => {
+    renderTabela({ dados: makeDados(3), findTotalExterno: 224 })
+
+    const input = screen.getByRole('textbox', { name: /localizar/i })
+    await userEvent.type(input, 'Exportador')
+
+    const counter = screen.getByRole('status')
+    expect(counter.textContent).toMatch(/de 224/)
+  })
+
+  it('exibe o total local com + quando findTotalExterno é null e há próxima página', async () => {
+    const onFindProximaPagina = vi.fn()
+    renderTabela({ dados: makeDados(3), findTotalExterno: null, onFindProximaPagina })
+
+    const input = screen.getByRole('textbox', { name: /localizar/i })
+    await userEvent.type(input, 'Exportador')
+
+    const counter = screen.getByRole('status')
+    expect(counter.textContent).toMatch(/\+/)
+  })
+
+  it('exibe o total local sem + quando findTotalExterno é null e não há próxima página', async () => {
+    renderTabela({ dados: makeDados(3), findTotalExterno: null, onFindProximaPagina: undefined })
+
+    const input = screen.getByRole('textbox', { name: /localizar/i })
+    await userEvent.type(input, 'Exportador')
+
+    const counter = screen.getByRole('status')
+    expect(counter.textContent).not.toMatch(/\+/)
   })
 })

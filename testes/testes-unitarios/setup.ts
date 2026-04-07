@@ -28,4 +28,12 @@ if (isJsdom) {
   if (typeof global.URL.revokeObjectURL === 'undefined') {
     global.URL.revokeObjectURL = vi.fn()
   }
+
+  // jsdom não implementa scrollIntoView nem scrollTo — necessários para testes de tabela
+  if (typeof Element.prototype.scrollIntoView === 'undefined') {
+    Element.prototype.scrollIntoView = vi.fn()
+  }
+  if (typeof Element.prototype.scrollTo === 'undefined') {
+    Element.prototype.scrollTo = vi.fn()
+  }
 }

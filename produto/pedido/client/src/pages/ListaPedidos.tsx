@@ -3077,7 +3077,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
 // ── Campos editáveis (todos exceto Saldo, que é derivado) ────────────────────
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => c.key !== 'saldo_itens_do_pedido' && c.key !== 'quantidade_total_inicial_pedido')
+  .filter(c => c.key !== 'saldo_itens_do_pedido')
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
@@ -3975,6 +3975,18 @@ export default function ListaPedidos() {
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
 
+  // ── Modal de confirmação de divergência (valor/qtd pedido vs itens) ───────────
+  const [modalConfDivergencia, setModalConfDivergencia] = useState<{
+    campo: 'valor_total_pedido' | 'quantidade_total_inicial_pedido'
+    labelCampo: string
+    valorNovo: number
+    moeda?: string
+    unidade?: string
+    somaItens: number
+    divergenciaPct: number
+  } | null>(null)
+  const pendingConfirmRef = useRef<{ resolve: () => void; reject: (err: Error) => void } | null>(null)
+
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
 
@@ -4257,31 +4269,58 @@ export default function ListaPedidos() {
     contarEmDados: (dados: Pedido[]) => number,
   ) => {
     if (findPreScanTimerRef.current) clearTimeout(findPreScanTimerRef.current)
-    if (!termo) { setFindTotalExterno(null); return }
+    // Reset imediato: evita mostrar total de busca anterior durante o debounce
+    setFindTotalExterno(null)
+    if (!termo) return
     findPreScanTimerRef.current = setTimeout(async () => {
       try {
-        const limit = Math.min(Math.max(total, 1), 500)
-        const res = await pedidoVirtualApi.listar({
-          sort: sortCampo,
-          dir: sortDir,
-          limit,
-          page: 1,
-          status: abaAtiva !== 'todos' ? abaAtiva : undefined,
-          busca: busca || undefined,
-        })
-        setFindTotalExterno(contarEmDados(res.data))
+        // Busca todas as páginas em paralelo (máx 10 páginas = 500 registros)
+        const totalPages = Math.min(Math.ceil(Math.max(total, 1) / ITENS_POR_PAGINA), 10)
+        const promises = Array.from({ length: totalPages }, (_, i) =>
+          pedidoVirtualApi.listar({
+            sort: sortCampo,
+            dir: sortDir,
+            limit: ITENS_POR_PAGINA,
+            page: i + 1,
+            status: abaAtiva !== 'todos' ? abaAtiva : undefined,
+            busca: busca || undefined,
+          })
+        )
+        const results = await Promise.all(promises)
+        const allData = results.flatMap(r => r.data)
+        setFindTotalExterno(contarEmDados(allData))
       } catch {
         setFindTotalExterno(null)
       }
     }, 350)
-  }, [sortCampo, sortDir, total, abaAtiva, busca])
+  }, [sortCampo, sortDir, total, abaAtiva, busca, ITENS_POR_PAGINA])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
+  // Mostra modal de confirmação de divergência e aguarda a decisão do usuário
+  const confirmarDivergencia = useCallback((
+    campo: 'valor_total_pedido' | 'quantidade_total_inicial_pedido',
+    labelCampo: string,
+    valorNovo: number,
+    somaItens: number,
+    moeda?: string,
+    unidade?: string,
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const divergenciaPct = somaItens === 0 ? 100 : Math.abs((valorNovo - somaItens) / somaItens) * 100
+      pendingConfirmRef.current = { resolve, reject }
+      setModalConfDivergencia({ campo, labelCampo, valorNovo, moeda, unidade, somaItens, divergenciaPct })
+    })
+  }, [])
+
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
     // valor_total_pedido retorna GTValorMoeda { currency, amount } → salva os dois campos
     if (campo === 'valor_total_pedido' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
       const pedidoAtual = pedidos.find(p => p.id === id)
+      const somaItens = (pedidoAtual?.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_item?: number }).valor_total_item) || 0), 0)
+      if (pedidoAtual && pedidoAtual.itens && pedidoAtual.itens.length > 0 && Math.abs(mv.amount - somaItens) > 0.001) {
+        await confirmarDivergencia('valor_total_pedido', 'Valor Total', mv.amount, somaItens, mv.currency)
+      }
       await pedidoVirtualApi.editarCampo(id, 'moeda_pedido', mv.currency)
       const atualizado = await pedidoVirtualApi.editarCampo(id, 'valor_total_pedido', mv.amount)
       const final = { ...atualizado, moeda_pedido: mv.currency } as Pedido & { moeda_pedido: string }
@@ -4291,6 +4330,13 @@ export default function ListaPedidos() {
     // tipo: 'unidade' retorna GTValorUnidade { unit, quantity } → salva apenas a quantity
     if (valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)) {
       const uv = valor as { unit: string; quantity: number }
+      if (campo === 'quantidade_total_inicial_pedido') {
+        const pedidoAtual = pedidos.find(p => p.id === id)
+        const somaItens = (pedidoAtual?.itens ?? []).reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+        if (pedidoAtual && pedidoAtual.itens && pedidoAtual.itens.length > 0 && Math.abs(uv.quantity - somaItens) > 0.001) {
+          await confirmarDivergencia('quantidade_total_inicial_pedido', 'Quantidade Total', uv.quantity, somaItens, undefined, uv.unit)
+        }
+      }
       const atualizado = await pedidoVirtualApi.editarCampo(id, campo, uv.quantity)
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
@@ -4308,7 +4354,7 @@ export default function ListaPedidos() {
     const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
     setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
     return atualizado
-  }, [pedidos])
+  }, [pedidos, confirmarDivergencia])
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
   const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
@@ -5008,6 +5054,90 @@ export default function ListaPedidos() {
         </div>
       )}
 
+      {/* ── Modal Confirmação Divergência (valor/qtd vs soma dos itens) ── */}
+      {modalConfDivergencia && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => {
+            setModalConfDivergencia(null)
+            pendingConfirmRef.current?.reject(new Error('Cancelado'))
+            pendingConfirmRef.current = null
+          }}
+        >
+          <div
+            style={{ background: 'var(--bg-surface)', borderRadius: '0.75rem', padding: '1.5rem', width: '420px', maxWidth: '90vw', border: '1px solid var(--border-subtle)', boxShadow: '0 24px 48px rgba(0,0,0,0.45)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.125rem' }}>
+              <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Warning size={16} weight="fill" style={{ color: '#fbbf24' }} />
+              </div>
+              <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+                Divergência detectada
+              </h3>
+            </div>
+
+            {/* Conteúdo */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0', lineHeight: 1.5 }}>
+                O valor de <strong style={{ color: 'var(--text-primary)' }}>{modalConfDivergencia.labelCampo}</strong> que você está definindo é diferente da soma dos itens do pedido.
+              </p>
+
+              <div style={{ background: 'var(--bg-base)', borderRadius: '0.5rem', border: '1px solid var(--border-subtle)', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.875rem', borderBottom: '1px solid var(--border-subtle)' }}>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Novo valor</span>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
+                    {modalConfDivergencia.moeda && <span style={{ color: 'var(--text-secondary)', marginRight: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.moeda}</span>}
+                    {fmtQuantidade(modalConfDivergencia.valorNovo, modalConfDivergencia.campo === 'valor_total_pedido' ? 2 : 0)}
+                    {modalConfDivergencia.unidade && <span style={{ color: 'var(--text-secondary)', marginLeft: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.unidade}</span>}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.875rem' }}>
+                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Soma dos itens</span>
+                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+                    {modalConfDivergencia.moeda && <span style={{ marginRight: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.moeda}</span>}
+                    {fmtQuantidade(modalConfDivergencia.somaItens, modalConfDivergencia.campo === 'valor_total_pedido' ? 2 : 0)}
+                    {modalConfDivergencia.unidade && <span style={{ marginLeft: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.unidade}</span>}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '0.625rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+                <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />
+                <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>
+                  Divergência de {modalConfDivergencia.divergenciaPct.toFixed(1)}% — um alerta será exibido na tabela.
+                </span>
+              </div>
+            </div>
+
+            {/* Ações */}
+            <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end' }}>
+              <BotaoGlobal
+                variante="fantasma"
+                onClick={() => {
+                  setModalConfDivergencia(null)
+                  pendingConfirmRef.current?.reject(new Error('Cancelado pelo usuário'))
+                  pendingConfirmRef.current = null
+                }}
+              >
+                Cancelar
+              </BotaoGlobal>
+              <BotaoGlobal
+                variante="primario"
+                icone={<Warning size={14} weight="fill" />}
+                onClick={() => {
+                  setModalConfDivergencia(null)
+                  pendingConfirmRef.current?.resolve()
+                  pendingConfirmRef.current = null
+                }}
+              >
+                Confirmar mesmo assim
+              </BotaoGlobal>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

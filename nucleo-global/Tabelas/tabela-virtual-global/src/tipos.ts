@@ -272,6 +272,18 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    * vai automaticamente para o último match da nova página.
    */
   onFindPaginaAnterior?: () => void
+  /**
+   * Chamado quando o termo de busca (find-in-page) muda. Recebe o termo e uma
+   * função `contarEmDados` que aplica o mesmo algoritmo de find em qualquer
+   * array de dados — usar para pré-calcular o total global de matches.
+   * Retorne o total via `findTotalExterno`.
+   */
+  onFindTermoChange?: (termo: string, contarEmDados: (dados: T[]) => number) => void
+  /**
+   * Total global de matches (todas as páginas) fornecido pelo pai após pré-scan.
+   * Quando presente, substitui o contador local no find bar e no rodapé.
+   */
+  findTotalExterno?: number | null
   placeholderBusca?: string
   onFiltrar?: (filtros: GTFiltrosAtivos) => void
   onOrdenar?: (campo: string, dir: 'asc' | 'desc') => void

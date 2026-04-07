@@ -1,0 +1,25 @@
+{
+  "name": "@nucleo/modal-tabela-moeda",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@nucleo/campo-select-global": "*",
+    "@nucleo/modal-global": "*"
+  },
+  "devDependencies": {
+    "@phosphor-icons/react": "^2.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "typescript": "^5.4.0"
+  }
+}

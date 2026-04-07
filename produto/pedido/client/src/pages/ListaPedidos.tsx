@@ -4308,7 +4308,7 @@ export default function ListaPedidos() {
       return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, [campo]: valor } } as PedidoItem
     }
 
-    // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount no item e moeda no pedido pai
+    // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
     if (campo === 'valor_total_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
       const itemAtualMv = pedido.itens?.find(i => i.id === id)
@@ -4320,10 +4320,26 @@ export default function ListaPedidos() {
           if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_item: mv.amount, moeda_item: mv.currency } as PedidoItem
           throw new Error('Erro ao editar valor_total_item')
         })
-      const pAtual = itemAtualMv ? (itemAtualMv as PedidoItemEnriquecido)._p : undefined
       const enriquecidoMv: PedidoItemEnriquecido = {
         ...atualizadoMv,
-        _p: { ...pAtual, moeda_pedido: pAtual?.moeda_pedido ?? 'USD' } as PedidoItemEnriquecido['_p'],
+        _p: {
+          id: pedido.id,
+          tipo_operacao: pedido.tipo_operacao,
+          exportador_nome: pedido.exportador_nome ?? null,
+          importador_nome: pedido.importador_nome ?? null,
+          fabricante_nome: pedido.fabricante_nome ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+          condicao_pagamento: pedido.condicao_pagamento ?? null,
+          cobertura_cambial: pedido.cobertura_cambial ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+        },
       }
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p

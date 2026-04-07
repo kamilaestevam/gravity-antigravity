@@ -47,25 +47,14 @@ export interface PedidoItem {
 
   // Quantidades
   quantidade_inicial_item_pedido: number
-  quantidade_saldo_pedido: number
+  saldo_item_pedido: number
   quantidade_pronta_total: number
   quantidade_transferida_item: number
   quantidade_cancelada_item_pedido: number
   casas_decimais_quantidade_item: number
 
-  // Unidade comercializada
-  unidade_comercializada_item: string | null
-  casas_decimais_unidade_comercializada?: number
-
-  // Unidade estatística
-  unidade_estatistica?: string | null
-  quantidade_unidade_estatistica?: number | null
-  casas_decimais_unidade_estatistica?: number
-
   // Financeiro
   moeda_item: string
-  valor_por_unidade_item: number | null
-  casas_decimais_valor_unitario?: number
   valor_total_item: number | null
   casas_decimais_total_item: number
 
@@ -317,7 +306,6 @@ export interface Pedido {
   casas_decimais_total_pedido: number
   quantidade_total_inicial_pedido: number | null
   casas_decimais_quantidade_total_pedido: number
-  unidade_comercializada_pedido: string | null
   quantidade_volumes_pedido?: number | null
 
   // Agregados de itens (soma calculada pelo backend)
@@ -352,7 +340,7 @@ export interface Pedido {
   referencia_fabricante?: string | null
 
   // Datas principais
-  data_emissao_pedido: string | null
+  data_emissao_pedido: string
   data_prevista_pedido_pronto?: string | null
   data_confirmada_pedido_pronto?: string | null
   data_meta_pedido_pronto?: string | null
@@ -551,7 +539,7 @@ export interface TransferPreview {
   origem: {
     pedido_numero: string
     item_part_number: string
-    quantidade_saldo_pedido: number
+    saldo_item_pedido: number
     quantidade_apos: number
     encerra: boolean
   }
@@ -587,10 +575,6 @@ export interface TransferHistorico {
   created_at: string
   created_by: string
 }
-
-// ── Moedas ISO disponíveis ────────────────────────────────────────────────────
-
-export const MOEDAS_ISO = ['USD', 'EUR', 'BRL', 'CNY', 'GBP', 'JPY', 'CHF', 'ARS', 'CAD', 'AUD', 'MXN', 'CLP', 'COP', 'PEN', 'UYU'] as const
 
 // ── Edição em Massa ───────────────────────────────────────────────────────────
 
@@ -661,6 +645,7 @@ export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'valor_total_pedido',
   'quantidade_total_inicial_pedido',
   'quantidade_transferida_total',
+  'status',
   'id',
   'tenant_id',
   'product_id',
@@ -672,7 +657,7 @@ export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
 /** Campos calculados do PedidoItem — nunca editáveis em massa */
 export const CAMPOS_BLOQUEADOS_ITEM = new Set([
   'valor_total_item',
-  'quantidade_saldo_pedido',
+  'saldo_item_pedido',
   'id',
   'tenant_id',
   'pedido_id',
@@ -761,23 +746,11 @@ export interface SmartImportResultado {
 export interface DuplicarPayload {
   ids: string[]
   numeros?: Record<string, string>
-  config_override?: {
-    numero_auto: boolean
-    copiar_datas: boolean
-    status_inicial: string
-  }
-}
-
-export interface DuplicarItemConfigOverride {
-  numeracao_automatica: boolean
-  copiar_datas: boolean
-  copiar_dados: boolean
 }
 
 export interface DuplicarItemPayload {
   pedido_id: string
   item_ids: string[]
-  config_override?: DuplicarItemConfigOverride
 }
 
 export interface DuplicarResultado {
@@ -871,7 +844,6 @@ export type TipoColunaUsuario =
   | 'percentual'
   | 'tipo_documento'
   | 'formula'
-  | 'anexo'
 
 export type EscopoColunaUsuario = 'pedido' | 'item' | 'ambos'
 export type VisibilidadeColunaUsuario = 'todos' | 'roles' | 'privado'
@@ -917,13 +889,15 @@ export function fmtQuantidade(valor: number, casas: number = 2): string {
   })
 }
 
-export function fmtMoeda(valor: number, moeda: string = 'USD'): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: moeda,
-  }).format(valor)
-}
-
 export function fmtData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR')
+}
+
+export function fmtMoeda(valor: number, moeda: string = 'BRL'): string {
+  return valor.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: moeda || 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
 }

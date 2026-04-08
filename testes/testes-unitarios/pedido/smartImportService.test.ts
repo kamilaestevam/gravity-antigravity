@@ -48,6 +48,10 @@ function makeMockPrisma(pedidosExistentes: string[] = []) {
       ),
       update: vi.fn().mockResolvedValue({ id: 'updated' }),
     },
+    // Necessário para popular agregados após confirmar (findMany pós-transação)
+    pedidoItem: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
     mapeamentoImport: {
       findUnique: vi.fn().mockResolvedValue(null),
       upsert:     vi.fn().mockResolvedValue({}),
@@ -59,6 +63,10 @@ function makeMockPrisma(pedidosExistentes: string[] = []) {
           findFirst: vi.fn().mockResolvedValue(null),
           create: vi.fn().mockResolvedValue({ id: `new-${Date.now()}` }),
           update: vi.fn().mockResolvedValue({ id: 'updated' }),
+        },
+        pedidoItem: {
+          count:  vi.fn().mockResolvedValue(0),
+          create: vi.fn().mockResolvedValue({}),
         },
       })
     ),
@@ -558,7 +566,7 @@ describe('SmartImportService — stateless fallback (P0.3)', () => {
         create: vi.fn().mockResolvedValue({ id: 'id' }),
         update: vi.fn(),
       },
-      pedidoItem: { create: vi.fn().mockResolvedValue({}) },
+      pedidoItem: { count: vi.fn().mockResolvedValue(0), create: vi.fn().mockResolvedValue({}) },
     }))
 
     const resultado = await svc.confirmar('tenant1', 'user1', {
@@ -592,7 +600,7 @@ describe('SmartImportService — importacao incremental (FEAT.6)', () => {
         create: vi.fn().mockResolvedValue({ id: 'novo' }),
         update: vi.fn(),
       },
-      pedidoItem: { create: pedidoItemCreate },
+      pedidoItem: { count: vi.fn().mockResolvedValue(0), create: pedidoItemCreate },
     }))
 
     const resultado = await svc.confirmar('tenant1', 'user1', {
@@ -622,7 +630,7 @@ describe('SmartImportService — importacao incremental (FEAT.6)', () => {
         create: pedidoCreate,
         update: vi.fn(),
       },
-      pedidoItem: { create: vi.fn().mockResolvedValue({}) },
+      pedidoItem: { count: vi.fn().mockResolvedValue(0), create: vi.fn().mockResolvedValue({}) },
     }))
 
     const resultado = await svc.confirmar('tenant1', 'user1', {
@@ -653,6 +661,7 @@ describe('SmartImportService — importacao incremental (FEAT.6)', () => {
         update: vi.fn(),
       },
       pedidoItem: {
+        count:  vi.fn().mockResolvedValue(0),
         create: vi.fn().mockRejectedValue(new Error('unique constraint')),
       },
     }))

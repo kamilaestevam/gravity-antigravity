@@ -15,8 +15,7 @@
  *   - irParaUltimoMatch: ao trocar dados após onFindPaginaAnterior, foco vai para último match
  *   - Sem resultados exibe mensagem
  *   - Limpar busca remove counter e highlights
- *   - onFindTermoChange: chamado com termo + função contarEmDados ao digitar
- *   - contarEmDados: conta headers + células em array externo
+ *   - onFindTermoChange: chamado com o termo (string) ao digitar — pai busca total no banco
  *   - findTotalExterno: exibe total fornecido pelo pai no counter
  */
 
@@ -313,10 +312,12 @@ describe('find-in-page — limpar busca', () => {
   })
 })
 
-// ─── 9. onFindTermoChange — pré-scan do total global ─────────────────────────
+// ─── 9. onFindTermoChange — notifica pai para buscar total no banco ───────────
+// Assinatura atual: (termo: string) => void
+// O pai busca o total via API e retorna via findTotalExterno.
 
 describe('find-in-page — onFindTermoChange', () => {
-  it('chama onFindTermoChange com o termo e uma função contarEmDados ao digitar', async () => {
+  it('chama onFindTermoChange com o termo ao digitar', async () => {
     const onFindTermoChange = vi.fn()
     renderTabela({ dados: makeDados(3), onFindTermoChange })
 
@@ -324,30 +325,11 @@ describe('find-in-page — onFindTermoChange', () => {
     await userEvent.type(input, 'PO')
 
     expect(onFindTermoChange).toHaveBeenCalled()
-    const [termo, contarFn] = onFindTermoChange.mock.calls.at(-1)!
+    const [termo] = onFindTermoChange.mock.calls.at(-1)!
     expect(termo).toBe('PO')
-    expect(typeof contarFn).toBe('function')
   })
 
-  it('contarEmDados retorna contagem correta sobre array de dados fornecido', async () => {
-    let capturedContar: ((dados: Pedido[]) => number) | null = null
-    const onFindTermoChange = vi.fn((_, fn) => { capturedContar = fn })
-    renderTabela({ dados: makeDados(3), onFindTermoChange })
-
-    const input = screen.getByRole('textbox', { name: /localizar/i })
-    await userEvent.type(input, 'PO')
-
-    // contarEmDados deve contar headers + células
-    const todosDados = makeDados(10) // simula 10 linhas de outra página
-    const total = capturedContar!(todosDados)
-    // 'PO' aparece em:
-    //   1 header  ("Nome do Exportador" contém "po" em "ex-po-rtador")
-    //   10 células numero_pedido ("PO-2026-001"…"PO-2026-010")
-    //   10 células exportador ("Exportador 1"…"Exportador 10" contém "po")
-    expect(total).toBe(21)
-  })
-
-  it('chama onFindTermoChange com termo vazio ao limpar a busca', async () => {
+  it('chama onFindTermoChange com string vazia ao limpar a busca', async () => {
     const onFindTermoChange = vi.fn()
     renderTabela({ dados: makeDados(3), onFindTermoChange })
 
@@ -358,7 +340,19 @@ describe('find-in-page — onFindTermoChange', () => {
     const btnLimpar = screen.getByRole('button', { name: /limpar busca/i })
     fireEvent.click(btnLimpar)
 
-    expect(onFindTermoChange).toHaveBeenCalledWith('', expect.any(Function))
+    expect(onFindTermoChange).toHaveBeenCalledWith('')
+  })
+
+  it('não chama onFindTermoChange ao digitar no input de busca padrão (modoLocalizar: false)', async () => {
+    const onFindTermoChange = vi.fn()
+    renderTabela({ dados: makeDados(3), onFindTermoChange, modoLocalizar: false })
+
+    // Com modoLocalizar=false o input é de busca global, não find-in-page
+    // Digitar nele não deve chamar onFindTermoChange (que é exclusivo do modoLocalizar)
+    const input = screen.queryByRole('textbox', { name: /localizar/i })
+    if (input) await userEvent.type(input, 'PO')
+
+    expect(onFindTermoChange).not.toHaveBeenCalled()
   })
 })
 

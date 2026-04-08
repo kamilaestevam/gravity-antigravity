@@ -579,15 +579,13 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_emissao_pedido',
   'campos_custom',
   'unidade_comercializada_pedido',
-  // Aliases do frontend — mapeados para campos Prisma no handler
-  'quantidade_total_inicial_pedido',
-  // Editável diretamente — divergência sinalizada pelo sistema de alertas
-  'valor_total_pedido',
 ])
 
-// Campos virtuais calculados a partir dos itens (não persistidos — ignorar valor do cliente)
+// Campos calculados a partir dos itens — valor do cliente é ignorado; backend recalcula
 const CAMPOS_RECALCULAVEIS = new Set([
   'quantidade_pronta_itens_pedido_total',
+  'quantidade_total_inicial_pedido',
+  'valor_total_pedido',
   'peso_liquido_total_pedido',
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
@@ -638,7 +636,15 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
       const dadosRecalc: Record<string, unknown> = {}
 
-      if (campo === 'peso_liquido_total_pedido') {
+      if (campo === 'quantidade_total_inicial_pedido') {
+        const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_pedido ?? 0), 0)
+        const casas = (pedido as any).casas_decimais_quantidade_pedido ?? 0
+        dadosRecalc.quantidade_total_pedido = parseFloat(soma.toFixed(casas))
+      } else if (campo === 'valor_total_pedido') {
+        const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_item ?? 0), 0)
+        const casas = (pedido as any).casas_decimais_total_pedido ?? 2
+        dadosRecalc.valor_total_pedido = parseFloat(soma.toFixed(casas))
+      } else if (campo === 'peso_liquido_total_pedido') {
         const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario ?? 0) * Number(i.quantidade_inicial_pedido ?? 0), 0)
         const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
         dadosRecalc.peso_liquido_total_pedido = parseFloat(soma.toFixed(casas))
@@ -683,11 +689,6 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
         ? pedido.detalhes_operacionais as Record<string, unknown>
         : {}
       dadosUpdate = { detalhes_operacionais: { ...detAtual, [campo]: valor } }
-    } else if (campo === 'quantidade_total_inicial_pedido') {
-      // Alias do frontend → campo Prisma real
-      dadosUpdate = { quantidade_total_pedido: typeof valor === 'number' ? valor : Number(valor) || 0 }
-    } else if (campo === 'valor_total_pedido') {
-      dadosUpdate = { valor_total_pedido: typeof valor === 'number' ? valor : Number(valor) || 0 }
     } else {
       dadosUpdate = { [campo]: valor }
     }

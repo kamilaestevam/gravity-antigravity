@@ -55,6 +55,7 @@ import type {
   GTPreferencias,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences } from '../shared/useCardPreferences'
+import { useTaxasCambio } from '../shared/useTaxasCambio'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
 import {
@@ -610,22 +611,29 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Valor Total do Pedido',
     tooltipDescricao: 'Valor FOB total na moeda do pedido',
     grupo: 'Financeiro',
-    getValorEditar: (row: Pedido) => ({
-      currency: row.moeda_pedido ?? 'USD',
-      amount: row.valor_total_pedido ?? 0,
-    }),
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_pedido)
       const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_item?: number }).valor_total_item) || 0), 0)
       const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
       const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_valor_total_divergente ?? true)
-      return (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+      const difAbsolutaValor = Math.abs(num - somaItens)
+      const difPctValor = somaItens === 0 ? 100 : (difAbsolutaValor / somaItens) * 100
+      const celula = (
+        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
           {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
           <span className="gtv-celula-moeda-badge">{moeda}</span>
           {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
+      )
+      if (!alertaAtivo) return celula
+      return (
+        <TooltipGlobal
+          titulo="Divergência no valor total"
+          descricao={`Pedido: ${moeda} ${fmtQuantidade(num, 2)} · Itens: ${moeda} ${fmtQuantidade(somaItens, 2)} · Dif: ${moeda} ${fmtQuantidade(difAbsolutaValor, 2)} (${difPctValor.toFixed(2)}%)`}
+        >
+          {celula}
+        </TooltipGlobal>
       )
     },
   },
@@ -637,28 +645,35 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Inicial do Pedido',
     tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
     grupo: 'Quantidades',
-    getValorEditar: (row: Pedido) => ({
-      unit: 'UN',
-      quantity: Number(row.quantidade_total_inicial_pedido ?? 0),
-    }),
     render: (_val: unknown, row: Pedido) => {
       const num = Number(row.quantidade_total_inicial_pedido)
       const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
       const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
       const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_quantidade_total_divergente ?? true)
-      return (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+      const difAbsolutaQtd = Math.abs(num - somaItens)
+      const difPctQtd = somaItens === 0 ? 100 : (difAbsolutaQtd / somaItens) * 100
+      const celulaQtd = (
+        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
           {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
           {row.quantidade_total_inicial_pedido != null && !isNaN(num) ? fmtQuantidade(num, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
           <span className="gtv-celula-unidade-badge">UN</span>
         </span>
+      )
+      if (!alertaAtivo) return celulaQtd
+      return (
+        <TooltipGlobal
+          titulo="Divergência na quantidade inicial"
+          descricao={`Pedido: ${fmtQuantidade(num, 0)} UN · Itens: ${fmtQuantidade(somaItens, 0)} UN · Dif: ${fmtQuantidade(difAbsolutaQtd, 0)} UN (${difPctQtd.toFixed(2)}%)`}
+        >
+          {celulaQtd}
+        </TooltipGlobal>
       )
     },
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
     label: 'Qtd. Pronta do Pedido',
-    tipo: 'numero',
+    tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
@@ -800,57 +815,116 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'peso_liquido_total_pedido',
     label: 'Peso Líq. Total',
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
+    casasDecimais: getCasas('peso_liquido_total_pedido', 3),
+    unidades: [{ sigla: 'kg', rotulo: 'Quilograma' }],
     tooltipTitulo: 'Peso Líquido Total do Pedido',
     tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
     grupo: 'Dados Físicos',
-    render: (_val: unknown, row: Pedido) => (
-      <span className="gtv-celula-moeda">
-        {row.peso_liquido_total_pedido != null
-          ? fmtQuantidade(row.peso_liquido_total_pedido, getCasas('peso_liquido_total_pedido', 3))
-          : '—'}
-        <span className="gtv-celula-unidade-badge">kg</span>
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const casas = getCasas('peso_liquido_total_pedido', 3)
+      const num = Number(row.peso_liquido_total_pedido ?? 0)
+      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
+      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
+      const difAbs = Math.abs(num - somaItens)
+      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
+      const celula = (
+        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
+          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+          <span className="gtv-celula-unidade-badge">kg</span>
+        </span>
+      )
+      if (!alertaAtivo) return celula
+      return (
+        <TooltipGlobal
+          titulo="Divergência no peso líquido total"
+          descricao={`Pedido: ${fmtQuantidade(num, casas)} kg · Itens: ${fmtQuantidade(somaItens, casas)} kg · Dif: ${fmtQuantidade(difAbs, casas)} kg (${difPct.toFixed(2)}%)`}
+        >
+          {celula}
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'peso_bruto_total_pedido',
     label: 'Peso Bruto Total',
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
+    casasDecimais: getCasas('peso_bruto_total_pedido', 3),
+    unidades: [{ sigla: 'kg', rotulo: 'Quilograma' }],
     tooltipTitulo: 'Peso Bruto Total do Pedido',
     tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
     grupo: 'Dados Físicos',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.peso_bruto_total_pedido != null
-          ? `${fmtQuantidade(row.peso_bruto_total_pedido, getCasas('peso_bruto_total_pedido', 3))} kg`
-          : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const casas = getCasas('peso_bruto_total_pedido', 3)
+      const num = Number(row.peso_bruto_total_pedido ?? 0)
+      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
+      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
+      const difAbs = Math.abs(num - somaItens)
+      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
+      const celula = (
+        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
+          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+          <span className="gtv-celula-unidade-badge">kg</span>
+        </span>
+      )
+      if (!alertaAtivo) return celula
+      return (
+        <TooltipGlobal
+          titulo="Divergência no peso bruto total"
+          descricao={`Pedido: ${fmtQuantidade(num, casas)} kg · Itens: ${fmtQuantidade(somaItens, casas)} kg · Dif: ${fmtQuantidade(difAbs, casas)} kg (${difPct.toFixed(2)}%)`}
+        >
+          {celula}
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'cubagem_total_pedido',
     label: 'Cubagem Total',
-    tipo: 'numero',
+    tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
+    casasDecimais: getCasas('cubagem_total_pedido', 4),
+    unidades: [{ sigla: 'm³', rotulo: 'Metro Cúbico' }],
     tooltipTitulo: 'Cubagem Total do Pedido',
     tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
     grupo: 'Dados Físicos',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.cubagem_total_pedido != null
-          ? `${fmtQuantidade(row.cubagem_total_pedido, getCasas('cubagem_total_pedido', 4))} m³`
-          : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => {
+      const casas = getCasas('cubagem_total_pedido', 4)
+      const num = Number(row.cubagem_total_pedido ?? 0)
+      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.cubagem_unitaria) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
+      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_cubagem_divergente ?? true)
+      const difAbs = Math.abs(num - somaItens)
+      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
+      const celula = (
+        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
+          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+          <span className="gtv-celula-unidade-badge">m³</span>
+        </span>
+      )
+      if (!alertaAtivo) return celula
+      return (
+        <TooltipGlobal
+          titulo="Divergência na cubagem total"
+          descricao={`Pedido: ${fmtQuantidade(num, casas)} m³ · Itens: ${fmtQuantidade(somaItens, casas)} m³ · Dif: ${fmtQuantidade(difAbs, casas)} m³ (${difPct.toFixed(2)}%)`}
+        >
+          {celula}
+        </TooltipGlobal>
+      )
+    },
   },
   // ── Datas de progresso ──────────────────────────────────────────────────────
   {
@@ -3089,10 +3163,22 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
 ]
 
-// ── Campos editáveis (todos exceto Saldo, que é derivado) ────────────────────
+// ── Campos editáveis pai — exclui todos os totais calculados automaticamente ──
+// Categoria A (derivados dos itens): nunca editáveis pelo usuário
+const CAMPOS_DERIVADOS_PAI = new Set([
+  'valor_total_pedido',
+  'quantidade_total_inicial_pedido',
+  'quantidade_pronta_itens_pedido_total',
+  'saldo_itens_do_pedido',
+  'quantidade_transferida_total',
+  'quantidade_cancelada_total_pedido',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
+])
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => c.key !== 'saldo_itens_do_pedido')
+  .filter(c => !CAMPOS_DERIVADOS_PAI.has(c.key))
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────
@@ -3276,6 +3362,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_liquido_unitario',
     casasDecimais: getCasas('peso_liquido_unitario', 3),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: 'kg',
+      quantity: Number(row.peso_liquido_unitario ?? 0),
+    }),
     render: (row: PedidoItem) => (
       <span className="gtv-celula-moeda">
         {row.peso_liquido_unitario != null
@@ -3289,11 +3379,16 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_bruto_unitario',
     casasDecimais: getCasas('peso_bruto_unitario', 3),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: 'kg',
+      quantity: Number(row.peso_bruto_unitario ?? 0),
+    }),
     render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span className="gtv-celula-moeda">
         {row.peso_bruto_unitario != null
-          ? `${fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))} kg`
+          ? fmtQuantidade(row.peso_bruto_unitario, getCasas('peso_bruto_unitario', 3))
           : '—'}
+        <span className="gtv-celula-unidade-badge">kg</span>
       </span>
     ),
   },
@@ -3301,11 +3396,16 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'cubagem_unitaria',
     casasDecimais: getCasas('cubagem_unitaria', 4),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: 'm³',
+      quantity: Number(row.cubagem_unitaria ?? 0),
+    }),
     render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span className="gtv-celula-moeda">
         {row.cubagem_unitaria != null
-          ? `${fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))} m³`
+          ? fmtQuantidade(row.cubagem_unitaria, getCasas('cubagem_unitaria', 4))
           : '—'}
+        <span className="gtv-celula-unidade-badge">m³</span>
       </span>
     ),
   },
@@ -3331,14 +3431,17 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   // ── Quantidades ───────────────────────────────────────────────────────────
   saldo_item_pedido: {
-    editavel: true,
-    campo: 'saldo_item_pedido',
+    // Saldo = qtd_inicial - cancelada - transferida → sempre calculado, nunca editável
     casasDecimais: getCasas('quantidade_item', 0),
-    render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
-        {fmtQuantidade(row.saldo_item_pedido, getCasas('quantidade_item', 0))}
-      </span>
-    ),
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
+          {fmtQuantidade(row.saldo_item_pedido, getCasas('quantidade_item', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
   },
   quantidade_total_inicial_pedido: {
     editavel: true,
@@ -3371,21 +3474,33 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'quantidade_transferida_item',
     casasDecimais: getCasas('quantidade_item', 0),
-    render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
-      </span>
-    ),
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
   },
   quantidade_pronta_itens_pedido_total: {
     editavel: true,
     campo: 'quantidade_pronta_total',
     casasDecimais: getCasas('quantidade_item', 0),
-    render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {fmtQuantidade(row.quantidade_pronta_total ?? 0, getCasas('quantidade_item', 0))}
-      </span>
-    ),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
+      quantity: Number(row.quantidade_pronta_total ?? 0),
+    }),
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {fmtQuantidade(row.quantidade_pronta_total ?? 0, getCasas('quantidade_item', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
   },
 }
 
@@ -3819,23 +3934,8 @@ export default function ListaPedidos() {
   // ── GABI quota badge ────────────────────────────────────────────────────────
   const { quota: gabiQuota } = useGabiQuota('/api/v1/pedidos/gabi/quota')
 
-  // ── Taxas PTAX (para conversão BRL) ─────────────────────────────────────────
-  const [taxasVenda, setTaxasVenda] = useState<Record<string, number>>({ BRL: 1 })
-  useEffect(() => {
-    fetch('/api/v1/taxa-cambio')
-      .then(r => r.ok ? r.json() : null)
-      .then((json: { por_moeda?: Record<string, Array<{ venda: string | number }>> } | null) => {
-        if (!json?.por_moeda) return
-        const t: Record<string, number> = { BRL: 1 }
-        for (const [moeda, boletins] of Object.entries(json.por_moeda)) {
-          if (!boletins.length) continue
-          const ultimo = boletins[boletins.length - 1]
-          if (ultimo?.venda) t[moeda] = Number(ultimo.venda)
-        }
-        setTaxasVenda(t)
-      })
-      .catch(() => {})
-  }, [])
+  // ── Taxas PTAX (para conversão BRL) — cache singleton por sessão ────────────
+  const taxasVenda = useTaxasCambio()
 
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
@@ -4014,18 +4114,6 @@ export default function ListaPedidos() {
   const [novoSubmenu, setNovoSubmenu]             = useState<'pedido' | 'item' | null>(null)
   const [modalCockpitAberto, setModalCockpitAberto] = useState(false)
   const novoDropdownRef = useRef<HTMLDivElement>(null)
-
-  // ── Modal de confirmação de divergência (valor/qtd pedido vs itens) ───────────
-  const [modalConfDivergencia, setModalConfDivergencia] = useState<{
-    campo: 'valor_total_pedido' | 'quantidade_total_inicial_pedido'
-    labelCampo: string
-    valorNovo: number
-    moeda?: string
-    unidade?: string
-    somaItens: number
-    divergenciaPct: number
-  } | null>(null)
-  const pendingConfirmRef = useRef<{ resolve: () => void; reject: (err: Error) => void } | null>(null)
 
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
@@ -4327,51 +4415,7 @@ export default function ListaPedidos() {
   }, [abaAtiva, busca])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
-  // Mostra modal de confirmação de divergência e aguarda a decisão do usuário
-  const confirmarDivergencia = useCallback((
-    campo: 'valor_total_pedido' | 'quantidade_total_inicial_pedido',
-    labelCampo: string,
-    valorNovo: number,
-    somaItens: number,
-    moeda?: string,
-    unidade?: string,
-  ): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const divergenciaPct = somaItens === 0 ? 100 : Math.abs((valorNovo - somaItens) / somaItens) * 100
-      pendingConfirmRef.current = { resolve, reject }
-      setModalConfDivergencia({ campo, labelCampo, valorNovo, moeda, unidade, somaItens, divergenciaPct })
-    })
-  }, [])
-
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
-    // valor_total_pedido retorna GTValorMoeda { currency, amount } → salva os dois campos
-    if (campo === 'valor_total_pedido' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
-      const mv = valor as { currency: string; amount: number }
-      const pedidoAtual = pedidos.find(p => p.id === id)
-      const somaItens = (pedidoAtual?.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_item?: number }).valor_total_item) || 0), 0)
-      if (pedidoAtual && pedidoAtual.itens && pedidoAtual.itens.length > 0 && Math.abs(mv.amount - somaItens) > 0.001) {
-        await confirmarDivergencia('valor_total_pedido', 'Valor Total', mv.amount, somaItens, mv.currency)
-      }
-      await pedidoVirtualApi.editarCampo(id, 'moeda_pedido', mv.currency)
-      const atualizado = await pedidoVirtualApi.editarCampo(id, 'valor_total_pedido', mv.amount)
-      const final = { ...atualizado, moeda_pedido: mv.currency } as Pedido & { moeda_pedido: string }
-      setPedidos(prev => prev.map(p => p.id === id ? final : p))
-      return final
-    }
-    // tipo: 'unidade' retorna GTValorUnidade { unit, quantity } → salva apenas a quantity
-    if (valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)) {
-      const uv = valor as { unit: string; quantity: number }
-      if (campo === 'quantidade_total_inicial_pedido') {
-        const pedidoAtual = pedidos.find(p => p.id === id)
-        const somaItens = (pedidoAtual?.itens ?? []).reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-        if (pedidoAtual && pedidoAtual.itens && pedidoAtual.itens.length > 0 && Math.abs(uv.quantity - somaItens) > 0.001) {
-          await confirmarDivergencia('quantidade_total_inicial_pedido', 'Quantidade Total', uv.quantity, somaItens, undefined, uv.unit)
-        }
-      }
-      const atualizado = await pedidoVirtualApi.editarCampo(id, campo, uv.quantity)
-      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
-      return atualizado
-    }
     if (campo === 'status') {
       const pedidoAtual = pedidos.find(p => p.id === id)
       const atualizado = { ...pedidoAtual!, status: String(valor) } as Pedido
@@ -4385,7 +4429,7 @@ export default function ListaPedidos() {
     const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
     setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
     return atualizado
-  }, [pedidos, confirmarDivergencia])
+  }, [pedidos])
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
   const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
@@ -4516,8 +4560,11 @@ export default function ListaPedidos() {
       return {
         ...p,
         itens: itensAtualizados,
-        quantidade_total_inicial_pedido:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido)    || 0), 0),
-        quantidade_transferida_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida_item) || 0), 0),
+        quantidade_total_inicial_pedido: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        quantidade_transferida_total:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida_item)    || 0), 0),
+        peso_liquido_total_pedido:       itensAtualizados.reduce((s, i) => s + (Number(i.peso_liquido_unitario) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        peso_bruto_total_pedido:         itensAtualizados.reduce((s, i) => s + (Number(i.peso_bruto_unitario)  || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        cubagem_total_pedido:            itensAtualizados.reduce((s, i) => s + (Number(i.cubagem_unitaria)     || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
       }
     }))
     return enriquecido
@@ -4680,12 +4727,12 @@ export default function ListaPedidos() {
     .filter(p => p.cobertura_cambial === 'sem_cobertura' || !p.cobertura_cambial)
     .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
   // Valor total convertido para BRL usando taxa PTAX de venda
+  // Number() necessário pois Prisma Decimal serializa como string no JSON
   const valorTotalBrl = pedidos.reduce((acc, p) => {
     const moeda = p.moeda_pedido ?? 'USD'
     const taxa  = taxasVenda[moeda] ?? taxasVenda['USD'] ?? 1
-    return acc + (p.valor_total_pedido ?? 0) * taxa
+    return acc + Number(p.valor_total_pedido ?? 0) * taxa
   }, 0)
-  const moedasSemTaxa = [...new Set(pedidos.map(p => p.moeda_pedido ?? 'USD').filter(m => !taxasVenda[m]))]
 
   return (
     <div className="ws-fade-up lp-page">
@@ -4727,28 +4774,34 @@ export default function ListaPedidos() {
               />
             )
             if (pref.id === 'valor_total_brl') {
+              // Number() evita concatenação de string Decimal do Prisma
               const porMoeda: Record<string, number> = {}
               for (const p of pedidos) {
                 const m = p.moeda_pedido ?? 'USD'
-                porMoeda[m] = (porMoeda[m] ?? 0) + (p.valor_total_pedido ?? 0)
+                porMoeda[m] = (porMoeda[m] ?? 0) + Number(p.valor_total_pedido ?? 0)
               }
+              const MOEDA_ORDEM = ['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD']
+              const entradas = Object.entries(porMoeda).sort(([a], [b]) => {
+                const ia = MOEDA_ORDEM.indexOf(a); const ib = MOEDA_ORDEM.indexOf(b)
+                return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+              })
               return (
                 <CardBasicoGlobal key="valor_total_brl"
-                  titulo="Valor Total — BRL"
+                  titulo="Total Pedidos — BRL"
                   icone={<CurrencyCircleDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
                   valor={`R$ ${fmtQuantidade(valorTotalBrl, 2)}`}
                   variante="sucesso"
                   subtexto="Todos os pedidos convertidos para R$"
                   tooltip={<>
-                    {Object.entries(porMoeda).map(([m, v]) => (
-                      <p key={m} className="cg-tooltip__row">
-                        <span>{m} {fmtQuantidade(v, 2)}</span>
-                        <strong>× {taxasVenda[m] != null ? fmtQuantidade(taxasVenda[m], 4) : '—'}</strong>
-                      </p>
-                    ))}
-                    {moedasSemTaxa.length > 0 && (
-                      <p className="cg-tooltip__row"><span>⚠ Sem taxa</span><strong>{moedasSemTaxa.join(', ')}</strong></p>
-                    )}
+                    {entradas.map(([m, v]) => {
+                      const taxa = taxasVenda[m]
+                      return (
+                        <p key={m} className="cg-tooltip__row">
+                          <span>{m} {fmtQuantidade(Number(v), 2)}</span>
+                          <strong>{taxa != null ? `× ${fmtQuantidade(taxa, 4)}` : '— sem taxa'}</strong>
+                        </p>
+                      )
+                    })}
                   </>}
                 />
               )
@@ -5115,91 +5168,6 @@ export default function ListaPedidos() {
             <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', background: 'var(--bg-base)', borderRadius: '0.375rem', padding: '0.625rem 0.875rem', border: '1px solid var(--border-subtle)', margin: 0 }}>
               Gerencie seus tokens em <strong style={{ color: 'var(--ws-accent)' }}>Configurações → API</strong>
             </p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Modal Confirmação Divergência (valor/qtd vs soma dos itens) ── */}
-      {modalConfDivergencia && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 20000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={() => {
-            setModalConfDivergencia(null)
-            pendingConfirmRef.current?.reject(new Error('Cancelado'))
-            pendingConfirmRef.current = null
-          }}
-        >
-          <div
-            style={{ background: 'var(--bg-surface)', borderRadius: '0.75rem', padding: '1.5rem', width: '420px', maxWidth: '90vw', border: '1px solid var(--border-subtle)', boxShadow: '0 24px 48px rgba(0,0,0,0.45)' }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.125rem' }}>
-              <div style={{ width: '2rem', height: '2rem', borderRadius: '0.5rem', background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Warning size={16} weight="fill" style={{ color: '#fbbf24' }} />
-              </div>
-              <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                Divergência detectada
-              </h3>
-            </div>
-
-            {/* Conteúdo */}
-            <div style={{ marginBottom: '1.25rem' }}>
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', margin: '0 0 1rem 0', lineHeight: 1.5 }}>
-                O valor de <strong style={{ color: 'var(--text-primary)' }}>{modalConfDivergencia.labelCampo}</strong> que você está definindo é diferente da soma dos itens do pedido.
-              </p>
-
-              <div style={{ background: 'var(--bg-base)', borderRadius: '0.5rem', border: '1px solid var(--border-subtle)', overflow: 'hidden' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.875rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Novo valor</span>
-                  <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
-                    {modalConfDivergencia.moeda && <span style={{ color: 'var(--text-secondary)', marginRight: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.moeda}</span>}
-                    {fmtQuantidade(modalConfDivergencia.valorNovo, modalConfDivergencia.campo === 'valor_total_pedido' ? 2 : 0)}
-                    {modalConfDivergencia.unidade && <span style={{ color: 'var(--text-secondary)', marginLeft: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.unidade}</span>}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.625rem 0.875rem' }}>
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Soma dos itens</span>
-                  <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
-                    {modalConfDivergencia.moeda && <span style={{ marginRight: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.moeda}</span>}
-                    {fmtQuantidade(modalConfDivergencia.somaItens, modalConfDivergencia.campo === 'valor_total_pedido' ? 2 : 0)}
-                    {modalConfDivergencia.unidade && <span style={{ marginLeft: '0.375rem', fontSize: '0.75rem' }}>{modalConfDivergencia.unidade}</span>}
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ marginTop: '0.625rem', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />
-                <span style={{ fontSize: '0.75rem', color: '#fbbf24' }}>
-                  Divergência de {modalConfDivergencia.divergenciaPct.toFixed(1)}% — um alerta será exibido na tabela.
-                </span>
-              </div>
-            </div>
-
-            {/* Ações */}
-            <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end' }}>
-              <BotaoGlobal
-                variante="fantasma"
-                onClick={() => {
-                  setModalConfDivergencia(null)
-                  pendingConfirmRef.current?.reject(new Error('Cancelado pelo usuário'))
-                  pendingConfirmRef.current = null
-                }}
-              >
-                Cancelar
-              </BotaoGlobal>
-              <BotaoGlobal
-                variante="primario"
-                icone={<Warning size={14} weight="fill" />}
-                onClick={() => {
-                  setModalConfDivergencia(null)
-                  pendingConfirmRef.current?.resolve()
-                  pendingConfirmRef.current = null
-                }}
-              >
-                Confirmar mesmo assim
-              </BotaoGlobal>
-            </div>
           </div>
         </div>
       )}

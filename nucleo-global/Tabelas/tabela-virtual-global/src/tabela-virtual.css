@@ -640,9 +640,10 @@
 
 /* ─── Colunas congeladas (frozen) ─────────────────────────────────────────── */
 .gtv-th--frozen {
+  position: sticky;
+  left: var(--gtv-frozen-left, 0px);
   z-index: 11;
   background: var(--gtv-bg);
-  transform: translateX(var(--gtv-scroll-left, 0px));
 }
 
 .gtv-th--frozen::after {
@@ -657,10 +658,10 @@
 }
 
 .gtv-celula--frozen {
-  position: relative;
+  position: sticky;
+  left: var(--gtv-frozen-left, 0px);
   z-index: 2;
   background: var(--gtv-bg);
-  transform: translateX(var(--gtv-scroll-left, 0px));
 }
 
 .gtv-celula--frozen::after {

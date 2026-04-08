@@ -310,50 +310,98 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
     const tenant_id  = req.headers['x-tenant-id']  as string
     const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
-    const where: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
+    // WHERE base (tenant_id injetado também pelo $extends após fix do count)
+    const whereBase: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
     if (status) {
       const statusList = status.split(',').map(s => s.trim()).filter(Boolean)
-      where.status = statusList.length > 1 ? { in: statusList } : statusList[0]
+      whereBase.status = statusList.length > 1 ? { in: statusList } : statusList[0]
     }
-    if (tipo_operacao) where.tipo_operacao = tipo_operacao
-    if (busca) where.numero_pedido = { contains: busca, mode: 'insensitive' }
+    if (tipo_operacao) whereBase.tipo_operacao = tipo_operacao
+    if (busca) whereBase.numero_pedido = { contains: busca, mode: 'insensitive' }
 
-    const t = termo.toLowerCase()
+    // Parâmetro ILIKE — % escapado para evitar interpretação especial
+    const ilike = `%${termo.replace(/[%_\\]/g, '\\$&')}%`
 
-    // Usa include (padrão do GET /) para evitar conflito do $extends do tenantIsolation
-    // com nested select. Carrega apenas os campos necessários para a contagem.
-    const pedidos = await req.prisma.pedido.findMany({
-      where,
-      include: { itens: true },
-    })
+    // ── Campos textuais do Pedido (ORM — coberto pelo $extends count) ────────────
+    const pedidoOR = [
+      { numero_pedido:         { contains: termo, mode: 'insensitive' as const } },
+      { tipo_operacao:         { contains: termo, mode: 'insensitive' as const } },
+      { status:                { contains: termo, mode: 'insensitive' as const } },
+      { incoterm:              { contains: termo, mode: 'insensitive' as const } },
+      { moeda_pedido:          { contains: termo, mode: 'insensitive' as const } },
+      { numero_proforma:       { contains: termo, mode: 'insensitive' as const } },
+      { numero_invoice:        { contains: termo, mode: 'insensitive' as const } },
+      { referencia_importador: { contains: termo, mode: 'insensitive' as const } },
+      { referencia_exportador: { contains: termo, mode: 'insensitive' as const } },
+      { referencia_fabricante: { contains: termo, mode: 'insensitive' as const } },
+    ]
 
-    let total = 0
-    for (const p of pedidos) {
-      const camposPedido = [
-        p.numero_pedido, p.tipo_operacao, p.status, p.incoterm, p.moeda_pedido,
-        p.numero_proforma, p.numero_invoice,
-        p.referencia_importador, p.referencia_exportador, p.referencia_fabricante,
-      ]
-      for (const v of camposPedido) {
-        if (v && v.toLowerCase().includes(t)) total++
-      }
-      // detalhes_operacionais: exportador_nome, importador_nome, fabricante_nome
-      const det = (p.detalhes_operacionais as Record<string, unknown> | null) ?? {}
-      for (const k of ['exportador_nome', 'importador_nome', 'fabricante_nome']) {
-        const v = det[k]
-        if (v && typeof v === 'string' && v.toLowerCase().includes(t)) total++
-      }
-      // Itens do pedido
-      for (const item of p.itens) {
-        const camposItem = [
-          item.part_number, item.ncm, item.descricao_item,
-          item.unidade_comercializada_item, item.moeda_item,
-        ]
-        for (const v of camposItem) {
-          if (v && v.toLowerCase().includes(t)) total++
-        }
-      }
-    }
+    // ── Campos textuais do PedidoItem (ORM) ─────────────────────────────────────
+    const itemOR = [
+      { part_number:                 { contains: termo, mode: 'insensitive' as const } },
+      { ncm:                         { contains: termo, mode: 'insensitive' as const } },
+      { descricao_item:              { contains: termo, mode: 'insensitive' as const } },
+      { unidade_comercializada_item: { contains: termo, mode: 'insensitive' as const } },
+      { moeda_item:                  { contains: termo, mode: 'insensitive' as const } },
+    ]
+
+    const [
+      totalPedidos,
+      totalItens,
+      jsonbRows,
+      colunaRows,
+      valorRows,
+    ] = await Promise.all([
+      // Pedidos que batem em campos textuais simples
+      req.prisma.pedido.count({ where: { ...whereBase, OR: pedidoOR } }),
+
+      // Itens que batem em campos textuais simples
+      req.prisma.pedidoItem.count({
+        where: {
+          tenant_id,
+          pedido: { company_id, deleted_at: null },
+          OR: itemOR,
+        },
+      }),
+
+      // JSONB detalhes_operacionais: exportador_nome, importador_nome, fabricante_nome
+      // $queryRaw com tagged template = prepared statement, sem risco de SQL injection
+      req.prisma.$queryRaw<[{ count: bigint }]>`
+        SELECT COUNT(*)::int AS count
+        FROM pedidos_comerciais
+        WHERE tenant_id = ${tenant_id}
+          AND company_id = ${company_id}
+          AND deleted_at IS NULL
+          AND (
+            detalhes_operacionais->>'exportador_nome' ILIKE ${ilike}
+            OR detalhes_operacionais->>'importador_nome' ILIKE ${ilike}
+            OR detalhes_operacionais->>'fabricante_nome' ILIKE ${ilike}
+          )
+      `,
+
+      // Labels de colunas criadas pelo usuário (PedidoColuna.rotulo no banco)
+      req.prisma.pedidoColuna.count({
+        where: { tenant_id, rotulo: { contains: termo, mode: 'insensitive' } },
+      }),
+
+      // Valores de colunas customizadas do usuário (campos_custom por vinculo)
+      req.prisma.$queryRaw<[{ count: bigint }]>`
+        SELECT COUNT(*)::int AS count
+        FROM valores_colunas_usuario_pedido v
+        INNER JOIN pedidos_comerciais p ON p.id = v.vinculo_id
+        WHERE v.tenant_id = ${tenant_id}
+          AND p.company_id = ${company_id}
+          AND p.deleted_at IS NULL
+          AND v.valor ILIKE ${ilike}
+      `,
+    ])
+
+    const total =
+      totalPedidos +
+      totalItens +
+      Number((jsonbRows[0] as { count: bigint | number }).count ?? 0) +
+      colunaRows +
+      Number((valorRows[0] as { count: bigint | number }).count ?? 0)
 
     res.json({ total })
   } catch (err) {

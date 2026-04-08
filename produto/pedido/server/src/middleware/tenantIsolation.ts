@@ -26,6 +26,10 @@ export function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
           args.where = { ...args.where, tenant_id: tenantId }
           return query(args)
         },
+        async count({ args, query }: any) {
+          args.where = { ...args.where, tenant_id: tenantId }
+          return query(args)
+        },
         async create({ args, query }: any) {
           args.data = { ...args.data, tenant_id: tenantId }
           return query(args)

@@ -28,6 +28,8 @@ test.describe('Localizar — find-in-page na Lista de Pedidos @critico', () => {
     await expect(
       page.locator('.gtv-container').or(page.locator('.mtg-left__page-title'))
     ).toBeVisible({ timeout: 15000 })
+    // Aguarda ao menos uma linha para garantir que dados do backend carregaram
+    await expect(page.locator('.gtv-linha--pai').first()).toBeVisible({ timeout: 15000 })
   })
 
   test('campo Localizar está visível no toolbar', async ({ page }) => {

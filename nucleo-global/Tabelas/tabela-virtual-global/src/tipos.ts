@@ -273,12 +273,10 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
    */
   onFindPaginaAnterior?: () => void
   /**
-   * Chamado quando o termo de busca (find-in-page) muda. Recebe o termo e uma
-   * função `contarEmDados` que aplica o mesmo algoritmo de find em qualquer
-   * array de dados — usar para pré-calcular o total global de matches.
-   * Retorne o total via `findTotalExterno`.
+   * Chamado quando o termo de busca (find-in-page) muda.
+   * O pai deve buscar o total de matches no servidor e retorná-lo via `findTotalExterno`.
    */
-  onFindTermoChange?: (termo: string, contarEmDados: (dados: T[]) => number) => void
+  onFindTermoChange?: (termo: string) => void
   /**
    * Total global de matches (todas as páginas) fornecido pelo pai após pré-scan.
    * Quando presente, substitui o contador local no find bar e no rodapé.

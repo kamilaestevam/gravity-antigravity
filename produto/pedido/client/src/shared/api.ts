@@ -48,13 +48,13 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 
-let context = { tenantId: '', userId: '' }
+let context = { tenantId: '', userId: '', userName: '' }
 
-export function setApiContext(ctx: { tenantId: string; userId: string }): void {
-  context = ctx
+export function setApiContext(ctx: { tenantId: string; userId: string; userName?: string }): void {
+  context = { ...context, ...ctx }
 }
 
-export function getApiContext(): { tenantId: string; userId: string } {
+export function getApiContext(): { tenantId: string; userId: string; userName: string } {
   return context
 }
 
@@ -65,6 +65,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       'Content-Type': 'application/json',
       'x-tenant-id': context.tenantId,
       'x-user-id': context.userId,
+      'x-user-name': context.userName,
       'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       ...options?.headers,
     },
@@ -169,6 +170,7 @@ export const pedidoVirtualApi = {
   /** Listagem com cursor keyset — para TabelaVirtualGlobal */
   listar: (params: {
     cursor?: string
+    page?: number
     sort?: string
     dir?: 'asc' | 'desc'
     limit?: number
@@ -176,23 +178,36 @@ export const pedidoVirtualApi = {
     busca?: string
   } = {}) => {
     const q = new URLSearchParams()
-    if (params.cursor) q.set('cursor', params.cursor)
-    if (params.sort)   q.set('sort', params.sort)
-    if (params.dir)    q.set('dir', params.dir)
-    if (params.limit)  q.set('limit', String(params.limit))
-    if (params.status) q.set('status', params.status)
-    if (params.busca)  q.set('busca', params.busca)
+    if (params.cursor)         q.set('cursor', params.cursor)
+    if (params.page != null)   q.set('page', String(params.page))
+    if (params.sort)             q.set('sort', params.sort)
+    if (params.dir)              q.set('dir', params.dir)
+    if (params.limit)            q.set('limit', String(params.limit))
+    if (params.status)           q.set('status', params.status)
+    if (params.busca)            q.set('busca', params.busca)
     return request<PedidosListResponse>(`/api/v1/pedidos?${q}`).catch(err => {
       if (import.meta.env.DEV) return MOCK_PEDIDOS_RESPONSE
       throw err
     })
   },
 
-  /** Edição inline de um campo com optimistic lock (lança em 409) */
-  editarCampo: (id: string, campo: string, valor: unknown, updated_at?: string) =>
+  /** Contar total de matches find-in-page no banco (pedidos + itens) */
+  localizar: (params: { termo: string; status?: string; busca?: string }) => {
+    const q = new URLSearchParams()
+    q.set('termo', params.termo)
+    if (params.status) q.set('status', params.status)
+    if (params.busca)  q.set('busca', params.busca)
+    return request<{ total: number }>(`/api/v1/pedidos/localizar?${q}`).catch(err => {
+      if (import.meta.env.DEV) return { total: 0 }
+      throw err
+    })
+  },
+
+  /** Edição inline de um campo */
+  editarCampo: (id: string, campo: string, valor: unknown) =>
     request<Pedido>(`/api/v1/pedidos/${pid(id)}/campo`, {
       method: 'PATCH',
-      body: JSON.stringify({ campo, valor, updated_at: updated_at ?? new Date().toISOString() }),
+      body: JSON.stringify({ campo, valor: valor === undefined ? null : valor }),
     }).catch(err => {
       if (import.meta.env.DEV) {
         const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === id)
@@ -200,6 +215,44 @@ export const pedidoVirtualApi = {
       }
       throw err
     }),
+}
+
+// ── Init — agrega 4 queries em 1 request ─────────────────────────────────────
+
+export interface PedidoInitResponse {
+  pedidos:      PedidosListResponse
+  status:       { data: PedidoStatusConfig[] }
+  preferencias: PedidoPreferenciasColunas | null
+  colunas:      ColunaUsuario[]
+}
+
+export const pedidoInitApi = {
+  carregar: (params: {
+    sort?: string
+    dir?: 'asc' | 'desc'
+    limit?: number
+    status?: string
+    busca?: string
+  } = {}): Promise<PedidoInitResponse> => {
+    const q = new URLSearchParams()
+    if (params.sort)   q.set('sort', params.sort)
+    if (params.dir)    q.set('dir', params.dir)
+    if (params.limit)  q.set('limit', String(params.limit))
+    if (params.status) q.set('status', params.status)
+    if (params.busca)  q.set('busca', params.busca)
+    return request<PedidoInitResponse>(`/api/v1/pedidos/init?${q}`).catch(err => {
+      if (import.meta.env.DEV) {
+        // DEV sem backend: retorna mock combinado
+        return {
+          pedidos:      MOCK_PEDIDOS_RESPONSE,
+          status:       { data: [] },
+          preferencias: null,
+          colunas:      [],
+        }
+      }
+      throw err
+    })
+  },
 }
 
 // ── Configuração de status e colunas ──────────────────────────────────────────
@@ -248,6 +301,7 @@ export const importacaoApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
+        'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
       body: formData,
@@ -679,6 +733,7 @@ export const smartImportApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
+        'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
       body: formData,
@@ -1045,22 +1100,34 @@ export const pedidoExcluirApi = {
     }),
 }
 
-const STATUS_PERMITIDOS_DEFAULT = ['draft']
+const STATUS_PERMITIDOS_TODOS = ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']
+
+function getMockStatusPermitidos(): string[] {
+  try {
+    const raw = localStorage.getItem('pedido:regras_config')
+    if (raw) {
+      const config = JSON.parse(raw) as { excluir?: { statusPermitidos?: string[] } }
+      return config?.excluir?.statusPermitidos ?? STATUS_PERMITIDOS_TODOS
+    }
+  } catch { /* ignore */ }
+  return STATUS_PERMITIDOS_TODOS
+}
 
 function mockExcluirPreview(ids: string[]): ExcluirPreview {
   const pedidos = MOCK_PEDIDOS_RESPONSE.data.filter(p => ids.includes(p.id))
   const permitidos: ExcluirPreview['permitidos'] = []
   const bloqueados: ExcluirPreview['bloqueados'] = []
+  const statusPermitidos = getMockStatusPermitidos()
 
   for (const p of pedidos) {
-    if (STATUS_PERMITIDOS_DEFAULT.includes(p.status)) {
+    if (statusPermitidos.includes(p.status)) {
       permitidos.push({ id: p.id, numero_pedido: p.numero_pedido, total_itens: p.itens?.length ?? 0 })
     } else {
       bloqueados.push({
         id: p.id,
         numero_pedido: p.numero_pedido,
         status: p.status,
-        motivo: `Status "${p.status}" não permite exclusão. Apenas pedidos em rascunho podem ser excluídos.`,
+        motivo: `Status "${p.status}" não permite exclusão. Permitidos: ${statusPermitidos.join(', ')}`,
       })
     }
   }
@@ -1090,6 +1157,13 @@ export interface RegrasConfigBackend {
   excluir_status_permitidos: string[]
   excluir_pedido_sem_item_permitido: boolean
   excluir_confirmar_com_preview: boolean
+  alerta_numero_duplicado: boolean
+  alerta_valor_total_divergente: boolean
+  alerta_quantidade_total_divergente: boolean
+  alerta_quantidade_pronta_divergente: boolean
+  alerta_peso_liquido_divergente: boolean
+  alerta_peso_bruto_divergente: boolean
+  alerta_cubagem_divergente: boolean
 }
 
 const REGRAS_CONFIG_DEFAULT: RegrasConfigBackend = {
@@ -1099,6 +1173,13 @@ const REGRAS_CONFIG_DEFAULT: RegrasConfigBackend = {
   excluir_status_permitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
   excluir_pedido_sem_item_permitido: true,
   excluir_confirmar_com_preview: true,
+  alerta_numero_duplicado: true,
+  alerta_valor_total_divergente: true,
+  alerta_quantidade_total_divergente: true,
+  alerta_quantidade_pronta_divergente: true,
+  alerta_peso_liquido_divergente: true,
+  alerta_peso_bruto_divergente: true,
+  alerta_cubagem_divergente: true,
 }
 
 export const configRegrasApi = {
@@ -1148,6 +1229,7 @@ export const anexosApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
+        'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
       body: form,
@@ -1168,6 +1250,7 @@ export const anexosApi = {
       headers: {
         'x-tenant-id': context.tenantId,
         'x-user-id': context.userId,
+        'x-user-name': context.userName,
         'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       },
     }).then(res => {
@@ -1545,4 +1628,74 @@ export const colunasUsuarioApi = {
       return { gemini: false } // falha de rede → fallback silencioso
     }
   },
+}
+
+// ── Dashboard API ─────────────────────────────────────────────────────────────
+
+export interface DashboardKpis {
+  period: string
+  total_pedidos: number
+  pedidos_abertos: number
+  pedidos_em_andamento: number
+  pedidos_concluidos: number
+  pedidos_cancelados: number
+  pedidos_atrasados: number
+  valor_total: number
+  valor_total_brl: number
+  moedas_sem_taxa: string[]
+  cobertura_pendente: number
+  qtd_total: number
+  itens_prontos: number
+  qtd_inicial_total: number
+  qtd_atual_total: number
+  qtd_transferida_total: number
+  valor_itens_total: number
+  taxa_atraso: number
+  ticket_medio: number
+  taxa_conclusao_itens: number
+  exposicao_financeira: number
+  taxa_transferencia: number
+  [key: string]: number | string | string[]
+}
+
+export interface DashboardTrendBucket {
+  month: string
+  label: string
+  total_pedidos: number
+  valor_total: number
+  cobertura_pendente: number
+  valor_itens_total: number
+  [key: string]: string | number
+}
+
+export interface DashboardTrendResponse {
+  period: string
+  granularity: string
+  value: DashboardTrendBucket[]
+}
+
+export interface DashboardDistributionGroup {
+  status: string
+  count: number
+  valor_total: number
+}
+
+export interface DashboardDistributionResponse {
+  period: string
+  value: DashboardDistributionGroup[]
+}
+
+export const dashboardApi = {
+  kpis: (period: string) =>
+    request<DashboardKpis>(`/api/v1/pedidos/dashboard/kpis?period=${encodeURIComponent(period)}`),
+
+  trend: (period: string, granularity = 'month') =>
+    request<DashboardTrendResponse>(
+      `/api/v1/pedidos/dashboard/trend?period=${encodeURIComponent(period)}&granularity=${granularity}`,
+    ),
+
+  distribution: (period: string) =>
+    request<DashboardDistributionResponse>(
+      `/api/v1/pedidos/dashboard/distribution?period=${encodeURIComponent(period)}`,
+    ),
 }

@@ -939,8 +939,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   const [findAtivo, setFindAtivo] = useState(0)
   // Acumula matches das páginas já navegadas (para counter cross-page)
   const [findOffset, setFindOffset] = useState(0)
-  // Total global de matches — conhecido apenas após visitar a última página
-  const [findTotalGlobal, setFindTotalGlobal] = useState<number | null>(null)
 
   const handleBusca = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1260,23 +1258,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     | { tipo: 'header'; colKey: string }
     | { tipo: 'celula'; linhaIndex: number; colKey: string }
 
-  // Conta matches em qualquer array de dados usando o mesmo algoritmo do find-in-page.
-  // Headers contam 1x (independente da quantidade de dados).
-  const contarMatchesEmDados = useCallback((dados: T[]): number => {
-    const termo = termoBusca.trim().toLowerCase()
-    if (!termo) return 0
-    let count = colunasFiltradas.filter(col => col.label.toLowerCase().includes(termo)).length
-    for (const item of dados) {
-      const row = item as Record<string, unknown>
-      for (const col of colunasFiltradas) {
-        const k = col.key as string
-        const v = row[k]
-        const vStr = v == null ? '' : (typeof v === 'object' ? formatarOverlayValor(v, col.tipo) : String(v))
-        if (vStr.toLowerCase().includes(termo)) count++
-      }
-    }
-    return count
-  }, [termoBusca, colunasFiltradas])
 
   const findMatches = useMemo<GTFindMatch[]>(() => {
     if (!termoBusca.trim()) return []
@@ -1345,26 +1326,16 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     }
   }, [findMatches])
 
-  // ── Find: descobrir total global quando chegar na última página ───────────────
-  useEffect(() => {
-    if (!modoLocalizar || !termoBusca || findMatches.length === 0) return
-    // onFindProximaPagina === undefined significa que não há próxima página → última página
-    if (onFindProximaPagina !== undefined) return
-    setFindTotalGlobal(findOffset + findMatches.length)
-  }, [findOffset, findMatches, modoLocalizar, termoBusca, onFindProximaPagina])
-
-  // ── Find: notifica pai quando termo muda para pré-scan do total global ────────
-  // Usa refs para isolar o efeito de mudanças de referência do callback.
+  // ── Find: notifica pai quando termo muda (pai busca total no banco) ──────────
+  // Usa ref para isolar o efeito de mudanças de referência do callback.
   // O efeito só dispara quando o TERMO ou modoLocalizar muda, não quando o pai
-  // re-renderiza por mudança de `total` (o que recriaria handleFindTermoChange).
+  // re-renderiza (ex: após receber findTotalExterno do servidor).
   const onFindTermoChangeRef = useRef(onFindTermoChange)
-  const contarMatchesEmDadosRef = useRef(contarMatchesEmDados)
   useEffect(() => { onFindTermoChangeRef.current = onFindTermoChange }, [onFindTermoChange])
-  useEffect(() => { contarMatchesEmDadosRef.current = contarMatchesEmDados }, [contarMatchesEmDados])
 
   useEffect(() => {
     if (!modoLocalizar || !onFindTermoChangeRef.current) return
-    onFindTermoChangeRef.current(termoBusca.trim(), contarMatchesEmDadosRef.current)
+    onFindTermoChangeRef.current(termoBusca.trim())
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [termoBusca, modoLocalizar])
 
@@ -1372,7 +1343,6 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   useEffect(() => {
     findOffsetPendenteRef.current = 0
     setFindOffset(0)
-    setFindTotalGlobal(null)
   }, [termoBusca])
 
   // ── Find: scroll para trazer o match ativo para a viewport (vertical + horizontal)
@@ -2055,7 +2025,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                 findMatches.length > 0 ? (
                   <div className="gtv-find-nav" role="status" aria-live="polite">
                     <span className="gtv-find-count">
-                      {findOffset + findAtivo + 1} de {findTotalExterno ?? findTotalGlobal ?? (onFindProximaPagina ? `${findOffset + findMatches.length}+` : findOffset + findMatches.length)}
+                      {findOffset + findAtivo + 1} de {findTotalExterno ?? (onFindProximaPagina ? `${findOffset + findMatches.length}+` : findOffset + findMatches.length)}
                     </span>
                     {(findMatches.length > 1 || onFindProximaPagina || onFindPaginaAnterior) && (
                       <>
@@ -2279,7 +2249,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           <span className="gtv-paginacao-info">
             {modoLocalizar && termoBusca
               ? (() => {
-                  const total = findTotalExterno ?? findTotalGlobal ?? (onFindProximaPagina ? null : findOffset + findMatches.length)
+                  const total = findTotalExterno ?? (onFindProximaPagina ? null : findOffset + findMatches.length)
                   const label = total != null ? `${total} resultado${total !== 1 ? 's' : ''}` : `${findOffset + findMatches.length}+ resultados`
                   return `${label} · página ${paginaEfetiva} de ${totalPaginas}`
                 })()

@@ -7,6 +7,7 @@
  *
  * Rotas:
  *   GET    /                    Listar pedidos (offset ou cursor pagination)
+ *   GET    /localizar           Contar total de matches find-in-page (pedidos + itens)
  *   GET    /:id                 Detalhe do pedido
  *   POST   /                    Criar pedido com itens
  *   PUT    /:id                 Atualizar pedido (Draft/Aberto)
@@ -284,6 +285,95 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
     ])
 
     res.json({ data: data.map(mapPedido), total, page: pageNum, limit: limitNum })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── GET /localizar — Contar total de matches find-in-page (pedidos + itens) ───
+// Deve ficar ANTES de /:id para que Express não interprete "localizar" como param.
+
+pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const localizarSchema = z.object({
+      termo:         z.string().min(1).max(200),
+      status:        z.string().optional(),
+      tipo_operacao: z.string().optional(),
+      busca:         z.string().optional(),
+    })
+    const result = localizarSchema.safeParse(req.query)
+    if (!result.success) {
+      return res.status(400).json({ error: { message: 'Parametros invalidos', details: result.error.flatten() } })
+    }
+
+    const { termo, status, tipo_operacao, busca } = result.data
+    const tenant_id  = req.headers['x-tenant-id']  as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+
+    const where: Record<string, unknown> = { tenant_id, company_id, deleted_at: null }
+    if (status) {
+      const statusList = status.split(',').map(s => s.trim()).filter(Boolean)
+      where.status = statusList.length > 1 ? { in: statusList } : statusList[0]
+    }
+    if (tipo_operacao) where.tipo_operacao = tipo_operacao
+    if (busca) where.numero_pedido = { contains: busca, mode: 'insensitive' }
+
+    const t = termo.toLowerCase()
+
+    const pedidos = await req.prisma.pedido.findMany({
+      where,
+      select: {
+        numero_pedido:         true,
+        status:                true,
+        incoterm:              true,
+        moeda_pedido:          true,
+        numero_proforma:       true,
+        numero_invoice:        true,
+        referencia_importador: true,
+        referencia_exportador: true,
+        referencia_fabricante: true,
+        detalhes_operacionais: true,
+        itens: {
+          select: {
+            part_number:                 true,
+            ncm:                         true,
+            descricao_item:              true,
+            unidade_comercializada_item: true,
+            moeda_item:                  true,
+          },
+        },
+      },
+    })
+
+    let total = 0
+    for (const p of pedidos) {
+      const camposPedido = [
+        p.numero_pedido, p.status, p.incoterm, p.moeda_pedido,
+        p.numero_proforma, p.numero_invoice,
+        p.referencia_importador, p.referencia_exportador, p.referencia_fabricante,
+      ]
+      for (const v of camposPedido) {
+        if (v && v.toLowerCase().includes(t)) total++
+      }
+      // detalhes_operacionais: exportador_nome, importador_nome, fabricante_nome
+      const det = (p.detalhes_operacionais as Record<string, unknown> | null) ?? {}
+      for (const k of ['exportador_nome', 'importador_nome', 'fabricante_nome']) {
+        const v = det[k]
+        if (v && typeof v === 'string' && v.toLowerCase().includes(t)) total++
+      }
+      // Itens do pedido
+      for (const item of p.itens) {
+        const camposItem = [
+          item.part_number, item.ncm, item.descricao_item,
+          item.unidade_comercializada_item, item.moeda_item,
+        ]
+        for (const v of camposItem) {
+          if (v && v.toLowerCase().includes(t)) total++
+        }
+      }
+    }
+
+    res.json({ total })
   } catch (err) {
     next(err)
   }

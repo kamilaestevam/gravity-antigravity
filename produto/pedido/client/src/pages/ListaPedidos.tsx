@@ -22,6 +22,7 @@ import {
   PencilSimple,
   Trash,
   CurrencyDollar,
+  CurrencyCircleDollar,
   Scales,
   Warning,
   ArrowRight,
@@ -807,10 +808,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span className="gtv-celula-moeda">
         {row.peso_liquido_total_pedido != null
-          ? `${fmtQuantidade(row.peso_liquido_total_pedido, getCasas('peso_liquido_total_pedido', 3))} kg`
+          ? fmtQuantidade(row.peso_liquido_total_pedido, getCasas('peso_liquido_total_pedido', 3))
           : '—'}
+        <span className="gtv-celula-unidade-badge">kg</span>
       </span>
     ),
   },
@@ -3103,6 +3105,12 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
   'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
 ])
 
+// Campos com unidade física fixa — GTValorUnidade usado só para exibir a unidade no popover,
+// mas NÃO grava unidade_comercializada_item (a unidade não muda)
+const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
+  'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
+])
+
 // Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
 const CAMPOS_PAI_TEXTO = new Set([
   'exportador_nome', 'importador_nome', 'fabricante_nome',
@@ -3269,10 +3277,11 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     campo: 'peso_liquido_unitario',
     casasDecimais: getCasas('peso_liquido_unitario', 3),
     render: (row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span className="gtv-celula-moeda">
         {row.peso_liquido_unitario != null
-          ? `${fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))} kg`
+          ? fmtQuantidade(row.peso_liquido_unitario, getCasas('peso_liquido_unitario', 3))
           : '—'}
+        <span className="gtv-celula-unidade-badge">kg</span>
       </span>
     ),
   },
@@ -3810,6 +3819,24 @@ export default function ListaPedidos() {
   // ── GABI quota badge ────────────────────────────────────────────────────────
   const { quota: gabiQuota } = useGabiQuota('/api/v1/pedidos/gabi/quota')
 
+  // ── Taxas PTAX (para conversão BRL) ─────────────────────────────────────────
+  const [taxasVenda, setTaxasVenda] = useState<Record<string, number>>({ BRL: 1 })
+  useEffect(() => {
+    fetch('/api/v1/taxa-cambio')
+      .then(r => r.ok ? r.json() : null)
+      .then((json: { por_moeda?: Record<string, Array<{ venda: string | number }>> } | null) => {
+        if (!json?.por_moeda) return
+        const t: Record<string, number> = { BRL: 1 }
+        for (const [moeda, boletins] of Object.entries(json.por_moeda)) {
+          if (!boletins.length) continue
+          const ultimo = boletins[boletins.length - 1]
+          if (ultimo?.venda) t[moeda] = Number(ultimo.venda)
+        }
+        setTaxasVenda(t)
+      })
+      .catch(() => {})
+  }, [])
+
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
   const [carregando, setCarregando]         = useState(true)
@@ -4278,40 +4305,26 @@ export default function ListaPedidos() {
     carregarInicial(abaAtiva, sortCampo, sortDir, termo)
   }, [carregarInicial, abaAtiva, sortCampo, sortDir])
 
-  // ── Find-in-page: pré-scan de todos os registros para total global de matches ─
+  // ── Find-in-page: busca o total de matches no banco (pedidos + itens) ──────────
   // Debounce de 350ms para não disparar a cada keystroke.
-  // Limite de 500 registros para evitar chamadas pesadas em volumes grandes.
   const findPreScanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const handleFindTermoChange = useCallback((
-    termo: string,
-    contarEmDados: (dados: Pedido[]) => number,
-  ) => {
+  const handleFindTermoChange = useCallback((termo: string) => {
     if (findPreScanTimerRef.current) clearTimeout(findPreScanTimerRef.current)
-    // Reset imediato: evita mostrar total de busca anterior durante o debounce
     setFindTotalExterno(null)
     if (!termo) return
     findPreScanTimerRef.current = setTimeout(async () => {
       try {
-        // Busca todas as páginas em paralelo (máx 10 páginas = 500 registros)
-        const totalPages = Math.min(Math.ceil(Math.max(total, 1) / ITENS_POR_PAGINA), 10)
-        const promises = Array.from({ length: totalPages }, (_, i) =>
-          pedidoVirtualApi.listar({
-            sort: sortCampo,
-            dir: sortDir,
-            limit: ITENS_POR_PAGINA,
-            page: i + 1,
-            status: abaAtiva !== 'todos' ? abaAtiva : undefined,
-            busca: busca || undefined,
-          })
-        )
-        const results = await Promise.all(promises)
-        const allData = results.flatMap(r => r.data)
-        setFindTotalExterno(contarEmDados(allData))
+        const res = await pedidoVirtualApi.localizar({
+          termo,
+          status: abaAtiva !== 'todos' ? abaAtiva : undefined,
+          busca: busca || undefined,
+        })
+        setFindTotalExterno(res.total)
       } catch {
         setFindTotalExterno(null)
       }
     }, 350)
-  }, [sortCampo, sortDir, total, abaAtiva, busca, ITENS_POR_PAGINA])
+  }, [abaAtiva, busca])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   // Mostra modal de confirmação de divergência e aguarda a decisão do usuário
@@ -4458,8 +4471,8 @@ export default function ListaPedidos() {
         ? (isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0)
         : valor
       payload = { [campo]: valorFinal } as Partial<PedidoItem>
-      if (isUnidade) {
-        // Salva a unidade comercializada junto com a quantidade
+      if (isUnidade && !CAMPOS_UNIDADE_FIXA_ITEM.has(campo)) {
+        // Salva a unidade comercializada junto com a quantidade (apenas campos com unidade variável)
         ;(payload as Record<string, unknown>).unidade_comercializada_item = (valor as { unit: string }).unit
       }
     }
@@ -4666,6 +4679,13 @@ export default function ListaPedidos() {
   const coberturaPend = pedidos
     .filter(p => p.cobertura_cambial === 'sem_cobertura' || !p.cobertura_cambial)
     .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
+  // Valor total convertido para BRL usando taxa PTAX de venda
+  const valorTotalBrl = pedidos.reduce((acc, p) => {
+    const moeda = p.moeda_pedido ?? 'USD'
+    const taxa  = taxasVenda[moeda] ?? taxasVenda['USD'] ?? 1
+    return acc + (p.valor_total_pedido ?? 0) * taxa
+  }, 0)
+  const moedasSemTaxa = [...new Set(pedidos.map(p => p.moeda_pedido ?? 'USD').filter(m => !taxasVenda[m]))]
 
   return (
     <div className="ws-fade-up lp-page">
@@ -4706,6 +4726,33 @@ export default function ListaPedidos() {
                 </>}
               />
             )
+            if (pref.id === 'valor_total_brl') {
+              const porMoeda: Record<string, number> = {}
+              for (const p of pedidos) {
+                const m = p.moeda_pedido ?? 'USD'
+                porMoeda[m] = (porMoeda[m] ?? 0) + (p.valor_total_pedido ?? 0)
+              }
+              return (
+                <CardBasicoGlobal key="valor_total_brl"
+                  titulo="Valor Total — BRL"
+                  icone={<CurrencyCircleDollar weight="duotone" size={16} style={{ color: '#34d399' }} />}
+                  valor={`R$ ${fmtQuantidade(valorTotalBrl, 2)}`}
+                  variante="sucesso"
+                  subtexto="Todos os pedidos convertidos para R$"
+                  tooltip={<>
+                    {Object.entries(porMoeda).map(([m, v]) => (
+                      <p key={m} className="cg-tooltip__row">
+                        <span>{m} {fmtQuantidade(v, 2)}</span>
+                        <strong>× {taxasVenda[m] != null ? fmtQuantidade(taxasVenda[m], 4) : '—'}</strong>
+                      </p>
+                    ))}
+                    {moedasSemTaxa.length > 0 && (
+                      <p className="cg-tooltip__row"><span>⚠ Sem taxa</span><strong>{moedasSemTaxa.join(', ')}</strong></p>
+                    )}
+                  </>}
+                />
+              )
+            }
             if (pref.id === 'qtd_total') return (
               <CardBasicoGlobal key="qtd_total"
                 titulo={t('pedido.qtd_total')}

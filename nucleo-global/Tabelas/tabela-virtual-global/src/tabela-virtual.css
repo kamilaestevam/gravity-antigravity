@@ -638,56 +638,6 @@
 .gtv-th--center { justify-content: center; }
 .gtv-th--right  { justify-content: flex-end; }
 
-/* ─── Colunas congeladas (frozen) ─────────────────────────────────────────── */
-.gtv-th--frozen {
-  z-index: 11;
-  background: var(--gtv-bg);
-  transform: translateX(var(--gtv-scroll-left, 0px));
-}
-
-.gtv-th--frozen::after {
-  content: '';
-  position: absolute;
-  right: -1px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--gtv-border);
-  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.25);
-}
-
-.gtv-celula--frozen {
-  position: relative;
-  z-index: 2;
-  background: var(--gtv-bg);
-  transform: translateX(var(--gtv-scroll-left, 0px));
-}
-
-.gtv-celula--frozen::after {
-  content: '';
-  position: absolute;
-  right: -1px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--gtv-border);
-  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Frozen em linha filho */
-.gtv-linha--filho .gtv-celula--frozen {
-  background: var(--gtv-bg-filho);
-}
-
-/* Frozen em linha selecionada */
-.gtv-linha--selecionada .gtv-celula--frozen {
-  background: #1f2d47;
-}
-
-/* Frozen em linha expandida */
-.gtv-linha--expandida .gtv-celula--frozen {
-  background: #1d2b3e;
-}
 
 .gtv-th--sort {
   cursor: pointer;
@@ -1820,18 +1770,6 @@ body.light-theme .gtv-linha--selecionada:hover {
   background: rgba(79, 70, 229, 0.07) !important;
 }
 
-body.light-theme .gtv-th--frozen,
-body.light-theme .gtv-celula--frozen {
-  background: var(--gtv-bg);
-}
-
-body.light-theme .gtv-linha--filho .gtv-celula--frozen {
-  background: var(--gtv-bg-filho);
-}
-
-body.light-theme .gtv-linha--selecionada .gtv-celula--frozen {
-  background: rgba(79, 70, 229, 0.06);
-}
 
 body.light-theme .gtv-celula--acoes {
   background: var(--gtv-bg);

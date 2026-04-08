@@ -51,8 +51,6 @@ export interface GTColuna<T = unknown> {
   oculta?: boolean
   /** Impede que a coluna seja ocultada pelo usuário */
   naoOcultavel?: boolean
-  /** Congela a coluna no lado esquerdo durante scroll horizontal */
-  frozen?: boolean
   /** Exibe ícone de filtro no cabeçalho */
   filtravel?: boolean
   /** Permite ordenação ao clicar no cabeçalho */
@@ -84,6 +82,13 @@ export interface GTColuna<T = unknown> {
   gabiCampo?: string
   /** Endpoint GABI para este campo (default: /api/v1/pedidos/gabi/field-help) */
   gabiEndpoint?: string
+  /**
+   * Converte o valor bruto para a string exibida na tela, usada pelo find-in-page.
+   * Necessário quando `render` exibe um label diferente do valor bruto
+   * (ex: badge que traduz 'importacao' → 'Importação').
+   * Quando omitido, o scanner usa a conversão padrão por tipo.
+   */
+  findDisplay?: (item: T) => string
 }
 
 // ─── Ação de linha ─────────────────────────────────────────────────────────────
@@ -318,6 +323,8 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   // ── Preferências de colunas ────────────────────────────────────────────────
   preferencias?: GTPreferencias
   onSalvarPreferencias?: (prefs: GTPreferencias) => void
+  /** Keys na sequência padrão — usadas pelo botão "Restaurar padrão" no gerenciador de colunas */
+  colunasPadrao?: string[]
 
   // ── Visual ─────────────────────────────────────────────────────────────────
   carregando?: boolean

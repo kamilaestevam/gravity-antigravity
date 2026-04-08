@@ -492,7 +492,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    frozen: true,
     tooltipTitulo: 'Nº Pedido / Part Number',
     tooltipDescricao: 'Número do pedido (linha pai) ou Part Number do item (linha filho)',
     grupo: 'Identificação',
@@ -516,6 +515,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         }
       />
     ),
+    findDisplay: (row: Pedido) => row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação',
   },
   {
     key: 'exportador_nome',
@@ -780,6 +780,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         />
       )
     },
+    findDisplay: (row: Pedido) => getStatusLabel(row.status),
   },
   // ── Dados comerciais ────────────────────────────────────────────────────────
   {
@@ -1771,8 +1772,9 @@ export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
   .map(c => c.key as string)
 
 // ── Sequência padrão de colunas visíveis (primeira abertura sem preferências salvas) ──
+// As primeiras N aparecem na ordem definida; as demais seguem a ordem original de COLUNAS_PAI.
 
-const COLUNAS_PADRAO_VISIVEIS: string[] = [
+const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'numero_pedido',
   'tipo_operacao',
   'importador_nome',
@@ -1796,6 +1798,11 @@ const COLUNAS_PADRAO_VISIVEIS: string[] = [
   'data_emissao_pedido',
   'numero_proforma',
   'numero_invoice',
+]
+
+const COLUNAS_PADRAO_VISIVEIS: string[] = [
+  ..._COLUNAS_PADRAO_SEQUENCIA,
+  ...COLUNAS_PAI_CHAVES.filter(k => !_COLUNAS_PADRAO_SEQUENCIA.includes(k)),
 ]
 
 // ── Mapper: ColunaUsuario → GTColuna<Pedido> ──────────────────────────────────
@@ -3456,7 +3463,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
         <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
-          {fmtQuantidade(row.saldo_item_pedido, getCasas('quantidade_item', 0))}
+          {fmtQuantidade(row.saldo_item_pedido ?? 0, getCasas('quantidade_item', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )
@@ -3472,7 +3479,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     }),
     render: (row: PedidoItem) => (
       <span className="gtv-celula-moeda">
-        {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
+        {fmtQuantidade(row.quantidade_inicial_item_pedido ?? 0, getCasas('quantidade_item', 0))}
         <span className="gtv-celula-unidade-badge">
           {(row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'}
         </span>
@@ -3497,7 +3504,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
         <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {fmtQuantidade(row.quantidade_transferida_item, getCasas('quantidade_item', 0))}
+          {fmtQuantidade(row.quantidade_transferida_item ?? 0, getCasas('quantidade_item', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )
@@ -4472,20 +4479,36 @@ export default function ListaPedidos() {
               if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
               throw new Error(`Erro ao editar campo ${campo} do pedido`)
             })
-      // Atualiza o pedido e re-enriquece os itens com o novo valor
+      // _p completo construído a partir do pedidoAtualizado (itens crus de pedidos.itens não têm _p)
+      const novoPaiP = {
+        id: pedidoAtualizado.id,
+        tipo_operacao: pedidoAtualizado.tipo_operacao,
+        exportador_nome: pedidoAtualizado.exportador_nome ?? null,
+        importador_nome: pedidoAtualizado.importador_nome ?? null,
+        fabricante_nome: pedidoAtualizado.fabricante_nome ?? null,
+        referencia_importador: pedidoAtualizado.referencia_importador ?? null,
+        referencia_exportador: pedidoAtualizado.referencia_exportador ?? null,
+        referencia_fabricante: pedidoAtualizado.referencia_fabricante ?? null,
+        numero_proforma: pedidoAtualizado.numero_proforma ?? null,
+        numero_invoice: pedidoAtualizado.numero_invoice ?? null,
+        incoterm: pedidoAtualizado.incoterm ?? null,
+        condicao_pagamento: pedidoAtualizado.condicao_pagamento ?? null,
+        cobertura_cambial: pedidoAtualizado.cobertura_cambial ?? null,
+        data_emissao_pedido: pedidoAtualizado.data_emissao_pedido ?? null,
+        status: pedidoAtualizado.status,
+        moeda_pedido: (pedidoAtualizado as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+      }
+      // Atualiza o pedido e re-enriquece os itens com o _p correto
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
         return {
           ...p,
           ...pedidoAtualizado,
-          itens: p.itens?.map(i => ({
-            ...i,
-            _p: { ...(i as PedidoItemEnriquecido)._p, [campo]: valor },
-          })),
+          itens: p.itens?.map(i => ({ ...i, _p: novoPaiP })),
         }
       }))
       const item = pedido.itens?.find(i => i.id === id)!
-      return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, [campo]: valor } } as PedidoItem
+      return { ...item, _p: novoPaiP } as PedidoItem
     }
 
     // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
@@ -4988,6 +5011,7 @@ export default function ListaPedidos() {
 
           preferencias={preferencias}
           onSalvarPreferencias={handleSalvarPreferencias}
+          colunasPadrao={COLUNAS_PADRAO_VISIVEIS}
 
           carregando={carregando}
           emptyIcon={<Package size={40} weight="duotone" style={{ color: 'var(--text-muted)' }} />}

@@ -320,30 +320,11 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
 
     const t = termo.toLowerCase()
 
+    // Usa include (padrão do GET /) para evitar conflito do $extends do tenantIsolation
+    // com nested select. Carrega apenas os campos necessários para a contagem.
     const pedidos = await req.prisma.pedido.findMany({
       where,
-      select: {
-        numero_pedido:         true,
-        tipo_operacao:         true,
-        status:                true,
-        incoterm:              true,
-        moeda_pedido:          true,
-        numero_proforma:       true,
-        numero_invoice:        true,
-        referencia_importador: true,
-        referencia_exportador: true,
-        referencia_fabricante: true,
-        detalhes_operacionais: true,
-        itens: {
-          select: {
-            part_number:                 true,
-            ncm:                         true,
-            descricao_item:              true,
-            unidade_comercializada_item: true,
-            moeda_item:                  true,
-          },
-        },
-      },
+      include: { itens: true },
     })
 
     let total = 0

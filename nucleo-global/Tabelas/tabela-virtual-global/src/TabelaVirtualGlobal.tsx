@@ -320,6 +320,40 @@ function parseBRNum(s: string): number {
   return parseFloat(t) || 0
 }
 
+/**
+ * Converte o valor bruto de uma célula para a string exibida na tela,
+ * garantindo que o find-in-page encontre exatamente o que o usuário vê.
+ *
+ * Regras por tipo:
+ * - objeto (moeda / unidade) → formatarOverlayValor  → "USD 3.645,31" / "150 KG"
+ * - 'periodo' + string ISO   → toLocaleDateString('pt-BR') → "30/03/2026"
+ * - 'numero' + number        → fmtBR(v, casas)       → "3.645,31"
+ * - boolean                  → 'Sim' / 'Não'
+ * - demais (texto/badge/…)   → String(v)
+ * - null / undefined         → ''
+ *
+ * Limitação: colunas 'badge' com col.render que traduzem enum→label
+ * (ex: 'importacao' → 'Importação') não são interceptáveis sem renderToStaticMarkup.
+ * O scanner busca no valor bruto. Solução futura: prop `opcoesDisplay` em GTColuna.
+ */
+function valorParaStringFind(v: unknown, col: GTColuna<unknown>): string {
+  if (v == null) return ''
+  if (typeof v === 'object') {
+    return formatarOverlayValor(v, col.tipo, col.casasDecimais)
+  }
+  if (col.tipo === 'periodo' && typeof v === 'string') {
+    const d = new Date(v)
+    return isNaN(d.getTime()) ? v : d.toLocaleDateString('pt-BR')
+  }
+  if (col.tipo === 'numero' && typeof v === 'number') {
+    return fmtBR(v, col.casasDecimais ?? 0)
+  }
+  if (typeof v === 'boolean') {
+    return v ? 'Sim' : 'Não'
+  }
+  return String(v)
+}
+
 function parsearLinhaSmartPaste(linha: string, tipo?: string, valorAtual?: unknown): unknown {
   const txt = linha.trim()
   if (tipo === 'moeda') {
@@ -910,6 +944,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onErroAoSalvar,
   preferencias,
   onSalvarPreferencias,
+  colunasPadrao,
   carregando,
   emptyIcon,
   emptyTitle,
@@ -979,24 +1014,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     [onOrdenar],
   )
 
-  // ── Scroll container ref (frozen columns via transform + localizar) ─────────
+  // ── Scroll container ref (usado por localizar) ───────────────────────────────
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const el = scrollContainerRef.current
-    if (!el) return
-    let rafId: number
-    const handler = () => {
-      cancelAnimationFrame(rafId)
-      rafId = requestAnimationFrame(() => {
-        el.style.setProperty('--gtv-scroll-left', `${el.scrollLeft}px`)
-      })
-    }
-    el.addEventListener('scroll', handler, { passive: true })
-    return () => {
-      el.removeEventListener('scroll', handler)
-      cancelAnimationFrame(rafId)
-    }
-  }, [])
 
   // ── Visibilidade de colunas ───────────────────────────────────────────────────
   const [colunasAbertas, setColunasAbertas] = useState(false)
@@ -1052,9 +1071,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   }, [colunas, preferencias, onSalvarPreferencias])
 
   const restaurarPadraoColunas = useCallback(() => {
-    const padrao = colunas.filter(c => !c.oculta).map(c => c.key)
+    const padrao = colunasPadrao ?? colunas.filter(c => !c.oculta).map(c => c.key)
     onSalvarPreferencias?.({ ...(preferencias ?? {}), colunas_visiveis: padrao })
-  }, [colunas, preferencias, onSalvarPreferencias])
+  }, [colunas, colunasPadrao, preferencias, onSalvarPreferencias])
 
 
   // ── Overlay de edição ─────────────────────────────────────────────────────────
@@ -1092,6 +1111,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     if (acoes && acoes.length > 0) cols.push('max-content')
     return cols.join(' ')
   }, [temSelecao, onCarregarFilhos, colunasFiltradas, acoes])
+
+  // Offsets para position: sticky horizontal das colunas congeladas
+  const frozenExpandLeft = temSelecao ? 40 : 0
+  const frozenDataLeft   = (temSelecao ? 40 : 0) + (onCarregarFilhos ? 40 : 0)
 
   // ── Seleção ───────────────────────────────────────────────────────────────────
   const {
@@ -1288,7 +1311,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           ? (mapaColunasFilho[k]?.campo ?? k)
           : k
         const v = item[campoReal]
-        const vStr = v == null ? '' : (typeof v === 'object' ? formatarOverlayValor(v, col.tipo) : String(v))
+        const vStr = valorParaStringFind(v, col as GTColuna<unknown>)
         if (vStr.toLowerCase().includes(termo)) {
           result.push({ tipo: 'celula', linhaIndex: i, colKey: k })
         }
@@ -1534,7 +1557,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const classeFindMatch   = linhaIndex >= 0 && isCelulaMatch(linhaIndex, col.key as string) ? ' gtv-celula--find-match' : ''
     const classeFindAtivo   = linhaIndex >= 0 && isCelulaMatchAtivo(linhaIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
-    const styleCelula: React.CSSProperties = {}
+    const styleCelula: React.CSSProperties = col.frozen ? { left: frozenDataLeft } : {}
 
     // Overlay está ativo para esta célula específica
     const overlayAtivo = overlayInfo?.id === id && overlayInfo?.campo === col.key
@@ -1668,7 +1691,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     ].filter(Boolean).join(' ')
 
     return (
-      <div className={classeLinha}>
+      <div className={classeLinha} style={{ gridTemplateColumns: gridTemplateCols }}>
         {/* Checkbox */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa gtv-celula--frozen">
@@ -1687,6 +1710,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {onCarregarFilhos && (
           <div
             className="gtv-celula gtv-celula--expand gtv-col-fixa gtv-celula--frozen"
+            style={{ left: frozenExpandLeft }}
           >
             {carregando_ ? (
               <span className="gtv-spinner" aria-label="Carregando filhos..." />
@@ -1754,7 +1778,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
       const dropAberto = dropdownFilhoAberto === id
 
       return (
-        <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}`}>
+        <div className={`gtv-linha gtv-linha--filho${filhoSel ? ' gtv-linha--filho-selecionada' : ''}`} style={{ gridTemplateColumns: gridTemplateCols }}>
           {temSelecao && (
             <div className="gtv-celula gtv-celula--check gtv-col-fixa gtv-celula--frozen">
               {selecionavelFilhos && (
@@ -1772,6 +1796,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {onCarregarFilhos && (
             <div
               className="gtv-celula gtv-celula--expand gtv-col-fixa gtv-celula--frozen"
+              style={{ left: frozenExpandLeft }}
             >
               <span className="gtv-conector" aria-hidden="true">
                 {renderConectorFilho ? renderConectorFilho(item) : '└'}
@@ -1793,7 +1818,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
             const classeFindMatch   = isCelulaMatch(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match' : ''
             const classeFindAtivo   = isCelulaMatchAtivo(linhaVirtualIndex, col.key as string) ? ' gtv-celula--find-match-ativo' : ''
 
-            const styleCelula: React.CSSProperties = {}
+            const styleCelula: React.CSSProperties = col.frozen ? { left: frozenDataLeft } : {}
 
             const valor = (item as Record<string, unknown>)[campo]
 
@@ -1908,7 +1933,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const dropAbertoOrig = dropdownFilhoAberto === id
 
     return (
-      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}`}>
+      <div className={`gtv-linha gtv-linha--filho${filhoSelOrig ? ' gtv-linha--filho-selecionada' : ''}`} style={{ gridTemplateColumns: gridTemplateCols }}>
         {/* Espaço para alinhar com checkbox pai */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa gtv-celula--frozen">
@@ -1929,6 +1954,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {onCarregarFilhos && (
           <div
             className="gtv-celula gtv-celula--expand gtv-col-fixa gtv-celula--frozen"
+            style={{ left: frozenExpandLeft }}
           >
             <span className="gtv-conector" aria-hidden="true">└</span>
           </div>
@@ -2209,13 +2235,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   <div
                     className="gtv-th gtv-th--expand gtv-col-fixa gtv-th--frozen"
                     role="columnheader"
+                    style={{ left: frozenExpandLeft }}
                   />
                 )}
                 {colunasFiltradas.map(col => {
                   const sortAtivo   = sortLocal?.campo === col.key
                   const classeSort  = col.sortavel ? ` gtv-th--sort${sortAtivo ? ' gtv-th--sorted' : ''}` : ''
                   const classeFrozen = col.frozen ? ' gtv-th--frozen' : ''
-                  const styleTh: React.CSSProperties = {}
+                  const styleTh: React.CSSProperties = col.frozen ? { left: frozenDataLeft } : {}
                   const isDraggable = !!onSalvarPreferencias && !col.frozen && !col.naoOcultavel
                   const isDragging  = dragColKey === col.key
                   const isDropTarget = dragOverKey === col.key && dragColKey !== null

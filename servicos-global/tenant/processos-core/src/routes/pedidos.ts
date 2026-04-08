@@ -324,6 +324,7 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
       where,
       select: {
         numero_pedido:         true,
+        tipo_operacao:         true,
         status:                true,
         incoterm:              true,
         moeda_pedido:          true,
@@ -348,7 +349,7 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
     let total = 0
     for (const p of pedidos) {
       const camposPedido = [
-        p.numero_pedido, p.status, p.incoterm, p.moeda_pedido,
+        p.numero_pedido, p.tipo_operacao, p.status, p.incoterm, p.moeda_pedido,
         p.numero_proforma, p.numero_invoice,
         p.referencia_importador, p.referencia_exportador, p.referencia_fabricante,
       ]

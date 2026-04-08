@@ -157,7 +157,7 @@ export function ModalEditarAssinatura({ produto, aoFechar, aoSalvar }: ModalEdit
                 <input 
                   value={search} 
                   onChange={e => setSearch(e.target.value)} 
-                  placeholder={t('workspace.subscriptions.pesquisar_workspace')}
+                  placeholder="Buscar workspace..."
                   style={{ 
                     width: '100%', 
                     fontSize: '0.8125rem',

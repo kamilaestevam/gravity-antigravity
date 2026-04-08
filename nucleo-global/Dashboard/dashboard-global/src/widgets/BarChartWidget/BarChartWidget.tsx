@@ -177,7 +177,7 @@ export function BarChartWidget({
           key={s.fieldKey}
           dataKey={s.fieldKey}
           name={s.label}
-          yAxisId={dualAxis ? s.yAxisId : 'left'}
+          yAxisId={horizontal ? undefined : (dualAxis ? s.yAxisId : 'left')}
           fill={color}
           stackId={stackId}
           radius={mode === 'stacked' ? [0, 0, 0, 0] : (horizontal ? [0, 4, 4, 0] : [4, 4, 0, 0])}

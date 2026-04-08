@@ -59,7 +59,7 @@ export default defineConfig({
       // ── Utilidades ──
       '@nucleo/utils':                            nucleo('Utilidades/utils/src/index.ts'),
       // ── Dashboard ──
-      '@nucleo/dashboard':                        nucleo('Dashboard'),
+      '@nucleo/dashboard':                        nucleo('Dashboard/dashboard-global/src/index.ts'),
       // ── Shell / Tenant ──
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@shell':         path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),

@@ -255,6 +255,11 @@ export type PedidoPreferenciaUsuario = $Result.DefaultSelection<Prisma.$PedidoPr
  */
 export type PedidoPreferenciaPadrao = $Result.DefaultSelection<Prisma.$PedidoPreferenciaPadraoPayload>
 /**
+ * Model ConfiguracaoPedido
+ * 
+ */
+export type ConfiguracaoPedido = $Result.DefaultSelection<Prisma.$ConfiguracaoPedidoPayload>
+/**
  * Model MapeamentoImport
  * 
  */
@@ -1025,6 +1030,16 @@ export class PrismaClient<
   get pedidoPreferenciaPadrao(): Prisma.PedidoPreferenciaPadraoDelegate<ExtArgs>;
 
   /**
+   * `prisma.configuracaoPedido`: Exposes CRUD operations for the **ConfiguracaoPedido** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConfiguracaoPedidos
+    * const configuracaoPedidos = await prisma.configuracaoPedido.findMany()
+    * ```
+    */
+  get configuracaoPedido(): Prisma.ConfiguracaoPedidoDelegate<ExtArgs>;
+
+  /**
    * `prisma.mapeamentoImport`: Exposes CRUD operations for the **MapeamentoImport** model.
     * Example usage:
     * ```ts
@@ -1522,6 +1537,7 @@ export namespace Prisma {
     PedidoColuna: 'PedidoColuna',
     PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
     PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao',
+    ConfiguracaoPedido: 'ConfiguracaoPedido',
     MapeamentoImport: 'MapeamentoImport'
   };
 
@@ -1538,7 +1554,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "gabiTokenLog" | "gabiTokenQuota" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "mapeamentoImport"
+      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "gabiTokenLog" | "gabiTokenQuota" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "configuracaoPedido" | "mapeamentoImport"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4899,6 +4915,76 @@ export namespace Prisma {
           count: {
             args: Prisma.PedidoPreferenciaPadraoCountArgs<ExtArgs>
             result: $Utils.Optional<PedidoPreferenciaPadraoCountAggregateOutputType> | number
+          }
+        }
+      }
+      ConfiguracaoPedido: {
+        payload: Prisma.$ConfiguracaoPedidoPayload<ExtArgs>
+        fields: Prisma.ConfiguracaoPedidoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConfiguracaoPedidoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConfiguracaoPedidoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>
+          }
+          findFirst: {
+            args: Prisma.ConfiguracaoPedidoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConfiguracaoPedidoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>
+          }
+          findMany: {
+            args: Prisma.ConfiguracaoPedidoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>[]
+          }
+          create: {
+            args: Prisma.ConfiguracaoPedidoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>
+          }
+          createMany: {
+            args: Prisma.ConfiguracaoPedidoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConfiguracaoPedidoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>[]
+          }
+          delete: {
+            args: Prisma.ConfiguracaoPedidoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>
+          }
+          update: {
+            args: Prisma.ConfiguracaoPedidoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ConfiguracaoPedidoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConfiguracaoPedidoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ConfiguracaoPedidoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoPedidoPayload>
+          }
+          aggregate: {
+            args: Prisma.ConfiguracaoPedidoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConfiguracaoPedido>
+          }
+          groupBy: {
+            args: Prisma.ConfiguracaoPedidoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoPedidoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConfiguracaoPedidoCountArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoPedidoCountAggregateOutputType> | number
           }
         }
       }
@@ -44010,6 +44096,11 @@ export namespace Prisma {
     casas_decimais_total_pedido: number | null
     quantidade_total_pedido: number | null
     casas_decimais_quantidade_total_pedido: number | null
+    peso_liquido_total_pedido: Decimal | null
+    peso_bruto_total_pedido: Decimal | null
+    cubagem_total_pedido: Decimal | null
+    casas_decimais_peso_pedido: number | null
+    casas_decimais_cubagem_pedido: number | null
     valor_total_cambio: Decimal | null
     taxa_cambio_estimada: Decimal | null
   }
@@ -44019,6 +44110,11 @@ export namespace Prisma {
     casas_decimais_total_pedido: number | null
     quantidade_total_pedido: number | null
     casas_decimais_quantidade_total_pedido: number | null
+    peso_liquido_total_pedido: Decimal | null
+    peso_bruto_total_pedido: Decimal | null
+    cubagem_total_pedido: Decimal | null
+    casas_decimais_peso_pedido: number | null
+    casas_decimais_cubagem_pedido: number | null
     valor_total_cambio: Decimal | null
     taxa_cambio_estimada: Decimal | null
   }
@@ -44041,6 +44137,11 @@ export namespace Prisma {
     quantidade_total_pedido: number | null
     casas_decimais_quantidade_total_pedido: number | null
     unidade_comercializada_pedido: string | null
+    peso_liquido_total_pedido: Decimal | null
+    peso_bruto_total_pedido: Decimal | null
+    cubagem_total_pedido: Decimal | null
+    casas_decimais_peso_pedido: number | null
+    casas_decimais_cubagem_pedido: number | null
     cobertura_cambial: string | null
     condicao_pagamento: string | null
     numero_proforma: string | null
@@ -44053,6 +44154,8 @@ export namespace Prisma {
     taxa_cambio_estimada: Decimal | null
     contrato_cambio_id: string | null
     data_emissao_pedido: Date | null
+    data_consolidacao_pedido: Date | null
+    deleted_at: Date | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -44075,6 +44178,11 @@ export namespace Prisma {
     quantidade_total_pedido: number | null
     casas_decimais_quantidade_total_pedido: number | null
     unidade_comercializada_pedido: string | null
+    peso_liquido_total_pedido: Decimal | null
+    peso_bruto_total_pedido: Decimal | null
+    cubagem_total_pedido: Decimal | null
+    casas_decimais_peso_pedido: number | null
+    casas_decimais_cubagem_pedido: number | null
     cobertura_cambial: string | null
     condicao_pagamento: string | null
     numero_proforma: string | null
@@ -44087,6 +44195,8 @@ export namespace Prisma {
     taxa_cambio_estimada: Decimal | null
     contrato_cambio_id: string | null
     data_emissao_pedido: Date | null
+    data_consolidacao_pedido: Date | null
+    deleted_at: Date | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -44109,6 +44219,11 @@ export namespace Prisma {
     quantidade_total_pedido: number
     casas_decimais_quantidade_total_pedido: number
     unidade_comercializada_pedido: number
+    peso_liquido_total_pedido: number
+    peso_bruto_total_pedido: number
+    cubagem_total_pedido: number
+    casas_decimais_peso_pedido: number
+    casas_decimais_cubagem_pedido: number
     cobertura_cambial: number
     condicao_pagamento: number
     numero_proforma: number
@@ -44123,6 +44238,9 @@ export namespace Prisma {
     data_emissao_pedido: number
     detalhes_operacionais: number
     campos_custom: number
+    pedidos_origem: number
+    data_consolidacao_pedido: number
+    deleted_at: number
     created_at: number
     updated_at: number
     _all: number
@@ -44134,6 +44252,11 @@ export namespace Prisma {
     casas_decimais_total_pedido?: true
     quantidade_total_pedido?: true
     casas_decimais_quantidade_total_pedido?: true
+    peso_liquido_total_pedido?: true
+    peso_bruto_total_pedido?: true
+    cubagem_total_pedido?: true
+    casas_decimais_peso_pedido?: true
+    casas_decimais_cubagem_pedido?: true
     valor_total_cambio?: true
     taxa_cambio_estimada?: true
   }
@@ -44143,6 +44266,11 @@ export namespace Prisma {
     casas_decimais_total_pedido?: true
     quantidade_total_pedido?: true
     casas_decimais_quantidade_total_pedido?: true
+    peso_liquido_total_pedido?: true
+    peso_bruto_total_pedido?: true
+    cubagem_total_pedido?: true
+    casas_decimais_peso_pedido?: true
+    casas_decimais_cubagem_pedido?: true
     valor_total_cambio?: true
     taxa_cambio_estimada?: true
   }
@@ -44165,6 +44293,11 @@ export namespace Prisma {
     quantidade_total_pedido?: true
     casas_decimais_quantidade_total_pedido?: true
     unidade_comercializada_pedido?: true
+    peso_liquido_total_pedido?: true
+    peso_bruto_total_pedido?: true
+    cubagem_total_pedido?: true
+    casas_decimais_peso_pedido?: true
+    casas_decimais_cubagem_pedido?: true
     cobertura_cambial?: true
     condicao_pagamento?: true
     numero_proforma?: true
@@ -44177,6 +44310,8 @@ export namespace Prisma {
     taxa_cambio_estimada?: true
     contrato_cambio_id?: true
     data_emissao_pedido?: true
+    data_consolidacao_pedido?: true
+    deleted_at?: true
     created_at?: true
     updated_at?: true
   }
@@ -44199,6 +44334,11 @@ export namespace Prisma {
     quantidade_total_pedido?: true
     casas_decimais_quantidade_total_pedido?: true
     unidade_comercializada_pedido?: true
+    peso_liquido_total_pedido?: true
+    peso_bruto_total_pedido?: true
+    cubagem_total_pedido?: true
+    casas_decimais_peso_pedido?: true
+    casas_decimais_cubagem_pedido?: true
     cobertura_cambial?: true
     condicao_pagamento?: true
     numero_proforma?: true
@@ -44211,6 +44351,8 @@ export namespace Prisma {
     taxa_cambio_estimada?: true
     contrato_cambio_id?: true
     data_emissao_pedido?: true
+    data_consolidacao_pedido?: true
+    deleted_at?: true
     created_at?: true
     updated_at?: true
   }
@@ -44233,6 +44375,11 @@ export namespace Prisma {
     quantidade_total_pedido?: true
     casas_decimais_quantidade_total_pedido?: true
     unidade_comercializada_pedido?: true
+    peso_liquido_total_pedido?: true
+    peso_bruto_total_pedido?: true
+    cubagem_total_pedido?: true
+    casas_decimais_peso_pedido?: true
+    casas_decimais_cubagem_pedido?: true
     cobertura_cambial?: true
     condicao_pagamento?: true
     numero_proforma?: true
@@ -44247,6 +44394,9 @@ export namespace Prisma {
     data_emissao_pedido?: true
     detalhes_operacionais?: true
     campos_custom?: true
+    pedidos_origem?: true
+    data_consolidacao_pedido?: true
+    deleted_at?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -44356,6 +44506,11 @@ export namespace Prisma {
     quantidade_total_pedido: number | null
     casas_decimais_quantidade_total_pedido: number
     unidade_comercializada_pedido: string | null
+    peso_liquido_total_pedido: Decimal | null
+    peso_bruto_total_pedido: Decimal | null
+    cubagem_total_pedido: Decimal | null
+    casas_decimais_peso_pedido: number
+    casas_decimais_cubagem_pedido: number
     cobertura_cambial: string
     condicao_pagamento: string | null
     numero_proforma: string | null
@@ -44370,6 +44525,9 @@ export namespace Prisma {
     data_emissao_pedido: Date
     detalhes_operacionais: JsonValue | null
     campos_custom: JsonValue | null
+    pedidos_origem: string[]
+    data_consolidacao_pedido: Date | null
+    deleted_at: Date | null
     created_at: Date
     updated_at: Date
     _count: PedidoCountAggregateOutputType | null
@@ -44411,6 +44569,11 @@ export namespace Prisma {
     quantidade_total_pedido?: boolean
     casas_decimais_quantidade_total_pedido?: boolean
     unidade_comercializada_pedido?: boolean
+    peso_liquido_total_pedido?: boolean
+    peso_bruto_total_pedido?: boolean
+    cubagem_total_pedido?: boolean
+    casas_decimais_peso_pedido?: boolean
+    casas_decimais_cubagem_pedido?: boolean
     cobertura_cambial?: boolean
     condicao_pagamento?: boolean
     numero_proforma?: boolean
@@ -44425,6 +44588,9 @@ export namespace Prisma {
     data_emissao_pedido?: boolean
     detalhes_operacionais?: boolean
     campos_custom?: boolean
+    pedidos_origem?: boolean
+    data_consolidacao_pedido?: boolean
+    deleted_at?: boolean
     created_at?: boolean
     updated_at?: boolean
     itens?: boolean | Pedido$itensArgs<ExtArgs>
@@ -44449,6 +44615,11 @@ export namespace Prisma {
     quantidade_total_pedido?: boolean
     casas_decimais_quantidade_total_pedido?: boolean
     unidade_comercializada_pedido?: boolean
+    peso_liquido_total_pedido?: boolean
+    peso_bruto_total_pedido?: boolean
+    cubagem_total_pedido?: boolean
+    casas_decimais_peso_pedido?: boolean
+    casas_decimais_cubagem_pedido?: boolean
     cobertura_cambial?: boolean
     condicao_pagamento?: boolean
     numero_proforma?: boolean
@@ -44463,6 +44634,9 @@ export namespace Prisma {
     data_emissao_pedido?: boolean
     detalhes_operacionais?: boolean
     campos_custom?: boolean
+    pedidos_origem?: boolean
+    data_consolidacao_pedido?: boolean
+    deleted_at?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["pedido"]>
@@ -44485,6 +44659,11 @@ export namespace Prisma {
     quantidade_total_pedido?: boolean
     casas_decimais_quantidade_total_pedido?: boolean
     unidade_comercializada_pedido?: boolean
+    peso_liquido_total_pedido?: boolean
+    peso_bruto_total_pedido?: boolean
+    cubagem_total_pedido?: boolean
+    casas_decimais_peso_pedido?: boolean
+    casas_decimais_cubagem_pedido?: boolean
     cobertura_cambial?: boolean
     condicao_pagamento?: boolean
     numero_proforma?: boolean
@@ -44499,6 +44678,9 @@ export namespace Prisma {
     data_emissao_pedido?: boolean
     detalhes_operacionais?: boolean
     campos_custom?: boolean
+    pedidos_origem?: boolean
+    data_consolidacao_pedido?: boolean
+    deleted_at?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
@@ -44532,6 +44714,11 @@ export namespace Prisma {
       quantidade_total_pedido: number | null
       casas_decimais_quantidade_total_pedido: number
       unidade_comercializada_pedido: string | null
+      peso_liquido_total_pedido: Prisma.Decimal | null
+      peso_bruto_total_pedido: Prisma.Decimal | null
+      cubagem_total_pedido: Prisma.Decimal | null
+      casas_decimais_peso_pedido: number
+      casas_decimais_cubagem_pedido: number
       cobertura_cambial: string
       condicao_pagamento: string | null
       numero_proforma: string | null
@@ -44546,6 +44733,9 @@ export namespace Prisma {
       data_emissao_pedido: Date
       detalhes_operacionais: Prisma.JsonValue | null
       campos_custom: Prisma.JsonValue | null
+      pedidos_origem: string[]
+      data_consolidacao_pedido: Date | null
+      deleted_at: Date | null
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["pedido"]>
@@ -44959,6 +45149,11 @@ export namespace Prisma {
     readonly quantidade_total_pedido: FieldRef<"Pedido", 'Float'>
     readonly casas_decimais_quantidade_total_pedido: FieldRef<"Pedido", 'Int'>
     readonly unidade_comercializada_pedido: FieldRef<"Pedido", 'String'>
+    readonly peso_liquido_total_pedido: FieldRef<"Pedido", 'Decimal'>
+    readonly peso_bruto_total_pedido: FieldRef<"Pedido", 'Decimal'>
+    readonly cubagem_total_pedido: FieldRef<"Pedido", 'Decimal'>
+    readonly casas_decimais_peso_pedido: FieldRef<"Pedido", 'Int'>
+    readonly casas_decimais_cubagem_pedido: FieldRef<"Pedido", 'Int'>
     readonly cobertura_cambial: FieldRef<"Pedido", 'String'>
     readonly condicao_pagamento: FieldRef<"Pedido", 'String'>
     readonly numero_proforma: FieldRef<"Pedido", 'String'>
@@ -44973,6 +45168,9 @@ export namespace Prisma {
     readonly data_emissao_pedido: FieldRef<"Pedido", 'DateTime'>
     readonly detalhes_operacionais: FieldRef<"Pedido", 'Json'>
     readonly campos_custom: FieldRef<"Pedido", 'Json'>
+    readonly pedidos_origem: FieldRef<"Pedido", 'String[]'>
+    readonly data_consolidacao_pedido: FieldRef<"Pedido", 'DateTime'>
+    readonly deleted_at: FieldRef<"Pedido", 'DateTime'>
     readonly created_at: FieldRef<"Pedido", 'DateTime'>
     readonly updated_at: FieldRef<"Pedido", 'DateTime'>
   }
@@ -45338,7 +45536,7 @@ export namespace Prisma {
   export type PedidoItemAvgAggregateOutputType = {
     sequencia_item: number | null
     quantidade_inicial_pedido: Decimal | null
-    quantidade_atual_pedido: Decimal | null
+    quantidade_saldo_pedido: Decimal | null
     quantidade_pronta_pedido: Decimal | null
     quantidade_transferida_pedido: Decimal | null
     quantidade_cancelada_pedido: Decimal | null
@@ -45346,12 +45544,17 @@ export namespace Prisma {
     valor_total_item: Decimal | null
     valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
+    peso_liquido_unitario: Decimal | null
+    peso_bruto_unitario: Decimal | null
+    cubagem_unitaria: Decimal | null
+    casas_decimais_peso: number | null
+    casas_decimais_cubagem: number | null
   }
 
   export type PedidoItemSumAggregateOutputType = {
     sequencia_item: number | null
     quantidade_inicial_pedido: Decimal | null
-    quantidade_atual_pedido: Decimal | null
+    quantidade_saldo_pedido: Decimal | null
     quantidade_pronta_pedido: Decimal | null
     quantidade_transferida_pedido: Decimal | null
     quantidade_cancelada_pedido: Decimal | null
@@ -45359,6 +45562,11 @@ export namespace Prisma {
     valor_total_item: Decimal | null
     valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
+    peso_liquido_unitario: Decimal | null
+    peso_bruto_unitario: Decimal | null
+    cubagem_unitaria: Decimal | null
+    casas_decimais_peso: number | null
+    casas_decimais_cubagem: number | null
   }
 
   export type PedidoItemMinAggregateOutputType = {
@@ -45372,7 +45580,7 @@ export namespace Prisma {
     descricao_item: string | null
     unidade_comercializada_item: string | null
     quantidade_inicial_pedido: Decimal | null
-    quantidade_atual_pedido: Decimal | null
+    quantidade_saldo_pedido: Decimal | null
     quantidade_pronta_pedido: Decimal | null
     quantidade_transferida_pedido: Decimal | null
     quantidade_cancelada_pedido: Decimal | null
@@ -45381,6 +45589,11 @@ export namespace Prisma {
     valor_total_item: Decimal | null
     valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
+    peso_liquido_unitario: Decimal | null
+    peso_bruto_unitario: Decimal | null
+    cubagem_unitaria: Decimal | null
+    casas_decimais_peso: number | null
+    casas_decimais_cubagem: number | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -45396,7 +45609,7 @@ export namespace Prisma {
     descricao_item: string | null
     unidade_comercializada_item: string | null
     quantidade_inicial_pedido: Decimal | null
-    quantidade_atual_pedido: Decimal | null
+    quantidade_saldo_pedido: Decimal | null
     quantidade_pronta_pedido: Decimal | null
     quantidade_transferida_pedido: Decimal | null
     quantidade_cancelada_pedido: Decimal | null
@@ -45405,6 +45618,11 @@ export namespace Prisma {
     valor_total_item: Decimal | null
     valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number | null
+    peso_liquido_unitario: Decimal | null
+    peso_bruto_unitario: Decimal | null
+    cubagem_unitaria: Decimal | null
+    casas_decimais_peso: number | null
+    casas_decimais_cubagem: number | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -45420,7 +45638,7 @@ export namespace Prisma {
     descricao_item: number
     unidade_comercializada_item: number
     quantidade_inicial_pedido: number
-    quantidade_atual_pedido: number
+    quantidade_saldo_pedido: number
     quantidade_pronta_pedido: number
     quantidade_transferida_pedido: number
     quantidade_cancelada_pedido: number
@@ -45429,6 +45647,11 @@ export namespace Prisma {
     valor_total_item: number
     valor_por_unidade_item: number
     casas_decimais_total_item: number
+    peso_liquido_unitario: number
+    peso_bruto_unitario: number
+    cubagem_unitaria: number
+    casas_decimais_peso: number
+    casas_decimais_cubagem: number
     campos_custom: number
     created_at: number
     updated_at: number
@@ -45439,7 +45662,7 @@ export namespace Prisma {
   export type PedidoItemAvgAggregateInputType = {
     sequencia_item?: true
     quantidade_inicial_pedido?: true
-    quantidade_atual_pedido?: true
+    quantidade_saldo_pedido?: true
     quantidade_pronta_pedido?: true
     quantidade_transferida_pedido?: true
     quantidade_cancelada_pedido?: true
@@ -45447,12 +45670,17 @@ export namespace Prisma {
     valor_total_item?: true
     valor_por_unidade_item?: true
     casas_decimais_total_item?: true
+    peso_liquido_unitario?: true
+    peso_bruto_unitario?: true
+    cubagem_unitaria?: true
+    casas_decimais_peso?: true
+    casas_decimais_cubagem?: true
   }
 
   export type PedidoItemSumAggregateInputType = {
     sequencia_item?: true
     quantidade_inicial_pedido?: true
-    quantidade_atual_pedido?: true
+    quantidade_saldo_pedido?: true
     quantidade_pronta_pedido?: true
     quantidade_transferida_pedido?: true
     quantidade_cancelada_pedido?: true
@@ -45460,6 +45688,11 @@ export namespace Prisma {
     valor_total_item?: true
     valor_por_unidade_item?: true
     casas_decimais_total_item?: true
+    peso_liquido_unitario?: true
+    peso_bruto_unitario?: true
+    cubagem_unitaria?: true
+    casas_decimais_peso?: true
+    casas_decimais_cubagem?: true
   }
 
   export type PedidoItemMinAggregateInputType = {
@@ -45473,7 +45706,7 @@ export namespace Prisma {
     descricao_item?: true
     unidade_comercializada_item?: true
     quantidade_inicial_pedido?: true
-    quantidade_atual_pedido?: true
+    quantidade_saldo_pedido?: true
     quantidade_pronta_pedido?: true
     quantidade_transferida_pedido?: true
     quantidade_cancelada_pedido?: true
@@ -45482,6 +45715,11 @@ export namespace Prisma {
     valor_total_item?: true
     valor_por_unidade_item?: true
     casas_decimais_total_item?: true
+    peso_liquido_unitario?: true
+    peso_bruto_unitario?: true
+    cubagem_unitaria?: true
+    casas_decimais_peso?: true
+    casas_decimais_cubagem?: true
     created_at?: true
     updated_at?: true
   }
@@ -45497,7 +45735,7 @@ export namespace Prisma {
     descricao_item?: true
     unidade_comercializada_item?: true
     quantidade_inicial_pedido?: true
-    quantidade_atual_pedido?: true
+    quantidade_saldo_pedido?: true
     quantidade_pronta_pedido?: true
     quantidade_transferida_pedido?: true
     quantidade_cancelada_pedido?: true
@@ -45506,6 +45744,11 @@ export namespace Prisma {
     valor_total_item?: true
     valor_por_unidade_item?: true
     casas_decimais_total_item?: true
+    peso_liquido_unitario?: true
+    peso_bruto_unitario?: true
+    cubagem_unitaria?: true
+    casas_decimais_peso?: true
+    casas_decimais_cubagem?: true
     created_at?: true
     updated_at?: true
   }
@@ -45521,7 +45764,7 @@ export namespace Prisma {
     descricao_item?: true
     unidade_comercializada_item?: true
     quantidade_inicial_pedido?: true
-    quantidade_atual_pedido?: true
+    quantidade_saldo_pedido?: true
     quantidade_pronta_pedido?: true
     quantidade_transferida_pedido?: true
     quantidade_cancelada_pedido?: true
@@ -45530,6 +45773,11 @@ export namespace Prisma {
     valor_total_item?: true
     valor_por_unidade_item?: true
     casas_decimais_total_item?: true
+    peso_liquido_unitario?: true
+    peso_bruto_unitario?: true
+    cubagem_unitaria?: true
+    casas_decimais_peso?: true
+    casas_decimais_cubagem?: true
     campos_custom?: true
     created_at?: true
     updated_at?: true
@@ -45633,7 +45881,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item: string | null
     quantidade_inicial_pedido: Decimal
-    quantidade_atual_pedido: Decimal
+    quantidade_saldo_pedido: Decimal
     quantidade_pronta_pedido: Decimal
     quantidade_transferida_pedido: Decimal
     quantidade_cancelada_pedido: Decimal
@@ -45642,6 +45890,11 @@ export namespace Prisma {
     valor_total_item: Decimal | null
     valor_por_unidade_item: Decimal | null
     casas_decimais_total_item: number
+    peso_liquido_unitario: Decimal | null
+    peso_bruto_unitario: Decimal | null
+    cubagem_unitaria: Decimal | null
+    casas_decimais_peso: number
+    casas_decimais_cubagem: number
     campos_custom: JsonValue | null
     created_at: Date
     updated_at: Date
@@ -45677,7 +45930,7 @@ export namespace Prisma {
     descricao_item?: boolean
     unidade_comercializada_item?: boolean
     quantidade_inicial_pedido?: boolean
-    quantidade_atual_pedido?: boolean
+    quantidade_saldo_pedido?: boolean
     quantidade_pronta_pedido?: boolean
     quantidade_transferida_pedido?: boolean
     quantidade_cancelada_pedido?: boolean
@@ -45686,6 +45939,11 @@ export namespace Prisma {
     valor_total_item?: boolean
     valor_por_unidade_item?: boolean
     casas_decimais_total_item?: boolean
+    peso_liquido_unitario?: boolean
+    peso_bruto_unitario?: boolean
+    cubagem_unitaria?: boolean
+    casas_decimais_peso?: boolean
+    casas_decimais_cubagem?: boolean
     campos_custom?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -45705,7 +45963,7 @@ export namespace Prisma {
     descricao_item?: boolean
     unidade_comercializada_item?: boolean
     quantidade_inicial_pedido?: boolean
-    quantidade_atual_pedido?: boolean
+    quantidade_saldo_pedido?: boolean
     quantidade_pronta_pedido?: boolean
     quantidade_transferida_pedido?: boolean
     quantidade_cancelada_pedido?: boolean
@@ -45714,6 +45972,11 @@ export namespace Prisma {
     valor_total_item?: boolean
     valor_por_unidade_item?: boolean
     casas_decimais_total_item?: boolean
+    peso_liquido_unitario?: boolean
+    peso_bruto_unitario?: boolean
+    cubagem_unitaria?: boolean
+    casas_decimais_peso?: boolean
+    casas_decimais_cubagem?: boolean
     campos_custom?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -45731,7 +45994,7 @@ export namespace Prisma {
     descricao_item?: boolean
     unidade_comercializada_item?: boolean
     quantidade_inicial_pedido?: boolean
-    quantidade_atual_pedido?: boolean
+    quantidade_saldo_pedido?: boolean
     quantidade_pronta_pedido?: boolean
     quantidade_transferida_pedido?: boolean
     quantidade_cancelada_pedido?: boolean
@@ -45740,6 +46003,11 @@ export namespace Prisma {
     valor_total_item?: boolean
     valor_por_unidade_item?: boolean
     casas_decimais_total_item?: boolean
+    peso_liquido_unitario?: boolean
+    peso_bruto_unitario?: boolean
+    cubagem_unitaria?: boolean
+    casas_decimais_peso?: boolean
+    casas_decimais_cubagem?: boolean
     campos_custom?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -45771,7 +46039,7 @@ export namespace Prisma {
       descricao_item: string
       unidade_comercializada_item: string | null
       quantidade_inicial_pedido: Prisma.Decimal
-      quantidade_atual_pedido: Prisma.Decimal
+      quantidade_saldo_pedido: Prisma.Decimal
       quantidade_pronta_pedido: Prisma.Decimal
       quantidade_transferida_pedido: Prisma.Decimal
       quantidade_cancelada_pedido: Prisma.Decimal
@@ -45780,6 +46048,11 @@ export namespace Prisma {
       valor_total_item: Prisma.Decimal | null
       valor_por_unidade_item: Prisma.Decimal | null
       casas_decimais_total_item: number
+      peso_liquido_unitario: Prisma.Decimal | null
+      peso_bruto_unitario: Prisma.Decimal | null
+      cubagem_unitaria: Prisma.Decimal | null
+      casas_decimais_peso: number
+      casas_decimais_cubagem: number
       campos_custom: Prisma.JsonValue | null
       created_at: Date
       updated_at: Date
@@ -46188,7 +46461,7 @@ export namespace Prisma {
     readonly descricao_item: FieldRef<"PedidoItem", 'String'>
     readonly unidade_comercializada_item: FieldRef<"PedidoItem", 'String'>
     readonly quantidade_inicial_pedido: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_atual_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_saldo_pedido: FieldRef<"PedidoItem", 'Decimal'>
     readonly quantidade_pronta_pedido: FieldRef<"PedidoItem", 'Decimal'>
     readonly quantidade_transferida_pedido: FieldRef<"PedidoItem", 'Decimal'>
     readonly quantidade_cancelada_pedido: FieldRef<"PedidoItem", 'Decimal'>
@@ -46197,6 +46470,11 @@ export namespace Prisma {
     readonly valor_total_item: FieldRef<"PedidoItem", 'Decimal'>
     readonly valor_por_unidade_item: FieldRef<"PedidoItem", 'Decimal'>
     readonly casas_decimais_total_item: FieldRef<"PedidoItem", 'Int'>
+    readonly peso_liquido_unitario: FieldRef<"PedidoItem", 'Decimal'>
+    readonly peso_bruto_unitario: FieldRef<"PedidoItem", 'Decimal'>
+    readonly cubagem_unitaria: FieldRef<"PedidoItem", 'Decimal'>
+    readonly casas_decimais_peso: FieldRef<"PedidoItem", 'Int'>
+    readonly casas_decimais_cubagem: FieldRef<"PedidoItem", 'Int'>
     readonly campos_custom: FieldRef<"PedidoItem", 'Json'>
     readonly created_at: FieldRef<"PedidoItem", 'DateTime'>
     readonly updated_at: FieldRef<"PedidoItem", 'DateTime'>
@@ -55949,6 +56227,952 @@ export namespace Prisma {
 
 
   /**
+   * Model ConfiguracaoPedido
+   */
+
+  export type AggregateConfiguracaoPedido = {
+    _count: ConfiguracaoPedidoCountAggregateOutputType | null
+    _min: ConfiguracaoPedidoMinAggregateOutputType | null
+    _max: ConfiguracaoPedidoMaxAggregateOutputType | null
+  }
+
+  export type ConfiguracaoPedidoMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    company_id: string | null
+    duplicar_numero_auto: boolean | null
+    duplicar_copiar_datas: boolean | null
+    duplicar_status_inicial: string | null
+    excluir_pedido_sem_item_permitido: boolean | null
+    excluir_confirmar_com_preview: boolean | null
+    alerta_numero_duplicado: boolean | null
+    updated_at: Date | null
+  }
+
+  export type ConfiguracaoPedidoMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    company_id: string | null
+    duplicar_numero_auto: boolean | null
+    duplicar_copiar_datas: boolean | null
+    duplicar_status_inicial: string | null
+    excluir_pedido_sem_item_permitido: boolean | null
+    excluir_confirmar_com_preview: boolean | null
+    alerta_numero_duplicado: boolean | null
+    updated_at: Date | null
+  }
+
+  export type ConfiguracaoPedidoCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    company_id: number
+    duplicar_numero_auto: number
+    duplicar_copiar_datas: number
+    duplicar_status_inicial: number
+    excluir_status_permitidos: number
+    excluir_pedido_sem_item_permitido: number
+    excluir_confirmar_com_preview: number
+    alerta_numero_duplicado: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type ConfiguracaoPedidoMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    company_id?: true
+    duplicar_numero_auto?: true
+    duplicar_copiar_datas?: true
+    duplicar_status_inicial?: true
+    excluir_pedido_sem_item_permitido?: true
+    excluir_confirmar_com_preview?: true
+    alerta_numero_duplicado?: true
+    updated_at?: true
+  }
+
+  export type ConfiguracaoPedidoMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    company_id?: true
+    duplicar_numero_auto?: true
+    duplicar_copiar_datas?: true
+    duplicar_status_inicial?: true
+    excluir_pedido_sem_item_permitido?: true
+    excluir_confirmar_com_preview?: true
+    alerta_numero_duplicado?: true
+    updated_at?: true
+  }
+
+  export type ConfiguracaoPedidoCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    company_id?: true
+    duplicar_numero_auto?: true
+    duplicar_copiar_datas?: true
+    duplicar_status_inicial?: true
+    excluir_status_permitidos?: true
+    excluir_pedido_sem_item_permitido?: true
+    excluir_confirmar_com_preview?: true
+    alerta_numero_duplicado?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type ConfiguracaoPedidoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConfiguracaoPedido to aggregate.
+     */
+    where?: ConfiguracaoPedidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConfiguracaoPedidos to fetch.
+     */
+    orderBy?: ConfiguracaoPedidoOrderByWithRelationInput | ConfiguracaoPedidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConfiguracaoPedidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConfiguracaoPedidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConfiguracaoPedidos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConfiguracaoPedidos
+    **/
+    _count?: true | ConfiguracaoPedidoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConfiguracaoPedidoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConfiguracaoPedidoMaxAggregateInputType
+  }
+
+  export type GetConfiguracaoPedidoAggregateType<T extends ConfiguracaoPedidoAggregateArgs> = {
+        [P in keyof T & keyof AggregateConfiguracaoPedido]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConfiguracaoPedido[P]>
+      : GetScalarType<T[P], AggregateConfiguracaoPedido[P]>
+  }
+
+
+
+
+  export type ConfiguracaoPedidoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConfiguracaoPedidoWhereInput
+    orderBy?: ConfiguracaoPedidoOrderByWithAggregationInput | ConfiguracaoPedidoOrderByWithAggregationInput[]
+    by: ConfiguracaoPedidoScalarFieldEnum[] | ConfiguracaoPedidoScalarFieldEnum
+    having?: ConfiguracaoPedidoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConfiguracaoPedidoCountAggregateInputType | true
+    _min?: ConfiguracaoPedidoMinAggregateInputType
+    _max?: ConfiguracaoPedidoMaxAggregateInputType
+  }
+
+  export type ConfiguracaoPedidoGroupByOutputType = {
+    id: string
+    tenant_id: string
+    company_id: string | null
+    duplicar_numero_auto: boolean
+    duplicar_copiar_datas: boolean
+    duplicar_status_inicial: string
+    excluir_status_permitidos: string[]
+    excluir_pedido_sem_item_permitido: boolean
+    excluir_confirmar_com_preview: boolean
+    alerta_numero_duplicado: boolean
+    updated_at: Date
+    _count: ConfiguracaoPedidoCountAggregateOutputType | null
+    _min: ConfiguracaoPedidoMinAggregateOutputType | null
+    _max: ConfiguracaoPedidoMaxAggregateOutputType | null
+  }
+
+  type GetConfiguracaoPedidoGroupByPayload<T extends ConfiguracaoPedidoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConfiguracaoPedidoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConfiguracaoPedidoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConfiguracaoPedidoGroupByOutputType[P]>
+            : GetScalarType<T[P], ConfiguracaoPedidoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConfiguracaoPedidoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    company_id?: boolean
+    duplicar_numero_auto?: boolean
+    duplicar_copiar_datas?: boolean
+    duplicar_status_inicial?: boolean
+    excluir_status_permitidos?: boolean
+    excluir_pedido_sem_item_permitido?: boolean
+    excluir_confirmar_com_preview?: boolean
+    alerta_numero_duplicado?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["configuracaoPedido"]>
+
+  export type ConfiguracaoPedidoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    company_id?: boolean
+    duplicar_numero_auto?: boolean
+    duplicar_copiar_datas?: boolean
+    duplicar_status_inicial?: boolean
+    excluir_status_permitidos?: boolean
+    excluir_pedido_sem_item_permitido?: boolean
+    excluir_confirmar_com_preview?: boolean
+    alerta_numero_duplicado?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["configuracaoPedido"]>
+
+  export type ConfiguracaoPedidoSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    company_id?: boolean
+    duplicar_numero_auto?: boolean
+    duplicar_copiar_datas?: boolean
+    duplicar_status_inicial?: boolean
+    excluir_status_permitidos?: boolean
+    excluir_pedido_sem_item_permitido?: boolean
+    excluir_confirmar_com_preview?: boolean
+    alerta_numero_duplicado?: boolean
+    updated_at?: boolean
+  }
+
+
+  export type $ConfiguracaoPedidoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConfiguracaoPedido"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      company_id: string | null
+      duplicar_numero_auto: boolean
+      duplicar_copiar_datas: boolean
+      duplicar_status_inicial: string
+      excluir_status_permitidos: string[]
+      excluir_pedido_sem_item_permitido: boolean
+      excluir_confirmar_com_preview: boolean
+      alerta_numero_duplicado: boolean
+      updated_at: Date
+    }, ExtArgs["result"]["configuracaoPedido"]>
+    composites: {}
+  }
+
+  type ConfiguracaoPedidoGetPayload<S extends boolean | null | undefined | ConfiguracaoPedidoDefaultArgs> = $Result.GetResult<Prisma.$ConfiguracaoPedidoPayload, S>
+
+  type ConfiguracaoPedidoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ConfiguracaoPedidoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ConfiguracaoPedidoCountAggregateInputType | true
+    }
+
+  export interface ConfiguracaoPedidoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConfiguracaoPedido'], meta: { name: 'ConfiguracaoPedido' } }
+    /**
+     * Find zero or one ConfiguracaoPedido that matches the filter.
+     * @param {ConfiguracaoPedidoFindUniqueArgs} args - Arguments to find a ConfiguracaoPedido
+     * @example
+     * // Get one ConfiguracaoPedido
+     * const configuracaoPedido = await prisma.configuracaoPedido.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConfiguracaoPedidoFindUniqueArgs>(args: SelectSubset<T, ConfiguracaoPedidoFindUniqueArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ConfiguracaoPedido that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ConfiguracaoPedidoFindUniqueOrThrowArgs} args - Arguments to find a ConfiguracaoPedido
+     * @example
+     * // Get one ConfiguracaoPedido
+     * const configuracaoPedido = await prisma.configuracaoPedido.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConfiguracaoPedidoFindUniqueOrThrowArgs>(args: SelectSubset<T, ConfiguracaoPedidoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ConfiguracaoPedido that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConfiguracaoPedidoFindFirstArgs} args - Arguments to find a ConfiguracaoPedido
+     * @example
+     * // Get one ConfiguracaoPedido
+     * const configuracaoPedido = await prisma.configuracaoPedido.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConfiguracaoPedidoFindFirstArgs>(args?: SelectSubset<T, ConfiguracaoPedidoFindFirstArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ConfiguracaoPedido that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConfiguracaoPedidoFindFirstOrThrowArgs} args - Arguments to find a ConfiguracaoPedido
+     * @example
+     * // Get one ConfiguracaoPedido
+     * const configuracaoPedido = await prisma.configuracaoPedido.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConfiguracaoPedidoFindFirstOrThrowArgs>(args?: SelectSubset<T, ConfiguracaoPedidoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ConfiguracaoPedidos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConfiguracaoPedidoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConfiguracaoPedidos
+     * const configuracaoPedidos = await prisma.configuracaoPedido.findMany()
+     * 
+     * // Get first 10 ConfiguracaoPedidos
+     * const configuracaoPedidos = await prisma.configuracaoPedido.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const configuracaoPedidoWithIdOnly = await prisma.configuracaoPedido.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ConfiguracaoPedidoFindManyArgs>(args?: SelectSubset<T, ConfiguracaoPedidoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ConfiguracaoPedido.
+     * @param {ConfiguracaoPedidoCreateArgs} args - Arguments to create a ConfiguracaoPedido.
+     * @example
+     * // Create one ConfiguracaoPedido
+     * const ConfiguracaoPedido = await prisma.configuracaoPedido.create({
+     *   data: {
+     *     // ... data to create a ConfiguracaoPedido
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConfiguracaoPedidoCreateArgs>(args: SelectSubset<T, ConfiguracaoPedidoCreateArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ConfiguracaoPedidos.
+     * @param {ConfiguracaoPedidoCreateManyArgs} args - Arguments to create many ConfiguracaoPedidos.
+     * @example
+     * // Create many ConfiguracaoPedidos
+     * const configuracaoPedido = await prisma.configuracaoPedido.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConfiguracaoPedidoCreateManyArgs>(args?: SelectSubset<T, ConfiguracaoPedidoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConfiguracaoPedidos and returns the data saved in the database.
+     * @param {ConfiguracaoPedidoCreateManyAndReturnArgs} args - Arguments to create many ConfiguracaoPedidos.
+     * @example
+     * // Create many ConfiguracaoPedidos
+     * const configuracaoPedido = await prisma.configuracaoPedido.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConfiguracaoPedidos and only return the `id`
+     * const configuracaoPedidoWithIdOnly = await prisma.configuracaoPedido.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConfiguracaoPedidoCreateManyAndReturnArgs>(args?: SelectSubset<T, ConfiguracaoPedidoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ConfiguracaoPedido.
+     * @param {ConfiguracaoPedidoDeleteArgs} args - Arguments to delete one ConfiguracaoPedido.
+     * @example
+     * // Delete one ConfiguracaoPedido
+     * const ConfiguracaoPedido = await prisma.configuracaoPedido.delete({
+     *   where: {
+     *     // ... filter to delete one ConfiguracaoPedido
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConfiguracaoPedidoDeleteArgs>(args: SelectSubset<T, ConfiguracaoPedidoDeleteArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ConfiguracaoPedido.
+     * @param {ConfiguracaoPedidoUpdateArgs} args - Arguments to update one ConfiguracaoPedido.
+     * @example
+     * // Update one ConfiguracaoPedido
+     * const configuracaoPedido = await prisma.configuracaoPedido.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConfiguracaoPedidoUpdateArgs>(args: SelectSubset<T, ConfiguracaoPedidoUpdateArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ConfiguracaoPedidos.
+     * @param {ConfiguracaoPedidoDeleteManyArgs} args - Arguments to filter ConfiguracaoPedidos to delete.
+     * @example
+     * // Delete a few ConfiguracaoPedidos
+     * const { count } = await prisma.configuracaoPedido.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConfiguracaoPedidoDeleteManyArgs>(args?: SelectSubset<T, ConfiguracaoPedidoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConfiguracaoPedidos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConfiguracaoPedidoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConfiguracaoPedidos
+     * const configuracaoPedido = await prisma.configuracaoPedido.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConfiguracaoPedidoUpdateManyArgs>(args: SelectSubset<T, ConfiguracaoPedidoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ConfiguracaoPedido.
+     * @param {ConfiguracaoPedidoUpsertArgs} args - Arguments to update or create a ConfiguracaoPedido.
+     * @example
+     * // Update or create a ConfiguracaoPedido
+     * const configuracaoPedido = await prisma.configuracaoPedido.upsert({
+     *   create: {
+     *     // ... data to create a ConfiguracaoPedido
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConfiguracaoPedido we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConfiguracaoPedidoUpsertArgs>(args: SelectSubset<T, ConfiguracaoPedidoUpsertArgs<ExtArgs>>): Prisma__ConfiguracaoPedidoClient<$Result.GetResult<Prisma.$ConfiguracaoPedidoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ConfiguracaoPedidos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConfiguracaoPedidoCountArgs} args - Arguments to filter ConfiguracaoPedidos to count.
+     * @example
+     * // Count the number of ConfiguracaoPedidos
+     * const count = await prisma.configuracaoPedido.count({
+     *   where: {
+     *     // ... the filter for the ConfiguracaoPedidos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConfiguracaoPedidoCountArgs>(
+      args?: Subset<T, ConfiguracaoPedidoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConfiguracaoPedidoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConfiguracaoPedido.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConfiguracaoPedidoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConfiguracaoPedidoAggregateArgs>(args: Subset<T, ConfiguracaoPedidoAggregateArgs>): Prisma.PrismaPromise<GetConfiguracaoPedidoAggregateType<T>>
+
+    /**
+     * Group by ConfiguracaoPedido.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConfiguracaoPedidoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConfiguracaoPedidoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConfiguracaoPedidoGroupByArgs['orderBy'] }
+        : { orderBy?: ConfiguracaoPedidoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConfiguracaoPedidoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConfiguracaoPedidoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConfiguracaoPedido model
+   */
+  readonly fields: ConfiguracaoPedidoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConfiguracaoPedido.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConfiguracaoPedidoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConfiguracaoPedido model
+   */ 
+  interface ConfiguracaoPedidoFieldRefs {
+    readonly id: FieldRef<"ConfiguracaoPedido", 'String'>
+    readonly tenant_id: FieldRef<"ConfiguracaoPedido", 'String'>
+    readonly company_id: FieldRef<"ConfiguracaoPedido", 'String'>
+    readonly duplicar_numero_auto: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly duplicar_copiar_datas: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly duplicar_status_inicial: FieldRef<"ConfiguracaoPedido", 'String'>
+    readonly excluir_status_permitidos: FieldRef<"ConfiguracaoPedido", 'String[]'>
+    readonly excluir_pedido_sem_item_permitido: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly excluir_confirmar_com_preview: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly alerta_numero_duplicado: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly updated_at: FieldRef<"ConfiguracaoPedido", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConfiguracaoPedido findUnique
+   */
+  export type ConfiguracaoPedidoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * Filter, which ConfiguracaoPedido to fetch.
+     */
+    where: ConfiguracaoPedidoWhereUniqueInput
+  }
+
+  /**
+   * ConfiguracaoPedido findUniqueOrThrow
+   */
+  export type ConfiguracaoPedidoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * Filter, which ConfiguracaoPedido to fetch.
+     */
+    where: ConfiguracaoPedidoWhereUniqueInput
+  }
+
+  /**
+   * ConfiguracaoPedido findFirst
+   */
+  export type ConfiguracaoPedidoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * Filter, which ConfiguracaoPedido to fetch.
+     */
+    where?: ConfiguracaoPedidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConfiguracaoPedidos to fetch.
+     */
+    orderBy?: ConfiguracaoPedidoOrderByWithRelationInput | ConfiguracaoPedidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConfiguracaoPedidos.
+     */
+    cursor?: ConfiguracaoPedidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConfiguracaoPedidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConfiguracaoPedidos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConfiguracaoPedidos.
+     */
+    distinct?: ConfiguracaoPedidoScalarFieldEnum | ConfiguracaoPedidoScalarFieldEnum[]
+  }
+
+  /**
+   * ConfiguracaoPedido findFirstOrThrow
+   */
+  export type ConfiguracaoPedidoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * Filter, which ConfiguracaoPedido to fetch.
+     */
+    where?: ConfiguracaoPedidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConfiguracaoPedidos to fetch.
+     */
+    orderBy?: ConfiguracaoPedidoOrderByWithRelationInput | ConfiguracaoPedidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConfiguracaoPedidos.
+     */
+    cursor?: ConfiguracaoPedidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConfiguracaoPedidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConfiguracaoPedidos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConfiguracaoPedidos.
+     */
+    distinct?: ConfiguracaoPedidoScalarFieldEnum | ConfiguracaoPedidoScalarFieldEnum[]
+  }
+
+  /**
+   * ConfiguracaoPedido findMany
+   */
+  export type ConfiguracaoPedidoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * Filter, which ConfiguracaoPedidos to fetch.
+     */
+    where?: ConfiguracaoPedidoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConfiguracaoPedidos to fetch.
+     */
+    orderBy?: ConfiguracaoPedidoOrderByWithRelationInput | ConfiguracaoPedidoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConfiguracaoPedidos.
+     */
+    cursor?: ConfiguracaoPedidoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConfiguracaoPedidos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConfiguracaoPedidos.
+     */
+    skip?: number
+    distinct?: ConfiguracaoPedidoScalarFieldEnum | ConfiguracaoPedidoScalarFieldEnum[]
+  }
+
+  /**
+   * ConfiguracaoPedido create
+   */
+  export type ConfiguracaoPedidoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * The data needed to create a ConfiguracaoPedido.
+     */
+    data: XOR<ConfiguracaoPedidoCreateInput, ConfiguracaoPedidoUncheckedCreateInput>
+  }
+
+  /**
+   * ConfiguracaoPedido createMany
+   */
+  export type ConfiguracaoPedidoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConfiguracaoPedidos.
+     */
+    data: ConfiguracaoPedidoCreateManyInput | ConfiguracaoPedidoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConfiguracaoPedido createManyAndReturn
+   */
+  export type ConfiguracaoPedidoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ConfiguracaoPedidos.
+     */
+    data: ConfiguracaoPedidoCreateManyInput | ConfiguracaoPedidoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ConfiguracaoPedido update
+   */
+  export type ConfiguracaoPedidoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * The data needed to update a ConfiguracaoPedido.
+     */
+    data: XOR<ConfiguracaoPedidoUpdateInput, ConfiguracaoPedidoUncheckedUpdateInput>
+    /**
+     * Choose, which ConfiguracaoPedido to update.
+     */
+    where: ConfiguracaoPedidoWhereUniqueInput
+  }
+
+  /**
+   * ConfiguracaoPedido updateMany
+   */
+  export type ConfiguracaoPedidoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConfiguracaoPedidos.
+     */
+    data: XOR<ConfiguracaoPedidoUpdateManyMutationInput, ConfiguracaoPedidoUncheckedUpdateManyInput>
+    /**
+     * Filter which ConfiguracaoPedidos to update
+     */
+    where?: ConfiguracaoPedidoWhereInput
+  }
+
+  /**
+   * ConfiguracaoPedido upsert
+   */
+  export type ConfiguracaoPedidoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * The filter to search for the ConfiguracaoPedido to update in case it exists.
+     */
+    where: ConfiguracaoPedidoWhereUniqueInput
+    /**
+     * In case the ConfiguracaoPedido found by the `where` argument doesn't exist, create a new ConfiguracaoPedido with this data.
+     */
+    create: XOR<ConfiguracaoPedidoCreateInput, ConfiguracaoPedidoUncheckedCreateInput>
+    /**
+     * In case the ConfiguracaoPedido was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConfiguracaoPedidoUpdateInput, ConfiguracaoPedidoUncheckedUpdateInput>
+  }
+
+  /**
+   * ConfiguracaoPedido delete
+   */
+  export type ConfiguracaoPedidoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+    /**
+     * Filter which ConfiguracaoPedido to delete.
+     */
+    where: ConfiguracaoPedidoWhereUniqueInput
+  }
+
+  /**
+   * ConfiguracaoPedido deleteMany
+   */
+  export type ConfiguracaoPedidoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConfiguracaoPedidos to delete
+     */
+    where?: ConfiguracaoPedidoWhereInput
+  }
+
+  /**
+   * ConfiguracaoPedido without action
+   */
+  export type ConfiguracaoPedidoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConfiguracaoPedido
+     */
+    select?: ConfiguracaoPedidoSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model MapeamentoImport
    */
 
@@ -57630,6 +58854,11 @@ export namespace Prisma {
     quantidade_total_pedido: 'quantidade_total_pedido',
     casas_decimais_quantidade_total_pedido: 'casas_decimais_quantidade_total_pedido',
     unidade_comercializada_pedido: 'unidade_comercializada_pedido',
+    peso_liquido_total_pedido: 'peso_liquido_total_pedido',
+    peso_bruto_total_pedido: 'peso_bruto_total_pedido',
+    cubagem_total_pedido: 'cubagem_total_pedido',
+    casas_decimais_peso_pedido: 'casas_decimais_peso_pedido',
+    casas_decimais_cubagem_pedido: 'casas_decimais_cubagem_pedido',
     cobertura_cambial: 'cobertura_cambial',
     condicao_pagamento: 'condicao_pagamento',
     numero_proforma: 'numero_proforma',
@@ -57644,6 +58873,9 @@ export namespace Prisma {
     data_emissao_pedido: 'data_emissao_pedido',
     detalhes_operacionais: 'detalhes_operacionais',
     campos_custom: 'campos_custom',
+    pedidos_origem: 'pedidos_origem',
+    data_consolidacao_pedido: 'data_consolidacao_pedido',
+    deleted_at: 'deleted_at',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -57662,7 +58894,7 @@ export namespace Prisma {
     descricao_item: 'descricao_item',
     unidade_comercializada_item: 'unidade_comercializada_item',
     quantidade_inicial_pedido: 'quantidade_inicial_pedido',
-    quantidade_atual_pedido: 'quantidade_atual_pedido',
+    quantidade_saldo_pedido: 'quantidade_saldo_pedido',
     quantidade_pronta_pedido: 'quantidade_pronta_pedido',
     quantidade_transferida_pedido: 'quantidade_transferida_pedido',
     quantidade_cancelada_pedido: 'quantidade_cancelada_pedido',
@@ -57671,6 +58903,11 @@ export namespace Prisma {
     valor_total_item: 'valor_total_item',
     valor_por_unidade_item: 'valor_por_unidade_item',
     casas_decimais_total_item: 'casas_decimais_total_item',
+    peso_liquido_unitario: 'peso_liquido_unitario',
+    peso_bruto_unitario: 'peso_bruto_unitario',
+    cubagem_unitaria: 'cubagem_unitaria',
+    casas_decimais_peso: 'casas_decimais_peso',
+    casas_decimais_cubagem: 'casas_decimais_cubagem',
     campos_custom: 'campos_custom',
     created_at: 'created_at',
     updated_at: 'updated_at'
@@ -57916,6 +59153,23 @@ export namespace Prisma {
   };
 
   export type PedidoPreferenciaPadraoScalarFieldEnum = (typeof PedidoPreferenciaPadraoScalarFieldEnum)[keyof typeof PedidoPreferenciaPadraoScalarFieldEnum]
+
+
+  export const ConfiguracaoPedidoScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    company_id: 'company_id',
+    duplicar_numero_auto: 'duplicar_numero_auto',
+    duplicar_copiar_datas: 'duplicar_copiar_datas',
+    duplicar_status_inicial: 'duplicar_status_inicial',
+    excluir_status_permitidos: 'excluir_status_permitidos',
+    excluir_pedido_sem_item_permitido: 'excluir_pedido_sem_item_permitido',
+    excluir_confirmar_com_preview: 'excluir_confirmar_com_preview',
+    alerta_numero_duplicado: 'alerta_numero_duplicado',
+    updated_at: 'updated_at'
+  };
+
+  export type ConfiguracaoPedidoScalarFieldEnum = (typeof ConfiguracaoPedidoScalarFieldEnum)[keyof typeof ConfiguracaoPedidoScalarFieldEnum]
 
 
   export const MapeamentoImportScalarFieldEnum: {
@@ -61700,6 +62954,11 @@ export namespace Prisma {
     quantidade_total_pedido?: FloatNullableFilter<"Pedido"> | number | null
     casas_decimais_quantidade_total_pedido?: IntFilter<"Pedido"> | number
     unidade_comercializada_pedido?: StringNullableFilter<"Pedido"> | string | null
+    peso_liquido_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFilter<"Pedido"> | number
+    casas_decimais_cubagem_pedido?: IntFilter<"Pedido"> | number
     cobertura_cambial?: StringFilter<"Pedido"> | string
     condicao_pagamento?: StringNullableFilter<"Pedido"> | string | null
     numero_proforma?: StringNullableFilter<"Pedido"> | string | null
@@ -61714,6 +62973,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFilter<"Pedido"> | Date | string
     detalhes_operacionais?: JsonNullableFilter<"Pedido">
     campos_custom?: JsonNullableFilter<"Pedido">
+    pedidos_origem?: StringNullableListFilter<"Pedido">
+    data_consolidacao_pedido?: DateTimeNullableFilter<"Pedido"> | Date | string | null
+    deleted_at?: DateTimeNullableFilter<"Pedido"> | Date | string | null
     created_at?: DateTimeFilter<"Pedido"> | Date | string
     updated_at?: DateTimeFilter<"Pedido"> | Date | string
     itens?: PedidoItemListRelationFilter
@@ -61737,6 +62999,11 @@ export namespace Prisma {
     quantidade_total_pedido?: SortOrderInput | SortOrder
     casas_decimais_quantidade_total_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrderInput | SortOrder
+    peso_liquido_total_pedido?: SortOrderInput | SortOrder
+    peso_bruto_total_pedido?: SortOrderInput | SortOrder
+    cubagem_total_pedido?: SortOrderInput | SortOrder
+    casas_decimais_peso_pedido?: SortOrder
+    casas_decimais_cubagem_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrderInput | SortOrder
     numero_proforma?: SortOrderInput | SortOrder
@@ -61751,6 +63018,9 @@ export namespace Prisma {
     data_emissao_pedido?: SortOrder
     detalhes_operacionais?: SortOrderInput | SortOrder
     campos_custom?: SortOrderInput | SortOrder
+    pedidos_origem?: SortOrder
+    data_consolidacao_pedido?: SortOrderInput | SortOrder
+    deleted_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     itens?: PedidoItemOrderByRelationAggregateInput
@@ -61777,6 +63047,11 @@ export namespace Prisma {
     quantidade_total_pedido?: FloatNullableFilter<"Pedido"> | number | null
     casas_decimais_quantidade_total_pedido?: IntFilter<"Pedido"> | number
     unidade_comercializada_pedido?: StringNullableFilter<"Pedido"> | string | null
+    peso_liquido_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFilter<"Pedido"> | number
+    casas_decimais_cubagem_pedido?: IntFilter<"Pedido"> | number
     cobertura_cambial?: StringFilter<"Pedido"> | string
     condicao_pagamento?: StringNullableFilter<"Pedido"> | string | null
     numero_proforma?: StringNullableFilter<"Pedido"> | string | null
@@ -61791,6 +63066,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFilter<"Pedido"> | Date | string
     detalhes_operacionais?: JsonNullableFilter<"Pedido">
     campos_custom?: JsonNullableFilter<"Pedido">
+    pedidos_origem?: StringNullableListFilter<"Pedido">
+    data_consolidacao_pedido?: DateTimeNullableFilter<"Pedido"> | Date | string | null
+    deleted_at?: DateTimeNullableFilter<"Pedido"> | Date | string | null
     created_at?: DateTimeFilter<"Pedido"> | Date | string
     updated_at?: DateTimeFilter<"Pedido"> | Date | string
     itens?: PedidoItemListRelationFilter
@@ -61814,6 +63092,11 @@ export namespace Prisma {
     quantidade_total_pedido?: SortOrderInput | SortOrder
     casas_decimais_quantidade_total_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrderInput | SortOrder
+    peso_liquido_total_pedido?: SortOrderInput | SortOrder
+    peso_bruto_total_pedido?: SortOrderInput | SortOrder
+    cubagem_total_pedido?: SortOrderInput | SortOrder
+    casas_decimais_peso_pedido?: SortOrder
+    casas_decimais_cubagem_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrderInput | SortOrder
     numero_proforma?: SortOrderInput | SortOrder
@@ -61828,6 +63111,9 @@ export namespace Prisma {
     data_emissao_pedido?: SortOrder
     detalhes_operacionais?: SortOrderInput | SortOrder
     campos_custom?: SortOrderInput | SortOrder
+    pedidos_origem?: SortOrder
+    data_consolidacao_pedido?: SortOrderInput | SortOrder
+    deleted_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     _count?: PedidoCountOrderByAggregateInput
@@ -61858,6 +63144,11 @@ export namespace Prisma {
     quantidade_total_pedido?: FloatNullableWithAggregatesFilter<"Pedido"> | number | null
     casas_decimais_quantidade_total_pedido?: IntWithAggregatesFilter<"Pedido"> | number
     unidade_comercializada_pedido?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    peso_liquido_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntWithAggregatesFilter<"Pedido"> | number
+    casas_decimais_cubagem_pedido?: IntWithAggregatesFilter<"Pedido"> | number
     cobertura_cambial?: StringWithAggregatesFilter<"Pedido"> | string
     condicao_pagamento?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     numero_proforma?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
@@ -61872,6 +63163,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
     detalhes_operacionais?: JsonNullableWithAggregatesFilter<"Pedido">
     campos_custom?: JsonNullableWithAggregatesFilter<"Pedido">
+    pedidos_origem?: StringNullableListFilter<"Pedido">
+    data_consolidacao_pedido?: DateTimeNullableWithAggregatesFilter<"Pedido"> | Date | string | null
+    deleted_at?: DateTimeNullableWithAggregatesFilter<"Pedido"> | Date | string | null
     created_at?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
   }
@@ -61890,7 +63184,7 @@ export namespace Prisma {
     descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
     quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
@@ -61899,6 +63193,11 @@ export namespace Prisma {
     valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
+    peso_liquido_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFilter<"PedidoItem"> | number
+    casas_decimais_cubagem?: IntFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableFilter<"PedidoItem">
     created_at?: DateTimeFilter<"PedidoItem"> | Date | string
     updated_at?: DateTimeFilter<"PedidoItem"> | Date | string
@@ -61917,7 +63216,7 @@ export namespace Prisma {
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrderInput | SortOrder
     quantidade_inicial_pedido?: SortOrder
-    quantidade_atual_pedido?: SortOrder
+    quantidade_saldo_pedido?: SortOrder
     quantidade_pronta_pedido?: SortOrder
     quantidade_transferida_pedido?: SortOrder
     quantidade_cancelada_pedido?: SortOrder
@@ -61926,6 +63225,11 @@ export namespace Prisma {
     valor_total_item?: SortOrderInput | SortOrder
     valor_por_unidade_item?: SortOrderInput | SortOrder
     casas_decimais_total_item?: SortOrder
+    peso_liquido_unitario?: SortOrderInput | SortOrder
+    peso_bruto_unitario?: SortOrderInput | SortOrder
+    cubagem_unitaria?: SortOrderInput | SortOrder
+    casas_decimais_peso?: SortOrder
+    casas_decimais_cubagem?: SortOrder
     campos_custom?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -61947,7 +63251,7 @@ export namespace Prisma {
     descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
     quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
@@ -61956,6 +63260,11 @@ export namespace Prisma {
     valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
+    peso_liquido_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFilter<"PedidoItem"> | number
+    casas_decimais_cubagem?: IntFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableFilter<"PedidoItem">
     created_at?: DateTimeFilter<"PedidoItem"> | Date | string
     updated_at?: DateTimeFilter<"PedidoItem"> | Date | string
@@ -61974,7 +63283,7 @@ export namespace Prisma {
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrderInput | SortOrder
     quantidade_inicial_pedido?: SortOrder
-    quantidade_atual_pedido?: SortOrder
+    quantidade_saldo_pedido?: SortOrder
     quantidade_pronta_pedido?: SortOrder
     quantidade_transferida_pedido?: SortOrder
     quantidade_cancelada_pedido?: SortOrder
@@ -61983,6 +63292,11 @@ export namespace Prisma {
     valor_total_item?: SortOrderInput | SortOrder
     valor_por_unidade_item?: SortOrderInput | SortOrder
     casas_decimais_total_item?: SortOrder
+    peso_liquido_unitario?: SortOrderInput | SortOrder
+    peso_bruto_unitario?: SortOrderInput | SortOrder
+    cubagem_unitaria?: SortOrderInput | SortOrder
+    casas_decimais_peso?: SortOrder
+    casas_decimais_cubagem?: SortOrder
     campos_custom?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -62007,7 +63321,7 @@ export namespace Prisma {
     descricao_item?: StringWithAggregatesFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
     quantidade_inicial_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
@@ -62016,6 +63330,11 @@ export namespace Prisma {
     valor_total_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntWithAggregatesFilter<"PedidoItem"> | number
+    peso_liquido_unitario?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntWithAggregatesFilter<"PedidoItem"> | number
+    casas_decimais_cubagem?: IntWithAggregatesFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableWithAggregatesFilter<"PedidoItem">
     created_at?: DateTimeWithAggregatesFilter<"PedidoItem"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"PedidoItem"> | Date | string
@@ -63226,6 +64545,88 @@ export namespace Prisma {
     colunas_visiveis?: StringNullableListFilter<"PedidoPreferenciaPadrao">
     colunas_largura?: JsonNullableWithAggregatesFilter<"PedidoPreferenciaPadrao">
     updated_at?: DateTimeWithAggregatesFilter<"PedidoPreferenciaPadrao"> | Date | string
+  }
+
+  export type ConfiguracaoPedidoWhereInput = {
+    AND?: ConfiguracaoPedidoWhereInput | ConfiguracaoPedidoWhereInput[]
+    OR?: ConfiguracaoPedidoWhereInput[]
+    NOT?: ConfiguracaoPedidoWhereInput | ConfiguracaoPedidoWhereInput[]
+    id?: StringFilter<"ConfiguracaoPedido"> | string
+    tenant_id?: StringFilter<"ConfiguracaoPedido"> | string
+    company_id?: StringNullableFilter<"ConfiguracaoPedido"> | string | null
+    duplicar_numero_auto?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    duplicar_copiar_datas?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    duplicar_status_inicial?: StringFilter<"ConfiguracaoPedido"> | string
+    excluir_status_permitidos?: StringNullableListFilter<"ConfiguracaoPedido">
+    excluir_pedido_sem_item_permitido?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    excluir_confirmar_com_preview?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_numero_duplicado?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    updated_at?: DateTimeFilter<"ConfiguracaoPedido"> | Date | string
+  }
+
+  export type ConfiguracaoPedidoOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrderInput | SortOrder
+    duplicar_numero_auto?: SortOrder
+    duplicar_copiar_datas?: SortOrder
+    duplicar_status_inicial?: SortOrder
+    excluir_status_permitidos?: SortOrder
+    excluir_pedido_sem_item_permitido?: SortOrder
+    excluir_confirmar_com_preview?: SortOrder
+    alerta_numero_duplicado?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ConfiguracaoPedidoWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenant_id?: string
+    AND?: ConfiguracaoPedidoWhereInput | ConfiguracaoPedidoWhereInput[]
+    OR?: ConfiguracaoPedidoWhereInput[]
+    NOT?: ConfiguracaoPedidoWhereInput | ConfiguracaoPedidoWhereInput[]
+    company_id?: StringNullableFilter<"ConfiguracaoPedido"> | string | null
+    duplicar_numero_auto?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    duplicar_copiar_datas?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    duplicar_status_inicial?: StringFilter<"ConfiguracaoPedido"> | string
+    excluir_status_permitidos?: StringNullableListFilter<"ConfiguracaoPedido">
+    excluir_pedido_sem_item_permitido?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    excluir_confirmar_com_preview?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_numero_duplicado?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    updated_at?: DateTimeFilter<"ConfiguracaoPedido"> | Date | string
+  }, "id" | "tenant_id">
+
+  export type ConfiguracaoPedidoOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrderInput | SortOrder
+    duplicar_numero_auto?: SortOrder
+    duplicar_copiar_datas?: SortOrder
+    duplicar_status_inicial?: SortOrder
+    excluir_status_permitidos?: SortOrder
+    excluir_pedido_sem_item_permitido?: SortOrder
+    excluir_confirmar_com_preview?: SortOrder
+    alerta_numero_duplicado?: SortOrder
+    updated_at?: SortOrder
+    _count?: ConfiguracaoPedidoCountOrderByAggregateInput
+    _max?: ConfiguracaoPedidoMaxOrderByAggregateInput
+    _min?: ConfiguracaoPedidoMinOrderByAggregateInput
+  }
+
+  export type ConfiguracaoPedidoScalarWhereWithAggregatesInput = {
+    AND?: ConfiguracaoPedidoScalarWhereWithAggregatesInput | ConfiguracaoPedidoScalarWhereWithAggregatesInput[]
+    OR?: ConfiguracaoPedidoScalarWhereWithAggregatesInput[]
+    NOT?: ConfiguracaoPedidoScalarWhereWithAggregatesInput | ConfiguracaoPedidoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConfiguracaoPedido"> | string
+    tenant_id?: StringWithAggregatesFilter<"ConfiguracaoPedido"> | string
+    company_id?: StringNullableWithAggregatesFilter<"ConfiguracaoPedido"> | string | null
+    duplicar_numero_auto?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    duplicar_copiar_datas?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    duplicar_status_inicial?: StringWithAggregatesFilter<"ConfiguracaoPedido"> | string
+    excluir_status_permitidos?: StringNullableListFilter<"ConfiguracaoPedido">
+    excluir_pedido_sem_item_permitido?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    excluir_confirmar_com_preview?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    alerta_numero_duplicado?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    updated_at?: DateTimeWithAggregatesFilter<"ConfiguracaoPedido"> | Date | string
   }
 
   export type MapeamentoImportWhereInput = {
@@ -67389,6 +68790,11 @@ export namespace Prisma {
     quantidade_total_pedido?: number | null
     casas_decimais_quantidade_total_pedido?: number
     unidade_comercializada_pedido?: string | null
+    peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: number
+    casas_decimais_cubagem_pedido?: number
     cobertura_cambial?: string
     condicao_pagamento?: string | null
     numero_proforma?: string | null
@@ -67403,6 +68809,9 @@ export namespace Prisma {
     data_emissao_pedido?: Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: Date | string | null
+    deleted_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
     itens?: PedidoItemCreateNestedManyWithoutPedidoInput
@@ -67426,6 +68835,11 @@ export namespace Prisma {
     quantidade_total_pedido?: number | null
     casas_decimais_quantidade_total_pedido?: number
     unidade_comercializada_pedido?: string | null
+    peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: number
+    casas_decimais_cubagem_pedido?: number
     cobertura_cambial?: string
     condicao_pagamento?: string | null
     numero_proforma?: string | null
@@ -67440,6 +68854,9 @@ export namespace Prisma {
     data_emissao_pedido?: Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: Date | string | null
+    deleted_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
     itens?: PedidoItemUncheckedCreateNestedManyWithoutPedidoInput
@@ -67463,6 +68880,11 @@ export namespace Prisma {
     quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
     casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67477,6 +68899,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     itens?: PedidoItemUpdateManyWithoutPedidoNestedInput
@@ -67500,6 +68925,11 @@ export namespace Prisma {
     quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
     casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67514,6 +68944,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     itens?: PedidoItemUncheckedUpdateManyWithoutPedidoNestedInput
@@ -67537,6 +68970,11 @@ export namespace Prisma {
     quantidade_total_pedido?: number | null
     casas_decimais_quantidade_total_pedido?: number
     unidade_comercializada_pedido?: string | null
+    peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: number
+    casas_decimais_cubagem_pedido?: number
     cobertura_cambial?: string
     condicao_pagamento?: string | null
     numero_proforma?: string | null
@@ -67551,6 +68989,9 @@ export namespace Prisma {
     data_emissao_pedido?: Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: Date | string | null
+    deleted_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -67573,6 +69014,11 @@ export namespace Prisma {
     quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
     casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67587,6 +69033,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -67609,6 +69058,11 @@ export namespace Prisma {
     quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
     casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
@@ -67623,6 +69077,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -67637,7 +69094,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -67646,6 +69103,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -67664,7 +69126,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -67673,6 +69135,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -67689,7 +69156,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -67698,6 +69165,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -67716,7 +69188,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -67725,6 +69197,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -67742,7 +69219,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -67751,6 +69228,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -67766,7 +69248,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -67775,6 +69257,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -67791,7 +69278,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -67800,6 +69287,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -69315,6 +70807,104 @@ export namespace Prisma {
     company_id?: NullableStringFieldUpdateOperationsInput | string | null
     colunas_visiveis?: PedidoPreferenciaPadraoUpdatecolunas_visiveisInput | string[]
     colunas_largura?: NullableJsonNullValueInput | InputJsonValue
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConfiguracaoPedidoCreateInput = {
+    id?: string
+    tenant_id: string
+    company_id?: string | null
+    duplicar_numero_auto?: boolean
+    duplicar_copiar_datas?: boolean
+    duplicar_status_inicial?: string
+    excluir_status_permitidos?: ConfiguracaoPedidoCreateexcluir_status_permitidosInput | string[]
+    excluir_pedido_sem_item_permitido?: boolean
+    excluir_confirmar_com_preview?: boolean
+    alerta_numero_duplicado?: boolean
+    updated_at?: Date | string
+  }
+
+  export type ConfiguracaoPedidoUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    company_id?: string | null
+    duplicar_numero_auto?: boolean
+    duplicar_copiar_datas?: boolean
+    duplicar_status_inicial?: string
+    excluir_status_permitidos?: ConfiguracaoPedidoCreateexcluir_status_permitidosInput | string[]
+    excluir_pedido_sem_item_permitido?: boolean
+    excluir_confirmar_com_preview?: boolean
+    alerta_numero_duplicado?: boolean
+    updated_at?: Date | string
+  }
+
+  export type ConfiguracaoPedidoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    company_id?: NullableStringFieldUpdateOperationsInput | string | null
+    duplicar_numero_auto?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_copiar_datas?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_status_inicial?: StringFieldUpdateOperationsInput | string
+    excluir_status_permitidos?: ConfiguracaoPedidoUpdateexcluir_status_permitidosInput | string[]
+    excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
+    excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
+    alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConfiguracaoPedidoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    company_id?: NullableStringFieldUpdateOperationsInput | string | null
+    duplicar_numero_auto?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_copiar_datas?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_status_inicial?: StringFieldUpdateOperationsInput | string
+    excluir_status_permitidos?: ConfiguracaoPedidoUpdateexcluir_status_permitidosInput | string[]
+    excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
+    excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
+    alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConfiguracaoPedidoCreateManyInput = {
+    id?: string
+    tenant_id: string
+    company_id?: string | null
+    duplicar_numero_auto?: boolean
+    duplicar_copiar_datas?: boolean
+    duplicar_status_inicial?: string
+    excluir_status_permitidos?: ConfiguracaoPedidoCreateexcluir_status_permitidosInput | string[]
+    excluir_pedido_sem_item_permitido?: boolean
+    excluir_confirmar_com_preview?: boolean
+    alerta_numero_duplicado?: boolean
+    updated_at?: Date | string
+  }
+
+  export type ConfiguracaoPedidoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    company_id?: NullableStringFieldUpdateOperationsInput | string | null
+    duplicar_numero_auto?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_copiar_datas?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_status_inicial?: StringFieldUpdateOperationsInput | string
+    excluir_status_permitidos?: ConfiguracaoPedidoUpdateexcluir_status_permitidosInput | string[]
+    excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
+    excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
+    alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ConfiguracaoPedidoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    company_id?: NullableStringFieldUpdateOperationsInput | string | null
+    duplicar_numero_auto?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_copiar_datas?: BoolFieldUpdateOperationsInput | boolean
+    duplicar_status_inicial?: StringFieldUpdateOperationsInput | string
+    excluir_status_permitidos?: ConfiguracaoPedidoUpdateexcluir_status_permitidosInput | string[]
+    excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
+    excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
+    alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -72080,6 +73670,11 @@ export namespace Prisma {
     quantidade_total_pedido?: SortOrder
     casas_decimais_quantidade_total_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrder
+    peso_liquido_total_pedido?: SortOrder
+    peso_bruto_total_pedido?: SortOrder
+    cubagem_total_pedido?: SortOrder
+    casas_decimais_peso_pedido?: SortOrder
+    casas_decimais_cubagem_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrder
     numero_proforma?: SortOrder
@@ -72094,6 +73689,9 @@ export namespace Prisma {
     data_emissao_pedido?: SortOrder
     detalhes_operacionais?: SortOrder
     campos_custom?: SortOrder
+    pedidos_origem?: SortOrder
+    data_consolidacao_pedido?: SortOrder
+    deleted_at?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -72103,6 +73701,11 @@ export namespace Prisma {
     casas_decimais_total_pedido?: SortOrder
     quantidade_total_pedido?: SortOrder
     casas_decimais_quantidade_total_pedido?: SortOrder
+    peso_liquido_total_pedido?: SortOrder
+    peso_bruto_total_pedido?: SortOrder
+    cubagem_total_pedido?: SortOrder
+    casas_decimais_peso_pedido?: SortOrder
+    casas_decimais_cubagem_pedido?: SortOrder
     valor_total_cambio?: SortOrder
     taxa_cambio_estimada?: SortOrder
   }
@@ -72125,6 +73728,11 @@ export namespace Prisma {
     quantidade_total_pedido?: SortOrder
     casas_decimais_quantidade_total_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrder
+    peso_liquido_total_pedido?: SortOrder
+    peso_bruto_total_pedido?: SortOrder
+    cubagem_total_pedido?: SortOrder
+    casas_decimais_peso_pedido?: SortOrder
+    casas_decimais_cubagem_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrder
     numero_proforma?: SortOrder
@@ -72137,6 +73745,8 @@ export namespace Prisma {
     taxa_cambio_estimada?: SortOrder
     contrato_cambio_id?: SortOrder
     data_emissao_pedido?: SortOrder
+    data_consolidacao_pedido?: SortOrder
+    deleted_at?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -72159,6 +73769,11 @@ export namespace Prisma {
     quantidade_total_pedido?: SortOrder
     casas_decimais_quantidade_total_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrder
+    peso_liquido_total_pedido?: SortOrder
+    peso_bruto_total_pedido?: SortOrder
+    cubagem_total_pedido?: SortOrder
+    casas_decimais_peso_pedido?: SortOrder
+    casas_decimais_cubagem_pedido?: SortOrder
     cobertura_cambial?: SortOrder
     condicao_pagamento?: SortOrder
     numero_proforma?: SortOrder
@@ -72171,6 +73786,8 @@ export namespace Prisma {
     taxa_cambio_estimada?: SortOrder
     contrato_cambio_id?: SortOrder
     data_emissao_pedido?: SortOrder
+    data_consolidacao_pedido?: SortOrder
+    deleted_at?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -72180,6 +73797,11 @@ export namespace Prisma {
     casas_decimais_total_pedido?: SortOrder
     quantidade_total_pedido?: SortOrder
     casas_decimais_quantidade_total_pedido?: SortOrder
+    peso_liquido_total_pedido?: SortOrder
+    peso_bruto_total_pedido?: SortOrder
+    cubagem_total_pedido?: SortOrder
+    casas_decimais_peso_pedido?: SortOrder
+    casas_decimais_cubagem_pedido?: SortOrder
     valor_total_cambio?: SortOrder
     taxa_cambio_estimada?: SortOrder
   }
@@ -72226,7 +73848,7 @@ export namespace Prisma {
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
     quantidade_inicial_pedido?: SortOrder
-    quantidade_atual_pedido?: SortOrder
+    quantidade_saldo_pedido?: SortOrder
     quantidade_pronta_pedido?: SortOrder
     quantidade_transferida_pedido?: SortOrder
     quantidade_cancelada_pedido?: SortOrder
@@ -72235,6 +73857,11 @@ export namespace Prisma {
     valor_total_item?: SortOrder
     valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
+    peso_liquido_unitario?: SortOrder
+    peso_bruto_unitario?: SortOrder
+    cubagem_unitaria?: SortOrder
+    casas_decimais_peso?: SortOrder
+    casas_decimais_cubagem?: SortOrder
     campos_custom?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -72243,7 +73870,7 @@ export namespace Prisma {
   export type PedidoItemAvgOrderByAggregateInput = {
     sequencia_item?: SortOrder
     quantidade_inicial_pedido?: SortOrder
-    quantidade_atual_pedido?: SortOrder
+    quantidade_saldo_pedido?: SortOrder
     quantidade_pronta_pedido?: SortOrder
     quantidade_transferida_pedido?: SortOrder
     quantidade_cancelada_pedido?: SortOrder
@@ -72251,6 +73878,11 @@ export namespace Prisma {
     valor_total_item?: SortOrder
     valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
+    peso_liquido_unitario?: SortOrder
+    peso_bruto_unitario?: SortOrder
+    cubagem_unitaria?: SortOrder
+    casas_decimais_peso?: SortOrder
+    casas_decimais_cubagem?: SortOrder
   }
 
   export type PedidoItemMaxOrderByAggregateInput = {
@@ -72264,7 +73896,7 @@ export namespace Prisma {
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
     quantidade_inicial_pedido?: SortOrder
-    quantidade_atual_pedido?: SortOrder
+    quantidade_saldo_pedido?: SortOrder
     quantidade_pronta_pedido?: SortOrder
     quantidade_transferida_pedido?: SortOrder
     quantidade_cancelada_pedido?: SortOrder
@@ -72273,6 +73905,11 @@ export namespace Prisma {
     valor_total_item?: SortOrder
     valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
+    peso_liquido_unitario?: SortOrder
+    peso_bruto_unitario?: SortOrder
+    cubagem_unitaria?: SortOrder
+    casas_decimais_peso?: SortOrder
+    casas_decimais_cubagem?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -72288,7 +73925,7 @@ export namespace Prisma {
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
     quantidade_inicial_pedido?: SortOrder
-    quantidade_atual_pedido?: SortOrder
+    quantidade_saldo_pedido?: SortOrder
     quantidade_pronta_pedido?: SortOrder
     quantidade_transferida_pedido?: SortOrder
     quantidade_cancelada_pedido?: SortOrder
@@ -72297,6 +73934,11 @@ export namespace Prisma {
     valor_total_item?: SortOrder
     valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
+    peso_liquido_unitario?: SortOrder
+    peso_bruto_unitario?: SortOrder
+    cubagem_unitaria?: SortOrder
+    casas_decimais_peso?: SortOrder
+    casas_decimais_cubagem?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -72304,7 +73946,7 @@ export namespace Prisma {
   export type PedidoItemSumOrderByAggregateInput = {
     sequencia_item?: SortOrder
     quantidade_inicial_pedido?: SortOrder
-    quantidade_atual_pedido?: SortOrder
+    quantidade_saldo_pedido?: SortOrder
     quantidade_pronta_pedido?: SortOrder
     quantidade_transferida_pedido?: SortOrder
     quantidade_cancelada_pedido?: SortOrder
@@ -72312,6 +73954,11 @@ export namespace Prisma {
     valor_total_item?: SortOrder
     valor_por_unidade_item?: SortOrder
     casas_decimais_total_item?: SortOrder
+    peso_liquido_unitario?: SortOrder
+    peso_bruto_unitario?: SortOrder
+    cubagem_unitaria?: SortOrder
+    casas_decimais_peso?: SortOrder
+    casas_decimais_cubagem?: SortOrder
   }
 
   export type ProcessoFaturaListRelationFilter = {
@@ -73075,6 +74722,46 @@ export namespace Prisma {
     id?: SortOrder
     tenant_id?: SortOrder
     company_id?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ConfiguracaoPedidoCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    duplicar_numero_auto?: SortOrder
+    duplicar_copiar_datas?: SortOrder
+    duplicar_status_inicial?: SortOrder
+    excluir_status_permitidos?: SortOrder
+    excluir_pedido_sem_item_permitido?: SortOrder
+    excluir_confirmar_com_preview?: SortOrder
+    alerta_numero_duplicado?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ConfiguracaoPedidoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    duplicar_numero_auto?: SortOrder
+    duplicar_copiar_datas?: SortOrder
+    duplicar_status_inicial?: SortOrder
+    excluir_pedido_sem_item_permitido?: SortOrder
+    excluir_confirmar_com_preview?: SortOrder
+    alerta_numero_duplicado?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type ConfiguracaoPedidoMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    company_id?: SortOrder
+    duplicar_numero_auto?: SortOrder
+    duplicar_copiar_datas?: SortOrder
+    duplicar_status_inicial?: SortOrder
+    excluir_pedido_sem_item_permitido?: SortOrder
+    excluir_confirmar_com_preview?: SortOrder
+    alerta_numero_duplicado?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -73964,6 +75651,10 @@ export namespace Prisma {
     update?: XOR<XOR<GabiConversationUpdateToOneWithWhereWithoutMessagesInput, GabiConversationUpdateWithoutMessagesInput>, GabiConversationUncheckedUpdateWithoutMessagesInput>
   }
 
+  export type PedidoCreatepedidos_origemInput = {
+    set: string[]
+  }
+
   export type PedidoItemCreateNestedManyWithoutPedidoInput = {
     create?: XOR<PedidoItemCreateWithoutPedidoInput, PedidoItemUncheckedCreateWithoutPedidoInput> | PedidoItemCreateWithoutPedidoInput[] | PedidoItemUncheckedCreateWithoutPedidoInput[]
     connectOrCreate?: PedidoItemCreateOrConnectWithoutPedidoInput | PedidoItemCreateOrConnectWithoutPedidoInput[]
@@ -73984,6 +75675,11 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type PedidoUpdatepedidos_origemInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type PedidoItemUpdateManyWithoutPedidoNestedInput = {
@@ -74268,6 +75964,15 @@ export namespace Prisma {
   }
 
   export type PedidoPreferenciaPadraoUpdatecolunas_visiveisInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type ConfiguracaoPedidoCreateexcluir_status_permitidosInput = {
+    set: string[]
+  }
+
+  export type ConfiguracaoPedidoUpdateexcluir_status_permitidosInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -76637,7 +78342,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -76646,6 +78351,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -76662,7 +78372,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -76671,6 +78381,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -76717,7 +78432,7 @@ export namespace Prisma {
     descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
     quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
@@ -76726,6 +78441,11 @@ export namespace Prisma {
     valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
+    peso_liquido_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFilter<"PedidoItem"> | number
+    casas_decimais_cubagem?: IntFilter<"PedidoItem"> | number
     campos_custom?: JsonNullableFilter<"PedidoItem">
     created_at?: DateTimeFilter<"PedidoItem"> | Date | string
     updated_at?: DateTimeFilter<"PedidoItem"> | Date | string
@@ -76749,6 +78469,11 @@ export namespace Prisma {
     quantidade_total_pedido?: number | null
     casas_decimais_quantidade_total_pedido?: number
     unidade_comercializada_pedido?: string | null
+    peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: number
+    casas_decimais_cubagem_pedido?: number
     cobertura_cambial?: string
     condicao_pagamento?: string | null
     numero_proforma?: string | null
@@ -76763,6 +78488,9 @@ export namespace Prisma {
     data_emissao_pedido?: Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: Date | string | null
+    deleted_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -76785,6 +78513,11 @@ export namespace Prisma {
     quantidade_total_pedido?: number | null
     casas_decimais_quantidade_total_pedido?: number
     unidade_comercializada_pedido?: string | null
+    peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: number
+    casas_decimais_cubagem_pedido?: number
     cobertura_cambial?: string
     condicao_pagamento?: string | null
     numero_proforma?: string | null
@@ -76799,6 +78532,9 @@ export namespace Prisma {
     data_emissao_pedido?: Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: Date | string | null
+    deleted_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -76885,6 +78621,11 @@ export namespace Prisma {
     quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
     casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76899,6 +78640,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -76921,6 +78665,11 @@ export namespace Prisma {
     quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
     casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
     cobertura_cambial?: StringFieldUpdateOperationsInput | string
     condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
@@ -76935,6 +78684,9 @@ export namespace Prisma {
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
+    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -77916,7 +79668,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -77925,6 +79677,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -77942,7 +79699,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -77951,6 +79708,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -78227,7 +79989,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -78236,6 +79998,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -78253,7 +80020,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -78262,6 +80029,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -79337,7 +81109,7 @@ export namespace Prisma {
     descricao_item: string
     unidade_comercializada_item?: string | null
     quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
@@ -79346,6 +81118,11 @@ export namespace Prisma {
     valor_total_item?: Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: number
+    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: number
+    casas_decimais_cubagem?: number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: Date | string
     updated_at?: Date | string
@@ -79361,7 +81138,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -79370,6 +81147,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -79386,7 +81168,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -79395,6 +81177,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -79411,7 +81198,7 @@ export namespace Prisma {
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
     quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_atual_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -79420,6 +81207,11 @@ export namespace Prisma {
     valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
+    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -79926,6 +81718,10 @@ export namespace Prisma {
      * @deprecated Use PedidoPreferenciaPadraoDefaultArgs instead
      */
     export type PedidoPreferenciaPadraoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PedidoPreferenciaPadraoDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ConfiguracaoPedidoDefaultArgs instead
+     */
+    export type ConfiguracaoPedidoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfiguracaoPedidoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use MapeamentoImportDefaultArgs instead
      */

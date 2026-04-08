@@ -83,7 +83,7 @@ export function VisibilidadeColunasGlobal({
         <input
           type="text"
           className="vcg-busca-input"
-          placeholder="Localizar coluna..."
+          placeholder="Buscar coluna..."
           value={busca}
           onChange={e => setBusca(e.target.value)}
           autoFocus

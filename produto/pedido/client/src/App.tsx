@@ -96,12 +96,19 @@ export function App() {
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   // Sincroniza tenant/user do Shell com o contexto de API
+  // Chamada síncrona garante contexto pronto antes dos efeitos dos filhos
+  setApiContext({
+    tenantId: currentUser.tenantId ?? import.meta.env.VITE_DEV_TENANT_ID ?? '',
+    userId:   currentUser.id       ?? '',
+    userName: currentUser.name     ?? '',
+  })
   useEffect(() => {
     setApiContext({
       tenantId: currentUser.tenantId ?? import.meta.env.VITE_DEV_TENANT_ID ?? '',
       userId:   currentUser.id       ?? '',
+      userName: currentUser.name     ?? '',
     })
-  }, [currentUser.tenantId, currentUser.id])
+  }, [currentUser.tenantId, currentUser.id, currentUser.name])
 
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'

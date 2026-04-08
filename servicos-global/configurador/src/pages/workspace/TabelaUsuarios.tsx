@@ -421,7 +421,7 @@ export function TabelaUsuarios({ dados, onDeactivate }: TabelaUsuariosProps) {
           <span style={{ position: 'absolute', left: '0.75rem', color: '#818cf8', display: 'flex', lineHeight: 0, opacity: 0.7 }}>
             <MagnifyingGlass size={14} weight="bold" />
           </span>
-          <input type="search" placeholder={t('tabela.localizar')} value={busca}
+          <input type="search" placeholder="Buscar..." value={busca}
             onChange={e => { setBusca(e.target.value); setPagina(1) }}
             style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid rgba(129,140,248,0.18)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
             onFocus={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(129,140,248,0.14)' }}

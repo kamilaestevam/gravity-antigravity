@@ -55,6 +55,7 @@ import './Configuracoes.css'
 const CARD_VISUAL: Record<string, { icone: React.ReactNode; cor: string }> = {
   total_pedidos:        { icone: <Package           weight="duotone" size={18} />, cor: 'var(--ws-accent, #818cf8)' },
   valor_total:          { icone: <CurrencyDollar    weight="duotone" size={18} />, cor: '#34d399' },
+  valor_total_brl:      { icone: <CurrencyCircleDollar weight="duotone" size={18} />, cor: '#34d399' },
   qtd_total:            { icone: <Scales            weight="duotone" size={18} />, cor: '#fbbf24' },
   pedidos_atrasados:    { icone: <Warning           weight="duotone" size={18} />, cor: '#f87171' },
   pedidos_abertos:      { icone: <ClipboardText     weight="duotone" size={18} />, cor: '#60a5fa' },

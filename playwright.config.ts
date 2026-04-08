@@ -98,5 +98,13 @@ export default defineConfig({
         baseURL: 'http://localhost:5184',
       },
     },
+    {
+      name: 'pedido',
+      testDir: './testes/testes-e2e/pedido',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: 'http://localhost:5179',
+      },
+    },
   ],
 })

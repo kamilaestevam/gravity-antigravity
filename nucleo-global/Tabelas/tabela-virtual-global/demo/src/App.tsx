@@ -165,9 +165,11 @@ export default function App() {
           <h1>TabelaVirtualGlobal — Demo</h1>
           <span>nucleo-global/Tabelas/tabela-virtual-global</span>
         </div>
-        <button className="demo-theme-btn" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
-          {theme === 'dark' ? '☀ Light' : '☾ Dark'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button className="demo-theme-btn" onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}>
+            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+          </button>
+        </div>
       </div>
 
       <div className="demo-content">

@@ -32,7 +32,6 @@ interface PedidoForm {
   importacao_exportador_id: string
   fabricante_id: string
   incoterm: string
-  moeda_pedido: string
   cobertura_cambial: string
   condicao_pagamento: string
   numero_proforma: string
@@ -49,8 +48,6 @@ interface ItemForm {
   ncm: string
   descricao_item: string
   quantidade_inicial_item_pedido: string
-  unidade_comercializada_item: string
-  valor_por_unidade_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -59,7 +56,6 @@ const FORM_VAZIO: PedidoForm = {
   importacao_exportador_id: '',
   fabricante_id: '',
   incoterm: 'FOB',
-  moeda_pedido: 'USD',
   cobertura_cambial: 'com_cobertura',
   condicao_pagamento: '',
   numero_proforma: '',
@@ -76,17 +72,7 @@ const ITEM_VAZIO = (): ItemForm => ({
   ncm: '',
   descricao_item: '',
   quantidade_inicial_item_pedido: '',
-  unidade_comercializada_item: 'UN',
-  valor_por_unidade_item: '',
 })
-
-/** Formata string de dígitos para máscara NCM: XXXX.XX.XX */
-function formatarNcm(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 8)
-  if (digits.length <= 4) return digits
-  if (digits.length <= 6) return `${digits.slice(0, 4)}.${digits.slice(4)}`
-  return `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
-}
 
 // ── Opções de select ───────────────────────────────────────────────────────────
 
@@ -98,16 +84,10 @@ const OPCOES_TIPO_OPERACAO = [
 const OPCOES_INCOTERM = ['FOB','CIF','EXW','CFR','DDP','DAP','FCA','CPT','CIP','DPU','FAS']
   .map(v => ({ valor: v, rotulo: v }))
 
-const OPCOES_MOEDA = ['USD','EUR','GBP','BRL','CNY','JPY']
-  .map(v => ({ valor: v, rotulo: v }))
-
 const OPCOES_COBERTURA = [
   { valor: 'com_cobertura', rotulo: 'Com Cobertura' },
   { valor: 'sem_cobertura', rotulo: 'Sem Cobertura' },
 ]
-
-const OPCOES_UOM = ['UN','MT','M2','KG','LT','TON','CM3','PC']
-  .map(v => ({ valor: v, rotulo: v }))
 
 // ── Validação frontend ─────────────────────────────────────────────────────────
 
@@ -252,7 +232,7 @@ const s = {
   } as React.CSSProperties,
   itemGrid: {
     display: 'grid',
-    gridTemplateColumns: '1.6fr 1fr 2fr 0.8fr 0.9fr 1fr auto',
+    gridTemplateColumns: '1.6fr 1fr 2fr 0.8fr auto',
     gap: '0.5rem',
     alignItems: 'flex-start',
   } as React.CSSProperties,
@@ -378,8 +358,6 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
           ncm: it.ncm,
           descricao_item: it.descricao_item,
           quantidade_inicial_pedido: parseFloat(it.quantidade_inicial_item_pedido) || 0,
-          unidade_comercializada_item: it.unidade_comercializada_item,
-          valor_por_unidade_item: it.valor_por_unidade_item ? parseFloat(it.valor_por_unidade_item) : undefined,
         }))
 
       // Converter data para ISO 8601 completo (z.string().datetime() no backend)
@@ -530,14 +508,6 @@ function Passo1Dados({
         </div>
         <div style={s.campo}>
           <SelectGlobal
-            label="Moeda"
-            opcoes={OPCOES_MOEDA}
-            valor={form.moeda_pedido}
-            aoMudarValor={v => onChange('moeda_pedido', String(v ?? 'USD'))}
-          />
-        </div>
-        <div style={s.campo}>
-          <SelectGlobal
             label="Cobertura Cambial"
             opcoes={OPCOES_COBERTURA}
             valor={form.cobertura_cambial}
@@ -672,9 +642,8 @@ function Passo2Itens({
                 id={`mnp-ncm-${index}`}
                 style={{ ...s.inputCompacto, fontFamily: 'monospace' }}
                 value={item.ncm}
-                onChange={e => onChangeItem(index, 'ncm', formatarNcm(e.target.value))}
+                onChange={e => onChangeItem(index, 'ncm', e.target.value)}
                 placeholder="0000.00.00"
-                maxLength={10}
               />
             </div>
             <div>
@@ -696,33 +665,6 @@ function Passo2Itens({
                 value={item.quantidade_inicial_item_pedido}
                 onChange={e => onChangeItem(index, 'quantidade_inicial_item_pedido', e.target.value)}
                 placeholder="0"
-                min="0"
-                step="0.01"
-              />
-            </div>
-            <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-uom-${index}`}>UoM</label>
-              <select
-                id={`mnp-uom-${index}`}
-                style={s.selectCompacto}
-                value={item.unidade_comercializada_item}
-                onChange={e => onChangeItem(index, 'unidade_comercializada_item', e.target.value)}
-                aria-label="Unidade"
-              >
-                {OPCOES_UOM.map(u => (
-                  <option key={u.valor} value={u.valor}>{u.rotulo}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-vl-${index}`}>Vl. Unit.</label>
-              <input
-                id={`mnp-vl-${index}`}
-                type="number"
-                style={{ ...s.inputCompacto, textAlign: 'right' }}
-                value={item.valor_por_unidade_item}
-                onChange={e => onChangeItem(index, 'valor_por_unidade_item', e.target.value)}
-                placeholder="0,00"
                 min="0"
                 step="0.01"
               />

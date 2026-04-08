@@ -4,7 +4,7 @@
  * e o cache de filhos carregados sob demanda.
  */
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
 export interface UseGTExpandirRetorno<T, C> {
   expandidos: Set<string>
@@ -19,6 +19,8 @@ export interface UseGTExpandirRetorno<T, C> {
 
 export function useGTExpandir<T, C>(
   onCarregarFilhos?: (item: T) => Promise<C[]>,
+  dados?: T[],
+  itemId?: (item: T) => string,
 ): UseGTExpandirRetorno<T, C> {
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [filhosCache, setFilhosCache] = useState<Map<string, C[]>>(new Map())
@@ -74,6 +76,50 @@ export function useGTExpandir<T, C>(
     },
     [onCarregarFilhos],
   )
+
+  // ── Auto-revalidar filhos de pais expandidos quando os dados mudam ───────────
+  // Quando carregarInicial() / qualquer re-fetch atualiza a referência de um pai
+  // que já está expandido, os filhos no cache ficam com _p stale. Este efeito
+  // detecta a mudança de referência por id e recarrega silenciosamente.
+  const dadosAnteriorRef = useRef<Map<string, T>>(new Map())
+
+  useEffect(() => {
+    if (!onCarregarFilhos || !dados || !itemId || expandidosRef.current.size === 0) return
+
+    const paisParaRecarregar: { id: string; item: T }[] = []
+
+    for (const id of expandidosRef.current) {
+      const itemAtual = dados.find(d => itemId(d) === id)
+      if (!itemAtual) continue
+      const itemAnterior = dadosAnteriorRef.current.get(id)
+      // Referência mudou = dados novos do servidor
+      if (itemAnterior !== undefined && itemAnterior !== itemAtual) {
+        paisParaRecarregar.push({ id, item: itemAtual })
+      }
+    }
+
+    // Atualizar snapshot dos pais expandidos
+    const novoSnapshot = new Map<string, T>()
+    for (const d of dados) {
+      const id = itemId(d)
+      if (expandidosRef.current.has(id)) novoSnapshot.set(id, d)
+    }
+    dadosAnteriorRef.current = novoSnapshot
+
+    if (paisParaRecarregar.length === 0) return
+
+    for (const { id, item } of paisParaRecarregar) {
+      onCarregarFilhos(item)
+        .then(filhos => {
+          setFilhosCache(prev => {
+            const next = new Map(prev)
+            next.set(id, filhos)
+            return next
+          })
+        })
+        .catch(() => { /* silent — filhos antigos permanecem se falhar */ })
+    }
+  }, [dados, itemId, onCarregarFilhos])
 
   const colapsar = useCallback((id: string) => {
     setExpandidos(prev => {

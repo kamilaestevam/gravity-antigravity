@@ -17,7 +17,7 @@ export default function Historico() {
       productId="pedido"
       apiBaseUrl="/historico-api"
       tenantId={tenantId}
-      useMock={import.meta.env.DEV}
+      useMock={false}
     />
   )
 }

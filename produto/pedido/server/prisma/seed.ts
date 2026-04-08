@@ -74,7 +74,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 10,
         part_number: 'IC-ESP32-WROOM-32E',
         ncm:         '8542.31.90',
         descricao_item:   'Módulo Wi-Fi + Bluetooth ESP32-WROOM-32E 4MB Flash',
@@ -94,7 +93,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 20,
         part_number: 'DISP-TFT-3.5-ILI9488',
         ncm:         '8524.12.00',
         descricao_item:   'Display TFT 3.5" ILI9488 480x320 SPI Touch',
@@ -114,7 +112,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 30,
         part_number: 'PSU-220-5V-10A-DIN',
         ncm:         '8504.40.30',
         descricao_item:   'Fonte de Alimentação Chaveada 220V→5V 10A DIN Rail',
@@ -174,7 +171,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 10,
         part_number: 'LUBT-SYNTH-5W40-20L',
         ncm:         '2710.19.32',
         descricao_item:   'Óleo Lubrificante Sintético SAE 5W-40 — Tambor 20L',
@@ -194,7 +190,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 20,
         part_number: 'GRAX-HI-TEMP-500G',
         ncm:         '2710.19.99',
         descricao_item:   'Graxa Alta Temperatura Base Lítio EP2 — Bisnaga 500g',
@@ -254,7 +249,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 10,
         part_number: '3M-9501V-N95-CX20',
         ncm:         '6307.90.10',
         descricao_item:   'Máscara Respiratória N95 3M 9501V — Caixa 20un',
@@ -274,7 +268,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 20,
         part_number: '3M-PELTOR-X5-FONE',
         ncm:         '8518.10.90',
         descricao_item:   'Protetor Auricular Tipo Concha 3M PELTOR X5 31dB',
@@ -294,7 +287,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 30,
         part_number: '3M-SOLARIS-OCUL-UV',
         ncm:         '9004.10.10',
         descricao_item:   'Óculos de Proteção 3M Solaris Anti-UV Incolor',
@@ -353,7 +345,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 10,
         part_number: 'BOSCH-CNC-VF3-VERT',
         ncm:         '8457.10.10',
         descricao_item:   'Centro de Usinagem Vertical CNC Bosch VF3 — 3 Eixos 12k RPM',
@@ -373,7 +364,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 20,
         part_number: 'BOSCH-TOOL-HOLDER-KIT',
         ncm:         '8466.20.00',
         descricao_item:   'Kit Porta-Ferramentas BT40 (12 peças) para CNC VF3',
@@ -434,7 +424,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 10,
         part_number: 'CALC-COURO-MASC-38-44',
         ncm:         '6403.99.90',
         descricao_item:   'Calçado Masculino Couro Bovino Sola Borracha N°38-44',
@@ -454,7 +443,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 20,
         part_number: 'CALC-FEM-SALTO-36-41',
         ncm:         '6403.99.90',
         descricao_item:   'Calçado Feminino Salto 7cm Couro Sintético N°36-41',
@@ -515,7 +503,6 @@ const pedidos = [
         id: gerarId('pite'),
         tenant_id:  TENANT_ID,
         company_id: COMPANY_ID,
-        sequencia_item: 10,
         part_number: 'SOJA-GRAO-DESCAS-NON-GMO',
         ncm:         '1201.10.00',
         descricao_item:   'Soja em Grão Descascada Non-GMO — Umidade ≤14% Pureza ≥99%',
@@ -544,7 +531,7 @@ async function main() {
     const { itens, ...pedidoData } = pedido
 
     // Calcular totais
-    const valor_total = itens.reduce((acc, item) => acc.add(item.valor_item), new Decimal(0))
+    const valor_total = itens.reduce((acc, item) => acc.add(item.valor_total_item), new Decimal(0))
     const qtd_total   = itens.reduce((acc, item) => acc + Number(item.quantidade_inicial_pedido), 0)
 
     const created = await prisma.pedido.create({
@@ -553,7 +540,11 @@ async function main() {
         valor_total_pedido:     valor_total,
         quantidade_total_pedido: qtd_total,
         itens: {
-          create: itens.map(({ id, pedido_id: _ignored, ...item }) => ({ id, ...item })),
+          create: itens.map(({ id, pedido_id: _ignored, ...item }, index) => ({
+            id,
+            ...item,
+            sequencia_item: index + 1,
+          })),
         },
       },
       include: { itens: true },

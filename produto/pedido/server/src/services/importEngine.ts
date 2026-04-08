@@ -31,7 +31,6 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
   // fabricante NÃO é alias de exportador — campos distintos
   fabricante: ['manufacturer', 'fabricante', 'maker', 'brand', 'produced by'],
   incoterm: ['incoterm', 'incoterms', 'delivery terms', 'trade terms'],
-  moeda_pedido: ['currency', 'moeda', 'cur', 'ccy', 'moeda pedido'],
   data_emissao_pedido: [
     'order date', 'po date', 'issue date',
     'data emissao', 'data emissão', 'data pedido',
@@ -57,18 +56,6 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
     'order qty', 'qtde',
     'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'count',
     'quantidade inicial item pedido',
-  ],
-  unidade: ['uom', 'unidade', 'un', 'measure', 'unit of measure'],
-  // 'unit' sozinho removido — muito curto e causa falsos positivos (valor_unitario, unit price)
-  valor_por_unidade_item: [
-    'unit price', 'price', 'unit value', 'valor unitario', 'preco unitario',
-    'valor unit', 'unit cost', 'preco', 'unit price value',
-    'vl unitario', 'vl unit', 'valor un', 'preco un',
-  ],
-  valor_total_item: [
-    'total value', 'line total', 'valor total', 'total item',
-    'valor item', 'line amount', 'total amount',
-    'vl total', 'vl item', 'valor linha', 'line value',
   ],
 }
 
@@ -275,7 +262,7 @@ function parseXml(conteudo: string): LinhaArquivo[] {
 //
 // Limitacao: PDFs escaneados (imagem) nao geram texto — retorna linha com aviso.
 
-export function parsePdfText(texto: string): LinhaArquivo[] {
+function parsePdfText(texto: string): LinhaArquivo[] {
   const linhas = texto
     .split(/\r?\n/)
     .map(l => l.trim())

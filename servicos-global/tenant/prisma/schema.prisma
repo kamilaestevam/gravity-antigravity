@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-06T15:39:19.358Z
+// Gerado em: 2026-04-06T22:57:49.389Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core
 // Todos os fragments encontrados.
 // ============================================================================
@@ -1180,6 +1180,13 @@ model Pedido {
   casas_decimais_quantidade_total_pedido Int     @default(2) // Precisão (Ex: 3)
   unidade_comercializada_pedido          String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
+  // DADOS FÍSICOS TOTAIS (sum(peso_*_unitario × quantidade_inicial) dos itens)
+  peso_liquido_total_pedido     Decimal? @db.Decimal(18,6)
+  peso_bruto_total_pedido       Decimal? @db.Decimal(18,6)
+  cubagem_total_pedido          Decimal? @db.Decimal(18,6)
+  casas_decimais_peso_pedido    Int      @default(3)
+  casas_decimais_cubagem_pedido Int      @default(4)
+
   // DADOS FINANCEIROS & FECHAMENTO DE CÂMBIO (FX)
   cobertura_cambial  String  @default("com_cobertura") // com_cobertura | sem_cobertura
   condicao_pagamento String? // Ex: 30% Antecipado, 70% Contra-Documento
@@ -1202,6 +1209,13 @@ model Pedido {
   detalhes_operacionais Json? // Absorve atributos customizados de Exportador/Fabricante
   campos_custom         Json? // custom columns storage (JSONB + GIN index in SQL)
 
+  // Consolidação (preenchido quando este pedido é resultado de merge)
+  pedidos_origem           String[]  // IDs dos pedidos originais consolidados
+  data_consolidacao_pedido DateTime? // Momento da consolidação
+
+  // Soft delete (preenchido quando o pedido é consolidado em outro)
+  deleted_at DateTime? // null = ativo; data = soft-deleted (consolidado em outro pedido)
+
   // Lista Fatiável de Itens (A ORDEM 1:N SALVA!)
   itens          PedidoItem[]
 
@@ -1214,6 +1228,7 @@ model Pedido {
   @@index([tenant_id, status_id])
   @@index([tenant_id, tipo_operacao])
   @@index([tenant_id, data_emissao_pedido])
+  @@index([tenant_id, deleted_at])
   @@map("pedidos_comerciais")
 }
 
@@ -1233,7 +1248,7 @@ model PedidoItem {
 
   // Controle de Quantidades
   quantidade_inicial_pedido        Decimal @db.Decimal(18,6)
-  quantidade_atual_pedido          Decimal @db.Decimal(18,6)
+  quantidade_saldo_pedido          Decimal @db.Decimal(18,6) @map("quantidade_atual_pedido")
   quantidade_pronta_pedido         Decimal @default(0) @db.Decimal(18,6)
   quantidade_transferida_pedido    Decimal @default(0) @db.Decimal(18,6)
   quantidade_cancelada_pedido      Decimal @default(0) @db.Decimal(18,6)
@@ -1244,6 +1259,13 @@ model PedidoItem {
   valor_total_item          Decimal? @db.Decimal(18,6) // somatório desta linha (unitário × quantidade)
   valor_por_unidade_item    Decimal? @db.Decimal(18,6)
   casas_decimais_total_item Int      @default(2)
+
+  // Dados Físicos Unitários (usados para calcular totais do pedido)
+  peso_liquido_unitario  Decimal? @db.Decimal(18,6)
+  peso_bruto_unitario    Decimal? @db.Decimal(18,6)
+  cubagem_unitaria       Decimal? @db.Decimal(18,6)
+  casas_decimais_peso    Int      @default(3)
+  casas_decimais_cubagem Int      @default(4)
 
   campos_custom Json? // custom columns storage
 
@@ -1572,6 +1594,39 @@ model PedidoPreferenciaPadrao {
   @@unique([tenant_id])
   @@index([tenant_id])
   @@map("pedido_preferencias_padrao")
+}
+
+// Regras de negócio configuráveis por tenant (duplicar, excluir, transferir, consolidar)
+model ConfiguracaoPedido {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+
+  // Duplicar
+  duplicar_numero_auto      Boolean  @default(false)
+  duplicar_copiar_datas     Boolean  @default(false)
+  duplicar_status_inicial   String   @default("copiar") // "copiar" | "rascunho" | "aberto" | ...
+
+  // Excluir
+  excluir_status_permitidos    String[] @default(["rascunho", "aberto", "em_andamento", "aprovado", "transferencia", "consolidado", "cancelado"])
+  excluir_pedido_sem_item_permitido Boolean @default(true)
+  excluir_confirmar_com_preview     Boolean @default(true)
+
+  // Alertas
+  alerta_numero_duplicado             Boolean @default(true)  // número de pedido repetido
+  alerta_valor_total_divergente       Boolean @default(true)  // valor_total_pedido ≠ sum(valor_total_item)
+  alerta_quantidade_total_divergente  Boolean @default(true)  // quantidade_total_inicial ≠ sum(quantidade_inicial_item)
+  alerta_quantidade_pronta_divergente Boolean @default(true)  // quantidade_pronta_total ≠ sum(quantidade_pronta_item)
+  alerta_peso_liquido_divergente      Boolean @default(true)  // peso_liquido_total ≠ sum(peso_liquido_unitario × qty)
+  alerta_peso_bruto_divergente        Boolean @default(true)  // peso_bruto_total ≠ sum(peso_bruto_unitario × qty)
+  alerta_cubagem_divergente           Boolean @default(true)  // cubagem_total ≠ sum(cubagem_unitaria × qty)
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("configuracao_pedido")
 }
 
 // Mapeamento de colunas de importacao salvo por tenant (Smart Import — Memoria)

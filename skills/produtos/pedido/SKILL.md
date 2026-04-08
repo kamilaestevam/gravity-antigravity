@@ -187,3 +187,111 @@ Para que o produto apareca no Admin e possa ser ativado por tenants:
 | **user_limit_type** | `UNLIMITED` |
 
 O campo `backend_module` = `"pedido"` e o que conecta a linha do Admin ao `contracts.json` e ao `PRODUCT_CONFIG.id`.
+
+---
+
+## 11. Edicao Inline de Campos (PATCH /:id/campo) — Contrato de 5 Lugares
+
+> **REGRA CRITICA:** Adicionar ou renomear um campo editavel exige atualizacao em EXATAMENTE 5 lugares. Esquecer qualquer um causa erro 400 no save.
+
+### Os 5 Lugares Obrigatorios
+
+| # | Lugar | Arquivo | O que fazer |
+|---|-------|---------|-------------|
+| 1 | **Schema Prisma** | `servicos-global/tenant/processos-core/prisma/fragment.prisma` | Declarar o campo no model `Pedido` |
+| 2 | **Whitelist servidor** | `servicos-global/tenant/processos-core/src/routes/pedidos.ts` | Adicionar em `CAMPOS_EDITAVEIS` ou `CAMPOS_RECALCULAVEIS` |
+| 3 | **Tipo TypeScript** | `produto/pedido/client/src/shared/types.ts` | Adicionar ao tipo `Pedido` |
+| 4 | **Coluna da tabela** | `produto/pedido/client/src/pages/ListaPedidos.tsx` | Adicionar em `COLUNAS_PAI` com `editable: true` (ou `false` se so leitura) |
+| 5 | **Logica de save** | `produto/pedido/client/src/pages/ListaPedidos.tsx` | Tratar em `handleEditar` se o campo tiver comportamento especial (ex: valor composto) |
+
+**Checklist antes de fechar o PR:**
+- [ ] Campo adicionado no fragment.prisma?
+- [ ] Migration gerada e executada no banco?
+- [ ] Campo esta em `CAMPOS_EDITAVEIS` OU em `CAMPOS_RECALCULAVEIS` (nao em ambos)?
+- [ ] Tipo `Pedido` no frontend reflete o campo?
+- [ ] `COLUNAS_PAI` tem o campo com `editable` correto?
+- [ ] `handleEditar` trata o campo (se tiver valor composto como `{currency, amount}`)?
+
+### Campos Recalculaveis vs Editaveis
+
+- **`CAMPOS_EDITAVEIS`** — valor enviado pelo cliente e gravado diretamente no banco
+- **`CAMPOS_RECALCULAVEIS`** — valor enviado pelo cliente e IGNORADO; servidor recalcula a partir dos itens
+
+Campos atualmente recalculaveis (nao gravar valor do cliente):
+- `valor_total_pedido`
+- `quantidade_total_inicial_pedido`
+- `quantidade_pronta_itens_pedido_total` (virtual — nao persistido)
+- `peso_liquido_total_pedido`
+- `peso_bruto_total_pedido`
+- `cubagem_total_pedido`
+
+### Alias de Nome (Armadilha Conhecida)
+
+O Prisma usa `quantidade_total_pedido`, mas o frontend expoe como `quantidade_total_inicial_pedido`.
+O mapeamento acontece em `mapPedido()` dentro de `pedidos.ts`:
+
+```ts
+quantidade_total_inicial_pedido: pedido.quantidade_total_pedido ?? null,
+```
+
+**Regra:** o nome na whitelist (`CAMPOS_EDITAVEIS`/`CAMPOS_RECALCULAVEIS`) deve ser o nome do FRONTEND (alias), nao o nome do Prisma.
+
+---
+
+## 12. Optimistic Lock — Comportamento e Armadilhas
+
+O PATCH `/:id/campo` usa optimistic lock baseado em `updated_at`:
+
+```ts
+// Cliente envia updated_at do pedido que ele esta editando
+{ campo: 'incoterm', valor: 'FOB', updated_at: '2026-04-06T12:00:00.000Z' }
+
+// Servidor compara com updated_at atual do banco
+// Se diferente → 409 Conflict (nao 400)
+```
+
+**Armadilhas:**
+
+1. **Edicoes encadeadas:** ao salvar dois campos seguidos, o segundo `editarCampo` deve usar o `updated_at` retornado pelo primeiro — nao o `updated_at` original do estado local.
+   ```ts
+   // CORRETO
+   editarCampo(id, 'valor_total_pedido', amount, updatedAt)
+     .then(p => editarCampo(p.id, 'moeda_pedido', currency, p.updated_at)) // usa p.updated_at
+   ```
+
+2. **Estado local desatualizado:** se `pedidoAtual` nao for encontrado no array local (ex: pagina nao carregou ainda), `updatedAt` sera `undefined` e o cliente envia `new Date().toISOString()`. Isso quase sempre causa 409.
+
+3. **409 nao e bug — e protecao:** o usuario editou em duas abas simultaneamente. O cliente deve mostrar o valor atual do banco e perguntar se quer sobrescrever.
+
+---
+
+## 13. AppError — Duas Assinaturas no Projeto (Nao Misturar)
+
+Existem duas classes `AppError` com assinaturas DIFERENTES:
+
+| Arquivo | Assinatura | Uso |
+|---------|-----------|-----|
+| `servicos-global/tenant/processos-core/src/services/saldoEngine.ts` | `AppError(statusCode, message)` | Usado em `pedidos.ts` e `saldoEngine.ts` |
+| `produto/pedido/server/src/errors/AppError.ts` | `AppError(message, statusCode, code)` | Usado em `init.ts` e rotas proprias do servidor pedido |
+
+**Regra:** ao escrever codigo em `processos-core/`, use a assinatura `(statusCode, message)`. Ao escrever em `produto/pedido/server/src/`, use `(message, statusCode, code)`. NUNCA importe a errada.
+
+---
+
+## 14. Endpoint `/init` — Bundle de 4 Queries
+
+O endpoint `GET /api/v1/pedidos/init` agrega 4 queries em `Promise.all` para reduzir round-trips:
+
+1. Primeira pagina de pedidos (cursor keyset)
+2. Status configurados pelo tenant
+3. Preferencias de colunas do usuario
+4. Colunas customizadas do usuario
+
+**Consequencia:** se QUALQUER das 4 queries falhar (ex: coluna inexistente no banco por migration nao executada), o endpoint inteiro retorna 500 e a tela nao carrega.
+
+**Checklist antes de adicionar filtro no `/init`:**
+- [ ] O campo filtrado existe no banco? (migration executada?)
+- [ ] O campo esta no fragment.prisma e no schema compilado?
+- [ ] Se o campo for novo (`deleted_at`, `archived_at`, etc.), verificar com `git log` se a migration foi aplicada no ambiente alvo
+
+**Regra para campos de soft-delete:** adicionar `deleted_at: null` no `where` SOMENTE apos confirmar que a migration foi executada em TODOS os ambientes (dev, staging, prod).

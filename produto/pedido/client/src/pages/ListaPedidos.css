@@ -93,9 +93,9 @@
   color: #f1f5f9;
 }
 
-/* Filho (item): recuado + levemente mais suave — ainda muito legível */
+/* Filho (item): levemente mais suave — padding simétrico para manter alinhamento com cabeçalho */
 .lp-tabela-wrapper .gtv-linha--filho .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
-  padding-left: calc(0.5rem + 12px);
+  padding: 0 0.5rem;
   font-weight: 400;
   color: #cbd5e1;
 }

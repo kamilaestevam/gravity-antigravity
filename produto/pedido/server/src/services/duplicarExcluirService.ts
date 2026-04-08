@@ -69,8 +69,8 @@ const CONFIG_DUPLICAR_DEFAULT: ConfigDuplicar = {
 }
 
 const CONFIG_EXCLUIR_DEFAULT: ConfigExcluir = {
-  excluir_status_permitidos: ['draft'],
-  excluir_pedido_sem_item_permitido: false,
+  excluir_status_permitidos: ['draft', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
+  excluir_pedido_sem_item_permitido: true,
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

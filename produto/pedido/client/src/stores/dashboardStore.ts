@@ -10,8 +10,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { DashboardWidgetConfig, WidgetQuerySpec, FieldQuerySpec } from '@nucleo/dashboard'
-import type { DerivedMetric } from '../shared/derivedMetrics'
+import type { DashboardWidgetConfig, WidgetQuerySpec, FieldQuerySpec, DerivedMetric, ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
 
 // ── Migração de formato legado ────────────────────────────────────────────────
 
@@ -39,18 +38,8 @@ function migrateWidget(w: DashboardWidgetConfig): DashboardWidgetConfig {
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
-export interface ActiveFilter {
-  field: string
-  value: string | number
-  label: string
-  sourceWidgetId: string
-}
-
-export interface GlobalSlicers {
-  period: string
-  status: string[]
-  dateRange: { from: string; to: string } | null
-}
+// ActiveFilter e GlobalSlicers movidos para @nucleo/dashboard — re-exportados
+export type { ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
 
 interface DashboardState {
   widgets: DashboardWidgetConfig[]
@@ -83,6 +72,49 @@ interface DashboardState {
 // ── Widgets padrão ────────────────────────────────────────────────────────────
 
 export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
+  // ── Linha 1 — KPIs ────────────────────────────────────────────────────────
+  {
+    id: 'kpi_total_pedidos',
+    title: 'Total de Pedidos',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'total_pedidos', operation: 'COUNT' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 0, y: 0, w: 3, h: 2 },
+  },
+  {
+    id: 'kpi_pedidos_abertos',
+    title: 'Pedidos Abertos',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'pedidos_abertos', operation: 'COUNT' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 3, y: 0, w: 3, h: 2 },
+  },
+  {
+    id: 'kpi_valor_total',
+    title: 'Valor Total',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'valor_total', operation: 'SUM' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 6, y: 0, w: 3, h: 2 },
+  },
+  {
+    id: 'kpi_ticket_medio',
+    title: 'Ticket Médio',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'valor_total', operation: 'SUM' }, { key: 'total_pedidos', operation: 'COUNT' }],
+      filters: { period: '30d' },
+    },
+    config: { derivedMetricId: 'ticket_medio' },
+    position: { x: 9, y: 0, w: 3, h: 2 },
+  },
+  // ── Linha 2 — Séries temporais ────────────────────────────────────────────
   {
     id: 'pedidos_por_mes',
     title: 'Pedidos por Mês',
@@ -91,17 +123,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'total_pedidos', operation: 'COUNT' }],
       filters: { period: '12m' },
     },
-    position: { x: 0, y: 0, w: 6, h: 3 },
-  },
-  {
-    id: 'cobertura_trend',
-    title: 'Evolução da Cobertura',
-    chart_type: 'LINE',
-    query_spec: {
-      fields: [{ key: 'cobertura_pendente', operation: 'SUM' }],
-      filters: { period: '12m' },
-    },
-    position: { x: 6, y: 0, w: 6, h: 3 },
+    position: { x: 0, y: 2, w: 6, h: 3 },
   },
   {
     id: 'valor_total_trend',
@@ -111,22 +133,44 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'valor_total', operation: 'SUM' }],
       filters: { period: '12m' },
     },
-    position: { x: 0, y: 3, w: 8, h: 3 },
+    position: { x: 6, y: 2, w: 6, h: 3 },
   },
+  // ── Linha 3 — Distribuição ────────────────────────────────────────────────
   {
-    // Substituído: era DONUT com hack status_dist → agora DISTRIBUTION real
     id: 'status_dist',
     title: 'Distribuição por Status',
     chart_type: 'DISTRIBUTION',
     query_spec: {
       fields: [
-        { key: 'pedidos_abertos',       operation: 'COUNT' },
-        { key: 'pedidos_em_andamento',  operation: 'COUNT' },
-        { key: 'pedidos_atrasados',     operation: 'COUNT' },
+        { key: 'pedidos_abertos',      operation: 'COUNT' },
+        { key: 'pedidos_em_andamento', operation: 'COUNT' },
+        { key: 'pedidos_consolidados', operation: 'COUNT' },
+        { key: 'pedidos_cancelados',   operation: 'COUNT' },
+        { key: 'pedidos_draft',        operation: 'COUNT' },
       ],
       filters: { period: '30d' },
     },
-    position: { x: 8, y: 3, w: 4, h: 3 },
+    position: { x: 0, y: 5, w: 4, h: 3 },
+  },
+  {
+    id: 'kpi_qtd_inicial',
+    title: 'Qtd. Inicial Total',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'qtd_inicial_total', operation: 'SUM' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 4, y: 5, w: 4, h: 2 },
+  },
+  {
+    id: 'kpi_valor_itens',
+    title: 'Valor Total dos Itens',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'valor_itens_total', operation: 'SUM' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 8, y: 5, w: 4, h: 2 },
   },
 ]
 
@@ -183,7 +227,7 @@ export const useDashboardStore = create<DashboardState>()(
     }),
     {
       name: 'gravity:pedido:dashboard',
-      version: 3,  // bump: migra string[] → FieldQuerySpec[]
+      version: 6,  // bump: distribuição com todos os status (consolidado, cancelado, draft)
       partialize: (s) => ({
         widgets: s.widgets,
         slicers: s.slicers,

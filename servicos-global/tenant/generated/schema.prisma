@@ -1222,7 +1222,7 @@ model PedidoItem {
 
   // Controle de Quantidades
   quantidade_inicial_pedido      Decimal @db.Decimal(18, 6)
-  quantidade_atual_pedido        Decimal @db.Decimal(18, 6)
+  quantidade_saldo_pedido        Decimal @db.Decimal(18, 6) @map("quantidade_atual_pedido")
   quantidade_pronta_pedido       Decimal @default(0) @db.Decimal(18, 6)
   quantidade_transferida_pedido  Decimal @default(0) @db.Decimal(18, 6)
   quantidade_cancelada_pedido    Decimal @default(0) @db.Decimal(18, 6)
@@ -1561,6 +1561,28 @@ model PedidoPreferenciaPadrao {
   @@unique([tenant_id])
   @@index([tenant_id])
   @@map("pedido_preferencias_padrao")
+}
+
+// Regras de negócio configuráveis por tenant (duplicar, excluir, transferir, consolidar)
+model ConfiguracaoPedido {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+
+  duplicar_numero_auto              Boolean  @default(false)
+  duplicar_copiar_datas             Boolean  @default(false)
+  duplicar_status_inicial           String   @default("copiar")
+
+  excluir_status_permitidos         String[] @default(["rascunho", "aberto", "em_andamento", "aprovado", "transferencia", "consolidado", "cancelado"])
+  excluir_pedido_sem_item_permitido Boolean  @default(true)
+  excluir_confirmar_com_preview     Boolean  @default(true)
+
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("configuracao_pedido")
 }
 
 // Mapeamento de colunas de importacao salvo por tenant (Smart Import — Memoria)

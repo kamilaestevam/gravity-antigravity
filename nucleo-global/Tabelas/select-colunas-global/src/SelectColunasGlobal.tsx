@@ -314,7 +314,7 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
         <input
           type="text"
           className="scg-busca-input"
-          placeholder="Localizar coluna..."
+          placeholder="Buscar coluna..."
           value={busca}
           onChange={e => setBusca(e.target.value)}
           autoFocus

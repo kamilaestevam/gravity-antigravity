@@ -716,6 +716,11 @@ exports.Prisma.PedidoScalarFieldEnum = {
   quantidade_total_pedido: 'quantidade_total_pedido',
   casas_decimais_quantidade_total_pedido: 'casas_decimais_quantidade_total_pedido',
   unidade_comercializada_pedido: 'unidade_comercializada_pedido',
+  peso_liquido_total_pedido: 'peso_liquido_total_pedido',
+  peso_bruto_total_pedido: 'peso_bruto_total_pedido',
+  cubagem_total_pedido: 'cubagem_total_pedido',
+  casas_decimais_peso_pedido: 'casas_decimais_peso_pedido',
+  casas_decimais_cubagem_pedido: 'casas_decimais_cubagem_pedido',
   cobertura_cambial: 'cobertura_cambial',
   condicao_pagamento: 'condicao_pagamento',
   numero_proforma: 'numero_proforma',
@@ -730,6 +735,9 @@ exports.Prisma.PedidoScalarFieldEnum = {
   data_emissao_pedido: 'data_emissao_pedido',
   detalhes_operacionais: 'detalhes_operacionais',
   campos_custom: 'campos_custom',
+  pedidos_origem: 'pedidos_origem',
+  data_consolidacao_pedido: 'data_consolidacao_pedido',
+  deleted_at: 'deleted_at',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -745,7 +753,7 @@ exports.Prisma.PedidoItemScalarFieldEnum = {
   descricao_item: 'descricao_item',
   unidade_comercializada_item: 'unidade_comercializada_item',
   quantidade_inicial_pedido: 'quantidade_inicial_pedido',
-  quantidade_atual_pedido: 'quantidade_atual_pedido',
+  quantidade_saldo_pedido: 'quantidade_saldo_pedido',
   quantidade_pronta_pedido: 'quantidade_pronta_pedido',
   quantidade_transferida_pedido: 'quantidade_transferida_pedido',
   quantidade_cancelada_pedido: 'quantidade_cancelada_pedido',
@@ -754,6 +762,11 @@ exports.Prisma.PedidoItemScalarFieldEnum = {
   valor_total_item: 'valor_total_item',
   valor_por_unidade_item: 'valor_por_unidade_item',
   casas_decimais_total_item: 'casas_decimais_total_item',
+  peso_liquido_unitario: 'peso_liquido_unitario',
+  peso_bruto_unitario: 'peso_bruto_unitario',
+  cubagem_unitaria: 'cubagem_unitaria',
+  casas_decimais_peso: 'casas_decimais_peso',
+  casas_decimais_cubagem: 'casas_decimais_cubagem',
   campos_custom: 'campos_custom',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -974,6 +987,20 @@ exports.Prisma.PedidoPreferenciaPadraoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.ConfiguracaoPedidoScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  company_id: 'company_id',
+  duplicar_numero_auto: 'duplicar_numero_auto',
+  duplicar_copiar_datas: 'duplicar_copiar_datas',
+  duplicar_status_inicial: 'duplicar_status_inicial',
+  excluir_status_permitidos: 'excluir_status_permitidos',
+  excluir_pedido_sem_item_permitido: 'excluir_pedido_sem_item_permitido',
+  excluir_confirmar_com_preview: 'excluir_confirmar_com_preview',
+  alerta_numero_duplicado: 'alerta_numero_duplicado',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.MapeamentoImportScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
@@ -1143,6 +1170,7 @@ exports.Prisma.ModelName = {
   PedidoColuna: 'PedidoColuna',
   PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
   PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao',
+  ConfiguracaoPedido: 'ConfiguracaoPedido',
   MapeamentoImport: 'MapeamentoImport'
 };
 

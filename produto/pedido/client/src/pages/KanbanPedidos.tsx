@@ -5,7 +5,7 @@
  * Drag & drop chama pedidoApi.alterarStatus para persistir a mudança.
  */
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { KanbanGlobal, CardKanbanModal } from '@nucleo/kanban-global'
 import type { KanbanItem, CardKanbanItem } from '@nucleo/kanban-global'
 import {
@@ -18,10 +18,11 @@ import {
   ArrowsLeftRight,
   CurrencyDollar,
   MagnifyingGlass,
+  Tag,
 } from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
-import { pedidoApi } from '../shared/api'
-import type { Pedido, StatusPedido } from '../shared/types'
+import { pedidoApi, pedidoConfigApi } from '../shared/api'
+import type { Pedido, StatusPedido, PedidoStatusConfig } from '../shared/types'
 import './KanbanPedidos.css'
 
 // ── Colunas ───────────────────────────────────────────────────────────────────
@@ -70,8 +71,6 @@ function CardPedido({ item }: { item: PedidoKanbanItem }) {
 
   const valorLabel = p.valor_total_pedido != null
     ? p.valor_total_pedido.toLocaleString('pt-BR', {
-        style:                 'currency',
-        currency:              p.moeda_pedido || 'USD',
         minimumFractionDigits: p.casas_decimais_total_pedido ?? 2,
         maximumFractionDigits: p.casas_decimais_total_pedido ?? 2,
       })
@@ -117,15 +116,22 @@ function CardPedido({ item }: { item: PedidoKanbanItem }) {
 // ── Página ────────────────────────────────────────────────────────────────────
 
 export default function KanbanPedidos() {
-  const [pedidos, setPedidos]     = useState<Pedido[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [busca, setBusca]         = useState('')
-  const [modalItem, setModalItem] = useState<PedidoModalItem | null>(null)
+  const [pedidos, setPedidos]         = useState<Pedido[]>([])
+  const [statusConfig, setStatusConfig] = useState<PedidoStatusConfig[]>([])
+  const [loading, setLoading]         = useState(true)
+  const [busca, setBusca]             = useState('')
+  const [modalItem, setModalItem]     = useState<PedidoModalItem | null>(null)
 
   const carregar = useCallback(() => {
     setLoading(true)
-    pedidoApi.listar()
-      .then(res => setPedidos(res.data))
+    Promise.all([
+      pedidoApi.listar({ limit: '1000' }),
+      pedidoConfigApi.listarStatus().catch(() => ({ data: [] as PedidoStatusConfig[] })),
+    ])
+      .then(([pedidosRes, statusRes]) => {
+        setPedidos(pedidosRes.data)
+        setStatusConfig(statusRes.data)
+      })
       .catch(() => setPedidos([]))
       .finally(() => setLoading(false))
   }, [])
@@ -141,6 +147,21 @@ export default function KanbanPedidos() {
     window.addEventListener('pedido:atualizado', handleAtualizado)
     return () => window.removeEventListener('pedido:atualizado', handleAtualizado)
   }, [carregar])
+
+  // Colunas dinâmicas: base (5 hardcoded) + custom do PedidoStatus config do tenant
+  const colunasComputadas = useMemo(() => {
+    const chavesBase = new Set(COLUNAS.map(c => c.key))
+    const customColunas = statusConfig
+      .filter(s => !chavesBase.has(s.nome))
+      .sort((a, b) => a.ordem - b.ordem)
+      .map(s => ({
+        key:   s.nome,
+        label: s.rotulo,
+        color: s.cor,
+        icon:  <Tag size={16} weight="duotone" />,
+      }))
+    return [...COLUNAS, ...customColunas]
+  }, [statusConfig])
 
   const itens = useMemo<PedidoKanbanItem[]>(() =>
     pedidos.map(p => ({ id: p.id, colunaKey: p.status, pedido: p })),
@@ -187,7 +208,7 @@ export default function KanbanPedidos() {
   return (
     <div className="kbp-page">
       <KanbanGlobal<PedidoKanbanItem>
-        colunas={COLUNAS}
+        colunas={colunasComputadas}
         itens={itensFiltrados}
         renderCard={(item) => <CardPedido item={item} />}
         onMoverItem={handleMover}
@@ -203,7 +224,7 @@ export default function KanbanPedidos() {
       <CardKanbanModal<PedidoModalItem>
         aberto={modalItem !== null}
         item={modalItem}
-        colunas={COLUNAS}
+        colunas={colunasComputadas}
         onFechar={() => setModalItem(null)}
         onSalvar={() => setModalItem(null)}
       />

@@ -365,25 +365,14 @@ pedidosConfigRouter.get('/preferencias/usuario', async (req: Request, res: Respo
   try {
     const tenant_id = getTenantId(req)
     const user_id = getUserId(req)
-    const company_id = getCompanyId(req)
 
-    const preferencia = await req.prisma.pedidoPreferenciaUsuario.findFirst({
-      where: { tenant_id, user_id },
-    })
+    // Busca preferências do usuário e do workspace em paralelo (evita 2 queries sequenciais)
+    const [preferencia, padrao] = await Promise.all([
+      req.prisma.pedidoPreferenciaUsuario.findFirst({ where: { tenant_id, user_id } }),
+      req.prisma.pedidoPreferenciaPadrao.findFirst({ where: { tenant_id } }),
+    ])
 
-    if (!preferencia) {
-      // Fallback: retornar preferência padrão do workspace
-      const padraoWhere: Record<string, unknown> = { tenant_id }
-      if (company_id) padraoWhere.company_id = company_id
-
-      const padrao = await req.prisma.pedidoPreferenciaPadrao.findFirst({
-        where: { tenant_id },
-      })
-
-      return res.json(padrao ?? null)
-    }
-
-    res.json(preferencia)
+    res.json(preferencia ?? padrao ?? null)
   } catch (err) {
     next(err)
   }
@@ -432,6 +421,85 @@ pedidosConfigRouter.get('/preferencias/padrao', async (req: Request, res: Respon
     })
 
     res.json({ data: padrao ?? null })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── REGRAS DE NEGÓCIO ─────────────────────────────────────────────────────────
+
+const regrasConfigSchema = z.object({
+  duplicar_numero_auto: z.boolean().optional(),
+  duplicar_copiar_datas: z.boolean().optional(),
+  duplicar_status_inicial: z.string().optional(),
+  excluir_status_permitidos: z.array(z.string()).optional(),
+  excluir_pedido_sem_item_permitido: z.boolean().optional(),
+  excluir_confirmar_com_preview: z.boolean().optional(),
+  alerta_numero_duplicado: z.boolean().optional(),
+  alerta_valor_total_divergente: z.boolean().optional(),
+  alerta_quantidade_total_divergente: z.boolean().optional(),
+  alerta_quantidade_pronta_divergente: z.boolean().optional(),
+  alerta_peso_liquido_divergente: z.boolean().optional(),
+  alerta_peso_bruto_divergente: z.boolean().optional(),
+  alerta_cubagem_divergente: z.boolean().optional(),
+})
+
+const REGRAS_DEFAULT = {
+  duplicar_numero_auto: false,
+  duplicar_copiar_datas: false,
+  duplicar_status_inicial: 'copiar',
+  excluir_status_permitidos: ['rascunho', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'],
+  excluir_pedido_sem_item_permitido: true,
+  excluir_confirmar_com_preview: true,
+  alerta_numero_duplicado: true,
+  alerta_valor_total_divergente: true,
+  alerta_quantidade_total_divergente: true,
+  alerta_quantidade_pronta_divergente: true,
+  alerta_peso_liquido_divergente: true,
+  alerta_peso_bruto_divergente: true,
+  alerta_cubagem_divergente: true,
+}
+
+// GET /regras
+pedidosConfigRouter.get('/regras', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const tenant_id = getTenantId(req)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const config = await (req as any).prisma.configuracaoPedido.findFirst({
+      where: { tenant_id },
+    }).catch(() => null)
+
+    res.json(config ?? REGRAS_DEFAULT)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// PUT /regras
+pedidosConfigRouter.put('/regras', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = regrasConfigSchema.safeParse(req.body)
+    if (!result.success) {
+      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+    }
+
+    const tenant_id = getTenantId(req)
+    const company_id = getCompanyId(req)
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const config = await (req as any).prisma.configuracaoPedido.upsert({
+      where: { tenant_id },
+      update: { ...result.data },
+      create: {
+        tenant_id,
+        company_id: company_id ?? null,
+        ...REGRAS_DEFAULT,
+        ...result.data,
+      },
+    })
+
+    res.json(config)
   } catch (err) {
     next(err)
   }

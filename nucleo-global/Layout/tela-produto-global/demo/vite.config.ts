@@ -53,6 +53,8 @@ export default defineConfig({
       '@nucleo/tabela-global':          nucleo('Tabelas/tabela-global/src/index.ts'),
       '@nucleo/tabela-virtual-global':  nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
       '@nucleo/tabela-camadas-global':  nucleo('Tabelas/tabela-camadas-global/src/index.ts'),
+      // ── Gabi ──
+      '@nucleo/gabi-field-icon-global': nucleo('Gabi/gabi-field-icon-global/src/index.ts'),
       // ── Feedback extra ──
       '@nucleo/status-salvar-global':   nucleo('Feedback/status-salvar-global/src/index.ts'),
       // ── Tenant services ──

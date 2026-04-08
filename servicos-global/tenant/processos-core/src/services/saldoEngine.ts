@@ -2,10 +2,10 @@
  * saldoEngine.ts — Motor de saldo do PedidoItem
  *
  * Implementa a Matematica de Saldo Imutavel:
- *   quantidade_inicial_pedido = quantidade_atual_pedido + quantidade_transferida_pedido + quantidade_cancelada_pedido
+ *   quantidade_inicial_pedido = quantidade_saldo_pedido + quantidade_transferida_pedido + quantidade_cancelada_pedido
  *
  * Todas as operacoes sao atomicas (Prisma $transaction)
- * Anti-sobre-execucao: rejeita operacao se quantidade_atual < solicitada
+ * Anti-sobre-execucao: rejeita operacao se quantidade_saldo < solicitada
  *
  * Referencia: documentos-tecnicos/produto/itens-pedido-processo/arquitetura-3-tier.md
  */
@@ -48,7 +48,7 @@ interface AtualizarProntaInput {
 interface SaldoResult {
   id: string
   quantidade_inicial_pedido: number
-  quantidade_atual_pedido: number
+  quantidade_saldo_pedido: number
   quantidade_transferida_pedido: number
   quantidade_cancelada_pedido: number
   quantidade_pronta_pedido: number
@@ -59,7 +59,7 @@ interface SaldoResult {
 export const saldoEngine = {
   /**
    * Transferir quantidade de um PedidoItem para um Processo.
-   * Debita quantidade_atual_pedido, credita quantidade_transferida_pedido.
+   * Debita quantidade_saldo_pedido, credita quantidade_transferida_pedido.
    * Operacao atomica com validacao anti-sobre-execucao.
    */
   async transferir(prisma: PrismaClient, input: TransferirInput): Promise<SaldoResult> {
@@ -78,16 +78,16 @@ export const saldoEngine = {
         throw new AppError(404, 'Item do pedido nao encontrado')
       }
 
-      if (item.quantidade_atual_pedido < quantidade) {
+      if (item.quantidade_saldo_pedido < quantidade) {
         throw new AppError(400,
-          `Quantidade solicitada (${quantidade}) excede saldo disponivel (${item.quantidade_atual_pedido})`
+          `Quantidade solicitada (${quantidade}) excede saldo disponivel (${item.quantidade_saldo_pedido})`
         )
       }
 
       const updated = await tx.pedidoItem.update({
         where: { id: pedido_item_id },
         data: {
-          quantidade_atual_pedido: item.quantidade_atual_pedido - quantidade,
+          quantidade_saldo_pedido: item.quantidade_saldo_pedido - quantidade,
           quantidade_transferida_pedido: item.quantidade_transferida_pedido + quantidade,
         },
       })
@@ -98,7 +98,7 @@ export const saldoEngine = {
       return {
         id: updated.id,
         quantidade_inicial_pedido: updated.quantidade_inicial_pedido,
-        quantidade_atual_pedido: updated.quantidade_atual_pedido,
+        quantidade_saldo_pedido: updated.quantidade_saldo_pedido,
         quantidade_transferida_pedido: updated.quantidade_transferida_pedido,
         quantidade_cancelada_pedido: updated.quantidade_cancelada_pedido,
         quantidade_pronta_pedido: updated.quantidade_pronta_pedido,
@@ -108,7 +108,7 @@ export const saldoEngine = {
 
   /**
    * Cancelar quantidade de um PedidoItem.
-   * Debita quantidade_atual_pedido, credita quantidade_cancelada_pedido.
+   * Debita quantidade_saldo_pedido, credita quantidade_cancelada_pedido.
    * Operacao irreversivel.
    */
   async cancelar(prisma: PrismaClient, input: CancelarInput): Promise<SaldoResult> {
@@ -127,16 +127,16 @@ export const saldoEngine = {
         throw new AppError(404, 'Item do pedido nao encontrado')
       }
 
-      if (item.quantidade_atual_pedido < quantidade) {
+      if (item.quantidade_saldo_pedido < quantidade) {
         throw new AppError(400,
-          `Quantidade a cancelar (${quantidade}) excede saldo disponivel (${item.quantidade_atual_pedido})`
+          `Quantidade a cancelar (${quantidade}) excede saldo disponivel (${item.quantidade_saldo_pedido})`
         )
       }
 
       const updated = await tx.pedidoItem.update({
         where: { id: pedido_item_id },
         data: {
-          quantidade_atual_pedido: item.quantidade_atual_pedido - quantidade,
+          quantidade_saldo_pedido: item.quantidade_saldo_pedido - quantidade,
           quantidade_cancelada_pedido: item.quantidade_cancelada_pedido + quantidade,
         },
       })
@@ -146,7 +146,7 @@ export const saldoEngine = {
       return {
         id: updated.id,
         quantidade_inicial_pedido: updated.quantidade_inicial_pedido,
-        quantidade_atual_pedido: updated.quantidade_atual_pedido,
+        quantidade_saldo_pedido: updated.quantidade_saldo_pedido,
         quantidade_transferida_pedido: updated.quantidade_transferida_pedido,
         quantidade_cancelada_pedido: updated.quantidade_cancelada_pedido,
         quantidade_pronta_pedido: updated.quantidade_pronta_pedido,
@@ -181,7 +181,7 @@ export const saldoEngine = {
     return {
       id: updated.id,
       quantidade_inicial_pedido: updated.quantidade_inicial_pedido,
-      quantidade_atual_pedido: updated.quantidade_atual_pedido,
+      quantidade_saldo_pedido: updated.quantidade_saldo_pedido,
       quantidade_transferida_pedido: updated.quantidade_transferida_pedido,
       quantidade_cancelada_pedido: updated.quantidade_cancelada_pedido,
       quantidade_pronta_pedido: updated.quantidade_pronta_pedido,
@@ -193,7 +193,7 @@ export const saldoEngine = {
    * Retorna true se a formula imutavel esta valida.
    */
   validarIntegridade(item: SaldoResult): boolean {
-    const soma = item.quantidade_atual_pedido + item.quantidade_transferida_pedido + item.quantidade_cancelada_pedido
+    const soma = item.quantidade_saldo_pedido + item.quantidade_transferida_pedido + item.quantidade_cancelada_pedido
     return Math.abs(item.quantidade_inicial_pedido - soma) < 0.001
   },
 }
@@ -212,7 +212,7 @@ async function atualizarStatusPedido(
 
   if (itens.length === 0) return
 
-  const todosLiquidados = itens.every((i) => i.quantidade_atual_pedido === 0)
+  const todosLiquidados = itens.every((i) => i.quantidade_saldo_pedido === 0)
   const algumTransferido = itens.some((i) => i.quantidade_transferida_pedido > 0)
 
   let novoStatus: string

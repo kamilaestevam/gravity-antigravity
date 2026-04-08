@@ -181,8 +181,8 @@ export class TransferirService {
           pedidosCriados.push(novoPedido.id)
           pedidosDestinoIds.push(novoPedido.id)
 
-          // Criar item no pedido novo
-          const itemData = this.prepararItemDestino(itemOrigem, novoPedido.id, destino)
+          // Criar item no pedido novo — sequencia começa em 1
+          const itemData = this.prepararItemDestino(itemOrigem, novoPedido.id, destino, 1)
           await tx.pedidoItem.create({ data: itemData })
         } else if (destino.tipo === 'existente' && destino.pedido_id) {
           const pedidoDestino = await tx.pedido.findFirst({
@@ -208,7 +208,9 @@ export class TransferirService {
               },
             })
           } else {
-            const itemData = this.prepararItemDestino(itemOrigem, pedidoDestino.id, destino)
+            // sequencia = próxima após os itens já existentes no destino
+            const sequenciaDestino = (pedidoDestino.itens?.length ?? 0) + 1
+            const itemData = this.prepararItemDestino(itemOrigem, pedidoDestino.id, destino, sequenciaDestino)
             await tx.pedidoItem.create({ data: itemData })
           }
 
@@ -400,13 +402,13 @@ export class TransferirService {
     return `${prefixo}_id_${seq}-${ano}`
   }
 
-  private prepararItemDestino(itemOrigem: any, pedidoId: string, destino: TransferDestino): any {
+  private prepararItemDestino(itemOrigem: any, pedidoId: string, destino: TransferDestino, sequenciaDestino?: number): any {
     return {
       id: this.gerarId('pite'),
       tenant_id: itemOrigem.tenant_id,
       company_id: itemOrigem.company_id,
       pedido_id: pedidoId,
-      sequencia_item: itemOrigem.sequencia_item ?? null,
+      sequencia_item: sequenciaDestino ?? null,
       part_number: destino.part_number ?? itemOrigem.part_number,
       ncm: itemOrigem.ncm ?? '',
       descricao_item: itemOrigem.descricao_item ?? '',

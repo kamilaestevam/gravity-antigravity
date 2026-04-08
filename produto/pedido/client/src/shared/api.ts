@@ -197,10 +197,7 @@ export const pedidoVirtualApi = {
     q.set('termo', params.termo)
     if (params.status) q.set('status', params.status)
     if (params.busca)  q.set('busca', params.busca)
-    return request<{ total: number }>(`/api/v1/pedidos/localizar?${q}`).catch(err => {
-      if (import.meta.env.DEV) return { total: 0 }
-      throw err
-    })
+    return request<{ total: number }>(`/api/v1/pedidos/localizar?${q}`)
   },
 
   /** Edição inline de um campo */

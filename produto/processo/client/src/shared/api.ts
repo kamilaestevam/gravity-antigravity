@@ -207,17 +207,13 @@ export async function editarCampoPedido(
   tenantId: string,
   pedidoId: string,
   campo: string,
-  valor: unknown,
-  updatedAt: string
+  valor: unknown
 ): Promise<PedidoRico> {
   const res = await fetch(`${API_BASE}/pedidos/${pedidoId}/campo`, {
     method: 'PATCH',
     headers: headers(tenantId),
-    body: JSON.stringify({ campo, valor, updated_at: updatedAt }),
+    body: JSON.stringify({ campo, valor }),
   })
-  if (res.status === 409) {
-    throw new Error('Conflito: registro modificado por outro usuário')
-  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(err.error ?? `Erro ${res.status} ao editar pedido`)

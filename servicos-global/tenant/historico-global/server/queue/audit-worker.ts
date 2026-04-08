@@ -16,9 +16,8 @@ export async function startAuditWorker(): Promise<void> {
   await boss.work<AuditLogInput>(
     AUDIT_QUEUE,
     { teamSize: WORKER_CONCURRENCY, teamConcurrency: WORKER_CONCURRENCY },
-    async (job) => {
-      const data = (job as any).data ?? job
-      const logId = await AuditService.persist(data)
+    async ([job]) => {
+      const logId = await AuditService.persist(job.data)
       // Verificar regras de alerta após persistência (não bloqueia o worker)
       AlertEngine.check(job.data, logId).catch((err) =>
         console.error('[audit-worker] Erro no AlertEngine:', err)

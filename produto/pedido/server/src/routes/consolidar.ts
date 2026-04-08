@@ -58,6 +58,7 @@ const CAMPOS_COMPARAR: Array<{ campo: string; rotulo: string }> = [
   { campo: 'incoterm',           rotulo: 'Incoterm'               },
   { campo: 'moeda_pedido',       rotulo: 'Moeda'                  },
   { campo: 'exportador_nome',    rotulo: 'Exportador'             },
+  { campo: 'importador_nome',    rotulo: 'Importador'             },
   { campo: 'data_emissao_pedido',rotulo: 'Data Emissão do Pedido' },
   { campo: 'cobertura_cambial',  rotulo: 'Cobertura Cambial'      },
   { campo: 'condicao_pagamento', rotulo: 'Condição de Pagamento'  },
@@ -104,12 +105,19 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     const camposDivergentes = []
     const camposIguais: string[] = []
 
+    // Campos em detalhes_operacionais não estão no objeto Prisma cru — extrair do JSON
+    const CAMPOS_DETALHES = new Set(['exportador_nome', 'importador_nome', 'fabricante_nome'])
+
     for (const { campo, rotulo } of CAMPOS_COMPARAR) {
-      const valores = pedidos.map((p: any) => ({
-        pedido_id: p.id,
-        numero_pedido: p.numero_pedido,
-        valor: p[campo] as string | number | null,
-      }))
+      const valores = pedidos.map((p: any) => {
+        const det = (typeof p.detalhes_operacionais === 'object' && p.detalhes_operacionais !== null)
+          ? p.detalhes_operacionais as Record<string, unknown>
+          : {}
+        const valor = CAMPOS_DETALHES.has(campo)
+          ? (det[campo] as string | null | undefined) ?? null
+          : p[campo] as string | number | null
+        return { pedido_id: p.id, numero_pedido: p.numero_pedido, valor }
+      })
       const unicos = new Set(valores.map((v: any) => String(v.valor)))
       if (unicos.size > 1) {
         camposDivergentes.push({
@@ -128,7 +136,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     for (const pedido of pedidos) {
       for (const item of pedido.itens) {
         if (itensPorPart[item.part_number]) {
-          itensPorPart[item.part_number].quantidade_total += item.saldo_item_pedido
+          itensPorPart[item.part_number].quantidade_total += Number(item.quantidade_atual_pedido ?? 0)
           itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
           itensPorPart[item.part_number].pode_fundir = true
         } else {
@@ -139,7 +147,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
             unidade_comercializada_item: item.unidade_comercializada_item,
             moeda_item: item.moeda_item,
             valor_unitario: item.valor_por_unidade_item,
-            quantidade_total: item.saldo_item_pedido,
+            quantidade_total: Number(item.quantidade_atual_pedido ?? 0),
             pedidos_origem: [pedido.numero_pedido],
             pode_fundir: false,
           }
@@ -220,11 +228,14 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         } else {
           partNumbersVistos.add(item.part_number)
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: _id, pedido_id: _pedido_id, created_at: _ca, updated_at: _ua, ...itemData } = item
+          const { id: _id, pedido_id: _pedido_id, created_at: _ca, updated_at: _ua, sequencia_item: _seq, ...itemData } = item
           itensMerge.push({ ...itemData, id: gerarId('pite') })
         }
       }
     }
+
+    // Renumerar sequencia_item de forma limpa (1, 2, 3...) no pedido consolidado
+    itensMerge.forEach((item, i) => { item.sequencia_item = i + 1 })
 
     const valorTotal = pedidos.reduce((acc: number, p: any) => acc + (Number(p.valor_total_pedido) || 0), 0)
 
@@ -242,6 +253,17 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       cobertura_cambial:               primeiro.cobertura_cambial,
       condicao_pagamento:              primeiro.condicao_pagamento,
       data_emissao_pedido:             primeiro.data_emissao_pedido,
+      // Preservar nomes dos parceiros de detalhes_operacionais do primeiro pedido
+      detalhes_operacionais: (() => {
+        const det = (typeof primeiro.detalhes_operacionais === 'object' && primeiro.detalhes_operacionais !== null)
+          ? primeiro.detalhes_operacionais as Record<string, unknown>
+          : {}
+        return {
+          exportador_nome: (det.exportador_nome as string | null | undefined) ?? null,
+          importador_nome: (det.importador_nome as string | null | undefined) ?? null,
+          fabricante_nome: (det.fabricante_nome as string | null | undefined) ?? null,
+        }
+      })(),
     }
 
     // Criar pedido consolidado com $transaction para atomicidade

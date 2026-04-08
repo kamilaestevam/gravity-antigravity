@@ -30,6 +30,7 @@ export default defineConfig({
       '@nucleo/switch-global':                  nucleo('Campos/switch-global/src/index.ts'),
       '@nucleo/view-toggle-global':             nucleo('Layout/view-toggle-global/src/index.ts'),
       '@nucleo/tabela-virtual-global':          nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
+      '@nucleo/gabi-field-icon-global':         nucleo('Gabi/gabi-field-icon-global/src/index.ts'),
       '@nucleo/utils':                          nucleo('Utilidades/utils/src/index.ts'),
       '@nucleo/modal-sem-sessoes-global':       nucleo('Modais/modal-sem-sessoes-global/src/index.ts'),
       '@nucleo/botoes-salvar-global':           nucleo('Botoes/botoes-salvar-global/src/index.ts'),
@@ -49,6 +50,11 @@ export default defineConfig({
       '@tenant/historico':          path.resolve(__dirname, '../src/index.ts'),
       '@nucleo/kanban-global':      nucleo('Kanban/kanban-global/src/index.ts'),
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
+      // ── dnd-kit (resolvido a partir do node_modules local) ──
+      '@dnd-kit/core':              path.resolve(__dirname, 'node_modules/@dnd-kit/core'),
+      '@dnd-kit/sortable':          path.resolve(__dirname, 'node_modules/@dnd-kit/sortable'),
+      '@dnd-kit/utilities':         path.resolve(__dirname, 'node_modules/@dnd-kit/utilities'),
+      '@tanstack/react-virtual':    path.resolve(__dirname, 'node_modules/@tanstack/react-virtual'),
     },
     dedupe: ['react', 'react-dom'],
   },
@@ -56,10 +62,17 @@ export default defineConfig({
     'process.env': {},
   },
   optimizeDeps: {
-    include: ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+    include: [
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/utilities',
+      '@tanstack/react-virtual',
+      'react-i18next',
+      'i18next',
+    ],
   },
   server: {
-    port: 5200,
+    port: 5201,
     fs: { allow: [monorepoRoot] },
     proxy: {
       '/api': {

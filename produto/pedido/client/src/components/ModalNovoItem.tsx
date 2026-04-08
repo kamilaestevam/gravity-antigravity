@@ -35,8 +35,6 @@ interface ItemForm {
   ncm: string
   descricao_item: string
   quantidade_inicial_item_pedido: string
-  unidade_comercializada_item: string
-  valor_por_unidade_item: string
 }
 
 const ITEM_VAZIO: ItemForm = {
@@ -44,19 +42,6 @@ const ITEM_VAZIO: ItemForm = {
   ncm: '',
   descricao_item: '',
   quantidade_inicial_item_pedido: '',
-  unidade_comercializada_item: 'UN',
-  valor_por_unidade_item: '',
-}
-
-const OPCOES_UOM = ['UN','MT','M2','KG','LT','TON','CM3','PC']
-  .map(v => ({ valor: v, rotulo: v }))
-
-/** Formata string de dígitos para máscara NCM: XXXX.XX.XX */
-function formatarNcm(raw: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 8)
-  if (digits.length <= 4) return digits
-  if (digits.length <= 6) return `${digits.slice(0, 4)}.${digits.slice(4)}`
-  return `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
 }
 
 // ── Props ──────────────────────────────────────────────────────────────────────
@@ -209,9 +194,7 @@ export function ModalNovoItem({
         part_number: item.part_number,
         ncm: item.ncm,
         descricao_item: item.descricao_item,
-        quantidade_inicial_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
-        unidade_comercializada_item: item.unidade_comercializada_item,
-        valor_por_unidade_item: item.valor_por_unidade_item ? parseFloat(item.valor_por_unidade_item) : undefined,
+        quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
       } as Partial<PedidoItem>)
       const pn = item.part_number.trim() || item.descricao_item.trim() || 'item'
       addNotification({ type: 'success', message: `Item ${pn} adicionado ao PO.`, duration: 4000 })
@@ -302,9 +285,8 @@ export function ModalNovoItem({
                 id="mni-ncm"
                 style={{ ...s.input, fontFamily: 'monospace' }}
                 value={item.ncm}
-                onChange={e => setItemField('ncm', formatarNcm(e.target.value))}
+                onChange={e => setItemField('ncm', e.target.value)}
                 placeholder="0000.00.00"
-                maxLength={10}
               />
             </div>
             <div style={{ ...s.campo, ...s.gridFull }}>
@@ -326,27 +308,6 @@ export function ModalNovoItem({
                 value={item.quantidade_inicial_item_pedido}
                 onChange={e => setItemField('quantidade_inicial_item_pedido', e.target.value)}
                 placeholder="0"
-                min="0"
-                step="0.01"
-              />
-            </div>
-            <div style={s.campo}>
-              <SelectGlobal
-                label="Unidade (UoM)"
-                opcoes={OPCOES_UOM}
-                valor={item.unidade_comercializada_item}
-                aoMudarValor={v => setItemField('unidade_comercializada_item', String(v ?? 'UN'))}
-              />
-            </div>
-            <div style={{ ...s.campo, ...s.gridFull }}>
-              <label style={s.label} htmlFor="mni-vl">Valor Unitário</label>
-              <input
-                id="mni-vl"
-                type="number"
-                style={{ ...s.input, textAlign: 'right' }}
-                value={item.valor_por_unidade_item}
-                onChange={e => setItemField('valor_por_unidade_item', e.target.value)}
-                placeholder="0,00"
                 min="0"
                 step="0.01"
               />

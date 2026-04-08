@@ -10,19 +10,9 @@
  * Novas métricas podem ser adicionadas pelo usuário via configurador.
  */
 
-export type DerivedOperation = 'RATIO' | 'DIFF' | 'CUSTOM'
-
-export interface DerivedMetric {
-  id: string
-  label: string
-  description: string
-  inputFields: string[]
-  operation: DerivedOperation
-  formula: (values: Record<string, number>) => number | null
-  fieldType: 'percentage' | 'currency' | 'number'
-  /** Se true, foi criada pelo usuário (não é built-in) */
-  userDefined?: boolean
-}
+// Tipos movidos para @nucleo/dashboard — re-exportados para compatibilidade
+export type { DerivedOperation, DerivedMetric } from '@nucleo/dashboard'
+import type { DerivedMetric } from '@nucleo/dashboard'
 
 // ── Métricas built-in derivadas do catálogo do Pedido ────────────────────────
 

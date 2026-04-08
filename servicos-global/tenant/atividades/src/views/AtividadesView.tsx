@@ -268,7 +268,7 @@ export default function AtividadesView(): React.ReactElement {
             <div className="ativ-search-wrap">
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>🔍</span>
               <input
-                placeholder={t('atividades.localizar')}
+                placeholder="Buscar..."
                 value={filters.search}
                 onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
               />

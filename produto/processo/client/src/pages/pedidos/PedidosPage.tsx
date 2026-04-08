@@ -52,9 +52,6 @@ const fmtDate = (iso: string) =>
 
 export default function PedidosPage() {
   const [pedidos, setPedidos] = useState<PedidoRico[]>([])
-  const [cursor, setCursor] = useState<string | undefined>()
-  const [temMais, setTemMais] = useState(false)
-  const [carregandoMais, setCarregandoMais] = useState(false)
   const [carregando, setCarregando] = useState(true)
   const [abaAtiva, setAbaAtiva] = useState('todos')
   const [busca, setBusca] = useState('')
@@ -82,8 +79,6 @@ export default function PedidosPage() {
           })
         }
         setPedidos(listData.data)
-        setCursor(listData.cursor_proximo)
-        setTemMais(listData.tem_mais)
       } catch {
         // erros silenciosos — tabela exibirá estado vazio
       } finally {
@@ -113,8 +108,6 @@ export default function PedidosPage() {
           busca: novaBusca || undefined,
         })
         setPedidos(resp.data)
-        setCursor(resp.cursor_proximo)
-        setTemMais(resp.tem_mais)
       } catch {
         // silencioso
       } finally {
@@ -146,42 +139,18 @@ export default function PedidosPage() {
     void recarregar(abaAtiva, busca, campo, dir)
   }
 
-  // ── Load more ─────────────────────────────────────────────────────────────
-
-  async function carregarMais() {
-    if (!temMais || carregandoMais || !cursor) return
-    setCarregandoMais(true)
-    try {
-      const resp = await getPedidos(tenantId, {
-        cursor,
-        sort: sortCampo,
-        dir: sortDir,
-        limit: 50,
-        status: abaAtiva !== 'todos' ? abaAtiva : undefined,
-        busca: busca || undefined,
-      })
-      setPedidos(prev => [...prev, ...resp.data])
-      setCursor(resp.cursor_proximo)
-      setTemMais(resp.tem_mais)
-    } catch {
-      // silencioso
-    } finally {
-      setCarregandoMais(false)
-    }
-  }
-
   // ── Carregar filhos (itens do pedido) ─────────────────────────────────────
-
-  async function carregarItens(pedido: PedidoRico): Promise<PedidoItemRico[]> {
-    return getPedidoItens(tenantId, pedido.id)
-  }
+  // useCallback com deps estáveis para não disparar o useEffect de
+  // auto-revalidação do useGTExpandir em todo render de PedidosPage.
+  const carregarItens = useCallback(
+    (pedido: PedidoRico): Promise<PedidoItemRico[]> => getPedidoItens(tenantId, pedido.id),
+    [tenantId],
+  )
 
   // ── Edição inline ─────────────────────────────────────────────────────────
 
   async function handleEditar(id: string, campo: string, valor: unknown): Promise<PedidoRico> {
-    const pedido = pedidos.find(p => p.id === id)
-    const updatedAt = pedido?.updated_at ?? new Date().toISOString()
-    const atualizado = await editarCampoPedido(tenantId, id, campo, valor, updatedAt)
+    const atualizado = await editarCampoPedido(tenantId, id, campo, valor)
     setPedidos(prev => prev.map(p => (p.id === id ? atualizado : p)))
     return atualizado
   }
@@ -457,9 +426,7 @@ export default function PedidosPage() {
         colunasFilhas={colunasFilha}
         onCarregarFilhos={carregarItens}
         filhoId={(filho: PedidoItemRico) => filho.id}
-        temMais={temMais}
-        carregandoMais={carregandoMais}
-        onCarregarMais={() => void carregarMais()}
+        itensPorPagina={50}
         abas={abas}
         abaAtiva={abaAtiva}
         onMudarAba={handleMudarAba}

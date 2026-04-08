@@ -307,6 +307,10 @@ export class SmartImportService {
             })
 
             if (pedidoExistente && (dados['part_number'] || dados['descricao_item'])) {
+              // Calcular próxima sequencia_item no pedido existente
+              const itemCountExistente = await (tx as Record<string, any>)['pedidoItem'].count({
+                where: { pedido_id: pedidoExistente.id, tenant_id: tenantId },
+              })
               // Adicionar item ao pedido existente — .catch(() => null) para graceful fallback
               // (ex: unique constraint já satisfeita → pedido já atualizado, segue em frente)
               await (tx as Record<string, any>)['pedidoItem'].create({
@@ -315,11 +319,12 @@ export class SmartImportService {
                   tenant_id:           tenantId,
                   company_id:          companyId ?? tenantId,
                   pedido_id:           pedidoExistente.id,
+                  sequencia_item:      itemCountExistente + 1,
                   part_number:         String(dados['part_number'] ?? ''),
                   ncm:                 String(dados['ncm'] ?? ''),
                   descricao_item:      String(dados['descricao_item'] ?? ''),
                   quantidade_inicial_pedido:  Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                  quantidade_atual_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  quantidade_saldo_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
                   casas_decimais_quantidade_item: 2,
                   moeda_item:            String(dados['moeda_pedido'] ?? 'USD'),
                   valor_por_unidade_item: dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
@@ -339,11 +344,12 @@ export class SmartImportService {
                 id:                  gerarId('pite'),
                 tenant_id:           tenantId,
                 company_id:          companyId ?? tenantId,
+                sequencia_item:      1,
                 part_number:         String(dados['part_number'] ?? ''),
                 ncm:                 String(dados['ncm'] ?? ''),
                 descricao_item:      String(dados['descricao_item'] ?? ''),
                 quantidade_inicial_pedido:  Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                quantidade_atual_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                quantidade_saldo_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
                 casas_decimais_quantidade_item: 2,
                 moeda_item:            String(dados['moeda_pedido'] ?? 'USD'),
                 valor_por_unidade_item: dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
@@ -373,6 +379,23 @@ export class SmartImportService {
         }
       }
     })
+
+    // Popular agregados dos pedidos recém-criados (quantidade_total_inicial_pedido, quantidade_transferida_total)
+    // A transaction cria os itens, mas não atualiza os campos agregados do pedido pai.
+    if (criados.length > 0) {
+      for (const pedidoId of criados) {
+        const itens = await this.db['pedidoItem'].findMany({
+          where: { pedido_id: pedidoId, tenant_id: tenantId },
+          select: { quantidade_inicial_item_pedido: true, quantidade_transferida_item: true },
+        }) as { quantidade_inicial_item_pedido: number; quantidade_transferida_item: number }[]
+        const qtdInicial = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+        const qtdTransferida = itens.reduce((s, i) => s + Number(i.quantidade_transferida_item ?? 0), 0)
+        await this.db['pedido'].update({
+          where: { id: pedidoId },
+          data: { quantidade_total_inicial_pedido: qtdInicial, quantidade_transferida_total: qtdTransferida },
+        })
+      }
+    }
 
     return {
       criados:    criados.length,

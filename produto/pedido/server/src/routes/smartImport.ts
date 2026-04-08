@@ -239,16 +239,12 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
     { valor: 'exportador',           rotulo: 'Exportador (Shipper)' },
     { valor: 'fabricante',           rotulo: 'Fabricante'           },
     { valor: 'incoterm',             rotulo: 'Incoterm'             },
-    { valor: 'moeda_pedido',         rotulo: 'Moeda'                },
-    { valor: 'data_emissao_pedido',  rotulo: 'Data Emissão do Pedido' },
+    { valor: 'data_emissao_pedido',  rotulo: 'Data de Emissao'      },
     { valor: 'data_embarque',        rotulo: 'Data de Embarque'     },
     { valor: 'part_number',          rotulo: 'Part Number'          },
     { valor: 'ncm',                  rotulo: 'NCM'                  },
     { valor: 'descricao_item',        rotulo: 'Descricao do Item'    },
     { valor: 'quantidade_inicial_item_pedido', rotulo: 'Quantidade'           },
-    { valor: 'unidade',              rotulo: 'Unidade'              },
-    { valor: 'valor_por_unidade_item', rotulo: 'Valor Unitario'       },
-    { valor: 'valor_total_item',     rotulo: 'Valor Total Item'     },
   ]
 
   const tenantId = (req as Request & { tenantId: string }).tenantId

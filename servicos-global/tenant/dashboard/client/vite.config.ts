@@ -19,7 +19,7 @@ export default defineConfig({
       '@nucleo/campo-global':         path.resolve(root, 'nucleo-global/Campos/campo-geral-global/src'),
       '@nucleo/campo-select':         path.resolve(root, 'nucleo-global/Campos/campo-select-global/src'),
       '@nucleo/status-badge':         path.resolve(root, 'nucleo-global/Feedback/status-badge-global/src'),
-      '@nucleo/dashboard':            path.resolve(root, 'nucleo-global/Dashboard'),
+      '@nucleo/dashboard':            path.resolve(root, 'nucleo-global/Dashboard/dashboard-global/src/index.ts'),
       '@tenant/dashboard':            path.resolve(root, 'servicos-global/tenant/dashboard/src'),
     }
   },

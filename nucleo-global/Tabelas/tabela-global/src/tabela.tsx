@@ -123,6 +123,8 @@ export interface TabelaGlobalProps<T extends Record<string, any>> {
   itensPorPagina?: number
   /** Configuração da view Kanban. Se fornecida, exibe o seletor Lista/Kanban no toolbar. */
   kanban?: TabelaKanbanConfig<T>
+  /** Quantidade de colunas de dados iniciais a congelar (sticky horizontal). A coluna de controle (checkbox/expand) é sempre congelada junto quando > 0. */
+  frozenColunas?: number
 }
 
 type FiltrosStateVal = Set<string> | { min: string; max: string } | { inicio: Date | null; fim: Date | null }
@@ -326,7 +328,7 @@ function PopoverFiltro({
   )
 }
 
-function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimparColuna }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: any, dados: T[], onOrdenar: any, onToggleValor: any, onFiltrarNumero: any, onFiltrarPeriodo: any, onLimparColuna: any }) {
+function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, onFiltrarNumero, onFiltrarPeriodo, onLimparColuna, stickyLeft }: { col: TabelaGlobalColuna<T>, filtros: Record<string, FiltrosStateVal>, ordenacao: any, dados: T[], onOrdenar: any, onToggleValor: any, onFiltrarNumero: any, onFiltrarPeriodo: any, onLimparColuna: any, stickyLeft?: number }) {
   const [aberto, setAberto] = useState(false)
   const handleFechar = useCallback(() => setAberto(false), [])
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -351,7 +353,7 @@ function ThInner<T>({ col, filtros, ordenacao, dados, onOrdenar, onToggleValor, 
   )
 
   return (
-    <th style={{ width: col.largura, padding: '0.875rem 1rem', textAlign: col.align || 'center', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ffffff', borderBottom: '2px solid rgba(129,140,248,0.2)', background: '#1e293b', position: 'sticky', top: 0, zIndex: 2, userSelect: 'none', verticalAlign: 'middle' }}>
+    <th style={{ width: col.largura, padding: '0.875rem 1rem', textAlign: col.align || 'center', whiteSpace: 'nowrap', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ffffff', borderBottom: '2px solid rgba(129,140,248,0.2)', background: '#1e293b', position: 'sticky', top: 0, zIndex: stickyLeft !== undefined ? 3 : 2, ...(stickyLeft !== undefined ? { left: stickyLeft } : {}), userSelect: 'none', verticalAlign: 'middle' }}>
       <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao || col.label}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', justifyContent: col.align === 'right' ? 'flex-end' : col.align === 'left' ? 'flex-start' : 'center' }}>
           {labelSpan}
@@ -419,7 +421,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
     dados, colunas, acoes, acoesExportacao, idKey = 'id', mensagemVazio, mensagemSemFiltro,
     renderExpandido, tooltipExpandir, tooltipRecolher, tooltipBusca,
     filhos, colunasFilhas, acoesFilhas, expandidosPadrao = [], itensPorPagina = 10,
-    id: tableId, kanban
+    id: tableId, kanban, frozenColunas = 0
   } = props
 
   const [viewMode, setViewMode] = useState<'lista' | 'kanban'>('lista')
@@ -459,6 +461,21 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
       return ai - bi
     })
   }, [colunas, tableId, isVisible, columnOrder])
+
+  const theadRef = useRef<HTMLTableSectionElement>(null)
+  const [stickyOffsets, setStickyOffsets] = useState<number[]>([])
+  useEffect(() => {
+    if (!frozenColunas || frozenColunas === 0 || !theadRef.current) { setStickyOffsets([]); return }
+    const ths = Array.from(theadRef.current.querySelectorAll('th'))
+    const checkboxW = ths[0]?.offsetWidth ?? 48
+    const offsets: number[] = []
+    let acc = checkboxW
+    for (let i = 0; i < frozenColunas; i++) {
+      offsets.push(acc)
+      acc += ths[i + 1]?.offsetWidth ?? 0
+    }
+    setStickyOffsets(offsets)
+  }, [frozenColunas, colunasVisiveis])
 
   function handleReordenarColunas(fromKey: string, toKey: string) {
     setColumnOrder(prev => {
@@ -657,7 +674,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
               <span style={{ position: 'absolute', left: '0.75rem', color: '#94a3b8', display: 'flex', lineHeight: 0 }}>
                 <MagnifyingGlass size={14} weight="bold" />
               </span>
-              <input type="search" placeholder={t('tabela.localizar')} value={busca}
+              <input type="search" placeholder="Buscar..." value={busca}
                 onChange={e => { setBusca(e.target.value); setPagina(1) }}
                 className="tg-busca-input"
                 style={{ background: 'var(--ws-bg-body, #0f172a)', border: '1px solid var(--ws-accent-border)', borderRadius: '9999px', padding: '0.4375rem 1rem 0.4375rem 2.25rem', color: 'var(--ws-text, #f1f5f9)', fontSize: '0.875rem', fontFamily: 'var(--font, Plus Jakarta Sans)', fontWeight: 400, minWidth: '240px', outline: 'none', transition: 'border-color 0.15s, box-shadow 0.15s' }}
@@ -777,15 +794,15 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
       ) : (
       <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1, minHeight: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem', color: '#f1f5f9' }}>
-          <thead>
+          <thead ref={theadRef}>
             <tr>
-              <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.3)', color: 'white', fontSize: '0.7rem', position: 'sticky', top: 0, zIndex: 2 }}>
+              <th style={{ padding: '0.75rem 1rem', width: 1, background: '#1e293b', borderBottom: '2px solid rgba(129,140,248,0.3)', color: 'white', fontSize: '0.7rem', position: 'sticky', top: 0, zIndex: frozenColunas > 0 ? 3 : 2, ...(frozenColunas > 0 ? { left: 0 } : {}) }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input type="checkbox" checked={todosSelec} onChange={e => toggleTodos(e.target.checked)} style={{ accentColor: '#818cf8', width: 14, height: 14, cursor: 'pointer' }} />
                   <span style={{ opacity: 0.5 }}>#</span>
                 </div>
               </th>
-              {colunasVisiveis.map(col => (
+              {colunasVisiveis.map((col, cIdx) => (
                 <Th
                   key={col.key}
                   col={col}
@@ -797,6 +814,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                   onFiltrarNumero={onFiltrarNumero}
                   onFiltrarPeriodo={onFiltrarPeriodo}
                   onLimparColuna={onLimparColuna}
+                  stickyLeft={cIdx < frozenColunas ? (stickyOffsets[cIdx] ?? undefined) : undefined}
                 />
               ))}
               {acoes && acoes.length > 0 && (
@@ -840,7 +858,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                       background: selecionados.has(id) ? 'var(--tg-bg-selected)' : 'transparent' 
                     }}
                   >
-                    <td className="tg-td tg-td--checkbox" onClick={ev => ev.stopPropagation()}>
+                    <td className="tg-td tg-td--checkbox" onClick={ev => ev.stopPropagation()} style={frozenColunas > 0 ? { position: 'sticky', left: 0, zIndex: 1, background: selecionados.has(id) ? 'rgba(129,140,248,0.08)' : 'var(--ws-surface, #1e293b)' } : undefined}>
                       {filhos ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <input type="checkbox" className="tg-checkbox" checked={selecionados.has(id)} onChange={() => toggleSel(id)} />
@@ -870,7 +888,7 @@ export function TabelaGlobal<T extends Record<string, any>>(props: TabelaGlobalP
                     </td>
                     
                     {colunasVisiveis.map((col, cIdx) => (
-                      <td key={col.key} className="tg-td" style={{ textAlign: col.align || 'center' }}>
+                      <td key={col.key} className="tg-td" style={{ textAlign: col.align || 'center', ...(cIdx < frozenColunas && stickyOffsets[cIdx] !== undefined ? { position: 'sticky', left: stickyOffsets[cIdx], zIndex: 1, background: selecionados.has(id) ? 'rgba(129,140,248,0.08)' : 'var(--ws-surface, #1e293b)' } : {}) }}>
                         {cIdx === 0 && temFilhos ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             {col.render ? col.render(item[col.key], item) : String(item[col.key] ?? '')}

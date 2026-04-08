@@ -57,8 +57,8 @@ export default defineConfig({
       // ── Logo ──
       '@nucleo/logo-produtos': path.resolve(__dirname, '../../nucleo-global/Logo/produtos/src/index.ts'),
       // ── Dashboard ──
-      '@nucleo/dashboard': path.resolve(__dirname, '../../nucleo-global/Dashboard'),
-      '@nucleo/query-builder-global': path.resolve(__dirname, '../../nucleo-global/Dashboard/QueryBuilder'),
+      '@nucleo/dashboard': path.resolve(__dirname, '../../nucleo-global/Dashboard/dashboard-global/src/index.ts'),
+      '@nucleo/query-builder-global': path.resolve(__dirname, '../../nucleo-global/Dashboard/dashboard-global/src/QueryBuilder'),
       // ── Gabi ──
       '@nucleo/gabi-field-icon-global': path.resolve(__dirname, '../../nucleo-global/Gabi/gabi-field-icon-global/src/index.ts'),
       // ── Modais (extras) ──

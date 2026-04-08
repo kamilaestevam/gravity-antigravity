@@ -125,7 +125,7 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
                 ncm: item.ncm,
                 descricao_item: item.descricao_item,
                 quantidade_inicial_pedido: item.quantidade_inicial_pedido,
-                quantidade_atual_pedido: item.quantidade_inicial_pedido,
+                quantidade_saldo_pedido: item.quantidade_inicial_pedido,
                 quantidade_pronta_pedido: 0,
                 quantidade_transferida_pedido: 0,
                 quantidade_cancelada_pedido: 0,
@@ -189,7 +189,7 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
             p.numero_pedido, p.tipo_operacao, p.status, p.incoterm ?? '', p.moeda_pedido,
             p.valor_total_pedido ?? '', p.quantidade_total_pedido ?? '', p.data_emissao_pedido,
             item.part_number, item.ncm, item.descricao_item,
-            item.quantidade_inicial_pedido, item.quantidade_atual_pedido, item.quantidade_transferida_pedido,
+            item.quantidade_inicial_pedido, item.quantidade_saldo_pedido, item.quantidade_transferida_pedido,
             item.unidade_comercializada_item ?? '', item.valor_total_item ?? '',
           ].map((v) => `"${String(v).replace(/"/g, '""')}"`)
            .join(',')

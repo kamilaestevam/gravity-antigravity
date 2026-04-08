@@ -24,7 +24,6 @@ interface PedidoParaTemplate {
   exportador_nome?: string | null
   fabricante_nome?: string | null
   incoterm?: string | null
-  moeda_pedido: string
   data_emissao_pedido: string
   valor_total_pedido?: number | null
   quantidade_total_inicial_pedido?: number | null
@@ -38,10 +37,6 @@ interface ItemParaTemplate {
   ncm: string
   saldo_item_pedido: number
   quantidade_inicial_item_pedido: number
-  unidade_comercializada_item?: string | null
-  moeda_item: string
-  valor_por_unidade_item?: number | null
-  valor_total_item?: number | null
   [key: string]: unknown
 }
 
@@ -51,7 +46,6 @@ export interface VariaveisTemplate {
   exportador: string
   fabricante: string
   incoterm: string
-  moeda: string
   data_emissao: string
   valor_total: string
   quantidade_total: string
@@ -76,14 +70,6 @@ export function compilarVariaveis(
     const base: Record<string, unknown> = { ...item }
     // Aliases convenientes para templates — sobrescrevem os campos originais
     base['quantidade'] = item.saldo_item_pedido
-    base['unidade'] = item.unidade_comercializada_item ?? ''
-    base['moeda'] = item.moeda_item
-    base['valor_unitario'] = item.valor_por_unidade_item != null
-      ? item.valor_por_unidade_item.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-      : ''
-    base['valor_total'] = item.valor_total_item != null
-      ? item.valor_total_item.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
-      : ''
     return base
   })
 
@@ -93,7 +79,6 @@ export function compilarVariaveis(
     exportador: pedido.exportador_nome ?? '',
     fabricante: pedido.fabricante_nome ?? '',
     incoterm: pedido.incoterm ?? '',
-    moeda: pedido.moeda_pedido,
     data_emissao: dataEmissao,
     valor_total: pedido.valor_total_pedido != null
       ? pedido.valor_total_pedido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })

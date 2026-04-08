@@ -152,3 +152,38 @@ export interface EnrichedCatalogField extends CatalogField {
   domain: FieldDomain
   complementaryFields: string[]
 }
+
+// ── Métricas derivadas ────────────────────────────────────────────────────────
+
+export type DerivedOperation = 'RATIO' | 'DIFF' | 'CUSTOM'
+
+/**
+ * Métrica calculada por cruzamento de campos do catálogo.
+ * O campo `formula` é uma função pura — não faz fetch nem acessa estado global.
+ */
+export interface DerivedMetric {
+  id: string
+  label: string
+  description: string
+  inputFields: string[]
+  operation: DerivedOperation
+  formula: (values: Record<string, number>) => number | null
+  fieldType: 'percentage' | 'currency' | 'number'
+  /** true quando criada pelo usuário (não é built-in) */
+  userDefined?: boolean
+}
+
+// ── Filtros e slicers globais ─────────────────────────────────────────────────
+
+export interface ActiveFilter {
+  field: string
+  value: string | number
+  label: string
+  sourceWidgetId: string
+}
+
+export interface GlobalSlicers {
+  period: string
+  status: string[]
+  dateRange: { from: string; to: string } | null
+}

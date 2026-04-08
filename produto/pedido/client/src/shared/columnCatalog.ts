@@ -35,6 +35,12 @@ export const CARDS_CATALOGO: CardDefinicao[] = [
     origem: 'Pedido',                  tipoAgg: 'Soma',
   },
   {
+    id: 'valor_total_brl',
+    labelKey: 'pedido.valor_total_brl', descKey: 'pedido.valor_total_brl_desc',
+    iconeKey: 'currency-circle',       cor: '#34d399',
+    origem: 'Pedido',                  tipoAgg: 'Soma',
+  },
+  {
     id: 'qtd_total',
     labelKey: 'pedido.qtd_total',       descKey: 'pedido.qtd_acumulada',
     iconeKey: 'scales',                cor: '#fbbf24',

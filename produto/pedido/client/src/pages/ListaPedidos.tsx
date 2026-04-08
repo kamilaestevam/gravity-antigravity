@@ -54,7 +54,8 @@ import type {
   GTAbaTipo,
   GTPreferencias,
 } from '@nucleo/tabela-virtual-global'
-import { useCardPreferences } from '../shared/useCardPreferences'
+import { useCardPreferences, CARDS_CATALOGO } from '../shared/useCardPreferences'
+import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
@@ -487,13 +488,13 @@ const _regrasAlertasRef: { current: RegrasConfigBackend | null } = { current: nu
 const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'numero_pedido',
-    label: 'Número do Pedido',
+    label: 'Nº Pedido / Part Number',
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
     frozen: true,
-    tooltipTitulo: 'Número do Pedido',
-    tooltipDescricao: 'Identificador único do documento comercial (PO/SO)',
+    tooltipTitulo: 'Nº Pedido / Part Number',
+    tooltipDescricao: 'Número do pedido (linha pai) ou Part Number do item (linha filho)',
     grupo: 'Identificação',
   },
   {
@@ -1387,16 +1388,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     ),
   },
   {
-    key: 'partnumber_produto_pedido',
-    label: 'Part Number',
-    tipo: 'texto',
-    filtravel: true,
-    grupo: 'Identificação',
-    tooltipTitulo: 'Part Number do Produto',
-    tooltipDescricao: 'Código de referência do produto principal do pedido',
-    render: (_val: unknown, row: Pedido) => <span>{row.partnumber_produto_pedido ?? '—'}</span>,
-  },
-  {
     key: 'referencia_interna_produto_catalogo',
     label: 'Ref. Catálogo',
     tipo: 'texto',
@@ -1778,6 +1769,34 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
 
 export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
   .map(c => c.key as string)
+
+// ── Sequência padrão de colunas visíveis (primeira abertura sem preferências salvas) ──
+
+const COLUNAS_PADRAO_VISIVEIS: string[] = [
+  'numero_pedido',
+  'tipo_operacao',
+  'importador_nome',
+  'exportador_nome',
+  'status',
+  'referencia_importador',
+  'referencia_exportador',
+  'valor_total_pedido',
+  'quantidade_total_inicial_pedido',
+  'quantidade_pronta_itens_pedido_total',
+  'saldo_itens_do_pedido',
+  'quantidade_transferida_total',
+  'quantidade_cancelada_total_pedido',
+  'peso_liquido_total_pedido',
+  'peso_bruto_total_pedido',
+  'cubagem_total_pedido',
+  'incoterm',
+  'fabricante_nome',
+  'cobertura_cambial',
+  'condicao_pagamento',
+  'data_emissao_pedido',
+  'numero_proforma',
+  'numero_invoice',
+]
 
 // ── Mapper: ColunaUsuario → GTColuna<Pedido> ──────────────────────────────────
 
@@ -4335,13 +4354,15 @@ export default function ListaPedidos() {
 
     pedidoConfigApi.getPreferenciasUsuario()
       .then(prefs => {
-        if (prefs?.colunas_visiveis?.length > 0) {
-          setPreferencias({
-            colunas_visiveis: prefs.colunas_visiveis,
-          })
-        }
+        setPreferencias({
+          colunas_visiveis: prefs?.colunas_visiveis?.length > 0
+            ? prefs.colunas_visiveis
+            : COLUNAS_PADRAO_VISIVEIS,
+        })
       })
-      .catch(() => { /* sem preferências salvas */ })
+      .catch(() => {
+        setPreferencias({ colunas_visiveis: COLUNAS_PADRAO_VISIVEIS })
+      })
 
     // Carregar colunas customizadas do usuário (escopo pedido ou ambos)
     colunasUsuarioApi.listar()
@@ -4723,6 +4744,15 @@ export default function ListaPedidos() {
   const todosItens    = pedidos.flatMap(p => p.itens ?? [])
   const itensProntos  = todosItens.reduce((acc, i) => acc + (i.quantidade_pronta_total    ?? 0), 0)
   const qtdAtualTotal = todosItens.reduce((acc, i) => acc + (i.saldo_item_pedido     ?? 0), 0)
+  // Breakdown de quantidade por unidade (para tooltip do card)
+  const qtdPorUnidade: Record<string, number> = {}
+  const qtdSaldoPorUnidade: Record<string, number> = {}
+  for (const item of todosItens) {
+    const un = (item as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+    qtdPorUnidade[un] = (qtdPorUnidade[un] ?? 0) + (Number(item.quantidade_inicial_item_pedido) || 0)
+    qtdSaldoPorUnidade[un] = (qtdSaldoPorUnidade[un] ?? 0) + (Number(item.saldo_item_pedido) || 0)
+  }
+  const unidadesQtd = Object.keys(qtdPorUnidade)
   const coberturaPend = pedidos
     .filter(p => p.cobertura_cambial === 'sem_cobertura' || !p.cobertura_cambial)
     .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
@@ -4733,6 +4763,8 @@ export default function ListaPedidos() {
     const taxa  = taxasVenda[moeda] ?? taxasVenda['USD'] ?? 1
     return acc + Number(p.valor_total_pedido ?? 0) * taxa
   }, 0)
+  // Stats computadas pelo registry (usadas como fallback no map de cards)
+  const cardStats = computeCardStats(pedidos, todosItens as PedidoItem[], total, new Date().toISOString().slice(0, 10))
 
   return (
     <div className="ws-fade-up lp-page">
@@ -4806,19 +4838,32 @@ export default function ListaPedidos() {
                 />
               )
             }
-            if (pref.id === 'qtd_total') return (
-              <CardBasicoGlobal key="qtd_total"
-                titulo={t('pedido.qtd_total')}
-                icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
-                valor={fmtQuantidade(qtdTotal)}
-                variante="aviso"
-                subtexto={`${fmtQuantidade(qtdAtualTotal)} ${t('pedido.saldo_atual')}`}
-                tooltip={<>
-                  <p className="cg-tooltip__row"><span>{t('pedido.pronto')}</span><strong>{fmtQuantidade(itensProntos)}</strong></p>
-                  <p className="cg-tooltip__row"><span>{t('pedido.saldo_vivo')}</span><strong>{fmtQuantidade(qtdAtualTotal)}</strong></p>
-                </>}
-              />
-            )
+            if (pref.id === 'qtd_total') {
+              const unicaUnidade = unidadesQtd.length === 1 ? unidadesQtd[0] : null
+              return (
+                <CardBasicoGlobal key="qtd_total"
+                  titulo={t('pedido.qtd_total')}
+                  icone={<Scales weight="duotone" size={16} style={{ color: '#fbbf24' }} />}
+                  valor={unicaUnidade ? `${fmtQuantidade(qtdTotal)} ${unicaUnidade}` : fmtQuantidade(qtdTotal)}
+                  variante="aviso"
+                  subtexto={`${fmtQuantidade(qtdAtualTotal)} ${t('pedido.saldo_atual')}`}
+                  tooltip={<>
+                    {unidadesQtd.length > 1
+                      ? unidadesQtd.map(un => (
+                          <p key={un} className="cg-tooltip__row">
+                            <span>{fmtQuantidade(qtdPorUnidade[un])} {un}</span>
+                            <strong>{fmtQuantidade(qtdSaldoPorUnidade[un])} saldo</strong>
+                          </p>
+                        ))
+                      : <>
+                          <p className="cg-tooltip__row"><span>{t('pedido.pronto')}</span><strong>{fmtQuantidade(itensProntos)}{unicaUnidade ? ` ${unicaUnidade}` : ''}</strong></p>
+                          <p className="cg-tooltip__row"><span>{t('pedido.saldo_vivo')}</span><strong>{fmtQuantidade(qtdAtualTotal)}{unicaUnidade ? ` ${unicaUnidade}` : ''}</strong></p>
+                        </>
+                    }
+                  </>}
+                />
+              )
+            }
             if (pref.id === 'cobertura_pendente') return (
               <CardBasicoGlobal key="cobertura_pendente"
                 titulo={t('pedido.cobertura_pendente')}
@@ -4829,6 +4874,23 @@ export default function ListaPedidos() {
                 tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidos.filter(p => !p.cobertura_cambial || p.cobertura_cambial === 'sem_cobertura').length}</strong></p>}
               />
             )
+            // Fallback: cards definidos no CARD_REGISTRY mas sem bloco manual acima
+            const registryEntry = CARD_REGISTRY[pref.id]
+            if (registryEntry) {
+              const def = CARDS_CATALOGO.find(c => c.id === pref.id)
+              const titulo = def ? t(def.labelKey) : pref.id
+              const valor = registryEntry.format(registryEntry.getValue(cardStats))
+              return (
+                <CardBasicoGlobal key={pref.id}
+                  titulo={titulo}
+                  icone={registryEntry.icone}
+                  valor={valor}
+                  variante={registryEntry.variante}
+                  subtexto={registryEntry.subtexto(cardStats)}
+                  tooltip={registryEntry.tooltip(pedidos, cardStats)}
+                />
+              )
+            }
             return null
           })}
         </div>

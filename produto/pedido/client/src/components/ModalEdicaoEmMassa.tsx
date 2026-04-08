@@ -512,7 +512,6 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
                         onMouseEnter={() => setIndiceFocado(idx)}
                       >
                         <span className="modal-edicao-massa__combobox-item-rotulo">{item.rotulo}</span>
-                        <span className="modal-edicao-massa__combobox-item-campo">{item.campo}</span>
                       </li>
                     )
                   })}

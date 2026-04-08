@@ -640,10 +640,9 @@
 
 /* ─── Colunas congeladas (frozen) ─────────────────────────────────────────── */
 .gtv-th--frozen {
-  position: sticky;
-  left: 0;
   z-index: 11;
   background: var(--gtv-bg);
+  transform: translateX(var(--gtv-scroll-left, 0px));
 }
 
 .gtv-th--frozen::after {
@@ -658,10 +657,10 @@
 }
 
 .gtv-celula--frozen {
-  position: sticky;
-  left: 0;
+  position: relative;
   z-index: 2;
   background: var(--gtv-bg);
+  transform: translateX(var(--gtv-scroll-left, 0px));
 }
 
 .gtv-celula--frozen::after {
@@ -787,14 +786,16 @@
 
 
 /* ─── Linha ───────────────────────────────────────────────────────────────── */
-/* Cada linha recebe gridTemplateColumns inline (mesmo valor do grade pai)    */
-/* para que as células se alinhem com o cabeçalho e sticky funcione.          */
+/* Cada linha ocupa todas as colunas do grid pai e usa subgrid internamente   */
+/* para que suas células se alinhem com o cabeçalho.                          */
 .gtv-linha {
   display: grid;
   grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
   border-bottom: 1px solid rgba(129, 140, 248, 0.06);
   transition: background 0.1s;
+  backface-visibility: hidden;
 }
 
 .gtv-linha:hover {

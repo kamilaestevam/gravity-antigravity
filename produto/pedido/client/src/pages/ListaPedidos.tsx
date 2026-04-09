@@ -701,28 +701,34 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Valor FOB total na moeda do pedido',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
-      const moeda = row.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_pedido)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_itens?: number }).valor_total_itens) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_valor_total_divergente ?? true)
-      const difAbsolutaValor = Math.abs(num - somaItens)
-      const difPctValor = somaItens === 0 ? 100 : (difAbsolutaValor / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
-          {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const itens = row.itens ?? []
+      if (itens.length === 0) {
+        const moeda = row.moeda_pedido ?? 'USD'
+        const num = Number(row.valor_total_pedido)
+        return (
+          <span className="gtv-celula-moeda">
+            <span className="gtv-celula-moeda-badge">{moeda}</span>
+            {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+          </span>
+        )
+      }
+      const moedas = [...new Set(itens.map(i => i.moeda_item ?? 'USD'))]
+      const diverge = moedas.length > 1
+      if (diverge) {
+        return (
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }} title={`Moedas diferentes: ${moedas.join(' | ')}`}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            {moedas.join(' | ')}
+          </span>
+        )
+      }
+      const moeda = moedas[0]
+      const soma = itens.reduce((s, i) => s + (Number(i.valor_total_itens) || 0), 0)
       return (
-        <TooltipGlobal
-          titulo="Divergência no valor total"
-          descricao={`Pedido: ${moeda} ${fmtQuantidade(num, 2)} · Itens: ${moeda} ${fmtQuantidade(somaItens, 2)} · Dif: ${moeda} ${fmtQuantidade(difAbsolutaValor, 2)} (${difPctValor.toFixed(2)}%)`}
-        >
-          {celula}
-        </TooltipGlobal>
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {fmtQuantidade(soma, 2)}
+        </span>
       )
     },
   },

@@ -23,4 +23,5 @@ export type {
   GTValorMoeda,
   GTValorUnidade,
   GTUnidadeOpcao,
+  GTVirtualHandle,
 } from './tipos.js'

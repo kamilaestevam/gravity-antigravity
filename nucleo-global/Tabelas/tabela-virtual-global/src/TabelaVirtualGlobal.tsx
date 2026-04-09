@@ -13,6 +13,7 @@ import React, {
   useLayoutEffect,
   useCallback,
   memo,
+  useImperativeHandle,
 } from 'react'
 import { createPortal } from 'react-dom'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -936,6 +937,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   onErroAoSalvar,
   preferencias,
   onSalvarPreferencias,
+  imperativeRef,
   carregando,
   emptyIcon,
   emptyTitle,
@@ -1219,6 +1221,11 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onSalvoComSucesso,
     onErroAoSalvar,
   )
+
+  // Expõe iniciarEdicaoPai ao pai via imperativeRef
+  useImperativeHandle(imperativeRef, () => ({
+    iniciarEdicao: iniciarEdicaoPai,
+  }), [iniciarEdicaoPai])
 
   const atualizarFilhoCacheCallback = useCallback(
     (filho: C) => atualizarFilhoNoCache(filho, filhoId),

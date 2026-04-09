@@ -4,7 +4,7 @@
  * Suporta até 1 milhão de linhas com TanStack Virtual.
  */
 
-import type { ReactNode } from 'react'
+import type { ReactNode, MutableRefObject } from 'react'
 
 // ─── Alinhamento ───────────────────────────────────────────────────────────────
 
@@ -193,6 +193,17 @@ export interface GTMapaColunasFilho<C = unknown> {
   unidades?: GTUnidadeOpcao[]
 }
 
+// ─── Handle imperativo ────────────────────────────────────────────────────────
+
+/**
+ * Ref imperativo exposto pelo TabelaVirtualGlobal.
+ * Permite que o pai dispare ações programáticas na tabela.
+ */
+export interface GTVirtualHandle {
+  /** Abre a edição inline na célula pai indicada */
+  iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => void
+}
+
 // ─── Props principais ──────────────────────────────────────────────────────────
 
 export interface GTVirtualTableProps<T = unknown, C = never> {
@@ -325,6 +336,14 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   onSalvarPreferencias?: (prefs: GTPreferencias) => void
   /** Keys na sequência padrão — usadas pelo botão "Restaurar padrão" no gerenciador de colunas */
   colunasPadrao?: string[]
+
+  // ── Handle imperativo ─────────────────────────────────────────────────────
+  /**
+   * Ref preenchida com o handle imperativo da tabela.
+   * Permite ao pai chamar `iniciarEdicao(id, campo, valor)` para abrir
+   * a edição inline programaticamente (ex: navegação via Kanban).
+   */
+  imperativeRef?: MutableRefObject<GTVirtualHandle | null>
 
   // ── Visual ─────────────────────────────────────────────────────────────────
   carregando?: boolean

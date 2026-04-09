@@ -3405,6 +3405,8 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     },
   },
   status: {
+    editavel: true,
+    campo: 'status',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
       if (!p) return null
@@ -4581,6 +4583,23 @@ export default function ListaPedidos() {
     // Localiza o item no estado atual para saber o pedidoId
     const pedido = pedidos.find(p => p.itens?.some(i => i.id === id))
     if (!pedido) throw new Error('Não foi possível localizar o pedido deste item. Recarregue a página.')
+
+    // Status → espelha para o pedido inteiro (todos os itens mudam junto)
+    if (campo === 'status') {
+      await pedidoLoteApi.mudarStatusConfirmar([pedido.id], String(valor)).catch(err => {
+        if (!import.meta.env.DEV) throw err
+      })
+      const pedidoAtualizado = { ...pedido, status: String(valor) as Pedido['status'] }
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...pedidoAtualizado,
+          itens: p.itens?.map(i => ({ ...i, _p: { ...(i as PedidoItemEnriquecido)._p, status: String(valor) } })),
+        }
+      }))
+      const item = pedido.itens?.find(i => i.id === id)!
+      return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, status: String(valor) } } as PedidoItem
+    }
 
     // Campos do pedido pai → atualiza o pedido, não o item
     if (CAMPOS_PAI_TEXTO.has(campo)) {

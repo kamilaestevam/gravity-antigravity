@@ -321,12 +321,12 @@ test.describe('Localizar — campos de pedido além de numero_pedido @critico', 
     await expect(page.locator('.gtv-linha--pai').first()).toBeVisible({ timeout: 15000 })
   })
 
-  test('busca por exportador_nome — encontra pedido com valor real do banco', async ({ page }) => {
-    // Lê o exportador_nome real da primeira linha renderizada
-    const exportadorNome = await lerCelulaColuna(page, 'exportador_nome')
+  test('busca por nome_exportador — encontra pedido com valor real do banco', async ({ page }) => {
+    // Lê o nome_exportador real da primeira linha renderizada
+    const exportadorNome = await lerCelulaColuna(page, 'nome_exportador')
     if (!exportadorNome) {
       // Se coluna não tem valor visível, pula o teste graciosamente
-      console.log('exportador_nome não visível na primeira linha — coluna pode estar vazia ou oculta')
+      console.log('nome_exportador não visível na primeira linha — coluna pode estar vazia ou oculta')
       return
     }
 
@@ -346,10 +346,10 @@ test.describe('Localizar — campos de pedido além de numero_pedido @critico', 
     expect(texto).toMatch(/\d+ de \d+/)
   })
 
-  test('busca por exportador_nome — parte da palavra (primeiros 4 chars)', async ({ page }) => {
-    const exportadorNome = await lerCelulaColuna(page, 'exportador_nome')
+  test('busca por nome_exportador — parte da palavra (primeiros 4 chars)', async ({ page }) => {
+    const exportadorNome = await lerCelulaColuna(page, 'nome_exportador')
     if (!exportadorNome || exportadorNome.length < 4) {
-      console.log('exportador_nome muito curto ou ausente — pulando')
+      console.log('nome_exportador muito curto ou ausente — pulando')
       return
     }
 

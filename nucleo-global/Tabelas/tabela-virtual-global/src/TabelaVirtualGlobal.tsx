@@ -334,9 +334,9 @@ function parseBRNum(s: string): number {
  * 7. null/undefined         → ''
  */
 function valorParaStringFind(v: unknown, col: GTColuna<unknown>, item: Record<string, unknown>): string {
-  if (col.findDisplay) return col.findDisplay(item as never)
+  if (col.findDisplay) return col.findDisplay(item as never) ?? ''
   if (v == null) return ''
-  if (typeof v === 'object') return formatarOverlayValor(v, col.tipo, col.casasDecimais)
+  if (typeof v === 'object') return formatarOverlayValor(v, col.tipo, col.casasDecimais) ?? ''
   if (col.tipo === 'periodo' && typeof v === 'string') {
     const d = new Date(v)
     return isNaN(d.getTime()) ? v : d.toLocaleDateString('pt-BR')
@@ -1284,7 +1284,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const result: GTFindMatch[] = []
     // Headers primeiro (sempre visíveis no topo)
     for (const col of colunasFiltradas) {
-      if (col.label.toLowerCase().includes(termo)) {
+      if ((col.label ?? '').toLowerCase().includes(termo)) {
         result.push({ tipo: 'header', colKey: col.key as string })
       }
     }
@@ -1300,7 +1300,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           : k
         const v = item[campoReal]
         const vStr = valorParaStringFind(v, col as GTColuna<unknown>, item)
-        if (vStr.toLowerCase().includes(termo)) {
+        if ((vStr ?? '').toLowerCase().includes(termo)) {
           result.push({ tipo: 'celula', linhaIndex: i, colKey: k })
         }
       }
@@ -1368,6 +1368,22 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     findOffsetPendenteRef.current = 0
     setFindOffset(0)
   }, [termoBusca])
+
+  // ── Find: auto-expandir todos os pais quando há termo ativo ──────────────────
+  // Sem isso, itens colapsados são invisíveis para findMatches e nunca encontrados.
+  // Roda quando o termo ou os dados da página mudam. Não inclui `expandidos` nas
+  // deps intencionalmente: não queremos re-executar a cada item que abre.
+  useEffect(() => {
+    if (!modoLocalizar || !termoBusca.trim() || !onCarregarFilhos) return
+    for (const item of dadosPagina) {
+      const id = itemId(item)
+      // toggle() usa expandidosRef internamente — só expande se ainda colapsado
+      if (!expandidos.has(id)) {
+        void toggle(id, item)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [termoBusca, dadosPagina, modoLocalizar])
 
   // ── Find: scroll para trazer o match ativo para a viewport (vertical + horizontal)
   useEffect(() => {

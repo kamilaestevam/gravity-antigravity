@@ -64,6 +64,9 @@ export interface PedidoItem {
   cobertura_cambial?: string
   nome_exportador?: string | null
   nome_importador?: string | null
+  referencia_importador?: string | null
+  referencia_exportador?: string | null
+  referencia_fabricante?: string | null
 
   // Pesos e cubagem
   peso_liquido_unitario_item?: number | null

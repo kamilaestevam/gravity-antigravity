@@ -605,7 +605,20 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código de referência interna do importador para o pedido',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.referencia_importador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valores = [...new Set(itens.map(i => i.referencia_importador ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
+          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'referencia_exportador',
@@ -615,7 +628,20 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código de referência utilizado pelo exportador',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.referencia_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valores = [...new Set(itens.map(i => i.referencia_exportador ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
+          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'ncm',
@@ -852,7 +878,20 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.referencia_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valores = [...new Set(itens.map(i => i.referencia_fabricante ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
+          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'cobertura_cambial',
@@ -3278,7 +3317,6 @@ const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
 // Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
 const CAMPOS_PAI_TEXTO = new Set([
   'nome_fabricante',
-  'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'numero_proforma', 'numero_invoice',
   'incoterm', 'condicao_pagamento_pedido',
 ])
@@ -3367,18 +3405,12 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   referencia_importador: {
     editavel: true,
     campo: 'referencia_importador',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.referencia_importador ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.referencia_importador ?? '—'}</span>,
   },
   referencia_exportador: {
     editavel: true,
     campo: 'referencia_exportador',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.referencia_exportador ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.referencia_exportador ?? '—'}</span>,
   },
   numero_proforma: {
     editavel: true,
@@ -3423,10 +3455,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   referencia_fabricante: {
     editavel: true,
     campo: 'referencia_fabricante',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.referencia_fabricante ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.referencia_fabricante ?? '—'}</span>,
   },
   cobertura_cambial: {
     editavel: true,

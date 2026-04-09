@@ -87,6 +87,9 @@ model PedidoItem {
   cobertura_cambial                   String         @default("com_cobertura")
   nome_exportador                     String?
   nome_importador                     String?
+  referencia_importador               String?
+  referencia_exportador               String?
+  referencia_fabricante               String?
   peso_liquido_unitario_item          Decimal?       @db.Decimal(18, 6)
   peso_bruto_unitario_item            Decimal?       @db.Decimal(18, 6)
   cubagem_unitaria_item               Decimal?       @db.Decimal(18, 6)

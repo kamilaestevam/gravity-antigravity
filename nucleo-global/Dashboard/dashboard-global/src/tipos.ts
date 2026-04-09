@@ -23,6 +23,7 @@ export type ChartType =
   | 'GAUGE'
   | 'MAP'
   | 'TABLE'
+  | 'SECTION_LABEL'
 
 // ── Tipos de unidade ──────────────────────────────────────────────────────────
 

@@ -10,7 +10,7 @@
  * - Badge "cached" sutil quando dados vêm do cache
  */
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { DotsThreeVertical, PencilSimple, Trash, DownloadSimple, Warning, ArrowClockwise } from '@phosphor-icons/react'
 import type { DashboardWidgetConfig, WidgetResult } from '../tipos.js'
 
@@ -23,6 +23,10 @@ export interface WidgetContainerProps {
   onEdit?: (widget: DashboardWidgetConfig) => void
   onRemove?: (widgetId: string) => void
   children: React.ReactNode
+  /** Cor de destaque para borda superior (ex: '#f59e0b' para amber, '#ef4444' para perigo) */
+  accentColor?: string
+  /** Ícone Phosphor exibido ao lado do título */
+  icone?: React.ReactNode
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -117,20 +121,34 @@ export function WidgetContainer({
   onEdit,
   onRemove,
   children,
+  accentColor,
+  icone,
 }: WidgetContainerProps) {
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
+  const [hovered, setHovered] = useState(false)
+
+  const handleMouseEnter = useCallback(() => setHovered(true), [])
+  const handleMouseLeave = useCallback(() => setHovered(false), [])
 
   const headerStyle: React.CSSProperties = {
     ...styles.header,
     cursor: editMode ? 'grab' : 'default',
   }
 
+  const containerStyle: React.CSSProperties = {
+    ...styles.container,
+    ...(accentColor ? { borderTop: `2px solid ${accentColor}` } : {}),
+    ...(hovered ? styles.containerHover : {}),
+    transition: 'box-shadow 0.2s ease',
+  }
+
   return (
-    <div style={styles.container}>
+    <div style={containerStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       {/* Cabeçalho com drag handle */}
       <div className={editMode ? 'db-drag-handle' : undefined} style={headerStyle}>
         <div style={styles.titleArea}>
+          {icone && <span style={styles.iconeWrap}>{icone}</span>}
           <span style={styles.title}>{widget.title}</span>
 
           {/* Badges de estado */}
@@ -197,16 +215,25 @@ const styles = {
     background: 'var(--bg-base)',
     border: '1px solid var(--border-default)',
     borderRadius: 'var(--radius-lg)',
-    padding: 'var(--space-4)',
+    padding: '20px 20px 16px',
     boxShadow: 'var(--shadow-sm)',
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: 'var(--space-3)',
+    gap: 0,
     height: '100%',
     width: '100%',
     minWidth: 0,
     overflow: 'hidden',
     boxSizing: 'border-box' as const,
+  },
+  containerHover: {
+    boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+  },
+  iconeWrap: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    color: 'var(--text-secondary)',
+    flexShrink: 0,
   },
   header: {
     display: 'flex',
@@ -214,20 +241,23 @@ const styles = {
     justifyContent: 'space-between',
     gap: 'var(--space-2)',
     userSelect: 'none' as const,
+    paddingBottom: '12px',
+    borderBottom: '1px solid var(--border-default)',
+    marginBottom: '16px',
   },
   titleArea: {
     display: 'flex',
     alignItems: 'center',
-    gap: 'var(--space-2)',
+    gap: '10px',
     flexWrap: 'wrap' as const,
     minWidth: 0,
   },
   title: {
-    fontSize: '13px',
-    fontWeight: 600,
+    fontSize: '14px',
+    fontWeight: 700,
     color: 'var(--text-secondary)',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.04em',
+    letterSpacing: '0.06em',
     whiteSpace: 'nowrap' as const,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -302,6 +332,7 @@ const styles = {
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column' as const,
+    justifyContent: 'center',
   },
   skeleton: {
     padding: 'var(--space-2)',

@@ -33,6 +33,7 @@ import { gabiProxyRouter } from './routes/gabiProxy.js'
 import { anexosRouter } from './routes/anexos.js'
 import { pdfRouter } from './routes/pdf.js'
 import { loteRouter } from './routes/lote.js'
+import { kanbanPreferenciasRouter } from './routes/kanbanPreferencias.js'
 import { initRouter } from './routes/init.js'
 import { taxaCambioRouter } from './routes/taxaCambio.js'
 import { pedidosRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
@@ -124,6 +125,7 @@ app.use(gabiProxyRouter)
 app.use('/api/v1/pedidos/anexos',            anexosRouter)
 app.use('/api/v1/pedidos/pdf',               pdfRouter)
 app.use('/api/v1/pedidos/lote',              loteRouter)
+app.use('/api/v1/pedidos/kanban',            kanbanPreferenciasRouter)
 app.use('/api/v1/pedidos/config',            pedidosConfigRouter)
 app.use('/api/v1/pedidos',                   importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar
 app.use('/api/v1/pedidos',                   duplicarExcluirRouter)

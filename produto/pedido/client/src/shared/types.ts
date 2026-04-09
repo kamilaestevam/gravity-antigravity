@@ -38,32 +38,33 @@ export interface PedidoItem {
   part_number: string
   ncm: string
   descricao_item: string
-  descricao_completa?: string | null
-  descricao_en?: string | null
-  descricao_es?: string | null
-  descricao_espelho_nf?: string | null
+  descricao_completa_item_pt?: string | null
+  descricao_completa_item_en?: string | null
+  descricao_completa_item_es?: string | null
+  descricao_completa_item_nf?: string | null
   texto_posicao_ncm?: string | null
   atributos_catalogo?: string | null
 
   // Quantidades
   quantidade_inicial_item_pedido: number
   saldo_item_pedido: number
-  quantidade_pronta_total: number
-  quantidade_transferida_item: number
+  quantidade_pronta_total_item_pedido: number
+  quantidade_transferida_item_pedido: number
   quantidade_cancelada_item_pedido: number
   casas_decimais_quantidade_item: number
 
   // Financeiro
   moeda_item: string
-  valor_total_item: number | null
-  casas_decimais_total_item: number
+  valor_total_itens: number | null
+  valor_unitario_item?: number | null
+  casas_decimais_valor_item: number
 
   // Pesos e cubagem
-  peso_liquido_unitario?: number | null
-  peso_bruto_unitario?: number | null
-  cubagem_unitaria?: number | null
-  casas_decimais_peso?: number
-  casas_decimais_cubagem?: number
+  peso_liquido_unitario_item?: number | null
+  peso_bruto_unitario_item?: number | null
+  cubagem_unitaria_item?: number | null
+  casas_decimais_peso_item?: number
+  casas_decimais_cubagem_item?: number
 
   // Embalagem e documentos
   tipo_embalagem?: string | null
@@ -73,9 +74,9 @@ export interface PedidoItem {
   data_certificado_origem?: string | null
 
   // Classificação
-  grupo_produto?: string | null
-  subgrupo_produto?: string | null
-  campo_especial?: string | null
+  grupo_item?: string | null
+  subgrupo_item?: string | null
+  campo_especial_item?: string | null
 
   // Datas do item
   data_inclusao_item?: string | null
@@ -255,8 +256,7 @@ export interface Pedido {
 
   // Exportador
   importacao_exportador_id: string | null
-  exportador_nome?: string | null
-  id_exportador?: string | null
+  nome_exportador?: string | null
   endereco_exportador?: string | null
   pais_exportador?: string | null
   estado_exportador?: string | null
@@ -273,8 +273,7 @@ export interface Pedido {
   departamento_contato_exportador?: string | null
 
   // Fabricante
-  fabricante_nome?: string | null
-  id_fabricante?: string | null
+  nome_fabricante?: string | null
   endereco_fabricante?: string | null
   pais_fabricante?: string | null
   estado_fabricante?: string | null
@@ -297,15 +296,16 @@ export interface Pedido {
 
   // Exportacao
   exportacao_importador_id: string | null
-  importador_nome?: string | null
+  nome_importador?: string | null
+  cnpj_importador?: string | null
 
   // Dados comerciais
   incoterm: string | null
   moeda_pedido: string
   valor_total_pedido: number | null
-  casas_decimais_total_pedido: number
+  casas_decimais_valor_pedido: number
   quantidade_total_inicial_pedido: number | null
-  casas_decimais_quantidade_total_pedido: number
+  casas_decimais_quantidade_pedido: number
   quantidade_volumes_pedido?: number | null
 
   // Agregados de itens (soma calculada pelo backend)
@@ -316,11 +316,10 @@ export interface Pedido {
 
   // Catálogo
   partnumber_produto_pedido?: string | null
-  referencia_interna_produto_catalogo?: string | null
 
   // Financeiro
-  cobertura_cambial: string
-  condicao_pagamento: string | null
+  cobertura_cambial_pedido: string
+  condicao_pagamento_pedido: string | null
 
   // Dados físicos
   peso_liquido_total_pedido?: number | null
@@ -400,10 +399,10 @@ export interface Pedido {
   itens: PedidoItem[]
 
   // Rastreabilidade de consolidação
-  pedidos_origem?: string[] | null
+  pedidos_origem_id?: string[] | null
 
-  created_at: string
-  updated_at: string
+  pedido_criado_em: string
+  pedido_atualizado_em: string
 }
 
 // ── Consolidação de Pedidos ───────────────────────────────────────────────────
@@ -421,7 +420,7 @@ export interface ItemConsolidado {
   ncm: string
   unidade_comercializada_item: string | null
   moeda_item: string
-  valor_por_unidade_item: number | null
+  valor_unitario_item: number | null
   quantidade_total: number
   pedidos_origem: string[]
   pode_fundir: boolean
@@ -649,20 +648,20 @@ export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'id',
   'tenant_id',
   'product_id',
-  'created_at',
-  'updated_at',
+  'pedido_criado_em',
+  'pedido_atualizado_em',
   'deleted_at',
 ])
 
 /** Campos calculados do PedidoItem — nunca editáveis em massa */
 export const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_total_item',
+  'valor_total_itens',
   'saldo_item_pedido',
   'id',
   'tenant_id',
   'pedido_id',
-  'created_at',
-  'updated_at',
+  'item_criado_em',
+  'item_atualizado_em',
 ])
 
 // ── Smart Import ──────────────────────────────────────────────────────────────
@@ -901,3 +900,112 @@ export function fmtMoeda(valor: number, moeda: string = 'BRL'): string {
     maximumFractionDigits: 2,
   })
 }
+
+// ── Kanban Preferências ───────────────────────────────────────────────────────
+
+export interface KanbanCampoConfig {
+  campo:   string
+  label:   string
+  visivel: boolean
+  ordem:   number
+}
+
+export interface KanbanAbaConfig {
+  aba:    'pedido' | 'quantidades' | 'datas'
+  campos: KanbanCampoConfig[]
+}
+
+export interface KanbanPreferencias {
+  abas: KanbanAbaConfig[]
+}
+
+export interface KanbanCampoDisponivel {
+  campo:      string
+  label:      string
+  categoria:  'pedido' | 'quantidades' | 'datas'
+}
+
+export const KANBAN_LIMITES: Record<string, number> = {
+  pedido:      10,
+  quantidades: 6,
+  datas:       8,
+}
+
+// Campos padrão quando usuário não configurou nada
+export const KANBAN_PADRAO: KanbanPreferencias = {
+  abas: [
+    {
+      aba: 'pedido',
+      campos: [
+        { campo: 'numero_pedido',       label: 'Nº Pedido',            visivel: true, ordem: 0 },
+        { campo: 'tipo_operacao',       label: 'Tipo de Operação',     visivel: true, ordem: 1 },
+        { campo: 'nome_exportador',     label: 'Exportador',           visivel: true, ordem: 2 },
+        { campo: 'valor_total_pedido',  label: 'Valor Total',          visivel: true, ordem: 3 },
+        { campo: 'moeda_pedido',        label: 'Moeda',                visivel: true, ordem: 4 },
+        { campo: 'incoterm',            label: 'Incoterm',             visivel: true, ordem: 5 },
+        { campo: 'numero_invoice',      label: 'Nº Invoice',           visivel: true, ordem: 6 },
+        { campo: 'numero_proforma',     label: 'Nº Proforma',          visivel: true, ordem: 7 },
+      ],
+    },
+    {
+      aba: 'quantidades',
+      campos: [
+        { campo: 'quantidade_total_inicial_pedido',      label: 'Qtd. Inicial',      visivel: true, ordem: 0 },
+        { campo: 'quantidade_pronta_itens_pedido_total', label: 'Qtd. Pronta',       visivel: true, ordem: 1 },
+        { campo: 'quantidade_transferida_total',         label: 'Qtd. Transferida',  visivel: true, ordem: 2 },
+        { campo: 'quantidade_cancelada_total_pedido',    label: 'Qtd. Cancelada',    visivel: true, ordem: 3 },
+        { campo: 'saldo_itens_do_pedido',                label: 'Saldo',             visivel: true, ordem: 4 },
+      ],
+    },
+    {
+      aba: 'datas',
+      campos: [
+        { campo: 'data_emissao_pedido',             label: 'Data P.O.',           visivel: true, ordem: 0 },
+        { campo: 'data_prevista_coleta_pedido',     label: 'Prev. Coleta',        visivel: true, ordem: 1 },
+        { campo: 'data_confirmada_coleta_pedido',   label: 'Conf. Coleta',        visivel: true, ordem: 2 },
+        { campo: 'data_prevista_pedido_pronto',     label: 'Prev. Pronto',        visivel: true, ordem: 3 },
+        { campo: 'data_confirmada_pedido_pronto',   label: 'Conf. Pronto',        visivel: true, ordem: 4 },
+        { campo: 'data_prevista_inspecao_pedido',   label: 'Prev. Inspeção',      visivel: true, ordem: 5 },
+      ],
+    },
+  ],
+}
+
+// Todos os campos disponíveis para configurar nas abas
+export const KANBAN_CAMPOS_DISPONIVEIS: KanbanCampoDisponivel[] = [
+  // Aba Pedido
+  { campo: 'numero_pedido',           label: 'Nº Pedido',                categoria: 'pedido'      },
+  { campo: 'tipo_operacao',           label: 'Tipo de Operação',         categoria: 'pedido'      },
+  { campo: 'nome_exportador',         label: 'Exportador',               categoria: 'pedido'      },
+  { campo: 'nome_importador',         label: 'Importador',               categoria: 'pedido'      },
+  { campo: 'valor_total_pedido',      label: 'Valor Total',              categoria: 'pedido'      },
+  { campo: 'moeda_pedido',            label: 'Moeda',                    categoria: 'pedido'      },
+  { campo: 'incoterm',                label: 'Incoterm',                 categoria: 'pedido'      },
+  { campo: 'numero_invoice',          label: 'Nº Invoice',               categoria: 'pedido'      },
+  { campo: 'numero_proforma',         label: 'Nº Proforma',              categoria: 'pedido'      },
+  { campo: 'referencia_exportador',   label: 'Ref. Exportador',          categoria: 'pedido'      },
+  { campo: 'referencia_importador',   label: 'Ref. Importador',          categoria: 'pedido'      },
+  { campo: 'condicao_pagamento_pedido', label: 'Cond. Pagamento',        categoria: 'pedido'      },
+  { campo: 'cobertura_cambial_pedido', label: 'Cobertura Cambial',       categoria: 'pedido'      },
+  { campo: 'peso_liquido_total_pedido', label: 'Peso Líquido',           categoria: 'pedido'      },
+  { campo: 'peso_bruto_total_pedido', label: 'Peso Bruto',               categoria: 'pedido'      },
+  // Aba Quantidades
+  { campo: 'quantidade_total_inicial_pedido',      label: 'Qtd. Inicial',      categoria: 'quantidades' },
+  { campo: 'quantidade_pronta_itens_pedido_total', label: 'Qtd. Pronta',       categoria: 'quantidades' },
+  { campo: 'quantidade_transferida_total',         label: 'Qtd. Transferida',  categoria: 'quantidades' },
+  { campo: 'quantidade_cancelada_total_pedido',    label: 'Qtd. Cancelada',    categoria: 'quantidades' },
+  { campo: 'saldo_itens_do_pedido',                label: 'Saldo',             categoria: 'quantidades' },
+  { campo: 'unidade_comercializada_pedido',        label: 'Unidade',           categoria: 'quantidades' },
+  // Aba Datas
+  { campo: 'data_emissao_pedido',                  label: 'Data P.O.',                  categoria: 'datas' },
+  { campo: 'data_prevista_coleta_pedido',          label: 'Prev. Coleta',              categoria: 'datas' },
+  { campo: 'data_confirmada_coleta_pedido',        label: 'Conf. Coleta',              categoria: 'datas' },
+  { campo: 'data_meta_coleta_pedido',              label: 'Meta Coleta',               categoria: 'datas' },
+  { campo: 'data_prevista_pedido_pronto',          label: 'Prev. Pronto',              categoria: 'datas' },
+  { campo: 'data_confirmada_pedido_pronto',        label: 'Conf. Pronto',              categoria: 'datas' },
+  { campo: 'data_meta_pedido_pronto',              label: 'Meta Pronto',               categoria: 'datas' },
+  { campo: 'data_prevista_inspecao_pedido',        label: 'Prev. Inspeção',            categoria: 'datas' },
+  { campo: 'data_confirmada_inspecao_pedido',      label: 'Conf. Inspeção',            categoria: 'datas' },
+  { campo: 'data_meta_inspecao_pedido',            label: 'Meta Inspeção',             categoria: 'datas' },
+  { campo: 'data_consolidacao_pedido',             label: 'Data Consolidação',         categoria: 'datas' },
+]

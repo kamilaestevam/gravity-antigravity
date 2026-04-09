@@ -160,7 +160,7 @@ export const pedidoItemApi = {
   atualizarPronta: (pedidoId: string, itemId: string, quantidade: number) =>
     request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}/pronta`, {
       method: 'PATCH',
-      body: JSON.stringify({ quantidade_pronta_pedido: quantidade }),
+      body: JSON.stringify({ quantidade_pronta_total_item_pedido: quantidade }),
     }),
 }
 
@@ -366,17 +366,17 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
   const camposIguais: string[] = []
   if (verificarCampo('incoterm', 'Incoterm')) camposIguais.push('incoterm')
   if (verificarCampo('moeda_pedido', 'Moeda')) camposIguais.push('moeda_pedido')
-  if (verificarCampo('exportador_nome', 'Exportador')) camposIguais.push('exportador_nome')
+  if (verificarCampo('nome_exportador', 'Exportador')) camposIguais.push('nome_exportador')
   if (verificarCampo('data_emissao_pedido', 'Data Emissão do Pedido')) camposIguais.push('data_emissao_pedido')
-  if (verificarCampo('cobertura_cambial', 'Cobertura Cambial')) camposIguais.push('cobertura_cambial')
-  if (verificarCampo('condicao_pagamento', 'Condição de Pagamento')) camposIguais.push('condicao_pagamento')
+  if (verificarCampo('cobertura_cambial_pedido', 'Cobertura Cambial')) camposIguais.push('cobertura_cambial_pedido')
+  if (verificarCampo('condicao_pagamento_pedido', 'Condição de Pagamento')) camposIguais.push('condicao_pagamento_pedido')
 
   // Mapa de itens por part_number
   const itensPorPart: Record<string, ItemConsolidado> = {}
   for (const pedido of pedidos) {
     for (const item of pedido.itens) {
       if (itensPorPart[item.part_number]) {
-        itensPorPart[item.part_number].quantidade_total += item.quantidade_saldo_pedido
+        itensPorPart[item.part_number].quantidade_total += item.saldo_item_pedido
         itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
         itensPorPart[item.part_number].pode_fundir = true
       } else {
@@ -386,8 +386,8 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
           ncm: item.ncm,
           unidade_comercializada_item: item.unidade_comercializada_item,
           moeda_item: item.moeda_item,
-          valor_por_unidade_item: item.valor_por_unidade_item,
-          quantidade_total: item.quantidade_saldo_pedido,
+          valor_unitario_item: item.valor_unitario_item,
+          quantidade_total: item.saldo_item_pedido,
           pedidos_origem: [pedido.numero_pedido],
           pode_fundir: false,
         }
@@ -426,7 +426,7 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
         const existente = itensMerge.find(i => i.part_number === item.part_number)
         if (existente) {
           existente.quantidade_inicial_item_pedido += item.quantidade_inicial_item_pedido
-          existente.quantidade_saldo_pedido += item.quantidade_saldo_pedido
+          existente.saldo_item_pedido += item.saldo_item_pedido
         }
       } else {
         partNumbers.add(item.part_number)
@@ -440,11 +440,11 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
     id: `pedi_cons_${Date.now()}`,
     numero_pedido: payload.numero_pedido,
     status: 'consolidado',
-    pedidos_origem: payload.ids,
+    pedidos_origem_id: payload.ids,
     valor_total_pedido: pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0),
     itens: itensMerge,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    pedido_criado_em: new Date().toISOString(),
+    pedido_atualizado_em: new Date().toISOString(),
     ...payload.campos_escolhidos,
   }
 
@@ -503,12 +503,12 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
   const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === payload.pedido_id)
   const item = pedido?.itens.find(i => i.id === payload.item_id)
 
-  const quantidadeApos = (item?.quantidade_saldo_pedido ?? 0) - payload.quantidade_origem
+  const quantidadeApos = (item?.saldo_item_pedido ?? 0) - payload.quantidade_origem
   const encerra = quantidadeApos <= 0
 
   const alertas: string[] = []
   if (encerra) alertas.push('Pedido de origem ficará com quantidade zero após a transferência')
-  if (payload.quantidade_origem > (item?.quantidade_saldo_pedido ?? 0)) {
+  if (payload.quantidade_origem > (item?.saldo_item_pedido ?? 0)) {
     alertas.push('Quantidade solicitada excede quantidade disponível no item')
   }
 
@@ -517,7 +517,7 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
     origem: {
       pedido_numero: pedido?.numero_pedido ?? payload.pedido_id,
       item_part_number: item?.part_number ?? payload.item_id,
-      quantidade_saldo_pedido: item?.quantidade_saldo_pedido ?? 0,
+      saldo_item_pedido: item?.saldo_item_pedido ?? 0,
       quantidade_apos: Math.max(0, quantidadeApos),
       encerra,
     },
@@ -778,7 +778,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     { coluna: 'Description',  campo: 'descricao_item',       conf: 85, exemplo: 'Heat exchanger plate'},
     { coluna: 'Qty',          campo: 'quantidade_inicial_item_pedido',  conf: 78, exemplo: '100'                 },
     { coluna: 'Unit',         campo: 'unidade',             conf: 72, exemplo: 'UN'                  },
-    { coluna: 'Unit Price',   campo: 'valor_por_unidade_item',   conf: 83, exemplo: '330,00'              },
+    { coluna: 'Unit Price',   campo: 'valor_unitario_item',       conf: 83, exemplo: '330,00'              },
     { coluna: 'Currency',     campo: 'moeda_pedido',        conf: 90, exemplo: 'USD'                 },
     { coluna: 'Incoterms',    campo: 'incoterm',            conf: 94, exemplo: 'FOB'                 },
     { coluna: 'Ship Date',    campo: 'data_embarque',       conf: 67, exemplo: '30/05/2023'          },
@@ -817,7 +817,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         descricao_item: 'Heat exchanger plate',
         quantidade_inicial_item_pedido: 100,
         unidade: 'UN',
-        valor_por_unidade_item: 330.00,
+        valor_unitario_item: 330.00,
         ncm: '8471.30.19',
       },
     },
@@ -835,7 +835,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         descricao_item: 'Motor controller board',
         quantidade_inicial_item_pedido: 50,
         unidade: 'UN',
-        valor_por_unidade_item: 85.00,
+        valor_unitario_item: 85.00,
         ncm: '8544.42.90',
       },
     },
@@ -853,7 +853,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         descricao_item: 'Power supply unit',
         quantidade_inicial_item_pedido: 200,
         unidade: 'UN',
-        valor_por_unidade_item: 45.00,
+        valor_unitario_item: 45.00,
       },
     },
     {
@@ -875,7 +875,7 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         descricao_item: 'Cable assembly',
         quantidade_inicial_item_pedido: 500,
         unidade: 'MT',
-        valor_por_unidade_item: 3.20,
+        valor_unitario_item: 3.20,
         ncm: '8471',
       },
     },
@@ -935,18 +935,18 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     status: 'rascunho',
     importacao_exportador_id: null,
     exportacao_importador_id: null,
-    exportador_nome: 'Importado via Smart Import',
-    fabricante_nome: null,
+    nome_exportador: 'Importado via Smart Import',
+    nome_fabricante: null,
     incoterm: 'FOB',
     moeda_pedido: 'USD',
     valor_total_pedido: 0,
-    casas_decimais_total_pedido: 2,
-    casas_decimais_quantidade_total_pedido: 2,
+    casas_decimais_valor_pedido: 2,
+    casas_decimais_quantidade_pedido: 2,
     unidade_comercializada_pedido: 'UN',
     quantidade_total_inicial_pedido: 0,
     quantidade_transferida_total: 0,
-    cobertura_cambial: null,
-    condicao_pagamento: null,
+    cobertura_cambial_pedido: null,
+    condicao_pagamento_pedido: null,
     data_emissao_pedido: new Date().toISOString().split('T')[0],
     numero_proforma: null,
     numero_invoice: null,
@@ -954,8 +954,8 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     referencia_exportador: null,
     referencia_fabricante: null,
     itens: [],
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    pedido_criado_em: new Date().toISOString(),
+    pedido_atualizado_em: new Date().toISOString(),
   }))
 
   MOCK_PEDIDOS_RESPONSE.data.unshift(...novosPedidos)
@@ -1036,7 +1036,7 @@ function mockDuplicarConfirmar(payload: DuplicarPayload): DuplicarResultado {
     const numeroNovo = payload.numeros?.[id] ?? `PO-COPY-${Date.now()}-${id.slice(-4)}`
     const novoId = `pedi_dup_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
     if (original) {
-      const copia = { ...original, id: novoId, numero_pedido: numeroNovo, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+      const copia = { ...original, id: novoId, numero_pedido: numeroNovo, pedido_criado_em: new Date().toISOString(), pedido_atualizado_em: new Date().toISOString() }
       MOCK_PEDIDOS_RESPONSE.data.push(copia)
       MOCK_PEDIDOS_RESPONSE.total = MOCK_PEDIDOS_RESPONSE.data.length
     }
@@ -1695,4 +1695,23 @@ export const dashboardApi = {
     request<DashboardDistributionResponse>(
       `/api/v1/pedidos/dashboard/distribution?period=${encodeURIComponent(period)}`,
     ),
+}
+
+// ── Kanban Preferências ───────────────────────────────────────────────────────
+
+export const kanbanConfigApi = {
+  obterPreferencias: (): Promise<{ data: import('./types').KanbanPreferencias | null }> =>
+    request<{ data: import('./types').KanbanPreferencias | null }>('/api/v1/pedidos/kanban/preferencias')
+      .catch(() => ({ data: null })),
+
+  salvarPreferencias: (payload: import('./types').KanbanPreferencias): Promise<{ data: import('./types').KanbanPreferencias }> =>
+    request<{ data: import('./types').KanbanPreferencias }>('/api/v1/pedidos/kanban/preferencias', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  restaurarPadrao: (): Promise<{ data: { restaurado: boolean } }> =>
+    request<{ data: { restaurado: boolean } }>('/api/v1/pedidos/kanban/preferencias', {
+      method: 'DELETE',
+    }),
 }

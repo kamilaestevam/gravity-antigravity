@@ -25,6 +25,18 @@ export type { DonutWidgetProps } from './widgets/DonutWidget/index.js'
 export { TableWidget } from './widgets/TableWidget/index.js'
 export type { TableWidgetProps } from './widgets/TableWidget/index.js'
 
+export { DashboardToolbar } from './DashboardToolbar/index.js'
+export type { DashboardToolbarProps, PeriodOption } from './DashboardToolbar/index.js'
+
+export { KpiValue } from './KpiValue/index.js'
+export type { KpiValueProps } from './KpiValue/index.js'
+
+export { WidgetEditModal } from './WidgetEditModal/index.js'
+export type { WidgetEditModalProps, ChartOptionMeta, PeriodOptionEdit } from './WidgetEditModal/index.js'
+
+export { SuggestionsPanel } from './SuggestionsPanel/index.js'
+export type { SuggestionsPanelProps } from './SuggestionsPanel/index.js'
+
 export { QueryBuilder } from './QueryBuilder/index.js'
 export type { QueryBuilderProps } from './QueryBuilder/index.js'
 
@@ -48,4 +60,8 @@ export type {
   FieldUnitType,
   WidgetQuerySpec,
   FieldQuerySpec,
+  DerivedMetric,
+  DerivedOperation,
+  ActiveFilter,
+  GlobalSlicers,
 } from './tipos.js'

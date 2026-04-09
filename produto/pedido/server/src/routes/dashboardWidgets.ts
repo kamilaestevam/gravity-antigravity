@@ -26,16 +26,31 @@ const PositionSchema = z.object({
   h: z.number().int().min(1),
 })
 
-const QuerySpecSchema = z.object({
-  fields:    z.array(z.string()).min(1),
-  operation: z.enum(['COUNT', 'SUM', 'AVG', 'RATIO', 'DIFF', 'CUSTOM']),
-  filters:   z.record(z.unknown()).optional(),
+// FieldQuerySpec: { key: string, operation: string } — formato atual do frontend
+const FieldQuerySpecSchema = z.object({
+  key:       z.string().min(1),
+  operation: z.string().min(1),
 })
+
+const QuerySpecSchema = z.object({
+  // Aceita tanto o formato novo (FieldQuerySpec[]) quanto o legado (string[]) para retrocompatibilidade
+  fields:  z.union([
+    z.array(FieldQuerySpecSchema).min(1),
+    z.array(z.string()).min(1),
+  ]),
+  filters: z.record(z.unknown()).optional(),
+})
+
+const CHART_TYPES = [
+  'KPI_CARD', 'LINE', 'AREA', 'BAR', 'BAR_HORIZONTAL',
+  'DONUT', 'DISTRIBUTION', 'TABLE', 'SCATTER', 'HISTOGRAM',
+  'FUNNEL', 'GAUGE',
+] as const
 
 const WidgetConfigSchema = z.object({
   id:          z.string().min(1),
   title:       z.string().min(1).max(120),
-  chart_type:  z.enum(['KPI_CARD', 'LINE', 'BAR', 'DONUT', 'TABLE', 'SCATTER']),
+  chart_type:  z.enum(CHART_TYPES),
   query_spec:  QuerySpecSchema,
   position:    PositionSchema,
   config:      z.record(z.unknown()).optional(),

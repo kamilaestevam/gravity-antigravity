@@ -21,13 +21,13 @@ model Pedido {
   fabricante_id            String? // Fabricante do produto (pode diferir do exportador)
 
   // DADOS COMERCIAIS GLOBAIS (Capa do Pedido)
-  incoterm                               String?
-  moeda_pedido                           String  @default("USD") // Lista de moedas padrão do sistema gravity
-  valor_total_pedido                     Decimal? @db.Decimal(18,6) // O somatório de todos os valores totais dos itens do pedido
-  casas_decimais_total_pedido            Int     @default(2) // Precisão (Ex: 3)
-  quantidade_total_pedido                Float? // O somatório de todas as quantidades comercializadas dos itens do pedido
-  casas_decimais_quantidade_total_pedido Int     @default(2) // Precisão (Ex: 3)
-  unidade_comercializada_pedido          String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
+  incoterm                          String?
+  moeda_pedido                      String  @default("USD") // Lista de moedas padrão do sistema gravity
+  valor_total_pedido                Decimal? @db.Decimal(18,6) // O somatório de todos os valores totais dos itens do pedido
+  casas_decimais_valor_pedido       Int     @default(2) // Precisão (Ex: 3)
+  quantidade_total_inicial_pedido   Float? // O somatório de todas as quantidades comercializadas dos itens do pedido
+  casas_decimais_quantidade_pedido  Int     @default(2) // Precisão (Ex: 3)
+  unidade_comercializada_pedido     String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
   // DADOS FÍSICOS TOTAIS (sum(peso_*_unitario × quantidade_inicial) dos itens)
   peso_liquido_total_pedido     Decimal? @db.Decimal(18,6)
@@ -37,8 +37,8 @@ model Pedido {
   casas_decimais_cubagem_pedido Int      @default(4)
 
   // DADOS FINANCEIROS & FECHAMENTO DE CÂMBIO (FX)
-  cobertura_cambial  String  @default("com_cobertura") // com_cobertura | sem_cobertura
-  condicao_pagamento String? // Ex: 30% Antecipado, 70% Contra-Documento
+  cobertura_cambial_pedido  String  @default("com_cobertura") // com_cobertura | sem_cobertura
+  condicao_pagamento_pedido String? // Ex: 30% Antecipado, 70% Contra-Documento
 
   // Referências Documentais
   numero_proforma         String? // Número da Proforma Invoice
@@ -47,19 +47,21 @@ model Pedido {
   referencia_exportador   String? // Referência interna do exportador
   referencia_fabricante   String? // Referência do fabricante
 
-  valor_total_cambio   Decimal? @db.Decimal(18,6) // O montante do boleto cambial real fechado
-  moeda_cambio         String? // Padrão cruzado: Ex: BRL (Saindo) -> USD (Comprando)
-  taxa_cambio_estimada Decimal? @db.Decimal(18,6) // A PTAX alvo/estimada na hora do fechamento da PO
-  contrato_cambio_id   String? // [FOREIGN KEY] Aponta para a tabela 'ContratoCambio'
+  valor_total_cambio_pedido   Decimal? @db.Decimal(18,6) // O montante do boleto cambial real fechado
+  moeda_cambio_pedido         String? // Padrão cruzado: Ex: BRL (Saindo) -> USD (Comprando)
+  taxa_cambio_estimada_pedido Decimal? @db.Decimal(18,6) // A PTAX alvo/estimada na hora do fechamento da PO
+  contrato_cambio_id_pedido   String? // [FOREIGN KEY] Aponta para a tabela 'ContratoCambio'
 
   data_emissao_pedido DateTime @default(now()) // Nome corrigido sem barra/hifen
+
+  cnpj_importador String? // CNPJ do importador (quando tipo_operacao = exportacao)
 
   // --- METADADOS POLIMÓRFICOS (AGILITY TIER 1) ---
   detalhes_operacionais Json? // Absorve atributos customizados de Exportador/Fabricante
   campos_custom         Json? // custom columns storage (JSONB + GIN index in SQL)
 
   // Consolidação (preenchido quando este pedido é resultado de merge)
-  pedidos_origem           String[]  // IDs dos pedidos originais consolidados
+  pedidos_origem_id        String[]  // IDs dos pedidos originais consolidados
   data_consolidacao_pedido DateTime? // Momento da consolidação
 
   // Soft delete (preenchido quando o pedido é consolidado em outro)
@@ -68,8 +70,8 @@ model Pedido {
   // Lista Fatiável de Itens (A ORDEM 1:N SALVA!)
   itens          PedidoItem[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  pedido_criado_em    DateTime @default(now())
+  pedido_atualizado_em DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, company_id])
@@ -96,33 +98,44 @@ model PedidoItem {
   unidade_comercializada_item String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
   // Controle de Quantidades
-  quantidade_inicial_pedido        Decimal @db.Decimal(18,6)
-  quantidade_saldo_pedido          Decimal @db.Decimal(18,6) @map("quantidade_atual_pedido")
-  quantidade_pronta_pedido         Decimal @default(0) @db.Decimal(18,6)
-  quantidade_transferida_pedido    Decimal @default(0) @db.Decimal(18,6)
-  quantidade_cancelada_pedido      Decimal @default(0) @db.Decimal(18,6)
-  casas_decimais_quantidade_item   Int     @default(2)
+  quantidade_inicial_item_pedido      Decimal @db.Decimal(18,6)
+  saldo_item_pedido                   Decimal @db.Decimal(18,6)
+  quantidade_pronta_total_item_pedido Decimal @default(0) @db.Decimal(18,6)
+  quantidade_transferida_item_pedido  Decimal @default(0) @db.Decimal(18,6)
+  quantidade_cancelada_item_pedido    Decimal @default(0) @db.Decimal(18,6)
+  casas_decimais_quantidade_item      Int     @default(2)
 
   // Valores da Linha
-  moeda_item                String   @default("USD")
-  valor_total_item          Decimal? @db.Decimal(18,6) // somatório desta linha (unitário × quantidade)
-  valor_por_unidade_item    Decimal? @db.Decimal(18,6)
-  casas_decimais_total_item Int      @default(2)
+  moeda_item              String   @default("USD")
+  valor_total_itens       Decimal? @db.Decimal(18,6) // somatório desta linha (unitário × quantidade)
+  valor_unitario_item     Decimal? @db.Decimal(18,6)
+  casas_decimais_valor_item Int    @default(2)
 
   // Dados Físicos Unitários (usados para calcular totais do pedido)
-  peso_liquido_unitario  Decimal? @db.Decimal(18,6)
-  peso_bruto_unitario    Decimal? @db.Decimal(18,6)
-  cubagem_unitaria       Decimal? @db.Decimal(18,6)
-  casas_decimais_peso    Int      @default(3)
-  casas_decimais_cubagem Int      @default(4)
+  peso_liquido_unitario_item  Decimal? @db.Decimal(18,6)
+  peso_bruto_unitario_item    Decimal? @db.Decimal(18,6)
+  cubagem_unitaria_item       Decimal? @db.Decimal(18,6)
+  casas_decimais_peso_item    Int      @default(3)
+  casas_decimais_cubagem_item Int      @default(4)
+
+  // Descrições multilíngues
+  descricao_completa_item_pt String?
+  descricao_completa_item_en String?
+  descricao_completa_item_es String?
+  descricao_completa_item_nf String?
+
+  // Classificação interna
+  grupo_item        String?
+  subgrupo_item     String?
+  campo_especial_item String?
 
   campos_custom Json? // custom columns storage
 
   pedido             Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
   embarques_efetivos ProcessoItem[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  item_criado_em    DateTime @default(now())
+  item_atualizado_em DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, company_id])

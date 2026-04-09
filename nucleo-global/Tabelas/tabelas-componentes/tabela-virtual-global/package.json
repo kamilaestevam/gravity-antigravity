@@ -1,0 +1,24 @@
+{
+  "name": "@nucleo/tabela-virtual-global",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@nucleo/campo-calendario-global": "*",
+    "@nucleo/tabelas-base-moedas": "*",
+    "@nucleo/tabelas-base-unidades": "*",
+    "@nucleo/tooltip-global": "*",
+    "@nucleo/select-colunas-global": "*",
+    "@nucleo/gabi-field-icon-global": "*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.4.0"
+  }
+}

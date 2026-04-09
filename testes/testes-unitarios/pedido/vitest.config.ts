@@ -37,6 +37,7 @@ export default defineConfig({
       'testes/testes-unitarios/pedido/smartImportService.test.ts',
       'testes/testes-unitarios/pedido/gabiSemantica.test.ts',
       'testes/testes-unitarios/pedido/gabiFieldHelp.test.ts',
+      'testes/testes-unitarios/pedido/kanbanPedidos.test.ts',
     ],
     env: {
       NODE_ENV: 'test',
@@ -61,6 +62,8 @@ export default defineConfig({
         'produto/pedido/server/src/services/colunasUsuarioService.ts',
         'produto/pedido/server/src/routes/colunasUsuario.ts',
         'produto/pedido/server/src/routes/colunasUsuarioSchemas.ts',
+        'produto/pedido/server/src/routes/kanbanPreferencias.ts',
+        'produto/pedido/client/src/pages/KanbanPedidos.tsx',
       ],
       thresholds: {
         lines: 70,
@@ -104,6 +107,9 @@ export default defineConfig({
       'react-i18next':                path.resolve(__dirname, '__mocks__/i18n.tsx'),
       // CSS (não testado)
       './ListaPedidos.css':           path.resolve(__dirname, '__mocks__/empty.css'),
+      './KanbanPedidos.css':          path.resolve(__dirname, '__mocks__/empty.css'),
+      // Kanban global
+      '@nucleo/kanban-global':        path.resolve(__dirname, '__mocks__/nucleo.tsx'),
     },
   },
 })

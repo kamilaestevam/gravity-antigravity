@@ -57,6 +57,24 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
     'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'count',
     'quantidade inicial item pedido',
   ],
+  moeda_pedido: [
+    'currency', 'moeda', 'curr', 'curr code', 'currency code',
+    'moeda pedido', 'moeda da compra', 'coin',
+  ],
+  valor_unitario_item: [
+    'unit price', 'unit value', 'valor unitario', 'preco unitario',
+    'price', 'unit cost', 'valor por unidade', 'valor unit',
+    'unit amt', 'unit amount', 'preco unit',
+  ],
+  valor_total_itens: [
+    'total value', 'total amount', 'valor total', 'total price',
+    'amount', 'line total', 'ext price', 'extended price',
+    'total item', 'item total', 'valor total item',
+  ],
+  unidade_comercializada_item: [
+    'unit', 'uom', 'unit of measure', 'unidade', 'und', 'um',
+    'unit measure', 'unid', 'unidade comercializada',
+  ],
 }
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
@@ -123,15 +141,20 @@ export async function parseArquivo(
 
     case 'pdf': {
       // Tentar extração via Gemini (GEMINI_PDF_ENABLED=true no .env)
-      const { extrairPdfComGemini } = await import('./geminiPdfExtractor.js')
-      const gemini = await extrairPdfComGemini(buffer)
-      if (gemini) return { linhas: gemini.linhas, extrator_usado: 'gemini' }
+      try {
+        const { extrairPdfComGemini } = await import('./geminiPdfExtractor.js')
+        const gemini = await extrairPdfComGemini(buffer)
+        if (gemini) return { linhas: gemini.linhas, extrator_usado: 'gemini' }
+      } catch (geminiImportErr: unknown) {
+        const msg = geminiImportErr instanceof Error ? geminiImportErr.message : String(geminiImportErr)
+        console.warn(`[PDF] Falha ao carregar extrator Gemini (${msg}) — tentando parser local`)
+      }
 
       // Fallback: parser local de texto
       try {
         const { PDFParse } = await import('pdf-parse')
         const parser = new PDFParse({ data: buffer })
-        await parser.load()
+        // parser.load() é private — getText() o chama internamente
         const result = await parser.getText()
         return { linhas: parsePdfText(result.text), extrator_usado: 'pdf-parse' }
       } catch (pdfErr: unknown) {

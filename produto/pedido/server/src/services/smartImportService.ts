@@ -20,6 +20,22 @@ function gerarId(prefixo: string): string {
   return `${prefixo}_id_${seq}/${ano}`
 }
 
+// Converte strings de data (YYYY-MM-DD, DD/MM/YYYY, etc.) para ISO-8601 DateTime
+function normalizarData(valor: unknown): string {
+  if (!valor) return new Date().toISOString()
+  const str = String(valor).trim()
+  // Já é ISO completo
+  if (/^\d{4}-\d{2}-\d{2}T/.test(str)) return str
+  // YYYY-MM-DD → adiciona T00:00:00.000Z
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return `${str}T00:00:00.000Z`
+  // DD/MM/YYYY
+  const dmyMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
+  if (dmyMatch) return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}T00:00:00.000Z`
+  // Tentar parse genérico
+  const parsed = new Date(str)
+  return isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+}
+
 // ── Tipos locais (espelham os tipos do client) ────────────────────────────────
 
 export interface SmartImportAlerta {
@@ -261,8 +277,8 @@ export class SmartImportService {
           const dados = { ...linha.dados }
           if (numeroEditado) dados['numero_pedido'] = numeroEditado
 
-          // Validar valor_por_unidade_item não-negativo
-          const valorUnitRaw = dados['valor_por_unidade_item']
+          // Validar valor_unitario_item não-negativo
+          const valorUnitRaw = dados['valor_unitario_item']
           if (valorUnitRaw !== undefined && valorUnitRaw !== null && valorUnitRaw !== '') {
             const valorUnit = Number(valorUnitRaw)
             if (!isNaN(valorUnit) && valorUnit < 0) {
@@ -323,13 +339,14 @@ export class SmartImportService {
                   part_number:         String(dados['part_number'] ?? ''),
                   ncm:                 String(dados['ncm'] ?? ''),
                   descricao_item:      String(dados['descricao_item'] ?? ''),
-                  quantidade_inicial_pedido:  Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                  quantidade_saldo_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  saldo_item_pedido:             Number(dados['quantidade_inicial_item_pedido'] ?? 0),
                   casas_decimais_quantidade_item: 2,
-                  moeda_item:            String(dados['moeda_pedido'] ?? 'USD'),
-                  valor_por_unidade_item: dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
-                  valor_total_item:       dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
-                  casas_decimais_total_item: 2,
+                  unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
+                  moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
+                  valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
+                  valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
+                  casas_decimais_valor_item:  2,
                 },
               }).catch(() => null)
               atualizados.push(linha.linha_arquivo)
@@ -348,13 +365,14 @@ export class SmartImportService {
                 part_number:         String(dados['part_number'] ?? ''),
                 ncm:                 String(dados['ncm'] ?? ''),
                 descricao_item:      String(dados['descricao_item'] ?? ''),
-                quantidade_inicial_pedido:  Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                quantidade_saldo_pedido:    Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                saldo_item_pedido:             Number(dados['quantidade_inicial_item_pedido'] ?? 0),
                 casas_decimais_quantidade_item: 2,
-                moeda_item:            String(dados['moeda_pedido'] ?? 'USD'),
-                valor_por_unidade_item: dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
-                valor_total_item:       dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
-                casas_decimais_total_item: 2,
+                unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
+                moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
+                valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
+                valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
+                casas_decimais_valor_item:  2,
               }],
             },
           } : {}
@@ -380,20 +398,18 @@ export class SmartImportService {
       }
     })
 
-    // Popular agregados dos pedidos recém-criados (quantidade_total_inicial_pedido, quantidade_transferida_total)
-    // A transaction cria os itens, mas não atualiza os campos agregados do pedido pai.
+    // Popular agregado quantidade_total_pedido no pedido pai após criação dos itens
     if (criados.length > 0) {
       for (const pedidoId of criados) {
         const itens = await this.db['pedidoItem'].findMany({
           where: { pedido_id: pedidoId, tenant_id: tenantId },
-          select: { quantidade_inicial_item_pedido: true, quantidade_transferida_item: true },
-        }) as { quantidade_inicial_item_pedido: number; quantidade_transferida_item: number }[]
-        const qtdInicial = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
-        const qtdTransferida = itens.reduce((s, i) => s + Number(i.quantidade_transferida_item ?? 0), 0)
+          select: { quantidade_inicial_item_pedido: true },
+        }) as { quantidade_inicial_item_pedido: number }[]
+        const qtdTotal = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
         await this.db['pedido'].update({
           where: { id: pedidoId },
-          data: { quantidade_total_inicial_pedido: qtdInicial, quantidade_transferida_total: qtdTransferida },
-        })
+          data: { quantidade_total_pedido: qtdTotal },
+        }).catch(() => null) // campo opcional — não bloqueia se falhar
       }
     }
 
@@ -496,10 +512,10 @@ export class SmartImportService {
       return { campo: 'data_embarque', confianca: 72 }
     }
 
-    // Detectar valor numerico grande (possivelmente valor_por_unidade_item)
+    // Detectar valor numerico grande (possivelmente valor_unitario_item)
     const numeros = amostras.map(v => parseFloat(v.replace(',', '.'))).filter(n => !isNaN(n))
     if (numeros.length >= amostras.length * 0.9 && numeros.some(n => n > 10)) {
-      return { campo: 'valor_por_unidade_item', confianca: 58 }
+      return { campo: 'valor_unitario_item', confianca: 58 }
     }
 
     return null
@@ -556,9 +572,9 @@ export class SmartImportService {
       alertas.push({ campo: 'quantidade_inicial_item_pedido', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
     }
 
-    const val = Number(dados['valor_por_unidade_item'])
-    if (dados['valor_por_unidade_item'] !== undefined && !isNaN(val) && val < 0) {
-      alertas.push({ campo: 'valor_por_unidade_item', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
+    const val = Number(dados['valor_unitario_item'])
+    if (dados['valor_unitario_item'] !== undefined && !isNaN(val) && val < 0) {
+      alertas.push({ campo: 'valor_unitario_item', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
     }
 
     const ncm = String(dados['ncm'] ?? '').replace(/[.\s-]/g, '')
@@ -597,10 +613,10 @@ export class SmartImportService {
       fabricante_id:     dados['fabricante'] ? String(dados['fabricante']) : null,
       incoterm:          dados['incoterm'] ?? null,
       moeda_pedido:      dados['moeda_pedido'] ?? 'USD',
-      cobertura_cambial: 'com_cobertura',
-      data_emissao_pedido: dados['data_emissao_pedido'] ?? new Date().toISOString(),
-      casas_decimais_total_pedido:           2,
-      casas_decimais_quantidade_total_pedido: 3,
+      cobertura_cambial_pedido:        'com_cobertura',
+      data_emissao_pedido:             normalizarData(dados['data_emissao_pedido']),
+      casas_decimais_valor_pedido:     2,
+      casas_decimais_quantidade_pedido: 3,
     }
   }
 

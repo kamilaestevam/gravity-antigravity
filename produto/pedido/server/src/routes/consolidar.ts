@@ -57,11 +57,11 @@ const ConfirmarSchema = z.object({
 const CAMPOS_COMPARAR: Array<{ campo: string; rotulo: string }> = [
   { campo: 'incoterm',           rotulo: 'Incoterm'               },
   { campo: 'moeda_pedido',       rotulo: 'Moeda'                  },
-  { campo: 'exportador_nome',    rotulo: 'Exportador'             },
-  { campo: 'importador_nome',    rotulo: 'Importador'             },
+  { campo: 'nome_exportador',    rotulo: 'Exportador'             },
+  { campo: 'nome_importador',    rotulo: 'Importador'             },
   { campo: 'data_emissao_pedido',rotulo: 'Data Emissão do Pedido' },
-  { campo: 'cobertura_cambial',  rotulo: 'Cobertura Cambial'      },
-  { campo: 'condicao_pagamento', rotulo: 'Condição de Pagamento'  },
+  { campo: 'cobertura_cambial_pedido',  rotulo: 'Cobertura Cambial'      },
+  { campo: 'condicao_pagamento_pedido', rotulo: 'Condição de Pagamento'  },
 ]
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     const camposIguais: string[] = []
 
     // Campos em detalhes_operacionais não estão no objeto Prisma cru — extrair do JSON
-    const CAMPOS_DETALHES = new Set(['exportador_nome', 'importador_nome', 'fabricante_nome'])
+    const CAMPOS_DETALHES = new Set(['nome_exportador', 'nome_importador', 'nome_fabricante'])
 
     for (const { campo, rotulo } of CAMPOS_COMPARAR) {
       const valores = pedidos.map((p: any) => {
@@ -136,7 +136,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     for (const pedido of pedidos) {
       for (const item of pedido.itens) {
         if (itensPorPart[item.part_number]) {
-          itensPorPart[item.part_number].quantidade_total += Number(item.quantidade_atual_pedido ?? 0)
+          itensPorPart[item.part_number].quantidade_total += Number(item.saldo_item_pedido ?? 0)
           itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
           itensPorPart[item.part_number].pode_fundir = true
         } else {
@@ -146,8 +146,8 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
             ncm: item.ncm,
             unidade_comercializada_item: item.unidade_comercializada_item,
             moeda_item: item.moeda_item,
-            valor_unitario: item.valor_por_unidade_item,
-            quantidade_total: Number(item.quantidade_atual_pedido ?? 0),
+            valor_unitario: item.valor_unitario_item,
+            quantidade_total: Number(item.saldo_item_pedido ?? 0),
             pedidos_origem: [pedido.numero_pedido],
             pode_fundir: false,
           }
@@ -220,10 +220,10 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         if (fundir_itens_mesmo_part_number && partNumbersVistos.has(item.part_number)) {
           const existente = itensMerge.find((i: any) => i.part_number === item.part_number)
           if (existente) {
-            existente.quantidade_inicial_pedido = (Number(existente.quantidade_inicial_pedido) || 0) + (Number(item.quantidade_inicial_pedido) || 0)
-            existente.quantidade_atual_pedido = (Number(existente.quantidade_atual_pedido) || 0) + (Number(item.quantidade_atual_pedido) || 0)
-            existente.quantidade_pronta_pedido = (Number(existente.quantidade_pronta_pedido) || 0) + (Number(item.quantidade_pronta_pedido) || 0)
-            existente.valor_total_item = (Number(existente.valor_total_item) || 0) + (Number(item.valor_total_item) || 0)
+            existente.quantidade_inicial_item_pedido = (Number(existente.quantidade_inicial_item_pedido) || 0) + (Number(item.quantidade_inicial_item_pedido) || 0)
+            existente.saldo_item_pedido = (Number(existente.saldo_item_pedido) || 0) + (Number(item.saldo_item_pedido) || 0)
+            existente.quantidade_pronta_total_item_pedido = (Number(existente.quantidade_pronta_total_item_pedido) || 0) + (Number(item.quantidade_pronta_total_item_pedido) || 0)
+            existente.valor_total_itens = (Number(existente.valor_total_itens) || 0) + (Number(item.valor_total_itens) || 0)
           }
         } else {
           partNumbersVistos.add(item.part_number)

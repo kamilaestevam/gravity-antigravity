@@ -518,7 +518,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     findDisplay: (row: Pedido) => row.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação',
   },
   {
-    key: 'exportador_nome',
+    key: 'nome_exportador',
     label: 'Nome do Exportador',
     tipo: 'texto',
     filtravel: true,
@@ -526,10 +526,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Exportador',
     tooltipDescricao: 'Fornecedor/exportador estrangeiro na operação de importação',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => <span>{row.exportador_nome ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => <span>{row.nome_exportador ?? '—'}</span>,
   },
   {
-    key: 'importador_nome',
+    key: 'nome_importador',
     label: 'Nome do Importador',
     tipo: 'texto',
     filtravel: true,
@@ -537,10 +537,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Importador',
     tooltipDescricao: 'Comprador/importador estrangeiro na operação de exportação',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => <span>{row.importador_nome ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => <span>{row.nome_importador ?? '—'}</span>,
   },
   {
-    key: 'fabricante_nome',
+    key: 'nome_fabricante',
     label: 'Fabricante',
     tipo: 'texto',
     filtravel: true,
@@ -548,7 +548,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Fabricante',
     tooltipDescricao: 'Identificação da origem produtiva',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => <span>{row.fabricante_nome ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => <span>{row.nome_fabricante ?? '—'}</span>,
   },
   {
     key: 'referencia_importador',
@@ -615,7 +615,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => {
       const moeda = row.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_pedido)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_item?: number }).valor_total_item) || 0), 0)
+      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_itens?: number }).valor_total_itens) || 0), 0)
       const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
       const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_valor_total_divergente ?? true)
       const difAbsolutaValor = Math.abs(num - somaItens)
@@ -794,24 +794,24 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_fabricante ?? '—'}</span>,
   },
   {
-    key: 'cobertura_cambial',
+    key: 'cobertura_cambial_pedido',
     label: 'Cobertura Cambial',
     tipo: 'texto',
     filtravel: true,
     tooltipTitulo: 'Cobertura Cambial',
     tooltipDescricao: 'Modalidade de cobertura cambial do pedido (ex: Antecipado, à Vista, a Prazo)',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => <span>{row.cobertura_cambial ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => <span>{row.cobertura_cambial_pedido ?? '—'}</span>,
   },
   {
-    key: 'condicao_pagamento',
+    key: 'condicao_pagamento_pedido',
     label: 'Cond. Pagamento',
     tipo: 'texto',
     filtravel: true,
     tooltipTitulo: 'Condição de Pagamento',
     tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => <span>{row.condicao_pagamento ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -1052,15 +1052,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   // ── Exportador (detalhes) ───────────────────────────────────────────────────
   {
-    key: 'id_exportador',
-    label: 'ID Exportador',
-    tipo: 'texto',
-    grupo: 'Partes',
-    tooltipTitulo: 'ID do Exportador',
-    tooltipDescricao: 'Identificador único do exportador/fornecedor no sistema',
-    render: (_val: unknown, row: Pedido) => <span>{row.id_exportador ?? '—'}</span>,
-  },
-  {
     key: 'pais_exportador',
     label: 'País Exportador',
     tipo: 'texto',
@@ -1175,15 +1166,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => <span>{row.departamento_contato_exportador ?? '—'}</span>,
   },
   // ── Fabricante (detalhes) ───────────────────────────────────────────────────
-  {
-    key: 'id_fabricante',
-    label: 'ID Fabricante',
-    tipo: 'texto',
-    grupo: 'Partes',
-    tooltipTitulo: 'ID do Fabricante',
-    tooltipDescricao: 'Identificador único do fabricante no sistema',
-    render: (_val: unknown, row: Pedido) => <span>{row.id_fabricante ?? '—'}</span>,
-  },
   {
     key: 'pais_fabricante',
     label: 'País Fabricante',
@@ -1387,16 +1369,6 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         {row.quantidade_volumes_pedido != null ? String(row.quantidade_volumes_pedido) : '—'}
       </span>
     ),
-  },
-  {
-    key: 'referencia_interna_produto_catalogo',
-    label: 'Ref. Catálogo',
-    tipo: 'texto',
-    filtravel: true,
-    grupo: 'Identificação',
-    tooltipTitulo: 'Referência Interna do Produto — Catálogo',
-    tooltipDescricao: 'Referência interna do produto conforme catálogo de produtos',
-    render: (_val: unknown, row: Pedido) => <span>{row.referencia_interna_produto_catalogo ?? '—'}</span>,
   },
   // ── Datas — Draft do Pedido ─────────────────────────────────────────────────
   {
@@ -1777,8 +1749,8 @@ export const COLUNAS_PAI_CHAVES: string[] = COLUNAS_PAI
 const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'numero_pedido',
   'tipo_operacao',
-  'importador_nome',
-  'exportador_nome',
+  'nome_importador',
+  'nome_exportador',
   'status',
   'referencia_importador',
   'referencia_exportador',
@@ -1792,9 +1764,9 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'peso_bruto_total_pedido',
   'cubagem_total_pedido',
   'incoterm',
-  'fabricante_nome',
-  'cobertura_cambial',
-  'condicao_pagamento',
+  'nome_fabricante',
+  'cobertura_cambial_pedido',
+  'condicao_pagamento_pedido',
   'data_emissao_pedido',
   'numero_proforma',
   'numero_invoice',
@@ -2026,22 +1998,22 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     ),
   },
   {
-    key: 'descricao_completa',
+    key: 'descricao_completa_item_pt',
     label: 'Desc. Completa',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Descrição Completa do Produto',
     tooltipDescricao: 'Descrição técnica detalhada do produto conforme catálogo',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_pt ?? '—'}</span>,
   },
   {
-    key: 'descricao_espelho_nf',
+    key: 'descricao_completa_item_nf',
     label: 'Desc. NF',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Descrição Espelho da Nota Fiscal',
     tooltipDescricao: 'Descrição do produto conforme será exibida na nota fiscal de entrada',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_espelho_nf ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_nf ?? '—'}</span>,
   },
   {
     key: 'quantidade_unidade_estatistica',
@@ -2150,52 +2122,52 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   // ── Classificação ────────────────────────────────────────────────────────────
   {
-    key: 'grupo_produto',
+    key: 'grupo_item',
     label: 'Grupo',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Identificação',
     tooltipTitulo: 'Grupo do Produto',
     tooltipDescricao: 'Grupo de classificação do produto conforme cadastro',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.grupo_produto ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.grupo_item ?? '—'}</span>,
   },
   {
-    key: 'subgrupo_produto',
+    key: 'subgrupo_item',
     label: 'Subgrupo',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Identificação',
     tooltipTitulo: 'Subgrupo do Produto',
     tooltipDescricao: 'Subgrupo de classificação do produto dentro do grupo principal',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.subgrupo_produto ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.subgrupo_item ?? '—'}</span>,
   },
   {
-    key: 'campo_especial',
+    key: 'campo_especial_item',
     label: 'Campo Especial',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Campo Especial',
     tooltipDescricao: 'Campo configurável para uso interno ou integrações específicas',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.campo_especial ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.campo_especial_item ?? '—'}</span>,
   },
   // ── Descrições multilíngues ──────────────────────────────────────────────────
   {
-    key: 'descricao_en',
+    key: 'descricao_completa_item_en',
     label: 'Desc. (EN)',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Product Description (English)',
     tooltipDescricao: 'Descrição do produto em inglês, conforme invoice internacional',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_en ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_en ?? '—'}</span>,
   },
   {
-    key: 'descricao_es',
+    key: 'descricao_completa_item_es',
     label: 'Desc. (ES)',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Descripción del Producto (Español)',
     tooltipDescricao: 'Descrição do produto em espanhol',
-    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_es ?? '—'}</span>,
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_es ?? '—'}</span>,
   },
   {
     key: 'texto_posicao_ncm',
@@ -3225,10 +3197,10 @@ const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
 
 // Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
 const CAMPOS_PAI_TEXTO = new Set([
-  'exportador_nome', 'importador_nome', 'fabricante_nome',
+  'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'numero_proforma', 'numero_invoice',
-  'incoterm', 'condicao_pagamento',
+  'incoterm', 'condicao_pagamento_pedido',
 ])
 
 // Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
@@ -3236,17 +3208,17 @@ type PedidoItemEnriquecido = PedidoItem & {
   _p: {
     id: string
     tipo_operacao: string
-    exportador_nome: string | null
-    importador_nome: string | null
-    fabricante_nome: string | null
+    nome_exportador: string | null
+    nome_importador: string | null
+    nome_fabricante: string | null
     referencia_importador: string | null
     referencia_exportador: string | null
     referencia_fabricante: string | null
     numero_proforma: string | null
     numero_invoice: string | null
     incoterm: string | null
-    condicao_pagamento: string | null
-    cobertura_cambial: string | null
+    condicao_pagamento_pedido: string | null
+    cobertura_cambial_pedido: string | null
     data_emissao_pedido: string | null
     status: string
     moeda_pedido: string
@@ -3277,28 +3249,28 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       )
     },
   },
-  exportador_nome: {
+  nome_exportador: {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
-    campo: 'exportador_nome',
+    campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.exportador_nome ?? '—'}</span>
+      return <span>{p?.nome_exportador ?? '—'}</span>
     },
   },
-  importador_nome: {
+  nome_importador: {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
-    campo: 'importador_nome',
+    campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.importador_nome ?? '—'}</span>
+      return <span>{p?.nome_importador ?? '—'}</span>
     },
   },
-  fabricante_nome: {
+  nome_fabricante: {
     editavel: true,
-    campo: 'fabricante_nome',
+    campo: 'nome_fabricante',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.fabricante_nome ?? '—'}</span>
+      return <span>{p?.nome_fabricante ?? '—'}</span>
     },
   },
   referencia_importador: {
@@ -3363,18 +3335,18 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       return <span>{p?.referencia_fabricante ?? '—'}</span>
     },
   },
-  cobertura_cambial: {
+  cobertura_cambial_pedido: {
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.cobertura_cambial ?? '—'}</span>
+      return <span>{p?.cobertura_cambial_pedido ?? '—'}</span>
     },
   },
-  condicao_pagamento: {
+  condicao_pagamento_pedido: {
     editavel: true,
-    campo: 'condicao_pagamento',
+    campo: 'condicao_pagamento_pedido',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.condicao_pagamento ?? '—'}</span>
+      return <span>{p?.condicao_pagamento_pedido ?? '—'}</span>
     },
   },
   data_emissao_pedido: {
@@ -3438,19 +3410,19 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   // ── Valores ───────────────────────────────────────────────────────────────
   valor_total_pedido: {
     editavel: true,
-    campo: 'valor_total_item',
+    campo: 'valor_total_itens',
     casasDecimais: 2,
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
-      amount: row.valor_total_item ?? 0,
+      amount: row.valor_total_itens ?? 0,
     }),
     render: (row: PedidoItem) => {
       const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_item)
+      const num = Number(row.valor_total_itens)
       return (
         <span className="gtv-celula-moeda">
           <span className="gtv-celula-moeda-badge">{moeda}</span>
-          {row.valor_total_item != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+          {row.valor_total_itens != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
         </span>
       )
     },
@@ -3538,8 +3510,8 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Part Number',               key: 'numero_item',                      largura: 20 },
   { header: 'Tipo',                     key: 'tipo_operacao',                    largura: 14 },
   { header: 'Status',                   key: 'status',                           largura: 16 },
-  { header: 'Exportador',               key: 'exportador_nome',                  largura: 25 },
-  { header: 'Fabricante',               key: 'fabricante_nome',                  largura: 22 },
+  { header: 'Exportador',               key: 'nome_exportador',                  largura: 25 },
+  { header: 'Fabricante',               key: 'nome_fabricante',                  largura: 22 },
   { header: 'Ref. Importador',          key: 'referencia_importador',            largura: 20 },
   { header: 'Ref. Exportador',          key: 'referencia_exportador',            largura: 20 },
   { header: 'Ref. Fabricante',          key: 'referencia_fabricante',            largura: 20 },
@@ -3551,8 +3523,8 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Peso Líq. Total (kg)',      key: 'peso_liquido_total_pedido',        largura: 18 },
   { header: 'Peso Bruto Total (kg)',     key: 'peso_bruto_total_pedido',          largura: 18 },
   { header: 'Cubagem Total (m³)',        key: 'cubagem_total_pedido',             largura: 16 },
-  { header: 'Cobertura Cambial',        key: 'cobertura_cambial',               largura: 18 },
-  { header: 'Cond. Pagamento',          key: 'condicao_pagamento',              largura: 18 },
+  { header: 'Cobertura Cambial',        key: 'cobertura_cambial_pedido',        largura: 18 },
+  { header: 'Cond. Pagamento',          key: 'condicao_pagamento_pedido',       largura: 18 },
   { header: 'Data P.O',                 key: 'data_emissao_pedido',              largura: 14 },
   { header: 'Prev. Pronto',             key: 'data_prevista_pedido_pronto',      largura: 14 },
   { header: 'Conf. Pronto',             key: 'data_confirmada_pedido_pronto',    largura: 14 },
@@ -4083,7 +4055,7 @@ export default function ListaPedidos() {
     if (busca.trim()) {
       const termo = busca.trim().toLowerCase()
       resultado = resultado.filter(p =>
-        [p.numero_pedido, p.exportador_nome, p.fabricante_nome,
+        [p.numero_pedido, p.nome_exportador, p.nome_fabricante,
          p.referencia_importador, p.referencia_exportador,
          p.numero_proforma, p.numero_invoice]
           .some(v => v != null && String(v).toLowerCase().includes(termo))
@@ -4467,8 +4439,8 @@ export default function ListaPedidos() {
 
     // Campos do pedido pai → atualiza o pedido, não o item
     if (CAMPOS_PAI_TEXTO.has(campo)) {
-      // exportador_nome e fabricante_nome ficam em detalhes_operacionais → usar PATCH inline
-      const pedidoAtualizado = (campo === 'exportador_nome' || campo === 'importador_nome' || campo === 'fabricante_nome')
+      // nome_exportador e nome_fabricante ficam em detalhes_operacionais → usar PATCH inline
+      const pedidoAtualizado = (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante')
         ? await pedidoVirtualApi.editarCampo(pedido.id, campo, valor as string)
             .catch(() => {
               if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
@@ -4483,17 +4455,17 @@ export default function ListaPedidos() {
       const novoPaiP = {
         id: pedidoAtualizado.id,
         tipo_operacao: pedidoAtualizado.tipo_operacao,
-        exportador_nome: pedidoAtualizado.exportador_nome ?? null,
-        importador_nome: pedidoAtualizado.importador_nome ?? null,
-        fabricante_nome: pedidoAtualizado.fabricante_nome ?? null,
+        nome_exportador: pedidoAtualizado.nome_exportador ?? null,
+        nome_importador: pedidoAtualizado.nome_importador ?? null,
+        nome_fabricante: pedidoAtualizado.nome_fabricante ?? null,
         referencia_importador: pedidoAtualizado.referencia_importador ?? null,
         referencia_exportador: pedidoAtualizado.referencia_exportador ?? null,
         referencia_fabricante: pedidoAtualizado.referencia_fabricante ?? null,
         numero_proforma: pedidoAtualizado.numero_proforma ?? null,
         numero_invoice: pedidoAtualizado.numero_invoice ?? null,
         incoterm: pedidoAtualizado.incoterm ?? null,
-        condicao_pagamento: pedidoAtualizado.condicao_pagamento ?? null,
-        cobertura_cambial: pedidoAtualizado.cobertura_cambial ?? null,
+        condicao_pagamento_pedido: pedidoAtualizado.condicao_pagamento_pedido ?? null,
+        cobertura_cambial_pedido: pedidoAtualizado.cobertura_cambial_pedido ?? null,
         data_emissao_pedido: pedidoAtualizado.data_emissao_pedido ?? null,
         status: pedidoAtualizado.status,
         moeda_pedido: (pedidoAtualizado as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
@@ -4511,34 +4483,34 @@ export default function ListaPedidos() {
       return { ...item, _p: novoPaiP } as PedidoItem
     }
 
-    // valor_total_item retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
-    if (campo === 'valor_total_item' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
+    // valor_total_itens retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
+    if (campo === 'valor_total_itens' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
       const itemAtualMv = pedido.itens?.find(i => i.id === id)
       const atualizadoMv = await pedidoItemApi.atualizar(pedido.id, id, {
-        valor_total_item: mv.amount,
+        valor_total_itens: mv.amount,
         moeda_item: mv.currency,
       } as Partial<PedidoItem>)
         .catch(() => {
-          if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_item: mv.amount, moeda_item: mv.currency } as PedidoItem
-          throw new Error('Erro ao editar valor_total_item')
+          if (import.meta.env.DEV && itemAtualMv) return { ...itemAtualMv, valor_total_itens: mv.amount, moeda_item: mv.currency } as PedidoItem
+          throw new Error('Erro ao editar valor_total_itens')
         })
       const enriquecidoMv: PedidoItemEnriquecido = {
         ...atualizadoMv,
         _p: {
           id: pedido.id,
           tipo_operacao: pedido.tipo_operacao,
-          exportador_nome: pedido.exportador_nome ?? null,
-          importador_nome: pedido.importador_nome ?? null,
-          fabricante_nome: pedido.fabricante_nome ?? null,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
           referencia_importador: pedido.referencia_importador ?? null,
           referencia_exportador: pedido.referencia_exportador ?? null,
           referencia_fabricante: pedido.referencia_fabricante ?? null,
           numero_proforma: pedido.numero_proforma ?? null,
           numero_invoice: pedido.numero_invoice ?? null,
           incoterm: pedido.incoterm ?? null,
-          condicao_pagamento: pedido.condicao_pagamento ?? null,
-          cobertura_cambial: pedido.cobertura_cambial ?? null,
+          condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
+          cobertura_cambial_pedido: pedido.cobertura_cambial_pedido ?? null,
           data_emissao_pedido: pedido.data_emissao_pedido ?? null,
           status: pedido.status,
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
@@ -4580,17 +4552,17 @@ export default function ListaPedidos() {
       _p: {
         id: pedido.id,
         tipo_operacao: pedido.tipo_operacao,
-        exportador_nome: pedido.exportador_nome ?? null,
-        importador_nome: pedido.importador_nome ?? null,
-        fabricante_nome: pedido.fabricante_nome ?? null,
+        nome_exportador: pedido.nome_exportador ?? null,
+        nome_importador: pedido.nome_importador ?? null,
+        nome_fabricante: pedido.nome_fabricante ?? null,
         referencia_importador: pedido.referencia_importador ?? null,
         referencia_exportador: pedido.referencia_exportador ?? null,
         referencia_fabricante: pedido.referencia_fabricante ?? null,
         numero_proforma: pedido.numero_proforma ?? null,
         numero_invoice: pedido.numero_invoice ?? null,
         incoterm: pedido.incoterm ?? null,
-        condicao_pagamento: pedido.condicao_pagamento ?? null,
-        cobertura_cambial: pedido.cobertura_cambial ?? null,
+        condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
+        cobertura_cambial_pedido: pedido.cobertura_cambial_pedido ?? null,
         data_emissao_pedido: pedido.data_emissao_pedido ?? null,
         status: pedido.status,
         moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
@@ -4621,17 +4593,17 @@ export default function ListaPedidos() {
       _p: {
         id: pedido.id,
         tipo_operacao: pedido.tipo_operacao,
-        exportador_nome: pedido.exportador_nome ?? null,
-        importador_nome: pedido.importador_nome ?? null,
-        fabricante_nome: pedido.fabricante_nome ?? null,
+        nome_exportador: pedido.nome_exportador ?? null,
+        nome_importador: pedido.nome_importador ?? null,
+        nome_fabricante: pedido.nome_fabricante ?? null,
         referencia_importador: pedido.referencia_importador ?? null,
         referencia_exportador: pedido.referencia_exportador ?? null,
         referencia_fabricante: pedido.referencia_fabricante ?? null,
         numero_proforma: pedido.numero_proforma ?? null,
         numero_invoice: pedido.numero_invoice ?? null,
         incoterm: pedido.incoterm ?? null,
-        condicao_pagamento: pedido.condicao_pagamento ?? null,
-        cobertura_cambial: pedido.cobertura_cambial ?? null,
+        condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
+        cobertura_cambial_pedido: pedido.cobertura_cambial_pedido ?? null,
         data_emissao_pedido: pedido.data_emissao_pedido ?? null,
         status: pedido.status,
         moeda_pedido: pedido.moeda_pedido ?? 'USD',
@@ -4695,7 +4667,7 @@ export default function ListaPedidos() {
           ncm: i.ncm,
           quantidade_item: i.saldo_item_pedido,
           quantidade_inicial_item: i.quantidade_inicial_item_pedido,
-          valor_item: i.valor_total_item,
+          valor_item: i.valor_total_itens,
         }))
         return itensDoPedido.length > 0
           ? [{ ...pai, _tipo_linha: 'Pedido', numero_item: '' }, ...itensDoPedido]
@@ -4777,7 +4749,7 @@ export default function ListaPedidos() {
   }
   const unidadesQtd = Object.keys(qtdPorUnidade)
   const coberturaPend = pedidos
-    .filter(p => p.cobertura_cambial === 'sem_cobertura' || !p.cobertura_cambial)
+    .filter(p => p.cobertura_cambial_pedido === 'sem_cobertura' || !p.cobertura_cambial_pedido)
     .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
   // Valor total convertido para BRL usando taxa PTAX de venda
   // Number() necessário pois Prisma Decimal serializa como string no JSON
@@ -4894,7 +4866,7 @@ export default function ListaPedidos() {
                 valor={fmtQuantidade(coberturaPend, 2)}
                 variante="erro"
                 subtexto={t('pedido.sem_cobertura')}
-                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidos.filter(p => !p.cobertura_cambial || p.cobertura_cambial === 'sem_cobertura').length}</strong></p>}
+                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidos.filter(p => !p.cobertura_cambial_pedido || p.cobertura_cambial_pedido === 'sem_cobertura').length}</strong></p>}
               />
             )
             // Fallback: cards definidos no CARD_REGISTRY mas sem bloco manual acima
@@ -5243,7 +5215,7 @@ export default function ListaPedidos() {
     {
       "part_number": "ABC-001",
       "descricao_item": "Produto exemplo",
-      "quantidade_inicial_pedido": 100
+      "quantidade_inicial_item_pedido": 100
     }
   ]
 }`}

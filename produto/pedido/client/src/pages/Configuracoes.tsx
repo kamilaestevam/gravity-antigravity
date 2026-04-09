@@ -38,7 +38,9 @@ import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, configRegrasApi, type PdfTemplate } from '../shared/api'
+import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, type PdfTemplate } from '../shared/api'
+import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel } from '../shared/types'
+import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS } from '../shared/types'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type { FormulaAST } from '../shared/formulaEngine'
 import { analisarSemanticaFormula, SEMANTICA_CAMPOS } from '../shared/gabiSemantica'
@@ -297,6 +299,7 @@ const CATEGORIAS = [
   { id: 'cards',             label: 'Cards',             icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
   { id: 'tabela',            label: 'Tabela',            icone: <Table          size={15} weight="duotone" />, ativo: true  },
   { id: 'colunas',           label: 'Colunas',           icone: <Columns        size={15} weight="duotone" />, ativo: true  },
+  { id: 'kanban',            label: 'Kanban',            icone: <Columns        size={15} weight="duotone" />, ativo: true  },
   { id: 'status',            label: 'Status',            icone: <Tag            size={15} weight="duotone" />, ativo: true  },
   { id: 'notificacoes',      label: 'Notificações',      icone: <Bell           size={15} weight="duotone" />, ativo: true  },
   { id: 'exportacao',        label: 'Exportação',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true  },
@@ -1135,6 +1138,79 @@ export default function Configuracoes() {
     setCategCriando(false)
   }
 
+  // ── Kanban state ─────────────────────────────────────────────────────────
+
+  const [kanbanPrefs, setKanbanPrefs]       = useState<KanbanPreferencias | null>(null)
+  const [kanbanLoading, setKanbanLoading]   = useState(false)
+  const kanbanSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (categoria !== 'kanban') return
+    setKanbanLoading(true)
+    kanbanConfigApi.obterPreferencias()
+      .then(res => setKanbanPrefs(res.data))
+      .catch(() => setKanbanPrefs(null))
+      .finally(() => setKanbanLoading(false))
+  }, [categoria])
+
+  function kanbanCamposDeAba(aba: 'pedido' | 'quantidades' | 'datas'): KanbanCampoConfig[] {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    return [...(prefs.abas.find(a => a.aba === aba)?.campos ?? [])].sort((a, b) => a.ordem - b.ordem)
+  }
+
+  function kanbanSalvar(novasPrefs: KanbanPreferencias) {
+    setKanbanPrefs(novasPrefs)
+    if (kanbanSaveRef.current) clearTimeout(kanbanSaveRef.current)
+    kanbanSaveRef.current = setTimeout(() => {
+      kanbanConfigApi.salvarPreferencias(novasPrefs).catch(() => {})
+    }, 500)
+  }
+
+  function kanbanAdicionarCampo(aba: 'pedido' | 'quantidades' | 'datas', campo: KanbanCampoDisponivel) {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    const abaAtual = prefs.abas.find(a => a.aba === aba)
+    if (!abaAtual) return
+    if (abaAtual.campos.length >= (KANBAN_LIMITES[aba] ?? 10)) return
+    const novaOrdem = abaAtual.campos.length
+    const novoCampo: KanbanCampoConfig = { campo: campo.campo, label: campo.label, visivel: true, ordem: novaOrdem }
+    const novasAbas = prefs.abas.map(a =>
+      a.aba === aba ? { ...a, campos: [...a.campos, novoCampo] } : a,
+    )
+    kanbanSalvar({ abas: novasAbas })
+  }
+
+  function kanbanRemoverCampo(aba: 'pedido' | 'quantidades' | 'datas', campo: string) {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    const novasAbas = prefs.abas.map(a =>
+      a.aba === aba
+        ? { ...a, campos: a.campos.filter(c => c.campo !== campo).map((c, i) => ({ ...c, ordem: i })) }
+        : a,
+    )
+    kanbanSalvar({ abas: novasAbas })
+  }
+
+  function kanbanToggleVisivel(aba: 'pedido' | 'quantidades' | 'datas', campo: string) {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    const novasAbas = prefs.abas.map(a =>
+      a.aba === aba
+        ? { ...a, campos: a.campos.map(c => c.campo === campo ? { ...c, visivel: !c.visivel } : c) }
+        : a,
+    )
+    kanbanSalvar({ abas: novasAbas })
+  }
+
+  async function kanbanRestaurarPadrao() {
+    await kanbanConfigApi.restaurarPadrao().catch(() => {})
+    setKanbanPrefs(null)
+  }
+
+  function kanbanCamposEmUso(): Set<string> {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    const todos = new Set<string>()
+    prefs.abas.forEach(a => a.campos.forEach(c => todos.add(c.campo)))
+    return todos
+  }
+
   // ── Status state ──
   const STATUS_INICIAIS: StatusPedido[] = [
     { id: 'rascunho',     label: 'Rascunho',     cor: '#94a3b8', sistema: false },
@@ -1559,6 +1635,125 @@ export default function Configuracoes() {
                   checked={tabelaConfig.destacarAtrasados}
                   onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
                 />
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ KANBAN ════════════════════════ */}
+        {categoria === 'kanban' && (
+          <div className="cfg-kanban-wrapper">
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Campos do modal</h2>
+                  <p className="cfg-secao__desc">Configure os campos exibidos em cada aba ao abrir um pedido no Kanban</p>
+                </div>
+              </div>
+
+              {kanbanLoading && <p className="cfg-loading-msg">Carregando...</p>}
+
+              {!kanbanLoading && ((['pedido', 'quantidades', 'datas'] as const).map(aba => {
+                const campos = kanbanCamposDeAba(aba)
+                const limite = KANBAN_LIMITES[aba] ?? 10
+                const nomeAba = aba === 'pedido' ? 'Pedido' : aba === 'quantidades' ? 'Quantidades' : 'Datas'
+                return (
+                  <div key={aba} className="cfg-kanban-aba">
+                    <div className="cfg-kanban-aba-header">
+                      <div className="cfg-kanban-aba-titulo-wrap">
+                        <span className="cfg-kanban-aba-titulo">Aba: {nomeAba}</span>
+                        <span className="cfg-kanban-aba-contador">{campos.length}/{limite} campos</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="cfg-kanban-restaurar-btn"
+                        onClick={kanbanRestaurarPadrao}
+                        title="Restaurar padrão"
+                      >
+                        <ArrowCounterClockwise size={13} weight="bold" />
+                        Restaurar padrão
+                      </button>
+                    </div>
+                    <p className="cfg-kanban-aba-hint">Arraste para reordenar · olho para ocultar · × para remover</p>
+
+                    <div className="cfg-kanban-campos-lista">
+                      {campos.map(cfg => (
+                        <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
+                          <span className="cfg-drag-handle" aria-label="Arrastar">
+                            <DotsSixVertical size={15} weight="bold" />
+                          </span>
+                          <span className="cfg-kanban-campo-label">{cfg.label}</span>
+                          <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
+                          <button
+                            type="button"
+                            className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
+                            onClick={() => kanbanToggleVisivel(aba, cfg.campo)}
+                            aria-label={cfg.visivel ? 'Ocultar campo' : 'Exibir campo'}
+                          >
+                            {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
+                          </button>
+                          <button
+                            type="button"
+                            className="cfg-remove-btn"
+                            onClick={() => kanbanRemoverCampo(aba, cfg.campo)}
+                            aria-label="Remover campo"
+                          >
+                            <X size={12} weight="bold" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }))}
+
+              {/* Aba fixa Lembrete */}
+              <div className="cfg-kanban-aba cfg-kanban-aba--fixa">
+                <div className="cfg-kanban-aba-header">
+                  <span className="cfg-kanban-aba-titulo">Aba: Lembrete</span>
+                  <span className="cfg-kanban-aba-fixa-badge">fixa</span>
+                </div>
+                <p className="cfg-kanban-aba-hint">Aba fixa — comportamento nativo, não configurável</p>
+              </div>
+            </section>
+
+            {/* Campos disponíveis */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Campos disponíveis</h2>
+                  <p className="cfg-secao__desc">Todas as colunas do pedido · clique em + para adicionar a uma aba</p>
+                </div>
+              </div>
+              <div className="cfg-kanban-disponivel-lista">
+                <div className="cfg-kanban-disponivel-header">
+                  <span>Coluna</span>
+                  <span>Aba</span>
+                  <span></span>
+                </div>
+                {KANBAN_CAMPOS_DISPONIVEIS.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
+                  const aba = cd.categoria
+                  const limite = KANBAN_LIMITES[aba] ?? 10
+                  const atual = kanbanCamposDeAba(aba).length
+                  const cheio = atual >= limite
+                  return (
+                    <div key={cd.campo} className="cfg-kanban-disponivel-row">
+                      <span className="cfg-kanban-disponivel-label">{cd.label}</span>
+                      <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
+                      <TooltipGlobal descricao={cheio ? `Limite atingido (${atual}/${limite}) — remova um campo` : `Adicionar à aba ${aba}`}>
+                        <button
+                          type="button"
+                          className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
+                          onClick={() => { if (!cheio) kanbanAdicionarCampo(aba, cd) }}
+                          disabled={cheio}
+                          aria-label="Adicionar campo"
+                        >
+                          <Plus size={13} weight="bold" />
+                        </button>
+                      </TooltipGlobal>
+                    </div>
+                  )
+                })}
               </div>
             </section>
           </div>

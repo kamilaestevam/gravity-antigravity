@@ -102,7 +102,7 @@ export class TransferirService {
     const item = pedido.itens.find((i: any) => i.id === payload.item_id)
     if (!item) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    const saldoAtual = Number(item.quantidade_saldo_pedido)
+    const saldoAtual = Number(item.saldo_item_pedido)
     const quantidadeApos = saldoAtual - payload.quantidade_origem
     const alertasGlobais: string[] = []
 
@@ -165,7 +165,7 @@ export class TransferirService {
     const itemOrigem = pedidoOrigem.itens.find((i: any) => i.id === payload.item_id)
     if (!itemOrigem) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    await this.validarQuantidade(Number(itemOrigem.quantidade_saldo_pedido), payload.quantidade_origem)
+    await this.validarQuantidade(Number(itemOrigem.saldo_item_pedido), payload.quantidade_origem)
 
     const pedidosDestinoIds: string[] = []
     const pedidosCriados: string[] = []
@@ -202,9 +202,9 @@ export class TransferirService {
             await tx.pedidoItem.update({
               where: { id: itemExistente.id },
               data: {
-                quantidade_saldo_pedido: Number(itemExistente.quantidade_saldo_pedido) + destino.quantidade,
-                quantidade_inicial_pedido: Number(itemExistente.quantidade_inicial_pedido) + destino.quantidade,
-                // quantidade_transferida_pedido NÃO se altera: o destino recebe, não transfere para fora
+                saldo_item_pedido: Number(itemExistente.saldo_item_pedido) + destino.quantidade,
+                quantidade_inicial_item_pedido: Number(itemExistente.quantidade_inicial_item_pedido) + destino.quantidade,
+                // quantidade_transferida_item_pedido NÃO se altera: o destino recebe, não transfere para fora
               },
             })
           } else {
@@ -226,12 +226,12 @@ export class TransferirService {
 
       // Reduzir quantidade do item de origem (para todos os cenários exceto substituicao_pura)
       if (payload.cenario !== 'substituicao_pura') {
-        const novaQty = Number(itemOrigem.quantidade_saldo_pedido) - payload.quantidade_origem
+        const novaQty = Number(itemOrigem.saldo_item_pedido) - payload.quantidade_origem
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            quantidade_saldo_pedido: novaQty,
-            quantidade_transferida_pedido: Number(itemOrigem.quantidade_transferida_pedido) + payload.quantidade_origem,
+            saldo_item_pedido: novaQty,
+            quantidade_transferida_item_pedido: Number(itemOrigem.quantidade_transferida_item_pedido) + payload.quantidade_origem,
           },
         })
 
@@ -283,8 +283,8 @@ export class TransferirService {
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            quantidade_atual: Number(itemOrigem.quantidade_atual) + Number(historico.quantidade_item_transferida),
-            quantidade_transferida: Math.max(0, Number(itemOrigem.quantidade_transferida) - Number(historico.quantidade_item_transferida)),
+            saldo_item_pedido: Number(itemOrigem.saldo_item_pedido) + Number(historico.quantidade_item_transferida),
+            quantidade_transferida_item_pedido: Math.max(0, Number(itemOrigem.quantidade_transferida_item_pedido) - Number(historico.quantidade_item_transferida)),
           },
         })
       }
@@ -301,14 +301,14 @@ export class TransferirService {
               i.part_number === (destino.part_number ?? itemOrigem?.part_number)
             )
             if (itemDestino) {
-              const novaQty = Number(itemDestino.quantidade_atual) - destino.quantidade
+              const novaQty = Number(itemDestino.saldo_item_pedido) - destino.quantidade
               if (novaQty <= 0) {
                 await tx.pedidoItem.delete({ where: { id: itemDestino.id } })
                 itensExcluidos.push(itemDestino.id)
               } else {
                 await tx.pedidoItem.update({
                   where: { id: itemDestino.id },
-                  data: { quantidade_atual: novaQty, quantidade_transferida: Math.max(0, Number(itemDestino.quantidade_transferida) - destino.quantidade) },
+                  data: { saldo_item_pedido: novaQty, quantidade_transferida_item_pedido: Math.max(0, Number(itemDestino.quantidade_transferida_item_pedido) - destino.quantidade) },
                 })
               }
             }
@@ -383,11 +383,11 @@ export class TransferirService {
         status: 'aberto',
         incoterm: base.incoterm ?? null,
         moeda_pedido: base.moeda_pedido ?? 'USD',
-        casas_decimais_total_pedido: base.casas_decimais_total_pedido ?? 2,
-        casas_decimais_quantidade_total_pedido: base.casas_decimais_quantidade_total_pedido ?? 2,
+        casas_decimais_valor_pedido: base.casas_decimais_valor_pedido ?? 2,
+        casas_decimais_quantidade_pedido: base.casas_decimais_quantidade_pedido ?? 2,
         unidade_comercializada_pedido: base.unidade_comercializada_pedido ?? null,
-        cobertura_cambial: base.cobertura_cambial ?? 'com_cobertura',
-        condicao_pagamento: base.condicao_pagamento ?? null,
+        cobertura_cambial_pedido: base.cobertura_cambial_pedido ?? 'com_cobertura',
+        condicao_pagamento_pedido: base.condicao_pagamento_pedido ?? null,
         data_emissao_pedido: new Date(),
         importacao_exportador_id: base.importacao_exportador_id ?? null,
         exportacao_importador_id: base.exportacao_importador_id ?? null,
@@ -413,13 +413,13 @@ export class TransferirService {
       ncm: itemOrigem.ncm ?? '',
       descricao_item: itemOrigem.descricao_item ?? '',
       unidade_comercializada_item: itemOrigem.unidade_comercializada_item ?? null,
-      quantidade_inicial_pedido: destino.quantidade,
-      quantidade_saldo_pedido: destino.quantidade,
+      quantidade_inicial_item_pedido: destino.quantidade,
+      saldo_item_pedido: destino.quantidade,
       casas_decimais_quantidade_item: itemOrigem.casas_decimais_quantidade_item ?? 2,
       moeda_item: itemOrigem.moeda_item ?? 'USD',
-      valor_por_unidade_item: itemOrigem.valor_por_unidade_item != null ? Number(itemOrigem.valor_por_unidade_item) : null,
-      valor_total_item: itemOrigem.valor_por_unidade_item != null ? Number(itemOrigem.valor_por_unidade_item) * destino.quantidade : null,
-      casas_decimais_total_item: itemOrigem.casas_decimais_total_item ?? 2,
+      valor_unitario_item: itemOrigem.valor_unitario_item != null ? Number(itemOrigem.valor_unitario_item) : null,
+      valor_total_itens: itemOrigem.valor_unitario_item != null ? Number(itemOrigem.valor_unitario_item) * destino.quantidade : null,
+      casas_decimais_valor_item: itemOrigem.casas_decimais_valor_item ?? 2,
       campos_custom: itemOrigem.campos_custom ?? null,
     }
   }
@@ -427,14 +427,14 @@ export class TransferirService {
   private async recalcularAgregados(tenantId: string, pedidoId: string, tx: any): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
       where: { pedido_id: pedidoId, tenant_id: tenantId },
-      select: { quantidade_saldo_pedido: true },
+      select: { saldo_item_pedido: true },
     })
 
-    const qtdAtualTotal = itens.reduce((acc: number, i: any) => acc + Number(i.quantidade_saldo_pedido ?? 0), 0)
+    const qtdAtualTotal = itens.reduce((acc: number, i: any) => acc + Number(i.saldo_item_pedido ?? 0), 0)
 
     await tx.pedido.update({
       where: { id: pedidoId },
-      data: { quantidade_total_pedido: qtdAtualTotal },
+      data: { quantidade_total_inicial_pedido: qtdAtualTotal },
     })
   }
 
@@ -452,7 +452,7 @@ export class TransferirService {
 
     // Config: excluir item quando qty = 0 (default: false — só executa se ativo)
     for (const item of itens) {
-      if (Number(item.quantidade_saldo_pedido) <= 0) {
+      if (Number(item.saldo_item_pedido) <= 0) {
         await tx.pedidoItem.delete({ where: { id: item.id } })
         itensExcluidos.push(item.id)
       }

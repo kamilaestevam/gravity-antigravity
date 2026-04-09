@@ -40,31 +40,25 @@ const CAMPOS_BLOQUEADOS_ITEM = new Set([
 // ── Campos armazenados em detalhes_operacionais — requerem merge em JSON ────────
 
 const CAMPOS_DETALHES_OPERACIONAIS = new Set([
-  'exportador_nome',
-  'importador_nome',
-  'fabricante_nome',
+  'nome_exportador',
+  'nome_importador',
+  'nome_fabricante',
 ])
 
 // ── Campos de quantidade — disparam recálculo de agregados ────────────────────
 
 const CAMPOS_QUANTIDADE_ITEM = new Set([
   'quantidade_inicial_item_pedido',
-  'quantidade_transferida_item',
-  'quantidade_pronta_total',
+  'quantidade_transferida_item_pedido',
+  'quantidade_pronta_total_item_pedido',
   'quantidade_cancelada_item_pedido',
+  'saldo_item_pedido',
 ])
 
-// ── Tradução de aliases do frontend para campos reais do Prisma ───────────────
-// O mapItem() em pedidos.ts cria esses aliases na leitura. O service precisa
-// reverter antes de escrever/ler via Prisma, que só conhece os nomes do schema.
+// ── Após renomear o schema, os nomes Prisma coincidem com os nomes do frontend ──
+// ALIAS_PARA_PRISMA não tem mais entradas — kept vazio para backward compat.
 
-const ALIAS_PARA_PRISMA: Record<string, string> = {
-  quantidade_inicial_item_pedido:  'quantidade_inicial_pedido',
-  quantidade_transferida_item:     'quantidade_transferida_pedido',
-  quantidade_pronta_total:         'quantidade_pronta_pedido',
-  quantidade_cancelada_item_pedido:'quantidade_cancelada_pedido',
-  saldo_item_pedido:               'quantidade_atual_pedido',
-}
+const ALIAS_PARA_PRISMA: Record<string, string> = {}
 
 function traduzirCampoItem(campo: string): string {
   return ALIAS_PARA_PRISMA[campo] ?? campo
@@ -412,33 +406,27 @@ export class EdicaoEmMassaService {
     const itens = await tx.pedidoItem.findMany({
       where: { tenant_id: tenantId, pedido_id: pedidoId },
       select: {
-        quantidade_inicial_pedido: true,
-        quantidade_transferida_pedido: true,
-        valor_por_unidade_item: true,
-        quantidade_atual_pedido: true,
+        quantidade_inicial_item_pedido: true,
+        quantidade_transferida_item_pedido: true,
+        valor_unitario_item: true,
+        saldo_item_pedido: true,
       },
     })
 
     const quantidadeInicialTotal = itens.reduce(
-      (acc: number, i: { quantidade_inicial_pedido: number }) => acc + Number(i.quantidade_inicial_pedido ?? 0),
-      0,
-    )
-    const quantidadeTransferidaTotal = itens.reduce(
-      (acc: number, i: { quantidade_transferida_pedido: number }) => acc + Number(i.quantidade_transferida_pedido ?? 0),
+      (acc: number, i: { quantidade_inicial_item_pedido: number }) => acc + Number(i.quantidade_inicial_item_pedido ?? 0),
       0,
     )
     const valorTotal = itens.reduce(
-      (acc: number, i: { valor_por_unidade_item: number | null; quantidade_atual_pedido: number }) =>
-        acc + ((i.valor_por_unidade_item ?? 0) * Number(i.quantidade_atual_pedido ?? 0)),
+      (acc: number, i: { valor_unitario_item: number | null; saldo_item_pedido: number }) =>
+        acc + ((i.valor_unitario_item ?? 0) * Number(i.saldo_item_pedido ?? 0)),
       0,
     )
 
-    // Pedido só tem quantidade_total_pedido e valor_total_pedido como agregados.
-    // quantidade_transferida_pedido existe apenas em PedidoItem, não no Pedido.
     await tx.pedido.update({
       where: { id: pedidoId },
       data: {
-        quantidade_total_pedido: quantidadeInicialTotal,
+        quantidade_total_inicial_pedido: quantidadeInicialTotal,
         valor_total_pedido: valorTotal,
       },
     })

@@ -1468,3 +1468,172 @@ body.light-theme .cfg-formula-chip:hover {
   0%, 100% { opacity: 0.2 }
   50%       { opacity: 0.8 }
 }
+
+/* ── Kanban Config ──────────────────────────────────────────────────────── */
+
+.cfg-kanban-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cfg-kanban-aba {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.cfg-kanban-aba--fixa {
+  opacity: 0.6;
+}
+
+.cfg-kanban-aba-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+}
+
+.cfg-kanban-aba-titulo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cfg-kanban-aba-titulo {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main, #e2e8f0);
+}
+
+.cfg-kanban-aba-contador {
+  font-size: 0.72rem;
+  color: var(--text-muted, #64748b);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.cfg-kanban-aba-fixa-badge {
+  font-size: 0.68rem;
+  color: var(--text-muted, #64748b);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cfg-kanban-restaurar-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--text-muted, #64748b);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.cfg-kanban-restaurar-btn:hover { color: var(--text-main, #e2e8f0); border-color: rgba(255, 255, 255, 0.15); }
+
+.cfg-kanban-aba-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 0.6rem;
+}
+
+.cfg-kanban-campos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cfg-kanban-campo-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 7px;
+}
+
+.cfg-kanban-campo-row--oculto {
+  opacity: 0.45;
+}
+
+.cfg-kanban-campo-label {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-main, #e2e8f0);
+}
+
+/* Campos disponíveis */
+.cfg-kanban-disponivel-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cfg-kanban-disponivel-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  padding: 0 0.6rem 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, #64748b);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.3rem;
+}
+
+.cfg-kanban-disponivel-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 7px;
+  transition: background 0.15s;
+}
+.cfg-kanban-disponivel-row:hover { background: rgba(255, 255, 255, 0.03); }
+
+.cfg-kanban-disponivel-label {
+  font-size: 0.8rem;
+  color: var(--text-main, #e2e8f0);
+}
+
+.cfg-kanban-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 6px;
+  color: rgba(99, 102, 241, 0.9);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cfg-kanban-add-btn:hover:not(.cfg-kanban-add-btn--disabled) {
+  background: rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+.cfg-kanban-add-btn--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.cfg-loading-msg {
+  font-size: 0.82rem;
+  color: var(--text-muted, #64748b);
+  padding: 1rem 0;
+}

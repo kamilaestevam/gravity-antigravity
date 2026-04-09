@@ -175,7 +175,7 @@ export function EtapaMapeamento({
           <thead>
             <tr>
               <th scope="col">Coluna do Arquivo</th>
-              <th scope="col" style={{ color: 'var(--text-muted)', fontStyle: 'italic', fontWeight: 400 }}>Exemplo do valor</th>
+              <th scope="col">Valor Extraído</th>
               <th scope="col">Campo no Sistema</th>
               <th scope="col">Confianca</th>
               <th scope="col">Inferido Por</th>
@@ -187,10 +187,10 @@ export function EtapaMapeamento({
                 <td style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.8125rem' }}>
                   {col.coluna_arquivo}
                 </td>
-                <td style={{ fontSize: '0.8125rem', color: 'var(--text-muted, #64748b)', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <td style={{ fontSize: '0.8125rem', color: 'var(--text-primary)', fontFamily: 'var(--font-mono, monospace)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {col.exemplo_valor
                     ? <span title={col.exemplo_valor}>{col.exemplo_valor}</span>
-                    : <span style={{ opacity: 0.4 }}>—</span>
+                    : <span style={{ color: 'var(--text-muted)', opacity: 0.5 }}>—</span>
                   }
                 </td>
                 <td>
@@ -218,14 +218,7 @@ export function EtapaMapeamento({
                   </select>
                 </td>
                 <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-                    <BadgeConfianca confianca={col.confianca} nivel={col.nivel} />
-                    {col.exemplo_valor && (
-                      <span style={{ fontFamily: 'var(--font-mono, monospace)', fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)' }}>
-                        &ldquo;{col.exemplo_valor}&rdquo;
-                      </span>
-                    )}
-                  </div>
+                  <BadgeConfianca confianca={col.confianca} nivel={col.nivel} />
                 </td>
                 <td style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
                   {col.inferido_por === 'memoria'  && 'Memoria'}

@@ -1,0 +1,2004 @@
+/**
+ * @nucleo/tabela-virtual-global — CSS
+ * Tabela virtualizada de alto desempenho (até 1M linhas).
+ * Prefixo: .gtv-
+ */
+
+/* ─── Tokens internos ─────────────────────────────────────────────────────── */
+.gtv-container {
+  --gtv-bg:           var(--bg-base, #1e293b);
+  --gtv-bg-alt:       var(--bg-body-dark, #0f172a);
+  --gtv-bg-hover:     rgba(129, 140, 248, 0.04);
+  --gtv-bg-filho:     rgba(10, 18, 36, 0.55);
+  --gtv-border:       var(--ws-accent-border, rgba(129, 140, 248, 0.12));
+  --gtv-border-solid: var(--color-border, #334155);
+  --gtv-accent:       var(--accent, #818cf8);
+  --gtv-text:         var(--text-primary, #f1f5f9);
+  --gtv-muted:        var(--text-muted, #94a3b8);
+  --gtv-radius:       var(--radius-lg, 12px);
+  --gtv-radius-sm:    var(--radius-sm, 6px);
+  --gtv-focus-ring:   0 0 0 3px rgba(129, 140, 248, 0.18);
+  --gtv-danger:       var(--danger, #ef4444);
+}
+
+/* ─── Container principal ─────────────────────────────────────────────────── */
+.gtv-container {
+  display: flex;
+  flex-direction: column;
+  background: var(--gtv-bg);
+  border-radius: var(--gtv-radius);
+  border: 1px solid var(--gtv-border);
+  overflow: hidden;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* Funciona tanto como filho de height:100% quanto como filho flex */
+  flex: 1 1 0;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ─── Abas de status ──────────────────────────────────────────────────────── */
+.gtv-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.625rem 1.25rem 0;
+  border-bottom: 1px solid var(--gtv-border);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.gtv-tabs::-webkit-scrollbar { display: none; }
+
+.gtv-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: var(--gtv-radius-sm) var(--gtv-radius-sm) 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  margin-bottom: -1px;
+}
+
+.gtv-tab:hover:not(.gtv-tab--ativa) {
+  color: var(--gtv-text);
+  background: rgba(129, 140, 248, 0.04);
+}
+
+.gtv-tab--ativa {
+  color: var(--gtv-accent);
+  border-bottom-color: var(--gtv-accent);
+  background: rgba(129, 140, 248, 0.05);
+}
+
+.gtv-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.3rem;
+  border-radius: 9999px;
+  background: rgba(129, 140, 248, 0.15);
+  color: var(--gtv-accent);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.gtv-tab--ativa .gtv-tab-badge {
+  background: var(--gtv-accent);
+  color: #fff;
+}
+
+/* ─── Toolbar ─────────────────────────────────────────────────────────────── */
+.gtv-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--gtv-bg);
+  border-bottom: 1px solid var(--gtv-border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.gtv-toolbar-esquerda,
+.gtv-toolbar-direita {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ─── Busca ───────────────────────────────────────────────────────────────── */
+.gtv-busca-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.gtv-busca-icone {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--gtv-muted);
+  pointer-events: none;
+  line-height: 0;
+}
+
+.gtv-busca-input {
+  background: var(--gtv-bg-alt);
+  border: 1px solid var(--gtv-border-solid);
+  border-radius: 9999px;
+  padding: 0.4375rem 1rem 0.4375rem 2.25rem;
+  color: var(--gtv-text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  min-width: 240px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+}
+
+.gtv-busca-input:focus {
+  outline: none;
+  border-color: var(--gtv-border-solid);
+  box-shadow: none;
+}
+
+.gtv-busca-input:focus-visible {
+  outline: none;
+  border-color: var(--gtv-accent);
+  box-shadow: var(--gtv-focus-ring);
+}
+
+.gtv-busca-input::placeholder {
+  color: var(--gtv-muted);
+  opacity: 0.7;
+}
+
+.gtv-busca-input:not(:placeholder-shown) {
+  padding-right: 2.25rem;
+}
+
+.gtv-busca-clear {
+  position: absolute;
+  right: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--gtv-border-solid);
+  border: none;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.gtv-busca-clear:hover {
+  background: var(--gtv-accent);
+  color: #fff;
+}
+
+/* ─── Find-in-page ────────────────────────────────────────────────────────── */
+.gtv-find-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-find-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.gtv-find-count {
+  font-size: 0.75rem;
+  color: var(--gtv-muted);
+  white-space: nowrap;
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+.gtv-find-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--gtv-border-solid);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s;
+  flex-shrink: 0;
+}
+
+.gtv-find-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  color: var(--gtv-accent);
+  border-color: var(--gtv-accent);
+}
+
+.gtv-find-sem-resultado {
+  font-size: 0.75rem;
+  color: #f87171;
+  white-space: nowrap;
+}
+
+/* Célula pai / filho com match */
+.gtv-celula--find-match {
+  background: rgba(250, 204, 21, 0.14) !important;
+  position: relative;
+  /* isolation cria stacking context sem elevar z-index da célula,
+     evitando que ::before vaze acima do header sticky */
+  isolation: isolate;
+}
+
+/* Borda de match visível ACIMA de conteúdo interno (badges, ícones) */
+.gtv-celula--find-match::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gtv-celula--find-match-ativo {
+  background: rgba(250, 204, 21, 0.42) !important;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Borda de match ativo visível ACIMA de conteúdo interno (badges, ícones) */
+.gtv-celula--find-match-ativo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(250, 204, 21, 0.9);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Header com match */
+.gtv-th--find-match {
+  background: rgba(250, 204, 21, 0.14) !important;
+}
+
+.gtv-th--find-match-ativo {
+  background: rgba(250, 204, 21, 0.42) !important;
+  outline: 2px solid rgba(250, 204, 21, 0.75);
+  outline-offset: -2px;
+}
+
+/* ─── Botão genérico ──────────────────────────────────────────────────────── */
+.gtv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--gtv-border-solid);
+  background: transparent;
+  color: var(--gtv-muted);
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.gtv-btn:hover:not(:disabled) {
+  border-color: var(--gtv-accent);
+  color: var(--gtv-accent);
+  background: rgba(129, 140, 248, 0.06);
+}
+
+.gtv-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gtv-btn--ativo {
+  border-color: var(--gtv-accent) !important;
+  color: var(--gtv-accent) !important;
+  background: rgba(129, 140, 248, 0.1) !important;
+}
+
+.gtv-filtro-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.3rem;
+  border-radius: 9999px;
+  background: var(--gtv-accent);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ─── Barra de ações em lote ──────────────────────────────────────────────── */
+.gtv-lote-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  background: rgba(129, 140, 248, 0.08);
+  border-bottom: 1px solid rgba(129, 140, 248, 0.2);
+  flex-shrink: 0;
+  animation: gtv-lote-in 0.18s ease;
+}
+
+@keyframes gtv-lote-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.gtv-lote-info {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--gtv-accent);
+}
+
+.gtv-lote-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-lote-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1px solid var(--gtv-accent);
+  background: rgba(129, 140, 248, 0.1);
+  color: var(--gtv-accent);
+  transition: all 0.12s;
+}
+
+.gtv-lote-btn:hover {
+  background: rgba(129, 140, 248, 0.2);
+}
+
+.gtv-lote-btn--danger {
+  border-color: var(--gtv-danger);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--gtv-danger);
+}
+
+.gtv-lote-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.gtv-lote-btn--ghost {
+  border-color: var(--gtv-border-solid);
+  background: transparent;
+  color: var(--gtv-muted);
+}
+
+.gtv-lote-btn--ghost:hover {
+  background: var(--gtv-bg-hover);
+  color: var(--gtv-text);
+  border-color: var(--gtv-accent);
+}
+
+/* ─── Export ──────────────────────────────────────────────────────────────── */
+.gtv-export-wrapper {
+  position: relative;
+}
+
+.gtv-export-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  background: var(--gtv-bg);
+  border: 1px solid var(--gtv-border-solid);
+  border-radius: 10px;
+  padding: 0.375rem;
+  min-width: 180px;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  animation: gtv-popover-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Busca dentro do painel de colunas ──────────────────────────────────────── */
+.gtv-col-busca {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem 0.375rem;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
+  background: rgba(129, 140, 248, 0.04);
+  border-radius: 7px 7px 0 0;
+  flex-shrink: 0;
+}
+
+.gtv-col-busca-icone {
+  color: var(--gtv-muted, #64748b);
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.gtv-col-busca-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--gtv-text, #f1f5f9);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  caret-color: var(--gtv-accent, #818cf8);
+  min-width: 0;
+}
+
+.gtv-col-busca-input::placeholder {
+  color: var(--gtv-muted, #64748b);
+}
+
+.gtv-col-busca-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--gtv-border-solid, rgba(255,255,255,0.1));
+  border: none;
+  color: var(--gtv-muted, #64748b);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+  padding: 0;
+  line-height: 0;
+}
+
+.gtv-col-busca-clear:hover {
+  background: var(--gtv-accent, #818cf8);
+  color: #fff;
+}
+
+/* ── Ações em lote (selecionar tudo / restaurar padrão) ─────────────────────── */
+.gtv-col-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.375rem 0.25rem;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
+  background: rgba(129, 140, 248, 0.02);
+  flex-shrink: 0;
+}
+
+.gtv-col-acao-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gtv-text-secondary, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.1s, color 0.1s;
+}
+
+.gtv-col-acao-btn:hover {
+  background: rgba(129, 140, 248, 0.08);
+  color: var(--gtv-accent, #818cf8);
+}
+
+.gtv-col-acao-btn--reset {
+  color: var(--gtv-muted, #64748b);
+}
+
+.gtv-col-acao-btn--reset:hover {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* ── Vazio ──────────────────────────────────────────────────────────────────── */
+.gtv-col-vazio {
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--gtv-muted, #64748b);
+  font-size: 0.8125rem;
+}
+
+/* Divisor entre colunas obrigatórias (topo) e opcionais no painel */
+.gtv-col-divisor {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 0.25rem 0;
+}
+
+@keyframes gtv-popover-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.gtv-export-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 7px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gtv-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s, color 0.12s;
+}
+
+.gtv-export-item:hover {
+  background: rgba(129, 140, 248, 0.08);
+  color: var(--gtv-text);
+}
+
+/* ─── Grade compartilhada (header + linhas como filhos diretos) ───────────── */
+.gtv-grade {
+  display: grid;
+  /* gridTemplateColumns definido inline no componente */
+  min-width: 100%;
+  align-items: stretch;
+}
+
+/* ─── Cabeçalho da tabela — display:contents torna os th filhos diretos do grid */
+.gtv-cabecalho {
+  display: contents;
+}
+
+.gtv-th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--gtv-bg);
+  border-bottom: 1px solid var(--gtv-border);
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--gtv-text);
+  white-space: nowrap;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* Label do cabeçalho: trunca com ellipsis, ícones de sort/filter ficam fora e nunca clipados */
+.gtv-th-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.gtv-col-fixa { flex: 0 0 auto; }
+
+.gtv-th,
+.gtv-celula { min-width: max-content; }
+
+.gtv-th--check {
+  padding-left: 1.25rem;
+  padding-right: 0;
+  justify-content: flex-start;
+}
+
+
+.gtv-th--center { justify-content: center; }
+.gtv-th--right  { justify-content: flex-end; }
+
+
+.gtv-th--sort {
+  cursor: pointer;
+}
+
+.gtv-th--sort:hover {
+  color: var(--gtv-text);
+  background: rgba(129, 140, 248, 0.04);
+}
+
+.gtv-th--sorted {
+  color: inherit;
+}
+
+.gtv-sort-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gtv-accent);
+  line-height: 0;
+}
+
+/* ── Botão de filtro no cabeçalho ──────────────────────────────────────────── */
+.gtv-filtro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  margin-left: 4px;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0.45;
+  transition: color 0.12s, background 0.12s, opacity 0.12s;
+}
+
+.gtv-filtro-btn:hover {
+  opacity: 1;
+}
+
+.gtv-filtro-btn--ativo {
+  opacity: 1;
+}
+
+.gtv-filtro-btn:hover {
+  background: rgba(129, 140, 248, 0.12);
+  color: var(--gtv-accent);
+}
+
+.gtv-filtro-btn--ativo {
+  color: var(--gtv-accent);
+}
+
+.gtv-sort-icon--idle {
+  font-size: 0.625rem;
+  opacity: 0.35;
+  font-style: normal;
+  color: var(--gtv-muted);
+}
+
+/* ─── Scroll virtual ──────────────────────────────────────────────────────── */
+.gtv-tabela-scroll {
+  overflow-y: auto;
+  overflow-x: auto;
+  flex: 1 1 0;
+  min-height: 0;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gtv-tabela-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px; /* scrollbar horizontal */
+}
+
+.gtv-tabela-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gtv-tabela-scroll::-webkit-scrollbar-thumb {
+  background: rgba(129, 140, 248, 0.2);
+  border-radius: 3px;
+}
+
+.gtv-tabela-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(129, 140, 248, 0.4);
+}
+
+.gtv-tabela-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
+/* ─── Linha ───────────────────────────────────────────────────────────────── */
+/* Cada linha ocupa todas as colunas do grid pai e usa subgrid internamente   */
+/* para que suas células se alinhem com o cabeçalho.                          */
+.gtv-linha {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
+  transition: background 0.1s;
+  backface-visibility: hidden;
+}
+
+.gtv-linha:hover {
+  background: var(--gtv-bg-hover);
+}
+
+.gtv-linha--pai {
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.gtv-linha--filho {
+  background: var(--gtv-bg-filho);
+  min-height: 44px;
+}
+
+.gtv-linha--filho .gtv-celula {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gtv-text);
+}
+
+.gtv-linha--filho:hover {
+  background: rgba(10, 18, 36, 0.65);
+}
+
+.gtv-linha--selecionada {
+  background: rgba(129, 140, 248, 0.06) !important;
+}
+
+.gtv-linha--selecionada:hover {
+  background: rgba(129, 140, 248, 0.09) !important;
+}
+
+.gtv-linha--expandida {
+  background: rgba(129, 140, 248, 0.04);
+  border-bottom: none;
+}
+
+.gtv-linha--expandida:hover {
+  background: rgba(129, 140, 248, 0.06);
+}
+
+/* ─── Células ─────────────────────────────────────────────────────────────── */
+.gtv-celula {
+  padding: 0 1.25rem;
+  color: var(--gtv-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.875rem;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.gtv-celula--check {
+  padding-left: 1.25rem;
+  padding-right: 0;
+}
+
+.gtv-celula--expand {
+  padding: 0;
+  justify-content: center;
+  overflow: visible;
+}
+
+.gtv-celula--acoes {
+  white-space: nowrap;
+  padding-right: 0.75rem;
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--gtv-bg);
+}
+
+/* Acoes sticky — backgrounds espelham os estados da linha */
+.gtv-linha:hover .gtv-celula--acoes {
+  background: var(--gtv-bg-hover);
+}
+.gtv-linha--filho .gtv-celula--acoes {
+  background: var(--gtv-bg-filho);
+}
+.gtv-linha--filho:hover .gtv-celula--acoes {
+  background: rgba(10, 18, 36, 0.65);
+}
+.gtv-linha--selecionada .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.06);
+}
+.gtv-linha--selecionada:hover .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.09);
+}
+.gtv-linha--expandida .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.04);
+}
+.gtv-linha--expandida:hover .gtv-celula--acoes {
+  background: rgba(129, 140, 248, 0.06);
+}
+
+.gtv-celula--center { justify-content: center; text-align: center; }
+.gtv-celula--right  { justify-content: flex-end; text-align: right; }
+
+
+.gtv-celula--editavel {
+  cursor: text;
+  position: relative;
+}
+
+.gtv-celula--editavel:hover {
+  background: rgba(129, 140, 248, 0.07);
+  border-radius: 4px;
+  outline: 1px dashed rgba(129, 140, 248, 0.4);
+  outline-offset: -1px;
+}
+
+.gtv-celula--editavel:focus {
+  outline: 2px solid rgba(129, 140, 248, 0.7);
+  outline-offset: -2px;
+  border-radius: 4px;
+  background: rgba(129, 140, 248, 0.08);
+}
+
+/* ─── Input de edição inline ──────────────────────────────────────────────── */
+.gtv-celula-input {
+  width: 100%;
+  background: var(--gtv-bg-alt);
+  border: 1.5px solid var(--gtv-accent);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  color: var(--gtv-text);
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+  box-shadow: var(--gtv-focus-ring);
+}
+
+/* ─── Indicador de célula editando via overlay ────────────────────────────── */
+.gtv-celula--editando-overlay {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.45;
+  outline: 1.5px solid var(--gtv-accent);
+  outline-offset: -1px;
+  border-radius: 4px;
+  width: 100%;
+}
+
+
+/* ─── Popover de edição flutuante ─────────────────────────────────────────── */
+
+/* Backdrop transparente — clique fora confirma */
+.gtv-edit-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: transparent;
+}
+
+/* Card principal */
+.gtv-edit-popover {
+  position: fixed;
+  z-index: 9999;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  background: var(--gtv-bg-alt, #1e2230);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: gtv-popover-in 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gtv-popover-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Quando o popover está acima da célula (flip) */
+.gtv-edit-popover--flip {
+  animation: gtv-popover-in-flip 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes gtv-popover-in-flip {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+/* Seta — posicionada via fixed no JS para não ser cortada pelo overflow:hidden do popover */
+.gtv-edit-popover-arrow {
+  width: 12px;
+  height: 6px;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.gtv-edit-popover-arrow::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--gtv-bg-alt, #1e2230);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.gtv-edit-popover-arrow--flip {
+  transform: translateX(-50%) rotate(180deg);
+}
+
+/* Header */
+.gtv-edit-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 0.875rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.gtv-edit-popover-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gtv-muted, #8892a4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gtv-edit-popover-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--gtv-muted, #8892a4);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.gtv-edit-popover-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--gtv-text, #e2e8f0);
+}
+
+/* Body */
+.gtv-edit-popover-body {
+  padding: 0.75rem 0.875rem 0.625rem;
+}
+
+/* ── Modo lista de opções ────────────────────────────────────────────────────── */
+
+.gtv-edit-popover-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gtv-edit-popover-opcao {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.4375rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gtv-text, #e2e8f0);
+  font-size: 0.875rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.gtv-edit-popover-opcao:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.gtv-edit-popover-opcao--ativo {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.gtv-edit-popover-opcao--ativo:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.22);
+}
+
+.gtv-edit-popover-footer--hidden {
+  display: none;
+}
+
+.gtv-edit-popover-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--gtv-text, #e2e8f0);
+  font-size: 0.875rem;
+  font-family: inherit;
+  padding: 0.5rem 0.75rem;
+  outline: none;
+  caret-color: var(--gtv-accent, #6366f1);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.gtv-edit-popover-input:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-popover-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.gtv-edit-popover-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.875rem 0.75rem;
+  gap: 0.5rem;
+}
+
+.gtv-edit-popover-hints {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6875rem;
+  color: var(--gtv-muted, #8892a4);
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.gtv-edit-popover-kbd {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.625rem;
+  font-family: inherit;
+  color: var(--gtv-text, #e2e8f0);
+  line-height: 1.6;
+}
+
+.gtv-edit-popover-sep {
+  color: rgba(255, 255, 255, 0.2);
+  margin: 0 0.125rem;
+}
+
+.gtv-edit-popover-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-edit-popover-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3125rem 0.75rem;
+  border-radius: var(--radius-pill, 9999px);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.gtv-edit-popover-btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--gtv-muted, #8892a4);
+}
+
+.gtv-edit-popover-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--gtv-text, #e2e8f0);
+}
+
+.gtv-edit-popover-btn--primary {
+  background: var(--gtv-accent, #6366f1);
+  border-color: transparent;
+  color: #0f172a;
+}
+
+.gtv-edit-popover-btn--primary:hover:not(:disabled) {
+  background: #4f52d8;
+}
+
+.gtv-edit-popover-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Modo moeda ──────────────────────────────────────────────────────────────── */
+
+.gtv-edit-moeda {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-edit-moeda-valor {
+  flex: 1 1 auto;
+  height: 2.125rem;
+  padding: 0 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gtv-radius-sm, 6px);
+  color: var(--gtv-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.gtv-edit-moeda-valor:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-moeda-valor:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Oculta spinners nativos do input[type=number] */
+.gtv-edit-moeda-valor::-webkit-inner-spin-button,
+.gtv-edit-moeda-valor::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+/* ── Modo unidade ─────────────────────────────────────────────────────────────── */
+
+.gtv-edit-unidade {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.gtv-edit-unidade-qty {
+  flex: 1 1 auto;
+  height: 2.125rem;
+  padding: 0 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gtv-radius-sm, 6px);
+  color: var(--gtv-text, #f1f5f9);
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.gtv-edit-unidade-qty:focus {
+  border-color: var(--gtv-accent, #6366f1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.gtv-edit-unidade-qty::-webkit-inner-spin-button,
+.gtv-edit-unidade-qty::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.gtv-edit-unidade-qty:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Custom select dropdown (moeda / unidade) ────────────────────────────────── */
+
+.gtv-edit-custom-select {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.gtv-edit-custom-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 2.125rem;
+  padding: 0 0.625rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--gtv-radius-sm, 6px);
+  color: var(--gtv-text, #e2e8f0);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+  outline: none;
+}
+
+.gtv-edit-custom-select-trigger:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.gtv-edit-custom-select-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gtv-edit-custom-select-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10001;
+  min-width: 80px;
+  width: max-content;
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--gtv-bg-alt, #1e2230);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.gtv-edit-custom-select-list::-webkit-scrollbar {
+  width: 4px;
+}
+.gtv-edit-custom-select-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.gtv-edit-custom-select-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.35rem 0.625rem;
+  border-radius: 5px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--gtv-muted, #94a3b8);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+
+.gtv-edit-custom-select-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--gtv-text, #e2e8f0);
+}
+
+.gtv-edit-custom-select-item--ativo {
+  background: rgba(99, 102, 241, 0.18);
+  color: var(--gtv-text, #e2e8f0);
+  font-weight: 700;
+}
+
+.gtv-edit-custom-select-busca {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.5rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  color: var(--gtv-muted, #94a3b8);
+}
+
+.gtv-edit-custom-select-busca-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.8125rem;
+  color: var(--gtv-text, #e2e8f0);
+  font-family: inherit;
+  min-width: 0;
+}
+
+.gtv-edit-custom-select-busca-input::placeholder {
+  color: var(--gtv-muted, #94a3b8);
+}
+
+/* ── Dropdown de moeda — layout rico (sigla + descrição) ─────────────────── */
+
+.gtv-edit-moeda-list {
+  max-height: 280px;
+}
+
+.gtv-edit-moeda-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  white-space: normal;
+}
+
+.gtv-edit-moeda-sigla {
+  flex-shrink: 0;
+  min-width: 2.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  letter-spacing: 0.04em;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--gtv-accent, #818cf8);
+  text-align: center;
+}
+
+.gtv-edit-moeda-item--ativo .gtv-edit-moeda-sigla {
+  background: rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+}
+
+.gtv-edit-moeda-desc {
+  flex: 1;
+  font-size: 0.8125rem;
+  color: var(--gtv-muted, #94a3b8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Badge de moeda exibido dentro de células da tabela */
+.gtv-celula-moeda {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.gtv-celula-moeda-badge {
+  flex-shrink: 0;
+}
+.gtv-celula-unidade-badge {
+  flex-shrink: 0;
+  font-size: 0.75em;
+  order: 1;
+}
+
+.gtv-edit-moeda-item:hover .gtv-edit-moeda-desc,
+.gtv-edit-moeda-item--ativo .gtv-edit-moeda-desc {
+  color: var(--gtv-text, #e2e8f0);
+}
+
+/* Spinner no botão confirmar */
+.gtv-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: gtv-spin 0.6s linear infinite;
+}
+
+@keyframes gtv-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Tooltip em células ──────────────────────────────────────────────────── */
+
+/* Célula conteúdo: ocupa toda a largura, trunca com ellipsis */
+/* Texto puro dentro de célula (sem render customizado) */
+.gtv-celula-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  width: 100%;
+}
+
+/* TooltipGlobal dentro de célula: cresce para preencher a célula sem colapsar */
+.gtv-celula .tg-trigger {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Oculta o ícone ⓘ do TooltipGlobal nas células (muito denso para tabela) */
+.gtv-celula .tg-trigger::after {
+  display: none;
+}
+
+/* ─── Chevron expand/collapse ─────────────────────────────────────────────── */
+.gtv-chevron-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.gtv-chevron-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.2);
+  color: var(--gtv-accent);
+}
+
+.gtv-chevron-btn:focus-visible {
+  box-shadow: var(--gtv-focus-ring);
+  outline: none;
+}
+
+.gtv-chevron-icon {
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 0;
+}
+
+.gtv-chevron-icon--aberto {
+  transform: rotate(90deg);
+}
+
+/* Indicador "Salvando..." na toolbar */
+.gtv-salvando {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--gtv-text-muted, #94a3b8);
+  user-select: none;
+}
+
+/* Spinner de loading filho */
+.gtv-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(129, 140, 248, 0.2);
+  border-top-color: var(--gtv-accent);
+  border-radius: 50%;
+  animation: gtv-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes gtv-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Conector de hierarquia ──────────────────────────────────────────────── */
+.gtv-conector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: rgba(129, 140, 248, 0.35);
+  line-height: 1;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* ─── Checkbox ────────────────────────────────────────────────────────────── */
+.gtv-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid var(--gtv-border-solid);
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+  position: relative;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.gtv-checkbox:hover {
+  border-color: var(--gtv-accent);
+  background: rgba(129, 140, 248, 0.08);
+}
+
+.gtv-checkbox:checked {
+  background: var(--gtv-accent);
+  border-color: var(--gtv-accent);
+}
+
+.gtv-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 5px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(0px, -1px);
+}
+
+.gtv-checkbox:indeterminate {
+  background: var(--gtv-accent);
+  border-color: var(--gtv-accent);
+}
+
+.gtv-checkbox:indeterminate::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 2px;
+  background: #fff;
+  border-radius: 1px;
+}
+
+/* ─── Ações de linha ──────────────────────────────────────────────────────── */
+.gtv-acoes-grupo {
+  display: flex;
+  gap: 0.375rem;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.gtv-linha:hover .gtv-acoes-grupo,
+.gtv-linha:focus-within .gtv-acoes-grupo {
+  opacity: 1;
+}
+
+.gtv-acao-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--gtv-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.gtv-acao-btn:hover {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.2);
+  color: var(--gtv-accent);
+}
+
+.gtv-acao-btn--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: var(--gtv-danger);
+}
+
+.gtv-acao-btn:focus-visible {
+  box-shadow: var(--gtv-focus-ring);
+  outline: none;
+}
+
+
+/* ─── Estado vazio ────────────────────────────────────────────────────────── */
+.gtv-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1rem;
+  color: var(--gtv-muted);
+  flex: 1;
+}
+
+.gtv-vazio__icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(129, 140, 248, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.15);
+  color: var(--gtv-muted);
+}
+
+.gtv-vazio__titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--gtv-text);
+  margin: 0 0 0.375rem;
+  text-align: center;
+}
+
+.gtv-vazio__desc {
+  font-size: 0.8125rem;
+  color: var(--gtv-muted);
+  margin: 0 0 1rem;
+  max-width: 320px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.gtv-vazio__acao {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* ─── Skeleton de carregamento ────────────────────────────────────────────── */
+.gtv-skeleton-linha {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.25rem;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.06);
+}
+
+.gtv-skeleton {
+  height: 0.875rem;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(129, 140, 248, 0.06) 25%,
+    rgba(129, 140, 248, 0.12) 50%,
+    rgba(129, 140, 248, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: gtv-shimmer 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.gtv-skeleton--sm  { width: 60px; }
+.gtv-skeleton--md  { width: 120px; }
+.gtv-skeleton--lg  { flex: 1; }
+.gtv-skeleton--xl  { flex: 2; }
+
+@keyframes gtv-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Light theme ─────────────────────────────────────────────────────────── */
+body.light-theme .gtv-container {
+  --gtv-bg:           var(--bg-surface, #f8fafc);
+  --gtv-bg-alt:       var(--bg-body, #f1f5f9);
+  --gtv-bg-hover:     rgba(79, 70, 229, 0.04);
+  --gtv-bg-filho:     rgba(79, 70, 229, 0.03);
+  --gtv-border:       var(--border-default, #cbd5e1);
+  --gtv-border-solid: var(--border-default, #cbd5e1);
+  --gtv-accent:       #4f46e5;
+  --gtv-text:         var(--text-primary, #1e293b);
+  --gtv-muted:        var(--text-muted, #475569);
+  --gtv-focus-ring:   0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+
+body.light-theme .gtv-export-menu {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--border-default, #cbd5e1);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+body.light-theme .gtv-export-item {
+  color: var(--text-secondary, #334155);
+}
+
+body.light-theme .gtv-export-item:hover {
+  background: rgba(79, 70, 229, 0.06);
+  color: var(--text-primary, #1e293b);
+}
+
+body.light-theme .gtv-tab--ativa .gtv-tab-badge {
+  background: #4f46e5;
+}
+
+body.light-theme .gtv-tab-badge {
+  background: rgba(79, 70, 229, 0.12);
+  color: #4f46e5;
+}
+
+body.light-theme .gtv-lote-bar {
+  background: rgba(79, 70, 229, 0.06);
+  border-color: rgba(79, 70, 229, 0.2);
+}
+
+body.light-theme .gtv-linha--selecionada {
+  background: rgba(79, 70, 229, 0.04) !important;
+}
+
+body.light-theme .gtv-linha--selecionada:hover {
+  background: rgba(79, 70, 229, 0.07) !important;
+}
+
+
+body.light-theme .gtv-celula--acoes {
+  background: var(--gtv-bg);
+}
+body.light-theme .gtv-linha:hover .gtv-celula--acoes {
+  background: var(--gtv-bg-hover);
+}
+body.light-theme .gtv-linha--filho .gtv-celula--acoes {
+  background: var(--gtv-bg-filho);
+}
+body.light-theme .gtv-linha--selecionada .gtv-celula--acoes {
+  background: rgba(79, 70, 229, 0.06);
+}
+
+body.light-theme .gtv-conector {
+  color: rgba(79, 70, 229, 0.45);
+}
+
+body.light-theme .gtv-vazio__icone {
+  background: rgba(79, 70, 229, 0.05);
+  border-color: rgba(79, 70, 229, 0.12);
+}
+
+/* ─── Checkbox filho (menor e distinto do checkbox pai) ────────────────────── */
+.gtv-checkbox--filho {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  opacity: 0.85;
+}
+
+.gtv-checkbox--filho:checked {
+  background: var(--gtv-accent);
+  border-color: var(--gtv-accent);
+  opacity: 1;
+}
+
+.gtv-checkbox--filho:checked::after {
+  width: 6px;
+  height: 4px;
+}
+
+/* ─── Linha filho selecionada ──────────────────────────────────────────────── */
+.gtv-linha--filho-selecionada {
+  background: rgba(129, 140, 248, 0.07);
+}
+
+.gtv-linha--filho-selecionada:hover {
+  background: rgba(129, 140, 248, 0.11);
+}
+
+/* ─── Botão três pontos (ações inline filho) ───────────────────────────────── */
+.gtv-acao-btn--tres-pontos {
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  padding: 0 4px;
+  min-width: 22px;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.gtv-linha--filho:hover .gtv-acao-btn--tres-pontos,
+.gtv-acao-btn--tres-pontos[aria-expanded="true"] {
+  opacity: 1;
+}
+
+/* ─── Dropdown de ações do filho ───────────────────────────────────────────── */
+.gtv-dropdown-filho {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 100;
+  background: var(--gtv-bg, #1e1e2e);
+  border: 1px solid var(--gtv-border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: gtv-lote-in 0.12s ease;
+}
+
+.gtv-dropdown-filho-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--gtv-text, rgba(255, 255, 255, 0.85));
+  font-size: 0.8125rem;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.1s;
+}
+
+.gtv-dropdown-filho-item:hover {
+  background: rgba(129, 140, 248, 0.12);
+}
+
+.gtv-dropdown-filho-item--perigo {
+  color: var(--gtv-danger, #f87171);
+}
+
+.gtv-dropdown-filho-item--perigo:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.gtv-dropdown-filho-icone {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.75;
+}
+
+/* Light theme overrides */
+body.light-theme .gtv-dropdown-filho {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .gtv-dropdown-filho-item {
+  color: rgba(0, 0, 0, 0.82);
+}
+
+body.light-theme .gtv-dropdown-filho-item:hover {
+  background: rgba(79, 70, 229, 0.07);
+}
+
+body.light-theme .gtv-linha--filho-selecionada {
+  background: rgba(79, 70, 229, 0.05);
+}
+
+/* ── Drag de cabeçalho ────────────────────────────────────────────────────── */
+
+.gtv-th--drop-before {
+  position: relative;
+}
+.gtv-th--drop-before::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: #14b8a6;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.gtv-th--drop-after {
+  position: relative;
+}
+.gtv-th--drop-after::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: #14b8a6;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* ─── Paginação ───────────────────────────────────────────────────────────── */
+.gtv-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  border-top: 1px solid var(--gtv-border);
+  background: var(--gtv-bg);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.gtv-paginacao-info {
+  font-size: 0.75rem;
+  color: var(--gtv-muted);
+  white-space: nowrap;
+}
+
+.gtv-paginacao-controles {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.gtv-pag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.375rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--gtv-border-solid);
+  background: transparent;
+  color: var(--gtv-muted);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.gtv-pag-btn:hover:not(:disabled) {
+  border-color: var(--gtv-accent);
+  color: var(--gtv-accent);
+  background: rgba(129, 140, 248, 0.06);
+}
+
+.gtv-pag-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.gtv-pag-btn--ativo {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.35);
+  color: var(--gtv-accent);
+  font-weight: 700;
+}
+
+.gtv-pag-reticencias {
+  color: var(--gtv-muted);
+  padding: 0 0.25rem;
+  font-size: 0.8125rem;
+}

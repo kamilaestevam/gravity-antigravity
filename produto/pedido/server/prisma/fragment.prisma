@@ -169,3 +169,21 @@ model MapeamentoImport {
 
   @@map("mapeamento_import")
 }
+
+// ============================================
+// Pedido — Kanban Preferências
+// Produto: produto/pedido
+// ============================================
+
+model KanbanPreferencias {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  user_id      String
+  preferencias Json
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+}

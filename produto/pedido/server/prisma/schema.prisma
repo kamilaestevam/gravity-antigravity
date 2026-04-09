@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
+  output   = "../../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -69,16 +69,16 @@ model PedidoItem {
   ncm                         String
   descricao_item              String
   unidade_comercializada_item String?
-  quantidade_inicial_pedido          Decimal        @db.Decimal(18, 6)
-  quantidade_atual_pedido            Decimal        @db.Decimal(18, 6)
-  quantidade_pronta_pedido           Decimal        @default(0) @db.Decimal(18, 6)
-  quantidade_transferida_pedido      Decimal        @default(0) @db.Decimal(18, 6)
-  quantidade_cancelada_pedido        Decimal        @default(0) @db.Decimal(18, 6)
-  casas_decimais_quantidade_item     Int            @default(2)
-  moeda_item                         String         @default("USD")
-  valor_total_item                   Decimal?       @db.Decimal(18, 6)
-  valor_por_unidade_item             Decimal?       @db.Decimal(18, 6)
-  casas_decimais_total_item   Int            @default(2)
+  quantidade_inicial_item_pedido      Decimal        @db.Decimal(18, 6) @map("quantidade_inicial_pedido")
+  saldo_item_pedido                   Decimal        @db.Decimal(18, 6) @map("quantidade_atual_pedido")
+  quantidade_pronta_total_item_pedido Decimal        @default(0) @db.Decimal(18, 6) @map("quantidade_pronta_pedido")
+  quantidade_transferida_item_pedido  Decimal        @default(0) @db.Decimal(18, 6) @map("quantidade_transferida_pedido")
+  quantidade_cancelada_item_pedido    Decimal        @default(0) @db.Decimal(18, 6) @map("quantidade_cancelada_pedido")
+  casas_decimais_quantidade_item      Int            @default(2)
+  moeda_item                          String         @default("USD")
+  valor_total_itens                   Decimal?       @db.Decimal(18, 6) @map("valor_total_item")
+  valor_unitario_item                 Decimal?       @db.Decimal(18, 6) @map("valor_por_unidade_item")
+  casas_decimais_valor_item           Int            @default(2) @map("casas_decimais_total_item")
   campos_custom               Json?
   created_at                  DateTime       @default(now())
   updated_at                  DateTime       @updatedAt
@@ -468,4 +468,21 @@ model ValorColunaUsuarioPedido {
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
   @@map("valores_colunas_usuario_pedido")
+}
+
+/// Configuração de widgets do Dashboard por tenant/produto.
+/// Persiste o layout e configuração de widgets escolhidos pelo usuário.
+model DashboardConfig {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String
+  /// JSON serializado: DashboardWidgetConfig[]
+  widgets_json String   @default("[]") @db.Text
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, product_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("dashboard_config")
 }

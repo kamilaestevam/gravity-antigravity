@@ -131,3 +131,15 @@ export function useGabiOnDemand(_campo: string, _label: string, _endpoint?: stri
 export function useGabiQuota(_endpoint?: string) {
   return { quota: null, carregando: false, recarregar: async () => {} }
 }
+
+// ── Kanban Global ──
+export type KanbanItem = { id: string; columnId: string; [key: string]: unknown }
+export function KanbanGlobal({ renderCard, onCardClick }: {
+  items?: KanbanItem[]
+  columns?: unknown[]
+  renderCard?: (item: KanbanItem) => React.ReactNode
+  onCardClick?: (item: KanbanItem) => void
+  loading?: boolean
+}) {
+  return <div data-testid="kanban-global" />
+}

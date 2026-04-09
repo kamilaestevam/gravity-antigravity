@@ -123,7 +123,7 @@ async function main() {
       descricao_item: `Produto Teste Bulk ${num} — ${isExport ? exp.nome : fab.nome}`,
       unidade_comercializada_item: 'PCS',
       quantidade_inicial_pedido:     new Decimal(qtdItem),
-      quantidade_atual_pedido:       new Decimal(qtdItem),
+      quantidade_saldo_pedido:       new Decimal(qtdItem),
       quantidade_pronta_pedido:      new Decimal(0),
       quantidade_transferida_pedido: new Decimal(0),
       quantidade_cancelada_pedido:   new Decimal(0),

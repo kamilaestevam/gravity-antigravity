@@ -55,7 +55,7 @@ export interface CardComputedStats {
   qtdTransferida: number
   /** Soma de quantidade_inicial_item_pedido (todos os itens) */
   qtdInicial: number
-  /** Soma de valor_total_item (todos os itens) */
+  /** Soma de valor_total_itens (todos os itens) */
   valorItens: number
   /** Número total de itens (todosItens.length) */
   nItens: number
@@ -166,7 +166,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     subtexto: () => 'Sem cobertura cambial',
     tooltip:  (pedidos) => row(
       'Aguardando cobertura',
-      pedidos.filter(p => !p.cobertura_cambial || p.cobertura_cambial === 'sem_cobertura').length,
+      pedidos.filter(p => !p.cobertura_cambial_pedido || p.cobertura_cambial_pedido === 'sem_cobertura').length,
     ),
   },
 
@@ -246,7 +246,7 @@ export function computeCardStats(
   const itensProntos     = itens.reduce((acc, i)   => acc + (Number(i.quantidade_pronta_total) || 0), 0)
   const qtdTransferida   = itens.reduce((acc, i)   => acc + (Number(i.quantidade_transferida_item) || 0), 0)
   const qtdInicial       = itens.reduce((acc, i)   => acc + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-  const valorItens       = itens.reduce((acc, i)   => acc + (Number(i.valor_total_item) || 0), 0)
+  const valorItens       = itens.reduce((acc, i)   => acc + (Number(i.valor_total_itens) || 0), 0)
   const coberturaPend    = pedidos
     .filter(p => !p.cobertura_cambial || p.cobertura_cambial === 'sem_cobertura')
     .reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)

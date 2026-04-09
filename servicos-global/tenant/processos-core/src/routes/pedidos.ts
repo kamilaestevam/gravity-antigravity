@@ -146,6 +146,10 @@ export function mapPedido(pedido: any): any {
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
       ? itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
       : (pedido.quantidade_pronta_itens_pedido_total ?? null),
+    // Virtual: contagem de NCMs distintos nos itens do pedido
+    ncms_distintos_count: Array.isArray(itens)
+      ? new Set(itens.map((i: any) => i.ncm).filter(Boolean)).size
+      : (pedido.ncms_distintos_count ?? null),
   }
 }
 

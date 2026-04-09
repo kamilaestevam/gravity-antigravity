@@ -45,6 +45,9 @@ export interface PedidoItem {
   texto_posicao_ncm?: string | null
   atributos_catalogo?: string | null
 
+  // Unidade
+  unidade_comercializada_item?: string | null
+
   // Quantidades
   quantidade_inicial_item_pedido: number
   saldo_item_pedido: number
@@ -79,7 +82,6 @@ export interface PedidoItem {
   campo_especial_item?: string | null
 
   // Datas do item
-  data_inclusao_item?: string | null
   data_transferencia_item?: string | null
   data_consolidacao_item?: string | null
 
@@ -115,7 +117,6 @@ export interface PedidoItem {
   data_prevista_recebimento_original_cert_origem?: string | null
   data_confirmada_recebimento_original_cert_origem?: string | null
   data_meta_recebimento_original_cert_origem?: string | null
-  data_cert_origem?: string | null
 
   // DUIMP — Dados gerais
   tipo_operacao_duimp?: string | null
@@ -306,6 +307,7 @@ export interface Pedido {
   casas_decimais_valor_pedido: number
   quantidade_total_inicial_pedido: number | null
   casas_decimais_quantidade_pedido: number
+  unidade_comercializada_pedido?: string | null
   quantidade_volumes_pedido?: number | null
 
   // Agregados de itens (soma calculada pelo backend)
@@ -313,9 +315,7 @@ export interface Pedido {
   quantidade_pronta_itens_pedido_total?: number | null
   saldo_itens_do_pedido?: number | null
   quantidade_cancelada_total_pedido?: number | null
-
-  // Catálogo
-  partnumber_produto_pedido?: string | null
+  ncms_distintos_count?: number | null
 
   // Financeiro
   cobertura_cambial_pedido: string

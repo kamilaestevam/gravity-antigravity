@@ -22,19 +22,19 @@ const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'id',
   'tenant_id',
   'product_id',
-  'created_at',
-  'updated_at',
   'deleted_at',
+  'pedido_criado_em',
+  'pedido_atualizado_em',
 ])
 
 const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_total_item',
+  'valor_total_itens',
   'saldo_item_pedido',
   'id',
   'tenant_id',
   'pedido_id',
-  'created_at',
-  'updated_at',
+  'item_criado_em',
+  'item_atualizado_em',
 ])
 
 // ── Campos armazenados em detalhes_operacionais — requerem merge em JSON ────────

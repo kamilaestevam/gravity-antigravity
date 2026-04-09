@@ -19,7 +19,7 @@ import { test, expect } from '@playwright/test'
  *  5. Selecionar pedido avança para passo 2 (Dados do Item)
  *  6. Campos Part Number, NCM, Descrição, Quantidade preenchíveis
  *  7. Botão "Adicionar Item" habilitado ao preencher Part Number
- *  8. POST /itens retorna 201 — fix do quantidade_saldo_pedido confirmado
+ *  8. POST /itens retorna 201 — fix do saldo_item_pedido confirmado
  *  9. Notificação de sucesso exibida e modal fechado
  */
 
@@ -57,14 +57,14 @@ async function mockPedidoApi(page: import('@playwright/test').Page) {
           part_number: body.part_number ?? 'TEST',
           ncm: body.ncm ?? '',
           descricao_item: body.descricao_item ?? '',
-          quantidade_inicial_pedido: body.quantidade_inicial_item_pedido ?? 0,
-          quantidade_saldo_pedido: body.quantidade_inicial_item_pedido ?? 0,
-          quantidade_pronta_pedido: 0,
-          quantidade_transferida_pedido: 0,
-          quantidade_cancelada_pedido: 0,
+          quantidade_inicial_item_pedido: body.quantidade_inicial_item_pedido ?? 0,
+          saldo_item_pedido: body.quantidade_inicial_item_pedido ?? 0,
+          quantidade_pronta_total_item_pedido: 0,
+          quantidade_transferida_item_pedido: 0,
+          quantidade_cancelada_item_pedido: 0,
           moeda_item: 'USD',
-          valor_total_item: null,
-          valor_por_unidade_item: null,
+          valor_total_itens: null,
+          valor_unitario_item: null,
         }),
       })
       return
@@ -185,7 +185,7 @@ test.describe('Adicionar Item — Modal Novo Item @critico', () => {
 
     const resposta = await respostaPromise
 
-    // Fix validado: deve retornar 201, não 500 por "quantidade_saldo_pedido is missing"
+    // Fix validado: deve retornar 201, não 500 por "saldo_item_pedido is missing"
     expect(resposta.status()).toBe(201)
 
     // Notificação de sucesso — shell-toast com role="alert"

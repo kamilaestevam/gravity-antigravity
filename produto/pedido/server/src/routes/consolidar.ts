@@ -228,7 +228,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         } else {
           partNumbersVistos.add(item.part_number)
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id: _id, pedido_id: _pedido_id, created_at: _ca, updated_at: _ua, sequencia_item: _seq, ...itemData } = item
+          const { id: _id, pedido_id: _pedido_id, item_criado_em: _ca, item_atualizado_em: _ua, sequencia_item: _seq, ...itemData } = item
           itensMerge.push({ ...itemData, id: gerarId('pite') })
         }
       }
@@ -247,11 +247,11 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       exportacao_importador_id:        primeiro.exportacao_importador_id,
       incoterm:                        primeiro.incoterm,
       moeda_pedido:                    primeiro.moeda_pedido,
-      casas_decimais_total_pedido:     primeiro.casas_decimais_total_pedido,
-      casas_decimais_quantidade_total_pedido: primeiro.casas_decimais_quantidade_total_pedido,
+      casas_decimais_valor_pedido:     primeiro.casas_decimais_valor_pedido,
+      casas_decimais_quantidade_pedido: primeiro.casas_decimais_quantidade_pedido,
       unidade_comercializada_pedido:   primeiro.unidade_comercializada_pedido,
-      cobertura_cambial:               primeiro.cobertura_cambial,
-      condicao_pagamento:              primeiro.condicao_pagamento,
+      cobertura_cambial_pedido:        primeiro.cobertura_cambial_pedido,
+      condicao_pagamento_pedido:       primeiro.condicao_pagamento_pedido,
       data_emissao_pedido:             primeiro.data_emissao_pedido,
       // Preservar nomes dos parceiros de detalhes_operacionais do primeiro pedido
       detalhes_operacionais: (() => {
@@ -259,9 +259,9 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
           ? primeiro.detalhes_operacionais as Record<string, unknown>
           : {}
         return {
-          exportador_nome: (det.exportador_nome as string | null | undefined) ?? null,
-          importador_nome: (det.importador_nome as string | null | undefined) ?? null,
-          fabricante_nome: (det.fabricante_nome as string | null | undefined) ?? null,
+          nome_exportador: (det.nome_exportador as string | null | undefined) ?? null,
+          nome_importador: (det.nome_importador as string | null | undefined) ?? null,
+          nome_fabricante: (det.nome_fabricante as string | null | undefined) ?? null,
         }
       })(),
     }
@@ -277,7 +277,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
           ...campos_escolhidos,
           numero_pedido,
           valor_total_pedido: valorTotal,
-          pedidos_origem: ids,
+          pedidos_origem_id: ids,
           data_consolidacao_pedido: new Date(),
           itens: {
             create: itensMerge,

@@ -25,7 +25,7 @@ model Pedido {
   moeda_pedido                      String  @default("USD") // Lista de moedas padrão do sistema gravity
   valor_total_pedido                Decimal? @db.Decimal(18,6) // O somatório de todos os valores totais dos itens do pedido
   casas_decimais_valor_pedido       Int     @default(2) // Precisão (Ex: 3)
-  quantidade_total_inicial_pedido   Float? // O somatório de todas as quantidades comercializadas dos itens do pedido
+  quantidade_total_inicial_pedido   Decimal? @db.Decimal(18,6) // O somatório de todas as quantidades comercializadas dos itens do pedido
   casas_decimais_quantidade_pedido  Int     @default(2) // Precisão (Ex: 3)
   unidade_comercializada_pedido     String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
@@ -61,7 +61,7 @@ model Pedido {
   campos_custom         Json? // custom columns storage (JSONB + GIN index in SQL)
 
   // Consolidação (preenchido quando este pedido é resultado de merge)
-  pedidos_origem_id        String[]  // IDs dos pedidos originais consolidados
+  pedidos_origem_id        Json?     // IDs dos pedidos originais consolidados
   data_consolidacao_pedido DateTime? // Momento da consolidação
 
   // Soft delete (preenchido quando o pedido é consolidado em outro)
@@ -116,7 +116,7 @@ model PedidoItem {
   peso_bruto_unitario_item    Decimal? @db.Decimal(18,6)
   cubagem_unitaria_item       Decimal? @db.Decimal(18,6)
   casas_decimais_peso_item    Int      @default(3)
-  casas_decimais_cubagem_item Int      @default(4)
+  casas_decimais_cubagem_item Int      @default(3)
 
   // Descrições multilíngues
   descricao_completa_item_pt String?

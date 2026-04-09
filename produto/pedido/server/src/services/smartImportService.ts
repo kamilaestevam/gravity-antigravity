@@ -408,7 +408,7 @@ export class SmartImportService {
         const qtdTotal = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
         await this.db['pedido'].update({
           where: { id: pedidoId },
-          data: { quantidade_total_pedido: qtdTotal },
+          data: { quantidade_total_inicial_pedido: qtdTotal },
         }).catch(() => null) // campo opcional — não bloqueia se falhar
       }
     }

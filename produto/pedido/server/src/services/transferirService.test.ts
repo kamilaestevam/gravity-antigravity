@@ -35,19 +35,19 @@ function criarItemPrisma(overrides: Record<string, unknown> = {}) {
     unidade_comercializada_item: 'UN',
     // Decimal do Prisma — serializados como objeto com .toString()
     // Nos testes usamos números simples pois o Number() converte ambos
-    quantidade_inicial_pedido: 111,
-    quantidade_saldo_pedido: 111,
-    quantidade_pronta_pedido: 0,
-    quantidade_transferida_pedido: 0,
-    quantidade_cancelada_pedido: 0,
+    quantidade_inicial_item_pedido: 111,
+    saldo_item_pedido: 111,
+    quantidade_pronta_total_item_pedido: 0,
+    quantidade_transferida_item_pedido: 0,
+    quantidade_cancelada_item_pedido: 0,
     casas_decimais_quantidade_item: 2,
     moeda_item: 'USD',
-    valor_por_unidade_item: 10,
-    valor_total_item: 1110,
-    casas_decimais_total_item: 2,
+    valor_unitario_item: 10,
+    valor_total_itens: 1110,
+    casas_decimais_valor_item: 2,
     campos_custom: null,
-    created_at: new Date(),
-    updated_at: new Date(),
+    item_criado_em: new Date(),
+    item_atualizado_em: new Date(),
     ...overrides,
   }
 }
@@ -62,11 +62,11 @@ function criarPedidoPrisma(overrides: Record<string, unknown> = {}) {
     status: 'aberto',
     incoterm: 'FOB',
     moeda_pedido: 'USD',
-    casas_decimais_total_pedido: 2,
-    casas_decimais_quantidade_total_pedido: 2,
+    casas_decimais_valor_pedido: 2,
+    casas_decimais_quantidade_pedido: 2,
     unidade_comercializada_pedido: 'UN',
-    cobertura_cambial: 'com_cobertura',
-    condicao_pagamento: null,
+    cobertura_cambial_pedido: 'com_cobertura',
+    condicao_pagamento_pedido: null,
     data_emissao_pedido: new Date(),
     importacao_exportador_id: null,
     exportacao_importador_id: null,
@@ -212,7 +212,7 @@ describe('TransferirService.preview', () => {
 // ── Testes: confirmar — reducao_simples ──────────────────────────────────────
 
 describe('TransferirService.confirmar — reducao_simples', () => {
-  it('reduz quantidade_saldo_pedido do item de origem', async () => {
+  it('reduz saldo_item_pedido do item de origem', async () => {
     const { db, mocks } = criarMockDb()
     const service = new TransferirService()
     const payload = criarPayload({ cenario: 'reducao_simples', quantidade_origem: 110 })
@@ -223,12 +223,12 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     expect(mocks.itemUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'pite_id_0000001-26' },
-        data: expect.objectContaining({ quantidade_saldo_pedido: 1 }),
+        data: expect.objectContaining({ saldo_item_pedido: 1 }),
       }),
     )
   })
 
-  it('incrementa quantidade_transferida_pedido', async () => {
+  it('incrementa quantidade_transferida_item_pedido', async () => {
     const { db, mocks } = criarMockDb()
     const service = new TransferirService()
 
@@ -236,7 +236,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
 
     expect(mocks.itemUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ quantidade_transferida_pedido: 110 }),
+        data: expect.objectContaining({ quantidade_transferida_item_pedido: 110 }),
       }),
     )
   })
@@ -328,8 +328,8 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
     expect(itemData.id).toMatch(/^pite_id_/)
-    expect(itemData.quantidade_saldo_pedido).toBe(100)
-    expect(itemData.quantidade_inicial_pedido).toBe(100)
+    expect(itemData.saldo_item_pedido).toBe(100)
+    expect(itemData.quantidade_inicial_item_pedido).toBe(100)
     expect(itemData.part_number).toBe('PART-001')
   })
 
@@ -378,7 +378,7 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
       (c: any) => c[0].where.id === 'pite_id_0000001-26',
     )
     expect(updateOrigemCall).toBeDefined()
-    expect(updateOrigemCall![0].data.quantidade_saldo_pedido).toBe(11)
+    expect(updateOrigemCall![0].data.saldo_item_pedido).toBe(11)
   })
 
   it('não copia campos inválidos para o pedido destino', async () => {
@@ -393,8 +393,8 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
     await service.confirmar(TENANT, USER, payload, db)
 
     const pedidoData = mocks.pedidoCreate.mock.calls[0][0].data
-    expect(pedidoData.exportador_nome).toBeUndefined()
-    expect(pedidoData.fabricante_nome).toBeUndefined()
+    expect(pedidoData.nome_exportador).toBeUndefined()
+    expect(pedidoData.nome_fabricante).toBeUndefined()
     expect(pedidoData.quantidade_total_inicial_pedido).toBeUndefined()
     expect(pedidoData.quantidade_transferida_total).toBeUndefined()
   })
@@ -421,7 +421,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
 
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
-    expect(itemData.quantidade_saldo_pedido).toBe(50)
+    expect(itemData.saldo_item_pedido).toBe(50)
     expect(itemData.pedido_id).toBe('pedi_destino') // id do pedido existente passado no payload
   })
 
@@ -431,9 +431,9 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
       id: 'pite_destino',
       pedido_id: 'pedi_destino',
       part_number: 'PART-001',
-      quantidade_saldo_pedido: 200,
-      quantidade_inicial_pedido: 200,
-      quantidade_transferida_pedido: 0,
+      saldo_item_pedido: 200,
+      quantidade_inicial_item_pedido: 200,
+      quantidade_transferida_item_pedido: 0,
     })
     txBase.pedido.findFirst
       .mockResolvedValueOnce(criarPedidoPrisma())
@@ -454,7 +454,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
       (c: any) => c[0].where.id === 'pite_destino',
     )
     expect(updateDestinoCall).toBeDefined()
-    expect(updateDestinoCall![0].data.quantidade_saldo_pedido).toBe(250) // 200 + 50
+    expect(updateDestinoCall![0].data.saldo_item_pedido).toBe(250) // 200 + 50
   })
 
   it('lança erro quando pedido destino não encontrado', async () => {
@@ -505,9 +505,9 @@ describe('TransferirService.confirmar — substituicao_pura', () => {
 
     await service.confirmar(TENANT, USER, payload, db)
 
-    // O update de qty (com quantidade_saldo_pedido) não deve ter sido chamado
+    // O update de qty (com saldo_item_pedido) não deve ter sido chamado
     const updateQtyCall = mocks.itemUpdate.mock.calls.find(
-      (c: any) => c[0].data?.quantidade_saldo_pedido !== undefined,
+      (c: any) => c[0].data?.saldo_item_pedido !== undefined,
     )
     expect(updateQtyCall).toBeUndefined()
   })
@@ -543,32 +543,35 @@ describe('TransferirService — geração de IDs', () => {
 // ── Testes: recalcularAgregados ──────────────────────────────────────────────
 
 describe('TransferirService — recalcularAgregados', () => {
-  it('atualiza quantidade_total_pedido com soma dos itens', async () => {
+  it('atualiza quantidade_total_inicial_pedido com soma dos itens', async () => {
     const { db, txBase, mocks } = criarMockDb()
     // Dois itens com saldos
     txBase.pedidoItem.findMany.mockResolvedValue([
-      { quantidade_saldo_pedido: 100 },
-      { quantidade_saldo_pedido: 50 },
+      { saldo_item_pedido: 100 },
+      { saldo_item_pedido: 50 },
     ])
     const service = new TransferirService()
 
     await (service as any).recalcularAgregados(TENANT, 'pedi_id_0000001-26', txBase)
 
+    // O campo Prisma é quantidade_total_inicial_pedido (@map("quantidade_total_pedido"))
     expect(mocks.pedidoUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: { quantidade_total_pedido: 150 },
+        data: { quantidade_total_inicial_pedido: 150 },
       }),
     )
   })
 
-  it('não usa campos que não existem no schema Pedido', async () => {
+  it('não usa campos inexistentes no schema Pedido', async () => {
     const { db, txBase, mocks } = criarMockDb()
     const service = new TransferirService()
 
     await (service as any).recalcularAgregados(TENANT, 'pedi_id_0000001-26', txBase)
 
     const updateData = mocks.pedidoUpdate.mock.calls[0]?.[0]?.data ?? {}
-    expect(updateData.quantidade_total_inicial_pedido).toBeUndefined()
+    // quantidade_total_inicial_pedido deve estar presente (é o campo correto do Prisma)
+    expect(updateData.quantidade_total_inicial_pedido).toBeDefined()
+    // campos que não existem no schema devem estar ausentes
     expect(updateData.quantidade_transferida_total).toBeUndefined()
   })
 })
@@ -606,22 +609,24 @@ describe('TransferirService — prepararItemDestino', () => {
     expect(result.part_number).toBe('ORIGINAL')
   })
 
-  it('define quantidade_saldo_pedido igual à quantidade do destino', () => {
+  it('define saldo_item_pedido igual à quantidade do destino', () => {
     const service = new TransferirService()
     const item = criarItemPrisma()
     const result = (service as any).prepararItemDestino(item, 'pedi', { tipo: 'novo', quantidade: 77 })
-    expect(result.quantidade_saldo_pedido).toBe(77)
-    expect(result.quantidade_inicial_pedido).toBe(77)
+    expect(result.saldo_item_pedido).toBe(77)
+    expect(result.quantidade_inicial_item_pedido).toBe(77)
   })
 
-  it('não inclui campos inválidos no schema PedidoItem', () => {
+  it('inclui campos obrigatórios do schema PedidoItem e exclui campos de audit', () => {
     const service = new TransferirService()
     const item = criarItemPrisma()
     const result = (service as any).prepararItemDestino(item, 'pedi', { tipo: 'novo', quantidade: 10 })
+    // Campos de audit gerados pelo Prisma — não devem ser passados no create
     expect(result.created_at).toBeUndefined()
     expect(result.updated_at).toBeUndefined()
-    expect(result.saldo_item_pedido).toBeUndefined()
-    expect(result.quantidade_inicial_item_pedido).toBeUndefined()
+    // Campos obrigatórios do schema — devem estar presentes com os valores corretos
+    expect(result.saldo_item_pedido).toBe(10)
+    expect(result.quantidade_inicial_item_pedido).toBe(10)
   })
 })
 

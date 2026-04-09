@@ -22,29 +22,30 @@ model Pedido {
   incoterm                               String?
   moeda_pedido                           String              @default("USD")
   valor_total_pedido                     Decimal?            @db.Decimal(18, 6)
-  casas_decimais_total_pedido            Int                 @default(2)
-  quantidade_total_pedido                Float?
-  casas_decimais_quantidade_total_pedido Int                 @default(2)
+  casas_decimais_valor_pedido            Int                 @default(2)    @map("casas_decimais_total_pedido")
+  quantidade_total_inicial_pedido        Float?                             @map("quantidade_total_pedido")
+  casas_decimais_quantidade_pedido       Int                 @default(2)    @map("casas_decimais_quantidade_total_pedido")
   unidade_comercializada_pedido          String?
-  cobertura_cambial                      String              @default("com_cobertura")
-  condicao_pagamento                     String?
+  cobertura_cambial_pedido               String              @default("com_cobertura") @map("cobertura_cambial")
+  condicao_pagamento_pedido              String?             @map("condicao_pagamento")
   numero_proforma                        String?
   numero_invoice                         String?
   referencia_importador                  String?
   referencia_exportador                  String?
   referencia_fabricante                  String?
-  valor_total_cambio                     Decimal?            @db.Decimal(18, 6)
-  moeda_cambio                           String?
-  taxa_cambio_estimada                   Decimal?            @db.Decimal(18, 6)
-  contrato_cambio_id                     String?
+  valor_total_cambio_pedido              Decimal?            @db.Decimal(18, 6) @map("valor_total_cambio")
+  moeda_cambio_pedido                    String?                                @map("moeda_cambio")
+  taxa_cambio_estimada_pedido            Decimal?            @db.Decimal(18, 6) @map("taxa_cambio_estimada")
+  contrato_cambio_id_pedido              String?                                @map("contrato_cambio_id")
   data_emissao_pedido                    DateTime            @default(now())
   detalhes_operacionais                  Json?
   campos_custom                          Json?
-  pedidos_origem                         String[]
+  pedidos_origem_id                      String[]            @map("pedidos_origem")
+  cnpj_importador                        String?
   data_consolidacao_pedido               DateTime?
   deleted_at                             DateTime?
-  created_at                             DateTime            @default(now())
-  updated_at                             DateTime            @updatedAt
+  pedido_criado_em                       DateTime            @default(now()) @map("created_at")
+  pedido_atualizado_em                   DateTime            @updatedAt      @map("updated_at")
   itens                                  PedidoItem[]
   transferencias                         TransferHistorico[]
 
@@ -80,8 +81,8 @@ model PedidoItem {
   valor_unitario_item                 Decimal?       @db.Decimal(18, 6) @map("valor_por_unidade_item")
   casas_decimais_valor_item           Int            @default(2) @map("casas_decimais_total_item")
   campos_custom               Json?
-  created_at                  DateTime       @default(now())
-  updated_at                  DateTime       @updatedAt
+  item_criado_em              DateTime       @default(now()) @map("created_at")
+  item_atualizado_em          DateTime       @updatedAt      @map("updated_at")
   pedido                      Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
   embarques_efetivos          ProcessoItem[]
 
@@ -468,6 +469,24 @@ model ValorColunaUsuarioPedido {
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
   @@map("valores_colunas_usuario_pedido")
+}
+
+// ============================================
+// Pedido — Kanban Preferências por usuário
+// ============================================
+
+model KanbanPreferencias {
+  id           String   @id @default(uuid())
+  tenant_id    String
+  user_id      String
+  preferencias Json
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("kanban_preferencias")
 }
 
 /// Configuração de widgets do Dashboard por tenant/produto.
